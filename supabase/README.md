@@ -29,7 +29,21 @@ Pushes to **`main`** run [`.github/workflows/deploy-supabase-production.yml`](..
 
 Do **not** commit secrets; only add them under **GitHub → Settings → Secrets and variables → Actions**.
 
-**Troubleshooting:** If the workflow prints `Cannot find project ref`, the usual causes are (1) one or more of the three secrets above are missing or misspelled in the repo (names must match exactly), or (2) `link` needs the database password in CI — the workflow passes `--password` from `SUPABASE_DB_PASSWORD`. Re-save secrets and re-run the workflow.
+### Troubleshooting (workflow fails)
+
+1. **Secret names** must match exactly: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID`, `SUPABASE_DB_PASSWORD` (repository secrets on **this** repo — not Organization secrets unless scoped to the repo; forks do not receive parent secrets on `pull_request`).
+
+2. **Access token type:** Use a **personal access token** from [Account → Access Tokens](https://supabase.com/dashboard/account/tokens). It should start with `sbp_` (**classic**). Tokens starting with **`sbp_v0_`** (experimental) are **not** accepted by the Supabase CLI — generate a new classic token. Do **not** use the anon key or service_role key here.
+
+3. **Project ref:** Exactly **20** characters, lowercase alphanumeric (subdomain of `https://<ref>.supabase.co`). Not the UUID from the dashboard.
+
+4. **Database password:** The **Postgres** password from **Project Settings → Database** (the one you use with `psql`). If you reset it in Supabase, update the GitHub secret.
+
+5. **`supabase link` fails:** Re-run the workflow via **Actions → Deploy Supabase to production → Run workflow** and enable **debug_link** for verbose `link` output.
+
+6. **`supabase db push` fails** with migration / history errors: Often the remote DB was changed manually (e.g. SQL Editor) while git has different migrations. Options: align remote with [`supabase migration repair`](https://supabase.com/docs/reference/cli/supabase-migration-repair), or baseline — see [managing environments](https://supabase.com/docs/guides/deployment/managing-environments). If the initial migration was **already applied** manually before CI, the migration history table may need repairing so `db push` can proceed.
+
+7. **`Cannot find project ref`:** Usually empty/wrong secrets or invalid token (see above).
 
 This workflow is the **CLI + Actions** path for a single production project. It is **not** [Supabase Branching](https://supabase.com/docs/guides/deployment/branching/github-integration) (preview databases per git branch). For full CLI + migration docs, see [CI/CD workflows](https://supabase.com/docs/guides/cli/cicd-workflows) and [managing environments](https://supabase.com/docs/guides/deployment/managing-environments).
 
