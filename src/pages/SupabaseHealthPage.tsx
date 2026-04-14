@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isSupabaseConfigured } from '../lib/env';
+import { supabase } from '../utils/supabase';
 
 /**
  * Minimal “query data” check using `utils/supabase` (tutorial import path).
@@ -22,7 +23,6 @@ export function SupabaseHealthPage() {
 
     void (async () => {
       try {
-        const { supabase } = await import('../utils/supabase');
         const { error } = await supabase.from('squads').select('id').limit(1);
         if (cancelled) return;
         if (error) {
