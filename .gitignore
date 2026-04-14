@@ -134,3 +134,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Accidental nested clone (safe to delete locally if present)
+/SquadRidge/
