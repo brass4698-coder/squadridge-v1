@@ -29,6 +29,8 @@ Pushes to **`main`** run [`.github/workflows/deploy-supabase-production.yml`](..
 
 Do **not** commit secrets; only add them under **GitHub → Settings → Secrets and variables → Actions**.
 
+**Troubleshooting:** If the workflow prints `Cannot find project ref`, the usual causes are (1) one or more of the three secrets above are missing or misspelled in the repo (names must match exactly), or (2) `link` needs the database password in CI — the workflow passes `--password` from `SUPABASE_DB_PASSWORD`. Re-save secrets and re-run the workflow.
+
 This workflow is the **CLI + Actions** path for a single production project. It is **not** [Supabase Branching](https://supabase.com/docs/guides/deployment/branching/github-integration) (preview databases per git branch). For full CLI + migration docs, see [CI/CD workflows](https://supabase.com/docs/guides/cli/cicd-workflows) and [managing environments](https://supabase.com/docs/guides/deployment/managing-environments).
 
 ### Storage and config

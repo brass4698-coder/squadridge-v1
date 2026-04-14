@@ -26,8 +26,17 @@ jobs:
         with:
           version: latest
 
+      # GitHub omits unset secrets; empty vars cause "Cannot find project ref" from the CLI.
+      - name: Verify required secrets
+        run: |
+          missing=0
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then echo "::error::SUPABASE_ACCESS_TOKEN is not set. Add it under Repo → Settings → Secrets and variables → Actions."; missing=1; fi
+          if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then echo "::error::SUPABASE_DB_PASSWORD is not set."; missing=1; fi
+          if [ -z "${SUPABASE_PROJECT_ID:-}" ]; then echo "::error::SUPABASE_PROJECT_ID is not set (project ref from the dashboard URL)."; missing=1; fi
+          exit "$missing"
+
       - name: Link Supabase project
-        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "$SUPABASE_DB_PASSWORD" --yes
 
       - name: Push database migrations
         run: supabase db push
