@@ -24,7 +24,7 @@ Pushes to **`main`** run [`.github/workflows/deploy-supabase-production.yml`](..
 | Secret | Description |
 | ------ | ------------- |
 | `SUPABASE_ACCESS_TOKEN` | Personal access token from [Account → Access Tokens](https://supabase.com/dashboard/account/tokens) |
-| `SUPABASE_PROJECT_ID` | Project ref (`https://<ref>.supabase.co` or Dashboard URL) |
+| `SUPABASE_PROJECT_ID` | **Project ref only** — the 20-character subdomain (e.g. `abcd…wxyz`), same as in `https://<ref>.supabase.co`. Not the full URL, not the project UUID. The workflow strips `https://…\.supabase\.co` if you paste a URL by mistake. |
 | `SUPABASE_DB_PASSWORD` | Database password (Dashboard → **Project Settings → Database**) |
 
 Do **not** commit secrets; only add them under **GitHub → Settings → Secrets and variables → Actions**.
