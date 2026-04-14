@@ -30,6 +30,14 @@ export function AppLayout() {
                 Session
               </Link>
             </li>
+            <li>
+              <Link
+                to="/dev/supabase"
+                className="text-gray-light hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+              >
+                Supabase
+              </Link>
+            </li>
           </ul>
         </nav>
       </header>

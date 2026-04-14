@@ -4,6 +4,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { LandingPage } from './pages/LandingPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { SessionPage } from './pages/SessionPage';
+import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
             <Route path="/session" element={<SessionPage />} />
             <Route path="/session/:squadId" element={<SessionPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

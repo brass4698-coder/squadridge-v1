@@ -23,7 +23,8 @@ export function LandingPage() {
           </h2>
           <p className="text-fluid-small text-gray-light">
             Add <code className="rounded bg-navy-dark px-sm py-xs">VITE_SUPABASE_URL</code> and{' '}
-            <code className="rounded bg-navy-dark px-sm py-xs">VITE_SUPABASE_ANON_KEY</code> to your{' '}
+            <code className="rounded bg-navy-dark px-sm py-xs">VITE_SUPABASE_PUBLISHABLE_KEY</code> (or legacy{' '}
+            <code className="rounded bg-navy-dark px-sm py-xs">VITE_SUPABASE_ANON_KEY</code>) to your{' '}
             <code className="rounded bg-navy-dark px-sm py-xs">.env</code> file, then restart the dev server. Enable
             anonymous sign-in in the Supabase dashboard and run the SQL migration in{' '}
             <code className="rounded bg-navy-dark px-sm py-xs">supabase/migrations/</code>.
