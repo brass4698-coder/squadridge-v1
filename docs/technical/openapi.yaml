@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: SquadRidge API
+  description: REST + WebSocket API for SquadRidge, a verified-anonymous cross-border dialogue platform.
+  version: 1.0.0
+servers:
+  - url: https://api.squadridge.org/v1
+    description: Production Server
+paths:
+  /auth/verify-proof:
+    post:
+      summary: Verify Zero-Knowledge Proof
+      description: Submits a Semaphore-based ZK proof to authenticate a user without revealing PII.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                proof:
+                  type: string
+                  description: The cryptographic proof.
+                publicSignals:
+                  type: array
+                  items:
+                    type: string
+                  description: Public signals associated with the proof.
+      responses:
+        '200':
+          description: Successfully verified. Returns a session token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid proof.
+  /users/me:
+    get:
+      summary: Get Current User Status
+      description: Retrieves the verified attributes (not PII) of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User attributes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  did:
+                    type: string
+                  attributes:
+                    type: array
+                    items:
+                      type: string
+  /squads/match:
+    post:
+      summary: Enqueue for Matching
+      description: Adds the user to the matchmaking queue to form a squad of 4-6 participants.
+      security:
+        - bearerAuth: []
+      responses:
+        '202':
+          description: Successfully enqueued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: queued
+  /squads/{squadId}:
+    get:
+      summary: Get Squad Details
+      description: Retrieves metadata for a specific squad session.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: squadId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Squad details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  topic:
+                    type: string
+                  status:
+                    type: string
+  /messages/send:
+    post:
+      summary: Send Message
+      description: Sends an encrypted message to a squad, triggering AI analysis.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                squadId:
+                  type: string
+                content:
+                  type: string
+                  description: Encrypted message content.
+      responses:
+        '201':
+          description: Message sent and queued for analysis.
+  /messages/{messageId}/pull-back:
+    post:
+      summary: Pull Back Message
+      description: Initiates the temporary "Pull back" feature to retract a recently sent message.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message successfully retracted.
+  /analytics/sentiment:
+    get:
+      summary: Get Aggregated Sentiment
+      description: Retrieves de-identified sentiment metrics for early warning analysis.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Aggregated sentiment data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  region:
+                    type: string
+                  tensionLevel:
+                    type: number
+                  timestamp:
+                    type: string
+                    format: date-time
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

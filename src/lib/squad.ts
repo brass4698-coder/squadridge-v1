@@ -1,0 +1,65 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
+
+const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
+
+export function getLastSquadIdFromStorage(): string | null {
+  try {
+    const v = localStorage.getItem(LAST_SQUAD_KEY);
+    return v && v.length > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setLastSquadIdInStorage(squadId: string): void {
+  try {
+    localStorage.setItem(LAST_SQUAD_KEY, squadId);
+  } catch {
+    /* ignore */
+  }
+}
+
+export async function ensureAnonymousSession(
+  supabase: SupabaseClient<Database>,
+): Promise<void> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session) return;
+  const { error } = await supabase.auth.signInAnonymously();
+  if (error) throw error;
+}
+
+export async function createDemoSquad(supabase: SupabaseClient<Database>): Promise<string> {
+  await ensureAnonymousSession(supabase);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const expires = new Date();
+  expires.setDate(expires.getDate() + 1);
+
+  const { data: squad, error: squadError } = await supabase
+    .from('squads')
+    .insert({
+      topic: 'Demo dialogue',
+      status: 'active',
+      expires_at: expires.toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (squadError || !squad) throw squadError ?? new Error('Failed to create squad');
+
+  const { error: memberError } = await supabase.from('squad_members').insert({
+    squad_id: squad.id,
+    user_id: user.id,
+  });
+
+  if (memberError) throw memberError;
+
+  setLastSquadIdInStorage(squad.id);
+  return squad.id;
+}

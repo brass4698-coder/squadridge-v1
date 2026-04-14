@@ -1,0 +1,12 @@
+# Optional local Redis for matching queues / rate limiting in backend workers (not required for Vite client).
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - squadridge-redis-data:/data
+
+volumes:
+  squadridge-redis-data:

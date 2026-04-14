@@ -1,0 +1,33 @@
+---
+description: SquadRidge AI Pipeline Guidelines
+globs: src/ai/**/*.ts, src/services/ai/**/*.ts
+---
+# SquadRidge AI Pipeline Guidelines
+
+You are developing the AI pipeline for SquadRidge, a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack. The AI pipeline is critical for de-escalation and early warning, but must operate under strict privacy constraints.
+
+## Core AI Principles
+
+1.  **De-escalation First**: The primary goal of the AI is to facilitate the "Power of Pause." It should gently suggest calmer wording and slow down hostile exchanges.
+2.  **Graceful Degradation**: The core messaging functionality must never depend entirely on the AI pipeline. If translation or tone detection services experience downtime, the platform must continue to function securely.
+3.  **Data Separation**: The AI pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics (sentiment metrics).
+4.  **"Do No Harm"**: Ensure AI models do not misrepresent or misclassify conflict narratives from non-Western contexts. Bias mitigation is paramount.
+
+## Implementation Guidelines
+
+### Real-Time Translation and Tone Detection
+
+*   **Latency**: Optimize for low-latency processing. Users in active conflict zones may have degraded internet infrastructure.
+*   **Interventions**: Implement the one-tap "Slow down" button and the temporary "Pull back" feature. The AI should trigger these prompts based on rising tension levels.
+*   **Feedback Loop**: Provide clear, non-alarmist feedback to the user when tension is flagged. Use a calm and measured tone.
+
+### Aggregated Sentiment Analysis
+
+*   **Anonymization**: Ensure all sentiment metrics are completely de-identified before being stored or analyzed. Never link sentiment data back to a specific user's personally identifiable information (PII) or zero-knowledge proof.
+*   **Early Warning Signals**: The aggregated data should provide actionable intelligence for vetted mediators, think tanks, and UN agencies, addressing the "warning-response" problem.
+
+## Security and Privacy Constraints
+
+*   **Ephemerality**: The AI models should only process ephemeral data. Do not store raw dialogue for training purposes unless explicit, verified consent is obtained through a "Data Commons" model.
+*   **End-to-End Encryption**: Ensure the AI pipeline integrates securely with the platform's end-to-end encryption. The models must analyze data without compromising the overall security architecture.
+*   **Auditing**: All AI interventions must be logged (anonymously) for review by moderators to ensure the safety and effectiveness of the platform.

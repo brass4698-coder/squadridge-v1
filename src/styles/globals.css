@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* 
+    Global Civic Aesthetic 
+    Dark-native background, fluid typography
+  */
+  body {
+    @apply bg-navy text-white font-sans;
+    font-size: theme('fontSize.fluid-body');
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold text-gray-light;
+  }
+
+  h1 {
+    font-size: theme('fontSize.fluid-h1');
+    line-height: 1.2;
+    margin-bottom: theme('spacing.lg');
+  }
+
+  h2 {
+    font-size: theme('fontSize.fluid-h2');
+    line-height: 1.3;
+    margin-bottom: theme('spacing.md');
+  }
+
+  h3 {
+    font-size: theme('fontSize.fluid-h3');
+    line-height: 1.4;
+    margin-bottom: theme('spacing.sm');
+  }
+
+  p {
+    margin-bottom: theme('spacing.md');
+  }
+}
+
+@layer components {
+  /* 
+    Neo-Skeuomorphism Buttons 
+    Designed for tactile feedback and clear affordances
+  */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-lg py-sm font-heading font-bold text-white bg-teal rounded-md transition-all duration-200 ease-in-out;
+    box-shadow: theme('boxShadow.neo-button');
+  }
+
+  .btn-primary:hover {
+    @apply bg-teal-light;
+  }
+
+  .btn-primary:active {
+    @apply bg-teal-dark;
+    box-shadow: theme('boxShadow.neo-button-active');
+    transform: translateY(2px);
+  }
+
+  /* 
+    Warning/Intervention Buttons (e.g., "Slow down", "Pull back")
+  */
+  .btn-warning {
+    @apply inline-flex items-center justify-center px-lg py-sm font-heading font-bold text-navy-dark bg-amber rounded-md transition-all duration-200 ease-in-out;
+    box-shadow: theme('boxShadow.neo-button');
+  }
+
+  .btn-warning:hover {
+    @apply bg-amber-light;
+  }
+
+  .btn-warning:active {
+    @apply bg-amber-dark;
+    box-shadow: theme('boxShadow.neo-button-active');
+    transform: translateY(2px);
+  }
+
+  /*
+    Cards and Panels
+  */
+  .panel {
+    @apply bg-navy-light rounded-lg p-lg border border-gray-light border-opacity-20;
+  }
+}

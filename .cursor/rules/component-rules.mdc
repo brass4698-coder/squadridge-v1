@@ -1,0 +1,45 @@
+---
+description: SquadRidge Component Library Rules
+globs: src/components/**/*.tsx, src/ui/**/*.tsx
+---
+# SquadRidge Component Library Rules
+
+You are developing the component library for SquadRidge, a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack. These components are critical for establishing trust, facilitating structured dialogue, and de-escalating tension.
+
+## Core Component Principles
+
+1.  **Aesthetic Alignment**: All components must adhere strictly to our "global civic" aesthetic, prioritizing a modern, military-friendly, dark-native design system. The primary background is Deep Navy (`#0A0F1E`).
+2.  **Accessibility (WCAG AA)**: Ensure all components meet or exceed WCAG AA contrast requirements. Color must never be used as the sole means of conveying information. Use both color and explicit text/iconography for critical alerts (e.g., Amber (`#F5A623`) for warnings).
+3.  **Low-Bandwidth Optimization**: The platform is designed for users in active conflict zones with degraded internet infrastructure. Minimize component weight, optimize SVGs, and avoid unnecessary animations that consume bandwidth.
+4.  **Tactile Feedback**: Use neo-skeuomorphism principles for buttons and interactive elements to provide clear affordances, crucial for high-stress dialogue environments.
+
+## Typography and Layout
+
+*   **Fluid Typography**: Always use fluid typography, such as the CSS `clamp()` method, to ensure text scales perfectly across different screen sizes without awkward jumps.
+*   **Fonts**: Use Space Grotesk for headings (`H1` through `H6`) to provide a geometric, technical feel. Use DM Sans for body text to ensure excellent legibility in long-form dialogue.
+*   **Spacing**: Utilize TailwindCSS spacing utilities to maintain consistent margins and padding, adhering to the established design system scale.
+
+## Specific Component Guidelines
+
+### Buttons and Inputs
+
+*   **Buttons**: Primary buttons should utilize the Teal accent (`#0E9AA7`). They must have clear hover and active states, designed with neo-skeuomorphism principles.
+*   **Inputs**: Text areas and input fields must be clearly delineated and function smoothly even in low-bandwidth environments.
+
+### Specialized Dialogue Components
+
+*   **Timeline Sentiment Bars**: These visual indicators track the emotional tone of a dialogue session. They must clearly communicate rising tension using color and iconography.
+*   **Intervention Prompts**: In-room prompts (e.g., the "Slow down" button, "Pull back" feature) must be highly visible and easy to interact with. They should utilize calm, measured language to encourage reflection.
+*   **Incident Review Panels**: Interfaces for moderators and analysts must present complex data clearly, utilizing cards and panels with the Deep Navy background.
+
+## SVG Graphics
+
+*   When creating SVG designs, especially for platforms like Enclave, ensure they are of ultra-premium quality and adhere to a military-grade aesthetic.
+*   Use subtle iconography, such as globes and bridges, to represent connectivity and structured dialogue. Strictly avoid flags or militaristic symbols.
+
+## Implementation Details
+
+*   Build components as functional React components using hooks.
+*   Use TailwindCSS for all styling.
+*   Ensure all components are strictly typed with TypeScript interfaces or types.
+*   Design components to be highly customizable via props while maintaining strict adherence to the core design system.
