@@ -1,0 +1,2 @@
+-- Optional seed data for local `supabase db reset`.
+-- CI deploys schema via `supabase db push` only (migrations).
