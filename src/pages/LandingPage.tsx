@@ -47,7 +47,7 @@ const HOW_IT_WORKS_STEPS = [
   {
     number: '03',
     heading: 'Work a real problem. Leave a real output.',
-    body: 'Structured rounds, equal floor, automatic de-escalation. When the session closes, your squad\'s proposal goes to a public ledger — citable, anonymous, timestamped. Not a transcript. A document.',
+    body: 'De-escalation tools, equal voice, structured dialogue. When the session closes, your squad\'s proposal goes to a public ledger — citable, anonymous, timestamped. Not a transcript. A document.',
   },
 ] as const;
 

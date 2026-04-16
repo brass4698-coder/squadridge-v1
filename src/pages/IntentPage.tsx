@@ -28,10 +28,6 @@ const headingStyle: CSSProperties = {
 
 const primaryCtaStyle: CSSProperties = {
   borderRadius: '8px',
-  borderTopLeftRadius: '8px',
-  borderTopRightRadius: '8px',
-  borderBottomLeftRadius: '8px',
-  borderBottomRightRadius: '8px',
   fontWeight: 600,
 };
 

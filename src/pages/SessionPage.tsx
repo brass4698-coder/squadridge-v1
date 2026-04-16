@@ -19,6 +19,7 @@ import { ensureSquadMessageKey } from '../lib/squadMessageKey';
 import { useRealtimeMessages } from '../hooks/useRealtimeMessages';
 import { useMessagePlaintexts } from '../hooks/useMessagePlaintexts';
 import { useSquad } from '../hooks/useSquad';
+import { useSquadPeerProfiles } from '../hooks/useSquadPeerProfiles';
 import { logIntervention, recordLocalToneAndMaybePersist } from '../lib/ai/pipeline';
 import {
   enqueuePendingSend,
@@ -72,6 +73,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     isFetchingNextPage,
   } = useRealtimeMessages(squadId);
   const { data: squad, refetch: refetchSquad } = useSquad(squadId);
+  const { data: peers } = useSquadPeerProfiles(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [archiving, setArchiving] = useState(false);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
@@ -510,7 +512,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   async function handlePullBack(messageId: string) {
     if (!supabase) return;
-    await supabase.from('messages').update({ status: 'retracted' }).eq('id', messageId);
+    const { error } = await supabase.from('messages').update({ status: 'retracted' }).eq('id', messageId);
+    if (error) {
+      toast.error('Could not retract message. You can only pull back your own messages.');
+      return;
+    }
     await refresh();
   }
 
@@ -564,6 +570,16 @@ export function SessionPage({ squadId }: { squadId: string }) {
         <p className="mt-1 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-[#4b5563]">
           Private room
         </p>
+        {peers && peers.length > 0 ? (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[0.75rem]" aria-label="Participants in this room">
+            <span className="text-[#4b5563]">In this room:</span>
+            {peers.map((p) => (
+              <span key={p.user_id} className="text-[#8892a4]">
+                {p.callsign || 'Anonymous'}{p.role_archetype ? ` · ${p.role_archetype}` : ''}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </header>
 
       {squad?.archived_at ? (

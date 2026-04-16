@@ -312,6 +312,16 @@ export interface Database {
         Args: { p_squad_id: string };
         Returns: undefined;
       };
+      get_squad_peer_profiles: {
+        Args: { p_squad_id: string };
+        Returns: {
+          user_id: string;
+          callsign: string;
+          role_archetype: string | null;
+          tags: string[];
+          region_hint: string | null;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

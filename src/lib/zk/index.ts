@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
-import { isZkVerifierStubEnabled } from '../env';
+import { isZkHashStubEnabled } from '../env';
 import { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../zkAdapter';
 
 export { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../zkAdapter';
@@ -25,7 +25,7 @@ export async function submitZkProofStub(
   _userId: string,
   attributeScope: string,
 ): Promise<void> {
-  if (!isZkVerifierStubEnabled()) {
+  if (!isZkHashStubEnabled()) {
     throw new Error('ZK stub is disabled (set VITE_ZK_STUB to use the dev path).');
   }
   void _userId;

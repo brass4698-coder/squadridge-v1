@@ -97,7 +97,7 @@ export function SessionMessageItem({
           {displayText}
         </p>
         {/* deliveryStatus is only set for optimistic messages; undefined means the row is confirmed in the DB. */}
-        {!retracted && deliveryStatus === undefined ? (
+        {isOwn && !retracted && deliveryStatus === undefined ? (
           <button
             type="button"
             className="shrink-0 font-sans text-[0.75rem] font-medium text-teal underline-offset-2 transition-colors hover:text-[#33d4c7] hover:underline"
