@@ -32,3 +32,5 @@ jobs:
           # Minimal build-time vars so `tsc`/Vite can resolve imports; real secrets not required for CI compile.
           VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+          # Explicit: production must not ship ZK stub (vite.config.ts also enforces).
+          VITE_ZK_STUB: 'false'

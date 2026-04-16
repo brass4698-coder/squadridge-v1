@@ -9,7 +9,7 @@ import {
   createSupabaseMessagesStub,
   type MessageRow,
 } from '../test/createSupabaseMessagesStub';
-import { useRealtimeMessages } from './useRealtimeMessages';
+import { MESSAGES_PAGE_SIZE, useRealtimeMessages } from './useRealtimeMessages';
 
 function baseRow(partial: Partial<MessageRow> & Pick<MessageRow, 'id' | 'sent_at'>): MessageRow {
   return {
@@ -38,6 +38,29 @@ function TestHarness({ squadId }: { squadId?: string }) {
       </ol>
       <button type="button" data-testid="refresh" onClick={() => void refresh()}>
         refresh
+      </button>
+    </div>
+  );
+}
+
+function PaginationHarness({ squadId }: { squadId?: string }) {
+  const { messages, loading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useRealtimeMessages(squadId);
+  return (
+    <div>
+      <div data-testid="loading">{String(loading)}</div>
+      <div data-testid="has-next">{String(hasNextPage)}</div>
+      <div data-testid="fetching-next">{String(isFetchingNextPage)}</div>
+      <div data-testid="count">{messages.length}</div>
+      <ol data-testid="order">
+        {messages.map((m) => (
+          <li key={m.id} data-testid={`msg-${m.id}`}>
+            {m.encrypted_content}
+          </li>
+        ))}
+      </ol>
+      <button type="button" data-testid="fetch-more" onClick={() => void fetchNextPage()}>
+        older
       </button>
     </div>
   );
@@ -83,6 +106,8 @@ function renderWithAuth(ui: ReactElement, supabase: AuthContextValue['supabase']
     user: null,
     loading: false,
     supabase,
+    supabaseClientInitError: null,
+    sessionError: null,
     ensureAnonymousSession: async () => {},
     signIn: async () => ({ error: null }),
     signOut: async () => {},
@@ -291,8 +316,8 @@ describe('useRealtimeMessages', () => {
         if (screen.getByTestId('realtime-error').textContent) break;
       }
 
-      expect(screen.getByTestId('realtime-error').textContent).toContain('Realtime connection lost');
-      expect(screen.getByTestId('realtime-status').textContent).toBe('offline');
+      expect(screen.getByTestId('realtime-error').textContent).toContain('Connection error');
+      expect(screen.getByTestId('realtime-status').textContent).toBe('connection_error');
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('retry-realtime'));
@@ -311,6 +336,35 @@ describe('useRealtimeMessages', () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+
+  it('loads older pages via messages_older_than when fetchNextPage is called', async () => {
+    const rows: MessageRow[] = [];
+    for (let i = 0; i < MESSAGES_PAGE_SIZE + 5; i++) {
+      rows.push(
+        baseRow({
+          id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+          sent_at: new Date(Date.UTC(2025, 0, 1, 12, 0, i)).toISOString(),
+          encrypted_content: `m${i}`,
+        }),
+      );
+    }
+    const stub = createSupabaseMessagesStub({ initialMessages: rows });
+    renderWithAuth(<PaginationHarness squadId="squad-1" />, stub);
+
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+    expect(screen.getByTestId('count').textContent).toBe(String(MESSAGES_PAGE_SIZE));
+    expect(screen.getByTestId('has-next').textContent).toBe('true');
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('fetch-more'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('count').textContent).toBe(String(rows.length));
+    });
+    expect(screen.getByTestId('has-next').textContent).toBe('false');
+    expect(screen.getByTestId(`msg-${rows[0]!.id}`).textContent).toBe('m0');
   });
 
   it('catch-up backfill runs after visibility change (debounced)', async () => {

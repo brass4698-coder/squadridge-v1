@@ -57,6 +57,26 @@ export function isAiPipelineEnabled(): boolean {
 }
 
 /**
+ * When true, optional remote tone/suggestion calls may run (Edge Function or similar).
+ * Default off; local heuristic + `sentiment_metrics` still use `VITE_ENABLE_AI` where applicable.
+ */
+export function isRemoteToneEnabled(): boolean {
+  return env.VITE_ENABLE_REMOTE_TONE === 'true';
+}
+
+/** Persist connection debug events to IndexedDB (operator diagnostics). Off unless dev or explicit opt-in. */
+export function isConnectionDebugLogEnabled(): boolean {
+  return env.DEV || env.VITE_DEBUG_CONNECTION_LOG === 'true';
+}
+
+/**
+ * Demo squad shortcuts (create demo, static demo session route). Disabled in production builds unless explicitly enabled (e.g. staging).
+ */
+export function isDemoSquadShortcutsEnabled(): boolean {
+  return env.DEV || env.VITE_ENABLE_DEMO_SQUAD === 'true';
+}
+
+/**
  * Hash-only ZK path for local/dev speed. **Production builds fail if `VITE_ZK_STUB=true`** (`vite.config.ts`).
  * **MVP policy:** ship real Semaphore + Edge verification (`VITE_ZK_STUB=false`); reserve stub for developers only.
  */

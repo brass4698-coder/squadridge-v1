@@ -1,5 +1,7 @@
 # Onboarding Flow
 
+**Engineering map:** How the `src/onboarding/` UI subtree relates to `/verify`, intent, and sessionStorage—see [`docs/technical/onboarding-architecture.md`](../technical/onboarding-architecture.md).
+
 ## Overview
 
 The onboarding flow for SquadRidge is designed to establish trust, explain the mechanics of verified anonymity, and set the tone for non-violent, structured dialogue [1]. This critical first step ensures that users understand the platform's purpose and the safeguards in place to protect their identity.

@@ -4,7 +4,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
-import { isAiPipelineEnabled } from '../env';
+import { isAiPipelineEnabled, isRemoteToneEnabled } from '../env';
 
 export interface ToneInsight {
   tensionLevel: number;
@@ -29,13 +29,23 @@ export function analyzeToneLocal(text: string): ToneInsight {
  * When AI is enabled, persist a de-identified tension sample for the squad (analytics path).
  * When disabled, this is a no-op so core messaging never depends on AI.
  */
+/**
+ * When `VITE_ENABLE_REMOTE_TONE=true`, a future Edge Function can return richer tension data.
+ * Until wired, returns null — local path remains `analyzeToneLocal` + optional `sentiment_metrics`.
+ */
+export async function fetchRemoteToneInsight(_squadId: string, _text: string): Promise<ToneInsight | null> {
+  if (!isRemoteToneEnabled()) return null;
+  return null;
+}
+
 export async function recordLocalToneAndMaybePersist(
   supabase: SupabaseClient<Database>,
   squadId: string,
   text: string,
 ): Promise<{ insight: ToneInsight | null; persistOk: boolean }> {
   if (!isAiPipelineEnabled()) return { insight: null, persistOk: true };
-  const insight = analyzeToneLocal(text);
+  const remote = await fetchRemoteToneInsight(squadId, text);
+  const insight = remote ?? analyzeToneLocal(text);
   const { error } = await supabase.from('sentiment_metrics').insert({
     squad_id: squadId,
     tension_level: insight.tensionLevel,

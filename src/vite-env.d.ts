@@ -8,6 +8,12 @@ interface ImportMetaEnv {
   /** Preferred public key (sb_publishable_...). */
   readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   readonly VITE_ENABLE_AI?: string;
+  /** Optional future Edge tone model; see `fetchRemoteToneInsight` in src/lib/ai/pipeline.ts */
+  readonly VITE_ENABLE_REMOTE_TONE?: string;
+  /** IndexedDB connection debug log (default: dev only). */
+  readonly VITE_DEBUG_CONNECTION_LOG?: string;
+  /** Enable demo squad shortcuts in production-like builds (e.g. staging). */
+  readonly VITE_ENABLE_DEMO_SQUAD?: string;
   readonly VITE_ZK_STUB?: string;
   /** External waitlist URL (Typeform, Tally, etc.). */
   readonly VITE_WAITLIST_FORM_URL?: string;

@@ -77,6 +77,8 @@ Pick one vertical to focus engineering next (all tie to files under `docs/` and 
 
 Use the same variables as local production builds (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` or `VITE_SUPABASE_ANON_KEY`, and **`VITE_SITE_URL`** set to the deployed origin for magic links). Set them in the host’s project settings (not only in `.env` on your laptop). CI in [`.github/workflows/deploy-supabase-production.yml`](.github/workflows/deploy-supabase-production.yml) deploys **database migrations only**; ship the static app in a separate pipeline or manual deploy.
 
+The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml) workflow runs tests, `npm run build` (with `VITE_ZK_STUB=false`), and uploads the `dist/` folder as a **build artifact** for download or attachment to your host (Vercel/Netlify/Cloudflare Pages typically use the same env vars in project settings instead of this artifact).
+
 ## Documentation
 
 Product and technical specs live under [`docs/`](docs/). For **high-stakes security and anonymity claims**, start with [`docs/security/threat-model.md`](docs/security/threat-model.md) (engineering source of truth).

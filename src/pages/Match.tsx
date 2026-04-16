@@ -10,10 +10,12 @@ import {
   MATCHMAKING_SIDE_SIZE,
   MATCHED_SQUAD_TTL_HOURS,
 } from '../lib/matchmakingConstants';
+import { formatMatchWaitHint } from '../lib/matchmakingEstimate';
 import { clearMatchmakingSession, readMatchmakingSession } from '../lib/matchmakingSession';
 import { setLastSquadIdInStorage } from '../lib/squad';
 
-const POLL_MS = 5000;
+/** Poll pool snapshot while waiting; Realtime on `match_queue` also triggers refresh. */
+const POLL_MS = 2500;
 const SLOT_STAGGER_MS = [800, 1600, 2400] as const;
 
 type Gate = 'loading' | 'no_pool' | 'waiting';
@@ -103,9 +105,20 @@ export function Match() {
       void refresh();
     }, POLL_MS);
 
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void refresh();
+    };
+    const onFocus = () => {
+      void refresh();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('focus', onFocus);
+
     return () => {
       void supabase.removeChannel(ch);
       clearInterval(poll);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('focus', onFocus);
     };
   }, [supabase, session?.user?.id, gate, refresh]);
 
@@ -193,6 +206,11 @@ export function Match() {
           {MATCHMAKING_SIDE_SIZE} on B in the same pool. Low traffic means longer waits. Matched squads expire after
           about {MATCHED_SQUAD_TTL_HOURS} hours.
         </p>
+        <p className="mt-4 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
+          How updates work: this page calls the matchmaking snapshot on an interval and when this tab becomes visible,
+          and subscribes to Realtime changes on your <code className="text-slate-400">match_queue</code> row so we react
+          as soon as the server assigns you.
+        </p>
 
         {q ? (
           <div
@@ -206,6 +224,9 @@ export function Match() {
             <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-500">
               Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. The room opens when we can take {MATCHMAKING_SIDE_SIZE}{' '}
               from each side.
+            </p>
+            <p className="mt-3 text-[0.8rem] leading-relaxed text-slate-500">
+              {formatMatchWaitHint(q.waiting_a, q.waiting_b, q.queue_position, MATCHMAKING_SIDE_SIZE)}
             </p>
           </div>
         ) : (

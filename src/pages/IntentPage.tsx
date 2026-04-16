@@ -7,6 +7,12 @@ import { enqueueMatchmaking } from '../lib/matchmakingClient';
 import { poolKeyFromIntentTags } from '../lib/matchmakingPoolKey';
 import { setMatchmakingSession, type MatchPerspective } from '../lib/matchmakingSession';
 import { clearSessionIntent, writeSessionIntent } from '../lib/intentStorage';
+import type { AppErrorCode } from '../lib/appErrors';
+import {
+  classifyClientError,
+  matchmakingUnavailableClassified,
+} from '../lib/appErrors';
+import { captureAppError } from '../lib/sentry';
 import { setLastSquadIdInStorage } from '../lib/squad';
 
 const MAX_CHARS = 300;
@@ -44,6 +50,8 @@ export function IntentPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Dev-only: last classified code for support / Sentry correlation */
+  const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
   const [perspective, setPerspective] = useState<MatchPerspective | null>(null);
 
   const len = text.length;
@@ -65,6 +73,7 @@ export function IntentPage() {
     }
     setBusy(true);
     setError(null);
+    setErrorCode(null);
     try {
       const tags = [...selected];
       writeSessionIntent({
@@ -75,7 +84,13 @@ export function IntentPage() {
       const poolKey = poolKeyFromIntentTags(tags);
       const snap = await enqueueMatchmaking(supabase, poolKey, perspective);
       if (!snap) {
-        setError('Matching is not available. Try again in a moment.');
+        const c = matchmakingUnavailableClassified();
+        setError(c.userMessage);
+        setErrorCode(c.code);
+        captureAppError(new Error('matchmaking_enqueue_and_try returned null snapshot'), {
+          feature: 'intent_matchmaking',
+          extra: { poolKey, perspective },
+        });
         return;
       }
       if (snap.outcome === 'matched') {
@@ -88,18 +103,23 @@ export function IntentPage() {
         navigate('/match', { replace: true });
         return;
       }
-      setError('Could not join the match queue. Try again.');
+      if (snap.outcome === 'idle') {
+        setError(
+          'Matching is idle for this pool right now. Try again in a moment, or adjust your optional tags.',
+        );
+        setErrorCode('MATCHMAKING_UNAVAILABLE');
+        return;
+      }
+      const _exhaustive: never = snap;
+      void _exhaustive;
     } catch (e) {
-      const msg =
-        e instanceof Error
-          ? e.message
-          : typeof e === 'object' &&
-              e !== null &&
-              'message' in e &&
-              typeof (e as { message: unknown }).message === 'string'
-            ? (e as { message: string }).message
-            : 'Could not start matching. You can try again in a moment.';
-      setError(msg);
+      const classified = classifyClientError(e);
+      setError(classified.userMessage);
+      setErrorCode(classified.code);
+      captureAppError(e, {
+        feature: 'intent_matchmaking',
+        extra: { code: classified.code, kind: classified.kind },
+      });
     } finally {
       setBusy(false);
     }
@@ -250,9 +270,29 @@ export function IntentPage() {
         </button>
 
         {error ? (
-          <p className="font-sans text-[0.875rem] text-amber" role="alert">
-            {error}
-          </p>
+          <div className="flex flex-col gap-3 rounded-[10px] border border-amber/35 bg-[#1a1408]/80 px-4 py-3" role="alert">
+            <p className="font-sans text-[0.875rem] leading-relaxed text-[#f5d7a3]">{error}</p>
+            {import.meta.env.DEV && errorCode ? (
+              <p className="font-mono text-[0.7rem] text-amber/90">Code: {errorCode}</p>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={busy || perspective === null}
+                onClick={() => void handleFindSquad()}
+              >
+                Retry
+              </button>
+              <button
+                type="button"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
+                onClick={() => navigate('/session', { replace: false })}
+              >
+                Session hub
+              </button>
+            </div>
+          </div>
         ) : null}
       </div>
     </section>

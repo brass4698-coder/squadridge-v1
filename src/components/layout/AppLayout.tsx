@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { AuthIssueBanner } from '../auth/AuthIssueBanner';
 import { OfflineBanner } from '../OfflineBanner';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
@@ -40,6 +41,7 @@ export function AppLayout() {
   return (
     <div className="min-h-dvh flex flex-col overflow-x-hidden bg-navy text-white">
       <OfflineBanner />
+      <AuthIssueBanner />
       {!hideChrome ? (
       <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.85)] px-md py-4 backdrop-blur-[12px]">
         <nav

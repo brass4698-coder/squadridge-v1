@@ -4,10 +4,11 @@ import {
   listPendingSendsForSquad,
   removePendingSend,
   resetMessageSendQueueForTests,
+  sendRetryDelayMs,
   type PendingSendRecord,
-} from './messageSendQueue';
+} from './sendQueue';
 
-describe('messageSendQueue', () => {
+describe('sendQueue', () => {
   beforeEach(() => {
     resetMessageSendQueueForTests();
     vi.stubGlobal('indexedDB', undefined);
@@ -32,5 +33,11 @@ describe('messageSendQueue', () => {
     expect(list[0]?.plainBody).toBe('hello');
     await removePendingSend('id-1');
     expect(await listPendingSendsForSquad('squad-a')).toHaveLength(0);
+  });
+
+  it('computes capped exponential backoff for send retries', () => {
+    expect(sendRetryDelayMs(0)).toBe(1_000);
+    expect(sendRetryDelayMs(1)).toBe(2_000);
+    expect(sendRetryDelayMs(10)).toBe(30_000);
   });
 });

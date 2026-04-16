@@ -12,10 +12,17 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="sticky top-0 z-[60] flex items-center justify-center gap-2 border-b border-[#5c4a1f] bg-[#2a2210] px-md py-2.5 text-center font-sans text-[0.85rem] leading-snug text-[#f5d78e]"
+      className="sticky top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-b border-[#5c4a1f] bg-[#2a2210] px-md py-2.5 text-center font-sans text-[0.85rem] leading-snug text-[#f5d78e]"
     >
       <WifiOff className="size-4 shrink-0 opacity-90" aria-hidden />
-      <span>You are offline. Messaging and sign-in need a connection when they resume.</span>
+      <span>Offline – waiting to reconnect. Messaging and sign-in resume when your connection does.</span>
+      <button
+        type="button"
+        className="inline-flex min-h-[36px] shrink-0 items-center justify-center rounded-[6px] border border-[#6b5a2a] bg-[#3d3318] px-3 py-1.5 font-heading text-[0.8rem] font-semibold text-[#f5d78e] transition-opacity hover:opacity-90"
+        onClick={() => window.location.reload()}
+      >
+        Refresh now
+      </button>
     </div>
   );
 }

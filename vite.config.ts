@@ -22,6 +22,9 @@ export default defineConfig(({ mode }) => {
       format: 'es',
     },
     optimizeDeps: {
+      // Dev-only: pre-bundling can break Transformers.js; keep it out of the optimizer.
+      // The translation worker dynamically imports `translationWorkerImpl`, which pulls
+      // `@xenova/transformers` into a separate async chunk — it is not part of the main bundle.
       exclude: ['@xenova/transformers'],
     },
   };

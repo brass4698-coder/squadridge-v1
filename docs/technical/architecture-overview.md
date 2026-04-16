@@ -16,6 +16,7 @@ The frontend is built using React, Vite, and TypeScript, providing a responsive 
 *   **Language**: TypeScript for type safety and maintainability.
 *   **Styling**: TailwindCSS for the design system, adhering to WCAG AA accessibility standards [1].
 *   **State Management**: Optimized for ephemeral data handling to minimize data at risk on the client device [3].
+*   **Onboarding subtree**: The multi-step onboarding UI lives under `src/onboarding/` as a **scoped design island** (tokens and components separate from the main shell). How it connects to `/verify`, intent, and sessionStorage is summarized in [`onboarding-architecture.md`](onboarding-architecture.md).
 
 ### 2. Backend Services
 

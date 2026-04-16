@@ -274,6 +274,14 @@ export interface Database {
         Args: { p_squad_id: string; p_sent_at: string; p_id: string; p_limit: number };
         Returns: Database['public']['Tables']['messages']['Row'][];
       };
+      moderator_flag_message: {
+        Args: { p_message_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      moderator_archive_squad: {
+        Args: { p_squad_id: string };
+        Returns: undefined;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

@@ -9,6 +9,7 @@ The AI pipeline in SquadRidge is designed to integrate advanced natural language
 - **Translation (core UX)** — Incoming messages can be translated in the browser via a dedicated Web Worker and Transformers.js (`src/hooks/useTranslation.ts`, `src/workers/translation.worker.ts`). This path does **not** require `VITE_ENABLE_AI` and does not call a custom AI backend today.
 - **De-escalation (core UX)** — “Slow down,” “Pull back,” and intervention logging use local UI state and Supabase tables such as `interventions`; they are not gated by `VITE_ENABLE_AI`.
 - **`VITE_ENABLE_AI`** — Only enables optional persistence of a **client-side** tone heuristic to the `sentiment_metrics` table (`recordLocalToneAndMaybePersist` in `src/lib/ai/pipeline.ts`). A future remote model or Edge Function would be an additional layer, not a prerequisite for translation or in-room de-escalation.
+- **`VITE_ENABLE_REMOTE_TONE`** — When `true`, `fetchRemoteToneInsight` in `src/lib/ai/pipeline.ts` may call a remote/Edge path in the future; until wired it returns `null` and the local heuristic is used when `VITE_ENABLE_AI` persists metrics.
 
 ## AI Integration Strategy
 

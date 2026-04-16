@@ -52,6 +52,7 @@ export async function createDemoSquad(supabase: SupabaseClient<Database>): Promi
   const expires = new Date();
   expires.setDate(expires.getDate() + 1);
 
+  // Squad key at insert time (also enforced server-side via trigger if omitted).
   const { error: squadError } = await supabase.from('squads').insert({
     id: squadId,
     topic: 'Demo dialogue',

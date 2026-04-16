@@ -43,13 +43,26 @@ export function captureRouteNavigation(pathname: string, search: string): void {
   });
 }
 
-export function captureBoundaryError(error: Error, errorInfo: ErrorInfo): void {
+export function captureBoundaryError(
+  error: Error,
+  errorInfo: ErrorInfo,
+  scope?: { squadId?: string; userId?: string | null },
+): void {
   if (!import.meta.env.VITE_SENTRY_DSN) return;
   Sentry.captureException(error, {
+    ...(scope?.squadId ? { tags: { squad_id: scope.squadId } } : {}),
     contexts: {
       react: {
         componentStack: errorInfo.componentStack,
       },
+      ...(scope
+        ? {
+            session_boundary: {
+              squad_id: scope.squadId,
+              user_id: scope.userId ?? undefined,
+            },
+          }
+        : {}),
     },
   });
 }
@@ -77,6 +90,20 @@ export function captureAppError(
   Sentry.captureException(err, {
     tags: { feature: context.feature },
     extra: context.extra,
+  });
+}
+
+/** Breadcrumb for realtime / connectivity (no message bodies). */
+export function addConnectionBreadcrumb(
+  message: string,
+  data?: Record<string, unknown>,
+): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.addBreadcrumb({
+    category: 'connection',
+    level: 'info',
+    message,
+    data,
   });
 }
 

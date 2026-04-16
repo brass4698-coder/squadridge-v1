@@ -4,12 +4,21 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import type { Database } from '../lib/database.types';
 import { useAuth } from '../contexts/AuthContext';
+import { appendConnectionLog } from '../lib/connectionDebugLog';
+import { addConnectionBreadcrumb } from '../lib/sentry';
 import { queryKeys } from '../lib/queryKeys';
 
 type MessageRow = Database['public']['Tables']['messages']['Row'];
 
 /** High-level websocket / channel state for UI (banners, status). */
-export type RealtimeConnectionStatus = 'idle' | 'connecting' | 'live' | 'reconnecting' | 'offline';
+export type RealtimeConnectionStatus =
+  | 'idle'
+  | 'connecting'
+  | 'live'
+  | 'reconnecting'
+  | 'offline'
+  /** Subscribe failed after retries while the browser still reports online. */
+  | 'connection_error';
 
 const MAX_RETRIES = 6;
 const BASE_DELAY_MS = 1_000;
@@ -29,7 +38,34 @@ function mergeRowsById(prev: MessageRow[], incoming: MessageRow[]): MessageRow[]
   );
 }
 
-function flattenPages(data: InfiniteData<MessageRow[], unknown> | undefined): MessageRow[] {
+/** Stable identity for cache rows — must reflect any field we surface from realtime/query merges. */
+function messageRowFingerprint(m: MessageRow): string {
+  return [
+    m.id,
+    m.squad_id ?? '',
+    m.sender_id ?? '',
+    m.encrypted_content,
+    m.sent_at,
+    m.status,
+  ].join('\u0001');
+}
+
+/**
+ * Ordered fingerprint of the flattened list (oldest → newest). When `setQueryData` produces a new
+ * object reference with identical rows, we reuse the previous array to avoid cascading re-renders.
+ */
+function flattenPagesFingerprint(data: InfiniteData<MessageRow[], unknown> | undefined): string {
+  if (!data?.pages.length) return '';
+  const parts: string[] = [];
+  for (let pi = data.pages.length - 1; pi >= 0; pi--) {
+    for (const m of data.pages[pi]!) {
+      parts.push(messageRowFingerprint(m));
+    }
+  }
+  return parts.join('\u0002');
+}
+
+function flattenPagesFromData(data: InfiniteData<MessageRow[], unknown> | undefined): MessageRow[] {
   if (!data?.pages.length) return [];
   return data.pages.slice().reverse().flat();
 }
@@ -54,6 +90,10 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const maxSentAtRef = useRef<string | null>(null);
   const shouldBackfillOnSubscribeRef = useRef(false);
   const catchUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flattenedMessagesCacheRef = useRef<{ fp: string; list: MessageRow[] }>({
+    fp: '',
+    list: [],
+  });
 
   const messagesQuery = useInfiniteQuery({
     queryKey: listKey,
@@ -85,10 +125,21 @@ export function useRealtimeMessages(squadId: string | undefined) {
     enabled: !!supabase && !!squadId,
   });
 
-  const messages = useMemo(
-    () => flattenPages(messagesQuery.data as InfiniteData<MessageRow[], unknown> | undefined),
-    [messagesQuery.data],
-  );
+  const messages = useMemo(() => {
+    const data = messagesQuery.data as InfiniteData<MessageRow[], unknown> | undefined;
+    const fp = flattenPagesFingerprint(data);
+    if (!fp) {
+      flattenedMessagesCacheRef.current = { fp: '', list: [] };
+      return [];
+    }
+    const prev = flattenedMessagesCacheRef.current;
+    if (fp === prev.fp) {
+      return prev.list;
+    }
+    const list = flattenPagesFromData(data);
+    flattenedMessagesCacheRef.current = { fp, list };
+    return list;
+  }, [messagesQuery.data]);
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -311,6 +362,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
             retryCountRef.current = 0;
             setReconnecting(false);
             setRealtimeStatus('live');
+            addConnectionBreadcrumb('realtime_subscribed', { squadId });
 
             const runBackfill = shouldBackfillOnSubscribeRef.current;
             shouldBackfillOnSubscribeRef.current = false;
@@ -335,8 +387,23 @@ export function useRealtimeMessages(squadId: string | undefined) {
               }, delay);
             } else {
               setReconnecting(false);
-              setRealtimeStatus('offline');
-              setRealtimeFatalError('Realtime connection lost. Please refresh the page.');
+              const offline =
+                typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' && !navigator.onLine;
+              const msg = offline
+                ? 'Offline – waiting to reconnect'
+                : 'Connection error – refresh to retry';
+              setRealtimeFatalError(msg);
+              setRealtimeStatus(offline ? 'offline' : 'connection_error');
+              addConnectionBreadcrumb('realtime_retry_exhausted', {
+                squadId,
+                offline,
+                subscribeStatus: String(status),
+              });
+              void appendConnectionLog({
+                kind: 'realtime_retry_exhausted',
+                squadId,
+                message: `${msg} (subscribe status: ${String(status)})`,
+              });
             }
           }
         });

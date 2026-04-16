@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { captureBoundaryError, captureAppError, setSentrySquadContext } from '../../lib/sentry';
+import { captureBoundaryError, setSentrySquadContext } from '../../lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -26,11 +26,7 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     const { squadId, userId } = this.props;
     if (squadId) setSentrySquadContext(squadId);
-    captureAppError(error, {
-      feature: 'session_chat',
-      extra: { squadId, userId: userId ?? undefined, componentStack: info.componentStack },
-    });
-    captureBoundaryError(error, info);
+    captureBoundaryError(error, info, { squadId, userId });
   }
 
   private handleRetry = (): void => {

@@ -6,13 +6,14 @@ import {
   SessionPageAuthSkeleton,
   SessionPageMessagesSkeleton,
 } from '../components/session/SessionPageSkeleton';
+import { SessionFeatureErrorBoundary } from '../components/session/SessionFeatureErrorBoundary';
 import { SessionTranslationPanel } from '../components/SessionTranslationPanel';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { useTranslation } from '../hooks/useTranslation';
 import { useUserPreferences } from '../hooks/useUserPreferences';
-import { isAiPipelineEnabled, isSupabaseConfigured } from '../lib/env';
+import { isAiPipelineEnabled, isDemoSquadShortcutsEnabled, isSupabaseConfigured } from '../lib/env';
 import { encodeSecureMessagePayload } from '../lib/messagePayload';
 import { createDemoSquad } from '../lib/squad';
 import { ensureSquadMessageKey } from '../lib/squadMessageKey';
@@ -24,7 +25,11 @@ import {
   enqueuePendingSend,
   listPendingSendsForSquad,
   removePendingSend,
-} from '../lib/messageSendQueue';
+  SEND_RETRY_ATTEMPTS,
+  sendRetryDelayMs,
+  sleep,
+} from '../lib/sendQueue';
+import { captureAppError, setSentrySquadContext } from '../lib/sentry';
 
 const sessionLandingHeadingStyle: CSSProperties = {
   fontSize: 'clamp(2.2rem, 4vw, 3rem)',
@@ -95,6 +100,10 @@ export function SessionPage() {
   const plaintextById = useMessagePlaintexts(messages, messageKey);
 
   useEffect(() => {
+    setSentrySquadContext(squadId ?? null);
+  }, [squadId]);
+
+  useEffect(() => {
     if (!supabase || !squadId || !squad) {
       setMessageKey(null);
       return;
@@ -107,7 +116,8 @@ export function SessionPage() {
         if (!squad.message_encryption_key) {
           await refetchSquad();
         }
-      } catch {
+      } catch (e) {
+        captureAppError(e, { feature: 'session_message_key', extra: { squadId } });
         if (!cancelled) setMessageKey(null);
       }
     })();
@@ -196,6 +206,10 @@ export function SessionPage() {
         .select()
         .single();
       if (sendError) {
+        captureAppError(sendError, {
+          feature: 'message_send',
+          extra: { squadId: m.squad_id, code: sendError.code, message: sendError.message },
+        });
         return { ok: false };
       }
       await removePendingSend(m.optimisticId);
@@ -206,6 +220,20 @@ export function SessionPage() {
     [supabase, applyLocalMessage],
   );
 
+  const tryInsertWithBackoff = useCallback(
+    async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
+      for (let attempt = 0; attempt < SEND_RETRY_ATTEMPTS; attempt++) {
+        const result = await tryInsertMessage(m);
+        if (result.ok) return { ok: true };
+        if (attempt < SEND_RETRY_ATTEMPTS - 1) {
+          await sleep(sendRetryDelayMs(attempt));
+        }
+      }
+      return { ok: false };
+    },
+    [tryInsertMessage],
+  );
+
   const flushPendingMessages = useCallback(async () => {
     if (!supabase || !squadId || sending || flushLockRef.current) return;
     flushLockRef.current = true;
@@ -214,7 +242,7 @@ export function SessionPage() {
         const pending = optimisticRef.current.filter((x) => x.deliveryStatus === 'pending');
         if (pending.length === 0) break;
         const m = pending[0]!;
-        const result = await tryInsertMessage(m);
+        const result = await tryInsertWithBackoff(m);
         if (!result.ok) {
           setOptimisticMessages((prev) =>
             prev.map((x) =>
@@ -228,7 +256,7 @@ export function SessionPage() {
     } finally {
       flushLockRef.current = false;
     }
-  }, [supabase, squadId, sending, tryInsertMessage]);
+  }, [supabase, squadId, sending, tryInsertWithBackoff]);
 
   useEffect(() => {
     if (!squadId) {
@@ -282,11 +310,42 @@ export function SessionPage() {
     return () => clearTimeout(id);
   }, [composer, composerDraftKey]);
 
+  /** Drop optimistic rows when the server list already contains the same ciphertext (race: realtime before client applies insert). */
+  useEffect(() => {
+    if (!userId || optimisticMessages.length === 0 || messages.length === 0) return;
+    const toRemove = optimisticMessages.filter((o) =>
+      messages.some(
+        (m) =>
+          m.sender_id === o.sender_id &&
+          m.encrypted_content === o.encrypted_content &&
+          Math.abs(new Date(m.sent_at).getTime() - new Date(o.sent_at).getTime()) < 8_000,
+      ),
+    );
+    if (toRemove.length === 0) return;
+    for (const o of toRemove) void removePendingSend(o.optimisticId);
+    setOptimisticMessages((prev) => prev.filter((x) => !toRemove.some((r) => r.optimisticId === x.optimisticId)));
+  }, [messages, userId, optimisticMessages]);
+
   useEffect(() => {
     if (!online || !supabase || !squadId || sending) return;
     if (optimisticMessages.length === 0) return;
     void flushPendingMessages();
   }, [online, supabase, squadId, sending, optimisticMessages.length, flushPendingMessages]);
+
+  /** When live updates reconnect, flush pending sends with backoff (pairs with online flush). */
+  useEffect(() => {
+    if (realtimeStatus !== 'live' || !online || !supabase || !squadId || sending) return;
+    if (optimisticMessages.length === 0) return;
+    void flushPendingMessages();
+  }, [
+    realtimeStatus,
+    online,
+    supabase,
+    squadId,
+    sending,
+    optimisticMessages.length,
+    flushPendingMessages,
+  ]);
 
   const handleRefreshMessages = useCallback(async () => {
     await refresh();
@@ -301,6 +360,7 @@ export function SessionPage() {
       const id = await createDemoSquad(supabase);
       navigate(`/session/${id}`, { replace: true });
     } catch (e) {
+      captureAppError(e, { feature: 'demo_squad_create' });
       const msg =
         e instanceof Error
           ? e.message
@@ -325,7 +385,7 @@ export function SessionPage() {
     setOptimisticMessages((prev) =>
       prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'pending' } : x)),
     );
-    const result = await tryInsertMessage(m);
+    const result = await tryInsertWithBackoff(m);
     if (!result.ok) {
       setOptimisticMessages((prev) =>
         prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
@@ -344,10 +404,6 @@ export function SessionPage() {
   async function handleSend() {
     if (!supabase || !squadId || !composer.trim()) return;
     if (sendPaused) return;
-    if (!online) {
-      toast.warning('You appear to be offline. Reconnect, then send your message.');
-      return;
-    }
     if (squad?.archived_at) {
       toast.error('This squad is archived. Messaging is disabled.');
       return;
@@ -422,7 +478,13 @@ export function SessionPage() {
 
     setOptimisticMessages((prev) => [...prev, optimistic]);
 
-    const result = await tryInsertMessage(optimistic);
+    if (!online) {
+      setSending(false);
+      toast.info('Offline — message saved. It will send when you are back online.');
+      return;
+    }
+
+    const result = await tryInsertWithBackoff(optimistic);
     if (!result.ok) {
       setOptimisticMessages((prev) =>
         prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
@@ -579,25 +641,27 @@ export function SessionPage() {
             Review onboarding
           </Link>
         </div>
-        <details className="mt-10 w-full max-w-[440px] text-left">
-          <summary className="cursor-pointer font-sans text-[0.85rem] font-medium text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1]">
-            Developer: create a private test squad
-          </summary>
-          <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
-            Spins a squad with only your account — useful for API and UI checks without waiting on matchmaking.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="inline-flex min-h-[40px] shrink-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderRadius: 8 }}
-              onClick={() => void handleCreateDemo()}
-              disabled={!supabase}
-            >
-              Create demo squad
-            </button>
-          </div>
-        </details>
+        {isDemoSquadShortcutsEnabled() ? (
+          <details className="mt-10 w-full max-w-[440px] text-left">
+            <summary className="cursor-pointer font-sans text-[0.85rem] font-medium text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1]">
+              Developer: create a private test squad
+            </summary>
+            <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+              Spins a squad with only your account — useful for API and UI checks without waiting on matchmaking.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                className="inline-flex min-h-[40px] shrink-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ borderRadius: 8 }}
+                onClick={() => void handleCreateDemo()}
+                disabled={!supabase}
+              >
+                Create demo squad
+              </button>
+            </div>
+          </details>
+        ) : null}
         {demoError ? (
           <p className="mt-6 max-w-[440px] font-sans text-[0.875rem] text-amber" role="alert">
             {demoError}
@@ -608,6 +672,7 @@ export function SessionPage() {
   }
 
   return (
+    <SessionFeatureErrorBoundary squadId={squadId} userId={userId} key={squadId ?? 'chat'}>
     <section
       key={sessionPathKey}
       className="session-chat-page mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-6 px-6 pb-16 pt-[80px]"
@@ -640,12 +705,12 @@ export function SessionPage() {
         >
           <p className="font-medium text-[#f5d7a3]">
             {realtimeError
-              ? 'Live updates disconnected.'
+              ? realtimeError
               : 'Could not load messages.'}
           </p>
           <p className="mt-2 text-[#c4a574]">
             {realtimeError
-              ? 'You can still reload messages over a normal connection. Try reconnecting live updates, or refresh the page if the problem continues. Unsent messages stay saved until they send.'
+              ? 'You can still reload messages over HTTP. Try reconnecting live updates, or use Refresh now if the problem continues. Unsent messages stay saved until they send.'
               : queryError}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -671,7 +736,7 @@ export function SessionPage() {
                 className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
                 onClick={() => window.location.reload()}
               >
-                Refresh page
+                Refresh now
               </button>
             ) : null}
           </div>
@@ -693,17 +758,26 @@ export function SessionPage() {
           className="rounded-[8px] border border-amber/35 bg-[#1a1408] px-4 py-3 font-sans text-[0.8125rem] text-[#f5d7a3]"
           role="status"
         >
-          <p className="font-medium text-[#f5d7a3]">Live updates paused (you are offline).</p>
+          <p className="font-medium text-[#f5d7a3]">Offline – waiting to reconnect</p>
           <p className="mt-2 text-[#c4a574]">
-            Messages you send while offline stay queued with Retry. When you are back online, we reconnect and catch up.
+            Queued messages send when you are back online. Live updates resume automatically, or retry below.
           </p>
-          <button
-            type="button"
-            className="mt-3 inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
-            onClick={() => retryRealtimeConnection()}
-          >
-            Retry live connection
-          </button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+              onClick={() => retryRealtimeConnection()}
+            >
+              Retry live connection
+            </button>
+            <button
+              type="button"
+              className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+              onClick={() => window.location.reload()}
+            >
+              Refresh now
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -839,7 +913,7 @@ export function SessionPage() {
             placeholder="Write with intention…"
             value={composer}
             onChange={(e) => setComposer(e.target.value)}
-            disabled={sending || slowDownBreathing || !online || Boolean(squad?.archived_at)}
+            disabled={sending || slowDownBreathing || Boolean(squad?.archived_at)}
           />
           {slowDownBreathing ? (
             <div
@@ -865,11 +939,9 @@ export function SessionPage() {
               appearance: 'none',
               WebkitAppearance: 'none',
             }}
-            disabled={
-              sending || !composer.trim() || sendPaused || !online || Boolean(squad?.archived_at)
-            }
+            disabled={sending || !composer.trim() || sendPaused || Boolean(squad?.archived_at)}
           >
-            {sending ? 'Sending…' : !online ? 'Offline' : 'Send'}
+            {sending ? 'Sending…' : !online ? 'Queue message' : 'Send'}
           </button>
           {sendPaused && sendCooldownSecondsRemaining > 0 ? (
             <span className="font-sans text-[0.75rem] text-[#4b5563]" aria-live="polite">
@@ -894,5 +966,6 @@ export function SessionPage() {
         </div>
       </form>
     </section>
+    </SessionFeatureErrorBoundary>
   );
 }

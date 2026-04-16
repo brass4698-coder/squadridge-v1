@@ -67,8 +67,10 @@ export default function App() {
                           </RequireAuth>
                         }
                       />
-                      {/* Static demo path must win over `/session/:squadId?` */}
-                      <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                      {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
+                      {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
+                        <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                      ) : null}
                       <Route path="/session/:squadId?" element={<SessionAccess />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Route>
