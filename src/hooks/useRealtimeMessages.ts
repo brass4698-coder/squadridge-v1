@@ -8,6 +8,7 @@ type MessageRow = Database['public']['Tables']['messages']['Row'];
 
 const MAX_RETRIES = 6;
 const BASE_DELAY_MS = 1_000;
+const MAX_DELAY_MS = 30_000;
 
 export function useRealtimeMessages(squadId: string | undefined) {
   const { supabase } = useAuth();
@@ -16,7 +17,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [reconnecting, setReconnecting] = useState(false);
 
-  const mountedRef = useRef(true);
+  const mountedRef = useRef(false);
   const retryCountRef = useRef(0);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const channelRef = useRef<RealtimeChannel | undefined>(undefined);
@@ -99,7 +100,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
           ) {
             if (retryCountRef.current < MAX_RETRIES) {
               setReconnecting(true);
-              const delay = BASE_DELAY_MS * 2 ** retryCountRef.current;
+              const delay = Math.min(BASE_DELAY_MS * 2 ** retryCountRef.current, MAX_DELAY_MS);
               retryCountRef.current += 1;
               retryTimerRef.current = setTimeout(() => {
                 if (!mountedRef.current) return;
