@@ -71,8 +71,8 @@ export function captureBoundaryError(
       ...(includeSessionContext
         ? {
             session_boundary: {
-              squad_id: scope!.squadId,
-              user_id: scope!.userId ?? undefined,
+              squad_id: scope?.squadId,
+              user_id: scope?.userId ?? undefined,
             },
           }
         : {}),

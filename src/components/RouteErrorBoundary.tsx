@@ -47,7 +47,8 @@ export class RouteErrorBoundary extends Component<Props, State> {
         ? 'mx-auto flex w-full max-w-lg flex-col justify-center gap-6 py-8'
         : 'mx-auto flex min-h-[60vh] w-full max-w-lg flex-col justify-center gap-6 px-6 py-16';
 
-      const inner = (
+      const alertBlock = (
+        <div role="alert" aria-labelledby="route-error-title">
           <div className="rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
             <h1 id="route-error-title" className="font-heading text-fluid-h2 text-gray-light">
               Something went wrong
@@ -86,21 +87,14 @@ export class RouteErrorBoundary extends Component<Props, State> {
               </Link>
             </div>
           </div>
+        </div>
       );
 
       if (embedded) {
-        return (
-          <section className={shellClassName} role="alert" aria-labelledby="route-error-title">
-            {inner}
-          </section>
-        );
+        return <div className={shellClassName}>{alertBlock}</div>;
       }
 
-      return (
-        <main className={shellClassName} role="alert" aria-labelledby="route-error-title">
-          {inner}
-        </main>
-      );
+      return <main className={shellClassName}>{alertBlock}</main>;
     }
 
     return this.props.children;
