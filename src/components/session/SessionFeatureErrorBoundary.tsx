@@ -26,7 +26,7 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     const { squadId, userId } = this.props;
     if (squadId) setSentrySquadContext(squadId);
-    captureBoundaryError(error, info, { squadId, userId });
+    captureBoundaryError(error, info, { squadId, userId, boundary: 'session' });
   }
 
   private handleRetry = (): void => {

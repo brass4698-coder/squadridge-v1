@@ -1,9 +1,7 @@
-import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { SentryNavigationListener } from './components/SentryNavigationListener';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './onboarding/app/components/ui/sonner';
-import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { GrainOverlay } from './components/GrainOverlay';
 import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/layout/AppLayout';
@@ -33,51 +31,45 @@ export default function App() {
           <ScrollToTop />
           <AuthProvider>
             <Toaster position="top-center" richColors closeButton className="font-sans" />
-            <QueryErrorResetBoundary>
-              {({ reset }) => (
-                <RouteErrorBoundary onRetry={reset}>
-                  <Routes>
-                    <Route element={<AppLayout />}>
-                      <Route path="/" element={<LandingPage />} />
-                      <Route path="/onboarding" element={<OnboardingPage />} />
-                      <Route path="/verify" element={<VerificationPage />} />
-                      <Route path="/intent" element={<IntentPage />} />
-                      <Route path="/ledger" element={<LedgerPage />} />
-                      <Route path="/ledger/:proposalId" element={<LedgerPage />} />
-                      <Route path="/match" element={<Match />} />
-                      <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
-                      <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
-                      <Route path="/sign-in" element={<SignInPage />} />
-                      <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                      <Route
-                        path="/settings/profile"
-                        element={
-                          <RequireAuth>
-                            <ProfileSettingsPage />
-                          </RequireAuth>
-                        }
-                      />
-                      <Route
-                        path="/mod"
-                        element={
-                          <RequireAuth>
-                            <RequireModerator>
-                              <ModDashboardPage />
-                            </RequireModerator>
-                          </RequireAuth>
-                        }
-                      />
-                      {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
-                      {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
-                        <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                      ) : null}
-                      <Route path="/session/:squadId?" element={<SessionAccess />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Route>
-                  </Routes>
-                </RouteErrorBoundary>
-              )}
-            </QueryErrorResetBoundary>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/verify" element={<VerificationPage />} />
+                <Route path="/intent" element={<IntentPage />} />
+                <Route path="/ledger" element={<LedgerPage />} />
+                <Route path="/ledger/:proposalId" element={<LedgerPage />} />
+                <Route path="/match" element={<Match />} />
+                <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
+                <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
+                <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route
+                  path="/settings/profile"
+                  element={
+                    <RequireAuth>
+                      <ProfileSettingsPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/mod"
+                  element={
+                    <RequireAuth>
+                      <RequireModerator>
+                        <ModDashboardPage />
+                      </RequireModerator>
+                    </RequireAuth>
+                  }
+                />
+                {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
+                {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
+                  <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                ) : null}
+                <Route path="/session/:squadId?" element={<SessionAccess />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
           </AuthProvider>
         </BrowserRouter>
       </div>

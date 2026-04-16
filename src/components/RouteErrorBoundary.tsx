@@ -6,6 +6,11 @@ interface Props {
   children: ReactNode;
   /** e.g. TanStack Query `reset` so retried renders can refetch */
   onRetry?: () => void;
+  /**
+   * When true, render inside `AppLayout`’s `<main>` (single page landmark): no nested `<main>`,
+   * slightly tighter vertical space so nav/footer stay visible.
+   */
+  embedded?: boolean;
 }
 
 interface State {
@@ -25,7 +30,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('[RouteErrorBoundary]', error, info.componentStack);
-    captureBoundaryError(error, info);
+    captureBoundaryError(error, info, { boundary: 'route' });
   }
 
   private handleRetry = (): void => {
@@ -35,14 +40,14 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
   render(): ReactNode {
     const { error, hasError } = this.state;
+    const { embedded } = this.props;
 
     if (hasError && error) {
-      return (
-        <main
-          className="mx-auto flex min-h-[60vh] w-full max-w-lg flex-col justify-center gap-6 px-6 py-16"
-          role="alert"
-          aria-labelledby="route-error-title"
-        >
+      const shellClassName = embedded
+        ? 'mx-auto flex w-full max-w-lg flex-col justify-center gap-6 py-8'
+        : 'mx-auto flex min-h-[60vh] w-full max-w-lg flex-col justify-center gap-6 px-6 py-16';
+
+      const inner = (
           <div className="rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
             <h1 id="route-error-title" className="font-heading text-fluid-h2 text-gray-light">
               Something went wrong
@@ -81,6 +86,19 @@ export class RouteErrorBoundary extends Component<Props, State> {
               </Link>
             </div>
           </div>
+      );
+
+      if (embedded) {
+        return (
+          <section className={shellClassName} role="alert" aria-labelledby="route-error-title">
+            {inner}
+          </section>
+        );
+      }
+
+      return (
+        <main className={shellClassName} role="alert" aria-labelledby="route-error-title">
+          {inner}
         </main>
       );
     }

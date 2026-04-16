@@ -1,4 +1,6 @@
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { RouteErrorBoundary } from '../RouteErrorBoundary';
 import { AuthIssueBanner } from '../auth/AuthIssueBanner';
 import { OfflineBanner } from '../OfflineBanner';
 import { ZkStubBanner } from '../ZkStubBanner';
@@ -129,7 +131,13 @@ export function AppLayout() {
               : 'py-xl'
         }`}
       >
-        <Outlet />
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            <RouteErrorBoundary onRetry={reset} embedded>
+              <Outlet />
+            </RouteErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
       </main>
       {!hideChrome ? (
       <footer className="border-t border-[#1a2236] bg-transparent">

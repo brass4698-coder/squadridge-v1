@@ -46,20 +46,33 @@ export function captureRouteNavigation(pathname: string, search: string): void {
 export function captureBoundaryError(
   error: Error,
   errorInfo: ErrorInfo,
-  scope?: { squadId?: string; userId?: string | null },
+  scope?: {
+    squadId?: string;
+    userId?: string | null;
+    /** Distinguishes root vs route vs session boundaries in Sentry. */
+    boundary?: 'root' | 'route' | 'session';
+  },
 ): void {
   if (!import.meta.env.VITE_SENTRY_DSN) return;
+  const tags: Record<string, string> = {};
+  if (scope?.squadId) tags.squad_id = scope.squadId;
+  if (scope?.boundary) tags.error_boundary = scope.boundary;
+
+  const includeSessionContext =
+    !!scope &&
+    (typeof scope.squadId === 'string' || Object.prototype.hasOwnProperty.call(scope, 'userId'));
+
   Sentry.captureException(error, {
-    ...(scope?.squadId ? { tags: { squad_id: scope.squadId } } : {}),
+    ...(Object.keys(tags).length > 0 ? { tags } : {}),
     contexts: {
       react: {
         componentStack: errorInfo.componentStack,
       },
-      ...(scope
+      ...(includeSessionContext
         ? {
             session_boundary: {
-              squad_id: scope.squadId,
-              user_id: scope.userId ?? undefined,
+              squad_id: scope!.squadId,
+              user_id: scope!.userId ?? undefined,
             },
           }
         : {}),
