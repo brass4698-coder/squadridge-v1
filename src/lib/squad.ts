@@ -38,28 +38,29 @@ export async function createDemoSquad(supabase: SupabaseClient<Database>): Promi
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  // Client-chosen id avoids SELECT after INSERT: RLS only allows squads SELECT for members,
+  // and membership row does not exist until the next insert.
+  const squadId = crypto.randomUUID();
+
   const expires = new Date();
   expires.setDate(expires.getDate() + 1);
 
-  const { data: squad, error: squadError } = await supabase
-    .from('squads')
-    .insert({
-      topic: 'Demo dialogue',
-      status: 'active',
-      expires_at: expires.toISOString(),
-    })
-    .select('id')
-    .single();
+  const { error: squadError } = await supabase.from('squads').insert({
+    id: squadId,
+    topic: 'Demo dialogue',
+    status: 'active',
+    expires_at: expires.toISOString(),
+  });
 
-  if (squadError || !squad) throw squadError ?? new Error('Failed to create squad');
+  if (squadError) throw squadError;
 
   const { error: memberError } = await supabase.from('squad_members').insert({
-    squad_id: squad.id,
+    squad_id: squadId,
     user_id: user.id,
   });
 
   if (memberError) throw memberError;
 
-  setLastSquadIdInStorage(squad.id);
-  return squad.id;
+  setLastSquadIdInStorage(squadId);
+  return squadId;
 }

@@ -45,12 +45,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let cancelled = false;
 
-    void supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (!cancelled) {
-        setSession(s);
-        setLoading(false);
-      }
-    });
+    void supabase.auth
+      .getSession()
+      .then(({ data: { session: s } }) => {
+        if (!cancelled) {
+          setSession(s);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSession(null);
+          setLoading(false);
+        }
+      });
 
     const {
       data: { subscription },

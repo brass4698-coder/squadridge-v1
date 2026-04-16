@@ -87,6 +87,32 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW
     EXECUTE PROCEDURE public.handle_new_user ();
 
+-- RLS helper: membership check without querying squad_members under RLS (prevents infinite recursion)
+CREATE OR REPLACE FUNCTION public.auth_user_is_squad_member (p_squad_id uuid)
+    RETURNS boolean
+    LANGUAGE sql
+    STABLE
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    SELECT
+        EXISTS (
+            SELECT
+                1
+            FROM
+                public.squad_members sm
+            WHERE
+                sm.squad_id = p_squad_id
+                AND sm.user_id = auth.uid ());
+
+$$;
+
+REVOKE ALL ON FUNCTION public.auth_user_is_squad_member (uuid) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.auth_user_is_squad_member (uuid) TO authenticated;
+
+GRANT EXECUTE ON FUNCTION public.auth_user_is_squad_member (uuid) TO anon;
+
 -- RLS
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.zk_proof_submissions ENABLE ROW LEVEL SECURITY;
@@ -144,11 +170,7 @@ CREATE POLICY "Squads_update_member" ON public.squads
 -- squad_members
 CREATE POLICY "Squad_members_select_participant" ON public.squad_members
     FOR SELECT USING (user_id = auth.uid ()
-        OR EXISTS (
-            SELECT 1
-            FROM public.squad_members m
-            WHERE m.squad_id = squad_members.squad_id
-                AND m.user_id = auth.uid ()));
+        OR public.auth_user_is_squad_member (squad_members.squad_id));
 
 CREATE POLICY "Squad_members_insert_self" ON public.squad_members
     FOR INSERT WITH CHECK (user_id = auth.uid ());

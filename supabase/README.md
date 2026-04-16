@@ -14,6 +14,10 @@ This repo includes [`config.toml`](./config.toml) from `supabase init`. Migratio
 3. If `ALTER PUBLICATION supabase_realtime ADD TABLE public.messages` fails, enable **Realtime** for `messages` under **Database → Replication** instead.
 4. **Authentication → Providers:** enable **Anonymous sign-ins** (required for the demo app flow).
 5. Copy **Project URL** and API keys into the app `.env` (`VITE_SUPABASE_URL`, and `VITE_SUPABASE_PUBLISHABLE_KEY` or legacy `VITE_SUPABASE_ANON_KEY`).
+6. Apply later migrations (e.g. [`migrations/20250414100000_zk_server_verified_insert.sql`](./migrations/20250414100000_zk_server_verified_insert.sql)) via `supabase db push` or the SQL Editor.
+7. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts)). In the Dashboard, set function secrets as needed (e.g. `ZK_DEV_SKIP_VERIFY=true` for development validation only).
+
+The app route **`/verify`** invokes `verify-zk-proof`; without a deployed function, verification will fail until you deploy.
 
 ## CI/CD (GitHub Actions)
 

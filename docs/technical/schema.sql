@@ -13,14 +13,17 @@ CREATE TABLE public.users (
     status VARCHAR(50) DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'deleted'))
 );
 
--- ZK proof commitments (hash-only; no raw PII)
+-- ZK proof commitments (hash-only; no raw PII). nullifier_hash prevents double-spend (Semaphore-style).
 CREATE TABLE public.zk_proof_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.users (id) ON DELETE CASCADE,
     proof_commitment TEXT NOT NULL,
+    nullifier_hash TEXT NOT NULL,
     attribute_scope TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+CREATE UNIQUE INDEX zk_proof_submissions_nullifier_hash_uidx ON public.zk_proof_submissions (nullifier_hash);
 
 -- Stores verified attributes derived from ZK proofs
 CREATE TABLE public.verified_attributes (

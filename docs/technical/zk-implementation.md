@@ -12,6 +12,36 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 
 ## Implementation Details
 
+### Client and Edge Functions (current codebase)
+
+The browser does **not** write ZK rows to Postgres directly. Two Edge Functions exist; they serve different request shapes:
+
+| Function | Who calls it | Request body (summary) | Role |
+| -------- | ------------- | ------------------------ | ---- |
+| **`zk-verify`** | React app via `supabase.functions.invoke('zk-verify', …)` from [`src/lib/zkAdapter.ts`](../../src/lib/zkAdapter.ts) when **not** in Vite dev stub mode | `credentialType`, `rawInput` | Production SPA path: auth-required; persists via service role. When `ZK_DEV_SKIP_VERIFY` is not `false`, uses a **stub** hash path (`isStub: true` in the response). When set to `false` without Semaphore keys wired, responds **503** (placeholder until `verifyProof` is integrated). |
+| **`verify-zk-proof`** | Callers that post a full Semaphore-shaped payload (e.g. future client or tooling) | `attribute_scope`, `proof`, `public_signals` | Same **`ZK_DEV_SKIP_VERIFY`** contract as `zk-verify`: stub shape validation and DB writes when not `false`; **503** when `false` until real `verifyProof` + keys are deployed. |
+
+**`VITE_ZK_STUB` matrix (client bundle)**
+
+| Context | Typical `VITE_ZK_STUB` | What runs |
+| ------- | -------------------- | ---------- |
+| Vite dev (`npm run dev`) | Any (ignored for Edge routing) | [`zkAdapter`](../../src/lib/zkAdapter.ts) always uses local `generateProof` — no Edge call. |
+| Production build | Unset or `false` | Invokes **`zk-verify`** (unless Edge returns 503; see above). |
+| Production build | `true` | Local `generateProof` bundled — use only for demos / emergency fallback. |
+
+**Vite dev vs production build**
+
+- **Vite dev** (`import.meta.env.DEV === true`): [`zkAdapter`](../../src/lib/zkAdapter.ts) always uses local `generateProof` from [`zkVerifier`](../../src/lib/zkVerifier.ts) — no Edge Function call, regardless of `VITE_ZK_STUB`.
+- **Production build**: invokes **`zk-verify`** unless `VITE_ZK_STUB=true` (which keeps the local proof path in the bundle).
+
+**Legacy guard:** [`isZkVerifierStubEnabled()`](../../src/lib/env.ts) (`VITE_ZK_STUB !== 'false'`) gates older dev helpers such as `submitZkProofStub`; it does not override the dev-server behavior above.
+
+**Deploy (CI):** [`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml) runs `supabase functions deploy` when `supabase/functions/*/index.ts` exists — **all** Edge Functions under [`supabase/functions/`](../../supabase/functions/) deploy together (including `zk-verify` and `verify-zk-proof`). There is no per-function toggle in that workflow.
+
+**Onboarding copy:** Phase 1 onboarding states that the ZK gate is **simulated** and that proofs stay on-device until released — see [`src/onboarding/app/components/onboarding/copy.ts`](../../src/onboarding/app/components/onboarding/copy.ts) (`verification.leadLine1`, `verification.leadLine2`, `verification.zkGateEmphasis`, `verification.zkGateRest`). That matches dev stub + optional Edge behavior above.
+
+Commitments are derived from proof material and scope—**not** from embedding the user id in the preimage. See also [data retention and logging](data-retention-zk.md).
+
 ### 1. Semaphore-Based Proofs
 
 Semaphore is a ZK-based signaling framework that enables applications where users can prove group membership without exposing their identity [3]. In SquadRidge, Semaphore is used to verify attributes like citizenship or organizational roles [1].

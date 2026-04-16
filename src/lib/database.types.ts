@@ -22,6 +22,7 @@ export interface Database {
           id: string;
           user_id: string;
           proof_commitment: string;
+          nullifier_hash: string;
           attribute_scope: string;
           created_at: string;
         };
@@ -29,6 +30,7 @@ export interface Database {
           id?: string;
           user_id: string;
           proof_commitment: string;
+          nullifier_hash: string;
           attribute_scope: string;
           created_at?: string;
         };
@@ -137,9 +139,28 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['interventions']['Insert']>;
         Relationships: [];
       };
+      waitlist_signups: {
+        Row: {
+          id: string;
+          email: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['waitlist_signups']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      waitlist_signup_count: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

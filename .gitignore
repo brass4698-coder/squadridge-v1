@@ -47,6 +47,7 @@ web_modules/
 
 # TypeScript cache
 *.tsbuildinfo
+node_modules/.tmp/
 
 # Optional npm cache directory
 .npm
@@ -76,7 +77,9 @@ web_modules/
 .env
 .env.development.local
 .env.test.local
+.env.production
 .env.production.local
+.env.staging
 .env.local
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -106,6 +109,9 @@ dist
 
 # vitepress build output
 **/.vitepress/dist
+
+# Vite dependency pre-bundle cache (under node_modules)
+node_modules/.vite/
 
 # vitepress cache directory
 **/.vitepress/cache

@@ -38,3 +38,15 @@ export function isAiPipelineEnabled(): boolean {
 export function isZkVerifierStubEnabled(): boolean {
   return env.VITE_ZK_STUB !== 'false';
 }
+
+/** External waitlist URL (Typeform, Tally, etc.). When set, landing primary CTA uses this. */
+export function getWaitlistFormUrl(): string | undefined {
+  const v = env.VITE_WAITLIST_FORM_URL;
+  return typeof v === 'string' && v.length > 0 ? v : undefined;
+}
+
+/** Public contact email for footer / humans behind the product */
+export function getPublicContactEmail(): string | undefined {
+  const v = env.VITE_CONTACT_EMAIL;
+  return typeof v === 'string' && v.length > 0 ? v : undefined;
+}

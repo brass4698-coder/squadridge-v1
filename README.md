@@ -19,7 +19,28 @@ Fill in `.env`:
 - `VITE_SUPABASE_URL` — project URL (`https://<ref>.supabase.co`)
 - `VITE_SUPABASE_PUBLISHABLE_KEY` (recommended) or legacy `VITE_SUPABASE_ANON_KEY`
 
+For production builds, set the same `VITE_*` values in your host (Vercel, Netlify, etc.); use a **local** `.env` or `.env.production` file for `npm run build` — **do not commit** env files with secrets (`.env.production` is gitignored).
+
 Enable **Anonymous** sign-in under **Authentication → Providers** in the Supabase dashboard (required for the demo squad flow). Apply migrations via CI or manually — see [`supabase/README.md`](supabase/README.md).
+
+### GitHub Actions (Supabase deploy on `main`)
+
+The workflow [`.github/workflows/deploy-supabase-production.yml`](.github/workflows/deploy-supabase-production.yml) needs these **repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Purpose |
+| ------ | ------- |
+| `SUPABASE_ACCESS_TOKEN` | Classic Supabase PAT (`sbp_*`), not the anon or service_role API key |
+| `SUPABASE_DB_PASSWORD` | Database password for linking / migrations |
+| `SUPABASE_PROJECT_ID` | 20-character project ref (subdomain only), e.g. from `https://<ref>.supabase.co` |
+
+The workflow validates token shape and project ref format; see comments in the YAML for PAT pitfalls (`sbp_v0_*` experimental tokens are rejected by the CLI).
+
+Create or rotate tokens in the [Supabase dashboard (Account → Access Tokens)](https://supabase.com/dashboard/account/tokens) — use a **classic** PAT with the `sbp_` prefix for CLI and CI.
+
+### Repository hygiene
+
+- Env files with secrets (including `.env`, `.env.production`, `.env.staging`) are **gitignored**; never commit them.
+- `node_modules/` should not appear in `git status` as tracked files. If it does, run `git ls-files node_modules` — if that prints paths, fix with `git rm -r --cached node_modules` and commit. If the index is clean but the IDE still surfaces ignored files, confirm with `git check-ignore -v <path>`.
 
 ## Scripts
 
@@ -48,7 +69,7 @@ Pick one vertical to focus engineering next (all tie to files under `docs/` and 
 | ---- | ----- |
 | **Session reliability** | Error handling, offline/retry UX — [`src/pages/SessionPage.tsx`](src/pages/SessionPage.tsx), [`src/hooks/useRealtimeMessages.ts`](src/hooks/useRealtimeMessages.ts) |
 | **Matching / squads** | Replace demo squad with real matching — Edge Function or worker; see [`src/lib/ephemeral/matchingQueue.ts`](src/lib/ephemeral/matchingQueue.ts), [`docs/product/feature-specifications.md`](docs/product/feature-specifications.md) |
-| **ZK** | Semaphore / verifier path — [`src/lib/zk/index.ts`](src/lib/zk/index.ts), [`docs/technical/zk-implementation.md`](docs/technical/zk-implementation.md) |
+| **ZK** | Client invokes [`supabase/functions/zk-verify`](supabase/functions/zk-verify) via [`src/lib/zkAdapter.ts`](src/lib/zkAdapter.ts); Semaphore-shaped endpoint [`verify-zk-proof`](supabase/functions/verify-zk-proof/index.ts) — [`src/lib/zk/index.ts`](src/lib/zk/index.ts), [`docs/technical/zk-implementation.md`](docs/technical/zk-implementation.md), [`docs/technical/data-retention-zk.md`](docs/technical/data-retention-zk.md) |
 | **AI pipeline** | `VITE_ENABLE_AI=true` when backend is ready — [`src/lib/ai/pipeline.ts`](src/lib/ai/pipeline.ts), [`docs/technical/ai-pipeline.md`](docs/technical/ai-pipeline.md) |
 | **Frontend hosting** | Vercel / Netlify / Cloudflare Pages with the same `VITE_*` build env vars (separate from DB migration CI). |
 

@@ -1,16 +1,14 @@
+@import './onboarding.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  /* 
-    Global Civic Aesthetic 
-    Dark-native background, fluid typography
-  */
   body {
-    @apply bg-navy text-white font-sans;
+    @apply bg-navy font-sans font-normal text-gray-light antialiased;
     font-size: theme('fontSize.fluid-body');
-    line-height: 1.6;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -42,48 +40,184 @@
   }
 }
 
-@layer components {
-  /* 
-    Neo-Skeuomorphism Buttons 
-    Designed for tactile feedback and clear affordances
-  */
-  .btn-primary {
-    @apply inline-flex items-center justify-center px-lg py-sm font-heading font-bold text-white bg-teal rounded-md transition-all duration-200 ease-in-out;
-    box-shadow: theme('boxShadow.neo-button');
+/* Landing + onboarding: stacking roots (viewport grain: GrainOverlay in App.tsx + /noise.png) */
+.landing-page-root,
+.onboarding-page-root {
+  position: relative;
+  isolation: isolate;
+}
+
+.landing-page-inner,
+.onboarding-page-inner {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes landing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-hero-animate-headline {
+  animation: landing-fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) 0ms both;
+}
+
+.landing-hero-animate-sub {
+  animation: landing-fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+
+.landing-hero-animate-cta {
+  animation: landing-fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-animate-headline,
+  .landing-hero-animate-sub,
+  .landing-hero-animate-cta {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
-  .btn-primary:hover {
+  .animate-step-in,
+  .animate-step-in-body {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+.sr-section-rule {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #1a2236;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded-[8px] px-5 py-2.5 font-heading text-base font-semibold text-white bg-teal transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+  }
+
+  .btn-primary:hover:not(:disabled) {
     @apply bg-teal-light;
   }
 
-  .btn-primary:active {
+  .btn-primary:active:not(:disabled) {
     @apply bg-teal-dark;
-    box-shadow: theme('boxShadow.neo-button-active');
-    transform: translateY(2px);
   }
 
-  /* 
-    Warning/Intervention Buttons (e.g., "Slow down", "Pull back")
-  */
+  .btn-primary:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-gray-600 bg-transparent px-5 py-2.5 font-heading text-base font-medium text-gray-light transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+  }
+
+  .btn-secondary:hover {
+    @apply border-gray-500 text-white;
+  }
+
+  /** Hero primary CTA — explicit 8px radius (not pill) */
+  .btn-hero-join {
+    @apply inline-flex min-h-[44px] items-center gap-2 rounded-[8px] bg-teal px-5 py-3 font-heading text-base font-semibold text-white transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+  }
+
+  .btn-hero-join:hover {
+    @apply bg-teal-light;
+  }
+
+  .btn-ghost {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[8px] border border-gray-600 bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-gray-light transition-colors duration-150;
+  }
+
+  .btn-ghost:hover {
+    @apply border-gray-500 text-white;
+  }
+
   .btn-warning {
-    @apply inline-flex items-center justify-center px-lg py-sm font-heading font-bold text-navy-dark bg-amber rounded-md transition-all duration-200 ease-in-out;
-    box-shadow: theme('boxShadow.neo-button');
+    @apply inline-flex items-center justify-center rounded-md px-lg py-sm font-heading font-bold text-navy-dark bg-amber transition-transform duration-150;
   }
 
-  .btn-warning:hover {
-    @apply bg-amber-light;
-  }
-
-  .btn-warning:active {
-    @apply bg-amber-dark;
-    box-shadow: theme('boxShadow.neo-button-active');
-    transform: translateY(2px);
-  }
-
-  /*
-    Cards and Panels
-  */
   .panel {
-    @apply bg-navy-light rounded-lg p-lg border border-gray-light border-opacity-20;
+    @apply rounded-lg border border-gray-700 bg-navy-light p-lg;
   }
+
+  .glass-card {
+    @apply rounded-lg border border-gray-800 bg-navy-light p-6;
+  }
+
+  .glass-card-waitlist {
+    @apply rounded-lg border border-gray-800 bg-transparent px-0 py-0;
+  }
+
+  .waitlist-pill {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-end;
+  }
+}
+
+/* Early access Join — match hero CTA */
+#waitlist-join-btn {
+  border-radius: 8px !important;
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
+/* SAFE watermark: fade toward right; opacity set in markup (subtle, visible) */
+.landing-hero-watermark {
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.35) 25%, rgba(0, 0, 0, 0.12) 55%, transparent 85%);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.35) 25%, rgba(0, 0, 0, 0.12) 55%, transparent 85%);
+}
+
+.waitlist-email-input {
+  border-radius: 0 !important;
+  background-color: transparent !important;
+}
+
+/*
+ * Viewport grain: implemented in React (`GrainOverlay`) using `/public/noise.png`
+ * so it stacks above the app reliably (replacing fragile SVG filter / body::after).
+ */
+
+/* Landing — "How it works" step numerals: in document flow (not absolute) so they don’t overlap titles. */
+.landing-how-step-number {
+  font-family: 'Public Sans', system-ui, sans-serif;
+  color: #1a2744 !important;
+  -webkit-text-fill-color: currentColor;
+  font-weight: 900;
+  font-size: clamp(3.25rem, 7vw, 5.5rem);
+  line-height: 1;
+  opacity: 1;
+  text-shadow: none;
+  font-variant-numeric: tabular-nums;
+  forced-color-adjust: none;
+}
+
+@media (min-width: 768px) {
+  .landing-how-step-number {
+    font-size: clamp(2.75rem, 4.2vw, 4.25rem);
+  }
+}
+
+/* Session room: incoming message is being translated (client-side worker). */
+@keyframes session-translation-pulse {
+  0%,
+  100% {
+    border-color: rgba(20, 140, 134, 0.35);
+  }
+  50% {
+    border-color: rgba(20, 140, 134, 0.95);
+  }
+}
+
+.session-translation-pending {
+  animation: session-translation-pulse 1.2s ease-in-out infinite;
 }
