@@ -6,7 +6,7 @@ import {
 } from './messageCrypto';
 
 /**
- * Legacy JSON payload stored in `messages.encrypted_content` (pre–AES-256 rollout).
+ * Legacy JSON payload stored in `messages.payload_ciphertext` (pre–AES-256 rollout).
  */
 export interface MessagePayloadV1 {
   v: 1;

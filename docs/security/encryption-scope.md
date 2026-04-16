@@ -2,7 +2,7 @@
 
 ## What is protected
 
-- **Per-squad symmetric encryption (AES-GCM)** ensures ciphertext stored in `messages.encrypted_content` is only decipherable by clients that possess the squad’s `message_encryption_key`.
+- **Per-squad symmetric encryption (AES-GCM)** stores ciphertext in `messages.payload_ciphertext` (JSON blob). Clients with the squad’s `message_encryption_key` can decrypt; the operator can also read keys and ciphertext — see the [threat model](threat-model.md).
 - Other squad members without the key cannot read message bodies from the database payload alone.
 
 ## What is not protected (today)

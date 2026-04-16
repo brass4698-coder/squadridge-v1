@@ -56,7 +56,7 @@ type OptimisticMessage = {
   optimisticId: string;
   squad_id: string;
   sender_id: string;
-  encrypted_content: string;
+  payload_ciphertext: string;
   /** Shown immediately while ciphertext is stored for the insert. */
   plainBody: string;
   sent_at: string;
@@ -201,7 +201,7 @@ export function SessionPage() {
         .insert({
           squad_id: m.squad_id,
           sender_id: m.sender_id,
-          encrypted_content: m.encrypted_content,
+          payload_ciphertext: m.payload_ciphertext,
         })
         .select()
         .single();
@@ -270,7 +270,7 @@ export function SessionPage() {
         optimisticId: r.localId,
         squad_id: r.squadId,
         sender_id: r.senderId,
-        encrypted_content: r.encrypted_content,
+        payload_ciphertext: r.payload_ciphertext,
         plainBody: r.plainBody,
         sent_at: r.createdAt,
         status: 'active',
@@ -317,7 +317,7 @@ export function SessionPage() {
       messages.some(
         (m) =>
           m.sender_id === o.sender_id &&
-          m.encrypted_content === o.encrypted_content &&
+          m.payload_ciphertext === o.payload_ciphertext &&
           Math.abs(new Date(m.sent_at).getTime() - new Date(o.sent_at).getTime()) < 8_000,
       ),
     );
@@ -453,7 +453,7 @@ export function SessionPage() {
       optimisticId,
       squad_id: squadId,
       sender_id: user.id,
-      encrypted_content: enc,
+      payload_ciphertext: enc,
       plainBody: text,
       sent_at: sentAt,
       status: 'active',
@@ -465,7 +465,7 @@ export function SessionPage() {
         localId: optimisticId,
         squadId,
         senderId: user.id,
-        encrypted_content: enc,
+        payload_ciphertext: enc,
         plainBody: text,
         createdAt: sentAt,
       });
@@ -619,6 +619,21 @@ export function SessionPage() {
             ready for the room.
           </p>
         </header>
+        <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-[#6b7280]">
+          <li>
+            <strong className="font-medium text-[#a8b2c1]">Intent</strong> — choose side A or B and optional tags; you
+            enter the matchmaking pool.
+          </li>
+          <li>
+            <strong className="font-medium text-[#a8b2c1]">Match</strong> — wait until enough people on both sides are
+            queued; then we open the squad.
+          </li>
+          <li>
+            <strong className="font-medium text-[#a8b2c1]">Room</strong> — you land in{' '}
+            <code className="rounded bg-[#0f1623] px-1 py-0.5 font-mono text-[0.75rem] text-[#8892a4]">/session/&lt;id&gt;</code>{' '}
+            automatically (no manual UUID handoff).
+          </li>
+        </ol>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/intent"

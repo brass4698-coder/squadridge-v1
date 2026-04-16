@@ -19,7 +19,7 @@ type MessageRow = {
   sent_at: string;
   sender_id: string | null;
   status: string;
-  encrypted_content: string;
+  payload_ciphertext: string;
 };
 
 function previewCipher(enc: string): string {
@@ -69,7 +69,7 @@ export function ModDashboardPage() {
       if (!supabase || !expandedId) return [];
       const { data, error } = await supabase
         .from('messages')
-        .select('id, sent_at, sender_id, status, encrypted_content')
+        .select('id, sent_at, sender_id, status, payload_ciphertext')
         .eq('squad_id', expandedId)
         .order('sent_at', { ascending: false })
         .limit(40);
@@ -260,7 +260,7 @@ export function ModDashboardPage() {
                               <span>{new Date(m.sent_at).toLocaleString()}</span>
                               <span>{m.status}</span>
                             </div>
-                            <p className="mt-1 break-all text-[#6b7280]">{previewCipher(m.encrypted_content)}</p>
+                            <p className="mt-1 break-all text-[#6b7280]">{previewCipher(m.payload_ciphertext)}</p>
                             {m.status === 'sent' ? (
                               <button
                                 type="button"

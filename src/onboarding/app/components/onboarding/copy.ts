@@ -76,10 +76,11 @@ export const COPY = {
     leadLine1: 'We confirm you are real and eligible—without building a profile on you.',
     /** U+2011 in "sign‑in" keeps the compound from breaking across lines. */
     leadLine2:
-      'Phase 1 uses account sign\u2011in; a zero-knowledge proofs layer comes next.',
+      'Sign\u2011in creates your account. Cryptographic verification uses Semaphore proofs in the main app (\u201cVerify\u201d) — checked by our Edge function, not a dossier.',
     /** Shown in badge block before zkGateRest; rendered strong in VerificationScreen. */
-    zkGateEmphasis: 'ZK gate',
-    zkGateRest: ' is simulated in Phase 1. Proofs stay bound to your device until you release them.',
+    zkGateEmphasis: 'Zero-knowledge verification',
+    zkGateRest:
+      ' runs at /verify: your browser builds a Semaphore proof; the verify-zk-proof function verifies it server-side. Never ship VITE_ZK_STUB=true to users (dev hash placeholder only).',
     /** Shown when Supabase keys are missing (dev / offline). */
     devNoticeLabel: 'Dev notice',
     devSupabaseNotice:

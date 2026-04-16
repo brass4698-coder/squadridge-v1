@@ -128,7 +128,7 @@ export interface Database {
           id: string;
           squad_id: string | null;
           sender_id: string | null;
-          encrypted_content: string;
+          payload_ciphertext: string;
           sent_at: string;
           status: string;
         };
@@ -136,7 +136,7 @@ export interface Database {
           id?: string;
           squad_id?: string | null;
           sender_id?: string | null;
-          encrypted_content: string;
+          payload_ciphertext: string;
           sent_at?: string;
           status?: string;
         };

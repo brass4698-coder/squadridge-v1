@@ -7,7 +7,7 @@ export type PendingSendRecord = {
   localId: string;
   squadId: string;
   senderId: string;
-  encrypted_content: string;
+  payload_ciphertext: string;
   plainBody: string;
   createdAt: string;
 };

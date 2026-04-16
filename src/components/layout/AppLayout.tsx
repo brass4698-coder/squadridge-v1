@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { AuthIssueBanner } from '../auth/AuthIssueBanner';
 import { OfflineBanner } from '../OfflineBanner';
+import { ZkStubBanner } from '../ZkStubBanner';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { getPublicContactEmail } from '../../lib/env';
@@ -40,6 +41,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-dvh flex flex-col overflow-x-hidden bg-navy text-white">
+      <ZkStubBanner />
       <OfflineBanner />
       <AuthIssueBanner />
       {!hideChrome ? (

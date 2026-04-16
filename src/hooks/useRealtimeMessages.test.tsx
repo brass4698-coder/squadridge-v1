@@ -15,7 +15,7 @@ function baseRow(partial: Partial<MessageRow> & Pick<MessageRow, 'id' | 'sent_at
   return {
     squad_id: partial.squad_id ?? 'squad-1',
     sender_id: partial.sender_id ?? 'user-1',
-    encrypted_content: partial.encrypted_content ?? 'enc',
+    payload_ciphertext: partial.payload_ciphertext ?? 'enc',
     status: partial.status ?? 'sent',
     ...partial,
   };
@@ -32,7 +32,7 @@ function TestHarness({ squadId }: { squadId?: string }) {
       <ol data-testid="order">
         {messages.map((m) => (
           <li key={m.id} data-testid={`msg-${m.id}`}>
-            {m.encrypted_content}
+            {m.payload_ciphertext}
           </li>
         ))}
       </ol>
@@ -55,7 +55,7 @@ function PaginationHarness({ squadId }: { squadId?: string }) {
       <ol data-testid="order">
         {messages.map((m) => (
           <li key={m.id} data-testid={`msg-${m.id}`}>
-            {m.encrypted_content}
+            {m.payload_ciphertext}
           </li>
         ))}
       </ol>
@@ -79,7 +79,7 @@ function RetryHarness({ squadId }: { squadId?: string }) {
       <ol data-testid="order">
         {messages.map((m) => (
           <li key={m.id} data-testid={`msg-${m.id}`}>
-            {m.encrypted_content}
+            {m.payload_ciphertext}
           </li>
         ))}
       </ol>
@@ -127,8 +127,8 @@ describe('useRealtimeMessages', () => {
 
   it('loads messages from the initial query when squadId and supabase are set', async () => {
     const initial = [
-      baseRow({ id: 'a', sent_at: '2025-01-01T00:00:00.000Z', encrypted_content: 'first' }),
-      baseRow({ id: 'b', sent_at: '2025-01-02T00:00:00.000Z', encrypted_content: 'second' }),
+      baseRow({ id: 'a', sent_at: '2025-01-01T00:00:00.000Z', payload_ciphertext: 'first' }),
+      baseRow({ id: 'b', sent_at: '2025-01-02T00:00:00.000Z', payload_ciphertext: 'second' }),
     ];
     const stub = createSupabaseMessagesStub({ initialMessages: initial });
     renderWithAuth(<TestHarness squadId="squad-1" />, stub);
@@ -157,8 +157,8 @@ describe('useRealtimeMessages', () => {
   it('inserts new rows in sent_at order and keeps existing ordering stable', async () => {
     const stub = createSupabaseMessagesStub({
       initialMessages: [
-        baseRow({ id: 'early', sent_at: '2025-01-01T10:00:00.000Z', encrypted_content: 'A' }),
-        baseRow({ id: 'late', sent_at: '2025-01-03T10:00:00.000Z', encrypted_content: 'C' }),
+        baseRow({ id: 'early', sent_at: '2025-01-01T10:00:00.000Z', payload_ciphertext: 'A' }),
+        baseRow({ id: 'late', sent_at: '2025-01-03T10:00:00.000Z', payload_ciphertext: 'C' }),
       ],
     });
     renderWithAuth(<TestHarness squadId="squad-1" />, stub);
@@ -169,7 +169,7 @@ describe('useRealtimeMessages', () => {
       baseRow({
         id: 'mid',
         sent_at: '2025-01-02T10:00:00.000Z',
-        encrypted_content: 'B',
+        payload_ciphertext: 'B',
       }),
     );
 
@@ -183,7 +183,7 @@ describe('useRealtimeMessages', () => {
   it('updates an existing row in place by id', async () => {
     const stub = createSupabaseMessagesStub({
       initialMessages: [
-        baseRow({ id: 'x', sent_at: '2025-01-01T00:00:00.000Z', encrypted_content: 'old' }),
+        baseRow({ id: 'x', sent_at: '2025-01-01T00:00:00.000Z', payload_ciphertext: 'old' }),
       ],
     });
     renderWithAuth(<TestHarness squadId="squad-1" />, stub);
@@ -195,7 +195,7 @@ describe('useRealtimeMessages', () => {
       baseRow({
         id: 'x',
         sent_at: '2025-01-01T00:00:00.000Z',
-        encrypted_content: 'new',
+        payload_ciphertext: 'new',
       }),
     );
 
@@ -209,7 +209,7 @@ describe('useRealtimeMessages', () => {
     const row = baseRow({
       id: 'dup',
       sent_at: '2025-01-01T12:00:00.000Z',
-      encrypted_content: 'once',
+      payload_ciphertext: 'once',
     });
     const stub = createSupabaseMessagesStub({ initialMessages: [row] });
     renderWithAuth(<TestHarness squadId="squad-1" />, stub);
@@ -217,7 +217,7 @@ describe('useRealtimeMessages', () => {
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
     expect(screen.getByTestId('count').textContent).toBe('1');
 
-    stub.emitInsert({ ...row, encrypted_content: 'duplicate-attempt' });
+    stub.emitInsert({ ...row, payload_ciphertext: 'duplicate-attempt' });
 
     await waitFor(() => {
       expect(screen.getByTestId('count').textContent).toBe('1');
@@ -244,14 +244,14 @@ describe('useRealtimeMessages', () => {
       baseRow({
         id: 'a',
         sent_at: '2025-01-01T10:00:00.000Z',
-        encrypted_content: 'first',
+        payload_ciphertext: 'first',
       }),
     ];
     const backfill = [
       baseRow({
         id: 'b',
         sent_at: '2025-01-03T10:00:00.000Z',
-        encrypted_content: 'after-gap',
+        payload_ciphertext: 'after-gap',
       }),
     ];
 
@@ -300,7 +300,7 @@ describe('useRealtimeMessages', () => {
       ];
       const stub = createSupabaseMessagesStub({
         initialMessages: [
-          baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', encrypted_content: 'first' }),
+          baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', payload_ciphertext: 'first' }),
         ],
         subscribeStatusSequence: seq,
       });
@@ -345,7 +345,7 @@ describe('useRealtimeMessages', () => {
         baseRow({
           id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
           sent_at: new Date(Date.UTC(2025, 0, 1, 12, 0, i)).toISOString(),
-          encrypted_content: `m${i}`,
+          payload_ciphertext: `m${i}`,
         }),
       );
     }
@@ -372,14 +372,14 @@ describe('useRealtimeMessages', () => {
       baseRow({
         id: 'a',
         sent_at: '2025-01-01T10:00:00.000Z',
-        encrypted_content: 'first',
+        payload_ciphertext: 'first',
       }),
     ];
     const backfill = [
       baseRow({
         id: 'b',
         sent_at: '2025-01-03T10:00:00.000Z',
-        encrypted_content: 'after-gap',
+        payload_ciphertext: 'after-gap',
       }),
     ];
 

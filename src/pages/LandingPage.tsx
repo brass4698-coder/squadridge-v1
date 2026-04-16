@@ -106,6 +106,19 @@ export function LandingPage() {
                 />
                 <HeroWaitlistCounter />
               </div>
+              {configured ? (
+                <p className="landing-hero-animate-sub mt-8 max-w-[52ch] font-sans text-[0.98rem] leading-[1.65] text-landing-body">
+                  <span className="font-medium text-landing-ink">Live app:</span>{' '}
+                  <Link
+                    to="/intent"
+                    className="font-semibold text-teal-light underline-offset-4 hover:text-teal-light hover:underline"
+                  >
+                    Find a squad
+                  </Link>{' '}
+                  — intent, matchmaking queue, then your room so both perspectives are matched together (not a
+                  hand-picked UUID).
+                </p>
+              ) : null}
             </div>
           </div>
         </section>

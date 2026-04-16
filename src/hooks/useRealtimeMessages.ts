@@ -44,7 +44,7 @@ function messageRowFingerprint(m: MessageRow): string {
     m.id,
     m.squad_id ?? '',
     m.sender_id ?? '',
-    m.encrypted_content,
+    m.payload_ciphertext,
     m.sent_at,
     m.status,
   ].join('\u0001');

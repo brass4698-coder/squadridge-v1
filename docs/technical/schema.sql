@@ -59,7 +59,7 @@ CREATE TABLE public.messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     squad_id UUID REFERENCES public.squads(id) ON DELETE CASCADE,
     sender_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
-    encrypted_content TEXT NOT NULL,
+    payload_ciphertext TEXT NOT NULL,
     sent_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     status VARCHAR(50) DEFAULT 'sent' CHECK (status IN ('sent', 'retracted', 'flagged'))
 );

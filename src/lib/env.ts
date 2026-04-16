@@ -84,6 +84,11 @@ export function isZkVerifierStubEnabled(): boolean {
   return env.VITE_ZK_STUB !== 'false';
 }
 
+/** True only when `VITE_ZK_STUB=true` — explicit hash stub; use for UI warnings. */
+export function isZkHashStubExplicit(): boolean {
+  return env.VITE_ZK_STUB === 'true';
+}
+
 /** External waitlist URL (Typeform, Tally, etc.). When set, landing primary CTA uses this. */
 export function getWaitlistFormUrl(): string | undefined {
   const v = env.VITE_WAITLIST_FORM_URL;

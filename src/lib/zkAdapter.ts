@@ -9,8 +9,9 @@ const USE_HASH_STUB = import.meta.env.VITE_ZK_STUB === 'true';
 export const ZK_SESSION_CREDENTIAL_TYPE = 'session_attribute';
 
 /**
- * Generates a Semaphore proof in-browser and verifies it via `verify-zk-proof`,
- * unless `VITE_ZK_STUB=true` (hash-only demo path).
+ * **Production path (default when `VITE_ZK_STUB` is unset or `false`):** generates a Semaphore proof in-browser and
+ * verifies it via the `verify-zk-proof` Edge Function — this is the real ZK flow for demos and partners.
+ * **Dev-only:** `VITE_ZK_STUB=true` swaps in a fast hash-only stub (not zero-knowledge); `ZkStubBanner` warns in the shell.
  */
 export async function runVerification(
   supabase: SupabaseClient<Database>,
@@ -23,7 +24,9 @@ export async function runVerification(
   }
 
   const { generateSemaphoreProof } = await import('./zkVerifier');
-  const semaphoreProof = await generateSemaphoreProof(credentialType, rawInput.trim());
+  const { semaphoreProofToWireFormat } = await import('./zk/serializeSemaphoreProof');
+  const rawProof = await generateSemaphoreProof(credentialType, rawInput.trim());
+  const semaphoreProof = semaphoreProofToWireFormat(rawProof);
 
   const { data, error } = await supabase.functions.invoke('verify-zk-proof', {
     body: {

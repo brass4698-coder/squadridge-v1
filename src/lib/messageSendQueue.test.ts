@@ -23,7 +23,7 @@ describe('sendQueue', () => {
       localId: 'id-1',
       squadId: 'squad-a',
       senderId: 'user-1',
-      encrypted_content: 'enc',
+      payload_ciphertext: 'enc',
       plainBody: 'hello',
       createdAt: new Date().toISOString(),
     };

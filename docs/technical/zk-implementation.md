@@ -32,7 +32,7 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 **SPA flow:**
 
 1. [`src/lib/zkAdapter.ts`](../../src/lib/zkAdapter.ts) `runVerification`: if `VITE_ZK_STUB === 'true'`, returns [`generateStubProof`](../../src/lib/zkVerifier.ts) (no Edge call; not shippable in production builds — [`vite.config.ts`](../../vite.config.ts)).
-2. Otherwise [`generateSemaphoreProof`](../../src/lib/zkVerifier.ts) (identity + group helpers under [`src/lib/zk/`](../../src/lib/zk/)), then **`verify-zk-proof`** with the Semaphore-shaped body.
+2. Otherwise [`generateSemaphoreProof`](../../src/lib/zkVerifier.ts) (identity + group helpers under [`src/lib/zk/`](../../src/lib/zk/)), then [`semaphoreProofToWireFormat`](../../src/lib/zk/serializeSemaphoreProof.ts) for JSON-safe transport, then **`verify-zk-proof`** with the Semaphore-shaped body.
 
 **`VITE_ZK_STUB` matrix (client)**
 
@@ -47,7 +47,7 @@ Dev does **not** automatically skip the Edge Function—only `VITE_ZK_STUB=true`
 
 **Deploy (CI):** [`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml) runs `supabase functions deploy` for all functions under [`supabase/functions/`](../../supabase/functions/). [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) runs frontend build/test but does not deploy Edge Functions.
 
-**Onboarding copy:** Phase 1 onboarding still describes a **simulated** gate in places — see [`src/onboarding/app/components/onboarding/copy.ts`](../../src/onboarding/app/components/onboarding/copy.ts). Align user-visible strings whenever the product moves from demo scopes to production verification.
+**Onboarding copy:** See [`copy.ts`](../../src/onboarding/app/components/onboarding/copy.ts) — verification step explains Semaphore + Edge; stub mode is documented as dev-only.
 
 Proof **commitments** hash proof material and scope; they are stored alongside **`user_id`** for the logged-in account (see [threat model](../security/threat-model.md)). See also [data retention and logging](data-retention-zk.md).
 

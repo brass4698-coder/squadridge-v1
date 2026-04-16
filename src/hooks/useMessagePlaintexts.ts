@@ -13,7 +13,7 @@ export function useMessagePlaintexts(messages: MessageRow[], cryptoKey: CryptoKe
       const next: Record<string, string> = {};
       await Promise.all(
         messages.map(async (m) => {
-          next[m.id] = await decodeMessagePayloadAdaptive(m.encrypted_content, cryptoKey);
+          next[m.id] = await decodeMessagePayloadAdaptive(m.payload_ciphertext, cryptoKey);
         }),
       );
       if (!cancelled) {
