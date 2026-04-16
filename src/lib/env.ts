@@ -87,7 +87,11 @@ export function isZkHashStubEnabled(): boolean {
   return env.VITE_ZK_STUB === 'true';
 }
 
-/** @deprecated Use {@link isZkHashStubEnabled}. */
+/** @deprecated Use {@link isZkHashStubEnabled}. Note: the old implementation returned `true` when
+ * `VITE_ZK_STUB` was unset (i.e. `!== 'false'`), making the stub effectively the default. The new
+ * function returns `false` when unset (real Semaphore path is the default). Callers guarding on
+ * `!isZkVerifierStubEnabled()` should migrate to `!isZkHashStubEnabled()` — the semantics are now
+ * equivalent, but the old default was inverted. */
 export function isZkVerifierStubEnabled(): boolean {
   return isZkHashStubEnabled();
 }

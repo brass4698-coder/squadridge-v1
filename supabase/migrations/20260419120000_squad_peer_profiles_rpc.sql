@@ -26,7 +26,7 @@ BEGIN
         WHERE
             sm.squad_id = p_squad_id
             AND sm.user_id = auth.uid ()) THEN
-    RAISE EXCEPTION 'not a member of this squad'
+    RAISE EXCEPTION 'Not a member of squad: %', p_squad_id
         USING ERRCODE = '42501';
 END IF;
     RETURN QUERY

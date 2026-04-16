@@ -13,8 +13,19 @@ type MessageRow = Database['public']['Tables']['messages']['Row'];
  */
 export function useMessagePlaintexts(messages: MessageRow[], cryptoKey: CryptoKey | null) {
   const [byId, setById] = useState<Record<string, string>>({});
-  /** Cache: message id → { ciphertext fingerprint, decrypted text } */
+  /**
+   * Cache: message id → { fp: payload_ciphertext string used as fingerprint, text: decrypted plaintext }.
+   * Using payload_ciphertext as the fingerprint is safe because the ciphertext column is append-only in
+   * the current schema (messages are retracted by changing status, not by overwriting ciphertext). If that
+   * assumption changes in future, update the fingerprint to include `status` or a version counter.
+   */
   const cacheRef = useRef(new Map<string, { fp: string; text: string }>());
+  /**
+   * Track the CryptoKey instance by reference. A new key object is produced by `importAes256GcmKeyFromBase64Url`
+   * only when `ensureSquadMessageKey` runs (squad data load / first send), so reference equality is a reliable
+   * signal that the key material changed. If the same raw bytes were imported a second time, the references
+   * would differ and a full re-decrypt would occur — this is the correct and safe behaviour.
+   */
   const prevKeyRef = useRef<CryptoKey | null>(null);
 
   useEffect(() => {

@@ -514,7 +514,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     if (!supabase) return;
     const { error } = await supabase.from('messages').update({ status: 'retracted' }).eq('id', messageId);
     if (error) {
-      toast.error('Could not retract message. You can only pull back your own messages.');
+      toast.error('Could not retract message. Please try again.');
       return;
     }
     await refresh();
