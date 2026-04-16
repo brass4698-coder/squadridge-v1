@@ -359,6 +359,7 @@ export function SessionPage() {
                   translationEnabled={false}
                   preferredLanguage={prefs.preferredLanguage}
                   translationPreferenceEpoch={prefs.translationPreferenceEpoch}
+                  // isOwn=true so shouldTranslate is always false; receivedEpoch is unused.
                   receivedEpoch={prefs.translationPreferenceEpoch}
                   translate={translate}
                   onPullBack={() => undefined}
