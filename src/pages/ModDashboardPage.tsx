@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,6 +31,7 @@ export function ModDashboardPage() {
   const { supabase } = useAuth();
   const queryClient = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [squadFilter, setSquadFilter] = useState('');
 
   const squadsQuery = useQuery({
     queryKey: ['mod', 'squads', 'recent'],
@@ -145,6 +146,13 @@ export function ModDashboardPage() {
 
   const squads = squadsQuery.data ?? [];
   const audits = auditQuery.data ?? [];
+  const filteredSquads = useMemo(() => {
+    const t = squadFilter.trim().toLowerCase();
+    if (!t) return squads;
+    return squads.filter(
+      (s) => s.topic.toLowerCase().includes(t) || s.id.toLowerCase().includes(t) || s.status.toLowerCase().includes(t),
+    );
+  }, [squads, squadFilter]);
 
   return (
     <section className="mx-auto flex w-full max-w-[960px] flex-col gap-10 pb-16 pt-[72px]" aria-labelledby="mod-title">
@@ -154,12 +162,25 @@ export function ModDashboardPage() {
         </h1>
         <p className="mt-2 max-w-[60ch] font-sans text-[0.9rem] leading-relaxed text-[#8892a4]">
           Active squads with member counts, message ciphertext preview (not decrypted), flag message, and archive squad.
-          Moderator accounts are provisioned in the database — not self-service.
+          Moderator accounts are provisioned in the database — not self-service. Retention and deletion policies are
+          operator-defined — see <code className="font-mono text-[0.75rem] text-[#6b7280]">docs/operations/data-retention-operators.md</code>.
         </p>
       </header>
 
       <div className="rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-6">
-        <h2 className="font-heading text-[1rem] font-semibold text-[#e2e8f0]">Squads</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-heading text-[1rem] font-semibold text-[#e2e8f0]">Squads</h2>
+          <label className="flex max-w-md flex-1 flex-col gap-1 font-sans text-[0.75rem] text-[#6b7280] sm:min-w-[12rem]">
+            <span className="sr-only">Filter squads</span>
+            <input
+              type="search"
+              value={squadFilter}
+              onChange={(e) => setSquadFilter(e.target.value)}
+              placeholder="Filter by topic, id, or status…"
+              className="min-h-[40px] rounded-lg border border-[#1a2236] bg-[#0a1018] px-3 py-2 text-[0.875rem] text-[#e2e8f0] placeholder:text-[#4b5563] focus:border-teal/40 focus:outline-none"
+            />
+          </label>
+        </div>
         {squadsQuery.isPending ? (
           <p className="mt-4 font-sans text-[0.875rem] text-[#4b5563]">Loading…</p>
         ) : squadsQuery.isError ? (
@@ -168,9 +189,11 @@ export function ModDashboardPage() {
           </p>
         ) : squads.length === 0 ? (
           <p className="mt-4 font-sans text-[0.875rem] text-[#4b5563]">No squads found.</p>
+        ) : filteredSquads.length === 0 ? (
+          <p className="mt-4 font-sans text-[0.875rem] text-[#4b5563]">No squads match your filter.</p>
         ) : (
           <ul className="mt-4 divide-y divide-[#1a2236]">
-            {squads.map((s) => (
+            {filteredSquads.map((s) => (
               <li key={s.id} className="py-3 first:pt-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -303,6 +326,11 @@ export function ModDashboardPage() {
                 <span className="text-[#e2e8f0]">{row.action}</span>
                 {row.target_type ? <span className="ml-2 text-[#4b5563]">{row.target_type}</span> : null}
                 <span className="ml-2 text-[#4b5563]">{new Date(row.created_at).toLocaleString()}</span>
+                {row.metadata && typeof row.metadata === 'object' && Object.keys(row.metadata).length > 0 ? (
+                  <pre className="mt-2 max-h-24 overflow-auto rounded border border-[#1a2236] bg-[#0a1018] p-2 font-mono text-[0.65rem] text-[#6b7280]">
+                    {JSON.stringify(row.metadata, null, 0)}
+                  </pre>
+                ) : null}
               </li>
             ))}
           </ul>

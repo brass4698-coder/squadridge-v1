@@ -16,6 +16,7 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { LedgerPage } from './pages/LedgerPage';
+import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { ModDashboardPage } from './pages/ModDashboardPage';
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="/intent" element={<IntentPage />} />
                 <Route path="/ledger" element={<LedgerPage />} />
                 <Route path="/ledger/:proposalId" element={<LedgerPage />} />
+                <Route path="/security" element={<SecurityDisclosurePage />} />
                 <Route path="/match" element={<Match />} />
                 <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
                 <Route path="/dev/supabase" element={<SupabaseHealthPage />} />

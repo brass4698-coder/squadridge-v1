@@ -22,7 +22,7 @@ To enhance our AI capabilities and address the "data winter" in peace-tech, we w
 
 *   **Early Warning Systems (VIEWS, ACLED, GDELT)**: We will integrate our aggregated, de-identified sentiment metrics with these leading systems [3]. This provides high-fidelity warnings to humanitarian organizations and diplomatic actors, addressing the "warning-response" problem [2].
 *   **Academic Institutions (NYU Steinhardt, Uppsala University, PRIO)**: We will collaborate on the development of "Data Commons"—shared, ethically governed data pools for public benefit [2]. This ensures our data infrastructure serves community needs without extractive practices [2].
-*   **Zero-Knowledge Technology Providers**: We will continuously integrate advancements in zkTLS and Semaphore-based proofs to strengthen our identity verification and anonymity features [3].
+*   **Zero-Knowledge Technology Providers**: We ship **Semaphore**-based proofs with server-side verification today; we will evaluate **zkTLS**-style and related advances as they mature for production (research: [`docs/technical/rfc-zktls-attribute-proofs.md`](../technical/rfc-zktls-attribute-proofs.md)) [3].
 
 ## Phase 3: Grassroots and Civil Society Networks
 

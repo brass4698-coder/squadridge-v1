@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   /** Enable demo squad shortcuts in production-like builds (e.g. staging). */
   readonly VITE_ENABLE_DEMO_SQUAD?: string;
   readonly VITE_ZK_STUB?: string;
+  /** Research UI for zkTLS-style flows (default off). */
+  readonly VITE_ZKTLS_LABS?: string;
   /** External waitlist URL (Typeform, Tally, etc.). */
   readonly VITE_WAITLIST_FORM_URL?: string;
   /** Public contact for footer (optional) */

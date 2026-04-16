@@ -1,10 +1,11 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { isDemoSquadShortcutsEnabled } from '../../lib/env';
 import { RequireAuth } from '../auth/RequireAuth';
+import { SessionHubPage } from '../../pages/SessionHubPage';
 import { SessionPage } from '../../pages/SessionPage';
 
 /**
- * `/session` landing stays public; active squad rooms (`/session/:id`) require sign-in and a complete profile.
+ * `/session` hub stays public; active squad rooms (`/session/:id`) require sign-in and a complete profile.
  * `/session/demo-session-001` is handled by `DemoSessionPage` when demo shortcuts are enabled.
  */
 export function SessionAccess() {
@@ -18,11 +19,13 @@ export function SessionAccess() {
     return <Navigate to="/session" replace />;
   }
 
-  return !squadId ? (
-    <SessionPage />
-  ) : (
+  if (!squadId) {
+    return <SessionHubPage />;
+  }
+
+  return (
     <RequireAuth requireCompleteProfile>
-      <SessionPage />
+      <SessionPage squadId={squadId} />
     </RequireAuth>
   );
 }

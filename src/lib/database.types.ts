@@ -247,6 +247,36 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['moderation_audit_log']['Insert']>;
         Relationships: [];
       };
+      ledger_proposals: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          summary: string;
+          consensus_items: Json;
+          tags: string[];
+          status: string;
+          published_at: string | null;
+          squad_id: string | null;
+          ledger_ref: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          summary: string;
+          consensus_items?: Json;
+          tags?: string[];
+          status?: string;
+          published_at?: string | null;
+          squad_id?: string | null;
+          ledger_ref?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ledger_proposals']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

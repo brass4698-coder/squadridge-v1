@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib/env';
+import { isSupabaseConfigured, isZkTlsLabsEnabled } from '../lib/env';
 import { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../lib/zk';
 
 const onboardingDoneCtaClass =
@@ -90,6 +90,15 @@ export function VerificationPage() {
           cryptographic commitment and a nullifier after server-side verification—nothing that links this visit to your
           legal identity.
         </p>
+        {isZkTlsLabsEnabled() ? (
+          <p
+            className="mb-0 mt-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-[0.85rem] text-amber"
+            role="status"
+          >
+            Labs: <code className="font-mono text-[0.8rem]">VITE_ZKTLS_LABS</code> is on — zkTLS-style proofs are not
+            shipped; see <code className="font-mono text-[0.8rem]">docs/technical/rfc-zktls-attribute-proofs.md</code>.
+          </p>
+        ) : null}
 
         <section className="mt-10 rounded-2xl border border-[#1e2a3a] bg-gradient-to-b from-[#101722] via-[#0d121c] to-[#0a0f16] px-7 py-9 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_32px_64px_-28px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.04] md:px-11 md:py-11">
           {done ? (

@@ -4,129 +4,33 @@ import { RouteErrorBoundary } from '../RouteErrorBoundary';
 import { AuthIssueBanner } from '../auth/AuthIssueBanner';
 import { OfflineBanner } from '../OfflineBanner';
 import { ZkStubBanner } from '../ZkStubBanner';
-import SquadLogo from '../SquadLogo';
-import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { getPublicContactEmail } from '../../lib/env';
-import { useIsModerator } from '../../hooks/useIsModerator';
-import { AccountMenu } from './AccountMenu';
-
-function ModNavLink({ navActive, navMuted }: { navActive: string; navMuted: string }) {
-  const { data: isMod } = useIsModerator();
-  const { pathname } = useLocation();
-  if (!isMod) return null;
-  return (
-    <li>
-      <Link to="/mod" className={pathname.startsWith('/mod') ? navActive : navMuted}>
-        Mod
-      </Link>
-    </li>
-  );
-}
+import { AppHeaderNav } from './AppHeaderNav';
 
 export function AppLayout() {
   const contactEmail = getPublicContactEmail();
-  const { pathname, hash } = useLocation();
+  const { pathname } = useLocation();
 
-  const navMuted = 'font-normal text-[#6b7280]';
-  const navActive = 'font-normal text-[#e2e8f0]';
-
-  const homeActive = pathname === '/' && hash !== '#waitlist';
-  const waitlistActive = pathname === '/' && hash === '#waitlist';
-  const onboardingActive = pathname.startsWith('/onboarding');
-  const intentActive = pathname.startsWith('/intent');
-  const sessionActive = pathname.startsWith('/session');
-  const matchActive = pathname.startsWith('/match');
-  const supabaseActive = pathname.startsWith('/dev/supabase');
-  const isDev = import.meta.env.DEV;
-
-  const hideChrome = pathname.startsWith('/onboarding');
+  const onboardingRoute = pathname.startsWith('/onboarding');
 
   return (
     <div className="min-h-dvh flex flex-col overflow-x-hidden bg-navy text-white">
       <ZkStubBanner />
       <OfflineBanner />
       <AuthIssueBanner />
-      {!hideChrome ? (
-      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.85)] px-md py-4 backdrop-blur-[12px]">
-        <nav
-          className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 gap-y-3 px-md sm:gap-sm"
-          aria-label="Main"
-        >
-          <Link
-            to="/"
-            className="inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90 sm:gap-3"
-            aria-label="SquadRidge home"
-          >
-            <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={42} className="block" />
-            </span>
-            <SquadRidgeWordmark
-              alt=""
-              className="h-9 w-auto max-w-[min(240px,58vw)] translate-y-0.5 sm:h-10 md:h-11"
-              aria-hidden
-            />
-          </Link>
-          <ul className="ml-auto flex flex-wrap items-center justify-end gap-x-6 gap-y-2 text-sm">
-            <li>
-              <Link
-                to="/"
-                className={homeActive ? navActive : navMuted}
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/#waitlist"
-                className={waitlistActive ? navActive : navMuted}
-              >
-                Early access
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/onboarding"
-                className={onboardingActive ? navActive : navMuted}
-              >
-                Onboarding
-              </Link>
-            </li>
-            <li>
-              <Link to="/intent" className={intentActive || matchActive ? navActive : navMuted}>
-                Find a squad
-              </Link>
-            </li>
-            <li>
-              <Link to="/session" className={sessionActive ? navActive : navMuted}>
-                Session
-              </Link>
-            </li>
-            {isDev ? (
-              <li>
-                <Link to="/dev/supabase" className={supabaseActive ? navActive : navMuted}>
-                  Supabase
-                </Link>
-              </li>
-            ) : null}
-            <ModNavLink navActive={navActive} navMuted={navMuted} />
-            <li className="flex w-full items-center justify-end sm:w-auto">
-              <AccountMenu />
-            </li>
-          </ul>
-        </nav>
-      </header>
-      ) : null}
+      <AppHeaderNav variant={onboardingRoute ? 'minimal' : 'full'} />
       <main
         className={`mx-auto flex w-full flex-1 flex-col ${
-          hideChrome ? 'max-w-none p-0' : 'max-w-6xl px-md'
+          onboardingRoute ? 'max-w-none p-0' : 'max-w-6xl px-md'
         } ${
           pathname === '/'
             ? 'pt-0 pb-xl'
-            : pathname.startsWith('/session') || matchActive || pathname.startsWith('/intent')
+            : pathname.startsWith('/session') || pathname.startsWith('/match') || pathname.startsWith('/intent')
               ? 'pt-0 pb-xl'
               : pathname.startsWith('/onboarding') ||
                 pathname.startsWith('/ledger') ||
-                pathname.startsWith('/verify')
+                pathname.startsWith('/verify') ||
+                pathname.startsWith('/security')
               ? 'pt-0 pb-xl'
               : 'py-xl'
         }`}
@@ -139,23 +43,29 @@ export function AppLayout() {
           )}
         </QueryErrorResetBoundary>
       </main>
-      {!hideChrome ? (
       <footer className="border-t border-[#1a2236] bg-transparent">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-md py-8 text-center">
           <p className="max-w-md font-sans text-[0.85rem] font-normal leading-relaxed text-[#3d4f63]">
             Infrastructure for conversations the world needs but can&apos;t have openly.
           </p>
-          {contactEmail ? (
-            <a
-              href={`mailto:${contactEmail}`}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Link
+              to="/security"
               className="font-sans text-[0.85rem] font-normal text-[#3d4f63] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
             >
-              {contactEmail}
-            </a>
-          ) : null}
+              Security &amp; data
+            </Link>
+            {contactEmail ? (
+              <a
+                href={`mailto:${contactEmail}`}
+                className="font-sans text-[0.85rem] font-normal text-[#3d4f63] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+              >
+                {contactEmail}
+              </a>
+            ) : null}
+          </div>
         </div>
       </footer>
-      ) : null}
     </div>
   );
 }

@@ -4,20 +4,164 @@ import {
   LedgerPageSkeletonCards,
   LedgerPageSkeletonRows,
 } from '../components/ledger/LedgerPageSkeleton';
+import { useLedgerProposalBySlug, useLedgerPublishedList } from '../hooks/useLedgerProposals';
+import type { Json } from '../lib/database.types';
 import { DEMO_PROPOSAL_ID, DEMO_SESSION_ID } from '../lib/demoSession';
+import { isSupabaseConfigured } from '../lib/env';
+
+function parseConsensusItems(raw: Json): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((x): x is string => typeof x === 'string');
+}
 
 /**
- * Public SquadRidge Ledger — index is a rich preview; full content for `demo-proposal-001`.
+ * Public SquadRidge Ledger — index lists published proposals from Postgres when configured; detail by slug.
  */
 export function LedgerPage() {
   const { proposalId } = useParams<{ proposalId?: string }>();
-  const isDemo = proposalId === DEMO_PROPOSAL_ID;
+  const configured = isSupabaseConfigured();
 
-  if (isDemo) {
+  if (proposalId) {
+    return <LedgerProposalDetailRoute proposalId={proposalId} configured={configured} />;
+  }
+
+  return <LedgerIndex />;
+}
+
+function LedgerProposalDetailRoute({
+  proposalId,
+  configured,
+}: {
+  proposalId: string;
+  configured: boolean;
+}) {
+  const q = useLedgerProposalBySlug(proposalId);
+
+  if (!configured) {
+    if (proposalId === DEMO_PROPOSAL_ID) return <LedgerDemoProposalDetail />;
+    return <LedgerIndex unknownProposalId={proposalId} />;
+  }
+
+  if (q.isPending) {
+    return (
+      <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-16">
+          <p className="font-sans text-sm text-ink-muted">Loading proposal…</p>
+          <div className="mt-8 animate-pulse rounded-xl border border-[#1e2a3d] bg-[#0c1018]/80 p-8">
+            <div className="h-6 w-2/3 rounded bg-[#1e2a3d]" />
+            <div className="mt-4 h-4 w-full rounded bg-[#1e2a3d]/80" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (q.isError) {
+    return (
+      <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+          <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-sm text-amber" role="alert">
+            {q.error instanceof Error ? q.error.message : 'Could not load this proposal.'}
+          </p>
+          <Link to="/ledger" className="mt-6 inline-block font-sans text-sm text-teal-light underline-offset-4 hover:underline">
+            Back to ledger
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (q.data) {
+    return <LedgerProposalFromDb row={q.data} />;
+  }
+
+  if (proposalId === DEMO_PROPOSAL_ID) {
     return <LedgerDemoProposalDetail />;
   }
 
   return <LedgerIndex unknownProposalId={proposalId} />;
+}
+
+function LedgerProposalFromDb({
+  row,
+}: {
+  row: {
+    slug: string;
+    title: string;
+    summary: string;
+    consensus_items: Json;
+    tags: string[];
+    published_at: string | null;
+    ledger_ref: string | null;
+  };
+}) {
+  const bullets = parseConsensusItems(row.consensus_items);
+  const dateStr = row.published_at
+    ? new Date(row.published_at).toISOString().slice(0, 10)
+    : '—';
+
+  return (
+    <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
+      <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">Ledger</p>
+        <p className="mt-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">Published</p>
+        <h1
+          className="mb-0 mt-2 font-heading text-ink"
+          style={{
+            fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+          }}
+        >
+          {row.title}
+        </h1>
+        <p className="mt-2 font-sans text-sm text-ink-muted">
+          Proposal · {row.slug} · {dateStr}
+        </p>
+
+        <div className="mt-8 min-w-0 overflow-x-auto rounded-xl border border-[#1e2a3d] bg-[#0f1623]/60 p-6">
+          <p className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">{row.summary}</p>
+
+          <h2 className="mt-8 break-words font-heading text-section-title font-bold text-ink">Consensus output</h2>
+          <ol className="mt-4 list-decimal space-y-3 pl-5 font-sans text-body-lg font-normal text-ink-secondary [word-break:break-word]">
+            {bullets.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ol>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {row.tags.map((t) => (
+              <span
+                key={t}
+                className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+
+          {row.ledger_ref ? (
+            <p className="mt-4 break-all rounded-lg border border-dashed border-[#2d3f55] bg-[#060a11]/90 p-3 font-mono text-[0.75rem] leading-relaxed text-ink-muted">
+              {row.ledger_ref}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mt-10 flex flex-wrap gap-6">
+          <Link to="/match" className="text-teal-light underline-offset-4 hover:underline">
+            Replay match flow
+          </Link>
+          <Link to="/ledger" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+            All ledger entries
+          </Link>
+          <Link to="/" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+            Home
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function LedgerDemoProposalDetail() {
@@ -112,7 +256,8 @@ function LedgerDemoProposalDetail() {
 
 const FILTER_LABELS = ['Region', 'Topic', 'Status'] as const;
 
-function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string }) {
+function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {}) {
+  const listQuery = useLedgerPublishedList();
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
   const [citeCopied, setCiteCopied] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -120,6 +265,9 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string }) {
   const modalDescId = useId();
 
   const citation = useLedgerCitation();
+  const configured = isSupabaseConfigured();
+  const dbRows = listQuery.data ?? [];
+  const showDb = configured && !listQuery.isError && dbRows.length > 0;
 
   const copyCitation = useCallback(() => {
     void navigator.clipboard.writeText(citation).then(() => {
@@ -177,6 +325,13 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string }) {
           </p>
         ) : null}
 
+        {configured && listQuery.isError ? (
+          <p className="mt-6 rounded-lg border border-amber/25 bg-amber/5 px-4 py-3 font-sans text-sm text-ink-secondary" role="alert">
+            Could not load live ledger entries ({listQuery.error instanceof Error ? listQuery.error.message : 'error'}
+            ). Showing static preview rows until the database is reachable and migrations are applied.
+          </p>
+        ) : null}
+
         <div className="mt-6 flex flex-wrap items-center gap-2" role="toolbar" aria-label="Ledger filters (coming soon)">
           {FILTER_LABELS.map((label) => (
             <button
@@ -221,15 +376,78 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string }) {
                     </tr>
                   </thead>
                   <tbody className="font-sans text-sm text-ink-secondary">
-                    <LedgerDemoRowDesktop
-                      date="2026-03-18"
-                      topic="Climate & corridors"
-                      summary="Example proposal from a cross-border climate squad: coordinated civilian movement and de-escalation markers."
-                      tags={['Climate', 'Displacement']}
-                      href={`/ledger/${DEMO_PROPOSAL_ID}`}
-                      demo
-                    />
-                    <LedgerDemoRowDesktop
+                    {configured && listQuery.isPending ? (
+                      <LedgerPageSkeletonRows count={4} />
+                    ) : showDb ? (
+                      <>
+                        {dbRows.map((row) => (
+                          <LedgerDemoRowDesktop
+                            key={row.id}
+                            date={
+                              row.published_at
+                                ? new Date(row.published_at).toISOString().slice(0, 10)
+                                : '—'
+                            }
+                            topic={row.title}
+                            summary={row.summary}
+                            tags={row.tags}
+                            href={`/ledger/${row.slug}`}
+                            demo={row.slug === DEMO_PROPOSAL_ID}
+                          />
+                        ))}
+                        <LedgerDemoRowDesktop
+                          date="2026-02-02"
+                          topic="Watershed governance"
+                          summary="Illustrative entry: shared monitoring commitments across a transboundary basin (preview)."
+                          tags={['Water', 'Governance']}
+                          href={null}
+                          demo
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <LedgerDemoRowDesktop
+                          date="2026-03-18"
+                          topic="Climate & corridors"
+                          summary="Example proposal from a cross-border climate squad: coordinated civilian movement and de-escalation markers."
+                          tags={['Climate', 'Displacement']}
+                          href={`/ledger/${DEMO_PROPOSAL_ID}`}
+                          demo
+                        />
+                        <LedgerDemoRowDesktop
+                          date="2026-02-02"
+                          topic="Watershed governance"
+                          summary="Illustrative entry: shared monitoring commitments across a transboundary basin (preview)."
+                          tags={['Water', 'Governance']}
+                          href={null}
+                          demo
+                        />
+                        <LedgerPageSkeletonRows count={3} />
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="divide-y divide-[#1e2a3a] md:hidden">
+                {configured && listQuery.isPending ? (
+                  <LedgerPageSkeletonCards count={3} />
+                ) : showDb ? (
+                  <>
+                    {dbRows.map((row) => (
+                      <LedgerDemoCard
+                        key={row.id}
+                        date={
+                          row.published_at ? new Date(row.published_at).toISOString().slice(0, 10) : '—'
+                        }
+                        topic={row.title}
+                        summary={row.summary}
+                        tags={row.tags}
+                        href={`/ledger/${row.slug}`}
+                        demo={row.slug === DEMO_PROPOSAL_ID}
+                      />
+                    ))}
+                    <LedgerDemoCard
                       date="2026-02-02"
                       topic="Watershed governance"
                       summary="Illustrative entry: shared monitoring commitments across a transboundary basin (preview)."
@@ -237,29 +455,28 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string }) {
                       href={null}
                       demo
                     />
-                    <LedgerPageSkeletonRows count={3} />
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="divide-y divide-[#1e2a3a] md:hidden">
-                <LedgerDemoCard
-                  date="2026-03-18"
-                  topic="Climate & corridors"
-                  summary="Example proposal from a cross-border climate squad: coordinated civilian movement and de-escalation markers."
-                  tags={['Climate', 'Displacement']}
-                  href={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  demo
-                />
-                <LedgerDemoCard
-                  date="2026-02-02"
-                  topic="Watershed governance"
-                  summary="Illustrative entry: shared monitoring commitments across a transboundary basin (preview)."
-                  tags={['Water', 'Governance']}
-                  href={null}
-                  demo
-                />
-                <LedgerPageSkeletonCards count={2} />
+                  </>
+                ) : (
+                  <>
+                    <LedgerDemoCard
+                      date="2026-03-18"
+                      topic="Climate & corridors"
+                      summary="Example proposal from a cross-border climate squad: coordinated civilian movement and de-escalation markers."
+                      tags={['Climate', 'Displacement']}
+                      href={`/ledger/${DEMO_PROPOSAL_ID}`}
+                      demo
+                    />
+                    <LedgerDemoCard
+                      date="2026-02-02"
+                      topic="Watershed governance"
+                      summary="Illustrative entry: shared monitoring commitments across a transboundary basin (preview)."
+                      tags={['Water', 'Governance']}
+                      href={null}
+                      demo
+                    />
+                    <LedgerPageSkeletonCards count={2} />
+                  </>
+                )}
               </div>
             </div>
 

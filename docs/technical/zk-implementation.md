@@ -47,6 +47,8 @@ Dev does **not** automatically skip the Edge Function—only `VITE_ZK_STUB=true`
 
 **Deploy (CI):** [`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml) runs `supabase functions deploy` for all functions under [`supabase/functions/`](../../supabase/functions/). [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) runs frontend build/test but does not deploy Edge Functions.
 
+**Demos / recordings:** Staging checklist and short script for partner or investor walkthroughs — [`zk-demo-staging-checklist.md`](../operations/zk-demo-staging-checklist.md), [`zk-verify-demo-script.md`](../operations/zk-verify-demo-script.md).
+
 **Onboarding copy:** See [`copy.ts`](../../src/onboarding/app/components/onboarding/copy.ts) — verification step explains Semaphore + Edge; stub mode is documented as dev-only.
 
 Proof **commitments** hash proof material and scope; they are stored alongside **`user_id`** for the logged-in account (see [threat model](../security/threat-model.md)). See also [data retention and logging](data-retention-zk.md).

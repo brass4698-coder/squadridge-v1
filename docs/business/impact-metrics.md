@@ -15,7 +15,7 @@ These metrics track the reach and diversity of "The Concerned Citizen" and "The 
 *   **Active Squads**: The number of active, matched dialogue sessions consisting of four to six participants from opposing sides [1].
 *   **Cross-Border Connections**: The volume of interactions occurring across verified geopolitical divides.
 *   **Language and Regional Diversity**: The percentage of sessions conducted in non-dominant languages or originating from low-bandwidth regions, addressing the "digital divide" and lack of localization [3].
-*   **Verification Rate**: The percentage of users successfully completing the zkTLS attribute verification process without exposing personally identifiable information (PII) [1].
+*   **Verification Rate**: The percentage of users successfully completing **Semaphore-based** zero-knowledge verification (browser proof + `verify-zk-proof` Edge verification) without exposing personally identifiable information (PII) [1]. Future **zkTLS**-style flows are roadmap; they are not the shipped metric until implemented.
 
 ### 2. De-escalation Effectiveness
 

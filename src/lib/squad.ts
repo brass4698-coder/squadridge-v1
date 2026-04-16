@@ -8,7 +8,7 @@ import { generateSquadMessageKeyBase64Url } from './messageCrypto';
  * prefer magic-link (email) sessions for durability. See `docs/technical/auth-and-sessions.md`.
  */
 
-const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
+export const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
 
 export function getLastSquadIdFromStorage(): string | null {
   try {

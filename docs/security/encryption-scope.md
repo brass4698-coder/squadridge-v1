@@ -14,3 +14,7 @@
 
 - If the **squad key is compromised**, an attacker can decrypt **historical** messages encrypted with that key.
 - For high-stakes sessions, consider **key rotation** or **archiving** after the session ends once those flows exist in the product.
+
+## Future work (RFC)
+
+- A **stronger key hierarchy** (operator-blind E2E) is under design; see [`docs/technical/rfc-e2e-messaging-key-hierarchy.md`](../technical/rfc-e2e-messaging-key-hierarchy.md). Do not claim E2E in marketing until that RFC is implemented and reviewed.

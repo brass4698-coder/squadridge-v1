@@ -261,6 +261,8 @@ export function useRealtimeMessages(squadId: string | undefined) {
   useEffect(() => {
     if (!squadId) {
       setRealtimeStatus('idle');
+      setRealtimeFatalError(null);
+      setReconnecting(false);
     }
   }, [squadId]);
 

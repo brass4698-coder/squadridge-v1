@@ -89,6 +89,11 @@ export function isZkHashStubExplicit(): boolean {
   return env.VITE_ZK_STUB === 'true';
 }
 
+/** Research: zkTLS / web-origin proof experiments. Default off; see docs/technical/rfc-zktls-attribute-proofs.md */
+export function isZkTlsLabsEnabled(): boolean {
+  return env.VITE_ZKTLS_LABS === 'true';
+}
+
 /** External waitlist URL (Typeform, Tally, etc.). When set, landing primary CTA uses this. */
 export function getWaitlistFormUrl(): string | undefined {
   const v = env.VITE_WAITLIST_FORM_URL;
