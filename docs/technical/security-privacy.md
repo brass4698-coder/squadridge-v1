@@ -1,5 +1,9 @@
 # Security and Privacy
 
+## Engineering status
+
+High-stakes deployment decisions (what the implementation **actually** guarantees today vs on the roadmap) are documented in the **[operational threat model](../security/threat-model.md)**. Read that document before treating marketing or overview text here as a cryptographic or operational guarantee.
+
 ## Overview
 
 SquadRidge is built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), prioritizing the safety of its users, especially those in authoritarian or active conflict zones [1]. The platform's security architecture is designed to mitigate the risks of state-level surveillance, data breaches, and the weaponization of sensitive information [3].
@@ -14,9 +18,11 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 
 ### 2. End-to-End Encryption and Ephemerality
 
-To minimize data at risk, SquadRidge employs end-to-end encryption for all sensitive exchanges [3]. The data pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics [1].
+**Target:** End-to-end encryption for sensitive exchanges, with ephemeral messaging streams separated from aggregated analytics [1][3].
 
-Messages are designed for ephemerality; they are automatically deleted after a session concludes or upon user request (e.g., the temporary "Pull back" feature for immediate message retraction) [1]. This minimizes the risk of exposure if a device is seized or a server is compromised [3].
+**Current implementation:** Message payloads stored in Postgres use a structured JSON format for the MVP (`src/lib/messagePayload.ts`). Until a full E2E layer ships, treat message bodies as **readable to the database operator**—not as ciphertext that only participants can decrypt. The [threat model](../security/threat-model.md) states this explicitly for high-risk contexts.
+
+Messages are designed for ephemerality; deletion after a session or user retraction (e.g. "Pull back") remains a product goal [1]. Operational retention must still be aligned with the threat model and `docs/technical/data-retention-zk.md`.
 
 ### 3. "Do No Harm" Data Architecture
 

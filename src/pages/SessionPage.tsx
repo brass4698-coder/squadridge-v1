@@ -2,14 +2,23 @@ import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SessionMessageItem } from '../components/SessionMessageItem';
+import {
+  SessionPageAuthSkeleton,
+  SessionPageMessagesSkeleton,
+} from '../components/session/SessionPageSkeleton';
 import { SessionTranslationPanel } from '../components/SessionTranslationPanel';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { useTranslation } from '../hooks/useTranslation';
 import { useUserPreferences } from '../hooks/useUserPreferences';
 import { isAiPipelineEnabled, isSupabaseConfigured } from '../lib/env';
-import { decodeMessagePayload, encodeMessagePayload } from '../lib/messagePayload';
+import { encodeSecureMessagePayload } from '../lib/messagePayload';
 import { createDemoSquad } from '../lib/squad';
+import { ensureSquadMessageKey } from '../lib/squadMessageKey';
 import { useRealtimeMessages } from '../hooks/useRealtimeMessages';
+import { useMessagePlaintexts } from '../hooks/useMessagePlaintexts';
+import { useSquad } from '../hooks/useSquad';
 import { logIntervention, recordLocalToneAndMaybePersist } from '../lib/ai/pipeline';
 
 const sessionLandingHeadingStyle: CSSProperties = {
@@ -38,6 +47,8 @@ type OptimisticMessage = {
   squad_id: string;
   sender_id: string;
   encrypted_content: string;
+  /** Shown immediately while ciphertext is stored for the insert. */
+  plainBody: string;
   sent_at: string;
   status: string;
   deliveryStatus: DeliveryStatus;
@@ -53,11 +64,79 @@ export function SessionPage() {
   const { pathname: sessionPathKey } = useLocation();
   const navigate = useNavigate();
   const { supabase, session, loading: authLoading, ensureAnonymousSession } = useAuth();
-  const { messages, loading, error, refresh, reconnecting } = useRealtimeMessages(squadId);
+  const {
+    messages,
+    loading,
+    error,
+    refresh,
+    realtimeStatus,
+    applyLocalMessage,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useRealtimeMessages(squadId);
+  const { data: squad, refetch: refetchSquad } = useSquad(squadId);
+  const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
+  const [archiving, setArchiving] = useState(false);
+  const scrollRootRef = useRef<HTMLUListElement | null>(null);
+  const loadOlderSentinelRef = useRef<HTMLLIElement | null>(null);
   const prefs = useUserPreferences();
   const { translate, modelLoading } = useTranslation();
+  const online = useOnlineStatus();
   const receivedEpochById = useRef(new Map<string, number>());
   const translationWarmupDone = useRef(false);
+  const lastRoomErrorToast = useRef<string | null>(null);
+
+  const plaintextById = useMessagePlaintexts(messages, messageKey);
+
+  useEffect(() => {
+    if (!supabase || !squadId || !squad) {
+      setMessageKey(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { key } = await ensureSquadMessageKey(supabase, squadId, squad);
+        if (!cancelled) setMessageKey(key);
+        if (!squad.message_encryption_key) {
+          await refetchSquad();
+        }
+      } catch {
+        if (!cancelled) setMessageKey(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, squadId, squad, refetchSquad]);
+
+  useEffect(() => {
+    const root = scrollRootRef.current;
+    const target = loadOlderSentinelRef.current;
+    if (!root || !target || !hasNextPage) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.some((e) => e.isIntersecting);
+        if (hit && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root, rootMargin: '80px 0px 0px 0px', threshold: 0 },
+    );
+    io.observe(target);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
+
+  useEffect(() => {
+    if (!error) {
+      lastRoomErrorToast.current = null;
+      return;
+    }
+    if (lastRoomErrorToast.current === error) return;
+    lastRoomErrorToast.current = error;
+    toast.error(error);
+  }, [error]);
 
   const userId = session?.user?.id ?? null;
 
@@ -127,6 +206,14 @@ export function SessionPage() {
   async function handleSend() {
     if (!supabase || !squadId || !composer.trim()) return;
     if (sendPaused) return;
+    if (!online) {
+      toast.warning('You appear to be offline. Reconnect, then send your message.');
+      return;
+    }
+    if (squad?.archived_at) {
+      toast.error('This squad is archived. Messaging is disabled.');
+      return;
+    }
     setSending(true);
     const text = composer.trim();
     setComposer('');
@@ -138,23 +225,49 @@ export function SessionPage() {
       return;
     }
 
+    if (!squad) {
+      setComposer(text);
+      setSending(false);
+      toast.error('Squad data not loaded yet.');
+      return;
+    }
+
+    let enc: string;
+    try {
+      const { key } = await ensureSquadMessageKey(supabase, squadId, squad);
+      enc = await encodeSecureMessagePayload(text, key);
+      if (!squad.message_encryption_key) {
+        await refetchSquad();
+      }
+    } catch (e) {
+      setComposer(text);
+      setSending(false);
+      toast.error(e instanceof Error ? e.message : 'Could not encrypt message.');
+      return;
+    }
+
     const optimisticId = crypto.randomUUID();
     const optimistic: OptimisticMessage = {
       optimisticId,
       squad_id: squadId,
       sender_id: user.id,
-      encrypted_content: encodeMessagePayload(text),
+      encrypted_content: enc,
+      plainBody: text,
       sent_at: new Date().toISOString(),
       status: 'active',
       deliveryStatus: 'pending',
     };
     setOptimisticMessages((prev) => [...prev, optimistic]);
 
-    const { error: sendError } = await supabase.from('messages').insert({
-      squad_id: squadId,
-      sender_id: user.id,
-      encrypted_content: encodeMessagePayload(text),
-    });
+    const { data: insertedRow, error: sendError } = await supabase
+      .from('messages')
+      .insert({
+        squad_id: squadId,
+        sender_id: user.id,
+        encrypted_content: enc,
+      })
+      .select()
+      .single();
 
     if (sendError) {
       setOptimisticMessages((prev) =>
@@ -162,17 +275,68 @@ export function SessionPage() {
       );
       setComposer(text);
       setSending(false);
+      toast.error(
+        sendError.message?.trim()
+          ? `Message could not be sent: ${sendError.message}`
+          : 'Message could not be sent. Check your connection and try again.',
+      );
       return;
     }
 
-    // Remove optimistic entry — the realtime subscription will add the confirmed row.
     setOptimisticMessages((prev) => prev.filter((m) => m.optimisticId !== optimisticId));
+    if (insertedRow) {
+      applyLocalMessage(insertedRow);
+    }
 
     if (isAiPipelineEnabled() && squadId) {
-      await recordLocalToneAndMaybePersist(supabase, squadId, text);
+      const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, text);
+      if (!persistOk) {
+        toast.warning(
+          'Your message was sent, but tone insight could not be saved. Dialogue continues as normal.',
+        );
+      }
     }
 
     setSending(false);
+  }
+
+  async function handleArchiveSquad() {
+    if (!supabase || !squadId) return;
+    setArchiving(true);
+    const { error: upErr } = await supabase
+      .from('squads')
+      .update({ archived_at: new Date().toISOString(), status: 'archived' })
+      .eq('id', squadId);
+    setArchiving(false);
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
+    await refetchSquad();
+    toast.success('Squad archived. Messaging is disabled.');
+  }
+
+  function handleExportTranscript() {
+    if (!squadId) return;
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      squadId,
+      messages: messages.map((m) => ({
+        id: m.id,
+        sent_at: m.sent_at,
+        sender_id: m.sender_id,
+        body: plaintextById[m.id] ?? '',
+        status: m.status,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = `squad-${squadId}-transcript.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Transcript downloaded.');
   }
 
   async function handlePullBack(messageId: string) {
@@ -214,11 +378,7 @@ export function SessionPage() {
   }
 
   if (authLoading) {
-    return (
-      <p className="text-gray-light" key={`${sessionPathKey}-auth`}>
-        Loading session…
-      </p>
-    );
+    return <SessionPageAuthSkeleton key={`${sessionPathKey}-auth`} />;
   }
 
   if (!squadId) {
@@ -297,6 +457,15 @@ export function SessionPage() {
         </p>
       </header>
 
+      {squad?.archived_at ? (
+        <div
+          className="rounded-[8px] border border-amber/40 bg-[#1a1408] px-4 py-3 font-sans text-[0.8125rem] text-[#f5d7a3]"
+          role="status"
+        >
+          This squad is archived. You can still read history and export a transcript; new messages are disabled.
+        </div>
+      ) : null}
+
       <SessionTranslationPanel modelLoading={modelLoading} />
 
       {error ? (
@@ -305,14 +474,39 @@ export function SessionPage() {
         </p>
       ) : null}
 
-      {reconnecting ? (
-        <p className="font-sans text-[0.875rem] text-[#8892a4]" role="status" aria-live="polite">
-          Reconnecting…
-        </p>
-      ) : null}
+      {(realtimeStatus === 'connecting' || realtimeStatus === 'reconnecting') && (
+        <div
+          className="flex items-center gap-2 rounded-[8px] border border-[#1a2236] bg-[#0a1018] px-4 py-2.5 font-sans text-[0.8125rem] text-[#a8b2c1]"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            className="inline-block size-2 shrink-0 rounded-full bg-teal/80 motion-safe:animate-pulse"
+            aria-hidden
+          />
+          {realtimeStatus === 'reconnecting' ? 'Reconnecting…' : 'Connecting live updates…'}
+        </div>
+      )}
 
       <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
-        <div className="flex shrink-0 justify-end border-b border-[#1a2236] px-4 py-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3 border-b border-[#1a2236] px-4 py-2">
+          {!squad?.archived_at ? (
+            <button
+              type="button"
+              className="font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-amber"
+              disabled={archiving}
+              onClick={() => void handleArchiveSquad()}
+            >
+              {archiving ? 'Archiving…' : 'Archive squad'}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1]"
+            onClick={() => handleExportTranscript()}
+          >
+            Export transcript
+          </button>
           <button
             type="button"
             className="font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1]"
@@ -323,56 +517,68 @@ export function SessionPage() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col p-6 pt-4">
-          {loading ? (
-            <p className="font-sans text-[0.9rem] text-[#8892a4]">Loading messages…</p>
-          ) : null}
-
-          <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto" aria-live="polite">
+          <ul
+            ref={scrollRootRef}
+            className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
+            aria-live="polite"
+            aria-busy={loading}
+            aria-label={loading ? 'Loading messages' : undefined}
+          >
+            {hasNextPage ? (
+              <li
+                ref={loadOlderSentinelRef}
+                className="list-none py-2 text-center font-sans text-[0.72rem] text-[#4b5563]"
+                aria-hidden={!isFetchingNextPage}
+              >
+                {isFetchingNextPage ? 'Loading earlier messages…' : '\u00a0'}
+              </li>
+            ) : null}
+            {loading ? <SessionPageMessagesSkeleton count={5} /> : null}
             {messages.length === 0 && optimisticMessages.length === 0 && !loading ? (
               <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
                 No messages yet. Say hello calmly.
               </li>
             ) : null}
-            {messages.map((m) => {
-              const body = decodeMessagePayload(m.encrypted_content);
-              const retracted = m.status === 'retracted';
-              const isOwn = Boolean(userId && m.sender_id && m.sender_id === userId);
-              return (
-                <SessionMessageItem
-                  key={m.id}
-                  originalBody={body}
-                  sentAtLabel={new Date(m.sent_at).toLocaleString()}
-                  retracted={retracted}
-                  isOwn={isOwn}
-                  translationEnabled={prefs.translationEnabled}
-                  preferredLanguage={prefs.preferredLanguage}
-                  translationPreferenceEpoch={prefs.translationPreferenceEpoch}
-                  receivedEpoch={epochForMessage(m.id)}
-                  translate={translate}
-                  onPullBack={() => void handlePullBack(m.id)}
-                />
-              );
-            })}
-            {optimisticMessages.map((m) => {
-              const body = decodeMessagePayload(m.encrypted_content);
-              return (
-                <SessionMessageItem
-                  key={m.optimisticId}
-                  originalBody={body}
-                  sentAtLabel={new Date(m.sent_at).toLocaleString()}
-                  retracted={false}
-                  isOwn={true}
-                  translationEnabled={false}
-                  preferredLanguage={prefs.preferredLanguage}
-                  translationPreferenceEpoch={prefs.translationPreferenceEpoch}
-                  // isOwn=true so shouldTranslate is always false; receivedEpoch is unused.
-                  receivedEpoch={prefs.translationPreferenceEpoch}
-                  translate={translate}
-                  onPullBack={() => undefined}
-                  deliveryStatus={m.deliveryStatus}
-                />
-              );
-            })}
+            {!loading
+              ? messages.map((m) => {
+                  const body = plaintextById[m.id] ?? '';
+                  const retracted = m.status === 'retracted';
+                  const isOwn = Boolean(userId && m.sender_id && m.sender_id === userId);
+                  return (
+                    <SessionMessageItem
+                      key={m.id}
+                      originalBody={body}
+                      sentAtLabel={new Date(m.sent_at).toLocaleString()}
+                      retracted={retracted}
+                      isOwn={isOwn}
+                      translationEnabled={prefs.translationEnabled}
+                      preferredLanguage={prefs.preferredLanguage}
+                      translationPreferenceEpoch={prefs.translationPreferenceEpoch}
+                      receivedEpoch={epochForMessage(m.id)}
+                      translate={translate}
+                      onPullBack={() => void handlePullBack(m.id)}
+                    />
+                  );
+                })
+              : null}
+            {!loading
+              ? optimisticMessages.map((m) => (
+                  <SessionMessageItem
+                    key={m.optimisticId}
+                    originalBody={m.plainBody}
+                    sentAtLabel={new Date(m.sent_at).toLocaleString()}
+                    retracted={false}
+                    isOwn={true}
+                    translationEnabled={false}
+                    preferredLanguage={prefs.preferredLanguage}
+                    translationPreferenceEpoch={prefs.translationPreferenceEpoch}
+                    receivedEpoch={prefs.translationPreferenceEpoch}
+                    translate={translate}
+                    onPullBack={() => undefined}
+                    deliveryStatus={m.deliveryStatus}
+                  />
+                ))
+              : null}
           </ul>
         </div>
       </div>
@@ -394,7 +600,7 @@ export function SessionPage() {
             placeholder="Write with intention…"
             value={composer}
             onChange={(e) => setComposer(e.target.value)}
-            disabled={sending || slowDownBreathing}
+            disabled={sending || slowDownBreathing || !online || Boolean(squad?.archived_at)}
           />
           {slowDownBreathing ? (
             <div
@@ -420,9 +626,11 @@ export function SessionPage() {
               appearance: 'none',
               WebkitAppearance: 'none',
             }}
-            disabled={sending || !composer.trim() || sendPaused}
+            disabled={
+              sending || !composer.trim() || sendPaused || !online || Boolean(squad?.archived_at)
+            }
           >
-            {sending ? 'Sending…' : 'Send'}
+            {sending ? 'Sending…' : !online ? 'Offline' : 'Send'}
           </button>
           {sendPaused && sendCooldownSecondsRemaining > 0 ? (
             <span className="font-sans text-[0.75rem] text-[#4b5563]" aria-live="polite">
@@ -439,7 +647,7 @@ export function SessionPage() {
               appearance: 'none',
               WebkitAppearance: 'none',
             }}
-            disabled={slowDownBreathing || sendPaused}
+            disabled={slowDownBreathing || sendPaused || Boolean(squad?.archived_at)}
             onClick={handleSlowDown}
           >
             Slow down

@@ -4,11 +4,15 @@
  */
 export const INTENT_SESSION_KEY = 'squadridge_session_intent';
 
+/** Intents older than this are treated as absent on read. */
+const SESSION_INTENT_MAX_AGE_MS = 30 * 60 * 1000;
+
 export type StoredSessionIntent = {
   /** Free text; max length enforced in UI */
   text: string;
   /** Optional topic tags */
   tags: readonly string[];
+  /** ISO 8601 timestamp when the intent was stored */
   recordedAt: string;
 };
 
@@ -20,6 +24,12 @@ export function readSessionIntent(): StoredSessionIntent | null {
     if (!parsed || typeof parsed !== 'object') return null;
     const o = parsed as Record<string, unknown>;
     if (typeof o.recordedAt !== 'string') return null;
+    const recordedMs = Date.parse(o.recordedAt);
+    if (!Number.isFinite(recordedMs)) return null;
+    if (Date.now() - recordedMs > SESSION_INTENT_MAX_AGE_MS) {
+      clearSessionIntent();
+      return null;
+    }
     const text = typeof o.text === 'string' ? o.text : '';
     const tags = Array.isArray(o.tags) ? o.tags.filter((t): t is string => typeof t === 'string') : [];
     return { text, tags, recordedAt: o.recordedAt };

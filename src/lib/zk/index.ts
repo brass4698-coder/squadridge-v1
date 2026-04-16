@@ -7,8 +7,8 @@ export { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../zkAdapter';
 export type { ZKProof, CredentialType } from '../zkVerifier';
 
 /**
- * Runs environment-aware verification and (in production) persists via `zk-verify`.
- * In dev stub mode, uses local `generateProof` only — no Edge Function.
+ * Runs Semaphore proof generation + server verification via `verify-zk-proof`,
+ * unless `VITE_ZK_STUB=true` (hash-only demo path).
  */
 export async function submitVerifiedZkProof(
   supabase: SupabaseClient<Database>,

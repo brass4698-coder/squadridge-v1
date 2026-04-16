@@ -16,11 +16,13 @@ A crucial part of onboarding is explaining the mechanics of verified anonymity w
 
 The flow reassures users that their identity remains hidden, a vital feature for those in authoritarian or active conflict zones who face real danger if their views are exposed [3]. This explanation builds trust in the Enclave[ZK] privacy stack and the platform's commitment to "do no harm" principles [2].
 
-## Step 3: Attribute Verification via zkTLS
+## Step 3: Attribute verification (product vision vs current app)
 
-Users are guided through the process of verifying their necessary attributes. Utilizing zkTLS (Zero-Knowledge Transport Layer Security), they extract private data from secure web sources (e.g., legal identity, education records) and bring it on-chain as a privacy-preserving proof [2].
+**Product direction:** Long term, the experience may guide users through attribute checks using **zkTLS**-style flows—extracting proofs from secure web sources without handing raw documents to SquadRidge [2]. That pipeline is **not implemented in the repository today**; treat it as roadmap until it ships in application code.
 
-This step ensures that the user is matched into appropriate dialogue sessions based on their verified background, while their public key and biometric data remain completely decoupled from their actions [3]. The process is designed to be seamless, even in low-bandwidth environments [3].
+**Current implementation:** Verification uses **Semaphore** proofs in the browser and server-side verification via the **`verify-zk-proof`** Edge Function (`src/lib/zkAdapter.ts`, `supabase/functions/_shared/handleZkProofVerification.ts`). Copy in this step should match whatever scopes and UX the live onboarding actually runs (including demo/simulated language where appropriate). Engineering details and honesty about operator-visible metadata: [`docs/technical/zk-implementation.md`](../technical/zk-implementation.md), [`docs/security/threat-model.md`](../security/threat-model.md).
+
+This step still aims to route users into appropriate dialogue based on **coarse** verified signals while avoiding raw PII in our stores [3], and to remain usable in low-bandwidth environments [3].
 
 ## Step 4: Introduction to In-App Interventions
 

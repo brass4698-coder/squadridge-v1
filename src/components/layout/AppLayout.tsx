@@ -1,8 +1,23 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { OfflineBanner } from '../OfflineBanner';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { getPublicContactEmail } from '../../lib/env';
+import { useIsModerator } from '../../hooks/useIsModerator';
 import { AccountMenu } from './AccountMenu';
+
+function ModNavLink({ navActive, navMuted }: { navActive: string; navMuted: string }) {
+  const { data: isMod } = useIsModerator();
+  const { pathname } = useLocation();
+  if (!isMod) return null;
+  return (
+    <li>
+      <Link to="/mod" className={pathname.startsWith('/mod') ? navActive : navMuted}>
+        Mod
+      </Link>
+    </li>
+  );
+}
 
 export function AppLayout() {
   const contactEmail = getPublicContactEmail();
@@ -22,6 +37,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-dvh flex flex-col overflow-x-hidden bg-navy text-white">
+      <OfflineBanner />
       {!hideChrome ? (
       <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.85)] px-md py-4 backdrop-blur-[12px]">
         <nav
@@ -77,6 +93,7 @@ export function AppLayout() {
                 Supabase
               </Link>
             </li>
+            <ModNavLink navActive={navActive} navMuted={navMuted} />
             <li className="flex w-full items-center justify-end sm:w-auto">
               <AccountMenu />
             </li>

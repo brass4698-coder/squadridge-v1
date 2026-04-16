@@ -1,0 +1,34 @@
+# Frontend: typecheck, tests, production build (catches VITE_ZK_STUB in production — see vite.config.ts)
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          # Minimal build-time vars so `tsc`/Vite can resolve imports; real secrets not required for CI compile.
+          VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key

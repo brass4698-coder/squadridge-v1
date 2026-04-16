@@ -9,9 +9,15 @@
     "preview": "vite preview",
     "clean": "node scripts/clean.mjs",
     "gen:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
-    "supabase:db:push": "npx supabase db push",
-    "supabase:link": "npx supabase link",
-    "waitlist:smoke": "node scripts/waitlist-smoke.mjs"
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:db:reset": "supabase db reset",
+    "supabase:db:push": "supabase db push",
+    "supabase:link": "supabase link",
+    "waitlist:smoke": "node scripts/waitlist-smoke.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -21,10 +27,16 @@
     "@radix-ui/react-radio-group": "^1.3.8",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
+    "@semaphore-protocol/group": "^4.14.2",
+    "@semaphore-protocol/identity": "^4.14.2",
+    "@semaphore-protocol/proof": "^4.14.2",
+    "@sentry/react": "^9.47.1",
     "@supabase/supabase-js": "^2.103.0",
+    "@tanstack/react-query": "^5.99.0",
     "@xenova/transformers": "^2.17.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "ethers": "6.13.4",
     "lucide-react": "^1.8.0",
     "motion": "^12.38.0",
     "react": "^19.0.0",
@@ -34,14 +46,18 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^26.0.0",
     "postcss": "^8.4.49",
+    "supabase": "^2.91.3",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.7.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vitest": "^3.1.1"
   }
 }

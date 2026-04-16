@@ -1,3 +1,9 @@
+import type { SemaphoreProof } from '@semaphore-protocol/proof';
+import { generateProof as generateSemaphoreProofLib } from '@semaphore-protocol/proof';
+import { buildSessionAnonymityGroup } from './zk/buildAnonymityGroup';
+import { getOrCreateSessionIdentity } from './zk/semaphoreIdentityStorage';
+import { semaphoreFieldFromLabel } from './zk/semaphoreFieldEncoding';
+
 export type CredentialType = string;
 
 export type ZKProof = {
@@ -6,6 +12,7 @@ export type ZKProof = {
   nullifierHash: string;
   commitment: string;
   verifiedAt: string;
+  /** @deprecated Hash-only path; prefer Semaphore (`isStub: false`). */
   isStub?: boolean;
 };
 
@@ -17,9 +24,10 @@ async function sha256Hex(data: Uint8Array): Promise<string> {
 }
 
 /**
- * Local proof-shaped payload (dev / stub). Server-side verification uses the `zk-verify` Edge Function.
+ * Local hash-shaped payload for demos / tests when `VITE_ZK_STUB=true`.
+ * Does not provide Semaphore security guarantees.
  */
-export async function generateProof(credentialType: CredentialType, rawInput: string): Promise<ZKProof> {
+export async function generateStubProof(credentialType: CredentialType, rawInput: string): Promise<ZKProof> {
   const encoder = new TextEncoder();
   const nullifierData = encoder.encode(`nullifier:${credentialType}:${rawInput}`);
   const commitData = encoder.encode(`commitment:${credentialType}:${Date.now()}`);
@@ -33,4 +41,19 @@ export async function generateProof(credentialType: CredentialType, rawInput: st
     verifiedAt: new Date().toISOString(),
     isStub: true,
   };
+}
+
+/**
+ * Generates a Semaphore proof in-browser: membership in a padded group + bound message/scope fields.
+ * Proof verification runs on the `verify-zk-proof` Edge Function via `verifyProof`.
+ */
+export async function generateSemaphoreProof(
+  credentialType: CredentialType,
+  attributeScope: string,
+): Promise<SemaphoreProof> {
+  const identity = getOrCreateSessionIdentity();
+  const group = buildSessionAnonymityGroup(identity);
+  const message = semaphoreFieldFromLabel(attributeScope);
+  const scope = semaphoreFieldFromLabel(credentialType);
+  return generateSemaphoreProofLib(identity, group, message, scope);
 }

@@ -1,5 +1,7 @@
 # Data retention and logging (ZK verification)
 
+See also the **[operational threat model](../security/threat-model.md)** for trust boundaries and pre-deployment gates.
+
 ## What we store
 
 - **`zk_proof_submissions`**: `proof_commitment` (hash of proof material + scope), `nullifier_hash` (unique, double-spend prevention), `attribute_scope`, and `user_id` (pseudonymous app account only). No raw documents, national IDs, or free-text PII from verification.

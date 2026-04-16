@@ -4,17 +4,18 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import type { Database } from '../lib/database.types';
 import { getAuthCallbackUrl } from '../lib/authUrls';
 import { isSupabaseConfigured } from '../lib/env';
+import { queryKeys } from '../lib/queryKeys';
 import { getSupabase } from '../lib/supabase';
 import { ensureAnonymousSession } from '../lib/squad';
 
-interface AuthContextValue {
+export interface AuthContextValue {
   session: Session | null;
   user: User | null;
   loading: boolean;
@@ -25,11 +26,10 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const supabase = useMemo<SupabaseClient<Database> | null>(() => {
     if (!isSupabaseConfigured()) return null;
@@ -40,41 +40,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const sessionQuery = useQuery({
+    queryKey: queryKeys.auth.session,
+    queryFn: async () => {
+      if (!supabase) return null;
+      const {
+        data: { session: s },
+        error,
+      } = await supabase.auth.getSession();
+      if (error) throw error;
+      return s;
+    },
+    enabled: !!supabase,
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: Number.POSITIVE_INFINITY,
+  });
+
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    void supabase.auth
-      .getSession()
-      .then(({ data: { session: s } }) => {
-        if (!cancelled) {
-          setSession(s);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setSession(null);
-          setLoading(false);
-        }
-      });
+    if (!supabase) return;
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
+      queryClient.setQueryData(queryKeys.auth.session, s);
     });
 
     return () => {
-      cancelled = true;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, queryClient]);
 
+  const session = supabase ? (sessionQuery.data ?? null) : null;
+  const loading = supabase ? sessionQuery.isPending : false;
   const user = session?.user ?? null;
 
   const ensureSession = useCallback(async () => {
@@ -103,7 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
-  }, [supabase]);
+    queryClient.setQueryData(queryKeys.auth.session, null);
+    queryClient.removeQueries({ queryKey: ['profile'] });
+    queryClient.removeQueries({ queryKey: ['messages'] });
+  }, [supabase, queryClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

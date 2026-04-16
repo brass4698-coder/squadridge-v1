@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { generateSquadMessageKeyBase64Url } from './messageCrypto';
 
 const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
 
@@ -51,6 +52,7 @@ export async function createDemoSquad(supabase: SupabaseClient<Database>): Promi
     topic: 'Demo dialogue',
     status: 'active',
     expires_at: expires.toISOString(),
+    message_encryption_key: generateSquadMessageKeyBase64Url(),
   });
 
   if (squadError) throw squadError;

@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib/env';
+import { enqueueMatchmaking } from '../lib/matchmakingClient';
+import { poolKeyFromIntentTags } from '../lib/matchmakingPoolKey';
+import { setMatchmakingSession, type MatchPerspective } from '../lib/matchmakingSession';
 import { clearSessionIntent, writeSessionIntent } from '../lib/intentStorage';
-import { createDemoSquad } from '../lib/squad';
+import { setLastSquadIdInStorage } from '../lib/squad';
 
 const MAX_CHARS = 300;
 
@@ -41,6 +44,7 @@ export function IntentPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [perspective, setPerspective] = useState<MatchPerspective | null>(null);
 
   const len = text.length;
 
@@ -55,16 +59,36 @@ export function IntentPage() {
 
   async function handleFindSquad() {
     if (!supabase) return;
+    if (perspective === null) {
+      setError('Choose perspective A or B so we can balance both sides of the room.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
+      const tags = [...selected];
       writeSessionIntent({
         text: text.trim(),
-        tags: [...selected],
+        tags,
       });
       await ensureAnonymousSession();
-      const squadId = await createDemoSquad(supabase);
-      navigate(`/session/${squadId}`, { replace: true });
+      const poolKey = poolKeyFromIntentTags(tags);
+      const snap = await enqueueMatchmaking(supabase, poolKey, perspective);
+      if (!snap) {
+        setError('Matching is not available. Try again in a moment.');
+        return;
+      }
+      if (snap.outcome === 'matched') {
+        setLastSquadIdInStorage(snap.squad_id);
+        navigate(`/session/${snap.squad_id}`, { replace: true });
+        return;
+      }
+      if (snap.outcome === 'queued') {
+        setMatchmakingSession(poolKey, perspective);
+        navigate('/match', { replace: true });
+        return;
+      }
+      setError('Could not join the match queue. Try again.');
     } catch (e) {
       const msg =
         e instanceof Error
@@ -170,10 +194,45 @@ export function IntentPage() {
           </div>
         </fieldset>
 
+        <fieldset className="min-w-0 border-0 p-0">
+          <legend className="mb-3 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
+            Perspective for matching — pick one
+          </legend>
+          <p className="mb-3 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+            We need people on both sides in the room at once. “A” and “B” are neutral labels — use them to self-sort into
+            two groups (not “good vs bad”).
+          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+            {(
+              [
+                { id: 'A' as const, label: 'Perspective A' },
+                { id: 'B' as const, label: 'Perspective B' },
+              ] as const
+            ).map(({ id, label }) => {
+              const on = perspective === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setPerspective(id)}
+                  className={`flex-1 rounded-[10px] border px-4 py-3 text-left font-sans text-[0.9rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
+                    on
+                      ? 'border-teal bg-teal/[0.12] text-[#e2e8f0]'
+                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1] hover:border-[#3d4f63] hover:text-[#c4cdd9]'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
-            disabled={busy || !supabase}
+            disabled={busy || !supabase || perspective === null}
             onClick={() => void handleFindSquad()}
             className="inline-flex min-h-[44px] w-full shrink-0 items-center justify-center bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             style={primaryCtaStyle}

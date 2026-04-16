@@ -1,5 +1,9 @@
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { SentryNavigationListener } from './components/SentryNavigationListener';
 import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from './onboarding/app/components/ui/sonner';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { GrainOverlay } from './components/GrainOverlay';
 import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/layout/AppLayout';
@@ -16,6 +20,8 @@ import { VerificationPage } from './pages/VerificationPage';
 import { LedgerPage } from './pages/LedgerPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
+import { ModDashboardPage } from './pages/ModDashboardPage';
+import { RequireModerator } from './components/auth/RequireModerator';
 
 export default function App() {
   return (
@@ -23,35 +29,53 @@ export default function App() {
       {/* Stack above GrainOverlay (z-1) so routes/layout paint above the fixed grain texture */}
       <div className="relative z-10">
         <BrowserRouter>
+          <SentryNavigationListener />
           <ScrollToTop />
           <AuthProvider>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route path="/verify" element={<VerificationPage />} />
-                <Route path="/intent" element={<IntentPage />} />
-                <Route path="/ledger" element={<LedgerPage />} />
-                <Route path="/ledger/:proposalId" element={<LedgerPage />} />
-                <Route path="/match" element={<Match />} />
-                <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
-                <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
-                <Route path="/sign-in" element={<SignInPage />} />
-                <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                <Route
-                  path="/settings/profile"
-                  element={
-                    <RequireAuth>
-                      <ProfileSettingsPage />
-                    </RequireAuth>
-                  }
-                />
-                {/* Static demo path must win over `/session/:squadId?` */}
-                <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                <Route path="/session/:squadId?" element={<SessionAccess />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
-            </Routes>
+            <Toaster position="top-center" richColors closeButton className="font-sans" />
+            <QueryErrorResetBoundary>
+              {({ reset }) => (
+                <RouteErrorBoundary onRetry={reset}>
+                  <Routes>
+                    <Route element={<AppLayout />}>
+                      <Route path="/" element={<LandingPage />} />
+                      <Route path="/onboarding" element={<OnboardingPage />} />
+                      <Route path="/verify" element={<VerificationPage />} />
+                      <Route path="/intent" element={<IntentPage />} />
+                      <Route path="/ledger" element={<LedgerPage />} />
+                      <Route path="/ledger/:proposalId" element={<LedgerPage />} />
+                      <Route path="/match" element={<Match />} />
+                      <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
+                      <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
+                      <Route path="/sign-in" element={<SignInPage />} />
+                      <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                      <Route
+                        path="/settings/profile"
+                        element={
+                          <RequireAuth>
+                            <ProfileSettingsPage />
+                          </RequireAuth>
+                        }
+                      />
+                      <Route
+                        path="/mod"
+                        element={
+                          <RequireAuth>
+                            <RequireModerator>
+                              <ModDashboardPage />
+                            </RequireModerator>
+                          </RequireAuth>
+                        }
+                      />
+                      {/* Static demo path must win over `/session/:squadId?` */}
+                      <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                      <Route path="/session/:squadId?" element={<SessionAccess />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Route>
+                  </Routes>
+                </RouteErrorBoundary>
+              )}
+            </QueryErrorResetBoundary>
           </AuthProvider>
         </BrowserRouter>
       </div>

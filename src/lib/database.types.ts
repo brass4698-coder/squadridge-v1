@@ -94,6 +94,8 @@ export interface Database {
           status: string;
           created_at: string;
           expires_at: string;
+          message_encryption_key: string | null;
+          archived_at: string | null;
         };
         Insert: {
           id?: string;
@@ -101,6 +103,8 @@ export interface Database {
           status?: string;
           created_at?: string;
           expires_at: string;
+          message_encryption_key?: string | null;
+          archived_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['squads']['Insert']>;
         Relationships: [];
@@ -185,12 +189,90 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['waitlist_signups']['Insert']>;
         Relationships: [];
       };
+      match_queue: {
+        Row: {
+          id: string;
+          user_id: string;
+          pool_key: string;
+          side: string;
+          status: string;
+          squad_id: string | null;
+          enqueued_at: string;
+          matched_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          pool_key: string;
+          side: string;
+          status: string;
+          squad_id?: string | null;
+          enqueued_at?: string;
+          matched_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['match_queue']['Insert']>;
+        Relationships: [];
+      };
+      moderators: {
+        Row: {
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['moderators']['Insert']>;
+        Relationships: [];
+      };
+      moderation_audit_log: {
+        Row: {
+          id: string;
+          actor_user_id: string;
+          action: string;
+          target_type: string | null;
+          target_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id?: string;
+          action: string;
+          target_type?: string | null;
+          target_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['moderation_audit_log']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       waitlist_signup_count: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      matchmaking_enqueue_and_try: {
+        Args: { p_pool_key: string; p_side: string };
+        Returns: Json;
+      };
+      matchmaking_pool_snapshot: {
+        Args: { p_pool_key: string };
+        Returns: Json;
+      };
+      matchmaking_cancel_waiting: {
+        Args: { p_pool_key: string };
+        Returns: undefined;
+      };
+      messages_latest_window: {
+        Args: { p_squad_id: string; p_limit: number };
+        Returns: Database['public']['Tables']['messages']['Row'][];
+      };
+      messages_older_than: {
+        Args: { p_squad_id: string; p_sent_at: string; p_id: string; p_limit: number };
+        Returns: Database['public']['Tables']['messages']['Row'][];
       };
     };
     Enums: Record<string, never>;

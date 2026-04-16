@@ -13,11 +13,9 @@ export function SessionAccess() {
       ? String(squadIdParam).trim()
       : undefined;
 
-  if (!squadId) {
-    return <SessionPage />;
-  }
-
-  return (
+  return !squadId ? (
+    <SessionPage />
+  ) : (
     <RequireAuth requireCompleteProfile>
       <SessionPage />
     </RequireAuth>

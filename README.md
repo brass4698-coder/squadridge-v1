@@ -75,7 +75,7 @@ Pick one vertical to focus engineering next (all tie to files under `docs/` and 
 
 ## Documentation
 
-Product and technical specs live under [`docs/`](docs/).
+Product and technical specs live under [`docs/`](docs/). For **high-stakes security and anonymity claims**, start with [`docs/security/threat-model.md`](docs/security/threat-model.md) (engineering source of truth).
 
 ## License
 

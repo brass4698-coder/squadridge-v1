@@ -8,7 +8,7 @@ const onboardingDoneCtaClass =
   'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-max flex-none items-center justify-center px-[2.5rem] py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
 
 /**
- * Verification entry: no PII forms. Uses {@link runVerification} (local stub in dev, `zk-verify` in production).
+ * Verification entry: no PII forms. Uses {@link runVerification} (Semaphore + `verify-zk-proof`, or hash stub if `VITE_ZK_STUB=true`).
  */
 export function VerificationPage() {
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ export function VerificationPage() {
     setError(null);
 
     try {
-      // TODO(ZK): Persist proof_commitment + nullifier via zk_proof_submissions; avoid storing raw eligibility in profile.
       await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow');
       setDone(true);
     } catch (e) {
@@ -52,7 +51,7 @@ export function VerificationPage() {
           <p className="font-sans text-body-lg font-normal text-ink-secondary">
             Supabase is not configured. Add your project keys to{' '}
             <code className="text-teal-light/90">.env</code> and deploy the{' '}
-            <code className="text-teal-light/90">zk-verify</code> Edge Function to enable this step.
+            <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this step.
           </p>
           <Link
             to="/onboarding"
@@ -112,12 +111,10 @@ export function VerificationPage() {
               ) : null}
 
               <p className="mb-0 font-sans text-onboarding-body text-ink-muted">
-                In local development, verification uses{' '}
-                <code className="text-ink-secondary/90">VITE_ZK_STUB</code> and does not call any Edge Function. In
-                production, this button invokes the{' '}
-                <code className="text-ink-secondary/90">zk-verify</code> Edge Function. Use{' '}
-                <code className="text-ink-secondary/90">ZK_DEV_SKIP_VERIFY</code> to bypass verification while wiring
-                Semaphore.
+                This button generates a Semaphore proof in your browser and sends it to the{' '}
+                <code className="text-ink-secondary/90">verify-zk-proof</code> Edge Function for verification and
+                persistence. Set <code className="text-ink-secondary/90">VITE_ZK_STUB=true</code> only for a lightweight
+                hash demo without ZK cryptography.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">

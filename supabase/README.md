@@ -4,7 +4,7 @@
 
 This repo includes [`config.toml`](./config.toml) from `supabase init`. Migrations live in [`migrations/`](./migrations/).
 
-- **Local dev:** [Supabase CLI](https://supabase.com/docs/guides/cli) — e.g. `supabase start`, `supabase db reset` (uses [`seed.sql`](./seed.sql) when present).
+- **Local dev:** [Supabase CLI](https://supabase.com/docs/guides/cli) is a **devDependency**; use `npm run supabase:start` (or `npx supabase start`) from the repo root if `supabase` is not on your PATH. Same for `npm run supabase:db:reset` (uses [`seed.sql`](./seed.sql) when present), `supabase:stop`, `supabase:status`.
 - **Remote schema:** If you previously changed production only in the Dashboard, reconcile with `supabase db pull` before editing migrations (see [managing environments](https://supabase.com/docs/guides/cli/cicd-workflows)).
 
 ## Apply migrations (manual)
@@ -24,9 +24,9 @@ This repo includes [`config.toml`](./config.toml) from `supabase init`. Migratio
 npm run gen:types
 ```
 
-9. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts)). In the Dashboard, set function secrets as needed (e.g. `ZK_DEV_SKIP_VERIFY=true` for development validation only).
+9. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts) and the deprecated alias [`functions/zk-verify`](./functions/zk-verify/index.ts), same handler). Supabase injects `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` into the function runtime automatically—no custom ZK-specific secrets are required by [`_shared/handleZkProofVerification.ts`](./functions/_shared/handleZkProofVerification.ts).
 
-The app route **`/verify`** invokes `verify-zk-proof`; without a deployed function, verification will fail until you deploy.
+The app route **`/verify`** calls `verify-zk-proof` via [`src/lib/zkAdapter.ts`](../src/lib/zkAdapter.ts); without a deployed function (or offline), verification fails unless `VITE_ZK_STUB=true` (local dev hash-only path).
 
 ## Database advisor / linter notes
 

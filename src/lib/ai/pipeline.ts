@@ -29,8 +29,8 @@ export async function recordLocalToneAndMaybePersist(
   supabase: SupabaseClient<Database>,
   squadId: string,
   text: string,
-): Promise<ToneInsight | null> {
-  if (!isAiPipelineEnabled()) return null;
+): Promise<{ insight: ToneInsight | null; persistOk: boolean }> {
+  if (!isAiPipelineEnabled()) return { insight: null, persistOk: true };
   const insight = analyzeToneLocal(text);
   const { error } = await supabase.from('sentiment_metrics').insert({
     squad_id: squadId,
@@ -38,9 +38,9 @@ export async function recordLocalToneAndMaybePersist(
   });
   if (error) {
     console.warn('[ai] sentiment_metrics insert failed', error.message);
-    return insight;
+    return { insight, persistOk: false };
   }
-  return insight;
+  return { insight, persistOk: true };
 }
 
 export async function logIntervention(
