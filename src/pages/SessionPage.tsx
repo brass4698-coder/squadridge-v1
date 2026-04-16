@@ -41,7 +41,7 @@ export function SessionPage() {
   const { pathname: sessionPathKey } = useLocation();
   const navigate = useNavigate();
   const { supabase, session, loading: authLoading, ensureAnonymousSession } = useAuth();
-  const { messages, loading, error, refresh } = useRealtimeMessages(squadId);
+  const { messages, loading, error, refresh, reconnecting } = useRealtimeMessages(squadId);
   const prefs = useUserPreferences();
   const { translate, modelLoading } = useTranslation();
   const receivedEpochById = useRef(new Map<string, number>());
@@ -271,6 +271,12 @@ export function SessionPage() {
       {error ? (
         <p className="font-sans text-[0.875rem] text-amber" role="alert">
           {error}
+        </p>
+      ) : null}
+
+      {reconnecting ? (
+        <p className="font-sans text-[0.875rem] text-[#8892a4]" role="status" aria-live="polite">
+          Reconnecting…
         </p>
       ) : null}
 
