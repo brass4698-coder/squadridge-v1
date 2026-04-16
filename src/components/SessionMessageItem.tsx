@@ -12,6 +12,8 @@ type Props = {
   receivedEpoch: number;
   translate: (text: string, targetLang: string) => Promise<string>;
   onPullBack: () => void;
+  /** Optimistic delivery status for locally-added messages before DB confirmation. */
+  deliveryStatus?: 'pending' | 'sent' | 'failed';
 };
 
 /**
@@ -29,6 +31,7 @@ export function SessionMessageItem({
   receivedEpoch,
   translate,
   onPullBack,
+  deliveryStatus,
 }: Props) {
   const [translated, setTranslated] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -82,11 +85,13 @@ export function SessionMessageItem({
         <p
           className={`max-w-full font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] ${
             retracted ? 'line-through opacity-70' : ''
-          } ${!retracted && pending && shouldTranslate ? 'session-translation-pending border-b-2 border-[#148C86]/50 pb-0.5' : ''}`}
+          } ${!retracted && pending && shouldTranslate ? 'session-translation-pending border-b-2 border-[#148C86]/50 pb-0.5' : ''} ${
+            deliveryStatus === 'pending' ? 'opacity-60' : ''
+          }`}
         >
           {displayText}
         </p>
-        {!retracted ? (
+        {!retracted && deliveryStatus === undefined ? (
           <button
             type="button"
             className="shrink-0 font-sans text-[0.75rem] font-medium text-teal underline-offset-2 transition-colors hover:text-[#33d4c7] hover:underline"
@@ -105,7 +110,20 @@ export function SessionMessageItem({
           {showOriginal ? 'Show translation' : 'Show original'}
         </button>
       ) : null}
-      <p className="mt-2 font-sans text-[0.7rem] text-[#6b7280]">{sentAtLabel}</p>
+      <div className="mt-2 flex items-center gap-2">
+        {deliveryStatus === 'pending' ? (
+          <span className="inline-flex items-center gap-1 font-sans text-[0.7rem] text-[#4b5563]" aria-label="Sending">
+            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#4b5563]" aria-hidden="true" />
+            Sending…
+          </span>
+        ) : deliveryStatus === 'failed' ? (
+          <span className="font-sans text-[0.7rem] text-amber" role="alert">
+            Failed to send
+          </span>
+        ) : (
+          <p className="font-sans text-[0.7rem] text-[#6b7280]">{sentAtLabel}</p>
+        )}
+      </div>
     </li>
   );
 }
