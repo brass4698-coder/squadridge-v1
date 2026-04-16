@@ -24,9 +24,9 @@ This document is the **engineering source of truth** for high-stakes deployment 
 | ----- | ---------------------- | ----- |
 | Account identity | `auth.users`, `public.users.id` | Root identifier for correlation across tables and vendor logs. |
 | Email / phone | Supabase Auth (magic link / OTP) | Strong real-world identifier when used. |
-| Profile & routing fields | `public.profiles` | Pseudonymous; **re-identification risk** when combined (callsign uniqueness, `region_hint`, language, tags). |
-| Matchmaking metadata | `public.match_queue` | `user_id`, `pool_key` (intent tags), `side`, timestamps; Realtime exposure — see migrations. |
-| Social graph | `squad_members`, `squads`, `messages` | Who met whom; message timing and volume. |
+| Profile & routing fields | `public.profiles` | Pseudonymous; **re-identification risk** when combined (callsign uniqueness, `region_hint`, language, tags). **In-squad:** peers see a **limited projection** (callsign, role, coarse tags, region hint) via `get_squad_peer_profiles` — **no global profile directory** or cross-squad search. |
+| Matchmaking metadata | `public.match_queue` | `user_id`, `pool_key` (intent tags ± optional `|zk:` verified scope), `side`, timestamps; Realtime exposure — see migrations. |
+| Social graph | `squad_members`, `squads`, `messages` | Who met whom; message timing and volume. Pseudonymous **handles in-room** are visible to squad-mates only (see profiles row above). |
 | Message content | `messages.payload_ciphertext` | **Not E2E-encrypted in the cryptographic sense today** — see §5. |
 | ZK verification records | `zk_proof_submissions`, `verified_attributes` | Proof commitments and nullifiers **bound to `user_id`** server-side — see §5. |
 
@@ -116,6 +116,8 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 
 - [ ] Severity-0 definition for suspected mass correlation or export; runbook includes key rotation and comms.
 
+**Tracking:** File GitHub issues from the templates in [`docs/operations/threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) instead of checking boxes here without implementation work.
+
 ---
 
 ## 7. Revision history
@@ -124,3 +126,4 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | ---- | ------ |
 | 2026-04-16 | Initial operational threat model aligned with current repo. |
 | 2026-04-16 | §5: Documented AES-GCM v3, squad key storage, moderator/service-role access, lack of forward secrecy/E2E, and server default key trigger (`20260417150000_*`). |
+| 2026-04-16 | §2: In-squad pseudonymous profile visibility via `get_squad_peer_profiles`; matchmaking `pool_key` may include `|zk:` verified scope. |

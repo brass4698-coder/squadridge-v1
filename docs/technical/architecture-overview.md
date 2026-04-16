@@ -6,7 +6,7 @@ The technical architecture of SquadRidge is designed to support verified-anonymo
 
 ## Core Components
 
-The architecture consists of three primary layers: the frontend client, the backend services, and the zero-knowledge (ZK) privacy stack.
+The architecture consists of three primary layers: the frontend client, the managed backend (Supabase), and the zero-knowledge (ZK) privacy stack.
 
 ### 1. Frontend Client
 
@@ -18,14 +18,16 @@ The frontend is built using React, Vite, and TypeScript, providing a responsive 
 *   **State Management**: Optimized for ephemeral data handling to minimize data at risk on the client device [3].
 *   **Onboarding subtree**: The multi-step onboarding UI lives under `src/onboarding/` as a **scoped design island** (tokens and components separate from the main shell). How it connects to `/verify`, intent, and sessionStorage is summarized in [`onboarding-architecture.md`](onboarding-architecture.md).
 
-### 2. Backend Services
+### 2. Managed backend (Supabase BaaS)
 
-The backend is a horizontally scalable Node.js application, designed to handle real-time messaging and AI integration [1].
+**What this repository actually ships:** a **pure BaaS (backend-as-a-service) pattern**. There is **no custom Node.js application server** and **no Redis deployment** in the product path described by this repo. The client talks to **Supabase**: PostgreSQL (with Row Level Security), Auth, Realtime, and optional Storage. Domain logic that would live in an app server elsewhere is implemented **in the database** (SQL, RPCs, triggers) and in **Supabase Edge Functions** (Deno), not in a separate long-running Node tier.
 
-*   **Runtime**: Node.js.
-*   **Database**: PostgreSQL (via Supabase) for persistent, non-PII data storage, utilizing Row Level Security (RLS) policies.
-*   **Cache/State**: Redis for managing ephemeral session state, rate limiting, and real-time matching queues [1].
-*   **API**: A combination of REST endpoints for standard operations and WebSockets for real-time, low-latency messaging.
+*   **Platform**: [Supabase](https://supabase.com/) — managed Postgres, Auth, PostgREST-style APIs via `supabase-js`, and Realtime channels over WebSockets for live updates (e.g. match queue and messaging), replacing a bespoke WebSocket server.
+*   **Database**: PostgreSQL for persistent, policy-gated data; RLS is the primary authorization boundary for row access.
+*   **Serverless functions**: Edge Functions (e.g. `verify-zk-proof` for Semaphore verification) for operations that must not run in the untrusted browser.
+*   **Matchmaking and queues**: Implemented with Postgres-backed RPCs and tables (`matchmaking_*`), not Redis. Optional Redis or dedicated workers may be considered later for extreme scale; `docker-compose.yml` includes an **optional** local Redis stub for experiments, not a dependency of the current Vite client.
+
+Older prospectus-style materials sometimes described a “horizontally scalable Node.js backend” with Redis [1]. **That design is not what this codebase runs today**; treat those references as forward-looking or superseded when reconciling audits against the repo.
 
 ### 3. Zero-Knowledge Privacy Stack (Enclave[ZK])
 
@@ -49,7 +51,7 @@ The architecture incorporates best practices for digital safety in conflict zone
 
 *   **Encryption**: **Target:** end-to-end encryption for sensitive exchanges [3]. **Current:** MVP message payloads are structured JSON at rest (`src/lib/messagePayload.ts`); see [`docs/technical/security-privacy.md`](security-privacy.md) and the [threat model](../security/threat-model.md) before claiming E2E to users or partners.
 *   **Data Minimization**: Ephemeral messaging and retraction reduce exposure; retention policies should align with [`docs/technical/data-retention-zk.md`](data-retention-zk.md) and the threat model [3].
-*   **Resilience**: The horizontally scalable Node.js backend and the use of Redis for state management ensure the platform can handle spikes in traffic during crises.
+*   **Resilience**: Uptime and scale depend on Supabase’s managed infrastructure, Postgres tuning, and careful use of Realtime and Edge Functions—not on a separate Node/Redis stack in this repository. Crisis-time spikes still warrant capacity planning with the provider and monitoring (see deployment and operations docs).
 
 ## References
 

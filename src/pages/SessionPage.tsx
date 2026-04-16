@@ -8,6 +8,7 @@ import {
 } from '../components/session/SessionPageSkeleton';
 import { SessionFeatureErrorBoundary } from '../components/session/SessionFeatureErrorBoundary';
 import { SessionTranslationPanel } from '../components/SessionTranslationPanel';
+import { SquadPeerStrip } from '../components/session/SquadPeerStrip';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
@@ -19,6 +20,7 @@ import { ensureSquadMessageKey } from '../lib/squadMessageKey';
 import { useRealtimeMessages } from '../hooks/useRealtimeMessages';
 import { useMessagePlaintexts } from '../hooks/useMessagePlaintexts';
 import { useSquad } from '../hooks/useSquad';
+import { useSquadPeerProfiles } from '../hooks/useSquadPeerProfiles';
 import { logIntervention, recordLocalToneAndMaybePersist } from '../lib/ai/pipeline';
 import {
   enqueuePendingSend,
@@ -35,7 +37,6 @@ const sessionChatHeadingStyle: CSSProperties = {
   fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
   fontWeight: 800,
   letterSpacing: '-0.02em',
-  color: '#f1f5f9',
 };
 
 const PAUSE_MESSAGE_MS = 2000;
@@ -72,6 +73,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     isFetchingNextPage,
   } = useRealtimeMessages(squadId);
   const { data: squad, refetch: refetchSquad } = useSquad(squadId);
+  const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [archiving, setArchiving] = useState(false);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
@@ -510,7 +512,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   async function handlePullBack(messageId: string) {
     if (!supabase) return;
-    await supabase.from('messages').update({ status: 'retracted' }).eq('id', messageId);
+    const { error } = await supabase.from('messages').update({ status: 'retracted' }).eq('id', messageId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     await refresh();
   }
 
@@ -558,13 +564,15 @@ export function SessionPage({ squadId }: { squadId: string }) {
       aria-labelledby="session-title"
     >
       <header className="flex flex-col">
-        <h1 id="session-title" className="font-heading" style={sessionChatHeadingStyle}>
+        <h1 id="session-title" className="font-heading text-gray-light" style={sessionChatHeadingStyle}>
           Squad session
         </h1>
-        <p className="mt-1 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-[#4b5563]">
+        <p className="mt-1 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-slate-500">
           Private room
         </p>
       </header>
+
+      <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
 
       {squad?.archived_at ? (
         <div

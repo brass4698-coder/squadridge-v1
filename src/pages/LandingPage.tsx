@@ -8,6 +8,7 @@ import { PrimaryCTA } from '../components/ui/PrimaryCTA';
 import { StepCard } from '../components/ui/StepCard';
 import { SectionLabel } from '../components/ui/SectionLabel';
 import { Testimonial } from '../components/ui/Testimonial';
+import { useDemoWalkthrough } from '../demo';
 import { DEMO_PROPOSAL_ID } from '../lib/demoSession';
 import { isSupabaseConfigured } from '../lib/env';
 import { getLastSquadIdFromStorage } from '../lib/squad';
@@ -47,7 +48,7 @@ const HOW_IT_WORKS_STEPS = [
   {
     number: '03',
     heading: 'Work a real problem. Leave a real output.',
-    body: 'Structured rounds, equal floor, automatic de-escalation. When the session closes, your squad\'s proposal goes to a public ledger — citable, anonymous, timestamped. Not a transcript. A document.',
+    body: 'A structured squad room with de-escalation affordances and translation. When the session closes, your squad\'s proposal can go to a public ledger — citable, anonymous, timestamped. Not a transcript. A document.',
   },
 ] as const;
 
@@ -64,6 +65,7 @@ function ChevronRight() {
 }
 
 export function LandingPage() {
+  const { startWalkthrough } = useDemoWalkthrough();
   const lastSquad = getLastSquadIdFromStorage();
   const configured = isSupabaseConfigured();
 
@@ -106,6 +108,24 @@ export function LandingPage() {
                   className="landing-hero-animate-cta inline-flex w-fit overflow-hidden"
                 />
                 <HeroWaitlistCounter />
+              </div>
+              <div className="landing-hero-animate-sub mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => startWalkthrough()}
+                  className="btn-secondary min-h-[44px] justify-center px-5 py-2.5 text-sm font-semibold"
+                >
+                  Start guided tour
+                </button>
+                <span className="font-sans text-[0.9rem] text-landing-body">
+                  or{' '}
+                  <Link
+                    to="/intent"
+                    className="font-medium text-teal-light underline-offset-4 hover:text-teal-light hover:underline"
+                  >
+                    explore on your own
+                  </Link>
+                </span>
               </div>
               <p className="landing-hero-animate-sub mt-6 font-sans text-[0.95rem] leading-relaxed text-landing-body">
                 <Link
@@ -262,8 +282,8 @@ export function LandingPage() {
                     Your terms.
                   </li>
                   <li className="border-l border-gray-600 pl-4">
-                    Structured squads with equal turns, time-boxed rounds, and automatic de-escalation keep the room
-                    focused on implementation — not performance.
+                    Structured squads, balanced matchmaking across perspectives, and in-room de-escalation affordances
+                    keep the work focused on implementation — not performance.
                   </li>
                   <li className="border-l border-gray-600 pl-4">
                     Every session that reaches consensus generates a citable Proposal on a public ledger. Anonymous.

@@ -21,6 +21,7 @@ import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { ModDashboardPage } from './pages/ModDashboardPage';
 import { RequireModerator } from './components/auth/RequireModerator';
+import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 
 export default function App() {
   return (
@@ -30,49 +31,51 @@ export default function App() {
         <BrowserRouter>
           <SentryNavigationListener />
           <ScrollToTop />
-          <AuthProvider>
-            <Toaster position="top-center" richColors closeButton className="font-sans" />
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/onboarding" element={<OnboardingPage />} />
-                <Route path="/verify" element={<VerificationPage />} />
-                <Route path="/intent" element={<IntentPage />} />
-                <Route path="/ledger" element={<LedgerPage />} />
-                <Route path="/ledger/:proposalId" element={<LedgerPage />} />
-                <Route path="/security" element={<SecurityDisclosurePage />} />
-                <Route path="/match" element={<Match />} />
-                <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
-                <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
-                <Route path="/sign-in" element={<SignInPage />} />
-                <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                <Route
-                  path="/settings/profile"
-                  element={
-                    <RequireAuth>
-                      <ProfileSettingsPage />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/mod"
-                  element={
-                    <RequireAuth>
-                      <RequireModerator>
-                        <ModDashboardPage />
-                      </RequireModerator>
-                    </RequireAuth>
-                  }
-                />
-                {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
-                {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
-                  <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                ) : null}
-                <Route path="/session/:squadId?" element={<SessionAccess />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
-            </Routes>
-          </AuthProvider>
+          <DemoWalkthroughProvider>
+            <AuthProvider>
+              <Toaster position="top-center" richColors closeButton className="font-sans" />
+              <Routes>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route path="/verify" element={<VerificationPage />} />
+                  <Route path="/intent" element={<IntentPage />} />
+                  <Route path="/ledger" element={<LedgerPage />} />
+                  <Route path="/ledger/:proposalId" element={<LedgerPage />} />
+                  <Route path="/security" element={<SecurityDisclosurePage />} />
+                  <Route path="/match" element={<Match />} />
+                  <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
+                  <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
+                  <Route path="/sign-in" element={<SignInPage />} />
+                  <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                  <Route
+                    path="/settings/profile"
+                    element={
+                      <RequireAuth>
+                        <ProfileSettingsPage />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/mod"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <ModDashboardPage />
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
+                  {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
+                  {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
+                    <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                  ) : null}
+                  <Route path="/session/:squadId?" element={<SessionAccess />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
+              </Routes>
+            </AuthProvider>
+          </DemoWalkthroughProvider>
         </BrowserRouter>
       </div>
       {/* Fixed grain (z-1); routes live in the z-10 wrapper above */}

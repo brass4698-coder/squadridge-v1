@@ -2,52 +2,65 @@
 
 ## Overview
 
-The API design for SquadRidge supports verified-anonymous, cross-border dialogue by providing a secure, robust interface for the frontend client and external services [1]. Built on a horizontally scalable Node.js backend using Postgres and Redis, the API handles real-time messaging, zero-knowledge (ZK) attribute verification, and AI-assisted de-escalation [1].
+SquadRidge’s “API” for the shipped product is **not** a standalone Node.js HTTP service in this repository. The frontend uses the **Supabase client** (`supabase-js`) against:
+
+* **PostgREST** — table and view access with RLS as the authorization layer.
+* **Postgres RPCs** — `supabase.rpc(...)` for matchmaking, message windows, waitlist, and moderation helpers.
+* **Realtime** — `supabase.channel(...).on('postgres_changes', ...)` for live updates (e.g. match queue, messages).
+* **Edge Functions** — `supabase.functions.invoke(...)` for operations that must run server-side (e.g. `verify-zk-proof` for Semaphore verification).
+
+Older materials described a “horizontally scalable Node.js backend” with Redis and REST paths like `/api/v1/...` [1]. **That is not how this codebase is wired.** The sections below map **product domains** to **actual surfaces** in the repo. For the full stack picture, see [`architecture-overview.md`](architecture-overview.md).
 
 ## Architectural Principles
 
-The API follows a RESTful architecture for standard operations and utilizes WebSockets for real-time, low-latency messaging.
-
 ### 1. Security and Anonymity
 
-The API is designed to protect users in authoritarian or active conflict zones who face real danger if their identities are exposed [3]. It employs Semaphore-based zero-knowledge proofs (ZKPs) to verify user attributes like citizenship or organizational roles without exposing raw personally identifiable information (PII) [1]. All endpoints are secured with HTTPS, and sensitive data is encrypted in transit and at rest [3].
+Authorization is enforced primarily with **Row Level Security** in PostgreSQL, plus Auth session identity. ZK verification uses the **`verify-zk-proof`** Edge Function (see [`zk-implementation.md`](zk-implementation.md)). Traffic uses HTTPS to Supabase; see the [threat model](../security/threat-model.md) for what the operator can and cannot see.
 
 ### 2. Ephemerality and Data Minimization
 
-To minimize data at risk, the API supports ephemeral messaging streams [1]. Messages are encrypted and automatically deleted after a session concludes or upon user request (e.g., the "Pull back" feature) [1]. The API separates these streams from aggregated analytics, ensuring graceful degradation if the AI translation or sentiment moderation services experience downtime [1].
+Ephemeral behavior is implemented through **schema, retention rules, and client flows**—not through a separate “ephemeral API tier.” See [`data-retention-zk.md`](data-retention-zk.md) and the threat model.
 
 ### 3. Scalability and Performance
 
-The API is designed to handle spikes in traffic during crises, utilizing Redis for managing ephemeral session state, rate limiting, and real-time matching queues [1]. The horizontally scalable Node.js backend ensures the platform remains responsive and accessible, even in low-bandwidth environments [3].
+Scale-out is **Supabase-managed Postgres + Realtime**, with domain logic in SQL/RPCs. **Redis is not** part of the production API path documented here; optional Redis appears only as a **future/local** option (see [`tech-stack.md`](tech-stack.md), `docker-compose.yml`).
 
-## Core API Domains
+## Core API Domains (concept → implementation)
 
-The API is divided into three primary domains: Authentication and Verification, Squad Management and Matching, and Messaging and Interventions.
+Domains below are **logical**; concrete names are representative—grep `src/` and `supabase/migrations/` for the current list.
 
 ### 1. Authentication and Verification
 
-This domain handles the generation and verification of ZK proofs, ensuring users can cryptographically prove attributes while keeping their underlying personal data hidden [3].
+| Concept | Implementation in this repo |
+| -------- | ---------------------------- |
+| Session | Supabase Auth (`signInAnonymously`, session JWT, `getSession`) |
+| ZK proof verification | Edge Function `verify-zk-proof` via `supabase.functions.invoke('verify-zk-proof', { body })` — see `src/lib/zkAdapter.ts` |
+| Logout | `supabase.auth.signOut()` |
 
-*   `POST /api/v1/auth/verify-proof`: Submits a Semaphore-based zero-knowledge proof for verification [1].
-*   `GET /api/v1/auth/status`: Checks the authentication status of the current user session.
-*   `POST /api/v1/auth/logout`: Terminates the user session and clears all ephemeral data.
+There is no `POST /api/v1/auth/verify-proof` route in this codebase.
 
 ### 2. Squad Management and Matching
 
-This domain manages the creation, matching, and lifecycle of dialogue sessions, ensuring users are paired with four to six participants from opposing sides [1].
-
-*   `POST /api/v1/squads/match`: Enqueues a user for matching based on their verified attributes [1].
-*   `GET /api/v1/squads/{squadId}`: Retrieves the metadata and status of a specific squad session.
-*   `POST /api/v1/squads/{squadId}/leave`: Allows a user to securely exit a squad session.
+| Concept | Implementation in this repo |
+| -------- | ---------------------------- |
+| Enqueue / pool snapshot / cancel | Postgres RPCs such as `matchmaking_enqueue_and_try`, `matchmaking_pool_snapshot`, `matchmaking_cancel_waiting` — see `src/lib/matchmakingClient.ts` |
+| Live queue updates | Realtime subscriptions on relevant tables (e.g. `match_queue`) |
 
 ### 3. Messaging and Interventions
 
-This domain handles the real-time, encrypted messaging streams and integrates AI-assisted de-escalation tools [1].
+| Concept | Implementation in this repo |
+| -------- | ---------------------------- |
+| Message history / windows | RPCs such as `messages_latest_window`, `messages_older_than` — see `src/hooks/useRealtimeMessages.ts` |
+| Live messages | Realtime on message tables as implemented |
+| Moderation (staff) | RPCs such as `moderator_flag_message`, `moderator_archive_squad` — see `src/pages/ModDashboardPage.tsx` |
 
-*   `WebSocket /api/v1/ws/squads/{squadId}`: Establishes a real-time connection for sending and receiving encrypted messages.
-*   `POST /api/v1/messages/send`: Sends an encrypted message to a squad, triggering AI analysis for tone detection and translation [1].
-*   `POST /api/v1/messages/{messageId}/pull-back`: Initiates the temporary "Pull back" feature for immediate message retraction [1].
-*   `GET /api/v1/interventions/suggest`: Retrieves AI-generated suggestions for calmer wording when tension is flagged [3].
+There is no `WebSocket /api/v1/ws/squads/{id}` endpoint; the client uses Supabase Realtime channels.
+
+### 4. Waitlist and counts
+
+| Concept | Implementation in this repo |
+| -------- | ---------------------------- |
+| Signup counter | RPC `waitlist_signup_count` — see `src/components/HeroWaitlistCounter.tsx` |
 
 ## References
 

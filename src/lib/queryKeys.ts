@@ -7,6 +7,8 @@ export const queryKeys = {
   },
   profile: (userId: string | null | undefined) => ['profile', userId ?? 'none'] as const,
   squad: (squadId: string | undefined) => ['squad', squadId ?? 'none'] as const,
+  squadPeerProfiles: (squadId: string | undefined) =>
+    ['squad', 'peerProfiles', squadId ?? 'none'] as const,
   moderator: (userId: string | null | undefined) => ['moderator', userId ?? 'none'] as const,
   messages: {
     list: (squadId: string | undefined) => ['messages', 'list', squadId ?? 'none'] as const,

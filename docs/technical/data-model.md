@@ -2,42 +2,42 @@
 
 ## Overview
 
-The data model for SquadRidge is designed to enforce verified anonymity, support real-time structured dialogue, and generate aggregated early warning signals without compromising user privacy [1]. Built on PostgreSQL via Supabase, the schema heavily utilizes Row Level Security (RLS) and strict data minimization principles to protect participants in high-risk environments [3].
+The data model enforces verified anonymity, structured dialogue, and aggregated early-warning signals while minimizing raw PII in Postgres. The live schema is defined by SQL migrations under `supabase/migrations/`; this document reflects **what the repository ships today**.
 
-## Core Entities
+## Core entities
 
-The data model is divided into three primary domains: Identity and Verification, Dialogue Sessions, and Analytics and Moderation.
+### 1. Identity and verification
 
-### 1. Identity and Verification
+- **`auth.users` / `public.users`**: Minimal account rows keyed by UUID. No names or phone numbers in `public.users` by design.
+- **`public.profiles`**: Pseudonymous operator profile (callsign, role archetype, coarse tags, language/region hints). **RLS:** users read/update their own row. **In-squad visibility:** peers see a **slim projection** (callsign, role, tags, region hint) via the `get_squad_peer_profiles` RPC — same squad only, no global directory.
+- **`public.zk_proof_submissions`**: Semaphore proof commitments and nullifier hashes bound to verification events.
+- **`public.verified_attributes`**: Rows derived from verified proofs (`attribute_type`, `attribute_value`). Used for eligibility signals; **pool keys** for matchmaking may include a `|zk:<scope>` suffix that must match a row here for the current user (see `matchmaking_enqueue_and_try`).
 
-This domain manages user access and zero-knowledge (ZK) proofs, ensuring that personally identifiable information (PII) is never stored directly in the database [1].
+### 2. Dialogue sessions
 
-*   **Users**: A minimal table containing a hashed identifier (e.g., a decentralized identifier or DID) and account status. No names, emails, or phone numbers are stored.
-*   **ZK_Proofs**: Stores the Semaphore-based zero-knowledge proofs submitted by users [1]. These proofs cryptographically verify attributes like citizenship or organizational role without revealing the underlying data [3].
-*   **Verified_Attributes**: A table linking a user's DID to specific, verified attributes (e.g., "Verified Citizen of Region A") derived from the ZK proofs. This is used exclusively for matching and access control.
+- **`public.squads`**: Time-bound dialogue session (topic, status, expiry, optional `message_encryption_key`, archive metadata).
+- **`public.squad_members`**: Junction of user ↔ squad membership.
+- **`public.messages`**: Encrypted payloads (`payload_ciphertext` JSON for AES-GCM). Status includes `sent`, `retracted`, `flagged`. **Retention:** no automatic row deletion in current migrations; retention is an operational policy (see threat model and retention docs).
 
-### 2. Dialogue Sessions
+### 3. Matchmaking
 
-This domain handles the ephemeral, encrypted messaging streams and the matching of users into small squads [1].
+- **`public.match_queue`**: Ephemeral queue rows (`pool_key`, `side` A/B, status). Pool keys are derived client-side from intent tags and optional verified ZK scope; server RPCs validate `|zk:` segments against `verified_attributes`.
 
-*   **Squads**: Represents a time-bound dialogue session. It contains metadata such as the session topic, creation time, status (active, completed, flagged), and the required attributes for participants.
-*   **Squad_Members**: A junction table linking users (via DID) to a specific squad. This table enforces the rule that squads consist of four to six participants from opposing sides [1].
-*   **Messages**: Stores the encrypted text of the dialogue. Crucially, this table is designed for ephemerality. Messages are automatically deleted after a session concludes or upon user request (e.g., the "Pull back" feature) [1].
+### 4. Analytics and moderation
 
-### 3. Analytics and Moderation
+- **`public.sentiment_metrics`**: De-identified tension/tone samples (optional AI path).
+- **`public.interventions`**: Logged de-escalation or system interventions.
+- **`public.moderators` / `public.moderation_audit_log`**: Moderator roster and append-only audit trail.
+- **`public.ledger_proposals`**: Public consensus records (published subset readable under RLS).
 
-This domain aggregates de-identified sentiment metrics and manages AI interventions, separating these streams from core messaging [1].
+### 5. Pre-launch
 
-*   **Sentiment_Metrics**: Stores aggregated, anonymized data derived from the AI analysis of dialogue sessions. This includes tone, tension levels, and key themes, providing early warning insights for vetted analysts [1].
-*   **Interventions**: Logs instances where the AI-assisted de-escalation tools (e.g., the "Slow down" prompt) were triggered [1]. This data is used to improve the AI models and track the effectiveness of interventions, without linking back to specific users or messages.
-*   **Reports**: A table for users to flag inappropriate behavior or severe escalations. Reports are anonymized and reviewed by moderators to ensure the safety of the platform.
+- **`public.waitlist_signups`**: Email capture for marketing; separate RLS for insert/read patterns defined in migrations.
 
-## Data Pipeline and Security
+## Data pipeline and security
 
-The data pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics [1]. This ensures that even if the analytics database is compromised, the raw dialogue and user identities remain secure. The use of Supabase's Row Level Security (RLS) ensures that users can only access data relevant to their active sessions, further mitigating the risk of unauthorized access.
+Ephemeral messaging and aggregated analytics are separated at the table level. Row Level Security is the primary client authorization boundary; **operator** and **service role** access are out-of-band for RLS (see [threat model](../security/threat-model.md)).
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
-[2] Gemini Deep Research Synthesis.
-[3] Perplexity Research.
+Internal research and synthesis materials cited in legacy docs are not reproduced here; prefer migrations and `src/lib/database.types.ts` as the source of truth for column types.

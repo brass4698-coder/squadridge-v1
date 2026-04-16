@@ -80,8 +80,17 @@ export function isDemoSquadShortcutsEnabled(): boolean {
  * Hash-only ZK path for local/dev speed. **Production builds fail if `VITE_ZK_STUB=true`** (`vite.config.ts`).
  * **MVP policy:** ship real Semaphore + Edge verification (`VITE_ZK_STUB=false`); reserve stub for developers only.
  */
-export function isZkVerifierStubEnabled(): boolean {
+/**
+ * Legacy dev path: when `VITE_ZK_STUB` is not explicitly `false`, the old `submitZkProofStub` helper stays callable.
+ * **Hash-only stub** (fast, non-ZK) is active only when `VITE_ZK_STUB === 'true'` — see {@link isZkHashStubExplicit}.
+ */
+export function isZkStubDevPathAllowed(): boolean {
   return env.VITE_ZK_STUB !== 'false';
+}
+
+/** @deprecated Use {@link isZkStubDevPathAllowed} */
+export function isZkVerifierStubEnabled(): boolean {
+  return isZkStubDevPathAllowed();
 }
 
 /** True only when `VITE_ZK_STUB=true` — explicit hash stub; use for UI warnings. */

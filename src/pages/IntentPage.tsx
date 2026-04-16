@@ -27,11 +27,7 @@ const headingStyle: CSSProperties = {
 };
 
 const primaryCtaStyle: CSSProperties = {
-  borderRadius: '8px',
-  borderTopLeftRadius: '8px',
-  borderTopRightRadius: '8px',
-  borderBottomLeftRadius: '8px',
-  borderBottomRightRadius: '8px',
+  borderRadius: 8,
   fontWeight: 600,
 };
 
@@ -82,7 +78,20 @@ export function IntentPage() {
         tags,
       });
       await ensureAnonymousSession();
-      const poolKey = poolKeyFromIntentTags(tags);
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      let zkScope: string | null = null;
+      if (uid) {
+        const { data: va } = await supabase
+          .from('verified_attributes')
+          .select('attribute_value')
+          .eq('user_id', uid)
+          .order('verified_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        zkScope = va?.attribute_value ?? null;
+      }
+      const poolKey = poolKeyFromIntentTags(tags, zkScope);
       const snap = await enqueueMatchmaking(supabase, poolKey, perspective);
       if (!snap) {
         const c = matchmakingUnavailableClassified();

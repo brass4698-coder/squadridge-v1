@@ -43,7 +43,7 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 
 Dev does **not** automatically skip the Edge Function—only `VITE_ZK_STUB=true` avoids it.
 
-**Legacy helper:** [`isZkVerifierStubEnabled()`](../../src/lib/env.ts) gates [`submitZkProofStub`](../../src/lib/zk/index.ts) only; it does not change `runVerification` / `zkAdapter` behavior.
+**Legacy helper:** [`isZkStubDevPathAllowed()`](../../src/lib/env.ts) (formerly `isZkVerifierStubEnabled`) gates [`submitZkProofStub`](../../src/lib/zk/index.ts) only; it does not change `runVerification` / `zkAdapter` behavior. Verified scopes in `verified_attributes` can be mixed into matchmaking `pool_key` segments (`|zk:…`); see [`matchmakingPoolKey.ts`](../../src/lib/matchmakingPoolKey.ts) and migration `20260418130000_squad_peer_profiles_and_zk_pool.sql`.
 
 **Deploy (CI):** [`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml) runs `supabase functions deploy` for all functions under [`supabase/functions/`](../../supabase/functions/). [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) runs frontend build/test but does not deploy Edge Functions.
 

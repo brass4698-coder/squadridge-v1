@@ -21,7 +21,7 @@ The onboarding flow prioritizes norm-setting by clearly explaining the platform'
 
 ## Architecture and Scalability
 
-SquadRidge is built on a React, Vite, and TypeScript frontend, supported by a horizontally scalable Node.js backend using Postgres and Redis for state management [1]. Security is anchored by the Enclave[ZK] stack [1]. The data pipeline separates ephemeral, encrypted messaging streams from aggregated analytics, ensuring graceful degradation if the AI translation or sentiment moderation services experience downtime [1].
+The product is delivered as a **React + Vite + TypeScript** web client on a **Supabase backend-as-a-service** stack: managed PostgreSQL (with Row Level Security), Auth, Realtime, PostgREST-style access via `supabase-js`, and **Supabase Edge Functions** (Deno) for verification and other server-side steps. There is **no separate Node.js application server or Redis layer in the shipped product path** documented in this repository; matchmaking and messaging use Postgres and Realtime. Security is anchored by the Enclave[ZK] stack [1]. The data pipeline separates messaging from aggregated analytics where implemented; see [`docs/technical/architecture-overview.md`](../technical/architecture-overview.md) for the engineering-accurate picture.
 
 ## References
 

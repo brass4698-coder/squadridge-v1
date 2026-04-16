@@ -1,6 +1,6 @@
 # SquadRidge
 
-Verified-anonymous cross-border dialogue platform: React, Vite, TypeScript, Tailwind, Supabase (PostgreSQL + RLS), with optional Redis for future workers.
+Verified-anonymous cross-border dialogue platform: React, Vite, TypeScript, Tailwind, and **Supabase** (PostgreSQL + RLS, Auth, Realtime, Edge Functions). Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
 
 ## Prerequisites
 
