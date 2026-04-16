@@ -31,6 +31,18 @@ const sessionChatHeadingStyle: CSSProperties = {
 const PAUSE_MESSAGE_MS = 2000;
 const SEND_COOLDOWN_MS = 15_000;
 
+type DeliveryStatus = 'pending' | 'sent' | 'failed';
+
+type OptimisticMessage = {
+  optimisticId: string;
+  squad_id: string;
+  sender_id: string;
+  encrypted_content: string;
+  sent_at: string;
+  status: string;
+  deliveryStatus: DeliveryStatus;
+};
+
 export function SessionPage() {
   const { squadId: squadIdParam } = useParams<{ squadId?: string }>();
   /** Single `/session/:squadId?` route — normalize empty/undefined so landing vs room is stable. */
@@ -65,6 +77,7 @@ export function SessionPage() {
   const [composer, setComposer] = useState('');
   const [sending, setSending] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
+  const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([]);
   /** Power of Pause: brief breathing message over the composer */
   const [slowDownBreathing, setSlowDownBreathing] = useState(false);
   /** After breathing, Send is cooled down until this timestamp (epoch ms) */
@@ -125,6 +138,18 @@ export function SessionPage() {
       return;
     }
 
+    const optimisticId = crypto.randomUUID();
+    const optimistic: OptimisticMessage = {
+      optimisticId,
+      squad_id: squadId,
+      sender_id: user.id,
+      encrypted_content: encodeMessagePayload(text),
+      sent_at: new Date().toISOString(),
+      status: 'active',
+      deliveryStatus: 'pending',
+    };
+    setOptimisticMessages((prev) => [...prev, optimistic]);
+
     const { error: sendError } = await supabase.from('messages').insert({
       squad_id: squadId,
       sender_id: user.id,
@@ -132,10 +157,16 @@ export function SessionPage() {
     });
 
     if (sendError) {
+      setOptimisticMessages((prev) =>
+        prev.map((m) => (m.optimisticId === optimisticId ? { ...m, deliveryStatus: 'failed' } : m)),
+      );
       setComposer(text);
       setSending(false);
       return;
     }
+
+    // Remove optimistic entry — the realtime subscription will add the confirmed row.
+    setOptimisticMessages((prev) => prev.filter((m) => m.optimisticId !== optimisticId));
 
     if (isAiPipelineEnabled() && squadId) {
       await recordLocalToneAndMaybePersist(supabase, squadId, text);
@@ -297,7 +328,7 @@ export function SessionPage() {
           ) : null}
 
           <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto" aria-live="polite">
-            {messages.length === 0 && !loading ? (
+            {messages.length === 0 && optimisticMessages.length === 0 && !loading ? (
               <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
                 No messages yet. Say hello calmly.
               </li>
@@ -319,6 +350,26 @@ export function SessionPage() {
                   receivedEpoch={epochForMessage(m.id)}
                   translate={translate}
                   onPullBack={() => void handlePullBack(m.id)}
+                />
+              );
+            })}
+            {optimisticMessages.map((m) => {
+              const body = decodeMessagePayload(m.encrypted_content);
+              return (
+                <SessionMessageItem
+                  key={m.optimisticId}
+                  originalBody={body}
+                  sentAtLabel={new Date(m.sent_at).toLocaleString()}
+                  retracted={false}
+                  isOwn={true}
+                  translationEnabled={false}
+                  preferredLanguage={prefs.preferredLanguage}
+                  translationPreferenceEpoch={prefs.translationPreferenceEpoch}
+                  // isOwn=true so shouldTranslate is always false; receivedEpoch is unused.
+                  receivedEpoch={prefs.translationPreferenceEpoch}
+                  translate={translate}
+                  onPullBack={() => undefined}
+                  deliveryStatus={m.deliveryStatus}
                 />
               );
             })}
