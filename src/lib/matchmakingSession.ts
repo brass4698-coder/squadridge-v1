@@ -31,3 +31,31 @@ export function clearMatchmakingSession(): void {
     /* ignore */
   }
 }
+
+/** After instant match from intent, we route through `/match` for narrative; consumed when opening the room. */
+const PENDING_MATCH_SQUAD = 'squadridge_pending_match_squad_id';
+
+export function setPendingMatchReveal(squadId: string): void {
+  try {
+    sessionStorage.setItem(PENDING_MATCH_SQUAD, squadId);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readPendingMatchReveal(): string | null {
+  try {
+    const v = sessionStorage.getItem(PENDING_MATCH_SQUAD);
+    return v && v.length > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingMatchReveal(): void {
+  try {
+    sessionStorage.removeItem(PENDING_MATCH_SQUAD);
+  } catch {
+    /* ignore */
+  }
+}

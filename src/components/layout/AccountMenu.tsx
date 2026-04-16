@@ -4,7 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks/useProfile';
 import { isSupabaseConfigured } from '../../lib/env';
 
-export function AccountMenu() {
+export type AccountMenuProps = {
+  /** When set (e.g. demo walkthrough), shown as the menu button label instead of callsign/email. */
+  menuTriggerLabel?: string;
+};
+
+export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
   const { session, loading: authLoading, signOut } = useAuth();
   const { profile } = useProfile();
   const [open, setOpen] = useState(false);
@@ -42,7 +47,11 @@ export function AccountMenu() {
     );
   }
 
-  const label = profile?.callsign?.trim() || session.user?.email?.split('@')[0] || 'Operator';
+  const label =
+    menuTriggerLabel?.trim() ||
+    profile?.callsign?.trim() ||
+    session.user?.email?.split('@')[0] ||
+    'Operator';
 
   return (
     <div ref={rootRef} className="relative flex items-center">

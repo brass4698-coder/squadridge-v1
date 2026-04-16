@@ -8,6 +8,7 @@ import { PrimaryCTA } from '../components/ui/PrimaryCTA';
 import { StepCard } from '../components/ui/StepCard';
 import { SectionLabel } from '../components/ui/SectionLabel';
 import { Testimonial } from '../components/ui/Testimonial';
+import { DEMO_PROPOSAL_ID } from '../lib/demoSession';
 import { isSupabaseConfigured } from '../lib/env';
 import { getLastSquadIdFromStorage } from '../lib/squad';
 
@@ -106,6 +107,55 @@ export function LandingPage() {
                 />
                 <HeroWaitlistCounter />
               </div>
+              <p className="landing-hero-animate-sub mt-6 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                <Link
+                  to="/security"
+                  className="font-medium text-teal-light underline-offset-4 hover:text-teal-light hover:underline"
+                >
+                  See how we protect anonymity
+                </Link>
+              </p>
+              <div className="landing-hero-animate-sub mt-8 grid max-w-2xl gap-4 sm:grid-cols-2">
+                <Link
+                  to="#waitlist"
+                  className={twMerge(
+                    'group flex min-h-[44px] flex-col justify-center rounded-lg border border-gray-700/45 bg-navy-light/20 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-teal/35',
+                  )}
+                >
+                  <span className="font-heading text-sm font-semibold text-landing-ink">Request early access</span>
+                  <span className="mt-1 font-sans text-[0.85rem] leading-relaxed text-landing-body">
+                    Join the waitlist for the live product.
+                  </span>
+                  <span className="mt-3 font-sans text-[0.8rem] font-medium text-teal-light group-hover:underline">
+                    Go to form →
+                  </span>
+                </Link>
+                <Link
+                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
+                  className={twMerge(
+                    'group flex min-h-[44px] flex-col justify-center rounded-lg border border-gray-700/45 bg-navy-light/20 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-teal/35',
+                  )}
+                >
+                  <span className="font-heading text-sm font-semibold text-landing-ink">View public ledger (demo)</span>
+                  <span className="mt-1 font-sans text-[0.85rem] leading-relaxed text-landing-body">
+                    Open a sample proposal record—no account required.
+                  </span>
+                  <span className="mt-3 font-sans text-[0.8rem] font-medium text-teal-light group-hover:underline">
+                    Open demo ledger →
+                  </span>
+                </Link>
+              </div>
+              {import.meta.env.DEV ? (
+                <p className="landing-hero-animate-sub mt-6 font-sans text-[0.85rem] text-landing-muted">
+                  <Link
+                    to="/dev/supabase"
+                    className="text-teal-light/90 underline-offset-4 hover:text-teal-light hover:underline"
+                  >
+                    See technical notes
+                  </Link>{' '}
+                  (local dev)
+                </p>
+              ) : null}
               {configured ? (
                 <p className="landing-hero-animate-sub mt-8 max-w-[52ch] font-sans text-[0.98rem] leading-[1.65] text-landing-body">
                   <span className="font-medium text-landing-ink">Live app:</span>{' '}
@@ -146,7 +196,14 @@ export function LandingPage() {
               How it works
             </h2>
             <p className="mt-6 font-sans font-normal leading-[1.7] text-landing-body">
-              Three steps — then you&apos;re in the room.
+              Three steps — then you&apos;re in the room.{' '}
+              <Link
+                to="/intent"
+                className="font-medium text-teal-light underline-offset-4 hover:text-teal-light hover:underline"
+              >
+                Read our intent and use-case guidelines
+              </Link>
+              .
             </p>
             <ol className="mt-12 grid list-none gap-12 md:mt-14 md:grid-cols-3 md:gap-10 lg:gap-12">
               {HOW_IT_WORKS_STEPS.map((s) => (
@@ -262,13 +319,13 @@ export function LandingPage() {
               timestamped. The work persists beyond the room.
             </p>
             <Link
-              to="/ledger"
+              to={`/ledger/${DEMO_PROPOSAL_ID}`}
               className={twMerge(
                 'btn-secondary mt-6 inline-flex min-h-[44px] gap-2 text-sm font-semibold text-teal-light',
                 'border-teal/35 hover:border-teal/50 hover:text-white',
               )}
             >
-              View the Ledger
+              View public ledger (demo)
               <span aria-hidden>→</span>
             </Link>
           </section>

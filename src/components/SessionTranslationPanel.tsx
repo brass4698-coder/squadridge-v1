@@ -12,10 +12,22 @@ type Props = {
 /**
  * Session translation preferences + one-time loading banner (client-side models).
  */
+const SLOW_LOAD_HINT_MS = 45_000;
+
 export function SessionTranslationPanel({ modelLoading }: Props) {
   const { preferredLanguage, translationEnabled } = useUserPreferences();
   const [confirm, setConfirm] = useState<string | null>(null);
   const [showBanner, setShowBanner] = useState(false);
+  const [showSlowHint, setShowSlowHint] = useState(false);
+
+  useEffect(() => {
+    if (!modelLoading) {
+      setShowSlowHint(false);
+      return;
+    }
+    const t = window.setTimeout(() => setShowSlowHint(true), SLOW_LOAD_HINT_MS);
+    return () => clearTimeout(t);
+  }, [modelLoading]);
 
   useEffect(() => {
     let done = false;
@@ -60,6 +72,12 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
           role="status"
         >
           Translation is loading for your language — messages will appear in {bannerLang} shortly.
+          {showSlowHint ? (
+            <span className="mt-2 block text-[0.8rem] text-[#8892a4]">
+              First load can take a while on slow networks (the model is large). If the wait is too long, we’ll
+              temporarily show the original text until you reconnect.
+            </span>
+          ) : null}
         </p>
       ) : null}
 

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WorkerRequest, WorkerResponse } from '../workers/translationWorkerTypes';
 
+/** If the WASM/model bundle never finishes loading, fall back to original text so the session stays usable. */
+const MODEL_LOAD_FALLBACK_MS = 90_000;
+
 /**
  * Client-side translation via a dedicated Web Worker (Transformers.js never runs on the main thread).
  * The worker is created on first `translate()` so users who never translate do not download the worker chunk.
@@ -82,6 +85,14 @@ export function useTranslation() {
       }
     };
   }, [settleAllPendingWithFallback]);
+
+  useEffect(() => {
+    if (!modelLoading) return;
+    const t = window.setTimeout(() => {
+      settleAllPendingWithFallback();
+    }, MODEL_LOAD_FALLBACK_MS);
+    return () => clearTimeout(t);
+  }, [modelLoading, settleAllPendingWithFallback]);
 
   const translate = useCallback((text: string, targetLang: string): Promise<string> => {
     const w = ensureWorker();

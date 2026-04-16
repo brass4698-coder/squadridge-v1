@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib/env';
+import { isDemoSquadShortcutsEnabled, isSupabaseConfigured } from '../lib/env';
 import { enqueueMatchmaking } from '../lib/matchmakingClient';
 import { poolKeyFromIntentTags } from '../lib/matchmakingPoolKey';
 import { setMatchmakingSession, type MatchPerspective } from '../lib/matchmakingSession';
@@ -13,6 +13,7 @@ import {
   matchmakingUnavailableClassified,
 } from '../lib/appErrors';
 import { captureAppError } from '../lib/sentry';
+import { setPendingMatchReveal } from '../lib/matchmakingSession';
 import { setLastSquadIdInStorage } from '../lib/squad';
 
 const MAX_CHARS = 300;
@@ -95,7 +96,8 @@ export function IntentPage() {
       }
       if (snap.outcome === 'matched') {
         setLastSquadIdInStorage(snap.squad_id);
-        navigate(`/session/${snap.squad_id}`, { replace: true });
+        setPendingMatchReveal(snap.squad_id);
+        navigate('/match', { replace: true });
         return;
       }
       if (snap.outcome === 'queued') {
@@ -131,17 +133,44 @@ export function IntentPage() {
   }
 
   if (!configured) {
+    const demoPath = isDemoSquadShortcutsEnabled();
     return (
       <section className="mx-auto w-full max-w-copy px-md py-12" aria-labelledby="intent-unconfigured">
         <h1 id="intent-unconfigured" className="font-heading text-fluid-h2 text-gray-light">
-          Matching unavailable
+          {demoPath ? 'Try the guided path (offline demo)' : 'Matching unavailable'}
         </h1>
         <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
-          Configure Supabase to use the squad room. See the home page for setup steps.
+          {demoPath
+            ? 'Supabase isn’t configured in this environment, so live matching and rooms are disabled. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
+            : 'Configure Supabase to use the squad room. See the home page for setup steps.'}
         </p>
-        <Link to="/" className="mt-6 inline-flex text-teal underline-offset-4 hover:underline">
-          Back to home
-        </Link>
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+          {demoPath ? (
+            <>
+              <Link
+                to="/match?demo=1"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+              >
+                Continue demo — match → session
+              </Link>
+              <Link
+                to="/onboarding"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#2d3f55] px-6 py-3 font-sans text-[0.9rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f65] hover:text-[#c4cdd9]"
+              >
+                Start from onboarding
+              </Link>
+              <Link to="/" className="inline-flex font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline">
+                Home
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/" className="inline-flex text-teal underline-offset-4 hover:underline">
+                Back to home
+              </Link>
+            </>
+          )}
+        </div>
       </section>
     );
   }

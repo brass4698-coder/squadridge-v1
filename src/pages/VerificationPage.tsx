@@ -85,6 +85,10 @@ export function VerificationPage() {
         >
           Prove you belong without exposing identity
         </h1>
+        <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
+          Standalone page for tests and returning users. New participants walk verification inside onboarding as well—the
+          cryptography is the same; this route is optional if you already completed the flow there.
+        </p>
         <p className="mb-0 mt-4 max-w-copy font-sans text-body-lg font-normal text-ink-secondary">
           This step never asks for documents, email, or phone. Your session stays pseudonymous: the system stores only a
           cryptographic commitment and a nullifier after server-side verification—nothing that links this visit to your

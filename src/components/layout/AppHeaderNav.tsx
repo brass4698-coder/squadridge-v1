@@ -4,10 +4,19 @@ import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { useIsModerator } from '../../hooks/useIsModerator';
 import { useAppNavContext } from '../../hooks/useAppNavContext';
+import { isSupabaseConfigured } from '../../lib/env';
 import { AccountMenu } from './AccountMenu';
 
-const navMuted = 'font-normal text-[#6b7280]';
-const navActive = 'font-normal text-[#e2e8f0]';
+const navLinkBase =
+  'inline-flex items-center rounded-md px-3 py-2 text-[0.8125rem] font-medium leading-none transition-colors duration-150';
+const navMuted = `${navLinkBase} text-[#8b95a8] hover:bg-white/[0.05] hover:text-[#e2e8f0]`;
+const navActive = `${navLinkBase} text-[#f1f5f9]`;
+
+function mobileDrawerLinkClass(active: boolean) {
+  return `block w-full rounded-lg py-2.5 text-[0.9rem] font-medium transition-colors duration-150 ${
+    active ? 'text-[#f1f5f9]' : 'text-[#8b95a8] hover:bg-white/[0.05] hover:text-[#e2e8f0]'
+  }`;
+}
 
 type Variant = 'full' | 'minimal';
 
@@ -23,41 +32,28 @@ function NavLink({
   onNavigate?: () => void;
 }) {
   return (
-    <Link
-      to={to}
-      className={active ? navActive : navMuted}
-      onClick={onNavigate}
-    >
+    <Link to={to} className={active ? navActive : navMuted} onClick={onNavigate}>
       {children}
     </Link>
   );
 }
 
-function NavGroup({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="font-heading text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-[#4b5563]">{label}</span>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">{children}</div>
-    </div>
-  );
-}
-
-function useNavActive() {
+function useDemoNavState() {
   const { pathname, hash } = useLocation();
+  const sessionMatch = pathname.match(/^\/session\/([^/]+)\/?/);
+  const sessionSquadId = sessionMatch?.[1];
+  const inSessionRoom = Boolean(sessionSquadId);
+
   return {
     homeActive: pathname === '/' && hash !== '#waitlist',
+    matchFlowActive: pathname.startsWith('/match') || pathname.startsWith('/intent'),
+    intentActive: pathname.startsWith('/intent'),
+    sessionLinkActive: pathname.startsWith('/session'),
+    inSessionRoom,
+    sessionHref: sessionSquadId ? `/session/${sessionSquadId}` : '/session',
     waitlistActive: pathname === '/' && hash === '#waitlist',
     onboardingActive: pathname.startsWith('/onboarding'),
     verifyActive: pathname.startsWith('/verify'),
-    intentActive: pathname.startsWith('/intent'),
-    matchActive: pathname.startsWith('/match'),
-    sessionActive: pathname.startsWith('/session'),
     ledgerActive: pathname.startsWith('/ledger'),
     securityActive: pathname.startsWith('/security'),
     supabaseActive: pathname.startsWith('/dev/supabase'),
@@ -69,8 +65,8 @@ function JourneyStrip() {
   const { showResumeCta, resumeHref, showOnboardingCta, onboardingHref, onboardingLabel } = useAppNavContext();
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
-    <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] px-md py-2">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-6 gap-y-2 px-md">
+    <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-6 gap-y-2 px-4 sm:px-6 lg:px-8">
         {showOnboardingCta ? (
           <Link
             to={onboardingHref}
@@ -92,77 +88,26 @@ function JourneyStrip() {
   );
 }
 
-function ModNavLink({ onNavigate }: { onNavigate?: () => void }) {
-  const { data: isMod } = useIsModerator();
-  const a = useNavActive();
-  if (!isMod) return null;
+/** Center bar: Home · Match · Session (only in a room). */
+function DemoDesktopNav({ onNavigate }: { onNavigate?: () => void }) {
+  const nav = useDemoNavState();
   return (
-    <NavLink to="/mod" active={a.modActive} onNavigate={onNavigate}>
-      Mod
-    </NavLink>
-  );
-}
-
-function DesktopNav({ onNavigate }: { onNavigate?: () => void }) {
-  const a = useNavActive();
-  const isDev = import.meta.env.DEV;
-  return (
-    <div className="hidden lg:flex lg:flex-1 lg:flex-wrap lg:items-start lg:justify-end lg:gap-x-10 lg:gap-y-3">
-      <NavGroup label="Discover">
-        <NavLink to="/" active={a.homeActive} onNavigate={onNavigate}>
-          Home
-        </NavLink>
-        <NavLink to="/#waitlist" active={a.waitlistActive} onNavigate={onNavigate}>
-          Early access
-        </NavLink>
-      </NavGroup>
-      <NavGroup label="Participate">
-        <NavLink to="/onboarding" active={a.onboardingActive} onNavigate={onNavigate}>
-          Onboarding
-        </NavLink>
-        <NavLink to="/verify" active={a.verifyActive} onNavigate={onNavigate}>
-          Verify
-        </NavLink>
-        <NavLink to="/intent" active={a.intentActive || a.matchActive} onNavigate={onNavigate}>
-          Find a squad
-        </NavLink>
-        <NavLink to="/session" active={a.sessionActive} onNavigate={onNavigate}>
+    <nav
+      className="hidden flex-1 items-center justify-center gap-1 sm:gap-2 lg:flex"
+      aria-label="Primary"
+    >
+      <NavLink to="/" active={nav.homeActive} onNavigate={onNavigate}>
+        Home
+      </NavLink>
+      <NavLink to="/match" active={nav.matchFlowActive} onNavigate={onNavigate}>
+        Match
+      </NavLink>
+      {nav.inSessionRoom ? (
+        <NavLink to={nav.sessionHref} active={nav.sessionLinkActive} onNavigate={onNavigate}>
           Session
         </NavLink>
-      </NavGroup>
-      <NavGroup label="Record">
-        <NavLink to="/ledger" active={a.ledgerActive} onNavigate={onNavigate}>
-          Ledger
-        </NavLink>
-      </NavGroup>
-      <div className="flex flex-col gap-1.5">
-        <span className="font-heading text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-[#4b5563]">Trust</span>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <NavLink to="/security" active={a.securityActive} onNavigate={onNavigate}>
-            Security
-          </NavLink>
-        </div>
-      </div>
-      {isDev ? (
-        <div className="flex flex-col gap-1.5">
-          <span className="font-heading text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-[#4b5563]">Dev</span>
-          <div className="text-sm">
-            <NavLink to="/dev/supabase" active={a.supabaseActive} onNavigate={onNavigate}>
-              Supabase
-            </NavLink>
-          </div>
-        </div>
       ) : null}
-      <div className="flex flex-col gap-1.5">
-        <span className="sr-only">Staff</span>
-        <div className="flex min-h-[1.25rem] flex-wrap items-center gap-x-4 text-sm">
-          <ModNavLink onNavigate={onNavigate} />
-        </div>
-      </div>
-      <div className="flex items-start pt-[1.35rem]">
-        <AccountMenu />
-      </div>
-    </div>
+    </nav>
   );
 }
 
@@ -179,9 +124,10 @@ function MobileNavDrawer({
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const wasOpenRef = useRef(false);
   const titleId = useId();
-  const a = useNavActive();
+  const nav = useDemoNavState();
   const isDev = import.meta.env.DEV;
   const { pathname } = useLocation();
+  const { data: isMod } = useIsModerator();
 
   useEffect(() => {
     onClose();
@@ -270,124 +216,92 @@ function MobileNavDrawer({
             ✕
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto px-4 py-4 font-sans text-[0.9rem]" aria-label="Mobile">
+        <nav className="flex-1 overflow-y-auto px-5 py-5 font-sans text-[0.9rem]" aria-label="Mobile">
           <div className="space-y-6">
             <div>
               <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Discover
+                Navigate
               </p>
-              <ul className="space-y-2">
+              <ul className="space-y-0.5">
                 <li>
                   <Link
                     ref={firstLinkRef}
                     to="/"
-                    className={a.homeActive ? navActive : navMuted}
+                    className={mobileDrawerLinkClass(nav.homeActive)}
                     onClick={onClose}
                   >
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link to="/#waitlist" className={a.waitlistActive ? navActive : navMuted} onClick={onClose}>
-                    Early access
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Participate
-              </p>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/onboarding" className={a.onboardingActive ? navActive : navMuted} onClick={onClose}>
-                    Onboarding
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/verify" className={a.verifyActive ? navActive : navMuted} onClick={onClose}>
-                    Verify
-                  </Link>
-                </li>
-                <li>
                   <Link
-                    to="/intent"
-                    className={a.intentActive || a.matchActive ? navActive : navMuted}
+                    to="/match"
+                    className={mobileDrawerLinkClass(nav.matchFlowActive)}
                     onClick={onClose}
                   >
-                    Find a squad
+                    Match
                   </Link>
                 </li>
-                <li>
-                  <Link to="/session" className={a.sessionActive ? navActive : navMuted} onClick={onClose}>
-                    Session
-                  </Link>
-                </li>
+                {nav.inSessionRoom ? (
+                  <li>
+                    <Link
+                      to={nav.sessionHref}
+                      className={mobileDrawerLinkClass(nav.sessionLinkActive)}
+                      onClick={onClose}
+                    >
+                      Session
+                    </Link>
+                  </li>
+                ) : null}
               </ul>
-            </div>
-            <div>
-              <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Record
+              <p className="mt-4 font-sans text-[0.8rem] leading-relaxed text-[#5c6573]">
+                Early access, ledger, and onboarding are on the home page and in the footer.
               </p>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/ledger" className={a.ledgerActive ? navActive : navMuted} onClick={onClose}>
-                    Ledger
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Trust
-              </p>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/security" className={a.securityActive ? navActive : navMuted} onClick={onClose}>
-                    Security
-                  </Link>
-                </li>
-              </ul>
             </div>
             {isDev ? (
               <div>
                 <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
                   Dev
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-0.5">
                   <li>
-                    <Link to="/dev/supabase" className={a.supabaseActive ? navActive : navMuted} onClick={onClose}>
-                      Supabase
+                    <Link to="/verify" className={mobileDrawerLinkClass(nav.verifyActive)} onClick={onClose}>
+                      Verify
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/intent" className={mobileDrawerLinkClass(nav.intentActive)} onClick={onClose}>
+                      Intent
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/dev/supabase" className={mobileDrawerLinkClass(nav.supabaseActive)} onClick={onClose}>
+                      Technical notes (Supabase)
                     </Link>
                   </li>
                 </ul>
               </div>
             ) : null}
-            <ModNavLinkMobile onClose={onClose} />
+            {isMod ? (
+              <div>
+                <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
+                  Staff
+                </p>
+                <ul className="space-y-0.5">
+                  <li>
+                    <Link to="/mod" className={mobileDrawerLinkClass(nav.modActive)} onClick={onClose}>
+                      Mod
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            ) : null}
           </div>
         </nav>
         <div className="border-t border-[#1a2236] p-4">
           <AccountMenu />
         </div>
       </div>
-    </div>
-  );
-}
-
-function ModNavLinkMobile({ onClose }: { onClose: () => void }) {
-  const { data: isMod } = useIsModerator();
-  const a = useNavActive();
-  if (!isMod) return null;
-  return (
-    <div>
-      <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">Staff</p>
-      <ul className="space-y-2">
-        <li>
-          <Link to="/mod" className={a.modActive ? navActive : navMuted} onClick={onClose}>
-            Mod
-          </Link>
-        </li>
-      </ul>
     </div>
   );
 }
@@ -401,9 +315,10 @@ function MobileMenuBar({
   onOpen: () => void;
   menuButtonRef: React.RefObject<HTMLButtonElement | null>;
 }) {
+  const showAccount = isSupabaseConfigured();
   return (
-    <div className="flex flex-1 items-center justify-end gap-2 lg:hidden">
-      <AccountMenu />
+    <div className="flex shrink-0 items-center justify-end gap-3 lg:hidden">
+      {showAccount ? <AccountMenu /> : null}
       <button
         ref={menuButtonRef}
         type="button"
@@ -427,11 +342,12 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const showAccount = isSupabaseConfigured();
 
   if (variant === 'minimal') {
     return (
-      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.92)] px-md py-3 backdrop-blur-[12px]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-md">
+      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.92)] backdrop-blur-[12px]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3.5 sm:px-6 lg:px-8">
           <Link
             to="/"
             className="inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90"
@@ -459,32 +375,38 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.85)] px-md py-4 backdrop-blur-[12px]">
-        <nav
-          className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-4 gap-y-3 px-md sm:gap-sm lg:items-center"
-          aria-label="Main"
-        >
+      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.92)] backdrop-blur-[12px]">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:gap-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-4">
           <Link
             to="/"
-            className="inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90 sm:gap-3"
+            className="inline-flex min-w-0 shrink-0 items-center gap-3 transition-opacity hover:opacity-90"
             aria-label="SquadRidge home"
           >
             <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={42} className="block" />
+              <SquadLogo size={40} className="block" />
             </span>
             <SquadRidgeWordmark
               alt=""
-              className="h-9 w-auto max-w-[min(240px,58vw)] translate-y-0.5 sm:h-10 md:h-11"
+              className="h-8 w-auto max-w-[min(200px,46vw)] translate-y-0.5 sm:h-9 md:h-10"
               aria-hidden
             />
           </Link>
-          <DesktopNav onNavigate={closeMobile} />
-          <MobileMenuBar
-            open={mobileOpen}
-            onOpen={() => setMobileOpen(true)}
-            menuButtonRef={mobileMenuButtonRef}
-          />
-        </nav>
+
+          <DemoDesktopNav onNavigate={closeMobile} />
+
+          <div className="flex shrink-0 items-center gap-3">
+            {showAccount ? (
+              <div className="hidden lg:block">
+                <AccountMenu />
+              </div>
+            ) : null}
+            <MobileMenuBar
+              open={mobileOpen}
+              onOpen={() => setMobileOpen(true)}
+              menuButtonRef={mobileMenuButtonRef}
+            />
+          </div>
+        </div>
       </header>
       <JourneyStrip />
       <MobileNavDrawer open={mobileOpen} onClose={closeMobile} returnFocusRef={mobileMenuButtonRef} />

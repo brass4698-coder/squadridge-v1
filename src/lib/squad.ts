@@ -11,6 +11,7 @@ import { generateSquadMessageKeyBase64Url } from './messageCrypto';
 export const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
 
 export function getLastSquadIdFromStorage(): string | null {
+  if (typeof window === 'undefined') return null;
   try {
     const v = localStorage.getItem(LAST_SQUAD_KEY);
     return v && v.length > 0 ? v : null;
