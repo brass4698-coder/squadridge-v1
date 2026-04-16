@@ -3,10 +3,14 @@ import { AuthProvider } from './contexts/AuthContext';
 import { GrainOverlay } from './components/GrainOverlay';
 import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/layout/AppLayout';
+import { RequireAuth } from './components/auth/RequireAuth';
+import { SessionAccess } from './components/session/SessionAccess';
 import { IntentPage } from './pages/IntentPage';
 import { LandingPage } from './pages/LandingPage';
 import { OnboardingPage } from './pages/OnboardingPage';
-import { SessionPage } from './pages/SessionPage';
+import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
+import { AuthCallbackPage } from './pages/AuthCallbackPage';
+import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { LedgerPage } from './pages/LedgerPage';
@@ -32,10 +36,19 @@ export default function App() {
                 <Route path="/match" element={<Match />} />
                 <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
                 <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
+                <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route
+                  path="/settings/profile"
+                  element={
+                    <RequireAuth>
+                      <ProfileSettingsPage />
+                    </RequireAuth>
+                  }
+                />
                 {/* Static demo path must win over `/session/:squadId?` */}
                 <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                {/* Single SessionPage route: `/session` (landing) and `/session/:id` (room) */}
-                <Route path="/session/:squadId?" element={<SessionPage />} />
+                <Route path="/session/:squadId?" element={<SessionAccess />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>

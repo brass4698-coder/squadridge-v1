@@ -27,6 +27,7 @@ export async function ensureAnonymousSession(
     data: { session },
   } = await supabase.auth.getSession();
   if (session) return;
+  // TODO(ZK): Prefer authenticated magic-link sessions for production rooms; anonymous sign-in remains a dev/low-friction fallback.
   const { error } = await supabase.auth.signInAnonymously();
   if (error) throw error;
 }

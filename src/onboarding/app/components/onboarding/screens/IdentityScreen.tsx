@@ -34,7 +34,7 @@ const ROLES: { value: Exclude<RoleArchetype, ''>; label: string }[] = [
 
 /** When Role is Other, free text must stay within this range (trimmed). */
 const ROLE_OTHER_MIN_LEN = 8;
-const ROLE_OTHER_MAX_LEN = 100;
+const ROLE_OTHER_MAX_LEN = 80;
 
 /** Explanatory lines under labels — lighter than labels and choices. */
 const obIdentitySubtle = 'text-[13px] leading-relaxed text-white/[0.38]';

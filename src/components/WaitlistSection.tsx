@@ -70,6 +70,16 @@ export function WaitlistSection() {
         className="mt-8 border-0 bg-transparent p-0 shadow-none"
         aria-label="Join waitlist"
       >
+        {/* Honeypot: leave empty; bots often fill "website" */}
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-[9999px] h-px w-px opacity-0"
+          defaultValue=""
+        />
         <div className="flex flex-col gap-6 border-0 bg-transparent sm:flex-row sm:items-end">
           <label htmlFor="waitlist-email" className="sr-only">
             Email for waitlist

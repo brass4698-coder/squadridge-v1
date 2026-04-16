@@ -31,6 +31,7 @@ export function VerificationPage() {
     setError(null);
 
     try {
+      // TODO(ZK): Persist proof_commitment + nullifier via zk_proof_submissions; avoid storing raw eligibility in profile.
       await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow');
       setDone(true);
     } catch (e) {

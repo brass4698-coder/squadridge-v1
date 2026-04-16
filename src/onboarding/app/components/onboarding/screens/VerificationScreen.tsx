@@ -9,6 +9,7 @@ import { obAfterH1, obBody, obBodyMuted, obH1Hero } from '../OnboardingTypograph
 import { COPY } from '../copy';
 import { OnboardingFooter } from '../OnboardingFooter';
 import { useOnboarding } from '../OnboardingContext';
+import { getAuthCallbackUrl } from '../../../../../lib/authUrls';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../../lib/supabase/client';
 import { srInputClass } from '../frames/squadRidgeUi';
 
@@ -19,13 +20,13 @@ interface VerificationScreenProps {
 
 export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) {
   const m = useOnboardingMotion();
-  const { userEmail, sessionPending, refreshSession, setDraft } = useOnboarding();
+  const { authUserId, userEmail, sessionPending, refreshSession, setDraft } = useOnboarding();
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   const configured = isSupabaseConfigured();
-  const hasSession = Boolean(userEmail);
+  const hasSession = Boolean(authUserId);
   /** Without backend, onboarding still completes locally; with Supabase, require a session. */
   const canContinue = !configured || hasSession;
 
@@ -40,7 +41,7 @@ export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) 
     setSending(true);
     const { error } = await sb.auth.signInWithOtp({
       email: trimmed,
-      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding') },
     });
     setSending(false);
     if (error) {

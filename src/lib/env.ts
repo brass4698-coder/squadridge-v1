@@ -1,5 +1,21 @@
 const env = import.meta.env;
 
+/**
+ * Canonical site origin for auth redirects and emails. Prefer `VITE_SITE_URL` in staging/production
+ * when the deployed origin must match exactly (e.g. behind a preview URL).
+ * In the browser, defaults to `window.location.origin`.
+ */
+export function getSiteUrl(): string {
+  const v = env.VITE_SITE_URL;
+  if (typeof v === 'string' && v.trim().length > 0) {
+    return v.trim().replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return '';
+}
+
 export function getSupabaseUrl(): string | undefined {
   const v = env.VITE_SUPABASE_URL;
   return typeof v === 'string' && v.length > 0 ? v : undefined;

@@ -1,6 +1,9 @@
 -- SquadRidge PostgreSQL Schema (Supabase)
 -- Canonical migrations live in: ../../supabase/migrations/
 -- Prefer applying those files in the Supabase SQL Editor or via CLI.
+--
+-- Dashboard or "schema for context" dumps may omit tables added in later migrations (e.g. profiles, waitlist)
+-- or show foreign keys without ON DELETE actions. Trust the ordered migration files as source of truth.
 
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -77,7 +80,33 @@ CREATE TABLE public.interventions (
     triggered_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 4. Row Level Security (RLS), auth trigger, and Realtime
+-- 4. Pseudonymous profile (Phase 1) — see ../../supabase/migrations/20260415120000_profiles_phase1.sql
+CREATE TABLE public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
+    callsign TEXT NOT NULL DEFAULT '',
+    role_archetype TEXT,
+    role_other_detail VARCHAR(100),
+    era_affiliation TEXT,
+    tags TEXT[] NOT NULL DEFAULT '{}'::TEXT[],
+    language TEXT,
+    region_hint TEXT,
+    timezone_window TEXT,
+    onboarding_completed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 5. Waitlist (landing) — see ../../supabase/migrations/20250413120000_waitlist_signups.sql
+CREATE TABLE public.waitlist_signups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    CONSTRAINT waitlist_email_len CHECK (char_length(btrim(email)) >= 5 AND char_length(email) <= 320),
+    CONSTRAINT waitlist_email_unique UNIQUE (email)
+);
+
+-- 6. Row Level Security (RLS), auth trigger, and Realtime
 -- Full policies (including zk_proof_submissions, sentiment_metrics, interventions,
--- squad creation/join, message retraction) are defined in:
+-- squad creation/join, message retraction, profiles, waitlist) are defined in:
 --   supabase/migrations/20250413000000_initial_schema.sql
+--   plus later migrations (profiles, waitlist RLS, ZK policy changes, etc.)

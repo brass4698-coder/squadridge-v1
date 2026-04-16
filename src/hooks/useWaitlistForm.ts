@@ -31,6 +31,8 @@ export function useWaitlistForm() {
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      const trap = (e.currentTarget.elements.namedItem('website') as HTMLInputElement | null)?.value?.trim();
+      if (trap) return;
       const trimmed = email.trim();
       if (!trimmed) return;
       if (!configured) {

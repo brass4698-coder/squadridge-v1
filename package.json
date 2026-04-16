@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "clean": "node scripts/clean.mjs"
+    "clean": "node scripts/clean.mjs",
+    "gen:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
+    "supabase:db:push": "npx supabase db push",
+    "supabase:link": "npx supabase link",
+    "waitlist:smoke": "node scripts/waitlist-smoke.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",

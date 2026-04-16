@@ -17,6 +17,38 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['users']['Insert']>;
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          id: string;
+          callsign: string;
+          role_archetype: string | null;
+          role_other_detail: string | null;
+          era_affiliation: string | null;
+          tags: string[];
+          language: string | null;
+          region_hint: string | null;
+          timezone_window: string | null;
+          onboarding_completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          callsign?: string;
+          role_archetype?: string | null;
+          role_other_detail?: string | null;
+          era_affiliation?: string | null;
+          tags?: string[];
+          language?: string | null;
+          region_hint?: string | null;
+          timezone_window?: string | null;
+          onboarding_completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
+        Relationships: [];
+      };
       zk_proof_submissions: {
         Row: {
           id: string;

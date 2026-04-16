@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { getPublicContactEmail } from '../../lib/env';
+import { AccountMenu } from './AccountMenu';
 
 export function AppLayout() {
   const contactEmail = getPublicContactEmail();
@@ -23,7 +24,10 @@ export function AppLayout() {
     <div className="min-h-dvh flex flex-col overflow-x-hidden bg-navy text-white">
       {!hideChrome ? (
       <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.85)] px-md py-4 backdrop-blur-[12px]">
-        <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-sm px-md" aria-label="Main">
+        <nav
+          className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 gap-y-3 px-md sm:gap-sm"
+          aria-label="Main"
+        >
           <Link
             to="/"
             className="inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90 sm:gap-3"
@@ -38,7 +42,7 @@ export function AppLayout() {
               aria-hidden
             />
           </Link>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <ul className="ml-auto flex flex-wrap items-center justify-end gap-x-6 gap-y-2 text-sm">
             <li>
               <Link
                 to="/"
@@ -72,6 +76,9 @@ export function AppLayout() {
               <Link to="/dev/supabase" className={supabaseActive ? navActive : navMuted}>
                 Supabase
               </Link>
+            </li>
+            <li className="flex w-full items-center justify-end sm:w-auto">
+              <AccountMenu />
             </li>
           </ul>
         </nav>

@@ -211,8 +211,9 @@ export function SessionPage() {
             Squad room
           </h1>
           <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
-            Open a squad to exchange structured messages. For development, create a private demo squad tied to your
-            anonymous Supabase session.
+            Open a squad to exchange structured messages. Live rooms require sign-in, callsign, and role (complete
+            onboarding). For development, you can still spin a private demo squad from this page when Supabase is
+            configured.
           </p>
         </header>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">

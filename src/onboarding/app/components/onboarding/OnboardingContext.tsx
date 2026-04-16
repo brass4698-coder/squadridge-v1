@@ -80,6 +80,8 @@ function saveDraftLocal(d: OnboardingDraft) {
 interface OnboardingContextValue {
   draft: OnboardingDraft;
   setDraft: (patch: Partial<OnboardingDraft>) => void;
+  /** Present for any Supabase session (magic link, anonymous, etc.). */
+  authUserId: string | null;
   userEmail: string | null;
   sessionPending: boolean;
   refreshSession: () => Promise<void>;
@@ -89,18 +91,23 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [draft, setDraftState] = useState<OnboardingDraft>(() => loadDraft());
+  /** Set when any Supabase session exists (email, phone, or anonymous). Drives profile hydration. */
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [sessionPending, setSessionPending] = useState(true);
 
   const refreshSession = useCallback(async () => {
     const sb = getSupabaseBrowserClient();
     if (!sb) {
+      setAuthUserId(null);
       setUserEmail(null);
       setSessionPending(false);
       return;
     }
     const { data } = await sb.auth.getSession();
-    setUserEmail(data.session?.user?.email ?? data.session?.user?.phone ?? null);
+    const u = data.session?.user ?? null;
+    setAuthUserId(u?.id ?? null);
+    setUserEmail(u?.email ?? u?.phone ?? null);
     setSessionPending(false);
   }, []);
 
@@ -109,7 +116,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     const sb = getSupabaseBrowserClient();
     if (!sb) return undefined;
     const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? session?.user?.phone ?? null);
+      const u = session?.user ?? null;
+      setAuthUserId(u?.id ?? null);
+      setUserEmail(u?.email ?? u?.phone ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, [refreshSession]);
@@ -118,9 +127,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     saveDraftLocal(draft);
   }, [draft]);
 
-  /** Hydrate from Supabase profile when logged in */
+  /** Hydrate from Supabase profile when a session exists (including anonymous). */
   useEffect(() => {
-    if (!isSupabaseConfigured() || !userEmail) return undefined;
+    if (!isSupabaseConfigured() || !authUserId) return undefined;
     let cancelled = false;
     void (async () => {
       const row = await fetchProfile();
@@ -140,7 +149,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [userEmail]);
+  }, [authUserId]);
 
   const setDraft = useCallback((patch: Partial<OnboardingDraft>) => {
     setDraftState((prev) => {
@@ -153,11 +162,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     () => ({
       draft,
       setDraft,
+      authUserId,
       userEmail,
       sessionPending,
       refreshSession,
     }),
-    [draft, setDraft, userEmail, sessionPending, refreshSession],
+    [draft, setDraft, authUserId, userEmail, sessionPending, refreshSession],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;

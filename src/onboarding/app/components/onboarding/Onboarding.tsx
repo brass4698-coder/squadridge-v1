@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { completeOnboardingProfile, isSupabaseConfigured } from '../../../lib/supabase/profile';
 import { CryptographicBackground } from './CryptographicBackground';
@@ -25,6 +25,7 @@ const ONBOARDING_DONE_KEY = 'sr_onboarding_complete';
 
 function OnboardingInner() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { draft } = useOnboarding();
   const [currentStep, setCurrentStep] = useState(1);
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
@@ -48,7 +49,7 @@ function OnboardingInner() {
   const handleEnterSquads = async () => {
     try {
       const { error } = await completeOnboardingProfile({
-        callsign: draft.callsign.trim() || null,
+        callsign: draft.callsign.trim() || undefined,
         role_archetype: draft.roleArchetype === '' ? null : draft.roleArchetype,
         role_other_detail:
           draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
@@ -68,7 +69,12 @@ function OnboardingInner() {
     } catch {
       /* ignore */
     }
-    navigate('/intent', { replace: true });
+    const rawNext = searchParams.get('next');
+    const target =
+      rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+        ? decodeURIComponent(rawNext)
+        : '/intent';
+    navigate(target, { replace: true });
   };
 
   const progressPercent = (currentStep / TOTAL_STEPS) * 100;

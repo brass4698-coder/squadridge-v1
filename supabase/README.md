@@ -13,11 +13,44 @@ This repo includes [`config.toml`](./config.toml) from `supabase init`. Migratio
 2. In **SQL Editor**, paste and run [`migrations/20250413000000_initial_schema.sql`](./migrations/20250413000000_initial_schema.sql).
 3. If `ALTER PUBLICATION supabase_realtime ADD TABLE public.messages` fails, enable **Realtime** for `messages` under **Database → Replication** instead.
 4. **Authentication → Providers:** enable **Anonymous sign-ins** (required for the demo app flow).
-5. Copy **Project URL** and API keys into the app `.env` (`VITE_SUPABASE_URL`, and `VITE_SUPABASE_PUBLISHABLE_KEY` or legacy `VITE_SUPABASE_ANON_KEY`).
-6. Apply later migrations (e.g. [`migrations/20250414100000_zk_server_verified_insert.sql`](./migrations/20250414100000_zk_server_verified_insert.sql)) via `supabase db push` or the SQL Editor.
-7. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts)). In the Dashboard, set function secrets as needed (e.g. `ZK_DEV_SKIP_VERIFY=true` for development validation only).
+5. **Authentication → URL configuration:** add your app origins to **Redirect URLs** (and **Site URL**). The app uses **`/auth/callback`** for magic-link return, e.g. `http://localhost:5173/auth/callback` and `https://your-domain.com/auth/callback`. Optional: set `VITE_SITE_URL` in `.env` when the deployed origin must match exactly.
+6. **Email:** enable the **Email** provider so passwordless sign-in works.
+7. Copy **Project URL** and API keys into the app `.env` (`VITE_SUPABASE_URL`, and `VITE_SUPABASE_PUBLISHABLE_KEY` or legacy `VITE_SUPABASE_ANON_KEY`).
+8. Apply later migrations (e.g. [`migrations/20250414100000_zk_server_verified_insert.sql`](./migrations/20250414100000_zk_server_verified_insert.sql), [`migrations/20260415120000_profiles_phase1.sql`](./migrations/20260415120000_profiles_phase1.sql)) via `supabase db push` or the SQL Editor.
+
+**Regenerate TypeScript types** after schema changes (requires [Supabase CLI](https://supabase.com/docs/guides/cli) and `supabase link`):
+
+```bash
+npm run gen:types
+```
+
+9. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts)). In the Dashboard, set function secrets as needed (e.g. `ZK_DEV_SKIP_VERIFY=true` for development validation only).
 
 The app route **`/verify`** invokes `verify-zk-proof`; without a deployed function, verification will fail until you deploy.
+
+## Database advisor / linter notes
+
+Some [Supabase database linter](https://supabase.com/docs/guides/database/database-linter) findings are expected for this app:
+
+- **`auth_allow_anonymous_sign_ins`:** The product uses **anonymous sign-in** for demo squads and low-friction flows. RLS policies that apply to `anon` (and `authenticated`) are intentional. Tightening would mean revoking `anon` access or disabling anonymous auth in the Dashboard—only do that when you drop anonymous demos entirely.
+- **`auth.users` policies:** Managed by Supabase; warnings on `auth` schema are informational.
+- **Leaked password protection:** Enable under **Authentication → Providers → Email** (or Auth settings) → **Password** / security options in the [Dashboard](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection)—not controlled by repo migrations.
+
+The **`rls_policy_always_true`** on `waitlist_signups` was addressed in [`migrations/20260416120000_waitlist_signups_insert_rls.sql`](./migrations/20260416120000_waitlist_signups_insert_rls.sql); apply via `supabase db push` or SQL Editor.
+
+### Waitlist (landing)
+
+Waitlist objects ship in these migrations (applied in timestamp order with the rest of the chain):
+
+- [`migrations/20250413120000_waitlist_signups.sql`](./migrations/20250413120000_waitlist_signups.sql) — table + RLS insert policy
+- [`migrations/20250413140000_waitlist_signup_count_fn.sql`](./migrations/20250413140000_waitlist_signup_count_fn.sql) — `waitlist_signup_count()` for the hero counter
+- [`migrations/20260416120000_waitlist_signups_insert_rls.sql`](./migrations/20260416120000_waitlist_signups_insert_rls.sql) — tighter insert `WITH CHECK`
+
+**CLI (remote):** from the repository root, run `npx supabase link` once (project ref + database password), then `npm run supabase:db:push` to apply pending migrations.
+
+**Verify:** with `VITE_SUPABASE_URL` and a publishable/anon key in `.env`, run `npm run waitlist:smoke` to check the RPC and inserts.
+
+**Export emails (operators):** run [`scripts/waitlist-export.sql`](../scripts/waitlist-export.sql) in the SQL Editor (or use **Table Editor → Export** on `waitlist_signups`).
 
 ## CI/CD (GitHub Actions)
 
