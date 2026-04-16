@@ -13,6 +13,7 @@ import { getAuthCallbackUrl } from '../lib/authUrls';
 import { isSupabaseConfigured } from '../lib/env';
 import { queryKeys } from '../lib/queryKeys';
 import { getSupabase } from '../lib/supabase';
+import { captureAppError, setSentryUserContext } from '../lib/sentry';
 import { ensureAnonymousSession } from '../lib/squad';
 
 export interface AuthContextValue {
@@ -20,6 +21,10 @@ export interface AuthContextValue {
   user: User | null;
   loading: boolean;
   supabase: SupabaseClient<Database> | null;
+  /** Set when env is configured but the client singleton could not be created (rare). */
+  supabaseClientInitError: Error | null;
+  /** Initial session load failed (network, refresh, or API error). */
+  sessionError: Error | null;
   ensureAnonymousSession: () => Promise<void>;
   /** Magic link (passwordless) sign-in. `nextPath` is stored for `/auth/callback` → post-login redirect. */
   signIn: (email: string, options?: { nextPath?: string }) => Promise<{ error: Error | null }>;
@@ -31,12 +36,15 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
-  const supabase = useMemo<SupabaseClient<Database> | null>(() => {
-    if (!isSupabaseConfigured()) return null;
+  const { supabase, supabaseClientInitError } = useMemo(() => {
+    if (!isSupabaseConfigured()) {
+      return { supabase: null as SupabaseClient<Database> | null, supabaseClientInitError: null };
+    }
     try {
-      return getSupabase();
-    } catch {
-      return null;
+      return { supabase: getSupabase(), supabaseClientInitError: null };
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(String(e));
+      return { supabase: null as SupabaseClient<Database> | null, supabaseClientInitError: err };
     }
   }, []);
 
@@ -61,8 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, s) => {
+    } = supabase.auth.onAuthStateChange((event, s) => {
       queryClient.setQueryData(queryKeys.auth.session, s);
+      if (event === 'TOKEN_REFRESHED' && !s) {
+        captureAppError(new Error('Auth: TOKEN_REFRESHED with null session'), {
+          feature: 'auth_refresh',
+        });
+      }
     });
 
     return () => {
@@ -73,6 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const session = supabase ? (sessionQuery.data ?? null) : null;
   const loading = supabase ? sessionQuery.isPending : false;
   const user = session?.user ?? null;
+  const sessionError =
+    sessionQuery.error instanceof Error
+      ? sessionQuery.error
+      : sessionQuery.error
+        ? new Error(String(sessionQuery.error))
+        : null;
+
+  useEffect(() => {
+    setSentryUserContext(session?.user?.id ?? null);
+  }, [session?.user?.id]);
 
   const ensureSession = useCallback(async () => {
     if (!supabase) throw new Error('Supabase is not configured.');
@@ -111,11 +134,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       supabase,
+      supabaseClientInitError,
+      sessionError,
       ensureAnonymousSession: ensureSession,
       signIn,
       signOut,
     }),
-    [session, user, loading, supabase, ensureSession, signIn, signOut],
+    [session, user, loading, supabase, supabaseClientInitError, sessionError, ensureSession, signIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

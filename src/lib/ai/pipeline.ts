@@ -1,3 +1,7 @@
+/**
+ * Optional analytics path: local tone heuristic + `sentiment_metrics` when `VITE_ENABLE_AI=true`.
+ * Translation runs client-side (`useTranslation` / translation worker); interventions use `interventions` regardless.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
 import { isAiPipelineEnabled } from '../env';

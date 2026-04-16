@@ -246,7 +246,7 @@ export function IntentPage() {
           onClick={handleSkip}
           className="self-center font-sans text-[0.9rem] font-medium text-[#6b7280] underline-offset-4 transition-colors hover:text-[#a8b2c1] hover:underline"
         >
-          Skip for now
+          Session hub only (skip matching)
         </button>
 
         {error ? (

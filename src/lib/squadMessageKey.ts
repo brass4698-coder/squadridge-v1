@@ -11,6 +11,7 @@ export async function importSquadMessageKey(keyBase64: string | null): Promise<C
 
 /**
  * Ensures the squad row has a message encryption key; generates and persists one if missing.
+ * Prefer server-side defaults on insert (pg trigger); this path covers edge cases and empty values.
  */
 export async function ensureSquadMessageKey(
   supabase: SupabaseClient<Database>,

@@ -44,6 +44,8 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const [realtimeFatalError, setRealtimeFatalError] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState<RealtimeConnectionStatus>('idle');
+  /** Bumps when the user requests a full realtime resubscribe after a fatal error. */
+  const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
 
   const mountedRef = useRef(false);
   const retryCountRef = useRef(0);
@@ -51,6 +53,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const channelRef = useRef<RealtimeChannel | undefined>(undefined);
   const maxSentAtRef = useRef<string | null>(null);
   const shouldBackfillOnSubscribeRef = useRef(false);
+  const catchUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const messagesQuery = useInfiniteQuery({
     queryKey: listKey,
@@ -165,17 +168,86 @@ export function useRealtimeMessages(squadId: string | undefined) {
     await queryClient.invalidateQueries({ queryKey: listKey });
   }, [supabase, squadId, queryClient, listKey]);
 
+  const retryRealtimeConnection = useCallback(() => {
+    setRealtimeFatalError(null);
+    retryCountRef.current = 0;
+    setReconnecting(true);
+    setRealtimeStatus('connecting');
+    setSubscriptionEpoch((n) => n + 1);
+  }, []);
+
+  const scheduleCatchUpBackfill = useCallback(() => {
+    if (catchUpTimerRef.current !== null) {
+      clearTimeout(catchUpTimerRef.current);
+    }
+    catchUpTimerRef.current = setTimeout(() => {
+      catchUpTimerRef.current = null;
+      if (!mountedRef.current) return;
+      void backfillAfterReconnect();
+    }, 400);
+  }, [backfillAfterReconnect]);
+
+  /** When the tab becomes visible or the browser reports online, fetch any messages missed while realtime was down or flaky. */
+  useEffect(() => {
+    const runIfVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      scheduleCatchUpBackfill();
+    };
+    const onOnline = () => scheduleCatchUpBackfill();
+
+    document.addEventListener('visibilitychange', runIfVisible);
+    window.addEventListener('online', onOnline);
+    return () => {
+      document.removeEventListener('visibilitychange', runIfVisible);
+      window.removeEventListener('online', onOnline);
+      if (catchUpTimerRef.current !== null) {
+        clearTimeout(catchUpTimerRef.current);
+        catchUpTimerRef.current = null;
+      }
+    };
+  }, [scheduleCatchUpBackfill]);
+
   useEffect(() => {
     if (!squadId) {
       setRealtimeStatus('idle');
     }
   }, [squadId]);
 
+  /** Browser offline/online: surface `offline` in UI and resubscribe when the network returns. */
+  useEffect(() => {
+    if (!supabase || !squadId) return;
+
+    const onOffline = () => {
+      setReconnecting(false);
+      setRealtimeStatus('offline');
+    };
+
+    const onOnline = () => {
+      setRealtimeFatalError(null);
+      retryCountRef.current = 0;
+      setReconnecting(true);
+      setRealtimeStatus('connecting');
+      setSubscriptionEpoch((n) => n + 1);
+    };
+
+    window.addEventListener('offline', onOffline);
+    window.addEventListener('online', onOnline);
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      onOffline();
+    }
+
+    return () => {
+      window.removeEventListener('offline', onOffline);
+      window.removeEventListener('online', onOnline);
+    };
+  }, [supabase, squadId]);
+
   useEffect(() => {
     if (!supabase || !squadId) return;
 
     mountedRef.current = true;
-    setRealtimeStatus('connecting');
+    const offlineNow = typeof navigator !== 'undefined' && !navigator.onLine;
+    setRealtimeStatus(offlineNow ? 'offline' : 'connecting');
     retryCountRef.current = 0;
     shouldBackfillOnSubscribeRef.current = false;
     setRealtimeFatalError(null);
@@ -286,7 +358,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
         channelRef.current = undefined;
       }
     };
-  }, [supabase, squadId, backfillAfterReconnect, queryClient]);
+  }, [supabase, squadId, backfillAfterReconnect, queryClient, subscriptionEpoch]);
 
   const queryError =
     messagesQuery.isError && messagesQuery.error instanceof Error
@@ -302,6 +374,9 @@ export function useRealtimeMessages(squadId: string | undefined) {
     messages,
     loading,
     error,
+    queryError,
+    realtimeError: realtimeFatalError,
+    retryRealtimeConnection,
     refresh,
     reconnecting,
     realtimeStatus,

@@ -14,6 +14,7 @@ import { useOnboardingMotion } from '../onboardingMotion';
 import { obAfterH1, obBodyMuted, obH1Hero } from '../OnboardingTypography';
 import { COPY } from '../copy';
 import { OnboardingFooter } from '../OnboardingFooter';
+import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib/profile';
 import { upsertProfilePatch } from '../../../../lib/supabase/profile';
 import { useCallsignSync, useOnboarding, type EraAffiliation, type RoleArchetype } from '../OnboardingContext';
 import { srInputClass, srSelectContent, srSelectTrigger } from '../frames/squadRidgeUi';
@@ -31,10 +32,6 @@ const ROLES: { value: Exclude<RoleArchetype, ''>; label: string }[] = [
   { value: 'field', label: 'Field practitioner' },
   { value: 'other', label: 'Other' },
 ];
-
-/** When Role is Other, free text must stay within this range (trimmed). */
-const ROLE_OTHER_MIN_LEN = 8;
-const ROLE_OTHER_MAX_LEN = 80;
 
 /** Explanatory lines under labels — lighter than labels and choices. */
 const obIdentitySubtle = 'text-[13px] leading-relaxed text-white/[0.38]';
@@ -55,8 +52,8 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
   const otherTrimmed = draft.roleOtherDetail.trim();
   const otherDetailValid =
     draft.roleArchetype !== 'other' ||
-    (otherTrimmed.length >= ROLE_OTHER_MIN_LEN &&
-      otherTrimmed.length <= ROLE_OTHER_MAX_LEN);
+    (otherTrimmed.length >= PROFILE_ROLE_OTHER_MIN_LEN &&
+      otherTrimmed.length <= PROFILE_ROLE_OTHER_MAX_LEN);
   const valid =
     draft.callsign.trim().length >= 2 &&
     draft.roleArchetype !== '' &&
@@ -187,12 +184,12 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
                 value={draft.roleOtherDetail}
                 onChange={(e) =>
                   setDraft({
-                    roleOtherDetail: e.target.value.slice(0, ROLE_OTHER_MAX_LEN),
+                    roleOtherDetail: e.target.value.slice(0, PROFILE_ROLE_OTHER_MAX_LEN),
                   })
                 }
                 placeholder="e.g. humanitarian negotiator"
                 className={srInputClass}
-                maxLength={ROLE_OTHER_MAX_LEN}
+                maxLength={PROFILE_ROLE_OTHER_MAX_LEN}
                 aria-required="true"
                 autoComplete="off"
               />
@@ -201,17 +198,17 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
                 <p
                   className={cn(
                     'text-[12px]',
-                    otherTrimmed.length > 0 && otherTrimmed.length < ROLE_OTHER_MIN_LEN
+                    otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
                       ? 'text-amber-400/90'
                       : 'text-white/35',
                   )}
                 >
-                  {otherTrimmed.length > 0 && otherTrimmed.length < ROLE_OTHER_MIN_LEN
+                  {otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
                     ? COPY.identity.roleOtherTooShort
-                    : `${ROLE_OTHER_MIN_LEN}–${ROLE_OTHER_MAX_LEN} characters.`}
+                    : `${PROFILE_ROLE_OTHER_MIN_LEN}–${PROFILE_ROLE_OTHER_MAX_LEN} characters.`}
                 </p>
                 <span className="tabular-nums text-[12px] text-white/35" aria-live="polite">
-                  {otherTrimmed.length} / {ROLE_OTHER_MAX_LEN}
+                  {otherTrimmed.length} / {PROFILE_ROLE_OTHER_MAX_LEN}
                 </span>
               </div>
             </div>

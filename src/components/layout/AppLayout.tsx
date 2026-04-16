@@ -29,9 +29,11 @@ export function AppLayout() {
   const homeActive = pathname === '/' && hash !== '#waitlist';
   const waitlistActive = pathname === '/' && hash === '#waitlist';
   const onboardingActive = pathname.startsWith('/onboarding');
+  const intentActive = pathname.startsWith('/intent');
   const sessionActive = pathname.startsWith('/session');
   const matchActive = pathname.startsWith('/match');
   const supabaseActive = pathname.startsWith('/dev/supabase');
+  const isDev = import.meta.env.DEV;
 
   const hideChrome = pathname.startsWith('/onboarding');
 
@@ -84,15 +86,22 @@ export function AppLayout() {
               </Link>
             </li>
             <li>
+              <Link to="/intent" className={intentActive || matchActive ? navActive : navMuted}>
+                Find a squad
+              </Link>
+            </li>
+            <li>
               <Link to="/session" className={sessionActive ? navActive : navMuted}>
                 Session
               </Link>
             </li>
-            <li>
-              <Link to="/dev/supabase" className={supabaseActive ? navActive : navMuted}>
-                Supabase
-              </Link>
-            </li>
+            {isDev ? (
+              <li>
+                <Link to="/dev/supabase" className={supabaseActive ? navActive : navMuted}>
+                  Supabase
+                </Link>
+              </li>
+            ) : null}
             <ModNavLink navActive={navActive} navMuted={navMuted} />
             <li className="flex w-full items-center justify-end sm:w-auto">
               <AccountMenu />
@@ -107,7 +116,7 @@ export function AppLayout() {
         } ${
           pathname === '/'
             ? 'pt-0 pb-xl'
-            : pathname.startsWith('/session') || matchActive
+            : pathname.startsWith('/session') || matchActive || pathname.startsWith('/intent')
               ? 'pt-0 pb-xl'
               : pathname.startsWith('/onboarding') ||
                 pathname.startsWith('/ledger') ||

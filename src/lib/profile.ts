@@ -11,8 +11,9 @@ export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 /** @deprecated alias for onboarding imports */
 export type ProfileRow = Profile;
 
-const ROLE_OTHER_MIN = 8;
-const ROLE_OTHER_MAX = 80;
+/** Min/max trimmed length for `role_other_detail` when `role_archetype === 'other'` (onboarding + `isProfileComplete`). */
+export const PROFILE_ROLE_OTHER_MIN_LEN = 8;
+export const PROFILE_ROLE_OTHER_MAX_LEN = 80;
 
 /** Product-facing role list (DB `role_archetype`; display name for `field` is practitioner). */
 export const PROFILE_ROLE_VALUES = [
@@ -34,7 +35,7 @@ export function isProfileComplete(p: Profile | null): boolean {
   if (!role) return false;
   if (role === 'other') {
     const d = (p.role_other_detail ?? '').trim();
-    if (d.length < ROLE_OTHER_MIN || d.length > ROLE_OTHER_MAX) return false;
+    if (d.length < PROFILE_ROLE_OTHER_MIN_LEN || d.length > PROFILE_ROLE_OTHER_MAX_LEN) return false;
   }
   return true;
 }

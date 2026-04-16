@@ -14,6 +14,9 @@ type Props = {
   onPullBack: () => void;
   /** Optimistic delivery status for locally-added messages before DB confirmation. */
   deliveryStatus?: 'pending' | 'sent' | 'failed';
+  /** Shown when delivery failed — user-triggered retry (e.g. after HTTP error while "online"). */
+  onRetrySend?: () => void;
+  retryDisabled?: boolean;
 };
 
 /**
@@ -32,6 +35,8 @@ export function SessionMessageItem({
   translate,
   onPullBack,
   deliveryStatus,
+  onRetrySend,
+  retryDisabled,
 }: Props) {
   const [translated, setTranslated] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -118,8 +123,18 @@ export function SessionMessageItem({
             Sending…
           </span>
         ) : deliveryStatus === 'failed' ? (
-          <span className="font-sans text-[0.7rem] text-amber" role="alert">
-            Failed to send
+          <span className="flex flex-wrap items-center gap-2 font-sans text-[0.7rem] text-amber" role="alert">
+            <span>Failed to send</span>
+            {onRetrySend ? (
+              <button
+                type="button"
+                className="rounded border border-amber/50 px-2 py-0.5 font-medium text-amber transition-colors hover:border-amber hover:text-[#fcd9a6] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={retryDisabled}
+                onClick={onRetrySend}
+              >
+                Retry
+              </button>
+            ) : null}
           </span>
         ) : (
           <p className="font-sans text-[0.7rem] text-[#6b7280]">{sentAtLabel}</p>

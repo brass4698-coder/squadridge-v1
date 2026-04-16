@@ -59,7 +59,7 @@ Use this checklist to confirm everything is wired (manual steps in the dashboard
 | 1 | **GitHub:** Repo → **Actions** → **Deploy Supabase to production** succeeds on `main`. If it fails, see [supabase/README.md](supabase/README.md) (secrets, PAT format, migration drift). |
 | 2 | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …). |
 | 3 | **Supabase:** **Authentication → Providers** — **Anonymous** enabled. |
-| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/dev/supabase` (connectivity) and `/session` → **Create demo squad** (auth + RLS + Realtime). |
+| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/dev/supabase` (connectivity), `/intent` → **Find my squad** (or expand **Session hub** → developer **Create demo squad**) to exercise auth + RLS + Realtime. |
 
 ## Suggested next milestones
 
@@ -70,8 +70,12 @@ Pick one vertical to focus engineering next (all tie to files under `docs/` and 
 | **Session reliability** | Error handling, offline/retry UX — [`src/pages/SessionPage.tsx`](src/pages/SessionPage.tsx), [`src/hooks/useRealtimeMessages.ts`](src/hooks/useRealtimeMessages.ts) |
 | **Matching / squads** | Replace demo squad with real matching — Edge Function or worker; see [`src/lib/ephemeral/matchingQueue.ts`](src/lib/ephemeral/matchingQueue.ts), [`docs/product/feature-specifications.md`](docs/product/feature-specifications.md) |
 | **ZK** | Client invokes [`supabase/functions/zk-verify`](supabase/functions/zk-verify) via [`src/lib/zkAdapter.ts`](src/lib/zkAdapter.ts); Semaphore-shaped endpoint [`verify-zk-proof`](supabase/functions/verify-zk-proof/index.ts) — [`src/lib/zk/index.ts`](src/lib/zk/index.ts), [`docs/technical/zk-implementation.md`](docs/technical/zk-implementation.md), [`docs/technical/data-retention-zk.md`](docs/technical/data-retention-zk.md) |
-| **AI pipeline** | `VITE_ENABLE_AI=true` when backend is ready — [`src/lib/ai/pipeline.ts`](src/lib/ai/pipeline.ts), [`docs/technical/ai-pipeline.md`](docs/technical/ai-pipeline.md) |
+| **AI pipeline** | **Translation** (in-browser worker) and **de-escalation** (Slow down, Pull back, interventions) work without a remote AI API. `VITE_ENABLE_AI` only enables optional `sentiment_metrics` persistence from a local tone heuristic — [`src/lib/ai/pipeline.ts`](src/lib/ai/pipeline.ts), [`docs/technical/ai-pipeline.md`](docs/technical/ai-pipeline.md) |
 | **Frontend hosting** | Vercel / Netlify / Cloudflare Pages with the same `VITE_*` build env vars (separate from DB migration CI). |
+
+### Frontend hosting (MVP)
+
+Use the same variables as local production builds (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` or `VITE_SUPABASE_ANON_KEY`, and **`VITE_SITE_URL`** set to the deployed origin for magic links). Set them in the host’s project settings (not only in `.env` on your laptop). CI in [`.github/workflows/deploy-supabase-production.yml`](.github/workflows/deploy-supabase-production.yml) deploys **database migrations only**; ship the static app in a separate pipeline or manual deploy.
 
 ## Documentation
 

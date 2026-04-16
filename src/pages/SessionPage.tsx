@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { SessionMessageItem } from '../components/SessionMessageItem';
 import {
@@ -20,6 +20,11 @@ import { useRealtimeMessages } from '../hooks/useRealtimeMessages';
 import { useMessagePlaintexts } from '../hooks/useMessagePlaintexts';
 import { useSquad } from '../hooks/useSquad';
 import { logIntervention, recordLocalToneAndMaybePersist } from '../lib/ai/pipeline';
+import {
+  enqueuePendingSend,
+  listPendingSendsForSquad,
+  removePendingSend,
+} from '../lib/messageSendQueue';
 
 const sessionLandingHeadingStyle: CSSProperties = {
   fontSize: 'clamp(2.2rem, 4vw, 3rem)',
@@ -67,7 +72,9 @@ export function SessionPage() {
   const {
     messages,
     loading,
-    error,
+    queryError,
+    realtimeError,
+    retryRealtimeConnection,
     refresh,
     realtimeStatus,
     applyLocalMessage,
@@ -85,8 +92,6 @@ export function SessionPage() {
   const online = useOnlineStatus();
   const receivedEpochById = useRef(new Map<string, number>());
   const translationWarmupDone = useRef(false);
-  const lastRoomErrorToast = useRef<string | null>(null);
-
   const plaintextById = useMessagePlaintexts(messages, messageKey);
 
   useEffect(() => {
@@ -127,16 +132,6 @@ export function SessionPage() {
     io.observe(target);
     return () => io.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
-
-  useEffect(() => {
-    if (!error) {
-      lastRoomErrorToast.current = null;
-      return;
-    }
-    if (lastRoomErrorToast.current === error) return;
-    lastRoomErrorToast.current = error;
-    toast.error(error);
-  }, [error]);
 
   const userId = session?.user?.id ?? null;
 
@@ -182,6 +177,122 @@ export function SessionPage() {
     return () => clearInterval(id);
   }, [sendCooldownUntil]);
 
+  const [httpDegraded, setHttpDegraded] = useState(false);
+  const flushLockRef = useRef(false);
+  const composerDraftKey = squadId ? `squadridge-composer-draft:${squadId}` : null;
+  const optimisticRef = useRef<OptimisticMessage[]>([]);
+  optimisticRef.current = optimisticMessages;
+
+  const tryInsertMessage = useCallback(
+    async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
+      if (!supabase) return { ok: false };
+      const { data: insertedRow, error: sendError } = await supabase
+        .from('messages')
+        .insert({
+          squad_id: m.squad_id,
+          sender_id: m.sender_id,
+          encrypted_content: m.encrypted_content,
+        })
+        .select()
+        .single();
+      if (sendError) {
+        return { ok: false };
+      }
+      await removePendingSend(m.optimisticId);
+      setOptimisticMessages((prev) => prev.filter((x) => x.optimisticId !== m.optimisticId));
+      if (insertedRow) applyLocalMessage(insertedRow);
+      return { ok: true };
+    },
+    [supabase, applyLocalMessage],
+  );
+
+  const flushPendingMessages = useCallback(async () => {
+    if (!supabase || !squadId || sending || flushLockRef.current) return;
+    flushLockRef.current = true;
+    try {
+      for (;;) {
+        const pending = optimisticRef.current.filter((x) => x.deliveryStatus === 'pending');
+        if (pending.length === 0) break;
+        const m = pending[0]!;
+        const result = await tryInsertMessage(m);
+        if (!result.ok) {
+          setOptimisticMessages((prev) =>
+            prev.map((x) =>
+              x.optimisticId === m.optimisticId ? { ...x, deliveryStatus: 'failed' } : x,
+            ),
+          );
+          setHttpDegraded(true);
+          break;
+        }
+      }
+    } finally {
+      flushLockRef.current = false;
+    }
+  }, [supabase, squadId, sending, tryInsertMessage]);
+
+  useEffect(() => {
+    if (!squadId) {
+      setOptimisticMessages([]);
+      return;
+    }
+    let cancelled = false;
+    void listPendingSendsForSquad(squadId).then((rows) => {
+      if (cancelled) return;
+      const fromDb = rows.map((r) => ({
+        optimisticId: r.localId,
+        squad_id: r.squadId,
+        sender_id: r.senderId,
+        encrypted_content: r.encrypted_content,
+        plainBody: r.plainBody,
+        sent_at: r.createdAt,
+        status: 'active',
+        deliveryStatus: 'pending' as const,
+      }));
+      setOptimisticMessages((prev) => {
+        if (prev.length === 0) return fromDb;
+        const seen = new Set(prev.map((p) => p.optimisticId));
+        return [...prev, ...fromDb.filter((x) => !seen.has(x.optimisticId))];
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [squadId]);
+
+  useEffect(() => {
+    if (!composerDraftKey) return;
+    try {
+      const saved = sessionStorage.getItem(composerDraftKey);
+      setComposer(saved ?? '');
+    } catch {
+      /* sessionStorage may be unavailable */
+    }
+  }, [squadId]);
+
+  useEffect(() => {
+    if (!composerDraftKey) return;
+    const id = window.setTimeout(() => {
+      try {
+        if (composer.trim()) sessionStorage.setItem(composerDraftKey, composer);
+        else sessionStorage.removeItem(composerDraftKey);
+      } catch {
+        /* ignore */
+      }
+    }, 400);
+    return () => clearTimeout(id);
+  }, [composer, composerDraftKey]);
+
+  useEffect(() => {
+    if (!online || !supabase || !squadId || sending) return;
+    if (optimisticMessages.length === 0) return;
+    void flushPendingMessages();
+  }, [online, supabase, squadId, sending, optimisticMessages.length, flushPendingMessages]);
+
+  const handleRefreshMessages = useCallback(async () => {
+    await refresh();
+    setHttpDegraded(false);
+  }, [refresh]);
+
   async function handleCreateDemo() {
     if (!supabase) return;
     setDemoError(null);
@@ -203,6 +314,33 @@ export function SessionPage() {
     }
   }
 
+  async function handleRetrySend(optimisticId: string) {
+    if (!supabase || !online) {
+      toast.warning('Reconnect, then retry sending.');
+      return;
+    }
+    const m = optimisticMessages.find((x) => x.optimisticId === optimisticId);
+    if (!m) return;
+    setSending(true);
+    setOptimisticMessages((prev) =>
+      prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'pending' } : x)),
+    );
+    const result = await tryInsertMessage(m);
+    if (!result.ok) {
+      setOptimisticMessages((prev) =>
+        prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
+      );
+      setComposer(m.plainBody);
+      toast.error(
+        'Message could not be sent. Check your connection and tap Retry on the message below.',
+      );
+      setHttpDegraded(true);
+    } else {
+      setHttpDegraded(false);
+    }
+    setSending(false);
+  }
+
   async function handleSend() {
     if (!supabase || !squadId || !composer.trim()) return;
     if (sendPaused) return;
@@ -217,6 +355,13 @@ export function SessionPage() {
     setSending(true);
     const text = composer.trim();
     setComposer('');
+    if (composerDraftKey) {
+      try {
+        sessionStorage.removeItem(composerDraftKey);
+      } catch {
+        /* ignore */
+      }
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -247,46 +392,51 @@ export function SessionPage() {
     }
 
     const optimisticId = crypto.randomUUID();
+    const sentAt = new Date().toISOString();
     const optimistic: OptimisticMessage = {
       optimisticId,
       squad_id: squadId,
       sender_id: user.id,
       encrypted_content: enc,
       plainBody: text,
-      sent_at: new Date().toISOString(),
+      sent_at: sentAt,
       status: 'active',
       deliveryStatus: 'pending',
     };
+
+    try {
+      await enqueuePendingSend({
+        localId: optimisticId,
+        squadId,
+        senderId: user.id,
+        encrypted_content: enc,
+        plainBody: text,
+        createdAt: sentAt,
+      });
+    } catch {
+      setComposer(text);
+      setSending(false);
+      toast.error('Could not save your message for retry. Try again.');
+      return;
+    }
+
     setOptimisticMessages((prev) => [...prev, optimistic]);
 
-    const { data: insertedRow, error: sendError } = await supabase
-      .from('messages')
-      .insert({
-        squad_id: squadId,
-        sender_id: user.id,
-        encrypted_content: enc,
-      })
-      .select()
-      .single();
-
-    if (sendError) {
+    const result = await tryInsertMessage(optimistic);
+    if (!result.ok) {
       setOptimisticMessages((prev) =>
-        prev.map((m) => (m.optimisticId === optimisticId ? { ...m, deliveryStatus: 'failed' } : m)),
+        prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
       );
       setComposer(text);
       setSending(false);
       toast.error(
-        sendError.message?.trim()
-          ? `Message could not be sent: ${sendError.message}`
-          : 'Message could not be sent. Check your connection and try again.',
+        'Message could not be sent. It is saved — use Retry on the message or check your connection.',
       );
+      setHttpDegraded(true);
       return;
     }
 
-    setOptimisticMessages((prev) => prev.filter((m) => m.optimisticId !== optimisticId));
-    if (insertedRow) {
-      applyLocalMessage(insertedRow);
-    }
+    setHttpDegraded(false);
 
     if (isAiPipelineEnabled() && squadId) {
       const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, text);
@@ -402,26 +552,22 @@ export function SessionPage() {
             Squad room
           </h1>
           <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
-            Open a squad to exchange structured messages. Live rooms require sign-in, callsign, and role (complete
-            onboarding). For development, you can still spin a private demo squad from this page when Supabase is
-            configured.
+            Get matched into a live room from <strong className="font-medium text-[#c4cdd9]">Intent</strong> — we pair
+            perspectives and open a squad when the queue has enough people. Complete onboarding first so your profile is
+            ready for the room.
           </p>
         </header>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50"
+          <Link
+            to="/intent"
+            className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88]"
             style={{
               borderRadius: 8,
               fontWeight: 600,
-              appearance: 'none',
-              WebkitAppearance: 'none',
             }}
-            onClick={() => void handleCreateDemo()}
-            disabled={!supabase}
           >
-            Create demo squad
-          </button>
+            Find a squad
+          </Link>
           <Link
             to="/onboarding"
             className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9]"
@@ -433,6 +579,25 @@ export function SessionPage() {
             Review onboarding
           </Link>
         </div>
+        <details className="mt-10 w-full max-w-[440px] text-left">
+          <summary className="cursor-pointer font-sans text-[0.85rem] font-medium text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1]">
+            Developer: create a private test squad
+          </summary>
+          <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+            Spins a squad with only your account — useful for API and UI checks without waiting on matchmaking.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="inline-flex min-h-[40px] shrink-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ borderRadius: 8 }}
+              onClick={() => void handleCreateDemo()}
+              disabled={!supabase}
+            >
+              Create demo squad
+            </button>
+          </div>
+        </details>
         {demoError ? (
           <p className="mt-6 max-w-[440px] font-sans text-[0.875rem] text-amber" role="alert">
             {demoError}
@@ -468,10 +633,78 @@ export function SessionPage() {
 
       <SessionTranslationPanel modelLoading={modelLoading} />
 
-      {error ? (
-        <p className="font-sans text-[0.875rem] text-amber" role="alert">
-          {error}
-        </p>
+      {queryError || realtimeError ? (
+        <div
+          className="rounded-[8px] border border-amber/40 bg-[#1a1408] px-4 py-3 font-sans text-[0.8125rem] text-[#f5d7a3]"
+          role="alert"
+        >
+          <p className="font-medium text-[#f5d7a3]">
+            {realtimeError
+              ? 'Live updates disconnected.'
+              : 'Could not load messages.'}
+          </p>
+          <p className="mt-2 text-[#c4a574]">
+            {realtimeError
+              ? 'You can still reload messages over a normal connection. Try reconnecting live updates, or refresh the page if the problem continues. Unsent messages stay saved until they send.'
+              : queryError}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {realtimeError ? (
+              <button
+                type="button"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+                onClick={() => retryRealtimeConnection()}
+              >
+                Retry live connection
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+              onClick={() => void handleRefreshMessages()}
+            >
+              Reload messages
+            </button>
+            {realtimeError ? (
+              <button
+                type="button"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+                onClick={() => window.location.reload()}
+              >
+                Refresh page
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {httpDegraded && online && !queryError && !realtimeError ? (
+        <div
+          className="rounded-[8px] border border-amber/30 bg-[#121a24] px-4 py-2.5 font-sans text-[0.8125rem] text-[#a8b2c1]"
+          role="status"
+        >
+          Having trouble reaching the server. Failed messages stay in this room with a Retry action — or reconnect
+          and they will try automatically.
+        </div>
+      ) : null}
+
+      {realtimeStatus === 'offline' && !queryError ? (
+        <div
+          className="rounded-[8px] border border-amber/35 bg-[#1a1408] px-4 py-3 font-sans text-[0.8125rem] text-[#f5d7a3]"
+          role="status"
+        >
+          <p className="font-medium text-[#f5d7a3]">Live updates paused (you are offline).</p>
+          <p className="mt-2 text-[#c4a574]">
+            Messages you send while offline stay queued with Retry. When you are back online, we reconnect and catch up.
+          </p>
+          <button
+            type="button"
+            className="mt-3 inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+            onClick={() => retryRealtimeConnection()}
+          >
+            Retry live connection
+          </button>
+        </div>
       ) : null}
 
       {(realtimeStatus === 'connecting' || realtimeStatus === 'reconnecting') && (
@@ -510,7 +743,7 @@ export function SessionPage() {
           <button
             type="button"
             className="font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1]"
-            onClick={() => void refresh()}
+            onClick={() => void handleRefreshMessages()}
           >
             Refresh
           </button>
@@ -576,6 +809,12 @@ export function SessionPage() {
                     translate={translate}
                     onPullBack={() => undefined}
                     deliveryStatus={m.deliveryStatus}
+                    onRetrySend={
+                      m.deliveryStatus === 'failed'
+                        ? () => void handleRetrySend(m.optimisticId)
+                        : undefined
+                    }
+                    retryDisabled={sending}
                   />
                 ))
               : null}

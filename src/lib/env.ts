@@ -47,10 +47,19 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(getSupabaseUrl() && getSupabasePublicKey());
 }
 
+/**
+ * When true, the app may persist client-side tone samples to `sentiment_metrics` (see `recordLocalToneAndMaybePersist`).
+ * Translation and de-escalation run in-browser without this flag; use it only when you want optional analytics persistence.
+ * **MVP default:** unset or `false` in production unless you explicitly want sentiment rows.
+ */
 export function isAiPipelineEnabled(): boolean {
   return env.VITE_ENABLE_AI === 'true';
 }
 
+/**
+ * Hash-only ZK path for local/dev speed. **Production builds fail if `VITE_ZK_STUB=true`** (`vite.config.ts`).
+ * **MVP policy:** ship real Semaphore + Edge verification (`VITE_ZK_STUB=false`); reserve stub for developers only.
+ */
 export function isZkVerifierStubEnabled(): boolean {
   return env.VITE_ZK_STUB !== 'false';
 }

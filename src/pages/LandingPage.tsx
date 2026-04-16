@@ -299,17 +299,30 @@ export function LandingPage() {
                   For development only — not part of the public story above.
                 </p>
                 <ul className="mt-4 space-y-2 font-sans text-fluid-small text-landing-muted/90">
-                  <li>Onboarding, squad room demo, Supabase health</li>
+                  <li>Primary path: onboarding → intent → match → live session</li>
+                  <li>Optional: offline browser-only demo, Supabase health (dev)</li>
                 </ul>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <PrimaryCTA label="Start onboarding" href="/onboarding" className="min-w-[10rem] justify-center" />
+                  <PrimaryCTA label="Find a squad" href="/intent" className="min-w-[10rem] justify-center" />
+                  <Link to="/onboarding" className="btn-secondary min-w-[10rem] justify-center">
+                    Start onboarding
+                  </Link>
                   {lastSquad && configured ? (
                     <Link to={`/session/${lastSquad}`} className="btn-secondary min-w-[10rem] justify-center">
                       Resume last session
                     </Link>
                   ) : null}
                   <Link to="/session" className="btn-secondary min-w-[10rem] justify-center">
-                    Squad room
+                    Session hub
+                  </Link>
+                  <Link
+                    to="/session/demo-session-001"
+                    className="btn-secondary min-w-[10rem] justify-center border-dashed border-amber/35 text-landing-muted hover:border-amber/50"
+                  >
+                    Offline demo
+                  </Link>
+                  <Link to="/dev/supabase" className="btn-secondary min-w-[10rem] justify-center">
+                    Supabase health
                   </Link>
                 </div>
               </StepCard>

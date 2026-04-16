@@ -54,4 +54,30 @@ export function captureBoundaryError(error: Error, errorInfo: ErrorInfo): void {
   });
 }
 
+/** Anonymous user id only; no PII. */
+export function setSentryUserContext(userId: string | null): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.setUser(userId ? { id: userId } : null);
+}
+
+export function setSentrySquadContext(squadId: string | null): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.setTag('squad_id', squadId ?? 'none');
+  if (squadId) {
+    Sentry.setContext('squad', { id: squadId });
+  }
+}
+
+export function captureAppError(
+  error: unknown,
+  context: { feature: string; extra?: Record<string, unknown> },
+): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  const err = error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error');
+  Sentry.captureException(err, {
+    tags: { feature: context.feature },
+    extra: context.extra,
+  });
+}
+
 export { Sentry };

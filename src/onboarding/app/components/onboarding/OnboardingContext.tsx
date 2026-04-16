@@ -32,7 +32,7 @@ export type EraAffiliation =
 export interface OnboardingDraft {
   callsign: string;
   roleArchetype: RoleArchetype;
-  /** Required when roleArchetype is `other` (trimmed length 8–100). */
+  /** Required when roleArchetype is `other` (trimmed length 8–80; see `PROFILE_ROLE_OTHER_*_LEN` in `src/lib/profile.ts`). */
   roleOtherDetail: string;
   eraAffiliation: EraAffiliation;
   language: string;

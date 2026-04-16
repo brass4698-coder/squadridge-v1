@@ -1,8 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../contexts/AuthContext';
 import { AuthContext } from '../contexts/AuthContext';
 import {
@@ -43,6 +43,30 @@ function TestHarness({ squadId }: { squadId?: string }) {
   );
 }
 
+function RetryHarness({ squadId }: { squadId?: string }) {
+  const { messages, loading, error, realtimeError, retryRealtimeConnection, realtimeStatus } =
+    useRealtimeMessages(squadId);
+  return (
+    <div>
+      <div data-testid="loading">{String(loading)}</div>
+      <div data-testid="error">{error ?? ''}</div>
+      <div data-testid="realtime-error">{realtimeError ?? ''}</div>
+      <div data-testid="realtime-status">{realtimeStatus}</div>
+      <div data-testid="count">{messages.length}</div>
+      <ol data-testid="order">
+        {messages.map((m) => (
+          <li key={m.id} data-testid={`msg-${m.id}`}>
+            {m.encrypted_content}
+          </li>
+        ))}
+      </ol>
+      <button type="button" data-testid="retry-realtime" onClick={() => retryRealtimeConnection()}>
+        retry realtime
+      </button>
+    </div>
+  );
+}
+
 function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -71,6 +95,11 @@ function renderWithAuth(ui: ReactElement, supabase: AuthContextValue['supabase']
 }
 
 describe('useRealtimeMessages', () => {
+  beforeEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
   it('loads messages from the initial query when squadId and supabase are set', async () => {
     const initial = [
       baseRow({ id: 'a', sent_at: '2025-01-01T00:00:00.000Z', encrypted_content: 'first' }),
@@ -230,4 +259,104 @@ describe('useRealtimeMessages', () => {
 
     expect(screen.getByTestId('msg-b').textContent).toBe('after-gap');
   });
+
+  it('retryRealtimeConnection resubscribes after fatal subscribe errors', async () => {
+    const origSetTimeout = globalThis.setTimeout.bind(globalThis);
+    vi.stubGlobal(
+      'setTimeout',
+      (fn: TimerHandler, _delay?: number, ...args: unknown[]) =>
+        origSetTimeout(fn, 0, ...args) as ReturnType<typeof setTimeout>,
+    );
+
+    try {
+      const seq = [
+        ...Array.from({ length: 7 }, () => REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR),
+        REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+      ];
+      const stub = createSupabaseMessagesStub({
+        initialMessages: [
+          baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', encrypted_content: 'first' }),
+        ],
+        subscribeStatusSequence: seq,
+      });
+
+      renderWithAuth(<RetryHarness squadId="squad-1" />, stub);
+
+      await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+
+      for (let i = 0; i < 250; i++) {
+        await act(async () => {
+          await new Promise<void>((r) => origSetTimeout(r, 0));
+        });
+        if (screen.getByTestId('realtime-error').textContent) break;
+      }
+
+      expect(screen.getByTestId('realtime-error').textContent).toContain('Realtime connection lost');
+      expect(screen.getByTestId('realtime-status').textContent).toBe('offline');
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('retry-realtime'));
+      });
+
+      for (let i = 0; i < 80; i++) {
+        await act(async () => {
+          await new Promise<void>((r) => origSetTimeout(r, 0));
+        });
+        if (screen.getByTestId('realtime-status').textContent === 'live') break;
+      }
+
+      expect(screen.getByTestId('realtime-status').textContent).toBe('live');
+      expect(screen.getByTestId('realtime-error').textContent).toBe('');
+      expect(stub.removedChannels.length).toBeGreaterThan(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('catch-up backfill runs after visibility change (debounced)', async () => {
+    const initial = [
+      baseRow({
+        id: 'a',
+        sent_at: '2025-01-01T10:00:00.000Z',
+        encrypted_content: 'first',
+      }),
+    ];
+    const backfill = [
+      baseRow({
+        id: 'b',
+        sent_at: '2025-01-03T10:00:00.000Z',
+        encrypted_content: 'after-gap',
+      }),
+    ];
+
+    const stub = createSupabaseMessagesStub({
+      initialMessages: initial,
+      backfillMessages: backfill,
+    });
+
+    renderWithAuth(<TestHarness squadId="squad-1" />, stub);
+
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+    expect(screen.getByTestId('count').textContent).toBe('1');
+
+    act(() => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        value: 'visible',
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('count').textContent).toBe('2');
+      },
+      { timeout: 4_000 },
+    );
+    expect(screen.getByTestId('msg-b').textContent).toBe('after-gap');
+  });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });

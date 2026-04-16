@@ -5,6 +5,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib/env';
 import { pollMatchmakingSnapshot } from '../lib/matchmakingClient';
 import type { MatchmakingSnapshot } from '../lib/matchmakingClient';
+import {
+  MATCH_QUEUE_NO_SERVER_TIMEOUT,
+  MATCHMAKING_SIDE_SIZE,
+  MATCHED_SQUAD_TTL_HOURS,
+} from '../lib/matchmakingConstants';
 import { clearMatchmakingSession, readMatchmakingSession } from '../lib/matchmakingSession';
 import { setLastSquadIdInStorage } from '../lib/squad';
 
@@ -184,8 +189,9 @@ export function Match() {
           Finding your squad
         </h2>
         <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400 md:text-base">
-          We pair two perspectives (A) and two (B) into one room. Everyone must be online at the same time — at low
-          traffic, waits can be long.
+          We form a room when there are at least {MATCHMAKING_SIDE_SIZE} people waiting on perspective A and{' '}
+          {MATCHMAKING_SIDE_SIZE} on B in the same pool. Low traffic means longer waits. Matched squads expire after
+          about {MATCHED_SQUAD_TTL_HOURS} hours.
         </p>
 
         {q ? (
@@ -198,7 +204,8 @@ export function Match() {
               <span className="tabular-nums text-slate-200">{q.queue_position}</span>
             </p>
             <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-500">
-              Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. We open the room as soon as we have 2+2.
+              Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. The room opens when we can take {MATCHMAKING_SIDE_SIZE}{' '}
+              from each side.
             </p>
           </div>
         ) : (
@@ -223,7 +230,7 @@ export function Match() {
 
         <p className="mt-10 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
           Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people arrive together.
-          Until then, we’ll hold your spot in the queue while this tab stays open.
+          Until then, we’ll hold your spot in the queue while this tab stays open. {MATCH_QUEUE_NO_SERVER_TIMEOUT}
         </p>
 
         {loadError ? (

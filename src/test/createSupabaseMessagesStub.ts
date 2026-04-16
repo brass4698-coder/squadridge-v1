@@ -25,6 +25,11 @@ export function createSupabaseMessagesStub(options: {
    * subsequent invocations receive `SUBSCRIBED`. Used to exercise reconnect + backfill in tests.
    */
   firstSubscribeStatus?: string;
+  /**
+   * Nth `subscribe()` callback receives `subscribeStatusSequence[n - 1]` (clamped to the last entry).
+   * When set, overrides {@link firstSubscribeStatus} for all calls. Use for fatal-retry tests.
+   */
+  subscribeStatusSequence?: string[];
 }) {
   let onInsert: ((payload: { new: MessageRow }) => void) | undefined;
   let onUpdate: ((payload: { new: MessageRow }) => void) | undefined;
@@ -103,10 +108,13 @@ export function createSupabaseMessagesStub(options: {
             subscribeCallCount += 1;
             const call = subscribeCallCount;
             queueMicrotask(() => {
+              const seq = options.subscribeStatusSequence;
               const status =
-                call === 1 && options.firstSubscribeStatus
-                  ? options.firstSubscribeStatus
-                  : REALTIME_SUBSCRIBE_STATES.SUBSCRIBED;
+                seq && seq.length > 0
+                  ? (seq[Math.min(call - 1, seq.length - 1)] ?? REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)
+                  : call === 1 && options.firstSubscribeStatus
+                    ? options.firstSubscribeStatus
+                    : REALTIME_SUBSCRIBE_STATES.SUBSCRIBED;
               cb(status);
             });
           }
