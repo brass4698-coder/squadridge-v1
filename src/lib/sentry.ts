@@ -99,7 +99,8 @@ export function captureAppError(
   context: { feature: string; extra?: Record<string, unknown> },
 ): void {
   if (!import.meta.env.VITE_SENTRY_DSN) return;
-  const err = error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error');
+  const err =
+    error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error');
   Sentry.captureException(err, {
     tags: { feature: context.feature },
     extra: context.extra,
@@ -107,15 +108,55 @@ export function captureAppError(
 }
 
 /** Breadcrumb for realtime / connectivity (no message bodies). */
-export function addConnectionBreadcrumb(
-  message: string,
-  data?: Record<string, unknown>,
-): void {
+export function addConnectionBreadcrumb(message: string, data?: Record<string, unknown>): void {
   if (!import.meta.env.VITE_SENTRY_DSN) return;
   Sentry.addBreadcrumb({
     category: 'connection',
     level: 'info',
     message,
+    data,
+  });
+}
+
+/** Squad room enter/leave, archive, or other session boundary (no message bodies). */
+export function addSessionLifecycleBreadcrumb(
+  phase: 'enter' | 'leave' | 'archive' | 'pause' | 'resume',
+  data?: { squadId?: string },
+): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.addBreadcrumb({
+    category: 'session',
+    level: 'info',
+    message: `session.${phase}`,
+    data,
+  });
+}
+
+/** Supabase `onAuthStateChange` events and explicit sign-out. */
+export function addAuthTransitionBreadcrumb(
+  event: string,
+  data?: { userId?: string | null },
+): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.addBreadcrumb({
+    category: 'auth',
+    level: 'info',
+    message: event,
+    data,
+  });
+}
+
+/** ZK proof pipeline — no raw PII or preimage. */
+export function addZkProofBreadcrumb(
+  step: 'generate_local' | 'invoke_verify_edge' | 'stub_hash',
+  status: 'start' | 'success' | 'error',
+  data?: Record<string, unknown>,
+): void {
+  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  Sentry.addBreadcrumb({
+    category: 'zk',
+    level: status === 'error' ? 'warning' : 'info',
+    message: `${step}:${status}`,
     data,
   });
 }

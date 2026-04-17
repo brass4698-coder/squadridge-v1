@@ -1,5 +1,5 @@
 import { Navigate, useParams } from 'react-router-dom';
-import { isDemoSquadShortcutsEnabled } from '../../lib/env';
+import { isDemoSquadShortcutsEnabled } from '../../lib';
 import { RequireAuth } from '../auth/RequireAuth';
 import { SessionHubPage } from '../../pages/SessionHubPage';
 import { SessionPage } from '../../pages/SessionPage';

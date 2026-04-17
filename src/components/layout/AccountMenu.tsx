@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useProfile } from '../../hooks/useProfile';
-import { isSupabaseConfigured } from '../../lib/env';
+import { useProfile } from '../../hooks';
+import { isSupabaseConfigured } from '../../lib';
 
 export type AccountMenuProps = {
   /** When set (e.g. demo walkthrough), shown as the menu button label instead of callsign/email. */

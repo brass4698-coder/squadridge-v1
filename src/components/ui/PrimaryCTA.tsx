@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../lib/cn';
+import { cn } from '../../lib';
 
 export interface PrimaryCTAProps {
   label: string;
@@ -38,7 +38,9 @@ export function PrimaryCTA({
   const isMail = href?.startsWith('mailto:');
   const base = cn(
     'inline-flex max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:opacity-50',
-    variant === 'hero' ? 'btn-hero-join landing-hero-cta-link w-fit overflow-hidden' : 'btn-primary',
+    variant === 'hero'
+      ? 'btn-hero-join landing-hero-cta-link w-fit overflow-hidden'
+      : 'btn-primary',
     variant === 'primary' && sizeClass[size],
     className,
   );
@@ -86,7 +88,14 @@ export function PrimaryCTA({
   }
 
   return (
-    <button id={id} type={type} className={base} style={{ borderRadius: 8 }} onClick={onClick} disabled={disabled}>
+    <button
+      id={id}
+      type={type}
+      className={base}
+      style={{ borderRadius: 8 }}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {content}
     </button>
   );

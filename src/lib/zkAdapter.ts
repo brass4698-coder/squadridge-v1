@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { addZkProofBreadcrumb } from './sentry';
 import type { CredentialType, ZKProof } from './zkVerifier';
 
 /** When true, uses fast hash-only stubs (no Semaphore, no Edge verification). */
@@ -19,15 +20,38 @@ export async function runVerification(
   rawInput: string,
 ): Promise<ZKProof> {
   if (USE_HASH_STUB) {
-    const { generateStubProof } = await import('./zkVerifier');
-    return generateStubProof(credentialType, rawInput);
+    addZkProofBreadcrumb('stub_hash', 'start', { credentialType });
+    try {
+      const { generateStubProof } = await import('./zkVerifier');
+      const proof = await generateStubProof(credentialType, rawInput);
+      addZkProofBreadcrumb('stub_hash', 'success', { credentialType });
+      return proof;
+    } catch (e) {
+      addZkProofBreadcrumb('stub_hash', 'error', {
+        credentialType,
+        message: e instanceof Error ? e.message : String(e),
+      });
+      throw e;
+    }
   }
 
+  addZkProofBreadcrumb('generate_local', 'start', { credentialType });
   const { generateSemaphoreProof } = await import('./zkVerifier');
   const { semaphoreProofToWireFormat } = await import('./zk/serializeSemaphoreProof');
-  const rawProof = await generateSemaphoreProof(credentialType, rawInput.trim());
-  const semaphoreProof = semaphoreProofToWireFormat(rawProof);
+  let semaphoreProof;
+  try {
+    const rawProof = await generateSemaphoreProof(credentialType, rawInput.trim());
+    semaphoreProof = semaphoreProofToWireFormat(rawProof);
+    addZkProofBreadcrumb('generate_local', 'success', { credentialType });
+  } catch (e) {
+    addZkProofBreadcrumb('generate_local', 'error', {
+      credentialType,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    throw e;
+  }
 
+  addZkProofBreadcrumb('invoke_verify_edge', 'start', { credentialType });
   const { data, error } = await supabase.functions.invoke('verify-zk-proof', {
     body: {
       attribute_scope: rawInput.trim(),
@@ -37,11 +61,23 @@ export async function runVerification(
   });
 
   if (error) {
+    addZkProofBreadcrumb('invoke_verify_edge', 'error', { credentialType, message: error.message });
     throw new Error(`Verification failed: ${error.message}`);
   }
-  if (data && typeof data === 'object' && data !== null && 'error' in data && (data as { error?: string }).error) {
+  if (
+    data &&
+    typeof data === 'object' &&
+    data !== null &&
+    'error' in data &&
+    (data as { error?: string }).error
+  ) {
+    addZkProofBreadcrumb('invoke_verify_edge', 'error', {
+      credentialType,
+      message: String((data as { error: string }).error),
+    });
     throw new Error(String((data as { error: string }).error));
   }
 
+  addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType });
   return data as ZKProof;
 }

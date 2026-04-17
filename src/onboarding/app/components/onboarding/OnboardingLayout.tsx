@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import SquadLogo from '../../../../components/SquadLogo';
-import { SquadRidgeWordmark } from '../../../../components/SquadRidgeWordmark';
+import { SquadLogo, SquadRidgeWordmark } from '../../../../components';
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +16,14 @@ interface Props {
 
 function ChevronLeft({ className }: { className?: string }) {
   return (
-    <svg className={className} width="20" height="20" viewBox="0 0 6 10" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      width="20"
+      height="20"
+      viewBox="0 0 6 10"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M5 1L1 5l4 4"
         stroke="currentColor"
@@ -32,7 +38,14 @@ function ChevronLeft({ className }: { className?: string }) {
 
 function ChevronRight({ className }: { className?: string }) {
   return (
-    <svg className={className} width="20" height="20" viewBox="0 0 6 10" fill="none" aria-hidden="true">
+    <svg
+      className={className}
+      width="20"
+      height="20"
+      viewBox="0 0 6 10"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M1 1l4 4-4 4"
         stroke="currentColor"
@@ -63,7 +76,8 @@ export function OnboardingLayout({
       return;
     }
     const reduced =
-      typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       onNext?.();
       return;

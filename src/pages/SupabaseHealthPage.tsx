@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { isSupabaseConfigured } from '../lib/env';
+import { isSupabaseConfigured } from '../lib';
 import { supabase } from '../utils/supabase';
 
 /**
@@ -48,8 +48,12 @@ export function SupabaseHealthPage() {
     <div className="space-y-md">
       <h1 className="font-heading text-fluid-h2 text-gray-light">Supabase connection</h1>
       <p className="text-fluid-body text-gray-light">
-        Uses <code className="rounded bg-navy-dark px-sm py-xs">src/utils/supabase.ts</code> (quickstart-style{' '}
-        <code className="rounded bg-navy-dark px-sm py-xs">import {'{'} supabase {'}'}</code>).
+        Uses <code className="rounded bg-navy-dark px-sm py-xs">src/utils/supabase.ts</code>{' '}
+        (quickstart-style{' '}
+        <code className="rounded bg-navy-dark px-sm py-xs">
+          import {'{'} supabase {'}'}
+        </code>
+        ).
       </p>
       <p className="text-fluid-small text-gray-light" role="status">
         {status === 'loading' && 'Checking…'}

@@ -2,15 +2,15 @@ import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
-import { queryKeys } from '../lib/queryKeys';
 import {
   fetchProfile,
   isProfileComplete,
+  queryKeys,
   upsertProfile,
   upsertProfilePatch,
   type Profile,
   type ProfileInsert,
-} from '../lib/profile';
+} from '../lib';
 
 export function useProfile() {
   const queryClient = useQueryClient();

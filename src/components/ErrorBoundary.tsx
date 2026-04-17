@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { captureBoundaryError } from '../lib/sentry';
+import { captureBoundaryError, getErrorBoundaryCopy } from '../lib';
 
 interface Props {
   children: ReactNode;
@@ -40,6 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
       const { error } = this.state;
+      const copy = error ? getErrorBoundaryCopy(error) : null;
       return (
         <main
           className="flex min-h-screen flex-col items-center justify-center bg-navy p-8 text-center"
@@ -48,10 +49,11 @@ export class ErrorBoundary extends Component<Props, State> {
         >
           <div className="w-full max-w-lg rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
             <h1 id="root-error-title" className="font-heading text-fluid-h2 text-gray-light">
-              Something went wrong
+              {copy?.title ?? 'Something went wrong'}
             </h1>
             <p className="mt-3 max-w-md font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
-              The app hit an unexpected error. Try again to remount the UI, or reload the page if the problem persists.
+              {copy?.description ??
+                'The app hit an unexpected error. Try again to remount the UI, or reload the page if the problem persists.'}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <button

@@ -1,5 +1,5 @@
 import type { ElementType, HTMLAttributes } from 'react';
-import { cn } from '../../lib/cn';
+import { cn } from '../../lib';
 
 /** Onboarding-style gradient panel — horizontal padding + optional teal accent via `className`. */
 export const STEP_CARD_SHELL =
@@ -16,7 +16,13 @@ export interface StepCardProps extends Omit<HTMLAttributes<HTMLElement>, 'classN
   as?: ElementType;
 }
 
-export function StepCard({ children, className, variant = 'gradient', as: Component = 'div', ...rest }: StepCardProps) {
+export function StepCard({
+  children,
+  className,
+  variant = 'gradient',
+  as: Component = 'div',
+  ...rest
+}: StepCardProps) {
   const shell = variant === 'sandbox' ? SANDBOX_SHELL : STEP_CARD_SHELL;
   return (
     <Component className={cn(shell, className)} {...rest}>

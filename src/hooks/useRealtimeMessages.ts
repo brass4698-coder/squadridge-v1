@@ -2,11 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
-import type { Database } from '../lib/database.types';
 import { useAuth } from '../contexts/AuthContext';
-import { appendConnectionLog } from '../lib/connectionDebugLog';
-import { addConnectionBreadcrumb } from '../lib/sentry';
-import { queryKeys } from '../lib/queryKeys';
+import { addConnectionBreadcrumb, appendConnectionLog, queryKeys, type Database } from '../lib';
 
 type MessageRow = Database['public']['Tables']['messages']['Row'];
 
@@ -319,22 +316,25 @@ export function useRealtimeMessages(squadId: string | undefined) {
           (payload) => {
             const row = payload.new as MessageRow;
             const key = queryKeys.messages.list(squadId);
-            queryClient.setQueryData(key, (old: InfiniteData<MessageRow[], unknown> | undefined) => {
-              if (!old?.pages.length) {
-                return {
-                  pageParams: [undefined],
-                  pages: [[row]],
-                } as InfiniteData<MessageRow[], unknown>;
-              }
-              const pages = [...old.pages];
-              const li = pages.length - 1;
-              const last = pages[li] ?? [];
-              if (last.some((m) => m.id === row.id)) return old;
-              pages[li] = [...last, row].sort(
-                (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
-              );
-              return { ...old, pages };
-            });
+            queryClient.setQueryData(
+              key,
+              (old: InfiniteData<MessageRow[], unknown> | undefined) => {
+                if (!old?.pages.length) {
+                  return {
+                    pageParams: [undefined],
+                    pages: [[row]],
+                  } as InfiniteData<MessageRow[], unknown>;
+                }
+                const pages = [...old.pages];
+                const li = pages.length - 1;
+                const last = pages[li] ?? [];
+                if (last.some((m) => m.id === row.id)) return old;
+                pages[li] = [...last, row].sort(
+                  (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
+                );
+                return { ...old, pages };
+              },
+            );
           },
         )
         .on(
@@ -348,13 +348,16 @@ export function useRealtimeMessages(squadId: string | undefined) {
           (payload) => {
             const row = payload.new as MessageRow;
             const key = queryKeys.messages.list(squadId);
-            queryClient.setQueryData(key, (old: InfiniteData<MessageRow[], unknown> | undefined) => {
-              if (!old?.pages.length) return old;
-              return {
-                ...old,
-                pages: old.pages.map((page) => page.map((m) => (m.id === row.id ? row : m))),
-              };
-            });
+            queryClient.setQueryData(
+              key,
+              (old: InfiniteData<MessageRow[], unknown> | undefined) => {
+                if (!old?.pages.length) return old;
+                return {
+                  ...old,
+                  pages: old.pages.map((page) => page.map((m) => (m.id === row.id ? row : m))),
+                };
+              },
+            );
           },
         )
         .subscribe((status) => {
@@ -390,7 +393,9 @@ export function useRealtimeMessages(squadId: string | undefined) {
             } else {
               setReconnecting(false);
               const offline =
-                typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' && !navigator.onLine;
+                typeof navigator !== 'undefined' &&
+                typeof navigator.onLine === 'boolean' &&
+                !navigator.onLine;
               const msg = offline
                 ? 'Offline – waiting to reconnect'
                 : 'Connection error – refresh to retry';

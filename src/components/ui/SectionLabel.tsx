@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '../../lib/cn';
+import { cn } from '../../lib';
 
 export interface SectionLabelProps {
   children: ReactNode;
@@ -10,12 +10,16 @@ export interface SectionLabelProps {
 }
 
 const variantClass: Record<NonNullable<SectionLabelProps['variant']>, string> = {
-  default:
-    'font-heading text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-teal/80',
+  default: 'font-heading text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-teal/80',
   dev: 'rounded-md border border-[#1e2d3d] bg-white/[0.04] px-2 py-0.5 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle',
   muted: 'font-heading text-[0.65rem] font-medium uppercase tracking-[0.14em] text-landing-muted',
 };
 
-export function SectionLabel({ children, variant = 'default', className, as: Tag = 'span' }: SectionLabelProps) {
+export function SectionLabel({
+  children,
+  variant = 'default',
+  className,
+  as: Tag = 'span',
+}: SectionLabelProps) {
   return <Tag className={cn('mb-0', variantClass[variant], className)}>{children}</Tag>;
 }

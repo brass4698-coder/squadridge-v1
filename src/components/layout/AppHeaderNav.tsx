@@ -2,9 +2,8 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
-import { useIsModerator } from '../../hooks/useIsModerator';
-import { useAppNavContext } from '../../hooks/useAppNavContext';
-import { isSupabaseConfigured } from '../../lib/env';
+import { useAppNavContext, useIsModerator } from '../../hooks';
+import { isSupabaseConfigured } from '../../lib';
 import { AccountMenu } from './AccountMenu';
 
 const navLinkBase =
@@ -61,7 +60,8 @@ function useDemoNavState() {
 }
 
 function JourneyStrip() {
-  const { showResumeCta, resumeHref, showOnboardingCta, onboardingHref, onboardingLabel } = useAppNavContext();
+  const { showResumeCta, resumeHref, showOnboardingCta, onboardingHref, onboardingLabel } =
+    useAppNavContext();
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
     <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
@@ -215,7 +215,10 @@ function MobileNavDrawer({
             ✕
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto px-5 py-5 font-sans text-[0.9rem]" aria-label="Mobile">
+        <nav
+          className="flex-1 overflow-y-auto px-5 py-5 font-sans text-[0.9rem]"
+          aria-label="Mobile"
+        >
           <div className="space-y-6">
             <div>
               <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
@@ -264,17 +267,29 @@ function MobileNavDrawer({
                 </p>
                 <ul className="space-y-0.5">
                   <li>
-                    <Link to="/verify" className={mobileDrawerLinkClass(nav.verifyActive)} onClick={onClose}>
+                    <Link
+                      to="/verify"
+                      className={mobileDrawerLinkClass(nav.verifyActive)}
+                      onClick={onClose}
+                    >
                       Verify
                     </Link>
                   </li>
                   <li>
-                    <Link to="/intent" className={mobileDrawerLinkClass(nav.intentActive)} onClick={onClose}>
+                    <Link
+                      to="/intent"
+                      className={mobileDrawerLinkClass(nav.intentActive)}
+                      onClick={onClose}
+                    >
                       Intent
                     </Link>
                   </li>
                   <li>
-                    <Link to="/dev/supabase" className={mobileDrawerLinkClass(nav.supabaseActive)} onClick={onClose}>
+                    <Link
+                      to="/dev/supabase"
+                      className={mobileDrawerLinkClass(nav.supabaseActive)}
+                      onClick={onClose}
+                    >
                       Technical notes (Supabase)
                     </Link>
                   </li>
@@ -288,7 +303,11 @@ function MobileNavDrawer({
                 </p>
                 <ul className="space-y-0.5">
                   <li>
-                    <Link to="/mod" className={mobileDrawerLinkClass(nav.modActive)} onClick={onClose}>
+                    <Link
+                      to="/mod"
+                      className={mobileDrawerLinkClass(nav.modActive)}
+                      onClick={onClose}
+                    >
                       Mod
                     </Link>
                   </li>
@@ -329,7 +348,15 @@ function MobileMenuBar({
         onClick={onOpen}
       >
         <span className="sr-only">Open menu</span>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden
+        >
           <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
         </svg>
       </button>
@@ -408,7 +435,11 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
         </div>
       </header>
       <JourneyStrip />
-      <MobileNavDrawer open={mobileOpen} onClose={closeMobile} returnFocusRef={mobileMenuButtonRef} />
+      <MobileNavDrawer
+        open={mobileOpen}
+        onClose={closeMobile}
+        returnFocusRef={mobileMenuButtonRef}
+      />
     </>
   );
 }

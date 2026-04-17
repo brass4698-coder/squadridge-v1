@@ -1,20 +1,17 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
-import type { Database } from '../lib/database.types';
-import { getAuthCallbackUrl } from '../lib/authUrls';
-import { isSupabaseConfigured } from '../lib/env';
-import { queryKeys } from '../lib/queryKeys';
-import { getSupabase } from '../lib/supabase';
-import { captureAppError, setSentryUserContext } from '../lib/sentry';
-import { ensureAnonymousSession } from '../lib/squad';
+import {
+  addAuthTransitionBreadcrumb,
+  captureAppError,
+  ensureAnonymousSession,
+  getAuthCallbackUrl,
+  getSupabase,
+  isSupabaseConfigured,
+  queryKeys,
+  setSentryUserContext,
+  type Database,
+} from '../lib';
 
 export interface AuthContextValue {
   session: Session | null;
@@ -70,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, s) => {
+      addAuthTransitionBreadcrumb(event, { userId: s?.user?.id ?? null });
       queryClient.setQueryData(queryKeys.auth.session, s);
       if (event === 'TOKEN_REFRESHED' && !s) {
         captureAppError(new Error('Auth: TOKEN_REFRESHED with null session'), {
@@ -122,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (!supabase) return;
+    addAuthTransitionBreadcrumb('signOut_requested', { userId: null });
     await supabase.auth.signOut();
     queryClient.setQueryData(queryKeys.auth.session, null);
     queryClient.removeQueries({ queryKey: ['profile'] });
@@ -140,7 +139,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
     }),
-    [session, user, loading, supabase, supabaseClientInitError, sessionError, ensureSession, signIn, signOut],
+    [
+      session,
+      user,
+      loading,
+      supabase,
+      supabaseClientInitError,
+      sessionError,
+      ensureSession,
+      signIn,
+      signOut,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

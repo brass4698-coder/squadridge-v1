@@ -1,11 +1,14 @@
 import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SessionPageAuthSkeleton } from '../components/session/SessionPageSkeleton';
+import { SessionPageAuthSkeleton } from '../components';
 import { useAuth } from '../contexts/AuthContext';
-import { isDemoSquadShortcutsEnabled, isSupabaseConfigured } from '../lib/env';
-import { createDemoSquad } from '../lib/squad';
-import { captureAppError } from '../lib/sentry';
+import {
+  captureAppError,
+  createDemoSquad,
+  isDemoSquadShortcutsEnabled,
+  isSupabaseConfigured,
+} from '../lib';
 
 const sessionLandingHeadingStyle: CSSProperties = {
   fontSize: 'clamp(2.2rem, 4vw, 3rem)',
@@ -55,7 +58,8 @@ export function SessionHubPage() {
           Session unavailable
         </h1>
         <p className="text-fluid-body text-gray-light">
-          Configure Supabase environment variables to use the squad room. See the home page for setup steps.
+          Configure Supabase environment variables to use the squad room. See the home page for
+          setup steps.
         </p>
         <Link to="/" className="btn-primary inline-flex w-fit">
           Back to home
@@ -80,27 +84,34 @@ export function SessionHubPage() {
         </span>
       ) : null}
       <header className="flex w-full max-w-[520px] flex-col items-center gap-4">
-        <h1 id="session-landing-title" className="font-heading font-extrabold" style={sessionLandingHeadingStyle}>
+        <h1
+          id="session-landing-title"
+          className="font-heading font-extrabold"
+          style={sessionLandingHeadingStyle}
+        >
           Squad room
         </h1>
         <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
-          Get matched into a live room from <strong className="font-medium text-[#c4cdd9]">Intent</strong> — we pair
-          perspectives and open a squad when the queue has enough people. Complete your profile first so you are ready for
-          the room.
+          Get matched into a live room from{' '}
+          <strong className="font-medium text-[#c4cdd9]">Intent</strong> — we pair perspectives and
+          open a squad when the queue has enough people. Complete your profile first so you are
+          ready for the room.
         </p>
       </header>
       <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-[#6b7280]">
         <li>
-          <strong className="font-medium text-[#a8b2c1]">Intent</strong> — choose side A or B and optional tags; you
-          enter the matchmaking pool.
+          <strong className="font-medium text-[#a8b2c1]">Intent</strong> — choose side A or B and
+          optional tags; you enter the matchmaking pool.
         </li>
         <li>
-          <strong className="font-medium text-[#a8b2c1]">Match</strong> — wait until enough people on both sides are
-          queued; then we open the squad.
+          <strong className="font-medium text-[#a8b2c1]">Match</strong> — wait until enough people
+          on both sides are queued; then we open the squad.
         </li>
         <li>
           <strong className="font-medium text-[#a8b2c1]">Room</strong> — you land in{' '}
-          <code className="rounded bg-[#0f1623] px-1 py-0.5 font-mono text-[0.75rem] text-[#8892a4]">/session/&lt;id&gt;</code>{' '}
+          <code className="rounded bg-[#0f1623] px-1 py-0.5 font-mono text-[0.75rem] text-[#8892a4]">
+            /session/&lt;id&gt;
+          </code>{' '}
           automatically (no manual UUID handoff).
         </li>
       </ol>
@@ -132,7 +143,8 @@ export function SessionHubPage() {
             Developer: create a private test squad
           </summary>
           <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
-            Spins a squad with only your account — useful for API and UI checks without waiting on matchmaking.
+            Spins a squad with only your account — useful for API and UI checks without waiting on
+            matchmaking.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button

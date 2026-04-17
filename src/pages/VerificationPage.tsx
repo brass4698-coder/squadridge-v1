@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured, isZkTlsLabsEnabled } from '../lib/env';
-import { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../lib/zk';
+import {
+  isSupabaseConfigured,
+  isZkTlsLabsEnabled,
+  runVerification,
+  ZK_SESSION_CREDENTIAL_TYPE,
+} from '../lib';
 
 const onboardingDoneCtaClass =
   'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-max flex-none items-center justify-center px-[2.5rem] py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
@@ -51,7 +55,8 @@ export function VerificationPage() {
           <p className="font-sans text-body-lg font-normal text-ink-secondary">
             Supabase is not configured. Add your project keys to{' '}
             <code className="text-teal-light/90">.env</code> and deploy the{' '}
-            <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this step.
+            <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this
+            step.
           </p>
           <Link
             to="/"
@@ -86,21 +91,25 @@ export function VerificationPage() {
           Prove you belong without exposing identity
         </h1>
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
-          Standalone page for tests and returning users. The cryptography is the same as in the main product flow; this
-          route is optional if you already completed verification elsewhere.
+          Standalone page for tests and returning users. The cryptography is the same as in the main
+          product flow; this route is optional if you already completed verification elsewhere.
         </p>
         <p className="mb-0 mt-4 max-w-copy font-sans text-body-lg font-normal text-ink-secondary">
-          This step never asks for documents, email, or phone. Your session stays pseudonymous: the system stores only a
-          cryptographic commitment and a nullifier after server-side verification—nothing that links this visit to your
-          legal identity.
+          This step never asks for documents, email, or phone. Your session stays pseudonymous: the
+          system stores only a cryptographic commitment and a nullifier after server-side
+          verification—nothing that links this visit to your legal identity.
         </p>
         {isZkTlsLabsEnabled() ? (
           <p
             className="mb-0 mt-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-[0.85rem] text-amber"
             role="status"
           >
-            Labs: <code className="font-mono text-[0.8rem]">VITE_ZKTLS_LABS</code> is on — zkTLS-style proofs are not
-            shipped; see <code className="font-mono text-[0.8rem]">docs/technical/rfc-zktls-attribute-proofs.md</code>.
+            Labs: <code className="font-mono text-[0.8rem]">VITE_ZKTLS_LABS</code> is on —
+            zkTLS-style proofs are not shipped; see{' '}
+            <code className="font-mono text-[0.8rem]">
+              docs/technical/rfc-zktls-attribute-proofs.md
+            </code>
+            .
           </p>
         ) : null}
 
@@ -108,10 +117,14 @@ export function VerificationPage() {
           {done ? (
             <div className="space-y-6">
               <p className="mb-0 font-sans text-onboarding-body text-ink-secondary">
-                Your verification is recorded for this session. Next, you&apos;ll set your intent so we can match you into
-                the right room.
+                Your verification is recorded for this session. Next, you&apos;ll set your intent so
+                we can match you into the right room.
               </p>
-              <button type="button" className={onboardingDoneCtaClass} onClick={() => navigate('/intent')}>
+              <button
+                type="button"
+                className={onboardingDoneCtaClass}
+                onClick={() => navigate('/intent')}
+              >
                 Continue to intent
               </button>
             </div>
@@ -125,9 +138,10 @@ export function VerificationPage() {
 
               <p className="mb-0 font-sans text-onboarding-body text-ink-muted">
                 This button generates a Semaphore proof in your browser and sends it to the{' '}
-                <code className="text-ink-secondary/90">verify-zk-proof</code> Edge Function for verification and
-                persistence. Set <code className="text-ink-secondary/90">VITE_ZK_STUB=true</code> only for a lightweight
-                hash demo without ZK cryptography.
+                <code className="text-ink-secondary/90">verify-zk-proof</code> Edge Function for
+                verification and persistence. Set{' '}
+                <code className="text-ink-secondary/90">VITE_ZK_STUB=true</code> only for a
+                lightweight hash demo without ZK cryptography.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">

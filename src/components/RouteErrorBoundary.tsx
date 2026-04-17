@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { captureBoundaryError } from '../lib/sentry';
+import { captureBoundaryError } from '../lib';
 
 interface Props {
   children: ReactNode;
@@ -54,8 +54,8 @@ export class RouteErrorBoundary extends Component<Props, State> {
               Something went wrong
             </h1>
             <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
-              The app hit an unexpected error. Your session data is not shown here for safety. You can try again or
-              return home.
+              The app hit an unexpected error. Your session data is not shown here for safety. You
+              can try again or return home.
             </p>
             {import.meta.env.DEV ? (
               <pre className="mt-4 max-h-32 overflow-auto rounded-md border border-[#1a2236] bg-[#0b0f1a] p-3 font-mono text-[0.75rem] text-amber">

@@ -8,7 +8,7 @@ import { obAfterH1, obBody, obBodyMuted, obH1Hero } from '../OnboardingTypograph
 import { COPY } from '../copy';
 import { OnboardingFooter } from '../OnboardingFooter';
 import { useOnboarding } from '../OnboardingContext';
-import { getAuthCallbackUrl } from '../../../../../lib/authUrls';
+import { getAuthCallbackUrl } from '../../../../../lib';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../../lib/supabase/client';
 import { srInputClass } from '../frames/squadRidgeUi';
 
@@ -136,7 +136,9 @@ export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) 
                 </button>
               </div>
               {sent && (
-                <p className="font-sans text-[13px] text-white/55">{COPY.verification.checkEmail}</p>
+                <p className="font-sans text-[13px] text-white/55">
+                  {COPY.verification.checkEmail}
+                </p>
               )}
             </>
           )}

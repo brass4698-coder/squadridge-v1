@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useProfile } from '../hooks/useProfile';
-import { PROFILE_ROLE_VALUES, type ProfileRole } from '../lib/profile';
-import { isSupabaseConfigured } from '../lib/env';
+import { useProfile } from '../hooks';
+import { isSupabaseConfigured, PROFILE_ROLE_VALUES, type ProfileRole } from '../lib';
 
 const MAX_TAGS = 5;
 
@@ -44,7 +43,6 @@ function OptionalMark() {
     </span>
   );
 }
-
 
 export function ProfileSettingsPage() {
   const { session, loading: authLoading } = useAuth();
@@ -107,17 +105,7 @@ export function ProfileSettingsPage() {
       timeWindow.trim() !== (profile.timezone_window ?? '').trim() ||
       era.trim() !== (profile.era_affiliation ?? '').trim()
     );
-  }, [
-    profile,
-    callsign,
-    role,
-    roleOther,
-    tagsRaw,
-    language,
-    region,
-    timeWindow,
-    era,
-  ]);
+  }, [profile, callsign, role, roleOther, tagsRaw, language, region, timeWindow, era]);
 
   useEffect(() => {
     if (isDirty) setAckSaved(false);
@@ -175,7 +163,10 @@ export function ProfileSettingsPage() {
     return (
       <div className="mx-auto max-w-copy px-md py-12">
         <p className="text-[#8892a4]">Supabase is not configured.</p>
-        <Link to="/" className="mt-4 inline-block text-teal-light underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="mt-4 inline-block text-teal-light underline-offset-4 hover:underline"
+        >
           Home
         </Link>
       </div>
@@ -192,7 +183,9 @@ export function ProfileSettingsPage() {
 
   if (profileLoading && !profile) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">Loading profile…</div>
+      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">
+        Loading profile…
+      </div>
     );
   }
 
@@ -209,7 +202,11 @@ export function ProfileSettingsPage() {
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <h1
             className="font-heading font-extrabold text-[#f1f5f9]"
-            style={{ fontSize: 'clamp(1.65rem, 2.8vw, 2.1rem)', letterSpacing: '-0.03em', lineHeight: 1.12 }}
+            style={{
+              fontSize: 'clamp(1.65rem, 2.8vw, 2.1rem)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.12,
+            }}
           >
             Profile &amp; keys
           </h1>
@@ -227,8 +224,9 @@ export function ProfileSettingsPage() {
           These settings shape how you&apos;re seen in squads and how we route you.
         </p>
         <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
-          We verify you without building a dossier. What you set here is what squads see—callsign, lane, and tags. Below
-          that, coarse hints help matching without turning this into a dossier.
+          We verify you without building a dossier. What you set here is what squads see—callsign,
+          lane, and tags. Below that, coarse hints help matching without turning this into a
+          dossier.
         </p>
         <p className="mt-3 max-w-[52ch] font-sans text-[0.9rem] leading-relaxed text-[#6b7280]">
           Squads never see your email, phone, or real-world ID—only what&apos;s on this page.
@@ -255,7 +253,10 @@ export function ProfileSettingsPage() {
             aria-labelledby="pf-identity-heading"
           >
             <div>
-              <h2 id="pf-identity-heading" className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]">
+              <h2
+                id="pf-identity-heading"
+                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]"
+              >
                 In the room
               </h2>
               <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#4b5563]">
@@ -277,7 +278,10 @@ export function ProfileSettingsPage() {
                 autoComplete="off"
                 aria-describedby="pf-callsign-hint"
               />
-              <p id="pf-callsign-hint" className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+              <p
+                id="pf-callsign-hint"
+                className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]"
+              >
                 Avoid real names or handles you use elsewhere; pick something memorable.
               </p>
             </div>
@@ -287,7 +291,10 @@ export function ProfileSettingsPage() {
                 Role
                 <RequiredMark />
               </label>
-              <p id="pf-role-desc" className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+              <p
+                id="pf-role-desc"
+                className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]"
+              >
                 How you&apos;ll primarily contribute in squads.
               </p>
               <select
@@ -337,7 +344,9 @@ export function ProfileSettingsPage() {
                   className="w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
                 />
                 {roleOtherInvalid ? (
-                  <p className="font-sans text-[0.8rem] text-amber">Use between 8 and 80 characters for this lane.</p>
+                  <p className="font-sans text-[0.8rem] text-amber">
+                    Use between 8 and 80 characters for this lane.
+                  </p>
                 ) : null}
               </div>
             ) : null}
@@ -357,7 +366,9 @@ export function ProfileSettingsPage() {
                 onChange={(e) => setTagsRaw(e.target.value)}
                 placeholder="e.g. cross_cultural_dialogue, military_veteran"
                 className={`w-full rounded-[8px] border bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none ${
-                  tagsTooMany ? 'border-amber/50 focus-visible:border-amber/60' : 'border-[#1a2236] focus-visible:border-[rgba(0,194,178,0.4)]'
+                  tagsTooMany
+                    ? 'border-amber/50 focus-visible:border-amber/60'
+                    : 'border-[#1a2236] focus-visible:border-[rgba(0,194,178,0.4)]'
                 }`}
                 aria-invalid={tagsTooMany}
                 aria-describedby={tagsTooMany ? 'pf-tags-error' : undefined}
@@ -375,7 +386,10 @@ export function ProfileSettingsPage() {
             aria-labelledby="pf-routing-heading"
           >
             <div>
-              <h2 id="pf-routing-heading" className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]">
+              <h2
+                id="pf-routing-heading"
+                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]"
+              >
                 Routing hints
               </h2>
               <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#4b5563]">

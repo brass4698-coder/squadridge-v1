@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Database } from '../lib/database.types';
-import { decodeMessagePayloadAdaptive } from '../lib/messagePayload';
+import { decodeMessagePayloadAdaptive, type Database } from '../lib';
 
 type MessageRow = Database['public']['Tables']['messages']['Row'];
 

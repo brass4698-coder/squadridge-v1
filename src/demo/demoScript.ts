@@ -1,4 +1,4 @@
-import { DEMO_PROPOSAL_ID } from '../lib/demoSession';
+import { DEMO_PROPOSAL_ID } from '../lib';
 import { DEMO_PERSONA } from './demoPersona';
 
 /** `sessionStorage` key — tour active when set to `"1"` (with optional `?demo=1` in URL). */
@@ -86,7 +86,12 @@ export const demoSteps: DemoStep[] = [
       { kind: 'wait', ms: 2000 },
       { kind: 'click', selector: '[data-demo="onboarding-role-analyst"]', delayMs: 200 },
       { kind: 'wait', ms: 1000 },
-      { kind: 'select', selector: '[data-demo="onboarding-era-trigger"]', value: 'contemporary', delayMs: 200 },
+      {
+        kind: 'select',
+        selector: '[data-demo="onboarding-era-trigger"]',
+        value: 'contemporary',
+        delayMs: 200,
+      },
     ],
   },
   {
@@ -98,10 +103,20 @@ export const demoSteps: DemoStep[] = [
     envModes: mockAll,
     actions: [
       { kind: 'focus', selector: '[data-demo="onboarding-language"]', delayMs: 400 },
-      { kind: 'type', selector: '[data-demo="onboarding-language"]', text: 'English', charDelayMs: HUMAN_CHAR_MS },
+      {
+        kind: 'type',
+        selector: '[data-demo="onboarding-language"]',
+        text: 'English',
+        charDelayMs: HUMAN_CHAR_MS,
+      },
       { kind: 'wait', ms: 1000 },
       { kind: 'focus', selector: '[data-demo="onboarding-region"]', delayMs: 200 },
-      { kind: 'type', selector: '[data-demo="onboarding-region"]', text: 'Pacific North West', charDelayMs: HUMAN_CHAR_MS },
+      {
+        kind: 'type',
+        selector: '[data-demo="onboarding-region"]',
+        text: 'Pacific North West',
+        charDelayMs: HUMAN_CHAR_MS,
+      },
       { kind: 'wait', ms: 1000 },
       { kind: 'focus', selector: '[data-demo="onboarding-timezone"]', delayMs: 200 },
       {
@@ -197,7 +212,13 @@ export const demoSteps: DemoStep[] = [
         delayMs: 1200,
       },
     ],
-    overlaySteps: [{ id: 's1', content: 'Offline demo — nothing leaves this browser tab.', selector: '[data-demo="session-composer"]' }],
+    overlaySteps: [
+      {
+        id: 's1',
+        content: 'Offline demo — nothing leaves this browser tab.',
+        selector: '[data-demo="session-composer"]',
+      },
+    ],
   },
   {
     id: 'ledger',
@@ -221,20 +242,36 @@ export const demoSteps: DemoStep[] = [
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
-      { id: 'sec1', content: 'Verification proves membership without exposing identity to peers or the public ledger.' },
+      {
+        id: 'sec1',
+        content:
+          'Verification proves membership without exposing identity to peers or the public ledger.',
+      },
     ],
   },
   {
     id: 'profile',
     path: '/settings/profile?demo=1',
     title: 'Profile',
-    description: 'Same persona as the guided tour — Northstar-7, strategist, matching routing hints.',
+    description:
+      'Same persona as the guided tour — Northstar-7, strategist, matching routing hints.',
     inMainScript: true,
     envModes: mockAll,
     actions: [
       { kind: 'focus', selector: '[data-demo="profile-callsign"]', delayMs: 1200 },
-      { kind: 'type', selector: '[data-demo="profile-callsign"]', text: DEMO_PERSONA.callsign, charDelayMs: HUMAN_CHAR_MS, delayMs: 1200 },
-      { kind: 'select', selector: '[data-demo="profile-role"]', value: DEMO_PERSONA.role, delayMs: 1200 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-callsign"]',
+        text: DEMO_PERSONA.callsign,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1200,
+      },
+      {
+        kind: 'select',
+        selector: '[data-demo="profile-role"]',
+        value: DEMO_PERSONA.role,
+        delayMs: 1200,
+      },
       { kind: 'focus', selector: '[data-demo="profile-tags"]', delayMs: 1000 },
       {
         kind: 'type',
@@ -244,13 +281,37 @@ export const demoSteps: DemoStep[] = [
         delayMs: 1200,
       },
       { kind: 'focus', selector: '[data-demo="profile-era"]', delayMs: 1000 },
-      { kind: 'type', selector: '[data-demo="profile-era"]', text: DEMO_PERSONA.eraLens, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-era"]',
+        text: DEMO_PERSONA.eraLens,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1000,
+      },
       { kind: 'focus', selector: '[data-demo="profile-lang"]', delayMs: 1000 },
-      { kind: 'type', selector: '[data-demo="profile-lang"]', text: DEMO_PERSONA.language, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-lang"]',
+        text: DEMO_PERSONA.language,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1000,
+      },
       { kind: 'focus', selector: '[data-demo="profile-region"]', delayMs: 1000 },
-      { kind: 'type', selector: '[data-demo="profile-region"]', text: DEMO_PERSONA.region, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-region"]',
+        text: DEMO_PERSONA.region,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1000,
+      },
       { kind: 'focus', selector: '[data-demo="profile-timewindow"]', delayMs: 1000 },
-      { kind: 'type', selector: '[data-demo="profile-timewindow"]', text: DEMO_PERSONA.timezoneWindow, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-timewindow"]',
+        text: DEMO_PERSONA.timezoneWindow,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1000,
+      },
     ],
   },
 ];
@@ -258,8 +319,16 @@ export const demoSteps: DemoStep[] = [
 /** Main linear script (excludes appendix routes like `/mod`). */
 export const DEMO_MAIN_STEPS: DemoStep[] = demoSteps.filter((s) => s.inMainScript !== false);
 
+/** First scripted route — used by the lightweight demo shell before the full walkthrough chunk loads. */
+export const DEMO_FIRST_WALKTHROUGH_PATH = DEMO_MAIN_STEPS[0]?.path ?? '/?demo=1';
+
 export const DEMO_APPENDIX = {
-  moderator: { path: '/mod?demo=1', id: 'mod', title: 'Moderator console', inMainScript: false as const },
+  moderator: {
+    path: '/mod?demo=1',
+    id: 'mod',
+    title: 'Moderator console',
+    inMainScript: false as const,
+  },
 } as const;
 
 /** Compare pathname + query (order of query keys ignored). */

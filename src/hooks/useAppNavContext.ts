@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from './useProfile';
-import { getLastSquadIdFromStorage } from '../lib/squad';
+import { getLastSquadIdFromStorage } from '../lib';
 
 export type AppNavContextValue = {
   /** Last squad id from localStorage (for resume). */

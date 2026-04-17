@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DEMO_PROPOSAL_ID, getDemoSession } from '../lib/demoSession';
+import { DEMO_PROPOSAL_ID, getDemoSession } from '../lib';
 
 const sessionChatHeadingStyle: CSSProperties = {
   fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
@@ -80,7 +80,8 @@ export function DemoSessionPage() {
       </header>
 
       <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
-        Translation and live sync are disabled in this offline demo. Messages stay in your browser only.
+        Translation and live sync are disabled in this offline demo. Messages stay in your browser
+        only.
       </div>
 
       <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
@@ -101,7 +102,9 @@ export function DemoSessionPage() {
                   </span>
                   <span className="font-sans text-[0.7rem] text-[#4b5563]">{m.sentAt}</span>
                 </div>
-                <p className="mt-2 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0]">{m.body}</p>
+                <p className="mt-2 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0]">
+                  {m.body}
+                </p>
               </li>
             ))}
           </ul>

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getSupabase } from '../lib/supabase';
-import { isSupabaseConfigured } from '../lib/env';
+import { getSupabase, isSupabaseConfigured } from '../lib';
 
 export const WAITLIST_CHANGED_EVENT = 'squadridge:waitlist-changed';
 

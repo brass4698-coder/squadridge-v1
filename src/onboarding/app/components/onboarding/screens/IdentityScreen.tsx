@@ -6,9 +6,14 @@ import { cn } from '../../ui/utils';
 import { useOnboardingMotion } from '../onboardingMotion';
 import { COPY } from '../copy';
 import { OnboardingFooter } from '../OnboardingFooter';
-import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib/profile';
+import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib';
 import { upsertProfilePatch } from '../../../../lib/supabase/profile';
-import { useCallsignSync, useOnboarding, type EraAffiliation, type RoleArchetype } from '../OnboardingContext';
+import {
+  useCallsignSync,
+  useOnboarding,
+  type EraAffiliation,
+  type RoleArchetype,
+} from '../OnboardingContext';
 
 interface IdentityScreenProps {
   onNext: () => void;
@@ -52,18 +57,14 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
     draft.roleArchetype !== 'other' ||
     (otherTrimmed.length >= PROFILE_ROLE_OTHER_MIN_LEN &&
       otherTrimmed.length <= PROFILE_ROLE_OTHER_MAX_LEN);
-  const valid =
-    draft.callsign.trim().length >= 2 &&
-    draft.roleArchetype !== '' &&
-    otherDetailValid;
+  const valid = draft.callsign.trim().length >= 2 && draft.roleArchetype !== '' && otherDetailValid;
 
   const handleNext = useCallback(async () => {
     if (!valid) return;
     await upsertProfilePatch({
       callsign: draft.callsign.trim(),
       role_archetype: draft.roleArchetype,
-      role_other_detail:
-        draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
+      role_other_detail: draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
       era_affiliation: draft.eraAffiliation === '' ? null : draft.eraAffiliation,
     });
     onNext();
@@ -82,143 +83,153 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
       <section className="w-full">
         <div className="mx-auto max-w-[1040px] rounded-xl border border-white/8 bg-charcoal px-8 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.7)]">
           <div className="grid h-full grid-cols-[1.2fr_1fr] gap-8">
-          <section className="flex flex-col gap-4">
-            <div>
-              <h1 className="mb-2 text-2xl font-semibold tracking-tight text-ink">{COPY.identity.title}</h1>
-              <p className="text-sm leading-relaxed text-ink-secondary">{COPY.identity.lead}</p>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="sr-callsign"
-                className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted"
-              >
-                {COPY.identity.callsignLabel} <span className="text-teal">*</span>
-              </label>
-              <p className="mb-1 text-xs text-ink-muted">{COPY.identity.callsignWhy}</p>
-              <input
-                id="sr-callsign"
-                name="callsign"
-                autoComplete="nickname"
-                data-demo="onboarding-callsign"
-                value={draft.callsign}
-                onChange={(e) => setDraft({ callsign: e.target.value })}
-                placeholder="e.g. Ironveil, Delta-7, Wren"
-                className={callsignInputClass}
-                aria-required="true"
-              />
-            </div>
-          </section>
-
-          <section className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted" id="sr-role-label">
-                {COPY.identity.roleLabel} <span className="text-teal">*</span>
-              </p>
-              <p className="text-xs text-ink-muted">{COPY.identity.roleWhy}</p>
-              <div
-                className="grid grid-cols-2 gap-2"
-                role="group"
-                aria-labelledby="sr-role-label"
-                aria-required="true"
-              >
-                {ROLES.map(({ value, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    data-demo={value === 'strategist' ? 'onboarding-role-strategist' : undefined}
-                    className={cn(
-                      roleButtonClass,
-                      draft.roleArchetype === value && 'border-teal/40 text-ink',
-                    )}
-                    aria-pressed={draft.roleArchetype === value}
-                    onClick={() => {
-                      const next = value;
-                      setDraft({
-                        roleArchetype: next,
-                        ...(next !== 'other' ? { roleOtherDetail: '' } : {}),
-                      });
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
+            <section className="flex flex-col gap-4">
+              <div>
+                <h1 className="mb-2 text-2xl font-semibold tracking-tight text-ink">
+                  {COPY.identity.title}
+                </h1>
+                <p className="text-sm leading-relaxed text-ink-secondary">{COPY.identity.lead}</p>
               </div>
-            </div>
 
-            {draft.roleArchetype === 'other' && (
               <div className="flex flex-col gap-1">
-                <Label
-                  htmlFor="sr-role-other"
+                <label
+                  htmlFor="sr-callsign"
                   className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted"
                 >
-                  {COPY.identity.roleOtherLabel}
-                  <span className="text-teal"> *</span>
-                </Label>
-                <Input
-                  id="sr-role-other"
-                  name="roleOtherDetail"
-                  value={draft.roleOtherDetail}
-                  onChange={(e) =>
-                    setDraft({
-                      roleOtherDetail: e.target.value.slice(0, PROFILE_ROLE_OTHER_MAX_LEN),
-                    })
-                  }
-                  placeholder="e.g. humanitarian negotiator"
+                  {COPY.identity.callsignLabel} <span className="text-teal">*</span>
+                </label>
+                <p className="mb-1 text-xs text-ink-muted">{COPY.identity.callsignWhy}</p>
+                <input
+                  id="sr-callsign"
+                  name="callsign"
+                  autoComplete="nickname"
+                  data-demo="onboarding-callsign"
+                  value={draft.callsign}
+                  onChange={(e) => setDraft({ callsign: e.target.value })}
+                  placeholder="e.g. Ironveil, Delta-7, Wren"
                   className={callsignInputClass}
-                  maxLength={PROFILE_ROLE_OTHER_MAX_LEN}
                   aria-required="true"
-                  autoComplete="off"
                 />
-                <p className="text-xs text-ink-muted">{COPY.identity.roleOtherHint}</p>
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p
-                    className={cn(
-                      'text-[12px]',
-                      otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
-                        ? 'text-amber-400/90'
-                        : 'text-white/35',
-                    )}
-                  >
-                    {otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
-                      ? COPY.identity.roleOtherTooShort
-                      : `${PROFILE_ROLE_OTHER_MIN_LEN}–${PROFILE_ROLE_OTHER_MAX_LEN} characters.`}
-                  </p>
-                  <span className="tabular-nums text-[12px] text-white/35" aria-live="polite">
-                    {otherTrimmed.length} / {PROFILE_ROLE_OTHER_MAX_LEN}
-                  </span>
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <p
+                  className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted"
+                  id="sr-role-label"
+                >
+                  {COPY.identity.roleLabel} <span className="text-teal">*</span>
+                </p>
+                <p className="text-xs text-ink-muted">{COPY.identity.roleWhy}</p>
+                <div
+                  className="grid grid-cols-2 gap-2"
+                  role="group"
+                  aria-labelledby="sr-role-label"
+                  aria-required="true"
+                >
+                  {ROLES.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      data-demo={value === 'strategist' ? 'onboarding-role-strategist' : undefined}
+                      className={cn(
+                        roleButtonClass,
+                        draft.roleArchetype === value && 'border-teal/40 text-ink',
+                      )}
+                      aria-pressed={draft.roleArchetype === value}
+                      onClick={() => {
+                        const next = value;
+                        setDraft({
+                          roleArchetype: next,
+                          ...(next !== 'other' ? { roleOtherDetail: '' } : {}),
+                        });
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor={eraId} className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">
-                {COPY.identity.eraLabel}
-              </label>
-              <p className="mb-1 text-xs text-ink-muted">{COPY.identity.eraHint}</p>
-              <select
-                id={eraId}
-                data-demo="onboarding-era-trigger"
-                className={eraSelectClass}
-                value={eraValue}
-                onChange={(e) =>
-                  setDraft({ eraAffiliation: (e.target.value || '') as EraAffiliation })
-                }
-              >
-                <option value="">Select context (optional)</option>
-                {ERA_OPTIONS.map(({ value, label }) => (
-                  <option
-                    key={value}
-                    value={value}
-                    data-demo={value === 'contemporary' ? 'onboarding-era-item-contemporary' : undefined}
+              {draft.roleArchetype === 'other' && (
+                <div className="flex flex-col gap-1">
+                  <Label
+                    htmlFor="sr-role-other"
+                    className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted"
                   >
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </section>
-        </div>
+                    {COPY.identity.roleOtherLabel}
+                    <span className="text-teal"> *</span>
+                  </Label>
+                  <Input
+                    id="sr-role-other"
+                    name="roleOtherDetail"
+                    value={draft.roleOtherDetail}
+                    onChange={(e) =>
+                      setDraft({
+                        roleOtherDetail: e.target.value.slice(0, PROFILE_ROLE_OTHER_MAX_LEN),
+                      })
+                    }
+                    placeholder="e.g. humanitarian negotiator"
+                    className={callsignInputClass}
+                    maxLength={PROFILE_ROLE_OTHER_MAX_LEN}
+                    aria-required="true"
+                    autoComplete="off"
+                  />
+                  <p className="text-xs text-ink-muted">{COPY.identity.roleOtherHint}</p>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p
+                      className={cn(
+                        'text-[12px]',
+                        otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
+                          ? 'text-amber-400/90'
+                          : 'text-white/35',
+                      )}
+                    >
+                      {otherTrimmed.length > 0 && otherTrimmed.length < PROFILE_ROLE_OTHER_MIN_LEN
+                        ? COPY.identity.roleOtherTooShort
+                        : `${PROFILE_ROLE_OTHER_MIN_LEN}–${PROFILE_ROLE_OTHER_MAX_LEN} characters.`}
+                    </p>
+                    <span className="tabular-nums text-[12px] text-white/35" aria-live="polite">
+                      {otherTrimmed.length} / {PROFILE_ROLE_OTHER_MAX_LEN}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor={eraId}
+                  className="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted"
+                >
+                  {COPY.identity.eraLabel}
+                </label>
+                <p className="mb-1 text-xs text-ink-muted">{COPY.identity.eraHint}</p>
+                <select
+                  id={eraId}
+                  data-demo="onboarding-era-trigger"
+                  className={eraSelectClass}
+                  value={eraValue}
+                  onChange={(e) =>
+                    setDraft({ eraAffiliation: (e.target.value || '') as EraAffiliation })
+                  }
+                >
+                  <option value="">Select context (optional)</option>
+                  {ERA_OPTIONS.map(({ value, label }) => (
+                    <option
+                      key={value}
+                      value={value}
+                      data-demo={
+                        value === 'contemporary' ? 'onboarding-era-item-contemporary' : undefined
+                      }
+                    >
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </section>
+          </div>
         </div>
       </section>
 

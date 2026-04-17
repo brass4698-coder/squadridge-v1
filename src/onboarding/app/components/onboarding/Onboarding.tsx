@@ -43,7 +43,10 @@ function OnboardingInner() {
         ? decodeURIComponent(rawNext)
         : '/intent';
     const keepDemo = searchParams.get('demo') === '1';
-    const targetUrl = new URL(base, typeof window !== 'undefined' ? window.location.origin : 'https://squadridge.local');
+    const targetUrl = new URL(
+      base,
+      typeof window !== 'undefined' ? window.location.origin : 'https://squadridge.local',
+    );
     if (keepDemo) targetUrl.searchParams.set('demo', '1');
     navigate(`${targetUrl.pathname}${targetUrl.search}`, { replace: true });
   };
@@ -51,6 +54,10 @@ function OnboardingInner() {
   return <OnboardingFlow onComplete={handleComplete} />;
 }
 
+/**
+ * Onboarding — multi-step education and profile draft; syncs to Supabase when configured.
+ * Wrapped by {@link OnboardingProvider}; route is lazy-loaded from `App`.
+ */
 export function Onboarding() {
   return (
     <OnboardingProvider>

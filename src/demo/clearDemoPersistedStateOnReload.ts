@@ -1,6 +1,10 @@
-import { clearDemoSession, DEMO_SESSION_ID } from '../lib/demoSession';
-import { clearSessionIntent } from '../lib/intentStorage';
-import { clearMatchmakingSession, clearPendingMatchReveal } from '../lib/matchmakingSession';
+import {
+  clearDemoSession,
+  clearMatchmakingSession,
+  clearPendingMatchReveal,
+  clearSessionIntent,
+  DEMO_SESSION_ID,
+} from '../lib';
 import { ONBOARDING_DRAFT_STORAGE_KEY } from '../onboarding/app/components/onboarding/OnboardingContext';
 import { DEMO_WALKTHROUGH_STORAGE_KEY } from './demoScript';
 
@@ -9,7 +13,9 @@ const DEMO_COMPOSER_DRAFT_KEY = `squadridge-composer-draft:${DEMO_SESSION_ID}`;
 function isReloadNavigation(): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
     if (nav?.type === 'reload') return true;
   } catch {
     /* ignore */

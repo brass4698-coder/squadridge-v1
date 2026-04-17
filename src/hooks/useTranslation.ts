@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import TranslationWorker from '../workers/translation.worker.ts?worker';
 import type { WorkerRequest, WorkerResponse } from '../workers/translationWorkerTypes';
 
 /** If the WASM/model bundle never finishes loading, fall back to original text so the session stays usable. */
@@ -30,44 +31,39 @@ export function useTranslation() {
     setModelLoading(false);
   }, []);
 
-  const attachWorkerHandlers = useCallback(
-    (w: Worker) => {
-      w.onmessage = (ev: MessageEvent<WorkerResponse>) => {
-        const data = ev.data;
-        const wait = pending.current.get(data.id);
-        if (!wait) return;
-        pending.current.delete(data.id);
-        inFlight.current -= 1;
-        if (inFlight.current <= 0) {
-          inFlight.current = 0;
-          setModelLoading(false);
-        }
-
-        if (data.kind === 'result') {
-          wait.resolve(data.text);
-        } else {
-          wait.reject(new Error(data.message));
-        }
-      };
-
-      w.onerror = (err) => {
-        for (const [, p] of pending.current) {
-          p.reject(new Error(err.message));
-        }
-        pending.current.clear();
+  const attachWorkerHandlers = useCallback((w: Worker) => {
+    w.onmessage = (ev: MessageEvent<WorkerResponse>) => {
+      const data = ev.data;
+      const wait = pending.current.get(data.id);
+      if (!wait) return;
+      pending.current.delete(data.id);
+      inFlight.current -= 1;
+      if (inFlight.current <= 0) {
         inFlight.current = 0;
         setModelLoading(false);
-      };
-    },
-    [],
-  );
+      }
+
+      if (data.kind === 'result') {
+        wait.resolve(data.text);
+      } else {
+        wait.reject(new Error(data.message));
+      }
+    };
+
+    w.onerror = (err) => {
+      for (const [, p] of pending.current) {
+        p.reject(new Error(err.message));
+      }
+      pending.current.clear();
+      inFlight.current = 0;
+      setModelLoading(false);
+    };
+  }, []);
 
   const ensureWorker = useCallback((): Worker | null => {
     if (workerRef.current) return workerRef.current;
     try {
-      const w = new Worker(new URL('../workers/translation.worker.ts', import.meta.url), {
-        type: 'module',
-      });
+      const w = new TranslationWorker();
       attachWorkerHandlers(w);
       workerRef.current = w;
       return w;
@@ -94,21 +90,24 @@ export function useTranslation() {
     return () => clearTimeout(t);
   }, [modelLoading, settleAllPendingWithFallback]);
 
-  const translate = useCallback((text: string, targetLang: string): Promise<string> => {
-    const w = ensureWorker();
-    if (!w) {
-      return Promise.resolve(text);
-    }
+  const translate = useCallback(
+    (text: string, targetLang: string): Promise<string> => {
+      const w = ensureWorker();
+      if (!w) {
+        return Promise.resolve(text);
+      }
 
-    return new Promise((resolve, reject) => {
-      const id = ++nextId.current;
-      pending.current.set(id, { resolve, reject, fallback: text });
-      inFlight.current += 1;
-      setModelLoading(true);
-      const req: WorkerRequest = { id, kind: 'translate', text, targetLang };
-      w.postMessage(req);
-    });
-  }, [ensureWorker]);
+      return new Promise((resolve, reject) => {
+        const id = ++nextId.current;
+        pending.current.set(id, { resolve, reject, fallback: text });
+        inFlight.current += 1;
+        setModelLoading(true);
+        const req: WorkerRequest = { id, kind: 'translate', text, targetLang };
+        w.postMessage(req);
+      });
+    },
+    [ensureWorker],
+  );
 
   return { translate, modelLoading };
 }

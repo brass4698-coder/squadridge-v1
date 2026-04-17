@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../contexts/AuthContext';
 import { AuthContext } from '../contexts/AuthContext';
-import { LAST_SQUAD_KEY } from '../lib/squad';
+import { LAST_SQUAD_KEY } from '../lib';
 import { useAppNavContext } from './useAppNavContext';
 
 const mockUseProfile = vi.fn();
@@ -21,7 +21,13 @@ function makeSession(partial?: Partial<Session>): Session {
     expires_in: 3600,
     expires_at: Math.floor(Date.now() / 1000) + 3600,
     token_type: 'bearer',
-    user: { id: 'user-1', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} },
+    user: {
+      id: 'user-1',
+      aud: 'authenticated',
+      role: 'authenticated',
+      app_metadata: {},
+      user_metadata: {},
+    },
     ...partial,
   } as Session;
 }

@@ -3,7 +3,7 @@ import {
   fetchProfile as fetchProfileCore,
   upsertProfilePatch as upsertProfilePatchCore,
   type ProfileRow,
-} from '../../../lib/profile';
+} from '../../../lib';
 import { getSupabaseBrowserClient } from './client';
 
 export type { ProfileRow };

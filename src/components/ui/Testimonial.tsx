@@ -1,4 +1,4 @@
-import { cn } from '../../lib/cn';
+import { cn } from '../../lib';
 
 export interface TestimonialProps {
   quote: string;
@@ -7,10 +7,18 @@ export interface TestimonialProps {
   id?: string;
 }
 
-export function Testimonial({ quote, attribution, className, id = 'testimonial-quote' }: TestimonialProps) {
+export function Testimonial({
+  quote,
+  attribution,
+  className,
+  id = 'testimonial-quote',
+}: TestimonialProps) {
   return (
     <figure
-      className={cn('mx-auto max-w-copy border-l-[3px] border-teal bg-transparent pl-6 shadow-none', className)}
+      className={cn(
+        'mx-auto max-w-copy border-l-[3px] border-teal bg-transparent pl-6 shadow-none',
+        className,
+      )}
       aria-labelledby={id}
     >
       <blockquote className="m-0">

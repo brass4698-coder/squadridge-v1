@@ -1,8 +1,13 @@
 import { useCallback } from 'react';
 import { cn } from '../../ui/utils';
 import { upsertProfilePatch } from '../../../../lib/supabase/profile';
-import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib/profile';
-import { useCallsignSync, useOnboarding, type EraAffiliation, type RoleArchetype } from '../OnboardingContext';
+import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib';
+import {
+  useCallsignSync,
+  useOnboarding,
+  type EraAffiliation,
+  type RoleArchetype,
+} from '../OnboardingContext';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
@@ -39,10 +44,7 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
     draft.roleArchetype !== 'other' ||
     (otherTrimmed.length >= PROFILE_ROLE_OTHER_MIN_LEN &&
       otherTrimmed.length <= PROFILE_ROLE_OTHER_MAX_LEN);
-  const valid =
-    draft.callsign.trim().length >= 2 &&
-    draft.roleArchetype !== '' &&
-    otherDetailValid;
+  const valid = draft.callsign.trim().length >= 2 && draft.roleArchetype !== '' && otherDetailValid;
 
   const handleNext = useCallback(async () => {
     if (!valid) return;
@@ -50,8 +52,7 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
       callsign: draft.callsign.trim(),
       role_archetype: draft.roleArchetype,
       role_other_detail: draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
-      era_affiliation:
-        draft.eraAffiliation === '' ? 'contemporary' : draft.eraAffiliation,
+      era_affiliation: draft.eraAffiliation === '' ? 'contemporary' : draft.eraAffiliation,
     });
     onNext?.();
   }, [draft, onNext, valid]);
@@ -71,8 +72,8 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
             <div className={`flex flex-col ${obH1ToLead}`}>
               <h1 className={obH1}>Identity model</h1>
               <p className={obBody}>
-                Your callsign is how the room knows you. No real name. No rank. No unit. Just the handle you bring to
-                the table.
+                Your callsign is how the room knows you. No real name. No rank. No unit. Just the
+                handle you bring to the table.
               </p>
             </div>
 
@@ -123,7 +124,9 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                           : undefined
                     }
                     className={cn(
-                      draft.roleArchetype === value ? ROLE_BUTTON_ACTIVE_CLASS : ROLE_BUTTON_INACTIVE_CLASS,
+                      draft.roleArchetype === value
+                        ? ROLE_BUTTON_ACTIVE_CLASS
+                        : ROLE_BUTTON_INACTIVE_CLASS,
                     )}
                     aria-pressed={draft.roleArchetype === value}
                     onClick={() => {
@@ -188,13 +191,17 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                 data-demo="onboarding-era-trigger"
                 className={ONBOARDING_INPUT_CLASS}
                 value={eraValue}
-                onChange={(e) => setDraft({ eraAffiliation: (e.target.value || '') as EraAffiliation })}
+                onChange={(e) =>
+                  setDraft({ eraAffiliation: (e.target.value || '') as EraAffiliation })
+                }
               >
                 {ERAS.map(({ value, label }) => (
                   <option
                     key={value}
                     value={value}
-                    data-demo={value === 'contemporary' ? 'onboarding-era-item-contemporary' : undefined}
+                    data-demo={
+                      value === 'contemporary' ? 'onboarding-era-item-contemporary' : undefined
+                    }
                   >
                     {label}
                   </option>

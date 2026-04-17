@@ -1,6 +1,6 @@
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../lib/database.types';
+import type { Database } from '../lib';
 
 export type MessageRow = Database['public']['Tables']['messages']['Row'];
 
@@ -67,7 +67,7 @@ export function createSupabaseMessagesStub(options: {
   const stub = {
     initialMessages: options.initialMessages ?? [],
     backfillMessages: options.backfillMessages ?? [],
-    queryError: options.queryError ?? null as { message: string } | null,
+    queryError: options.queryError ?? (null as { message: string } | null),
     removedChannels: [] as unknown[],
 
     rpc(
@@ -149,7 +149,8 @@ export function createSupabaseMessagesStub(options: {
               const seq = options.subscribeStatusSequence;
               const status =
                 seq && seq.length > 0
-                  ? (seq[Math.min(call - 1, seq.length - 1)] ?? REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)
+                  ? (seq[Math.min(call - 1, seq.length - 1)] ??
+                    REALTIME_SUBSCRIBE_STATES.SUBSCRIBED)
                   : call === 1 && options.firstSubscribeStatus
                     ? options.firstSubscribeStatus
                     : REALTIME_SUBSCRIBE_STATES.SUBSCRIBED;

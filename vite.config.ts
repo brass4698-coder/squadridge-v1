@@ -17,6 +17,33 @@ export default defineConfig(({ mode }) => {
       globals: false,
       include: ['src/**/*.{test,spec}.{ts,tsx}'],
       setupFiles: ['./src/test/setupTests.ts'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json-summary', 'html', 'lcov'],
+        reportsDirectory: './coverage',
+        /**
+         * Critical paths measured for baseline thresholds (auth guard, session gate, ZK helpers, squad bootstrap).
+         * Excludes `zkAdapter.runVerification` (Edge + dynamic imports); stub path is covered via `zkVerifier` tests.
+         */
+        include: [
+          'src/components/auth/RequireAuth.tsx',
+          'src/components/session/SessionAccess.tsx',
+          'src/lib/authUrls.ts',
+          'src/lib/squad.ts',
+          'src/lib/zkVerifier.ts',
+          'src/lib/zk/buildAnonymityGroup.ts',
+          'src/lib/zk/semaphoreFieldEncoding.ts',
+          'src/lib/zk/semaphoreIdentityStorage.ts',
+          'src/lib/zk/serializeSemaphoreProof.ts',
+        ],
+        exclude: ['**/*.d.ts', '**/*.test.*', '**/*.spec.*', '**/test/**'],
+        thresholds: {
+          lines: 60,
+          statements: 60,
+          functions: 55,
+          branches: 50,
+        },
+      },
     },
     worker: {
       format: 'es',

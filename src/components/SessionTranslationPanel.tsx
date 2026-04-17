@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useUserPreferences } from '../hooks/useUserPreferences';
-import { COMMON_LANGUAGES, nativeNameForCode } from '../lib/i18n/languages';
+import { useUserPreferences } from '../hooks';
+import { COMMON_LANGUAGES, nativeNameForCode } from '../lib';
 import { setPreferredLanguage, setTranslationEnabled } from '../store/userPreferences';
 
 const BANNER_DONE_KEY = 'squadridge:translationLoadingBannerDone';
@@ -74,8 +74,8 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
           Translation is loading for your language — messages will appear in {bannerLang} shortly.
           {showSlowHint ? (
             <span className="mt-2 block text-[0.8rem] text-[#8892a4]">
-              First load can take a while on slow networks (the model is large). If the wait is too long, we’ll
-              temporarily show the original text until you reconnect.
+              First load can take a while on slow networks (the model is large). If the wait is too
+              long, we’ll temporarily show the original text until you reconnect.
             </span>
           ) : null}
         </p>
@@ -92,7 +92,9 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
             checked={translationEnabled}
             onChange={(e) => setTranslationEnabled(e.target.checked)}
           />
-          <span className="font-sans text-[0.9rem] text-[#e2e8f0]">Translate messages to your language</span>
+          <span className="font-sans text-[0.9rem] text-[#e2e8f0]">
+            Translate messages to your language
+          </span>
         </label>
 
         <div className="mt-4">

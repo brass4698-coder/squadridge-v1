@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib/env';
+import { isSupabaseConfigured } from '../lib';
 
 export function SignInPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const nextRaw = searchParams.get('next');
   const nextPath =
-    nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//') ? decodeURIComponent(nextRaw) : '/';
+    nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
+      ? decodeURIComponent(nextRaw)
+      : '/';
 
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
@@ -51,10 +53,14 @@ export function SignInPage() {
     return (
       <div className="relative mx-auto w-full max-w-copy px-md py-12">
         <p className="font-sans text-body-lg text-[#8892a4]">
-          Supabase is not configured. Add <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a
-          publishable or anon key to use sign-in.
+          Supabase is not configured. Add{' '}
+          <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a publishable or anon
+          key to use sign-in.
         </p>
-        <Link to="/" className="mt-6 inline-block text-sm font-medium text-teal-light underline-offset-4 hover:underline">
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm font-medium text-teal-light underline-offset-4 hover:underline"
+        >
           Back to home
         </Link>
       </div>
@@ -73,7 +79,11 @@ export function SignInPage() {
         </p>
         <h1
           className="mt-2 font-heading font-extrabold text-[#f1f5f9]"
-          style={{ fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', letterSpacing: '-0.03em', lineHeight: 1.1 }}
+          style={{
+            fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+          }}
         >
           Sign in
         </h1>
@@ -84,7 +94,8 @@ export function SignInPage() {
         {sent ? (
           <div className="mt-10 rounded-lg border border-[#1e2a3a] bg-[#0f1623] px-5 py-6">
             <p className="mb-0 font-sans text-[0.95rem] text-[#c4cdd9]">
-              Check your inbox for the sign-in link. After you open it, you&apos;ll return here and we&apos;ll route you
+              Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
+              we&apos;ll route you
               {nextPath !== '/' ? ' to your squad room.' : '.'}
             </p>
           </div>
@@ -96,7 +107,10 @@ export function SignInPage() {
               </p>
             ) : null}
             <div className="space-y-2">
-              <label htmlFor="signin-email" className="block font-sans text-[0.8rem] font-medium text-[#a8b2c1]">
+              <label
+                htmlFor="signin-email"
+                className="block font-sans text-[0.8rem] font-medium text-[#a8b2c1]"
+              >
                 Email
               </label>
               <input
@@ -123,7 +137,10 @@ export function SignInPage() {
         )}
 
         <p className="mt-10 font-sans text-[0.85rem] text-[#4b5563]">
-          <Link to="/" className="text-[#8892a4] underline-offset-4 hover:text-[#c4cdd9] hover:underline">
+          <Link
+            to="/"
+            className="text-[#8892a4] underline-offset-4 hover:text-[#c4cdd9] hover:underline"
+          >
             Back to home
           </Link>
         </p>

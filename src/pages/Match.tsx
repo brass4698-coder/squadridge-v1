@@ -2,22 +2,21 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
-import { isDemoSquadShortcutsEnabled, isSupabaseConfigured } from '../lib/env';
-import { pollMatchmakingSnapshot } from '../lib/matchmakingClient';
-import type { MatchmakingSnapshot } from '../lib/matchmakingClient';
 import {
+  formatMatchWaitHint,
+  isDemoSquadShortcutsEnabled,
+  isSupabaseConfigured,
   MATCH_QUEUE_NO_SERVER_TIMEOUT,
   MATCHMAKING_SIDE_SIZE,
   MATCHED_SQUAD_TTL_HOURS,
-} from '../lib/matchmakingConstants';
-import { formatMatchWaitHint } from '../lib/matchmakingEstimate';
-import {
+  pollMatchmakingSnapshot,
   clearMatchmakingSession,
   clearPendingMatchReveal,
   readMatchmakingSession,
   readPendingMatchReveal,
-} from '../lib/matchmakingSession';
-import { setLastSquadIdInStorage } from '../lib/squad';
+  setLastSquadIdInStorage,
+  type MatchmakingSnapshot,
+} from '../lib';
 import { DEMO_WALKTHROUGH_STORAGE_KEY } from '../demo/demoScript';
 
 /** Poll pool snapshot while waiting; Realtime on `match_queue` also triggers refresh. */
@@ -35,6 +34,10 @@ type Gate =
   /** Instant match from intent: always pass through this page before `/session/:id`. */
   | 'instant_reveal';
 
+/**
+ * Match — matchmaking gate: pool snapshot, narrative beats, and navigation into `/session/:squadId` when matched.
+ * Polls and/or relies on Realtime for queue updates; supports guided demo when `?demo=1` and demo shortcuts are enabled.
+ */
 export function Match() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -204,7 +207,10 @@ export function Match() {
   if (gate === 'loading') {
     return (
       <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-        <div className="h-10 w-10 animate-pulse rounded-full border-2 border-teal-500/40" aria-hidden />
+        <div
+          className="h-10 w-10 animate-pulse rounded-full border-2 border-teal-500/40"
+          aria-hidden
+        />
         <p className="mt-6 font-sans text-sm text-slate-500">Loading matching…</p>
       </div>
     );
@@ -215,7 +221,9 @@ export function Match() {
       const canDemo = isDemoSquadShortcutsEnabled();
       return (
         <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-          <h2 className="font-heading text-xl font-semibold text-slate-100">Matching needs Supabase</h2>
+          <h2 className="font-heading text-xl font-semibold text-slate-100">
+            Matching needs Supabase
+          </h2>
           <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-slate-400">
             {canDemo
               ? 'Connect a Supabase project for live queues and rooms, or run the short offline guided demo that walks match → sample session → ledger.'
@@ -233,7 +241,10 @@ export function Match() {
             <Link to="/intent" className="text-teal underline-offset-4 hover:underline">
               Set intention
             </Link>
-            <Link to="/" className="font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline">
+            <Link
+              to="/"
+              className="font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+            >
               Home
             </Link>
           </div>
@@ -245,12 +256,15 @@ export function Match() {
       <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
         <h2 className="font-heading text-xl font-semibold text-slate-100">Start from intent</h2>
         <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-slate-400">
-          Matching starts after you set your intention and choose a perspective. That keeps the room balanced across
-          sides.
+          Matching starts after you set your intention and choose a perspective. That keeps the room
+          balanced across sides.
         </p>
         <p className="mt-6 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
           Need a verified role?{' '}
-          <Link to="/verify" className="font-medium text-teal-light underline-offset-4 hover:underline">
+          <Link
+            to="/verify"
+            className="font-medium text-teal-light underline-offset-4 hover:underline"
+          >
             Verify your account
           </Link>
           .
@@ -277,7 +291,10 @@ export function Match() {
             {isDemo ? 'Guided demo' : 'Opening your room'}
           </p>
           <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
-            <div className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping" aria-hidden />
+            <div
+              className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping"
+              aria-hidden
+            />
             <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20" />
           </div>
           <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-100 md:text-3xl">
@@ -312,29 +329,36 @@ export function Match() {
     <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
       <div className="relative flex max-w-lg flex-col items-center text-center">
         <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
-          <div className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping" aria-hidden />
+          <div
+            className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping"
+            aria-hidden
+          />
           <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20" />
         </div>
         <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-100 md:text-3xl">
           Finding your squad
         </h2>
         <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400 md:text-base">
-          We form a room when there are at least {MATCHMAKING_SIDE_SIZE} people waiting on perspective A and{' '}
-          {MATCHMAKING_SIDE_SIZE} on B in the same pool. Low traffic means longer waits. Matched squads expire after
-          about {MATCHED_SQUAD_TTL_HOURS} hours.
+          We form a room when there are at least {MATCHMAKING_SIDE_SIZE} people waiting on
+          perspective A and {MATCHMAKING_SIDE_SIZE} on B in the same pool. Low traffic means longer
+          waits. Matched squads expire after about {MATCHED_SQUAD_TTL_HOURS} hours.
         </p>
         <p className="mt-4 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
           Need a verified role?{' '}
-          <Link to="/verify" className="font-medium text-teal-light underline-offset-4 hover:underline">
+          <Link
+            to="/verify"
+            className="font-medium text-teal-light underline-offset-4 hover:underline"
+          >
             Verify your account
           </Link>
           .
         </p>
         {import.meta.env.DEV ? (
           <p className="mt-4 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
-            How updates work: this page calls the matchmaking snapshot on an interval and when this tab becomes visible,
-            and subscribes to Realtime changes on your <code className="text-slate-400">match_queue</code> row so we react
-            as soon as the server assigns you.
+            How updates work: this page calls the matchmaking snapshot on an interval and when this
+            tab becomes visible, and subscribes to Realtime changes on your{' '}
+            <code className="text-slate-400">match_queue</code> row so we react as soon as the
+            server assigns you.
           </p>
         ) : null}
 
@@ -348,11 +372,16 @@ export function Match() {
               <span className="tabular-nums text-slate-200">{q.queue_position}</span>
             </p>
             <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-500">
-              Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. The room opens when we can take {MATCHMAKING_SIDE_SIZE}{' '}
-              from each side.
+              Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. The room opens when we can
+              take {MATCHMAKING_SIDE_SIZE} from each side.
             </p>
             <p className="mt-3 text-[0.8rem] leading-relaxed text-slate-500">
-              {formatMatchWaitHint(q.waiting_a, q.waiting_b, q.queue_position, MATCHMAKING_SIDE_SIZE)}
+              {formatMatchWaitHint(
+                q.waiting_a,
+                q.waiting_b,
+                q.queue_position,
+                MATCHMAKING_SIDE_SIZE,
+              )}
             </p>
           </div>
         ) : (
@@ -376,8 +405,9 @@ export function Match() {
         </div>
 
         <p className="mt-10 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
-          Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people arrive together.
-          Until then, we’ll hold your spot in the queue while this tab stays open. {MATCH_QUEUE_NO_SERVER_TIMEOUT}
+          Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people
+          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.{' '}
+          {MATCH_QUEUE_NO_SERVER_TIMEOUT}
         </p>
 
         {loadError ? (

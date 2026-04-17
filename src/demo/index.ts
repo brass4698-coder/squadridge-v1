@@ -1,6 +1,7 @@
 export { DEMO_PERSONA } from './demoPersona';
 export {
   DEMO_APPENDIX,
+  DEMO_FIRST_WALKTHROUGH_PATH,
   DEMO_MAIN_STEPS,
   DEMO_WALKTHROUGH_STORAGE_KEY,
   demoSteps,

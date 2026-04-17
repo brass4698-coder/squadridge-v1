@@ -1,3 +1,55 @@
+import { z } from 'zod';
+
+/** Boolean flags exposed as the strings `"true"` / `"false"` in Vite env. */
+const viteBoolString = z.enum(['true', 'false']);
+
+/** Empty or unset in `.env` becomes `''` or `undefined` — treat as optional. */
+const optionalUrlOrEmpty = z.union([z.string().url(), z.literal('')]).optional();
+
+const envSchema = z
+  .object({
+    VITE_SITE_URL: optionalUrlOrEmpty,
+    VITE_SUPABASE_URL: z.string().url(),
+    VITE_SUPABASE_ANON_KEY: z.string().optional(),
+    VITE_SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
+    VITE_ENABLE_AI: viteBoolString.optional(),
+    VITE_ENABLE_REMOTE_TONE: viteBoolString.optional(),
+    VITE_DEBUG_CONNECTION_LOG: viteBoolString.optional(),
+    VITE_ENABLE_DEMO_SQUAD: viteBoolString.optional(),
+    VITE_ZK_STUB: viteBoolString.optional(),
+    VITE_ZKTLS_LABS: viteBoolString.optional(),
+    VITE_WAITLIST_FORM_URL: optionalUrlOrEmpty,
+    VITE_CONTACT_EMAIL: z.union([z.literal(''), z.string().email()]).optional(),
+    VITE_SENTRY_DSN: z.union([z.string().url(), z.literal('')]).optional(),
+    VITE_SENTRY_ENVIRONMENT: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const pub = data.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+    const anon = data.VITE_SUPABASE_ANON_KEY?.trim();
+    if (!pub && !anon) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Set VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY',
+        path: ['VITE_SUPABASE_PUBLISHABLE_KEY'],
+      });
+    }
+  });
+
+export type ValidatedViteEnv = z.infer<typeof envSchema>;
+
+/**
+ * Validates all `VITE_*` variables from `import.meta.env` at startup.
+ * Call from the app entry (`env-bootstrap.ts`) before other application modules load.
+ */
+export const validateEnv = (): ValidatedViteEnv => {
+  const result = envSchema.safeParse(import.meta.env);
+  if (!result.success) {
+    console.error('Invalid environment:', result.error.flatten());
+    throw new Error('Environment validation failed');
+  }
+  return result.data;
+};
+
 const env = import.meta.env;
 
 /**

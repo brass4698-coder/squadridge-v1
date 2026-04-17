@@ -2,19 +2,22 @@ import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isDemoSquadShortcutsEnabled, isSupabaseConfigured } from '../lib/env';
-import { enqueueMatchmaking } from '../lib/matchmakingClient';
-import { poolKeyFromIntentTags } from '../lib/matchmakingPoolKey';
-import { setMatchmakingSession, type MatchPerspective } from '../lib/matchmakingSession';
-import { clearSessionIntent, writeSessionIntent } from '../lib/intentStorage';
-import type { AppErrorCode } from '../lib/appErrors';
 import {
+  captureAppError,
   classifyClientError,
+  clearSessionIntent,
+  enqueueMatchmaking,
+  isDemoSquadShortcutsEnabled,
+  isSupabaseConfigured,
   matchmakingUnavailableClassified,
-} from '../lib/appErrors';
-import { captureAppError } from '../lib/sentry';
-import { setPendingMatchReveal } from '../lib/matchmakingSession';
-import { setLastSquadIdInStorage } from '../lib/squad';
+  poolKeyFromIntentTags,
+  setLastSquadIdInStorage,
+  setMatchmakingSession,
+  setPendingMatchReveal,
+  writeSessionIntent,
+  type AppErrorCode,
+  type MatchPerspective,
+} from '../lib';
 
 const MAX_CHARS = 300;
 
@@ -144,7 +147,10 @@ export function IntentPage() {
   if (!configured) {
     const demoPath = isDemoSquadShortcutsEnabled();
     return (
-      <section className="mx-auto w-full max-w-copy px-md py-12" aria-labelledby="intent-unconfigured">
+      <section
+        className="mx-auto w-full max-w-copy px-md py-12"
+        aria-labelledby="intent-unconfigured"
+      >
         <h1 id="intent-unconfigured" className="font-heading text-fluid-h2 text-gray-light">
           {demoPath ? 'Try the guided path (offline demo)' : 'Matching unavailable'}
         </h1>
@@ -168,7 +174,10 @@ export function IntentPage() {
               >
                 Start tour from home
               </Link>
-              <Link to="/" className="inline-flex font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline">
+              <Link
+                to="/"
+                className="inline-flex font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+              >
                 Home
               </Link>
             </>
@@ -258,8 +267,8 @@ export function IntentPage() {
             Perspective for matching — pick one
           </legend>
           <p className="mb-3 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
-            We need people on both sides in the room at once. “A” and “B” are neutral labels — use them to self-sort into
-            two groups (not “good vs bad”).
+            We need people on both sides in the room at once. “A” and “B” are neutral labels — use
+            them to self-sort into two groups (not “good vs bad”).
           </p>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             {(
@@ -311,7 +320,10 @@ export function IntentPage() {
         </button>
 
         {error ? (
-          <div className="flex flex-col gap-3 rounded-[10px] border border-amber/35 bg-[#1a1408]/80 px-4 py-3" role="alert">
+          <div
+            className="flex flex-col gap-3 rounded-[10px] border border-amber/35 bg-[#1a1408]/80 px-4 py-3"
+            role="alert"
+          >
             <p className="font-sans text-[0.875rem] leading-relaxed text-[#f5d7a3]">{error}</p>
             {import.meta.env.DEV && errorCode ? (
               <p className="font-mono text-[0.7rem] text-amber/90">Code: {errorCode}</p>

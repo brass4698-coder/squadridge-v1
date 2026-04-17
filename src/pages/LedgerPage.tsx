@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import {
-  LedgerPageSkeletonCards,
-  LedgerPageSkeletonRows,
-} from '../components/ledger/LedgerPageSkeleton';
-import { useLedgerProposalBySlug, useLedgerPublishedList } from '../hooks/useLedgerProposals';
-import type { Json } from '../lib/database.types';
-import { DEMO_PROPOSAL_ID, DEMO_SESSION_ID } from '../lib/demoSession';
-import { isSupabaseConfigured } from '../lib/env';
+import { LedgerPageSkeletonCards, LedgerPageSkeletonRows } from '../components';
+import { useLedgerProposalBySlug, useLedgerPublishedList } from '../hooks';
+import { DEMO_PROPOSAL_ID, DEMO_SESSION_ID, isSupabaseConfigured, type Json } from '../lib';
 
 function parseConsensusItems(raw: Json): string[] {
   if (!Array.isArray(raw)) return [];
@@ -60,10 +55,16 @@ function LedgerProposalDetailRoute({
     return (
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
         <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
-          <p className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-sm text-amber" role="alert">
+          <p
+            className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-sm text-amber"
+            role="alert"
+          >
             {q.error instanceof Error ? q.error.message : 'Could not load this proposal.'}
           </p>
-          <Link to="/ledger" className="mt-6 inline-block font-sans text-sm text-teal-light underline-offset-4 hover:underline">
+          <Link
+            to="/ledger"
+            className="mt-6 inline-block font-sans text-sm text-teal-light underline-offset-4 hover:underline"
+          >
             Back to ledger
           </Link>
         </div>
@@ -96,15 +97,17 @@ function LedgerProposalFromDb({
   };
 }) {
   const bullets = parseConsensusItems(row.consensus_items);
-  const dateStr = row.published_at
-    ? new Date(row.published_at).toISOString().slice(0, 10)
-    : '—';
+  const dateStr = row.published_at ? new Date(row.published_at).toISOString().slice(0, 10) : '—';
 
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
       <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
-        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">Ledger</p>
-        <p className="mt-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">Published</p>
+        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
+          Ledger
+        </p>
+        <p className="mt-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
+          Published
+        </p>
         <h1
           className="mb-0 mt-2 font-heading text-ink"
           style={{
@@ -121,9 +124,13 @@ function LedgerProposalFromDb({
         </p>
 
         <div className="mt-8 min-w-0 overflow-x-auto rounded-xl border border-[#1e2a3d] bg-[#0f1623]/60 p-6">
-          <p className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">{row.summary}</p>
+          <p className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
+            {row.summary}
+          </p>
 
-          <h2 className="mt-8 break-words font-heading text-section-title font-bold text-ink">Consensus output</h2>
+          <h2 className="mt-8 break-words font-heading text-section-title font-bold text-ink">
+            Consensus output
+          </h2>
           <ol className="mt-4 list-decimal space-y-3 pl-5 font-sans text-body-lg font-normal text-ink-secondary [word-break:break-word]">
             {bullets.map((line, i) => (
               <li key={i}>{line}</li>
@@ -152,10 +159,16 @@ function LedgerProposalFromDb({
           <Link to="/match" className="text-teal-light underline-offset-4 hover:underline">
             Replay match flow
           </Link>
-          <Link to="/ledger" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+          <Link
+            to="/ledger"
+            className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
+          >
             All ledger entries
           </Link>
-          <Link to="/" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+          <Link
+            to="/"
+            className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
+          >
             Home
           </Link>
         </div>
@@ -192,41 +205,46 @@ function LedgerDemoProposalDetail() {
             <span className="rounded border border-teal-500/40 bg-teal-500/10 px-2 py-0.5 font-heading text-[0.65rem] font-semibold uppercase tracking-wider text-teal-light">
               Published
             </span>
-            <span className="font-sans text-xs text-ink-muted">ZK-attested summary · demo fixture</span>
+            <span className="font-sans text-xs text-ink-muted">
+              ZK-attested summary · demo fixture
+            </span>
           </div>
 
           <div className="mt-4 min-w-0 space-y-2 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
             <p className="mb-0 break-words">
-              <span className="font-medium text-ink-muted">Objective.</span>{' '}
-              Reduce civilian harm and miscoordination during corridor movements in a mixed-control zone.
+              <span className="font-medium text-ink-muted">Objective.</span> Reduce civilian harm
+              and miscoordination during corridor movements in a mixed-control zone.
             </p>
             <p className="mb-0 break-words">
-              <span className="font-medium text-ink-muted">Scope.</span>{' '}
-              Temporary displacement corridors where armed actors agree to time-boxed movement windows for civilians.
+              <span className="font-medium text-ink-muted">Scope.</span> Temporary displacement
+              corridors where armed actors agree to time-boxed movement windows for civilians.
             </p>
           </div>
 
-          <h2 className="mt-5 break-words font-heading text-section-title font-bold text-ink">Consensus output</h2>
+          <h2 className="mt-5 break-words font-heading text-section-title font-bold text-ink">
+            Consensus output
+          </h2>
           <ol className="mt-4 list-decimal space-y-3 pl-5 font-sans text-body-lg font-normal text-ink-secondary [word-break:break-word]">
             <li>
-              Corridor coordinators establish a neutral coordination frequency and a single written chain of custody for
-              corridor access before any movement windows open.
+              Corridor coordinators establish a neutral coordination frequency and a single written
+              chain of custody for corridor access before any movement windows open.
             </li>
             <li>
-              Corridor stewards post visible de-escalation markers at agreed intervals; if any marker is contested, all
-              crossings pause for 15 minutes while the channel resolves the incident.
+              Corridor stewards post visible de-escalation markers at agreed intervals; if any
+              marker is contested, all crossings pause for 15 minutes while the channel resolves the
+              incident.
             </li>
             <li>
-              Displaced civilians are routed through three pre-cleared nodes only; no ad-hoc detours occur without
-              unanimous squad sign-off on the shared channel.
+              Displaced civilians are routed through three pre-cleared nodes only; no ad-hoc detours
+              occur without unanimous squad sign-off on the shared channel.
             </li>
           </ol>
 
           <p className="mt-5 rounded-lg border border-dashed border-[#2d3f55] bg-[#0b0f14]/80 p-4 font-sans text-[0.8rem] leading-relaxed text-ink-muted">
             <span className="block">
-              <span className="font-medium text-ink-subtle">Impact note.</span>{' '}
-              These rules are designed to lower the risk of cross-fire, corridor abuse, and last-minute rerouting that
-              leaves families exposed in transit.
+              <span className="font-medium text-ink-subtle">Impact note.</span> These rules are
+              designed to lower the risk of cross-fire, corridor abuse, and last-minute rerouting
+              that leaves families exposed in transit.
             </span>
           </p>
 
@@ -239,13 +257,22 @@ function LedgerDemoProposalDetail() {
           <Link to="/match" className="text-teal-light underline-offset-4 hover:underline">
             Replay match flow
           </Link>
-          <Link to={`/session/${DEMO_SESSION_ID}`} className="text-teal-light underline-offset-4 hover:underline">
+          <Link
+            to={`/session/${DEMO_SESSION_ID}`}
+            className="text-teal-light underline-offset-4 hover:underline"
+          >
             Back to squad session
           </Link>
-          <Link to="/ledger" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+          <Link
+            to="/ledger"
+            className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
+          >
             All ledger entries
           </Link>
-          <Link to="/" className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+          <Link
+            to="/"
+            className="text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
+          >
             Home
           </Link>
         </div>
@@ -291,7 +318,9 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
       <div className="relative z-[1] mx-auto w-full max-w-6xl px-md py-8 md:py-10">
         <div className="flex flex-col gap-4 border-b border-[#1a2236]/90 pb-8 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">Ledger</p>
+            <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
+              Ledger
+            </p>
             <h1
               className="mb-0 mt-2 flex flex-wrap items-end gap-x-3 gap-y-2 font-heading text-ink"
               style={{
@@ -305,8 +334,8 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               <span className="min-w-0">Ledger</span>
             </h1>
             <p className="mt-3 max-w-2xl font-sans text-body-lg font-normal leading-relaxed text-ink-secondary">
-              A public archive of cross-border squad consensus proposals — citable, timestamped, and verified without exposing
-              who sat in the room.
+              A public archive of cross-border squad consensus proposals — citable, timestamped, and
+              verified without exposing who sat in the room.
             </p>
           </div>
           <button
@@ -320,19 +349,29 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
 
         {unknownProposalId ? (
           <p className="mt-6 rounded-lg border border-amber/25 bg-amber/5 px-4 py-3 font-sans text-sm text-ink-secondary">
-            No public entry for <span className="font-mono text-ink-muted">{unknownProposalId}</span> yet. Browse the ledger
-            below or start from a squad session when entries go live.
+            No public entry for{' '}
+            <span className="font-mono text-ink-muted">{unknownProposalId}</span> yet. Browse the
+            ledger below or start from a squad session when entries go live.
           </p>
         ) : null}
 
         {configured && listQuery.isError ? (
-          <p className="mt-6 rounded-lg border border-amber/25 bg-amber/5 px-4 py-3 font-sans text-sm text-ink-secondary" role="alert">
-            Could not load live ledger entries ({listQuery.error instanceof Error ? listQuery.error.message : 'error'}
-            ). Showing static preview rows until the database is reachable and migrations are applied.
+          <p
+            className="mt-6 rounded-lg border border-amber/25 bg-amber/5 px-4 py-3 font-sans text-sm text-ink-secondary"
+            role="alert"
+          >
+            Could not load live ledger entries (
+            {listQuery.error instanceof Error ? listQuery.error.message : 'error'}
+            ). Showing static preview rows until the database is reachable and migrations are
+            applied.
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-center gap-2" role="toolbar" aria-label="Ledger filters (coming soon)">
+        <div
+          className="mt-6 flex flex-wrap items-center gap-2"
+          role="toolbar"
+          aria-label="Ledger filters (coming soon)"
+        >
           {FILTER_LABELS.map((label) => (
             <button
               key={label}
@@ -345,13 +384,17 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               {label}
             </button>
           ))}
-          <span className="font-sans text-xs text-ink-subtle">Filters ship with search in a later release.</span>
+          <span className="font-sans text-xs text-ink-subtle">
+            Filters ship with search in a later release.
+          </span>
         </div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_min(22rem,100%)] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <h2 className="font-heading text-section-title font-bold text-ink">Entries</h2>
-            <p className="mt-1 font-sans text-sm text-ink-muted">Published proposals appear here as squads finalize consensus.</p>
+            <p className="mt-1 font-sans text-sm text-ink-muted">
+              Published proposals appear here as squads finalize consensus.
+            </p>
 
             <div className="mt-6 rounded-xl border border-[#1e2a3a] bg-[#0c1018]/80">
               <div className="hidden overflow-x-auto overscroll-x-contain md:block">
@@ -438,7 +481,9 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                       <LedgerDemoCard
                         key={row.id}
                         date={
-                          row.published_at ? new Date(row.published_at).toISOString().slice(0, 10) : '—'
+                          row.published_at
+                            ? new Date(row.published_at).toISOString().slice(0, 10)
+                            : '—'
                         }
                         topic={row.title}
                         summary={row.summary}
@@ -487,7 +532,10 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               >
                 Form a squad to publish your own proposal
               </Link>
-              <Link to="/" className="font-sans text-sm text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline">
+              <Link
+                to="/"
+                className="font-sans text-sm text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
+              >
                 Back to home
               </Link>
             </div>
@@ -498,18 +546,19 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               <h2 className="font-heading text-[0.95rem] font-bold text-ink">How entries work</h2>
               <ul className="mt-4 list-none space-y-4 font-sans text-[0.875rem] leading-relaxed text-ink-secondary">
                 <li>
-                  <span className="font-medium text-ink-muted">Publishing.</span> When a squad closes a session with consensus,
-                  the platform derives a compact proposal — not a transcript — and commits it to the ledger with a public
-                  timestamp.
+                  <span className="font-medium text-ink-muted">Publishing.</span> When a squad
+                  closes a session with consensus, the platform derives a compact proposal — not a
+                  transcript — and commits it to the ledger with a public timestamp.
                 </li>
                 <li>
-                  <span className="font-medium text-ink-muted">Anonymous, verifiable.</span> Identities stay off the record;
-                  zero-knowledge proofs and cryptographic commitments let readers trust the outcome without learning who was in
-                  the room.
+                  <span className="font-medium text-ink-muted">Anonymous, verifiable.</span>{' '}
+                  Identities stay off the record; zero-knowledge proofs and cryptographic
+                  commitments let readers trust the outcome without learning who was in the room.
                 </li>
                 <li>
-                  <span className="font-medium text-ink-muted">Time &amp; immutability.</span> Each entry is anchored in time;
-                  the content you cite is the content that was attested — not silently edited later.
+                  <span className="font-medium text-ink-muted">Time &amp; immutability.</span> Each
+                  entry is anchored in time; the content you cite is the content that was attested —
+                  not silently edited later.
                 </li>
               </ul>
             </section>
@@ -517,7 +566,8 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
             <section className="rounded-xl border border-[#1e2a3a] bg-[#0a0e14]/60 p-5">
               <h2 className="font-heading text-[0.95rem] font-bold text-ink">How to cite this</h2>
               <p className="mt-2 font-sans text-[0.8125rem] leading-relaxed text-ink-muted">
-                Use this format for reports, footnotes, or policy annexes. Date reflects when you retrieved the page.
+                Use this format for reports, footnotes, or policy annexes. Date reflects when you
+                retrieved the page.
               </p>
               <pre className="mt-3 overflow-x-auto rounded-lg border border-[#1e2a3a] bg-[#070b10] p-3 font-mono text-[0.7rem] leading-relaxed text-ink-muted">
                 {citation}
@@ -553,18 +603,23 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
             <h2 id={modalTitleId} className="font-heading text-section-title font-bold text-ink">
               What is the SquadRidge Ledger?
             </h2>
-            <div id={modalDescId} className="mt-4 space-y-4 font-sans text-body-lg font-normal leading-relaxed text-ink-secondary">
+            <div
+              id={modalDescId}
+              className="mt-4 space-y-4 font-sans text-body-lg font-normal leading-relaxed text-ink-secondary"
+            >
               <p className="mb-0">
-                The Ledger is the public record of private dialogue: a place where squads leave a durable, citable summary of
-                what they agreed—without exposing who was there or every word that was said.
+                The Ledger is the public record of private dialogue: a place where squads leave a
+                durable, citable summary of what they agreed—without exposing who was there or every
+                word that was said.
               </p>
               <p className="mb-0">
-                It exists so journalists, donors, and institutions can point to outcomes that matter across borders while
-                participants stay protected. Each line is tied to verification and time, not to dossiers.
+                It exists so journalists, donors, and institutions can point to outcomes that matter
+                across borders while participants stay protected. Each line is tied to verification
+                and time, not to dossiers.
               </p>
               <p className="mb-0">
-                SquadRidge is infrastructure for conversations that cannot happen in public. The Ledger is how those
-                conversations leave a trace that still holds up in the open.
+                SquadRidge is infrastructure for conversations that cannot happen in public. The
+                Ledger is how those conversations leave a trace that still holds up in the open.
               </p>
             </div>
             <button
@@ -622,11 +677,16 @@ function LedgerDemoRowDesktop({
     <tr className="border-b border-[#1e2a3a]/80 align-top">
       <td className="whitespace-nowrap px-4 py-4 font-mono text-xs text-ink-muted">{date}</td>
       <td className="min-w-[8rem] px-4 py-4 align-top font-medium break-words text-ink">{topic}</td>
-      <td className="min-w-[12rem] px-4 py-4 align-top break-words text-ink-secondary">{summary}</td>
+      <td className="min-w-[12rem] px-4 py-4 align-top break-words text-ink-secondary">
+        {summary}
+      </td>
       <td className="px-4 py-4">
         <div className="flex flex-wrap gap-1.5">
           {tags.map((t) => (
-            <span key={t} className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted">
+            <span
+              key={t}
+              className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
+            >
               {t}
             </span>
           ))}
@@ -640,7 +700,10 @@ function LedgerDemoRowDesktop({
             </span>
           ) : null}
           {href ? (
-            <Link to={href} className="shrink-0 font-medium text-teal-light underline-offset-4 hover:underline">
+            <Link
+              to={href}
+              className="shrink-0 font-medium text-teal-light underline-offset-4 hover:underline"
+            >
               View proposal
             </Link>
           ) : (
@@ -685,10 +748,15 @@ function LedgerDemoCard({
         ) : null}
       </div>
       <h3 className="mt-2 break-words font-heading text-[1.05rem] font-bold text-ink">{topic}</h3>
-      <p className="mt-2 break-words font-sans text-sm leading-relaxed text-ink-secondary">{summary}</p>
+      <p className="mt-2 break-words font-sans text-sm leading-relaxed text-ink-secondary">
+        {summary}
+      </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {tags.map((t) => (
-          <span key={t} className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted">
+          <span
+            key={t}
+            className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
+          >
             {t}
           </span>
         ))}
@@ -702,7 +770,12 @@ function LedgerDemoCard({
             View proposal →
           </Link>
         ) : (
-          <button type="button" disabled title="Coming soon" className="cursor-not-allowed text-ink-subtle opacity-60">
+          <button
+            type="button"
+            disabled
+            title="Coming soon"
+            className="cursor-not-allowed text-ink-subtle opacity-60"
+          >
             View proposal
           </button>
         )}

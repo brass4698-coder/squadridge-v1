@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../lib/database.types';
+import type { Database } from '../lib';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey =
@@ -9,14 +9,10 @@ const supabaseKey =
  * Supabase browser client (Supabase quickstart pattern).
  * @see https://supabase.com/docs/guides/getting-started/quickstarts/reactjs
  */
-export const supabase = createClient<Database>(
-  supabaseUrl ?? '',
-  supabaseKey ?? '',
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-    },
+export const supabase = createClient<Database>(supabaseUrl ?? '', supabaseKey ?? '', {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
   },
-);
+});

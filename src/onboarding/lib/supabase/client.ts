@@ -1,6 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../../../lib/database.types';
-import { getSupabasePublicKey, getSupabaseUrl } from '../../../lib/env';
+import { getSupabasePublicKey, getSupabaseUrl, type Database } from '../../../lib';
 
 let browserClient: SupabaseClient<Database> | null = null;
 

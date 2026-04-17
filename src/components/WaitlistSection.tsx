@@ -1,9 +1,18 @@
 import type { FormEvent } from 'react';
-import { useWaitlistForm } from '../hooks/useWaitlistForm';
+import { useWaitlistForm } from '../hooks';
 import { PrimaryCTA } from './ui/PrimaryCTA';
 
 export function WaitlistSection() {
-  const { email, setEmail, status, feedback, handleSubmit, waitlistCount, configured, externalUrl } = useWaitlistForm();
+  const {
+    email,
+    setEmail,
+    status,
+    feedback,
+    handleSubmit,
+    waitlistCount,
+    configured,
+    externalUrl,
+  } = useWaitlistForm();
 
   const titleClass =
     'text-left font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink';
@@ -42,8 +51,8 @@ export function WaitlistSection() {
           No account. No name. Just a seat in the room.
         </p>
         <p className="mt-6 font-sans font-normal leading-[1.7] text-landing-body">
-          Leave your email — we&apos;ll only write when there&apos;s a verified squad forming around a problem that matches
-          your background.
+          Leave your email — we&apos;ll only write when there&apos;s a verified squad forming around
+          a problem that matches your background.
         </p>
         <div className="mt-8">
           <PrimaryCTA label="Request access" href={externalUrl} size="md" />
@@ -62,8 +71,8 @@ export function WaitlistSection() {
         No account. No name. Just a seat in the room.
       </p>
       <p className="mt-6 font-sans font-normal leading-[1.7] text-landing-body">
-        Leave your email — we&apos;ll only write when there&apos;s a verified squad forming around a problem that matches
-        your background.
+        Leave your email — we&apos;ll only write when there&apos;s a verified squad forming around a
+        problem that matches your background.
       </p>
       <form
         onSubmit={(e: FormEvent<HTMLFormElement>) => void handleSubmit(e)}
@@ -111,7 +120,8 @@ export function WaitlistSection() {
       <CounterLine />
       {!configured ? (
         <p className="mt-6 font-sans text-fluid-small leading-relaxed text-amber/90" role="status">
-          Operators: configure Supabase in <code className="rounded bg-navy-dark px-1.5 py-0.5">.env</code> or set{' '}
+          Operators: configure Supabase in{' '}
+          <code className="rounded bg-navy-dark px-1.5 py-0.5">.env</code> or set{' '}
           <code className="rounded bg-navy-dark px-1.5 py-0.5">VITE_WAITLIST_FORM_URL</code>.
         </p>
       ) : null}

@@ -4,10 +4,9 @@ import { RouteErrorBoundary } from '../RouteErrorBoundary';
 import { AuthIssueBanner } from '../auth/AuthIssueBanner';
 import { OfflineBanner } from '../OfflineBanner';
 import { ZkStubBanner } from '../ZkStubBanner';
-import { getPublicContactEmail } from '../../lib/env';
-import { useIsModerator } from '../../hooks/useIsModerator';
+import { getPublicContactEmail, mainContentPaddingClass } from '../../lib';
+import { useIsModerator } from '../../hooks';
 import { AppHeaderNav } from './AppHeaderNav';
-import { mainContentPaddingClass } from '../../lib/appLayoutPadding';
 import { DemoLayout } from '../../demo/DemoLayout';
 import { useDemoWalkthrough } from '../../demo';
 
@@ -48,7 +47,10 @@ export function AppLayout() {
               className="flex max-w-2xl flex-wrap items-center justify-center gap-x-5 gap-y-2 font-sans text-[0.85rem] text-slate-500"
               aria-label="Site"
             >
-              <Link to="/security" className="underline-offset-4 hover:text-slate-300 hover:underline">
+              <Link
+                to="/security"
+                className="underline-offset-4 hover:text-slate-300 hover:underline"
+              >
                 Security &amp; privacy
               </Link>
               {showDevFooterLinks ? (
@@ -56,7 +58,10 @@ export function AppLayout() {
                   <span className="text-navy-light/60" aria-hidden>
                     ·
                   </span>
-                  <Link to="/dev/supabase" className="underline-offset-4 hover:text-slate-300 hover:underline">
+                  <Link
+                    to="/dev/supabase"
+                    className="underline-offset-4 hover:text-slate-300 hover:underline"
+                  >
                     Technical notes
                   </Link>
                 </>
@@ -66,7 +71,10 @@ export function AppLayout() {
                   <span className="text-navy-light/60" aria-hidden>
                     ·
                   </span>
-                  <Link to="/mod" className="underline-offset-4 hover:text-slate-300 hover:underline">
+                  <Link
+                    to="/mod"
+                    className="underline-offset-4 hover:text-slate-300 hover:underline"
+                  >
                     Moderation
                   </Link>
                 </>

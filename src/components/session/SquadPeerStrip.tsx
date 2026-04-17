@@ -1,4 +1,4 @@
-import type { SquadPeerProfileRow } from '../../hooks/useSquadPeerProfiles';
+import type { SquadPeerProfileRow } from '../../hooks';
 
 function formatRoleLabel(p: SquadPeerProfileRow): string {
   if (p.role_archetype === 'other' && p.role_other_detail?.trim()) {
@@ -34,7 +34,10 @@ export function SquadPeerStrip({ peers, currentUserId }: Props) {
           const label = p.callsign.trim() || 'Operator';
           const tags = (p.tags ?? []).filter(Boolean).slice(0, 2);
           return (
-            <li key={p.user_id} className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-sans text-[0.85rem] text-gray-light">
+            <li
+              key={p.user_id}
+              className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-sans text-[0.85rem] text-gray-light"
+            >
               <span className="font-medium text-teal">
                 {label}
                 {isYou ? ' (you)' : ''}

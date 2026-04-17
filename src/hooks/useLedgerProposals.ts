@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib/env';
-import type { Database } from '../lib/database.types';
+import { isSupabaseConfigured, type Database } from '../lib';
 
 export type LedgerProposalListRow = Pick<
   Database['public']['Tables']['ledger_proposals']['Row'],

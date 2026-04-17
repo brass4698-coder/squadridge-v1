@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
-import { queryKeys } from '../lib/queryKeys';
-import type { Database } from '../lib/database.types';
+import { queryKeys, type Database } from '../lib';
 
 export type SquadPeerProfileRow =
   Database['public']['Functions']['get_squad_peer_profiles']['Returns'][number];

@@ -144,6 +144,8 @@ node_modules/.vite/
 # OS / editor
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
 # Accidental nested clone (safe to delete locally if present)
 /SquadRidge/

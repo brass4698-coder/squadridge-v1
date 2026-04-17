@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib/env';
+import { isSupabaseConfigured } from '../lib';
 
 function safeNextPath(raw: string | null): string {
   if (!raw) return '/';
@@ -52,7 +52,9 @@ export function AuthCallbackPage() {
     const timer = window.setTimeout(() => {
       void supabase.auth.getSession().then(({ data: { session: s } }) => {
         if (!navigated.current && !s) {
-          setError('Sign-in did not complete. The link may have expired—request a new one from Sign in.');
+          setError(
+            'Sign-in did not complete. The link may have expired—request a new one from Sign in.',
+          );
         }
       });
     }, 12_000);
@@ -78,7 +80,11 @@ export function AuthCallbackPage() {
       </p>
       <h1
         className="mt-2 font-heading font-extrabold text-[#f1f5f9]"
-        style={{ fontSize: 'clamp(1.35rem, 2.5vw, 1.75rem)', letterSpacing: '-0.03em', lineHeight: 1.15 }}
+        style={{
+          fontSize: 'clamp(1.35rem, 2.5vw, 1.75rem)',
+          letterSpacing: '-0.03em',
+          lineHeight: 1.15,
+        }}
       >
         Finishing sign-in…
       </h1>

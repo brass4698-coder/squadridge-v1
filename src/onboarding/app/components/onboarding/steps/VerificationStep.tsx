@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
-import { getAuthCallbackUrl } from '../../../../../lib/authUrls';
+import { getAuthCallbackUrl } from '../../../../../lib';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../../lib/supabase/client';
 import { useOnboarding } from '../OnboardingContext';
 import { ONBOARDING_INPUT_CLASS } from '../onboardingShellStyles';
@@ -110,7 +110,11 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
                       I signed in — refresh
                     </button>
                   </div>
-                  {sent && <p className="text-[0.6875rem] leading-snug text-ink-muted">{COPY.verification.checkEmail}</p>}
+                  {sent && (
+                    <p className="text-[0.6875rem] leading-snug text-ink-muted">
+                      {COPY.verification.checkEmail}
+                    </p>
+                  )}
                 </>
               )}
             </div>
@@ -121,7 +125,9 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
               <p className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-amber sm:text-[0.6875rem]">
                 {COPY.verification.devNoticeLabel}
               </p>
-              <p className="text-[0.6875rem] leading-snug text-ink-muted">{COPY.verification.devSupabaseNotice}</p>
+              <p className="text-[0.6875rem] leading-snug text-ink-muted">
+                {COPY.verification.devSupabaseNotice}
+              </p>
             </div>
           )}
         </div>

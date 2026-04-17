@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useIsModerator } from '../../hooks/useIsModerator';
+import { useIsModerator } from '../../hooks';
 
 export function RequireModerator({ children }: { children: ReactNode }) {
   const { data: isMod, isPending, isError } = useIsModerator();

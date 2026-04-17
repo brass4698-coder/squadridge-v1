@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { getSupabase } from '../lib/supabase';
-import { getWaitlistFormUrl, isSupabaseConfigured } from '../lib/env';
+import { getSupabase, getWaitlistFormUrl, isSupabaseConfigured } from '../lib';
 import { WAITLIST_CHANGED_EVENT } from '../components/HeroWaitlistCounter';
 
 export type WaitlistFormStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -31,7 +30,9 @@ export function useWaitlistForm() {
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const trap = (e.currentTarget.elements.namedItem('website') as HTMLInputElement | null)?.value?.trim();
+      const trap = (
+        e.currentTarget.elements.namedItem('website') as HTMLInputElement | null
+      )?.value?.trim();
       if (trap) return;
       const trimmed = email.trim();
       if (!trimmed) return;

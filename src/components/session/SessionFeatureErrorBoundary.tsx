@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { captureBoundaryError, setSentrySquadContext } from '../../lib/sentry';
+import { captureBoundaryError, setSentrySquadContext } from '../../lib';
 
 interface Props {
   children: ReactNode;
@@ -43,12 +43,15 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
           role="alert"
           aria-labelledby="session-feature-error-title"
         >
-          <h2 id="session-feature-error-title" className="font-heading text-[1.1rem] font-semibold text-[#f5d7a3]">
+          <h2
+            id="session-feature-error-title"
+            className="font-heading text-[1.1rem] font-semibold text-[#f5d7a3]"
+          >
             Chat could not load
           </h2>
           <p className="mt-3 text-[#c4a574]">
-            Something broke while showing messages or the composer. Your squad is still there — try again, or return to
-            the session hub.
+            Something broke while showing messages or the composer. Your squad is still there — try
+            again, or return to the session hub.
           </p>
           {import.meta.env.DEV ? (
             <pre className="mt-4 max-h-28 overflow-auto rounded-md border border-[#2d3f55] bg-[#0b0f1a] p-3 font-mono text-[0.75rem] text-amber">
