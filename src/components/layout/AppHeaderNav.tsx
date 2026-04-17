@@ -52,7 +52,6 @@ function useDemoNavState() {
     inSessionRoom,
     sessionHref: sessionSquadId ? `/session/${sessionSquadId}` : '/session',
     waitlistActive: pathname === '/' && hash === '#waitlist',
-    onboardingActive: pathname.startsWith('/onboarding'),
     verifyActive: pathname.startsWith('/verify'),
     ledgerActive: pathname.startsWith('/ledger'),
     securityActive: pathname.startsWith('/security'),
@@ -255,7 +254,7 @@ function MobileNavDrawer({
                 ) : null}
               </ul>
               <p className="mt-4 font-sans text-[0.8rem] leading-relaxed text-[#5c6573]">
-                Early access, ledger, and onboarding are on the home page and in the footer.
+                Early access and ledger are on the home page and in the footer.
               </p>
             </div>
             {isDev ? (

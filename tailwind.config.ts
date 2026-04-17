@@ -89,6 +89,8 @@ export default {
           chrome: '#0a0f1a',
           accent: '#c9a66b',
         },
+        /** Card / panel fill (onboarding shell, dense surfaces) */
+        surface: '#0c1219',
       },
       fontFamily: {
         sans: ['"Public Sans"', 'system-ui', 'sans-serif'],
@@ -98,7 +100,10 @@ export default {
       fontSize: {
         // Fluid typography using clamp() for modern scaling
         'fluid-h1': 'clamp(2rem, 5vw, 3rem)',
-        'fluid-h2': 'clamp(1.5rem, 4vw, 2.5rem)',
+        'fluid-h2': [
+          'clamp(1.5rem, 4vw, 2.5rem)',
+          { lineHeight: '1.25', letterSpacing: '-0.015em' },
+        ],
         'fluid-h3': 'clamp(1.25rem, 3vw, 2rem)',
         'fluid-body': 'clamp(1rem, 1.5vw, 1.125rem)',
         'fluid-small': 'clamp(0.875rem, 1vw, 1rem)',

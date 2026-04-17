@@ -54,10 +54,10 @@ export function VerificationPage() {
             <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this step.
           </p>
           <Link
-            to="/onboarding"
+            to="/"
             className="mt-6 inline-flex items-center text-sm font-medium text-teal-light underline-offset-4 hover:underline"
           >
-            Back to onboarding
+            Back to home
           </Link>
         </div>
       </div>
@@ -86,8 +86,8 @@ export function VerificationPage() {
           Prove you belong without exposing identity
         </h1>
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
-          Standalone page for tests and returning users. New participants walk verification inside onboarding as well—the
-          cryptography is the same; this route is optional if you already completed the flow there.
+          Standalone page for tests and returning users. The cryptography is the same as in the main product flow; this
+          route is optional if you already completed verification elsewhere.
         </p>
         <p className="mb-0 mt-4 max-w-copy font-sans text-body-lg font-normal text-ink-secondary">
           This step never asks for documents, email, or phone. Your session stays pseudonymous: the system stores only a
@@ -141,7 +141,7 @@ export function VerificationPage() {
                 </button>
 
                 <Link
-                  to="/onboarding"
+                  to="/"
                   className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-heading text-[0.9rem] font-medium text-ink-secondary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-[#3d4f65] hover:text-ink"
                 >
                   Back

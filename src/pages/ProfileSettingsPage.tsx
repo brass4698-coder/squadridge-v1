@@ -270,6 +270,7 @@ export function ProfileSettingsPage() {
               </label>
               <input
                 id="pf-callsign"
+                data-demo="profile-callsign"
                 value={callsign}
                 onChange={(e) => setCallsign(e.target.value)}
                 className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
@@ -291,6 +292,7 @@ export function ProfileSettingsPage() {
               </p>
               <select
                 id="pf-role"
+                data-demo="profile-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as ProfileRole | '')}
                 className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
@@ -350,6 +352,7 @@ export function ProfileSettingsPage() {
               </p>
               <input
                 id="pf-tags"
+                data-demo="profile-tags"
                 value={tagsRaw}
                 onChange={(e) => setTagsRaw(e.target.value)}
                 placeholder="e.g. cross_cultural_dialogue, military_veteran"
@@ -393,6 +396,7 @@ export function ProfileSettingsPage() {
               </p>
               <input
                 id="pf-era"
+                data-demo="profile-era"
                 value={era}
                 onChange={(e) => setEra(e.target.value)}
                 placeholder="e.g. Cold War, post-2014, future scenarios"
@@ -411,6 +415,7 @@ export function ProfileSettingsPage() {
                 </p>
                 <input
                   id="pf-lang"
+                  data-demo="profile-lang"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                   placeholder="e.g. English, Arabic"
@@ -424,6 +429,7 @@ export function ProfileSettingsPage() {
                 </label>
                 <input
                   id="pf-region"
+                  data-demo="profile-region"
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   placeholder="e.g. Western Europe, MENA"
@@ -440,6 +446,7 @@ export function ProfileSettingsPage() {
                 </p>
                 <input
                   id="pf-tw"
+                  data-demo="profile-timewindow"
                   value={timeWindow}
                   onChange={(e) => setTimeWindow(e.target.value)}
                   placeholder="e.g. weekday evenings, Sat mornings"

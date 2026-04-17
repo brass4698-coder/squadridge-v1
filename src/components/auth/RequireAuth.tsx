@@ -5,7 +5,7 @@ import { useProfile } from '../../hooks/useProfile';
 
 type RequireAuthProps = {
   children: ReactNode;
-  /** When true, incomplete profiles are sent to onboarding with return path. */
+  /** When true, incomplete profiles are sent to profile settings with return path. */
   requireCompleteProfile?: boolean;
 };
 
@@ -33,7 +33,7 @@ export function RequireAuth({ children, requireCompleteProfile }: RequireAuthPro
 
   if (requireCompleteProfile && !profileComplete) {
     const next = encodeURIComponent(`${location.pathname}${location.search}${location.hash}`);
-    return <Navigate to={`/onboarding?next=${next}`} replace />;
+    return <Navigate to={`/settings/profile?next=${next}`} replace />;
   }
 
   return <>{children}</>;

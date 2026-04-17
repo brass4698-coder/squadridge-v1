@@ -117,6 +117,12 @@ export function LandingPage() {
                 >
                   Start guided tour
                 </button>
+                <Link
+                  to="/onboarding"
+                  className="btn-secondary inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 text-sm font-semibold"
+                >
+                  Enter onboarding
+                </Link>
                 <span className="font-sans text-[0.9rem] text-landing-body">
                   or{' '}
                   <Link
@@ -389,13 +395,13 @@ export function LandingPage() {
                   For development only — not part of the public story above.
                 </p>
                 <ul className="mt-4 space-y-2 font-sans text-fluid-small text-landing-muted/90">
-                  <li>Primary path: onboarding → intent → match → live session</li>
+                  <li>Primary path: intent → match → live session</li>
                   <li>Optional: offline browser-only demo, Supabase health (dev)</li>
                 </ul>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <PrimaryCTA label="Find a squad" href="/intent" className="min-w-[10rem] justify-center" />
-                  <Link to="/onboarding" className="btn-secondary min-w-[10rem] justify-center">
-                    Start onboarding
+                  <Link to="/settings/profile" className="btn-secondary min-w-[10rem] justify-center">
+                    Profile settings
                   </Link>
                   {lastSquad && configured ? (
                     <Link to={`/session/${lastSquad}`} className="btn-secondary min-w-[10rem] justify-center">

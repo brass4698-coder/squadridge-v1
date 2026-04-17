@@ -1,7 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { SentryNavigationListener } from './components/SentryNavigationListener';
 import { AuthProvider } from './contexts/AuthContext';
-import { Toaster } from './onboarding/app/components/ui/sonner';
+import { Toaster } from './components/ui/sonner';
 import { GrainOverlay } from './components/GrainOverlay';
 import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/layout/AppLayout';
@@ -9,7 +10,6 @@ import { RequireAuth } from './components/auth/RequireAuth';
 import { SessionAccess } from './components/session/SessionAccess';
 import { IntentPage } from './pages/IntentPage';
 import { LandingPage } from './pages/LandingPage';
-import { OnboardingPage } from './pages/OnboardingPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { SignInPage } from './pages/SignInPage';
@@ -23,6 +23,10 @@ import { ModDashboardPage } from './pages/ModDashboardPage';
 import { RequireModerator } from './components/auth/RequireModerator';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 
+const OnboardingApp = lazy(() =>
+  import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({ default: m.Onboarding })),
+);
+
 export default function App() {
   return (
     <>
@@ -35,9 +39,22 @@ export default function App() {
             <AuthProvider>
               <Toaster position="top-center" richColors closeButton className="font-sans" />
               <Routes>
+                <Route
+                  path="/onboarding"
+                  element={
+                    <Suspense
+                      fallback={
+                        <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
+                          Loading…
+                        </div>
+                      }
+                    >
+                      <OnboardingApp />
+                    </Suspense>
+                  }
+                />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/verify" element={<VerificationPage />} />
                   <Route path="/intent" element={<IntentPage />} />
                   <Route path="/ledger" element={<LedgerPage />} />
@@ -70,6 +87,7 @@ export default function App() {
                   {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
                     <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
                   ) : null}
+                  <Route path="/session/demo" element={<Navigate to="/session/demo-session-001" replace />} />
                   <Route path="/session/:squadId?" element={<SessionAccess />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

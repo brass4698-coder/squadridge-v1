@@ -11,7 +11,7 @@ export type AppNavContextValue = {
   resumeHref: string | null;
   /** Show “Resume your room” when user has a stored squad and is not already on that room. */
   showResumeCta: boolean;
-  /** Signed-in user with incomplete profile; suggest onboarding. */
+  /** Signed-in user with incomplete profile; suggest completing profile. */
   showOnboardingCta: boolean;
   onboardingHref: '/onboarding';
   onboardingLabel: string;
@@ -36,7 +36,11 @@ export function useAppNavContext(): AppNavContextValue {
   const showResumeCta = Boolean(resumeSquadId && !onThatSession);
 
   const showOnboardingCta =
-    Boolean(session) && !profileLoading && !profileComplete && !pathname.startsWith('/onboarding');
+    Boolean(session) &&
+    !profileLoading &&
+    !profileComplete &&
+    !pathname.startsWith('/settings/profile') &&
+    !pathname.startsWith('/onboarding');
 
   return {
     resumeSquadId,

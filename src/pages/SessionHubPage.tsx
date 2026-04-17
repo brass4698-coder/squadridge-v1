@@ -85,8 +85,8 @@ export function SessionHubPage() {
         </h1>
         <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
           Get matched into a live room from <strong className="font-medium text-[#c4cdd9]">Intent</strong> — we pair
-          perspectives and open a squad when the queue has enough people. Complete onboarding first so your profile is
-          ready for the room.
+          perspectives and open a squad when the queue has enough people. Complete your profile first so you are ready for
+          the room.
         </p>
       </header>
       <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-[#6b7280]">
@@ -116,14 +116,14 @@ export function SessionHubPage() {
           Find a squad
         </Link>
         <Link
-          to="/onboarding"
+          to="/settings/profile"
           className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9]"
           style={{
             borderRadius: 8,
             fontWeight: 500,
           }}
         >
-          Review onboarding
+          Profile settings
         </Link>
       </div>
       {isDemoSquadShortcutsEnabled() ? (

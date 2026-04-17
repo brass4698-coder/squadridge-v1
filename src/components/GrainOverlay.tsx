@@ -15,10 +15,10 @@ const grainStyle: CSSProperties = {
   pointerEvents: 'none',
   /* Below app UI (`App.tsx` wrapper z-10) so CTAs/text are never covered by the grain layer */
   zIndex: 1,
-  opacity: 0.035,
+  opacity: 0.048,
   backgroundImage: `url("${noiseUrl}")`,
   backgroundRepeat: 'repeat',
-  backgroundSize: '200px 200px',
+  backgroundSize: '176px 176px',
 };
 
 export function GrainOverlay() {

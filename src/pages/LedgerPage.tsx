@@ -482,7 +482,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <Link
-                to="/onboarding"
+                to="/intent"
                 className="btn-primary inline-flex min-h-[44px] max-w-max items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold"
               >
                 Form a squad to publish your own proposal

@@ -112,6 +112,7 @@ export function DemoSessionPage() {
         <textarea
           id="demo-composer"
           name="demo-composer"
+          data-demo="session-composer"
           aria-label="Message"
           rows={4}
           className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)]"
@@ -122,6 +123,7 @@ export function DemoSessionPage() {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
             type="submit"
+            data-demo="session-send"
             className="inline-flex shrink-0 items-center justify-center border-0 bg-teal px-7 py-2.5 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50"
             style={{ borderRadius: 8 }}
             disabled={!composer.trim()}

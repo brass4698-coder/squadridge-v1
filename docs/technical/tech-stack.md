@@ -13,6 +13,7 @@ The frontend is designed to be responsive, accessible, and performant, ensuring 
 *   **Language**: TypeScript (for type safety and robust code maintainability)
 *   **Styling**: TailwindCSS (for utility-first, accessible, and responsive design) [1]
 *   **Typography**: Space Grotesk and DM Sans (utilizing fluid typography via CSS `clamp()`) [1]
+*   **Optional presenter tour**: Scripted demo walkthrough in `src/demo/`; how to remove it without affecting core routes is documented in [`demo-walkthrough.md`](demo-walkthrough.md)
 
 ## Backend Services
 

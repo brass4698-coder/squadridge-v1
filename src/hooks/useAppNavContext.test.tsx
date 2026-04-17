@@ -116,7 +116,7 @@ describe('useAppNavContext', () => {
     expect(result.current.onboardingHref).toBe('/onboarding');
   });
 
-  it('does not show onboarding CTA on onboarding route', () => {
+  it('does not show onboarding CTA on profile settings route', () => {
     mockUseProfile.mockReturnValue({
       profile: null,
       loading: false,
@@ -130,9 +130,26 @@ describe('useAppNavContext', () => {
       wrapper: ({ children }) =>
         wrapper({
           children,
-          initialPath: '/onboarding/step',
+          initialPath: '/settings/profile',
           auth: baseAuth(makeSession()),
         }),
+    });
+    expect(result.current.showOnboardingCta).toBe(false);
+  });
+
+  it('does not show onboarding CTA when already in the onboarding wizard', () => {
+    mockUseProfile.mockReturnValue({
+      profile: null,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+      upsertProfile: vi.fn(),
+      patchProfile: vi.fn(),
+      profileComplete: false,
+    });
+    const { result } = renderHook(() => useAppNavContext(), {
+      wrapper: ({ children }) =>
+        wrapper({ children, initialPath: '/onboarding', auth: baseAuth(makeSession()) }),
     });
     expect(result.current.showOnboardingCta).toBe(false);
   });

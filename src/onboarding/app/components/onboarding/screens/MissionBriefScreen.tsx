@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
 import { cn } from '../../ui/utils';
-import SquadLogo from '../../../../../components/SquadLogo';
 import { useOnboardingMotion } from '../onboardingMotion';
 import { obAfterH1, obBody, obH1Hero } from '../OnboardingTypography';
 import { COPY } from '../copy';
@@ -22,23 +21,11 @@ export function MissionBriefScreen({ onProceed, onDecline }: MissionBriefScreenP
       transition={m.stepTransition}
       className="relative mx-auto w-full"
     >
-      <div className="pointer-events-none absolute -right-1 -top-2 sm:right-2 sm:top-0">
-        <motion.div
-          animate={
-            m.reduced ? { opacity: 0.85 } : { opacity: [0.55, 0.95, 0.55], scale: [1, 1.03, 1] }
-          }
-          transition={m.reduced ? { duration: 0.01 } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          aria-hidden
-        >
-          <SquadLogo size={64} className="opacity-90" />
-        </motion.div>
-      </div>
-
       <motion.h1
         initial={{ opacity: m.reduced ? 1 : 0, y: m.reduced ? 0 : 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={m.titleTransition(0.08)}
-        className={`pr-14 sm:pr-20 ${obH1Hero} ${obAfterH1}`}
+        className={`${obH1Hero} ${obAfterH1}`}
       >
         {COPY.mission.title}
       </motion.h1>

@@ -8,7 +8,6 @@ export function mainContentPaddingClass(pathname: string): string {
     '/session',
     '/match',
     '/intent',
-    '/onboarding',
     '/ledger',
     '/verify',
     '/security',

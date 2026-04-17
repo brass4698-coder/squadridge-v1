@@ -163,10 +163,10 @@ export function IntentPage() {
                 Continue demo — match → session
               </Link>
               <Link
-                to="/onboarding"
+                to="/?demo=1"
                 className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#2d3f55] px-6 py-3 font-sans text-[0.9rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f65] hover:text-[#c4cdd9]"
               >
-                Start from onboarding
+                Start tour from home
               </Link>
               <Link to="/" className="inline-flex font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline">
                 Home
@@ -209,6 +209,7 @@ export function IntentPage() {
           <textarea
             id="intent-text"
             name="intent"
+            data-demo="intent-input"
             rows={5}
             maxLength={MAX_CHARS}
             placeholder=""
@@ -273,6 +274,7 @@ export function IntentPage() {
                   key={id}
                   type="button"
                   aria-pressed={on}
+                  data-demo={id === 'A' ? 'intent-perspective-a' : undefined}
                   onClick={() => setPerspective(id)}
                   className={`flex-1 rounded-[10px] border px-4 py-3 text-left font-sans text-[0.9rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
                     on
@@ -290,6 +292,7 @@ export function IntentPage() {
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
+            data-demo="intent-find-squad"
             disabled={busy || !supabase || perspective === null}
             onClick={() => void handleFindSquad()}
             className="inline-flex min-h-[44px] w-full shrink-0 items-center justify-center bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"

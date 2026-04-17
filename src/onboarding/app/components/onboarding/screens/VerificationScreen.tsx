@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
-import SquadLogo from '../../../../../components/SquadLogo';
 import { useOnboardingMotion } from '../onboardingMotion';
 import { obAfterH1, obBody, obBodyMuted, obH1Hero } from '../OnboardingTypography';
 import { COPY } from '../copy';
@@ -65,16 +64,6 @@ export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) 
       transition={m.stepTransition}
       className="relative mx-auto w-full"
     >
-      <div className="relative mb-8 flex justify-center sm:justify-start">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: m.reduced ? 0.01 : 0.45 }}
-        >
-          <SquadLogo size={96} />
-        </motion.div>
-      </div>
-
       <motion.h1
         initial={{ opacity: m.reduced ? 1 : 0, y: m.reduced ? 0 : 8 }}
         animate={{ opacity: 1, y: 0 }}

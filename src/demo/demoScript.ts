@@ -1,55 +1,183 @@
 import { DEMO_PROPOSAL_ID } from '../lib/demoSession';
+import { DEMO_PERSONA } from './demoPersona';
 
-/** `sessionStorage` key — tour active when set to `"1"` alongside optional `?demo=1`. */
-export const DEMO_WALKTHROUGH_STORAGE_KEY = 'squadridge_demo_walkthrough';
+/** `sessionStorage` key — tour active when set to `"1"` (with optional `?demo=1` in URL). */
+export const DEMO_WALKTHROUGH_STORAGE_KEY = 'demoWalkthrough';
 
-export type DemoEnvKind = 'local' | 'staging' | 'prod';
+export type EnvMode = 'local' | 'staging' | 'prod';
+
+/**
+ * Single scripted interaction. Run **in order**; no parallelism.
+ * - `focus` / `click` / `select`: wait `delayMs` (default 250 ms) before running.
+ * - `type`: optional `delayMs` before focus+typing; `charDelayMs` between each character (default ~100 ms).
+ * Ending a step with `click` on the real Next/Submit lets existing app handlers navigate — do not route from the runner.
+ */
+export type DemoAction =
+  | { kind: 'focus'; selector: string; delayMs?: number }
+  | { kind: 'type'; selector: string; text: string; charDelayMs?: number; delayMs?: number }
+  | { kind: 'click'; selector: string; delayMs?: number }
+  | { kind: 'select'; selector: string; value: string; delayMs?: number };
+
+export type DemoOverlayStep = {
+  id: string;
+  content: string;
+  selector?: string;
+};
 
 export type DemoStep = {
   id: string;
-  /** Full client path including query (e.g. `/match?demo=1`). */
   path: string;
   title: string;
-  inMainScript: boolean;
-  /** Optional: how “live” this step is per environment (for future copy / analytics). */
-  envModes?: Partial<Record<DemoEnvKind, 'live' | 'mock'>>;
+  description?: string;
+  envModes: Partial<Record<EnvMode, 'live' | 'mock'>>;
+  /** Per-step automation: each field is more entries in this array; often ends with `click` on the real Next control. */
+  actions?: DemoAction[];
+  overlaySteps?: DemoOverlayStep[];
+  inMainScript?: boolean;
 };
 
-const mockAll: Partial<Record<DemoEnvKind, 'live' | 'mock'>> = {
+const mockAll: Partial<Record<EnvMode, 'live' | 'mock'>> = {
   local: 'mock',
   staging: 'mock',
   prod: 'mock',
 };
 
+/** Slower per-keystroke typing; omit `charDelayMs` on actions to use `demoAutoActions` default. */
+export const HUMAN_CHAR_MS = 125;
+
 /**
- * Linear main tour. Order matches Back/Next. Paths use `?demo=1` so `Match` and other
- * screens can key off the same contract. Onboarding summary (`/onboarding/demo`) can be
- * inserted later without changing existing routes.
+ * Canonical presenter tour. Order matches Back/Next.
+ * Text fields use `type` for human-paced typing; toggles use `click` / `select`.
  */
-export const DEMO_MAIN_STEPS: DemoStep[] = [
-  { id: 'landing', path: '/?demo=1', title: 'Welcome', inMainScript: true, envModes: mockAll },
-  { id: 'intent', path: '/intent?demo=1', title: 'Intent', inMainScript: true, envModes: mockAll },
-  { id: 'match', path: '/match?demo=1', title: 'Matchmaking', inMainScript: true, envModes: mockAll },
+export const demoSteps: DemoStep[] = [
+  {
+    id: 'landing',
+    path: '/?demo=1',
+    title: 'Welcome',
+    description: 'Product story — then intent, match, session, ledger.',
+    inMainScript: true,
+    envModes: mockAll,
+  },
+  {
+    id: 'intent',
+    path: '/intent?demo=1',
+    title: 'Intent',
+    description: 'Slow intent text — choose perspective in the app.',
+    inMainScript: true,
+    envModes: mockAll,
+    actions: [
+      { kind: 'focus', selector: '[data-demo="intent-input"]', delayMs: 1200 },
+      {
+        kind: 'type',
+        selector: '[data-demo="intent-input"]',
+        text: DEMO_PERSONA.intent,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1200,
+      },
+    ],
+    overlaySteps: [
+      {
+        id: 'in1',
+        content: 'After typing: pick Perspective A or B in the app before Find my squad.',
+        selector: '[data-demo="intent-input"]',
+      },
+    ],
+  },
+  {
+    id: 'match',
+    path: '/match?demo=1',
+    title: 'Matchmaking',
+    description: 'Guided beat — Next advances when you are ready.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'm1',
+        content: 'Simulates finding your squad — pacing is controlled by the tour.',
+        selector: '[data-demo="match-guided-root"]',
+      },
+    ],
+  },
   {
     id: 'session_offline',
     path: '/session/demo-session-001?demo=1',
     title: 'Squad session (demo)',
+    description: 'Local-only messages.',
     inMainScript: true,
     envModes: mockAll,
+    actions: [
+      { kind: 'focus', selector: '[data-demo="session-composer"]', delayMs: 1200 },
+      {
+        kind: 'type',
+        selector: '[data-demo="session-composer"]',
+        text: DEMO_PERSONA.sessionLine,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1200,
+      },
+    ],
+    overlaySteps: [{ id: 's1', content: 'Offline demo — nothing leaves this browser tab.', selector: '[data-demo="session-composer"]' }],
   },
   {
     id: 'ledger',
     path: `/ledger/${DEMO_PROPOSAL_ID}?demo=1`,
     title: 'Ledger',
+    description: 'Seeded proposal drill-down.',
     inMainScript: true,
     envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'l1',
+        content: 'Citable, timestamped output — demo row uses the seeded proposal id.',
+      },
+    ],
   },
-  { id: 'security', path: '/security?demo=1', title: 'Security & privacy', inMainScript: true, envModes: mockAll },
+  {
+    id: 'security',
+    path: '/security?demo=1',
+    title: 'Security & privacy',
+    description: 'Zero-knowledge posture and verification.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      { id: 'sec1', content: 'Verification proves membership without exposing identity to peers or the public ledger.' },
+    ],
+  },
+  {
+    id: 'profile',
+    path: '/settings/profile?demo=1',
+    title: 'Profile',
+    description: 'Same persona as the guided tour — Northstar-7, strategist, matching routing hints.',
+    inMainScript: true,
+    envModes: mockAll,
+    actions: [
+      { kind: 'focus', selector: '[data-demo="profile-callsign"]', delayMs: 1200 },
+      { kind: 'type', selector: '[data-demo="profile-callsign"]', text: DEMO_PERSONA.callsign, charDelayMs: HUMAN_CHAR_MS, delayMs: 1200 },
+      { kind: 'select', selector: '[data-demo="profile-role"]', value: DEMO_PERSONA.role, delayMs: 1200 },
+      { kind: 'focus', selector: '[data-demo="profile-tags"]', delayMs: 1000 },
+      {
+        kind: 'type',
+        selector: '[data-demo="profile-tags"]',
+        text: DEMO_PERSONA.tags,
+        charDelayMs: HUMAN_CHAR_MS,
+        delayMs: 1200,
+      },
+      { kind: 'focus', selector: '[data-demo="profile-era"]', delayMs: 1000 },
+      { kind: 'type', selector: '[data-demo="profile-era"]', text: DEMO_PERSONA.eraLens, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      { kind: 'focus', selector: '[data-demo="profile-lang"]', delayMs: 1000 },
+      { kind: 'type', selector: '[data-demo="profile-lang"]', text: DEMO_PERSONA.language, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      { kind: 'focus', selector: '[data-demo="profile-region"]', delayMs: 1000 },
+      { kind: 'type', selector: '[data-demo="profile-region"]', text: DEMO_PERSONA.region, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+      { kind: 'focus', selector: '[data-demo="profile-timewindow"]', delayMs: 1000 },
+      { kind: 'type', selector: '[data-demo="profile-timewindow"]', text: DEMO_PERSONA.timezoneWindow, charDelayMs: HUMAN_CHAR_MS, delayMs: 1000 },
+    ],
+  },
 ];
 
-/** Appendix only — not driven by the main Back/Next strip. */
+/** Main linear script (excludes appendix routes like `/mod`). */
+export const DEMO_MAIN_STEPS: DemoStep[] = demoSteps.filter((s) => s.inMainScript !== false);
+
 export const DEMO_APPENDIX = {
-  moderator: { path: '/mod', inMainScript: false as const },
+  moderator: { path: '/mod?demo=1', id: 'mod', title: 'Moderator console', inMainScript: false as const },
 } as const;
 
 /** Compare pathname + query (order of query keys ignored). */

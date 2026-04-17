@@ -22,22 +22,18 @@ export const COPY = {
   },
   identity: {
     title: 'Identity model',
-    lead: 'Set your callsign and lane. Nothing here reveals your name — just what the room needs to work with you.',
-    requiredFieldsNotice: 'Fields marked with * are required.',
+    lead:
+      'Your callsign is how the room knows you. No real name. No rank. No unit. Just the handle you bring to the table.',
     callsignLabel: 'Callsign',
-    callsignWhy: 'Callsign — how the room addresses you without using your real name.',
-    callsignHint: 'How others address you in the room.',
-    roleLabel: 'Role',
-    roleWhy: 'Role helps squads understand how to work with you.',
-    roleOptionsHint:
-      'Strategist (plans campaigns), Analyst (works with data, OSINT), Policy (law, doctrine), Field (operates on the ground), Mediator, or Other.',
+    callsignWhy: 'How others address you in the room. Choose deliberately.',
+    roleLabel: 'Your lane',
+    roleWhy: 'Tells squads how to work with you. Pick the closest fit.',
     roleOtherLabel: 'Describe your role.',
     roleOtherHint:
       "Briefly describe your lane (e.g., 'humanitarian negotiator', 'OSINT hobbyist').",
     roleOtherTooShort: 'Enter at least 8 characters.',
-    eraLabel: 'Era / affiliation lens',
-    eraHint:
-      'Optional: pick the context you mostly work from (e.g., Cold War, Contemporary, Futures). Used only to improve matching.',
+    eraLabel: 'Operational context',
+    eraHint: 'The lens you think from. Used only for matching — never stored as identity.',
   },
   rules: {
     title: 'Rules & safety',
@@ -137,7 +133,7 @@ export const COPY_SCREEN_STATS = [
     id: 'identity',
     titleChars: COPY.identity.title.length,
     bodyWords: countWords(
-      `${COPY.identity.lead} ${COPY.identity.requiredFieldsNotice} ${COPY.identity.callsignWhy} ${COPY.identity.callsignHint} ${COPY.identity.roleWhy} ${COPY.identity.roleOptionsHint} ${COPY.identity.roleOtherHint} ${COPY.identity.eraHint}`,
+      `${COPY.identity.lead} ${COPY.identity.callsignWhy} ${COPY.identity.roleWhy} ${COPY.identity.roleOtherHint} ${COPY.identity.eraHint}`,
     ),
   },
   {
@@ -188,11 +184,8 @@ export const COPY_CHAR_MANIFEST = {
   identity: {
     title: COPY.identity.title.length,
     lead: COPY.identity.lead.length,
-    requiredFieldsNotice: COPY.identity.requiredFieldsNotice.length,
     callsignWhy: COPY.identity.callsignWhy.length,
-    callsignHint: COPY.identity.callsignHint.length,
     roleWhy: COPY.identity.roleWhy.length,
-    roleOptionsHint: COPY.identity.roleOptionsHint.length,
     roleOtherHint: COPY.identity.roleOtherHint.length,
     eraHint: COPY.identity.eraHint.length,
   },

@@ -18,6 +18,7 @@ import {
   readPendingMatchReveal,
 } from '../lib/matchmakingSession';
 import { setLastSquadIdInStorage } from '../lib/squad';
+import { DEMO_WALKTHROUGH_STORAGE_KEY } from '../demo/demoScript';
 
 /** Poll pool snapshot while waiting; Realtime on `match_queue` also triggers refresh. */
 const POLL_MS = 2500;
@@ -77,6 +78,12 @@ export function Match() {
     if (guidedDemo) {
       clearPendingMatchReveal();
       setGate('guided_demo');
+      const walkthroughActive =
+        typeof sessionStorage !== 'undefined' &&
+        sessionStorage.getItem(DEMO_WALKTHROUGH_STORAGE_KEY) === '1';
+      if (walkthroughActive) {
+        return undefined;
+      }
       const t = window.setTimeout(() => {
         navigate('/session/demo-session-001', { replace: true });
       }, NARRATIVE_THEATER_MS);
@@ -261,7 +268,10 @@ export function Match() {
   if (gate === 'guided_demo' || gate === 'instant_reveal') {
     const isDemo = gate === 'guided_demo';
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      <div
+        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16"
+        data-demo="match-guided-root"
+      >
         <div className="relative flex max-w-lg flex-col items-center text-center">
           <p className="mb-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
             {isDemo ? 'Guided demo' : 'Opening your room'}

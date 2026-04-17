@@ -1,5 +1,3 @@
-@import './onboarding.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,15 +38,13 @@
   }
 }
 
-/* Landing + onboarding: stacking roots (viewport grain: GrainOverlay in App.tsx + /noise.png) */
-.landing-page-root,
-.onboarding-page-root {
+/* Landing: stacking root (viewport grain: GrainOverlay in App.tsx + /noise.png) */
+.landing-page-root {
   position: relative;
   isolation: isolate;
 }
 
-.landing-page-inner,
-.onboarding-page-inner {
+.landing-page-inner {
   position: relative;
   z-index: 1;
 }
