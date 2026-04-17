@@ -188,12 +188,12 @@ export function LandingPage() {
               {import.meta.env.DEV ? (
                 <p className="landing-hero-animate-sub mt-6 font-sans text-[0.85rem] text-landing-muted">
                   <Link
-                    to="/dev/supabase"
+                    to="/admin/health"
                     className="text-teal-light/90 underline-offset-4 hover:text-teal-light hover:underline"
                   >
-                    See technical notes
+                    Supabase health
                   </Link>{' '}
-                  (local dev)
+                  (moderator account · local dev)
                 </p>
               ) : null}
               {configured ? (
@@ -464,8 +464,8 @@ export function LandingPage() {
                   >
                     Offline demo
                   </Link>
-                  <Link to="/dev/supabase" className="btn-secondary min-w-[10rem] justify-center">
-                    Supabase health
+                  <Link to="/admin/health" className="btn-secondary min-w-[10rem] justify-center">
+                    Supabase health (mods)
                   </Link>
                 </div>
               </StepCard>

@@ -23,6 +23,7 @@ export * from './moderation/audit';
 export * from './profile';
 export * from './queryClient';
 export * from './queryKeys';
+export * from './rateLimitEdge';
 export * from './sendQueue';
 export * from './sentry';
 export * from './squad';

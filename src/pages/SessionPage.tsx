@@ -36,10 +36,11 @@ import {
   sendRetryDelayMs,
   setSentrySquadContext,
   sleep,
+  assertEdgeRateLimit,
 } from '../lib';
 
 /**
- * SessionPage — verified-anonymous squad dialogue room (E2E-encrypted messages, realtime, optional translation).
+ * SessionPage — verified-anonymous squad dialogue room (app-layer encrypted payloads, realtime, optional translation).
  * Requires auth and a complete profile via {@link SessionAccess}.
  */
 const sessionChatHeadingStyle: CSSProperties = {
@@ -194,6 +195,15 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const tryInsertMessage = useCallback(
     async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
       if (!supabase) return { ok: false };
+      try {
+        await assertEdgeRateLimit(supabase, 'messages_insert');
+      } catch (e) {
+        captureAppError(e instanceof Error ? e : new Error('rate limit'), {
+          feature: 'message_send',
+          extra: { squadId: m.squad_id },
+        });
+        return { ok: false };
+      }
       const { data: insertedRow, error: sendError } = await supabase
         .from('messages')
         .insert({

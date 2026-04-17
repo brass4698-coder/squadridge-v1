@@ -54,7 +54,7 @@ function useDemoNavState() {
     verifyActive: pathname.startsWith('/verify'),
     ledgerActive: pathname.startsWith('/ledger'),
     securityActive: pathname.startsWith('/security'),
-    supabaseActive: pathname.startsWith('/dev/supabase'),
+    supabaseActive: pathname.startsWith('/admin/health'),
     modActive: pathname.startsWith('/mod'),
   };
 }
@@ -286,11 +286,11 @@ function MobileNavDrawer({
                   </li>
                   <li>
                     <Link
-                      to="/dev/supabase"
+                      to="/admin/health"
                       className={mobileDrawerLinkClass(nav.supabaseActive)}
                       onClick={onClose}
                     >
-                      Technical notes (Supabase)
+                      Supabase health (mods)
                     </Link>
                   </li>
                 </ul>

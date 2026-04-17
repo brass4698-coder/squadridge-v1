@@ -22,6 +22,7 @@ const envSchema = z
     VITE_CONTACT_EMAIL: z.union([z.literal(''), z.string().email()]).optional(),
     VITE_SENTRY_DSN: z.union([z.string().url(), z.literal('')]).optional(),
     VITE_SENTRY_ENVIRONMENT: z.string().optional(),
+    VITE_ENABLE_EDGE_RATE_LIMIT: viteBoolString.optional(),
   })
   .superRefine((data, ctx) => {
     const pub = data.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();

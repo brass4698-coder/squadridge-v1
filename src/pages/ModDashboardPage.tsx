@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { assertEdgeRateLimit } from '../lib/rateLimitEdge';
 
 type SquadSummary = {
   id: string;
@@ -124,6 +125,7 @@ export function ModDashboardPage() {
   const flagMutation = useMutation({
     mutationFn: async ({ messageId, reason }: { messageId: string; reason: string }) => {
       if (!supabase) throw new Error('No client');
+      await assertEdgeRateLimit(supabase, 'moderator_flag_message');
       const { error } = await supabase.rpc('moderator_flag_message', {
         p_message_id: messageId,
         p_reason: reason,
@@ -163,13 +165,22 @@ export function ModDashboardPage() {
     const t = squadFilter.trim().toLowerCase();
     if (!t) return squads;
     return squads.filter(
-      (s) => s.topic.toLowerCase().includes(t) || s.id.toLowerCase().includes(t) || s.status.toLowerCase().includes(t),
+      (s) =>
+        s.topic.toLowerCase().includes(t) ||
+        s.id.toLowerCase().includes(t) ||
+        s.status.toLowerCase().includes(t),
     );
   }, [squads, squadFilter]);
 
   return (
-    <section className="mx-auto flex w-full max-w-[960px] flex-col gap-10 pb-16 pt-[72px]" aria-labelledby="mod-title">
-      <AlertDialog.Root open={archiveSquadId !== null} onOpenChange={(o) => !o && setArchiveSquadId(null)}>
+    <section
+      className="mx-auto flex w-full max-w-[960px] flex-col gap-10 pb-16 pt-[72px]"
+      aria-labelledby="mod-title"
+    >
+      <AlertDialog.Root
+        open={archiveSquadId !== null}
+        onOpenChange={(o) => !o && setArchiveSquadId(null)}
+      >
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/60" />
           <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-[min(100%,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-navy-light bg-navy-dark p-6 shadow-xl">
@@ -253,7 +264,9 @@ export function ModDashboardPage() {
                 type="button"
                 disabled={flagMutation.isPending}
                 className="rounded-lg bg-amber/90 px-4 py-2 font-sans text-[0.875rem] font-medium text-navy-dark hover:bg-amber disabled:opacity-50"
-                onClick={() => flagMutation.mutate({ messageId: flagMessageId, reason: flagReasonDraft.trim() })}
+                onClick={() =>
+                  flagMutation.mutate({ messageId: flagMessageId, reason: flagReasonDraft.trim() })
+                }
               >
                 {flagMutation.isPending ? 'Submitting…' : 'Flag'}
               </button>
@@ -263,13 +276,20 @@ export function ModDashboardPage() {
       ) : null}
 
       <header>
-        <h1 id="mod-title" className="font-heading text-[clamp(1.5rem,3vw,2rem)] font-extrabold text-gray-light">
+        <h1
+          id="mod-title"
+          className="font-heading text-[clamp(1.5rem,3vw,2rem)] font-extrabold text-gray-light"
+        >
           Moderation
         </h1>
         <p className="mt-2 max-w-[60ch] font-sans text-[0.9rem] leading-relaxed text-slate-400">
-          Active squads with member counts, message ciphertext preview (not decrypted), flag message, and archive squad.
-          Moderator accounts are provisioned in the database — not self-service. Retention and deletion policies are
-          operator-defined — see <code className="font-mono text-[0.75rem] text-slate-500">docs/operations/data-retention-operators.md</code>.
+          Active squads with member counts, message ciphertext preview (not decrypted), flag
+          message, and archive squad. Moderator accounts are provisioned in the database — not
+          self-service. Retention and deletion policies are operator-defined — see{' '}
+          <code className="font-mono text-[0.75rem] text-slate-500">
+            docs/operations/data-retention-operators.md
+          </code>
+          .
         </p>
       </header>
 
@@ -291,12 +311,16 @@ export function ModDashboardPage() {
           <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
         ) : squadsQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
-            {squadsQuery.error instanceof Error ? squadsQuery.error.message : 'Could not load squads.'}
+            {squadsQuery.error instanceof Error
+              ? squadsQuery.error.message
+              : 'Could not load squads.'}
           </p>
         ) : squads.length === 0 ? (
           <p className="mt-4 font-sans text-[0.875rem] text-slate-500">No squads found.</p>
         ) : filteredSquads.length === 0 ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">No squads match your filter.</p>
+          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">
+            No squads match your filter.
+          </p>
         ) : (
           <ul className="mt-4 divide-y divide-navy-light">
             {filteredSquads.map((s) => (
@@ -341,7 +365,9 @@ export function ModDashboardPage() {
                 {expandedId === s.id ? (
                   <div className="mt-4 rounded border border-navy-light bg-[#0a1018] p-3">
                     {sentimentQuery.isPending ? (
-                      <p className="mb-3 font-sans text-[0.75rem] text-slate-500">Loading sentiment samples…</p>
+                      <p className="mb-3 font-sans text-[0.75rem] text-slate-500">
+                        Loading sentiment samples…
+                      </p>
                     ) : sentimentQuery.isError ? (
                       <p className="mb-3 font-sans text-[0.75rem] text-amber" role="alert">
                         {sentimentQuery.error instanceof Error
@@ -357,21 +383,26 @@ export function ModDashboardPage() {
                           {(sentimentQuery.data ?? []).map((row) => (
                             <li key={row.id}>
                               {new Date(row.recorded_at).toLocaleString()} · tension{' '}
-                              {typeof row.tension_level === 'number' ? row.tension_level.toFixed(2) : '—'}
+                              {typeof row.tension_level === 'number'
+                                ? row.tension_level.toFixed(2)
+                                : '—'}
                             </li>
                           ))}
                         </ul>
                       </div>
                     ) : (
                       <p className="mb-3 font-sans text-[0.72rem] text-slate-500">
-                        No sentiment_metrics rows for this squad (expected unless `VITE_ENABLE_AI=true` for clients).
+                        No sentiment_metrics rows for this squad (expected unless
+                        `VITE_ENABLE_AI=true` for clients).
                       </p>
                     )}
                     {messagesQuery.isPending ? (
                       <p className="font-sans text-[0.8rem] text-slate-500">Loading messages…</p>
                     ) : messagesQuery.isError ? (
                       <p className="font-sans text-[0.8rem] text-amber" role="alert">
-                        {messagesQuery.error instanceof Error ? messagesQuery.error.message : 'Could not load.'}
+                        {messagesQuery.error instanceof Error
+                          ? messagesQuery.error.message
+                          : 'Could not load.'}
                       </p>
                     ) : (messagesQuery.data ?? []).length === 0 ? (
                       <p className="font-sans text-[0.8rem] text-slate-500">No messages.</p>
@@ -386,7 +417,9 @@ export function ModDashboardPage() {
                               <span>{new Date(m.sent_at).toLocaleString()}</span>
                               <span>{m.status}</span>
                             </div>
-                            <p className="mt-1 break-all text-slate-500">{previewCipher(m.payload_ciphertext)}</p>
+                            <p className="mt-1 break-all text-slate-500">
+                              {previewCipher(m.payload_ciphertext)}
+                            </p>
                             {m.status === 'sent' ? (
                               <button
                                 type="button"
@@ -413,12 +446,16 @@ export function ModDashboardPage() {
       </div>
 
       <div className="rounded-[10px] border border-navy-light bg-[#0f1623] p-6">
-        <h2 className="font-heading text-[1rem] font-semibold text-gray-light">Moderation audit log</h2>
+        <h2 className="font-heading text-[1rem] font-semibold text-gray-light">
+          Moderation audit log
+        </h2>
         {auditQuery.isPending ? (
           <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
         ) : auditQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
-            {auditQuery.error instanceof Error ? auditQuery.error.message : 'Could not load audit log.'}
+            {auditQuery.error instanceof Error
+              ? auditQuery.error.message
+              : 'Could not load audit log.'}
           </p>
         ) : audits.length === 0 ? (
           <p className="mt-4 font-sans text-[0.875rem] text-slate-500">No audit entries yet.</p>
@@ -427,9 +464,15 @@ export function ModDashboardPage() {
             {audits.map((row) => (
               <li key={row.id} className="py-3 font-sans text-[0.8rem] text-slate-300 first:pt-0">
                 <span className="text-gray-light">{row.action}</span>
-                {row.target_type ? <span className="ml-2 text-slate-500">{row.target_type}</span> : null}
-                <span className="ml-2 text-slate-500">{new Date(row.created_at).toLocaleString()}</span>
-                {row.metadata && typeof row.metadata === 'object' && Object.keys(row.metadata).length > 0 ? (
+                {row.target_type ? (
+                  <span className="ml-2 text-slate-500">{row.target_type}</span>
+                ) : null}
+                <span className="ml-2 text-slate-500">
+                  {new Date(row.created_at).toLocaleString()}
+                </span>
+                {row.metadata &&
+                typeof row.metadata === 'object' &&
+                Object.keys(row.metadata).length > 0 ? (
                   <pre className="mt-2 max-h-24 overflow-auto rounded border border-navy-light bg-[#0a1018] p-2 font-mono text-[0.65rem] text-slate-500">
                     {JSON.stringify(row.metadata, null, 0)}
                   </pre>

@@ -92,7 +92,16 @@ export default function App() {
                   <Route path="/security" element={<SecurityDisclosurePage />} />
                   <Route path="/match" element={<Match />} />
                   <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
-                  <Route path="/dev/supabase" element={<SupabaseHealthPage />} />
+                  <Route
+                    path="/admin/health"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <SupabaseHealthPage />
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
                   <Route path="/sign-in" element={<SignInPage />} />
                   <Route path="/auth/callback" element={<AuthCallbackPage />} />
                   <Route

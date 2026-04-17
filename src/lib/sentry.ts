@@ -7,6 +7,9 @@ import type { ErrorInfo } from 'react';
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (typeof dsn !== 'string' || dsn.trim().length === 0) {
+    if (import.meta.env.PROD) {
+      throw new Error('VITE_SENTRY_DSN is required in production builds');
+    }
     return;
   }
 

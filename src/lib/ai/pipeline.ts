@@ -11,6 +11,34 @@ export interface ToneInsight {
   suggestion?: string;
 }
 
+type SentimentRow = { label?: string; score?: number };
+
+/**
+ * DistilBERT sentiment (Transformers.js) when available; falls back to {@link analyzeToneLocal}.
+ */
+export async function analyzeToneWithModel(text: string): Promise<ToneInsight> {
+  try {
+    const { pipeline } = await import('@xenova/transformers');
+    const classifier = await pipeline(
+      'sentiment-analysis',
+      'Xenova/distilbert-base-uncased-finetuned-sst-2-english',
+    );
+    const raw = await classifier(text.trim().slice(0, 2000));
+    const row = (Array.isArray(raw) ? raw[0] : raw) as SentimentRow;
+    const label = typeof row?.label === 'string' ? row.label : '';
+    const score = typeof row?.score === 'number' ? row.score : 0.5;
+    const negative = label.toUpperCase().includes('NEG');
+    const tensionLevel = negative ? Math.min(1, score) : Math.min(1, 1 - score);
+    const suggestion =
+      tensionLevel > 0.5
+        ? 'Try shorter sentences and name the concern without labeling the other side.'
+        : undefined;
+    return { tensionLevel, suggestion };
+  } catch {
+    return analyzeToneLocal(text);
+  }
+}
+
 /**
  * Lightweight client-side heuristic when remote models are disabled or unreachable.
  */
@@ -33,7 +61,10 @@ export function analyzeToneLocal(text: string): ToneInsight {
  * When `VITE_ENABLE_REMOTE_TONE=true`, a future Edge Function can return richer tension data.
  * Until wired, returns null — local path remains `analyzeToneLocal` + optional `sentiment_metrics`.
  */
-export async function fetchRemoteToneInsight(_squadId: string, _text: string): Promise<ToneInsight | null> {
+export async function fetchRemoteToneInsight(
+  _squadId: string,
+  _text: string,
+): Promise<ToneInsight | null> {
   if (!isRemoteToneEnabled()) return null;
   return null;
 }
@@ -45,7 +76,7 @@ export async function recordLocalToneAndMaybePersist(
 ): Promise<{ insight: ToneInsight | null; persistOk: boolean }> {
   if (!isAiPipelineEnabled()) return { insight: null, persistOk: true };
   const remote = await fetchRemoteToneInsight(squadId, text);
-  const insight = remote ?? analyzeToneLocal(text);
+  const insight = remote ?? (await analyzeToneWithModel(text));
   const { error } = await supabase.from('sentiment_metrics').insert({
     squad_id: squadId,
     tension_level: insight.tensionLevel,

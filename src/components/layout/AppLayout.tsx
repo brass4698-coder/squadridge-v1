@@ -59,10 +59,10 @@ export function AppLayout() {
                     ·
                   </span>
                   <Link
-                    to="/dev/supabase"
+                    to="/admin/health"
                     className="underline-offset-4 hover:text-slate-300 hover:underline"
                   >
-                    Technical notes
+                    Supabase health (mods)
                   </Link>
                 </>
               ) : null}

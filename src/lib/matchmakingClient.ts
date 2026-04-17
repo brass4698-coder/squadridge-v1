@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import type { MatchPerspective } from './matchmakingSession';
+import { assertEdgeRateLimit } from './rateLimitEdge';
 
 export type MatchmakingSnapshot =
   | {
@@ -40,7 +41,8 @@ function parseSnapshot(data: unknown): MatchmakingSnapshot | null {
       side,
       waiting_a: typeof o.waiting_a === 'number' ? o.waiting_a : Number(o.waiting_a) || 0,
       waiting_b: typeof o.waiting_b === 'number' ? o.waiting_b : Number(o.waiting_b) || 0,
-      queue_position: typeof o.queue_position === 'number' ? o.queue_position : Number(o.queue_position) || 1,
+      queue_position:
+        typeof o.queue_position === 'number' ? o.queue_position : Number(o.queue_position) || 1,
     };
   }
   return null;
@@ -51,6 +53,7 @@ export async function enqueueMatchmaking(
   poolKey: string,
   side: MatchPerspective,
 ): Promise<MatchmakingSnapshot | null> {
+  await assertEdgeRateLimit(supabase, 'matchmaking_enqueue_and_try');
   const { data, error } = await supabase.rpc('matchmaking_enqueue_and_try', {
     p_pool_key: poolKey,
     p_side: side,

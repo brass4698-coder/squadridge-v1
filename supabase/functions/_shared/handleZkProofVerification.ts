@@ -5,11 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { verifyProof } from 'npm:@semaphore-protocol/proof@4.14.2';
 import { encodeBytes32String } from 'npm:ethers@6.13.4/abi';
 import { toBigInt } from 'npm:ethers@6.13.4/utils';
-
-const corsHeaders: Record<string, string> = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeadersFor } from './cors.ts';
 
 const MAX_LABEL = 31;
 
@@ -33,7 +29,10 @@ function fieldFromLabel(label: string): string {
   return toBigInt(encodeBytes32String(s)).toString();
 }
 
-function scopeToVerifiedAttribute(scope: string): { attribute_type: string; attribute_value: string } {
+function scopeToVerifiedAttribute(scope: string): {
+  attribute_type: string;
+  attribute_value: string;
+} {
   const normalized = scope.trim().slice(0, 100);
   if (normalized === 'onboarding_demo' || normalized === 'verification_flow') {
     return { attribute_type: 'citizenship', attribute_value: 'demo_region' };
@@ -151,36 +150,36 @@ export async function verifyAndPersistZkProof(
   };
 }
 
-export function jsonResponse(body: unknown, status = 200): Response {
+export function jsonResponse(body: unknown, status = 200, req: Request): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeadersFor(req), 'Content-Type': 'application/json' },
   });
 }
 
-export function getCorsHeaders(): Record<string, string> {
-  return corsHeaders;
+export function getCorsHeaders(req: Request): Record<string, string> {
+  return corsHeadersFor(req);
 }
 
 export async function handleZkProofPost(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeadersFor(req) });
   }
 
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    return jsonResponse({ error: 'Method not allowed' }, 405, req);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !anonKey || !serviceKey) {
-    return jsonResponse({ error: 'Server configuration error' }, 500);
+    return jsonResponse({ error: 'Server configuration error' }, 500, req);
   }
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return jsonResponse({ error: 'Missing or invalid authorization' }, 401);
+    return jsonResponse({ error: 'Missing or invalid authorization' }, 401, req);
   }
 
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -191,27 +190,27 @@ export async function handleZkProofPost(req: Request): Promise<Response> {
     error: userErr,
   } = await userClient.auth.getUser();
   if (userErr || !user) {
-    return jsonResponse({ error: 'Unauthorized' }, 401);
+    return jsonResponse({ error: 'Unauthorized' }, 401, req);
   }
 
   let body: ZkVerifyRequestBody;
   try {
     body = (await req.json()) as ZkVerifyRequestBody;
   } catch {
-    return jsonResponse({ error: 'Invalid JSON' }, 400);
+    return jsonResponse({ error: 'Invalid JSON' }, 400, req);
   }
 
   try {
     const result = await verifyAndPersistZkProof(supabaseUrl, serviceKey, user.id, body);
-    return jsonResponse(result);
+    return jsonResponse(result, 200, req);
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Verification failed';
     if (msg === 'Nullifier already used') {
-      return jsonResponse({ error: msg }, 409);
+      return jsonResponse({ error: msg }, 409, req);
     }
     if (msg === 'Could not record proof' || msg === 'Could not record verified attributes') {
-      return jsonResponse({ error: msg }, 500);
+      return jsonResponse({ error: msg }, 500, req);
     }
-    return jsonResponse({ error: msg }, 400);
+    return jsonResponse({ error: msg }, 400, req);
   }
 }

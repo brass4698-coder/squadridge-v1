@@ -1,0 +1,44 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [develop, staging]
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    env:
+      # Production build requires Sentry DSN (see src/lib/sentry.ts). Fallbacks keep fork CI green without secrets.
+      VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN || 'https://examplePublicKey@o0.ingest.sentry.io/4500000000000000' }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_placeholder_for_ci_only' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run check:prod-readiness
+
+      - run: npm run test
+
+      - run: npm run build
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E
+        run: npx playwright test
+        env:
+          CI: true
+
+      # Deploy steps require project-specific secrets (Supabase CLI, Netlify token, site id).
+      # - name: Deploy Supabase (staging)
+      #   run: supabase link --project-ref ${{ secrets.STAGING_SUPABASE_PROJECT_REF }} && supabase db push && supabase functions deploy
+      #
+      # - name: Deploy frontend (Netlify)
+      #   run: npx netlify deploy --prod --dir=dist --site ${{ secrets.NETLIFY_SITE_ID }}
