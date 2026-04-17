@@ -10,13 +10,15 @@ export type EnvMode = 'local' | 'staging' | 'prod';
  * Single scripted interaction. Run **in order**; no parallelism.
  * - `focus` / `click` / `select`: wait `delayMs` (default 250 ms) before running.
  * - `type`: optional `delayMs` before focus+typing; `charDelayMs` between each character (default ~100 ms).
+ * - `wait`: pause for `ms` (e.g. between scripted onboarding steps).
  * Ending a step with `click` on the real Next/Submit lets existing app handlers navigate — do not route from the runner.
  */
 export type DemoAction =
   | { kind: 'focus'; selector: string; delayMs?: number }
   | { kind: 'type'; selector: string; text: string; charDelayMs?: number; delayMs?: number }
   | { kind: 'click'; selector: string; delayMs?: number }
-  | { kind: 'select'; selector: string; value: string; delayMs?: number };
+  | { kind: 'select'; selector: string; value: string; delayMs?: number }
+  | { kind: 'wait'; ms: number };
 
 export type DemoOverlayStep = {
   id: string;
@@ -55,6 +57,86 @@ export const demoSteps: DemoStep[] = [
     path: '/?demo=1',
     title: 'Welcome',
     description: 'Product story — then intent, match, session, ledger.',
+    inMainScript: true,
+    envModes: mockAll,
+  },
+  {
+    id: 'onboarding_mission',
+    path: '/onboarding?demo=1&owt=0',
+    title: 'Mission brief',
+    description: 'Onboarding — read the brief, then use Next in the card to continue.',
+    inMainScript: true,
+    envModes: mockAll,
+  },
+  {
+    id: 'onboarding_identity',
+    path: '/onboarding?demo=1&owt=1',
+    title: 'Identity',
+    description: 'Callsign, lane, and operational context.',
+    inMainScript: true,
+    envModes: mockAll,
+    actions: [
+      { kind: 'focus', selector: '[data-demo="onboarding-callsign"]', delayMs: 400 },
+      {
+        kind: 'type',
+        selector: '[data-demo="onboarding-callsign"]',
+        text: 'Falcon-23',
+        charDelayMs: HUMAN_CHAR_MS,
+      },
+      { kind: 'wait', ms: 2000 },
+      { kind: 'click', selector: '[data-demo="onboarding-role-analyst"]', delayMs: 200 },
+      { kind: 'wait', ms: 1000 },
+      { kind: 'select', selector: '[data-demo="onboarding-era-trigger"]', value: 'contemporary', delayMs: 200 },
+    ],
+  },
+  {
+    id: 'onboarding_placement',
+    path: '/onboarding?demo=1&owt=2',
+    title: 'Placement',
+    description: 'Language, region, and time window.',
+    inMainScript: true,
+    envModes: mockAll,
+    actions: [
+      { kind: 'focus', selector: '[data-demo="onboarding-language"]', delayMs: 400 },
+      { kind: 'type', selector: '[data-demo="onboarding-language"]', text: 'English', charDelayMs: HUMAN_CHAR_MS },
+      { kind: 'wait', ms: 1000 },
+      { kind: 'focus', selector: '[data-demo="onboarding-region"]', delayMs: 200 },
+      { kind: 'type', selector: '[data-demo="onboarding-region"]', text: 'Pacific North West', charDelayMs: HUMAN_CHAR_MS },
+      { kind: 'wait', ms: 1000 },
+      { kind: 'focus', selector: '[data-demo="onboarding-timezone"]', delayMs: 200 },
+      {
+        kind: 'type',
+        selector: '[data-demo="onboarding-timezone"]',
+        text: 'Weekday Evenings PT',
+        charDelayMs: HUMAN_CHAR_MS,
+      },
+    ],
+  },
+  {
+    id: 'onboarding_rules',
+    path: '/onboarding?demo=1&owt=3',
+    title: 'Rules & safety',
+    description: 'Accept the rules to continue.',
+    inMainScript: true,
+    envModes: mockAll,
+    actions: [
+      { kind: 'wait', ms: 2000 },
+      { kind: 'click', selector: '[data-demo="onboarding-rules-accept"]', delayMs: 200 },
+    ],
+  },
+  {
+    id: 'onboarding_verification',
+    path: '/onboarding?demo=1&owt=4',
+    title: 'Verification',
+    description: 'Verification step in onboarding.',
+    inMainScript: true,
+    envModes: mockAll,
+  },
+  {
+    id: 'onboarding_dryrun',
+    path: '/onboarding?demo=1&owt=5',
+    title: 'Dry run',
+    description: 'Finish onboarding to enter the guided flow.',
     inMainScript: true,
     envModes: mockAll,
   },

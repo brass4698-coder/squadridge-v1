@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { completeOnboardingProfile, isSupabaseConfigured } from '../../../lib/supabase/profile';
 import { OnboardingProvider, useOnboarding } from './OnboardingContext';
@@ -10,6 +10,10 @@ function OnboardingInner() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { draft } = useOnboarding();
+
+  if (searchParams.get('demo') === '1' && searchParams.get('owt') === null) {
+    return <Navigate to="/onboarding?demo=1&owt=0" replace />;
+  }
 
   const handleComplete = async () => {
     try {
@@ -34,11 +38,14 @@ function OnboardingInner() {
       /* ignore */
     }
     const rawNext = searchParams.get('next');
-    const target =
+    const base =
       rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
         ? decodeURIComponent(rawNext)
         : '/intent';
-    navigate(target, { replace: true });
+    const keepDemo = searchParams.get('demo') === '1';
+    const targetUrl = new URL(base, typeof window !== 'undefined' ? window.location.origin : 'https://squadridge.local');
+    if (keepDemo) targetUrl.searchParams.set('demo', '1');
+    navigate(`${targetUrl.pathname}${targetUrl.search}`, { replace: true });
   };
 
   return <OnboardingFlow onComplete={handleComplete} />;

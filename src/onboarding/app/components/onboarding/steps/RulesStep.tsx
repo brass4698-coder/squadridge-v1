@@ -61,6 +61,7 @@ export function RulesStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps
             <input
               type="checkbox"
               id="rules-accept"
+              data-demo="onboarding-rules-accept"
               checked={draft.rulesAccepted}
               onChange={(e) => setDraft({ rulesAccepted: e.target.checked })}
               className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border border-white/8 bg-navy text-teal focus:ring-1 focus:ring-teal/40"

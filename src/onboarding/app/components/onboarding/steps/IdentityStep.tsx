@@ -115,7 +115,13 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                   <button
                     key={value}
                     type="button"
-                    data-demo={value === 'strategist' ? 'onboarding-role-strategist' : undefined}
+                    data-demo={
+                      value === 'strategist'
+                        ? 'onboarding-role-strategist'
+                        : value === 'analyst'
+                          ? 'onboarding-role-analyst'
+                          : undefined
+                    }
                     className={cn(
                       draft.roleArchetype === value ? ROLE_BUTTON_ACTIVE_CLASS : ROLE_BUTTON_INACTIVE_CLASS,
                     )}

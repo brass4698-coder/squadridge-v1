@@ -353,7 +353,7 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
             aria-label="SquadRidge home"
           >
             <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={36} className="block" />
+              <SquadLogo size={28} className="block" />
             </span>
             <SquadRidgeWordmark
               alt=""
@@ -382,7 +382,7 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
             aria-label="SquadRidge home"
           >
             <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={40} className="block" />
+              <SquadLogo size={32} className="block" />
             </span>
             <SquadRidgeWordmark
               alt=""

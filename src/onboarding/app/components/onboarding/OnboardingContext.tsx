@@ -56,11 +56,11 @@ const defaultDraft: OnboardingDraft = {
 };
 
 /** v2: era defaults to unset (no implicit Contemporary). */
-const STORAGE_KEY = 'sr_onboarding_draft_v2';
+export const ONBOARDING_DRAFT_STORAGE_KEY = 'sr_onboarding_draft_v2';
 
 function loadDraft(): OnboardingDraft {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(ONBOARDING_DRAFT_STORAGE_KEY);
     if (!raw) return defaultDraft;
     const parsed = JSON.parse(raw) as Partial<OnboardingDraft>;
     return { ...defaultDraft, ...parsed };
@@ -71,7 +71,7 @@ function loadDraft(): OnboardingDraft {
 
 function saveDraftLocal(d: OnboardingDraft) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    localStorage.setItem(ONBOARDING_DRAFT_STORAGE_KEY, JSON.stringify(d));
   } catch {
     /* ignore */
   }

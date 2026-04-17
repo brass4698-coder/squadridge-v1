@@ -217,3 +217,55 @@
 .session-translation-pending {
   animation: session-translation-pulse 1.2s ease-in-out infinite;
 }
+
+/* Onboarding guided tour: one-shot ring on Mission → Identity forward. */
+@keyframes sr-demo-forward-pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.88);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.sr-demo-forward-pulse-ring {
+  animation: sr-demo-forward-pulse-ring 0.42s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-demo-forward-pulse-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Demo automation: visual-only tap ring before scripted click/select (phantom click). */
+@keyframes sr-demo-phantom-click {
+  0% {
+    transform: translate(-50%, -50%) scale(0.55);
+    opacity: 0.92;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.45);
+    opacity: 0;
+  }
+}
+
+.sr-demo-phantom-click-ring {
+  position: fixed;
+  z-index: 2147483646;
+  pointer-events: none;
+  border-radius: 9999px;
+  border: 2px solid rgba(45, 212, 191, 0.88);
+  box-sizing: border-box;
+  animation: sr-demo-phantom-click 0.38s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-demo-phantom-click-ring {
+    animation: none;
+    opacity: 0;
+  }
+}

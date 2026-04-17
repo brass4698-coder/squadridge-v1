@@ -1,15 +1,20 @@
+import { useSearchParams } from 'react-router-dom';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { obBody, obH1, obH1ToFirstLine, obQuote } from '../onboardingStepClasses';
 import type { StepProps } from '../types';
 
 export function MissionStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
+  const [searchParams] = useSearchParams();
+  const demoTour = searchParams.get('demo') === '1';
+
   return (
     <OnboardingLayout
       onBack={onBack}
       onNext={onNext}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled}
+      pulseForwardAdvance={demoTour}
     >
       <OnboardingCard>
         <div className="flex max-w-[52rem] flex-col gap-3 sm:gap-3.5">

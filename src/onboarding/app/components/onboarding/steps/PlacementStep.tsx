@@ -51,6 +51,7 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
                 id="sr-lang"
                 name="language"
                 autoComplete="language"
+                data-demo="onboarding-language"
                 value={draft.language}
                 onChange={(e) => setDraft({ language: e.target.value })}
                 className={ONBOARDING_INPUT_CLASS}
@@ -66,6 +67,7 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
               <input
                 id="sr-region"
                 name="region"
+                data-demo="onboarding-region"
                 value={draft.regionHint}
                 onChange={(e) => setDraft({ regionHint: e.target.value })}
                 className={ONBOARDING_INPUT_CLASS}
@@ -79,6 +81,7 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
               <input
                 id="sr-tz"
                 name="timezone"
+                data-demo="onboarding-timezone"
                 value={draft.timezoneWindow}
                 onChange={(e) => setDraft({ timezoneWindow: e.target.value })}
                 className={ONBOARDING_INPUT_CLASS}

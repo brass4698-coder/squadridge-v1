@@ -66,7 +66,16 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
 
   const showDemoChrome = demoActive && currentStepIndex >= 0;
 
-  const canGoNext = demoActive && currentStepIndex >= 0 && currentStepIndex < DEMO_MAIN_STEPS.length - 1;
+  /** Onboarding uses its own footer during the tour; demo bar Next would skip substeps. */
+  const onboardingDemoTour =
+    location.pathname === '/onboarding' && searchParams.get('demo') === '1';
+
+  const canGoNext =
+    demoActive &&
+    currentStepIndex >= 0 &&
+    currentStepIndex < DEMO_MAIN_STEPS.length - 1 &&
+    !onboardingDemoTour;
+
   const canGoBack = demoActive && currentStepIndex > 0;
 
   const autoAbortRef = useRef<AbortController | null>(null);
@@ -87,12 +96,13 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
 
   const goNext = useCallback(() => {
     if (!demoActive || currentStepIndex < 0) return;
+    if (onboardingDemoTour) return;
     if (actionsRunningRef.current) return;
     if (currentStepIndex >= DEMO_MAIN_STEPS.length - 1) return;
     const next = DEMO_MAIN_STEPS[currentStepIndex + 1];
     if (currentStep) emitDemoStepNav(currentStep.id, 'next');
     if (next) navigate(next.path);
-  }, [demoActive, currentStepIndex, currentStep, navigate]);
+  }, [demoActive, currentStepIndex, currentStep, navigate, onboardingDemoTour]);
 
   const goBack = useCallback(() => {
     if (!demoActive || currentStepIndex <= 0) return;
