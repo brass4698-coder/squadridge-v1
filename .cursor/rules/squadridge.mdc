@@ -2,48 +2,32 @@
 description: SquadRidge Core Application Rules
 globs: *.ts, *.tsx, *.js, *.jsx
 ---
-# SquadRidge Core Application Rules
+# SquadRidge — core rules
 
-You are developing SquadRidge, a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack.
+Cross-border dialogue app on the Enclave[ZK] stack (React, Vite, Supabase).
 
-## Architectural Principles
+## Architecture
 
-1.  **Zero-Knowledge First**: All identity verification must use Semaphore-based zero-knowledge proofs (ZKPs). Never expose or log raw personally identifiable information (PII).
-2.  **Ephemerality**: Dialogue sessions are time-bound. Messages must be treated as ephemeral and encrypted. Ensure data minimization is strictly enforced.
-3.  **Low-Bandwidth Resilience**: The application must function in active conflict zones with degraded internet infrastructure. Optimize all network requests and handle offline/poor connectivity gracefully.
-4.  **De-escalation UX**: Implement the "Power of Pause." The UI should facilitate calm reflection, utilizing interventions like the one-tap "Slow down" button.
+1. **ZK verification**: Semaphore proofs for identity checks. Do not log or expose raw PII.
+2. **Sessions**: Time-bounded rooms; encrypt payloads; keep data minimal.
+3. **Low bandwidth**: Fewer round-trips; handle offline and flaky networks.
+4. **De-escalation UX**: “Power of Pause,” one-tap Slow down, calm copy.
 
-## Frontend Guidelines (React/Vite/TypeScript)
+## Frontend
 
-### Component Structure
+- Functional components; hooks for state/side effects; strict TypeScript.
+- **Look**: Deep Navy `#0A0F1E`, Space Grotesk headings, DM Sans body, `clamp()` for type.
+- **Controls**: Teal `#0E9AA7` primary, Amber `#F5A623` warnings; clear hover/focus; WCAG AA contrast.
+- **SVG**: Clear, consistent icons; no flags or military insignia.
 
-*   Use functional components with hooks.
-*   Separate presentation logic from business logic (use custom hooks for state and side effects).
-*   Ensure all components are strictly typed.
+## Backend
 
-### Styling (TailwindCSS)
+- Postgres + Supabase (RLS on by default). Matchmaking and queues live in SQL/RPC unless a worker is added.
+- Optional Redis in `docker-compose.yml` is for local experiments only.
+- Realtime: Supabase channels; respect membership and RLS.
 
-*   **Aesthetic**: Maintain a modern, military-friendly, dark-native design system. The primary background is Deep Navy (`#0A0F1E`).
-*   **Typography**: Use Space Grotesk for headings and DM Sans for body text. Implement fluid typography using CSS `clamp()` for perfect scaling across devices.
-*   **Interactive Elements**: Design buttons using neo-skeuomorphism principles for tactile feedback. Use Teal (`#0E9AA7`) for primary actions and Amber (`#F5A623`) for warnings.
-*   **Graphics**: Ensure all SVG designs are of ultra-premium quality and adhere to a military-grade aesthetic.
-*   **Accessibility**: Strictly adhere to WCAG AA standards, particularly regarding contrast ratios against the dark background.
+## Security
 
-## Backend Integration (Supabase/Redis)
-
-### Data Handling
-
-*   Assume Row Level Security (RLS) is always active. Write queries that respect user context and session state.
-*   Use Redis for managing ephemeral session state, rate limiting, and real-time matching queues.
-*   Separate the ephemeral messaging streams from aggregated analytics (sentiment metrics).
-
-### API Communication
-
-*   Use standard REST endpoints for authentication and state management.
-*   Use WebSockets for real-time, low-latency messaging within squads.
-
-## Security and Privacy
-
-*   Implement end-to-end encryption for all sensitive exchanges.
-*   Ensure the application degrades gracefully if AI services (translation, tone detection) experience downtime.
-*   Follow "do no harm" principles in all data architecture decisions.
+- Message encryption follows `docs/security/threat-model.md` (application-layer keys today, not Signal-style E2E).
+- Translation / tone features must fail soft: chat works if those paths error.
+- Data design: minimize retention and harm (see threat model).

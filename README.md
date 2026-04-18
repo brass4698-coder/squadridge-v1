@@ -68,7 +68,7 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 
 ## Documentation
 
-Product and technical specs live under [`docs/`](docs/). For **high-stakes security and anonymity claims**, start with [`docs/security/threat-model.md`](docs/security/threat-model.md) (engineering source of truth).
+Specs and runbooks: [`docs/`](docs/). Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md).
 
 ## License
 

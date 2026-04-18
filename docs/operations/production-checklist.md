@@ -13,7 +13,8 @@ Use before tagging a release or pointing a production domain at the app.
 
 - [ ] `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (or legacy anon JWT) set on the **build** host.
 - [ ] `VITE_ZK_STUB` unset or `false` for production bundles (see `vite.config.ts`).
-- [ ] Optional: `VITE_SENTRY_DSN`, `VITE_SITE_URL` for observability and magic-link correctness.
+- [ ] `VITE_SENTRY_DSN` set on the build host (required for production builds; see `src/lib/sentry.ts`).
+- [ ] Optional: `VITE_SITE_URL` for magic-link redirects when the deploy URL must be exact.
 
 ## Smoke tests
 

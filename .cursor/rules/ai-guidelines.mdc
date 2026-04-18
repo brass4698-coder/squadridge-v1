@@ -1,33 +1,26 @@
 ---
 description: SquadRidge AI Pipeline Guidelines
-globs: src/ai/**/*.ts, src/services/ai/**/*.ts
+globs: src/lib/ai/**/*.ts
 ---
-# SquadRidge AI Pipeline Guidelines
+# SquadRidge — AI / translation
 
-You are developing the AI pipeline for SquadRidge, a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack. The AI pipeline is critical for de-escalation and early warning, but must operate under strict privacy constraints.
+Optional analytics and in-browser translation. Core chat must not depend on remote AI.
 
-## Core AI Principles
+## Principles
 
-1.  **De-escalation First**: The primary goal of the AI is to facilitate the "Power of Pause." It should gently suggest calmer wording and slow down hostile exchanges.
-2.  **Graceful Degradation**: The core messaging functionality must never depend entirely on the AI pipeline. If translation or tone detection services experience downtime, the platform must continue to function securely.
-3.  **Data Separation**: The AI pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics (sentiment metrics).
-4.  **"Do No Harm"**: Ensure AI models do not misrepresent or misclassify conflict narratives from non-Western contexts. Bias mitigation is paramount.
+1. **De-escalation**: Prefer “Slow down” / “Pull back” and calm copy over harsh labels.
+2. **Degradation**: If translation or tone fails, messaging still works.
+3. **Separation**: Message bodies stay in the chat path; `sentiment_metrics` is aggregated, not a copy of raw dialogue.
+4. **Bias**: Avoid flattening non-Western conflict framing; flag uncertainty instead of false certainty.
 
-## Implementation Guidelines
+## Implementation
 
-### Real-Time Translation and Tone Detection
+- **Latency**: Small payloads; worker/async where possible on bad networks.
+- **Interventions**: Wire tension signals to existing UI (Slow down, Pull back).
+- **Sentiment rows**: De-identified; no linkage to PII or ZK preimages in stored fields.
 
-*   **Latency**: Optimize for low-latency processing. Users in active conflict zones may have degraded internet infrastructure.
-*   **Interventions**: Implement the one-tap "Slow down" button and the temporary "Pull back" feature. The AI should trigger these prompts based on rising tension levels.
-*   **Feedback Loop**: Provide clear, non-alarmist feedback to the user when tension is flagged. Use a calm and measured tone.
+## Privacy
 
-### Aggregated Sentiment Analysis
-
-*   **Anonymization**: Ensure all sentiment metrics are completely de-identified before being stored or analyzed. Never link sentiment data back to a specific user's personally identifiable information (PII) or zero-knowledge proof.
-*   **Early Warning Signals**: The aggregated data should provide actionable intelligence for vetted mediators, think tanks, and UN agencies, addressing the "warning-response" problem.
-
-## Security and Privacy Constraints
-
-*   **Ephemerality**: The AI models should only process ephemeral data. Do not store raw dialogue for training purposes unless explicit, verified consent is obtained through a "Data Commons" model.
-*   **End-to-End Encryption**: Ensure the AI pipeline integrates securely with the platform's end-to-end encryption. The models must analyze data without compromising the overall security architecture.
-*   **Auditing**: All AI interventions must be logged (anonymously) for review by moderators to ensure the safety and effectiveness of the platform.
+- Do not ship raw transcripts to third-party APIs without an explicit product decision and docs update.
+- Client-side processing aligns with `messageCrypto` / `messagePayload`; server-held keys mean operators can read DB; see threat model.
+- Moderation logs: minimal metadata; no message bodies in Sentry breadcrumbs.
