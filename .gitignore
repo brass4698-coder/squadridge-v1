@@ -152,5 +152,8 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Local IDE agent skills (keep on your machine; not part of the app)
+.agents/
+
 # Accidental nested clone (safe to delete locally if present)
 /SquadRidge/

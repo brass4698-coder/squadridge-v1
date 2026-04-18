@@ -15,6 +15,8 @@ Open PRs against `main`.
 3. Copy env per README; never commit secrets
 4. `npm run dev`
 
+Optional local tooling can live under `.agents/` (gitignored).
+
 ## Checks
 
 - `npm run lint` — ESLint (flat config: `eslint.config.mjs`)
@@ -22,11 +24,6 @@ Open PRs against `main`.
 - `npm test` — Vitest
 
 Pre-commit runs **lint-staged** (ESLint + Prettier on staged files). Husky is installed via the `prepare` script.
-
-### Optional next steps
-
-- Enable `eslint-plugin-import` **`import/order`** (React → third-party → internal → relative) once resolvers are configured for your editor/CI.
-- Tighten `eslint-plugin-react-hooks` rules gradually (several newer rules are disabled in `eslint.config.mjs` for compatibility).
 
 ## PR checklist
 

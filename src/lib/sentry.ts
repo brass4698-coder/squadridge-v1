@@ -1,9 +1,7 @@
 import * as Sentry from '@sentry/react';
 import type { ErrorInfo } from 'react';
 
-/**
- * Call once before React render. No-ops when `VITE_SENTRY_DSN` is unset.
- */
+/** Initialize Sentry before render. Production builds require `VITE_SENTRY_DSN`. */
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (typeof dsn !== 'string' || dsn.trim().length === 0) {

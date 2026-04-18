@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Repo:** `.agents/` is gitignored and no longer tracked (keep local IDE skills on your machine only).
 - **Security:** Removed public `/dev/supabase`; health UI is `/admin/health` behind `RequireAuth` + `RequireModerator`. Navigation and README updated.
 - ZK Edge handlers: CORS no longer uses `*`; origins must match `ALLOWED_ORIGINS`.
 - **Sentry:** Production builds require `VITE_SENTRY_DSN` (`initSentry` throws if missing).
