@@ -43,10 +43,7 @@ export function SessionMessageItem({
   const [showOriginal, setShowOriginal] = useState(false);
 
   const shouldTranslate =
-    !retracted &&
-    !isOwn &&
-    translationEnabled &&
-    receivedEpoch === translationPreferenceEpoch;
+    !retracted && !isOwn && translationEnabled && receivedEpoch === translationPreferenceEpoch;
 
   useEffect(() => {
     if (!shouldTranslate) {
@@ -81,14 +78,17 @@ export function SessionMessageItem({
   const hasAlternate =
     shouldTranslate && translated !== null && translated.trim() !== originalBody.trim();
 
-  const displayText =
-    retracted ? 'Message retracted' : showOriginal ? originalBody : (translated ?? originalBody);
+  const displayText = retracted
+    ? 'Message retracted'
+    : showOriginal
+      ? originalBody
+      : (translated ?? originalBody);
 
   return (
     <li className="rounded-lg border border-[#1a2236] bg-[#0b0f14]/80 px-4 py-3">
       <div className="flex flex-wrap items-start justify-between gap-sm">
         <p
-          className={`max-w-full font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] ${
+          className={`min-w-0 max-w-full break-words font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] ${
             retracted ? 'line-through opacity-70' : ''
           } ${!retracted && pending && shouldTranslate ? 'session-translation-pending border-b-2 border-[#148C86]/50 pb-0.5' : ''} ${
             deliveryStatus === 'pending' ? 'opacity-60' : ''
@@ -118,12 +118,21 @@ export function SessionMessageItem({
       ) : null}
       <div className="mt-2 flex items-center gap-2">
         {deliveryStatus === 'pending' ? (
-          <span className="inline-flex items-center gap-1 font-sans text-[0.7rem] text-[#4b5563]" aria-label="Sending">
-            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#4b5563]" aria-hidden="true" />
+          <span
+            className="inline-flex items-center gap-1 font-sans text-[0.7rem] text-[#4b5563]"
+            aria-label="Sending"
+          >
+            <span
+              className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#4b5563]"
+              aria-hidden="true"
+            />
             Sending…
           </span>
         ) : deliveryStatus === 'failed' ? (
-          <span className="flex flex-wrap items-center gap-2 font-sans text-[0.7rem] text-amber" role="alert">
+          <span
+            className="flex flex-wrap items-center gap-2 font-sans text-[0.7rem] text-amber"
+            role="alert"
+          >
             <span>Failed to send</span>
             {onRetrySend ? (
               <button

@@ -4,6 +4,19 @@
 
 Measuring the impact of SquadRidge is critical to our mission as a social enterprise. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), our platform is designed to replace conflict-amplifying social networks with trust-building digital infrastructure [1]. Our impact metrics evaluate our success in enabling verified-anonymous, cross-border dialogue and providing secure early warning signals without relying on state surveillance [1].
 
+## Current measurement (MVP)
+
+These are the **small diligence-safe set** aligned with [squadridge-pitch.md](../pitch/squadridge-pitch.md) §6—what you can plausibly cite *today* using Supabase and light process, without inventing productized analytics dashboards.
+
+| Metric | Why it matters | How to measure today |
+| ------ | -------------- | --------------------- |
+| **Time to match** | Queue latency and dropout before match | SQL on `match_queue` / squad creation: time from enqueue to `squads` row for `user_id` (or manual export from Table Editor for pilots). |
+| **Verification success rate** | Semaphore + Edge path vs errors or abandonment | Count rows in `zk_proof_submissions` (or your verification outcome table) vs attempts logged in Edge logs / client errors for a cohort window. |
+| **Active squads / messages (volume)** | Baseline usage signal | `SELECT` counts on `squads`, `messages` for a date range; restrict to non-demo data if you exclude demo squads by convention. |
+| **Return rate** | Second session or squad | Join `squad_members` or sessions per `user_id` over time; simplest MVP is “users with ≥2 squad memberships” in SQL. |
+
+**Not claimed as instrumented in-app yet:** moderator hours per squad, automated incident severity, AI sentiment—those remain roadmap unless you add tooling. Refresh this section when you ship analytics or change schema.
+
 ## Key Performance Indicators (KPIs)
 
 Our metrics are divided into three primary categories: Platform Engagement, De-escalation Effectiveness, and Early Warning Utility.

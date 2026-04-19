@@ -4,6 +4,16 @@ Companion narrative and metrics: [squadridge-pitch.md](squadridge-pitch.md).
 
 This is a working map, not an exhaustive list. Dates and forms change; confirm on each program’s own page before you submit.
 
+### Active focus (default plan for SquadRidge)
+
+| Priority | Program | Why | Deadline (confirm on official site) |
+| -------- | ------- | --- | ------------------------------------- |
+| **1 — Accelerator** | **Y Combinator** — Summer 2026 batch | Best general fit for “ship fast, show users, clarify story” per [§Y Combinator](#y-combinator) below | **May 4, 2026, 8pm PT** (on-time); decision by **June 5**; batch **July–September 2026** |
+| **2 — Accelerator (backup)** | **Techstars** — program TBD | Sector-aligned cohort and pilots; pick one program on [techstars.com/accelerators](https://www.techstars.com/accelerators) | **Re-verify** directory labels (e.g. Jun 10 / May 6 have appeared—labels change) |
+| **3 — Grant / public goods** | **Gitcoin** and/or **Ethereum ESP** | Milestones and open artifacts; see fit notes below—ESP needs Ethereum-facing deliverables | Round-driven; no fixed calendar without checking [gitcoin.co](https://www.gitcoin.co/) / [ESP](https://esp.ethereum.foundation/) |
+
+**Calendar:** Copy the **Y Combinator** deadline above into your calendar from [ycombinator.com/apply](https://www.ycombinator.com/apply) the week you submit (dates drift—official page wins). Add Techstars only after you choose a specific program.
+
 ---
 
 ## Category matrix (tracks)

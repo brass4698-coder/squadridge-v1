@@ -27,7 +27,7 @@ function FullBleed({
 }) {
   return (
     <div
-      className={`col-span-12 w-screen relative left-1/2 -translate-x-1/2 ${alt ? 'bg-navy-light' : 'bg-navy'} ${className ?? ''}`}
+      className={`col-span-12 relative left-1/2 min-w-0 w-[100vw] max-w-[100vw] -translate-x-1/2 ${alt ? 'bg-navy-light' : 'bg-navy'} ${className ?? ''}`}
     >
       <div className={`mx-auto max-w-6xl px-md ${innerClassName ?? ''}`}>{children}</div>
     </div>
@@ -69,6 +69,34 @@ function ChevronRight() {
   );
 }
 
+/** Ghost secondary — dimmed amber / underline glow (no default link chrome). */
+function HowItWorksIntentGhostLink() {
+  return (
+    <Link
+      to="/intent"
+      className="group inline-flex max-w-full items-center gap-2 rounded-md border border-amber/30 bg-transparent px-3 py-2.5 font-sans text-[0.8125rem] font-medium leading-snug no-underline transition-[color,background-color,border-color,box-shadow,text-shadow] duration-200 [color:rgba(194,130,26,0.88)] visited:[color:rgba(194,130,26,0.82)] hover:border-amber/55 hover:bg-amber/[0.06] hover:[color:#F7C15C] hover:shadow-[0_0_28px_rgba(245,166,35,0.22),inset_0_1px_0_0_rgba(255,255,255,0.04)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber/50"
+    >
+      <svg
+        className="size-4 shrink-0 transition-[color,filter] duration-200 [color:rgba(194,130,26,0.85)] group-hover:[color:#F7C15C] group-hover:drop-shadow-[0_0_10px_rgba(245,166,35,0.45)]"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+      </svg>
+      <span className="min-w-0 border-b border-transparent pb-px text-left transition-[border-color,text-shadow] duration-200 group-hover:border-amber/45 group-hover:[text-shadow:0_0_16px_rgba(245,166,35,0.42),0_1px_0_rgba(0,0,0,0.35)]">
+        Intent &amp; use-case guidelines
+      </span>
+    </Link>
+  );
+}
+
 export function LandingPage() {
   const { startWalkthrough } = useDemoWalkthrough();
   const lastSquad = getLastSquadIdFromStorage();
@@ -76,7 +104,7 @@ export function LandingPage() {
 
   return (
     <div className="landing-page-root bg-navy">
-      <div className="landing-page-inner mx-auto grid w-full max-w-6xl grid-cols-12 gap-x-6">
+      <div className="landing-page-inner mx-auto grid w-full min-w-0 max-w-6xl grid-cols-12 gap-x-6">
         {/* Hero */}
         <section
           className="landing-hero-section col-span-12 overflow-x-hidden pb-[60px] pt-[140px]"
@@ -114,6 +142,7 @@ export function LandingPage() {
                   label="Request access"
                   href="#waitlist"
                   variant="hero"
+                  shape="squircle"
                   icon={<ChevronRight />}
                   className="landing-hero-animate-cta inline-flex w-fit overflow-hidden"
                 />
@@ -237,23 +266,18 @@ export function LandingPage() {
             >
               How it works
             </h2>
-            <p className="mt-6 font-sans font-normal leading-[1.7] text-landing-body">
-              Three steps — then you&apos;re in the room.{' '}
-              <Link
-                to="/intent"
-                className="font-medium text-teal-light underline-offset-4 hover:text-teal-light hover:underline"
-              >
-                Read our intent and use-case guidelines
-              </Link>
-              .
+            <p className="mt-6 max-w-2xl font-sans font-normal leading-[1.75] text-landing-body sm:mt-8">
+              Three steps — then you&apos;re in the room.
             </p>
-            <ol className="mt-12 grid list-none gap-12 md:mt-14 md:grid-cols-3 md:gap-10 lg:gap-12">
-              {HOW_IT_WORKS_STEPS.map((s) => (
+            <ol className="mt-12 grid list-none gap-x-10 gap-y-16 md:mt-16 md:grid-cols-3 md:gap-x-12 md:gap-y-0 lg:gap-x-16">
+              {HOW_IT_WORKS_STEPS.map((s, i) => (
                 <HowItWorksStep
                   key={s.number}
                   number={s.number}
                   heading={s.heading}
                   body={s.body}
+                  rail={i === 0 ? 'lead' : 'default'}
+                  footer={i === 0 ? <HowItWorksIntentGhostLink /> : undefined}
                 />
               ))}
             </ol>
@@ -439,32 +463,39 @@ export function LandingPage() {
                   <PrimaryCTA
                     label="Find a squad"
                     href="/intent"
-                    className="min-w-[10rem] justify-center"
+                    shape="squircle"
+                    className="min-w-0 w-full justify-center sm:min-w-[10rem] sm:w-auto"
                   />
                   <Link
                     to="/settings/profile"
-                    className="btn-secondary min-w-[10rem] justify-center"
+                    className="btn-secondary min-w-0 w-full justify-center sm:min-w-[10rem] sm:w-auto"
                   >
                     Profile settings
                   </Link>
                   {lastSquad && configured ? (
                     <Link
                       to={`/session/${lastSquad}`}
-                      className="btn-secondary min-w-[10rem] justify-center"
+                      className="btn-secondary min-w-0 w-full justify-center sm:min-w-[10rem] sm:w-auto"
                     >
                       Resume last session
                     </Link>
                   ) : null}
-                  <Link to="/session" className="btn-secondary min-w-[10rem] justify-center">
+                  <Link
+                    to="/session"
+                    className="btn-secondary min-w-0 w-full justify-center sm:min-w-[10rem] sm:w-auto"
+                  >
                     Session hub
                   </Link>
                   <Link
                     to="/session/demo-session-001"
-                    className="btn-secondary min-w-[10rem] justify-center border-dashed border-amber/35 text-landing-muted hover:border-amber/50"
+                    className="btn-secondary min-w-0 w-full justify-center border-dashed border-amber/35 text-landing-muted hover:border-amber/50 sm:min-w-[10rem] sm:w-auto"
                   >
                     Offline demo
                   </Link>
-                  <Link to="/admin/health" className="btn-secondary min-w-[10rem] justify-center">
+                  <Link
+                    to="/admin/health"
+                    className="btn-secondary min-w-0 w-full justify-center sm:min-w-[10rem] sm:w-auto"
+                  >
                     Supabase health (mods)
                   </Link>
                 </div>

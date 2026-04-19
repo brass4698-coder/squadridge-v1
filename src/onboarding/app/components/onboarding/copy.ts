@@ -22,8 +22,7 @@ export const COPY = {
   },
   identity: {
     title: 'Identity model',
-    lead:
-      'Your callsign is how the room knows you. No real name. No rank. No unit. Just the handle you bring to the table.',
+    lead: 'Your callsign is how the room knows you. No real name. No rank. No unit. Just the handle you bring to the table.',
     callsignLabel: 'Callsign',
     callsignWhy: 'How others address you in the room. Choose deliberately.',
     roleLabel: 'Your lane',
@@ -55,8 +54,7 @@ export const COPY = {
   },
   placement: {
     title: 'Placement (optional)',
-    lead:
-      'Share only what helps us place you in the right squads and time bands. Skip anything you prefer to withhold.',
+    lead: 'Share only what helps us place you in the right squads and time bands. Skip anything you prefer to withhold.',
     languageLabel: 'Language',
     languageHint: 'e.g. English, Arabic, French.',
     regionLabel: 'Region / focus band',
@@ -86,14 +84,18 @@ export const COPY = {
     signedIn: 'Session active',
     continue: 'Continue',
     checkEmail: 'Check your email for the sign-in link.',
+    conciergeTitle: 'Concierge',
+    conciergeTips: [
+      'Verification happens in the main app at /verify — your proof stays bound to your account, not shown as a dossier in chat.',
+      'Use an email you check often; magic links are short-lived on purpose.',
+      'If the policy block feels dense, you can still continue — revisit Verify from Settings before high-stakes sessions.',
+    ],
   },
   room: {
     title: 'Dry run: practice under guardrails',
-    leadLine1:
-      'A 60-second simulation of a live squad room. Same guardrails as real sessions.',
+    leadLine1: 'A 60-second simulation of a live squad room. Same guardrails as real sessions.',
     leadLine2: 'Nothing you type here touches any live ledger.',
-    guidance:
-      'Treat this like a real room: focus on de-escalation, not blame or threats.',
+    guidance: 'Treat this like a real room: focus on de-escalation, not blame or threats.',
     sessionBarLeft: 'Practice session',
     timerPrefix: 'Simulation ends in',
     topicLabel: 'Topic anchor — simulation',

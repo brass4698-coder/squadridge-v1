@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -30,7 +31,7 @@ const headingStyle: CSSProperties = {
 };
 
 const primaryCtaStyle: CSSProperties = {
-  borderRadius: 8,
+  borderRadius: 12,
   fontWeight: 600,
 };
 
@@ -203,11 +204,11 @@ export function IntentPage() {
           Set your intention
         </h1>
         <p className="max-w-[520px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
-          This stays private. It helps us route you to the right room.
+          It helps us route you to the right room.
         </p>
       </header>
 
-      <div className="mt-10 flex flex-col gap-6">
+      <div className="mt-12 flex flex-col gap-12">
         <div>
           <label
             htmlFor="intent-text"
@@ -215,29 +216,49 @@ export function IntentPage() {
           >
             I&apos;m here because…
           </label>
-          <textarea
-            id="intent-text"
-            name="intent"
-            data-demo="intent-input"
-            rows={5}
-            maxLength={MAX_CHARS}
-            placeholder=""
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            aria-describedby="intent-char-count"
-            className="w-full resize-y rounded-[10px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] placeholder:text-[#6b7280] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-          />
+          <div
+            className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] leading-snug text-[#8892a4]"
+            id="intent-privacy-row"
+          >
+            <span className="inline-flex items-center gap-1.5 text-[#94a3b8]">
+              <Lock className="size-3.5 shrink-0 text-teal/90" aria-hidden />
+              <span>This stays private</span>
+            </span>
+            <span
+              className="inline-flex items-center rounded border border-teal/35 bg-teal/[0.08] px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal-light"
+              title="Intent is minimized for routing; verified attributes use ZK where enabled."
+            >
+              ZK-ready
+            </span>
+          </div>
+          <div className="intent-textarea-shell">
+            <div className="intent-textarea-inner">
+              <div className="intent-textarea-scanlines" aria-hidden />
+              <textarea
+                id="intent-text"
+                name="intent"
+                data-demo="intent-input"
+                rows={5}
+                maxLength={MAX_CHARS}
+                placeholder=""
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                aria-describedby="intent-privacy-row intent-char-count"
+                className="relative z-[2] w-full resize-y border-0 bg-transparent px-4 py-3 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] placeholder:text-[#6b7280] focus-visible:outline-none"
+              />
+            </div>
+          </div>
           <p
             id="intent-char-count"
-            className="mt-2 text-right font-sans text-[0.8rem] tabular-nums text-[#6b7280]"
+            className="mt-2 text-right font-mono text-[0.8rem] font-medium tabular-nums tracking-[0.08em] text-[#64748b]"
             aria-live="polite"
           >
-            {len}/{MAX_CHARS}
+            {len} / {MAX_CHARS}
           </p>
         </div>
 
         <fieldset className="min-w-0 border-0 p-0">
-          <legend className="mb-3 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
+          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
             Optional — tap what fits (you can leave this blank)
           </legend>
           <div className="flex flex-wrap gap-2">
@@ -248,11 +269,12 @@ export function IntentPage() {
                   key={tag}
                   type="button"
                   aria-pressed={on}
+                  data-active={on ? 'true' : 'false'}
                   onClick={() => toggleTag(tag)}
-                  className={`rounded-[8px] border px-3 py-2 font-sans text-[0.85rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
+                  className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
                     on
                       ? 'border-teal bg-teal/[0.12] text-[#e2e8f0]'
-                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1] hover:border-[#3d4f63] hover:text-[#c4cdd9]'
+                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1]'
                   }`}
                 >
                   {tag}
@@ -263,14 +285,14 @@ export function IntentPage() {
         </fieldset>
 
         <fieldset className="min-w-0 border-0 p-0">
-          <legend className="mb-3 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
+          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
             Perspective for matching — pick one
           </legend>
-          <p className="mb-3 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+          <p className="mb-4 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
             We need people on both sides in the room at once. “A” and “B” are neutral labels — use
             them to self-sort into two groups (not “good vs bad”).
           </p>
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+          <div className="intent-perspective-track max-w-md" role="group" aria-label="Perspective">
             {(
               [
                 { id: 'A' as const, label: 'Perspective A' },
@@ -283,13 +305,10 @@ export function IntentPage() {
                   key={id}
                   type="button"
                   aria-pressed={on}
+                  data-active={on ? 'true' : 'false'}
                   data-demo={id === 'A' ? 'intent-perspective-a' : undefined}
                   onClick={() => setPerspective(id)}
-                  className={`flex-1 rounded-[10px] border px-4 py-3 text-left font-sans text-[0.9rem] font-medium transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
-                    on
-                      ? 'border-teal bg-teal/[0.12] text-[#e2e8f0]'
-                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1] hover:border-[#3d4f63] hover:text-[#c4cdd9]'
-                  }`}
+                  className="intent-perspective-toggle font-sans text-[0.9rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
                 >
                   {label}
                 </button>
@@ -304,7 +323,7 @@ export function IntentPage() {
             data-demo="intent-find-squad"
             disabled={busy || !supabase || perspective === null}
             onClick={() => void handleFindSquad()}
-            className="inline-flex min-h-[44px] w-full shrink-0 items-center justify-center bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="intent-primary-cta inline-flex min-h-[52px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-bold text-[#0b0f1a] transition-[box-shadow,opacity] duration-150 ease-out hover:opacity-[0.97] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             style={primaryCtaStyle}
           >
             {busy ? 'Finding…' : 'Find my squad'}

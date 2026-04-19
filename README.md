@@ -59,6 +59,7 @@ Use this checklist to confirm everything is wired (manual steps in the dashboard
 | 2 | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …). |
 | 3 | **Supabase:** **Authentication → Providers** — **Anonymous** enabled. |
 | 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/intent` → **Find my squad** (or expand **Session hub** → developer **Create demo squad**) to exercise auth + RLS + Realtime. |
+| 5 | **Local (release gate):** Run `npm run build`, `npm test`, and `node scripts/check-prod-readiness.mjs` — should pass before you rely on CI or a deploy; mirrors checks in [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml). |
 
 ### Frontend hosting (MVP)
 

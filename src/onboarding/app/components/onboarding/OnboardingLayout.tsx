@@ -93,7 +93,7 @@ export function OnboardingLayout({
 
   return (
     <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-onboarding-bg pt-5 text-ink sm:pt-6">
-      <main className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden px-5 py-2 sm:px-6 sm:py-3">
+      <main className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto overscroll-y-contain px-5 py-2 sm:px-6 sm:py-3">
         <div className="mx-auto flex min-h-0 w-full max-w-[960px] flex-1 flex-col justify-center">
           <div className="flex min-h-0 w-full max-w-full flex-col gap-3 sm:gap-4">
             <div className="inline-flex shrink-0 items-center gap-2 self-start sm:gap-[0.525rem]">

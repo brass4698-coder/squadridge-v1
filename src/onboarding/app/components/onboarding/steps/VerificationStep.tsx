@@ -56,6 +56,22 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
     >
       <OnboardingCard>
         <div className="flex max-w-[40rem] flex-col gap-3">
+          <aside
+            className="vault-frost-subtle mb-4 rounded-xl border border-teal/20 bg-teal/[0.06] p-4"
+            aria-label="Verification concierge"
+          >
+            <p className="font-mono text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-teal-light/90">
+              {COPY.verification.conciergeTitle}
+            </p>
+            <ul className="mt-3 list-none space-y-2.5 font-sans text-[0.8125rem] leading-relaxed text-ink-secondary">
+              {COPY.verification.conciergeTips.map((tip) => (
+                <li key={tip} className="flex gap-2">
+                  <span className="mt-1.5 size-1 shrink-0 rounded-full bg-teal/50" aria-hidden />
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
           <div className={`flex flex-col ${obH1ToBlock}`}>
             <h1 className={obH1}>{COPY.verification.title}</h1>
 

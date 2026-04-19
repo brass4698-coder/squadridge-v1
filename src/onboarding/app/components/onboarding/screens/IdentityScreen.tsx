@@ -81,8 +81,8 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
       className="mx-auto w-full min-w-0"
     >
       <section className="w-full">
-        <div className="mx-auto max-w-[1040px] rounded-xl border border-white/8 bg-charcoal px-8 py-6 shadow-[0_18px_40px_rgba(0,0,0,0.7)]">
-          <div className="grid h-full grid-cols-[1.2fr_1fr] gap-8">
+        <div className="mx-auto max-w-[1040px] rounded-xl border border-white/8 bg-charcoal px-4 py-5 shadow-[0_18px_40px_rgba(0,0,0,0.7)] sm:px-6 sm:py-6 md:px-8">
+          <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-[1.2fr_1fr] md:gap-8">
             <section className="flex flex-col gap-4">
               <div>
                 <h1 className="mb-2 text-2xl font-semibold tracking-tight text-ink">
@@ -123,7 +123,7 @@ export function IdentityScreen({ onNext, onBack }: IdentityScreenProps) {
                 </p>
                 <p className="text-xs text-ink-muted">{COPY.identity.roleWhy}</p>
                 <div
-                  className="grid grid-cols-2 gap-2"
+                  className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2"
                   role="group"
                   aria-labelledby="sr-role-label"
                   aria-required="true"

@@ -55,7 +55,7 @@ export function WaitlistSection() {
           a problem that matches your background.
         </p>
         <div className="mt-8">
-          <PrimaryCTA label="Request access" href={externalUrl} size="md" />
+          <PrimaryCTA label="Request access" href={externalUrl} size="md" shape="squircle" />
         </div>
         <CounterLine />
       </section>
@@ -112,7 +112,8 @@ export function WaitlistSection() {
             label={status === 'loading' ? 'Sending…' : 'Request access'}
             type="submit"
             size="md"
-            className="!rounded-[8px] shrink-0 px-8"
+            shape="squircle"
+            className="shrink-0 px-8"
             disabled={status === 'loading' || !configured}
           />
         </div>

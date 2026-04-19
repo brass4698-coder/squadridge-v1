@@ -2,10 +2,7 @@ import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 
 export default {
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -24,6 +21,12 @@ export default {
           DEFAULT: '#F5A623', // Amber - Warnings/Interventions
           light: '#F7C15C',
           dark: '#C2821A',
+        },
+        /** Warm amber for security / observability pulses (HUD) */
+        cajun: {
+          DEFAULT: '#c2410c',
+          light: '#ea580c',
+          glow: 'rgba(234, 88, 12, 0.45)',
         },
         gray: {
           light: '#E2E8F0', // Secondary text/borders
@@ -128,31 +131,22 @@ export default {
           { lineHeight: '1.3', letterSpacing: '-0.01em' },
         ],
         /** Body emphasis 16–18px */
-        'body-lg': [
-          'clamp(1rem, 0.35vw + 0.92rem, 1.125rem)',
-          { lineHeight: '1.7' },
-        ],
+        'body-lg': ['clamp(1rem, 0.35vw + 0.92rem, 1.125rem)', { lineHeight: '1.7' }],
         /** Onboarding / dense UI body */
-        'onboarding-body': [
-          'clamp(0.9375rem, 1.05vw, 1rem)',
-          { lineHeight: '1.7' },
-        ],
+        'onboarding-body': ['clamp(0.9375rem, 1.05vw, 1rem)', { lineHeight: '1.7' }],
         /** Onboarding captions, footnotes, reassurance lines */
-        'onboarding-meta': [
-          'clamp(0.8125rem, 0.95vw, 0.875rem)',
-          { lineHeight: '1.65' },
-        ],
+        'onboarding-meta': ['clamp(0.8125rem, 0.95vw, 0.875rem)', { lineHeight: '1.65' }],
       },
       spacing: {
         // Consistent spacing system
-        'xs': '0.25rem',
-        'sm': '0.5rem',
-        'md': '1rem',
-        'lg': '1.5rem',
-        'xl': '2rem',
+        xs: '0.25rem',
+        sm: '0.5rem',
+        md: '1rem',
+        lg: '1.5rem',
+        xl: '2rem',
         '2xl': '3rem',
         /** ~72px between major landing sections */
-        'section': '4.5rem',
+        section: '4.5rem',
         /** ~40px heading → body */
         'heading-body': '2.5rem',
         /** ~24px body → CTAs */
@@ -160,12 +154,13 @@ export default {
       },
       maxWidth: {
         /** ~640px reading column */
-        'copy': '40rem',
+        copy: '40rem',
       },
       boxShadow: {
         // Neo-skeuomorphism shadows for buttons and interactive elements
         'neo-button': '4px 4px 10px rgba(0, 0, 0, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.05)',
-        'neo-button-active': 'inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.05)',
+        'neo-button-active':
+          'inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.05)',
       },
       keyframes: {
         'step-in': {
@@ -180,15 +175,36 @@ export default {
           '0%': { top: '-1px' },
           '100%': { top: '100%' },
         },
+        'security-pulse': {
+          '0%, 100%': {
+            boxShadow: '0 0 0 0 rgba(234, 88, 12, 0.35)',
+            opacity: '1',
+          },
+          '50%': {
+            boxShadow: '0 0 24px 6px rgba(234, 88, 12, 0.35)',
+            opacity: '0.95',
+          },
+        },
+        'security-breathe': {
+          '0%, 100%': { opacity: '0.55' },
+          '50%': { opacity: '1' },
+        },
+        'session-scan': {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
+        },
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'step-in': 'step-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'step-in-body': 'step-in-body 420ms cubic-bezier(0.16, 1, 0.3, 1) 90ms both',
         scan: 'scan 8s linear infinite',
+        'security-pulse': 'security-pulse 2.4s ease-in-out infinite',
+        'security-breathe': 'security-breathe 3s ease-in-out infinite',
+        'session-scan': 'session-scan 1.05s cubic-bezier(0.4, 0, 0.2, 1) forwards',
       },
       transitionDuration: {
-        'progress': '220ms',
+        progress: '220ms',
       },
     },
   },

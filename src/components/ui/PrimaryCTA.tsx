@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { cn } from '../../lib';
+import { twMerge } from 'tailwind-merge';
 
 export interface PrimaryCTAProps {
   label: string;
@@ -9,6 +9,8 @@ export interface PrimaryCTAProps {
   href?: string;
   icon?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  /** `squircle` — soft organic corners for comfort CTAs (Request access, Find a squad). */
+  shape?: 'default' | 'squircle';
   variant?: 'primary' | 'hero';
   className?: string;
   disabled?: boolean;
@@ -28,6 +30,7 @@ export function PrimaryCTA({
   href,
   icon,
   size = 'md',
+  shape = 'default',
   variant = 'primary',
   className,
   disabled,
@@ -36,8 +39,9 @@ export function PrimaryCTA({
 }: PrimaryCTAProps) {
   const isHttp = href && /^https?:\/\//i.test(href);
   const isMail = href?.startsWith('mailto:');
-  const base = cn(
-    'inline-flex max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:opacity-50',
+  const base = twMerge(
+    'inline-flex min-w-0 max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:opacity-50',
+    shape === 'squircle' && '!rounded-[1.75rem]',
     variant === 'hero'
       ? 'btn-hero-join landing-hero-cta-link w-fit overflow-hidden'
       : 'btn-primary',
@@ -60,6 +64,7 @@ export function PrimaryCTA({
           href={href}
           className={base}
           onClick={onClick}
+          style={{ borderRadius: shape === 'squircle' ? 28 : undefined }}
           target={isHttp ? '_blank' : undefined}
           rel={isHttp ? 'noopener noreferrer' : undefined}
         >
@@ -74,14 +79,20 @@ export function PrimaryCTA({
           href={href}
           className={base}
           onClick={onClick}
-          style={variant === 'hero' ? { borderRadius: 8 } : undefined}
+          style={variant === 'hero' ? { borderRadius: shape === 'squircle' ? 28 : 8 } : undefined}
         >
           {content}
         </a>
       );
     }
     return (
-      <Link id={id} to={href} className={base} onClick={onClick} style={{ borderRadius: 8 }}>
+      <Link
+        id={id}
+        to={href}
+        className={base}
+        onClick={onClick}
+        style={{ borderRadius: shape === 'squircle' ? 28 : 8 }}
+      >
         {content}
       </Link>
     );
@@ -92,7 +103,7 @@ export function PrimaryCTA({
       id={id}
       type={type}
       className={base}
-      style={{ borderRadius: 8 }}
+      style={{ borderRadius: shape === 'squircle' ? 28 : 8 }}
       onClick={onClick}
       disabled={disabled}
     >

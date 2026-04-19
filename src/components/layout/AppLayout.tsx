@@ -1,4 +1,5 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { Activity, Shield } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { RouteErrorBoundary } from '../RouteErrorBoundary';
 import { AuthIssueBanner } from '../auth/AuthIssueBanner';
@@ -49,8 +50,9 @@ export function AppLayout() {
             >
               <Link
                 to="/security"
-                className="underline-offset-4 hover:text-slate-300 hover:underline"
+                className="inline-flex items-center gap-1.5 underline-offset-4 hover:text-slate-300 hover:underline"
               >
+                <Shield className="size-3 shrink-0 opacity-[0.42]" aria-hidden />
                 Security &amp; privacy
               </Link>
               {showDevFooterLinks ? (
@@ -60,8 +62,9 @@ export function AppLayout() {
                   </span>
                   <Link
                     to="/admin/health"
-                    className="underline-offset-4 hover:text-slate-300 hover:underline"
+                    className="inline-flex items-center gap-1.5 underline-offset-4 hover:text-slate-300 hover:underline"
                   >
+                    <Activity className="size-3 shrink-0 opacity-[0.42]" aria-hidden />
                     Supabase health (mods)
                   </Link>
                 </>

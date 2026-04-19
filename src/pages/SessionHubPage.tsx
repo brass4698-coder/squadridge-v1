@@ -118,9 +118,8 @@ export function SessionHubPage() {
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <Link
           to="/intent"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88]"
+          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] rounded-[1.75rem]"
           style={{
-            borderRadius: 8,
             fontWeight: 600,
           }}
         >
@@ -128,9 +127,8 @@ export function SessionHubPage() {
         </Link>
         <Link
           to="/settings/profile"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9]"
+          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9] rounded-[1.75rem]"
           style={{
-            borderRadius: 8,
             fontWeight: 500,
           }}
         >

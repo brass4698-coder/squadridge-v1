@@ -233,7 +233,7 @@ export function Match() {
             {canDemo ? (
               <Link
                 to="/match?demo=1"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
               >
                 Guided demo (match → session)
               </Link>
@@ -271,7 +271,7 @@ export function Match() {
         </p>
         <Link
           to="/intent"
-          className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-lg bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+          className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
         >
           Set intention
         </Link>

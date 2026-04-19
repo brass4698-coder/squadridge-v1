@@ -27,7 +27,16 @@ export function useMessagePlaintexts(messages: MessageRow[], cryptoKey: CryptoKe
     const missing = messages.filter((m) => cacheRef.current[m.id] === undefined);
 
     if (missing.length === 0) {
-      setById({ ...cacheRef.current });
+      setById((prev) => {
+        const next = { ...cacheRef.current };
+        const pk = Object.keys(prev);
+        const nk = Object.keys(next);
+        if (pk.length !== nk.length) return next;
+        for (const k of nk) {
+          if (prev[k] !== next[k]) return next;
+        }
+        return prev;
+      });
       return;
     }
 

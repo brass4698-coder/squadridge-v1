@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import { isSupabaseConfigured } from '../lib';
 import { supabase } from '../utils/supabase';
 
+type HealthStatus = 'idle' | 'loading' | 'ok' | 'error';
+
 /**
- * Minimal “query data” check using `utils/supabase` (tutorial import path).
- * Uses `squads` — this project has no `todos` table.
+ * Moderator connectivity check — live beacon + monospace telemetry (HUD-style).
  */
 export function SupabaseHealthPage() {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
+  const [status, setStatus] = useState<HealthStatus>('idle');
   const [detail, setDetail] = useState<string>('');
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function SupabaseHealthPage() {
           return;
         }
         setStatus('ok');
-        setDetail('Connected. Queried public.squads successfully.');
+        setDetail('Connected · public.squads reachable');
       } catch (e) {
         if (cancelled) return;
         setStatus('error');
@@ -44,29 +45,54 @@ export function SupabaseHealthPage() {
     };
   }, []);
 
+  const beaconStatus: HealthStatus =
+    status === 'idle'
+      ? 'loading'
+      : status === 'loading'
+        ? 'loading'
+        : status === 'ok'
+          ? 'ok'
+          : 'error';
+
   return (
     <div className="space-y-md">
       <h1 className="font-heading text-fluid-h2 text-gray-light">Supabase connection</h1>
       <p className="text-fluid-body text-gray-light">
-        Uses <code className="rounded bg-navy-dark px-sm py-xs">src/utils/supabase.ts</code>{' '}
+        Uses{' '}
+        <code className="rounded bg-navy-dark px-sm py-xs font-mono text-[0.9em]">
+          src/utils/supabase.ts
+        </code>{' '}
         (quickstart-style{' '}
-        <code className="rounded bg-navy-dark px-sm py-xs">
+        <code className="rounded bg-navy-dark px-sm py-xs font-mono text-[0.9em]">
           import {'{'} supabase {'}'}
         </code>
         ).
       </p>
-      <p className="text-fluid-small text-gray-light" role="status">
-        {status === 'loading' && 'Checking…'}
-        {status === 'ok' && detail}
-        {status === 'error' && (
-          <>
-            <span className="text-amber">Error: </span>
-            {detail}
-          </>
-        )}
-        {status === 'idle' && '…'}
-      </p>
-      <Link to="/" className="btn-primary inline-flex w-fit">
+
+      <div className="vault-frost max-w-xl p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="security-beacon-dot" data-status={beaconStatus} aria-hidden />
+          <span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-teal/90">
+            Live status
+          </span>
+        </div>
+        <p
+          className="mt-4 font-mono text-[0.8rem] leading-relaxed tracking-tight text-gray-light"
+          role="status"
+        >
+          {status === 'loading' && <span className="text-orange-400/95">Polling datastore…</span>}
+          {status === 'ok' && <span className="text-teal-light/95">{detail}</span>}
+          {status === 'error' && (
+            <>
+              <span className="text-amber">ERR </span>
+              <span className="text-gray-light/95">{detail}</span>
+            </>
+          )}
+          {status === 'idle' && <span className="text-ink-muted">…</span>}
+        </p>
+      </div>
+
+      <Link to="/" className="btn-primary inline-flex w-fit !rounded-[1.75rem]">
         Back home
       </Link>
     </div>

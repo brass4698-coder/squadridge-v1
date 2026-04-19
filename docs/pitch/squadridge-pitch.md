@@ -53,22 +53,24 @@ Regulators and institutions are asking harder questions about **identity, conten
 
 ---
 
-## 5. Traction (fill in your numbers)
+## 5. Traction
 
-Replace the bracketed items with facts you can stand behind in an interview.
+Claims here must match [`docs/security/threat-model.md`](../security/threat-model.md): do not imply E2E messaging against the operator or anonymity stronger than documented (persistent `user_id`, operator-visible ciphertext with squad key in DB).
 
-- **Product:** [e.g. internal demo completed / staging URL / first external pilot].
-- **Users or conversations:** [e.g. N squads formed, M messages, over what period].
-- **Discovery:** [e.g. structured interviews with NGOs, mediators, diaspora organizers — N conversations].
-- **Partners:** [letters of intent, informal advisors, introductions — name roles, not vague “interest”].
+**What the repository and README substantiate today (no external cohort numbers in-repo):**
 
-If a number is small, say it with context: “Four squads in a two-week closed test” beats “strong engagement.”
+- **Product:** Shipped development path: React/Vite client, Supabase (Postgres, RLS, Auth including anonymous, Realtime, Edge Functions), Semaphore proofs verified by `verify-zk-proof`, application-layer message crypto per threat model. CI deploys database migrations ([`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml)); frontend build runs with `VITE_ZK_STUB` off for production-style verification ([`README.md`](../../README.md)). Evaluation flows: `/session/demo-session-001` (offline demo UI), **Start guided tour** (see [`src/demo/demoScript.ts`](../../src/demo/demoScript.ts)), `/admin/health` for moderator connectivity checks.
+- **Users or conversations:** Add here before each investor or accelerator conversation: real counts (squads, messages, date range, pilot vs production). Until you have them, say so plainly—e.g. internal QA and guided-tour validation only—rather than vague “traction.”
+- **Discovery:** Add structured interview or pilot counts and roles when you have them (mediators, civic orgs, diaspora organizers, etc.).
+- **Partners:** Name advisors, LOIs, or design partners you can reference in diligence—avoid unnamed “interest.”
+
+Small numbers with context beat empty superlatives: “Four squads in a two-week closed test” is stronger than “strong engagement.”
 
 ---
 
 ## 6. Impact metrics (diligence-safe)
 
-Pick a **small set** you can instrument honestly:
+Pick a **small set** you can instrument honestly. For **what we measure today** (queries, dashboards, manual baselines), see [`docs/business/impact-metrics.md`](../business/impact-metrics.md) — *Current measurement (MVP)*.
 
 | Metric | Why it matters |
 | ------ | ---------------- |
@@ -101,7 +103,7 @@ I am a solo founder: decisions are fast, and there is no ambiguity about ownersh
 
 **Accelerator variant (emphasis: speed, users, scale):**
 
-I run the company alone, which has kept the build tight and the feedback loop short. As usage grows, I will add capacity in sales/partnerships and operations before I optimize for headcount elsewhere. I can name the first functions I will hire or contract once [funding milestone / pilot milestone] is hit.
+I run the company alone, which has kept the build tight and the feedback loop short. As usage grows, I will add capacity in sales/partnerships and operations before I optimize for headcount elsewhere. I can name the first functions I will hire or contract once the first institutional pilot or seed milestone we define together is hit.
 
 **Grant variant (emphasis: milestones, openness, stewardship):**
 

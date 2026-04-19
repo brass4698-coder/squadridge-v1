@@ -64,7 +64,7 @@ export function DemoSessionPage() {
 
   return (
     <section
-      className="session-chat-page mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-6 px-6 pb-16 pt-[80px]"
+      className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
       aria-labelledby="demo-session-title"
     >
       <header className="flex flex-col gap-2">
@@ -99,7 +99,7 @@ export function DemoSessionPage() {
       </div>
 
       <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
-        <div className="flex min-h-0 flex-1 flex-col p-6 pt-4">
+        <div className="flex min-h-0 flex-1 flex-col p-4 pt-3 sm:p-6 sm:pt-4">
           <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto" aria-live="polite">
             {messages.map((m) => (
               <li
