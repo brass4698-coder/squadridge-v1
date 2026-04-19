@@ -56,7 +56,7 @@ export const demoSteps: DemoStep[] = [
     id: 'landing',
     path: '/?demo=1',
     title: 'Welcome',
-    description: 'Product story — then intent, match, session, ledger.',
+    description: 'Product story — onboarding, verification, intent, match, session, ledger.',
     inMainScript: true,
     envModes: mockAll,
   },
@@ -156,6 +156,22 @@ export const demoSteps: DemoStep[] = [
     envModes: mockAll,
   },
   {
+    id: 'verify_standalone',
+    path: '/verify?demo=1',
+    title: 'ZK verification',
+    description: 'Semaphore proof in-browser; server verifies via Edge Function.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'v1',
+        content:
+          'Same path as production: proof is verified server-side. Squad chat is a separate surface—messaging is not end-to-end against the operator until shipped.',
+        selector: '[data-demo="verify-root"]',
+      },
+    ],
+  },
+  {
     id: 'intent',
     path: '/intent?demo=1',
     title: 'Intent',
@@ -199,7 +215,7 @@ export const demoSteps: DemoStep[] = [
     id: 'session_offline',
     path: '/session/demo-session-001?demo=1',
     title: 'Squad session (demo)',
-    description: 'Local-only messages.',
+    description: 'Offline mock messages (browser only).',
     inMainScript: true,
     envModes: mockAll,
     actions: [

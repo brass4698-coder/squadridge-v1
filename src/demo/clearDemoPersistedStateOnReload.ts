@@ -5,7 +5,7 @@ import {
   clearSessionIntent,
   DEMO_SESSION_ID,
 } from '../lib';
-import { ONBOARDING_DRAFT_STORAGE_KEY } from '../onboarding/app/components/onboarding/OnboardingContext';
+import { ONBOARDING_DRAFT_STORAGE_KEY } from '../onboarding/app/components/onboarding/onboardingStorageKeys';
 import { DEMO_WALKTHROUGH_STORAGE_KEY } from './demoScript';
 
 const DEMO_COMPOSER_DRAFT_KEY = `squadridge-composer-draft:${DEMO_SESSION_ID}`;

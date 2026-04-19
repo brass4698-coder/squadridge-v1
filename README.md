@@ -66,9 +66,15 @@ Use the same variables as local production builds (`VITE_SUPABASE_URL`, `VITE_SU
 
 The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml) workflow runs tests, `npm run build` (with `VITE_ZK_STUB=false`), and uploads the `dist/` folder as a **build artifact** for download or attachment to your host (Vercel/Netlify/Cloudflare Pages typically use the same env vars in project settings instead of this artifact).
 
+### Demos (investors and staging)
+
+- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
+- **Guided tour:** From the home page, **Start guided tour** runs the scripted steps in [`src/demo/demoScript.ts`](src/demo/demoScript.ts), including onboarding, **ZK verification** (`/verify?demo=1`), intent, match, the offline session, ledger, security, and profile (`/settings/profile?demo=1` creates an anonymous session for the profile step).
+- **Developer shortcuts:** Set `VITE_ENABLE_DEMO_SQUAD=true` to show extra affordances (e.g. **Create demo squad** on the session hub) — see [`.env.example`](.env.example).
+
 ## Documentation
 
-Specs and runbooks: [`docs/`](docs/). Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md).
+Specs and runbooks: [`docs/`](docs/). Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md). Accelerator and pitch notes: [`docs/pitch/`](docs/pitch/).
 
 ## License
 

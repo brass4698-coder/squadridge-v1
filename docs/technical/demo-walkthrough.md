@@ -4,6 +4,19 @@ The product tour is a **demo-only** layer: scripted routes, optional auto-action
 
 Implementation lives in **`src/demo/`** (script, provider, layout, telemetry helpers).
 
+## What ships in every build
+
+| Surface | Route | Notes |
+| ------- | ----- | ----- |
+| Offline squad mock | `/session/demo-session-001` | [`DemoSessionPage`](../../src/pages/DemoSessionPage.tsx): no Supabase Realtime; copy links to `/security`. **Not** gated on `VITE_ENABLE_DEMO_SQUAD`. |
+| ZK verification (standalone) | `/verify` | Real Semaphore + Edge path when configured; the tour adds **`/verify?demo=1`** as a step with overlay copy aligned to the threat model. |
+| Profile in tour | `/settings/profile?demo=1` | [`ProfileSettingsPage`](../../src/pages/ProfileSettingsPage.tsx) calls `ensureAnonymousSession()` when `demo=1` so the step works without visiting Match first. |
+
+## Investor-facing behavior
+
+- **Pitch / diligence:** The offline session is explicitly a **mock**; live squad rooms use [`SessionPage`](../../src/pages/SessionPage.tsx) with Realtime and app-layer encryption (see [`threat-model.md`](../security/threat-model.md)).
+- **`VITE_ENABLE_DEMO_SQUAD`:** Optional. Only enables **developer** shortcuts (e.g. creating a test squad from the session hub), not the public `/session/demo-session-001` route.
+
 ## Removing the tour completely
 
 Follow these steps in order; after each step, run `npm run build` and smoke-test `/`, `/match?demo=1`, and intent/match flows.

@@ -7,8 +7,8 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { fetchProfile, upsertProfilePatch } from '../../../lib/supabase/profile';
-import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../lib/supabase/client';
+import { upsertProfilePatch } from '../../../lib/supabase/profile';
+import { getSupabaseBrowserClient } from '../../../lib/supabase/client';
 
 /** Empty string = user has not chosen a role yet (Identity step). */
 export type RoleArchetype =
@@ -55,28 +55,6 @@ const defaultDraft: OnboardingDraft = {
   verificationAcknowledged: false,
 };
 
-/** v2: era defaults to unset (no implicit Contemporary). */
-export const ONBOARDING_DRAFT_STORAGE_KEY = 'sr_onboarding_draft_v2';
-
-function loadDraft(): OnboardingDraft {
-  try {
-    const raw = localStorage.getItem(ONBOARDING_DRAFT_STORAGE_KEY);
-    if (!raw) return defaultDraft;
-    const parsed = JSON.parse(raw) as Partial<OnboardingDraft>;
-    return { ...defaultDraft, ...parsed };
-  } catch {
-    return defaultDraft;
-  }
-}
-
-function saveDraftLocal(d: OnboardingDraft) {
-  try {
-    localStorage.setItem(ONBOARDING_DRAFT_STORAGE_KEY, JSON.stringify(d));
-  } catch {
-    /* ignore */
-  }
-}
-
 interface OnboardingContextValue {
   draft: OnboardingDraft;
   setDraft: (patch: Partial<OnboardingDraft>) => void;
@@ -90,8 +68,9 @@ interface OnboardingContextValue {
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [draft, setDraftState] = useState<OnboardingDraft>(() => loadDraft());
-  /** Set when any Supabase session exists (email, phone, or anonymous). Drives profile hydration. */
+  /** In-memory only: refresh or re-entering `/onboarding` always starts with empty selections. */
+  const [draft, setDraftState] = useState<OnboardingDraft>(defaultDraft);
+  /** Set when any Supabase session exists (email, phone, or anonymous). */
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [sessionPending, setSessionPending] = useState(true);
@@ -122,34 +101,6 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     });
     return () => sub.subscription.unsubscribe();
   }, [refreshSession]);
-
-  useEffect(() => {
-    saveDraftLocal(draft);
-  }, [draft]);
-
-  /** Hydrate from Supabase profile when a session exists (including anonymous). */
-  useEffect(() => {
-    if (!isSupabaseConfigured() || !authUserId) return undefined;
-    let cancelled = false;
-    void (async () => {
-      const row = await fetchProfile();
-      if (cancelled || !row) return;
-      setDraftState((prev) => ({
-        ...prev,
-        callsign: row.callsign ?? prev.callsign,
-        roleArchetype: (row.role_archetype ?? '') as RoleArchetype,
-        roleOtherDetail:
-          (row.role_archetype ?? '') === 'other' ? (row.role_other_detail ?? '') : '',
-        eraAffiliation: (row.era_affiliation ?? '') as EraAffiliation,
-        language: row.language ?? prev.language,
-        regionHint: row.region_hint ?? prev.regionHint,
-        timezoneWindow: row.timezone_window ?? prev.timezoneWindow,
-      }));
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [authUserId]);
 
   const setDraft = useCallback((patch: Partial<OnboardingDraft>) => {
     setDraftState((prev) => {

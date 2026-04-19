@@ -124,10 +124,8 @@ export default function App() {
                       </RequireAuth>
                     }
                   />
-                  {/* Static demo path must win over `/session/:squadId?` — dev/staging only (see isDemoSquadShortcutsEnabled). */}
-                  {import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SQUAD === 'true' ? (
-                    <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                  ) : null}
+                  {/* Static offline squad demo — must be declared before `/session/:squadId?`. Developer-only shortcuts (create demo squad) still use isDemoSquadShortcutsEnabled in env. */}
+                  <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
                   <Route
                     path="/session/demo"
                     element={<Navigate to="/session/demo-session-001" replace />}

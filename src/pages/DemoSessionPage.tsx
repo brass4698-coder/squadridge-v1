@@ -69,7 +69,7 @@ export function DemoSessionPage() {
     >
       <header className="flex flex-col gap-2">
         <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
-          Investor demo · local only
+          Offline squad demo
         </p>
         <h1 id="demo-session-title" className="font-heading" style={sessionChatHeadingStyle}>
           Squad session
@@ -80,8 +80,22 @@ export function DemoSessionPage() {
       </header>
 
       <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
-        Translation and live sync are disabled in this offline demo. Messages stay in your browser
-        only.
+        This screen is a <strong className="font-medium text-[#c4cdd9]">browser-only mock</strong>:
+        no Supabase Realtime, no squad encryption as in production. The live product uses app-layer
+        message encryption; it is <strong className="font-medium text-[#c4cdd9]">not</strong>{' '}
+        end-to-end against the operator — see{' '}
+        <Link
+          to="/security"
+          className="font-medium text-teal-light underline-offset-4 hover:underline"
+        >
+          Security &amp; privacy
+        </Link>
+        .
+      </div>
+
+      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
+        Translation and live sync are disabled here. Messages you type stay in this tab until you
+        refresh.
       </div>
 
       <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">

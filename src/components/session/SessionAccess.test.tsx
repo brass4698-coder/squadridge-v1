@@ -1,11 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SessionAccess } from './SessionAccess';
-
-vi.mock('../../lib/env', () => ({
-  isDemoSquadShortcutsEnabled: vi.fn(),
-}));
 
 vi.mock('../../pages/SessionHubPage', () => ({
   SessionHubPage: () => <div data-testid="session-hub">hub</div>,
@@ -21,15 +17,8 @@ vi.mock('../auth/RequireAuth', () => ({
   ),
 }));
 
-import { isDemoSquadShortcutsEnabled } from '../../lib';
-
 describe('SessionAccess', () => {
-  beforeEach(() => {
-    vi.mocked(isDemoSquadShortcutsEnabled).mockReset();
-  });
-
   it('renders hub when no squad id', () => {
-    vi.mocked(isDemoSquadShortcutsEnabled).mockReturnValue(false);
     const router = createMemoryRouter(
       [{ path: '/session/:squadId?', element: <SessionAccess /> }],
       {
@@ -41,7 +30,6 @@ describe('SessionAccess', () => {
   });
 
   it('renders session room when squad id is present', () => {
-    vi.mocked(isDemoSquadShortcutsEnabled).mockReturnValue(false);
     const router = createMemoryRouter(
       [{ path: '/session/:squadId?', element: <SessionAccess /> }],
       {
@@ -52,20 +40,7 @@ describe('SessionAccess', () => {
     expect(screen.getByTestId('session-page')).toHaveTextContent('real-squad');
   });
 
-  it('redirects demo session to hub when demo shortcuts disabled', () => {
-    vi.mocked(isDemoSquadShortcutsEnabled).mockReturnValue(false);
-    const router = createMemoryRouter(
-      [{ path: '/session/:squadId?', element: <SessionAccess /> }],
-      {
-        initialEntries: ['/session/demo-session-001'],
-      },
-    );
-    render(<RouterProvider router={router} />);
-    expect(router.state.location.pathname).toBe('/session');
-  });
-
-  it('allows demo session when shortcuts enabled', () => {
-    vi.mocked(isDemoSquadShortcutsEnabled).mockReturnValue(true);
+  it('renders session room for demo squad id when routed through SessionAccess', () => {
     const router = createMemoryRouter(
       [{ path: '/session/:squadId?', element: <SessionAccess /> }],
       {

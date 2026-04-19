@@ -70,7 +70,7 @@ export function VerificationPage() {
   }
 
   return (
-    <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
+    <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5" data-demo="verify-root">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(42vh,28rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.065)_0%,transparent_58%)]"
         aria-hidden="true"
@@ -149,6 +149,7 @@ export function VerificationPage() {
                   type="button"
                   className={onboardingDoneCtaClass}
                   disabled={busy}
+                  data-demo="verify-run"
                   onClick={() => void handleVerify()}
                 >
                   {busy ? 'Verifying…' : 'Run verification'}

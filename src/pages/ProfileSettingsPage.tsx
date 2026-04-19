@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../hooks';
 import { isSupabaseConfigured, PROFILE_ROLE_VALUES, type ProfileRole } from '../lib';
@@ -45,8 +45,15 @@ function OptionalMark() {
 }
 
 export function ProfileSettingsPage() {
-  const { session, loading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { session, loading: authLoading, ensureAnonymousSession } = useAuth();
   const { profile, loading: profileLoading, upsertProfile } = useProfile();
+
+  useEffect(() => {
+    if (searchParams.get('demo') !== '1') return;
+    if (!isSupabaseConfigured()) return;
+    void ensureAnonymousSession();
+  }, [searchParams, ensureAnonymousSession]);
 
   const [callsign, setCallsign] = useState('');
   const [role, setRole] = useState<ProfileRole | ''>('');
