@@ -2,9 +2,9 @@
  * Shared Semaphore verification + DB persistence for `verify-zk-proof` and `zk-verify`.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
-import { verifyProof } from 'npm:@semaphore-protocol/proof@4.14.2';
 import { corsHeadersFor } from './cors.ts';
 import { semaphoreFieldFromLabel } from './semaphoreFieldEncoding.ts';
+import { verifySemaphoreProof } from './verifySemaphoreProof.ts';
 
 export type SemaphoreProofBody = {
   merkleTreeDepth: number;
@@ -79,7 +79,7 @@ export async function verifyAndPersistZkProof(
     throw new Error('Invalid semaphore_proof');
   }
 
-  const ok = await verifyProof(semaphore_proof as Parameters<typeof verifyProof>[0]);
+  const ok = await verifySemaphoreProof(semaphore_proof);
   if (!ok) {
     throw new Error('Invalid Semaphore proof');
   }
