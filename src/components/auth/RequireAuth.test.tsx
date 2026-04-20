@@ -27,11 +27,6 @@ const authDefaults: AuthContextValue = {
   signOut: vi.fn(),
 };
 
-/**
- * Use MemoryRouter (non-data router) to avoid the React Router 7 data router's
- * use of the fetch API for navigation, which is incompatible with jsdom's AbortSignal
- * in the Node.js test environment.
- */
 function renderProtectedRoute() {
   render(
     <MemoryRouter initialEntries={['/protected']}>

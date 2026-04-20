@@ -25,9 +25,8 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 | Function | Implementation | Caller |
 | -------- | ---------------- | ------ |
 | **`verify-zk-proof`** | [`supabase/functions/verify-zk-proof/index.ts`](../../supabase/functions/verify-zk-proof/index.ts) → `Deno.serve(handleZkProofPost)` | **Production path:** [`runVerification`](../../src/lib/zkAdapter.ts) via `supabase.functions.invoke('verify-zk-proof', …)`. |
-| **`zk-verify`** | [`supabase/functions/zk-verify/index.ts`](../../supabase/functions/zk-verify/index.ts) — same `handleZkProofPost` | Deprecated alias for older clients; **prefer `verify-zk-proof`**. |
 
-**Request body (both functions):** `{ attribute_scope: string, credential_type: string, semaphore_proof: SemaphoreProofBody }` — see `SemaphoreProofBody` / `ZkVerifyRequestBody` in the shared module.
+**Request body:** `{ attribute_scope: string, credential_type: string, semaphore_proof: SemaphoreProofBody }` — see `SemaphoreProofBody` / `ZkVerifyRequestBody` in the shared module.
 
 **SPA flow:**
 
