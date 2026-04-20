@@ -213,6 +213,20 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['match_queue']['Insert']>;
         Relationships: [];
       };
+      matchmaking_sweep_runs: {
+        Row: {
+          id: string;
+          ran_at: string;
+          pool_keys_swept: number;
+        };
+        Insert: {
+          id?: string;
+          ran_at?: string;
+          pool_keys_swept?: number;
+        };
+        Update: Partial<Database['public']['Tables']['matchmaking_sweep_runs']['Insert']>;
+        Relationships: [];
+      };
       moderators: {
         Row: {
           user_id: string;
@@ -295,6 +309,14 @@ export interface Database {
       matchmaking_cancel_waiting: {
         Args: { p_pool_key: string };
         Returns: undefined;
+      };
+      matchmaking_sweep_active_pools: {
+        Args: Record<string, never>;
+        Returns: undefined;
+      };
+      matchmaking_queue_stats: {
+        Args: Record<string, never>;
+        Returns: Json;
       };
       messages_latest_window: {
         Args: { p_squad_id: string; p_limit: number };

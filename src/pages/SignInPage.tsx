@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { AccountPageShell, AccountPanel } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
 
@@ -7,10 +9,14 @@ export function SignInPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const nextRaw = searchParams.get('next');
-  const nextPath =
-    nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
-      ? decodeURIComponent(nextRaw)
-      : '/';
+  const reason = searchParams.get('reason');
+  const nextPath = useMemo(
+    () =>
+      nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
+        ? decodeURIComponent(nextRaw)
+        : '/',
+    [nextRaw],
+  );
 
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
@@ -19,6 +25,7 @@ export function SignInPage() {
   const [sent, setSent] = useState(false);
 
   const configured = isSupabaseConfigured();
+  const showLinkHelpBanner = reason === 'link';
 
   useEffect(() => {
     if (!loading && session) {
@@ -28,9 +35,9 @@ export function SignInPage() {
 
   if (!loading && session) {
     return (
-      <div className="relative mx-auto w-full max-w-[440px] px-md py-14 font-sans text-[0.95rem] text-[#8892a4]">
-        Continuing…
-      </div>
+      <AccountPageShell>
+        <p className="font-sans text-[0.95rem] text-ink-muted">Continuing…</p>
+      </AccountPageShell>
     );
   }
 
@@ -52,7 +59,7 @@ export function SignInPage() {
   if (!configured) {
     return (
       <div className="relative mx-auto w-full max-w-copy px-md py-12">
-        <p className="font-sans text-body-lg text-[#8892a4]">
+        <p className="font-sans text-body-lg text-ink-muted">
           Supabase is not configured. Add{' '}
           <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a publishable or anon
           key to use sign-in.
@@ -68,39 +75,45 @@ export function SignInPage() {
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-[440px] px-md py-14">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(38vh,24rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.06)_0%,transparent_58%)]"
-        aria-hidden
-      />
-      <div className="relative z-[1]">
-        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-          Account
-        </p>
-        <h1
-          className="mt-2 font-heading font-extrabold text-[#f1f5f9]"
-          style={{
-            fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-          }}
-        >
-          Sign in
-        </h1>
-        <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
-          We&apos;ll email you a one-time link. No password stored on our side.
-        </p>
+    <AccountPageShell>
+      <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
+        Account
+      </p>
+      <h1
+        className="mt-2 font-heading font-extrabold text-ink"
+        style={{
+          fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
+          letterSpacing: '-0.03em',
+          lineHeight: 1.1,
+        }}
+      >
+        Sign in
+      </h1>
+      <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
+        New here? Use the same email—we send a one-time link. First time signs you in. No password
+        stored on our side.
+      </p>
 
-        {sent ? (
-          <div className="mt-10 rounded-lg border border-[#1e2a3a] bg-[#0f1623] px-5 py-6">
-            <p className="mb-0 font-sans text-[0.95rem] text-[#c4cdd9]">
-              Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
-              we&apos;ll route you
-              {nextPath !== '/' ? ' to your squad room.' : '.'}
-            </p>
-          </div>
-        ) : (
-          <form className="mt-10 space-y-5" onSubmit={(e) => void handleSubmit(e)} noValidate>
+      {showLinkHelpBanner ? (
+        <div
+          className="mt-6 rounded-lg border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-[#fcd9a8]"
+          role="status"
+        >
+          No password to reset—enter your email below and we&apos;ll send a fresh magic link.
+        </div>
+      ) : null}
+
+      {sent ? (
+        <AccountPanel className="mt-10">
+          <p className="mb-0 font-sans text-[0.95rem] text-ink-secondary">
+            Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
+            we&apos;ll route you
+            {nextPath !== '/' ? ' to your squad room.' : '.'}
+          </p>
+        </AccountPanel>
+      ) : (
+        <form className="mt-10" onSubmit={(e) => void handleSubmit(e)} noValidate>
+          <AccountPanel className="space-y-5">
             {error ? (
               <p className="font-sans text-[0.875rem] text-amber" role="alert">
                 {error}
@@ -109,7 +122,7 @@ export function SignInPage() {
             <div className="space-y-2">
               <label
                 htmlFor="signin-email"
-                className="block font-sans text-[0.8rem] font-medium text-[#a8b2c1]"
+                className="block font-sans text-[0.8rem] font-medium text-ink-secondary"
               >
                 Email
               </label>
@@ -121,30 +134,47 @@ export function SignInPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)]"
+                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-ink-secondary placeholder:text-ink-subtle focus-visible:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/20"
                 placeholder="you@organization.org"
               />
             </div>
             <button
               type="submit"
               disabled={busy}
-              className="inline-flex min-h-[44px] w-full items-center justify-center border-0 bg-teal px-6 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-[44px] w-full items-center justify-center border-0 bg-teal px-6 py-3 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50"
               style={{ borderRadius: 8 }}
             >
               {busy ? 'Sending link…' : 'Email me a link'}
             </button>
-          </form>
-        )}
+          </AccountPanel>
+        </form>
+      )}
 
-        <p className="mt-10 font-sans text-[0.85rem] text-[#4b5563]">
-          <Link
-            to="/"
-            className="text-[#8892a4] underline-offset-4 hover:text-[#c4cdd9] hover:underline"
-          >
-            Back to home
-          </Link>
+      {!sent ? (
+        <p className="mt-6 font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
+          Link expired? Enter your email again—we&apos;ll send a fresh link. There is no separate
+          password to recover.
         </p>
-      </div>
-    </div>
+      ) : null}
+
+      <nav
+        className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-8 font-sans text-[0.85rem] text-ink-subtle"
+        aria-label="Account help"
+      >
+        <Link
+          to="/security"
+          className="inline-flex items-center gap-2 text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
+        >
+          <Shield className="size-3 shrink-0 opacity-50" aria-hidden />
+          Security &amp; privacy
+        </Link>
+        <Link
+          to="/"
+          className="w-fit text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
+        >
+          Back to home
+        </Link>
+      </nav>
+    </AccountPageShell>
   );
 }

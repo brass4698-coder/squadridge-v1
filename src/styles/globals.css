@@ -260,20 +260,34 @@
   border-radius: 1.75rem !important;
 }
 
-/* SAFE watermark: fade toward right; opacity set in markup (subtle, visible) */
+/* Hero GOAL watermark: obsidian lift + Cajun bloom; stays z-[-1] under headline (see LandingPage) */
 .landing-hero-watermark {
+  color: #151b2a;
+  opacity: 0.38;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.05);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0 40px rgba(255, 191, 0, 0.1),
+    0 0 72px rgba(234, 88, 12, 0.08),
+    0 0 120px rgba(245, 166, 35, 0.05);
   -webkit-mask-image: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0.35) 25%,
-    rgba(0, 0, 0, 0.12) 55%,
-    transparent 85%
+    rgba(0, 0, 0, 0.42) 22%,
+    rgba(0, 0, 0, 0.18) 52%,
+    transparent 86%
   );
   mask-image: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0.35) 25%,
-    rgba(0, 0, 0, 0.12) 55%,
-    transparent 85%
+    rgba(0, 0, 0, 0.42) 22%,
+    rgba(0, 0, 0, 0.18) 52%,
+    transparent 86%
   );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-watermark {
+    text-shadow: 0 0 28px rgba(255, 191, 0, 0.06);
+  }
 }
 
 .waitlist-email-input {

@@ -112,13 +112,15 @@ export function LandingPage() {
         >
           <div className="relative mx-auto max-w-6xl px-md">
             <div className="relative z-[1]">
-              <div className="relative">
-                <p
-                  className="landing-hero-watermark pointer-events-none absolute right-0 top-1/2 z-0 max-w-[100vw] -translate-y-1/2 select-none font-heading text-[clamp(8rem,20vw,18rem)] font-black leading-none tracking-[-0.04em] text-white [opacity:0.055]"
+              <div className="relative isolate">
+                <div
+                  className="pointer-events-none absolute right-0 top-1/2 z-[-1] max-w-[100vw] -translate-y-1/2 backdrop-blur-[2px]"
                   aria-hidden
                 >
-                  SAFE
-                </p>
+                  <p className="landing-hero-watermark select-none font-heading text-[clamp(8rem,20vw,18rem)] font-black leading-none tracking-[-0.04em]">
+                    GOAL
+                  </p>
+                </div>
                 <h1
                   id="hero-heading"
                   className="landing-hero-animate-headline relative z-[1] mb-0 font-heading text-[clamp(3rem,5vw,3.8rem)] font-extrabold leading-[1.05] tracking-[-0.02em] text-landing-ink"

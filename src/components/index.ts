@@ -13,6 +13,7 @@ export type { LogoProps as SquadLogoProps } from './SquadLogo';
 export * from './SquadRidgeWordmark';
 export * from './WaitlistSection';
 export * from './ZkStubBanner';
+export * from './auth/AccountPageShell';
 export * from './auth/AuthIssueBanner';
 export * from './auth/RequireAuth';
 export * from './auth/RequireModerator';

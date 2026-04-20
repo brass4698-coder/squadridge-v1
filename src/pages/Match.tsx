@@ -19,8 +19,9 @@ import {
 } from '../lib';
 import { DEMO_WALKTHROUGH_STORAGE_KEY } from '../demo/demoScript';
 
-/** Poll pool snapshot while waiting; Realtime on `match_queue` also triggers refresh. */
-const POLL_MS = 2500;
+/** Fallback poll while waiting: faster before Realtime connects; slower once subscribed (Realtime drives updates). */
+const POLL_MS_BEFORE_REALTIME = 4000;
+const POLL_MS_WITH_REALTIME = 10000;
 const SLOT_STAGGER_MS = [800, 1600, 2400] as const;
 /** Brief “finding” beat before opening the room (intent narrative + guided demo). */
 const NARRATIVE_THEATER_MS = 2400;
@@ -139,6 +140,20 @@ export function Match() {
     if (!supabase || !session?.user?.id || gate !== 'waiting') return;
     const uid = session.user.id;
 
+    let pollId = window.setInterval(() => {
+      void refresh();
+    }, POLL_MS_BEFORE_REALTIME);
+    let pollUpgradedForRealtime = false;
+
+    const upgradePollIfRealtime = () => {
+      if (pollUpgradedForRealtime) return;
+      pollUpgradedForRealtime = true;
+      window.clearInterval(pollId);
+      pollId = window.setInterval(() => {
+        void refresh();
+      }, POLL_MS_WITH_REALTIME);
+    };
+
     const ch = supabase
       .channel(`match_queue:${uid}`)
       .on(
@@ -153,11 +168,11 @@ export function Match() {
           void refresh();
         },
       )
-      .subscribe();
-
-    const poll = window.setInterval(() => {
-      void refresh();
-    }, POLL_MS);
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          upgradePollIfRealtime();
+        }
+      });
 
     const onVis = () => {
       if (document.visibilityState === 'visible') void refresh();
@@ -170,7 +185,7 @@ export function Match() {
 
     return () => {
       void supabase.removeChannel(ch);
-      clearInterval(poll);
+      window.clearInterval(pollId);
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('focus', onFocus);
     };
@@ -355,10 +370,10 @@ export function Match() {
         </p>
         {import.meta.env.DEV ? (
           <p className="mt-4 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
-            How updates work: this page calls the matchmaking snapshot on an interval and when this
-            tab becomes visible, and subscribes to Realtime changes on your{' '}
-            <code className="text-slate-400">match_queue</code> row so we react as soon as the
-            server assigns you.
+            How updates work: Realtime on your <code className="text-slate-400">match_queue</code>{' '}
+            row triggers refresh; fallback snapshot polling starts at {POLL_MS_BEFORE_REALTIME}ms
+            then slows to {POLL_MS_WITH_REALTIME}ms once subscribed. Also refreshes when the tab
+            becomes visible.
           </p>
         ) : null}
 

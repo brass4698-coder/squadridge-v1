@@ -103,6 +103,11 @@ export default function App() {
                     }
                   />
                   <Route path="/sign-in" element={<SignInPage />} />
+                  <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
+                  <Route
+                    path="/forgot-password"
+                    element={<Navigate to="/sign-in?reason=link" replace />}
+                  />
                   <Route path="/auth/callback" element={<AuthCallbackPage />} />
                   <Route
                     path="/settings/profile"

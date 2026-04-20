@@ -80,7 +80,7 @@ export const COPY = {
     devSupabaseNotice:
       'Supabase env not configured yet — we store preferences on\u2011device only until auth is connected.',
     emailPlaceholder: 'you@domain.org',
-    sendLink: 'Send secure link',
+    sendLink: 'Email me a link',
     signedIn: 'Session active',
     continue: 'Continue',
     checkEmail: 'Check your email for the sign-in link.',

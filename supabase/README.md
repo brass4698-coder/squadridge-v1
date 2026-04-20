@@ -24,9 +24,10 @@ This repo includes [`config.toml`](./config.toml) from `supabase init`. Migratio
 npm run gen:types
 ```
 
-9. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts), [`functions/zk-verify`](./functions/zk-verify/index.ts), and [`functions/rate-limit`](./functions/rate-limit/index.ts)). Supabase injects `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` automatically. **Also set:**
+9. Deploy Edge Functions after linking the project: `supabase functions deploy` (includes [`functions/verify-zk-proof`](./functions/verify-zk-proof/index.ts), [`functions/zk-verify`](./functions/zk-verify/index.ts), [`functions/rate-limit`](./functions/rate-limit/index.ts), and optional [`functions/match-notify`](./functions/match-notify/index.ts) for Database Webhooks on `match_queue`). Supabase injects `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` automatically. **Also set:**
    - **`ALLOWED_ORIGINS`** — comma-separated browser origins allowed for CORS on ZK functions (e.g. `http://localhost:5173,https://your-app.netlify.app`). See [`functions/_shared/cors.ts`](./functions/_shared/cors.ts).
    - **`UPSTASH_REDIS_REST_URL`** / **`UPSTASH_REDIS_REST_TOKEN`** — optional; required for enforcement in [`functions/rate-limit`](./functions/rate-limit/index.ts) (otherwise the function returns 503 and the app fails open).
+   - **`MATCH_QUEUE_WEBHOOK_SECRET`** — optional; set for [`functions/match-notify`](./functions/match-notify/index.ts) and send the same value as request header `x-match-queue-secret` from Database Webhooks (see [`docs/technical/matchmaking-automation.md`](../docs/technical/matchmaking-automation.md)).
 
 The app route **`/verify`** calls `verify-zk-proof` via [`src/lib/zkAdapter.ts`](../src/lib/zkAdapter.ts); without a deployed function (or offline), verification fails unless `VITE_ZK_STUB=true` (local dev hash-only path).
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { AccountPageShell, AccountPanel } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
 
@@ -12,6 +13,11 @@ function safeNextPath(raw: string | null): string {
     /* ignore */
   }
   return '/';
+}
+
+function signInHref(nextPath: string): string {
+  const next = nextPath !== '/' ? `next=${encodeURIComponent(nextPath)}&` : '';
+  return `/sign-in?${next}reason=link`;
 }
 
 /**
@@ -53,7 +59,7 @@ export function AuthCallbackPage() {
       void supabase.auth.getSession().then(({ data: { session: s } }) => {
         if (!navigated.current && !s) {
           setError(
-            'Sign-in did not complete. The link may have expired—request a new one from Sign in.',
+            'We could not finish signing you in. The magic link may have expired or already been used—request a new link from Sign in.',
           );
         }
       });
@@ -67,19 +73,19 @@ export function AuthCallbackPage() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div className="mx-auto max-w-copy px-md py-14 font-sans text-[0.95rem] text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-md py-14 font-sans text-[0.95rem] text-ink-muted">
         Supabase is not configured.
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-[440px] px-md py-14">
+    <AccountPageShell>
       <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
         Account
       </p>
       <h1
-        className="mt-2 font-heading font-extrabold text-[#f1f5f9]"
+        className="mt-2 font-heading font-extrabold text-ink"
         style={{
           fontSize: 'clamp(1.35rem, 2.5vw, 1.75rem)',
           letterSpacing: '-0.03em',
@@ -89,22 +95,27 @@ export function AuthCallbackPage() {
         Finishing sign-in…
       </h1>
       {error ? (
-        <div className="mt-8 space-y-4">
-          <p className="font-sans text-[0.9rem] text-amber" role="alert">
-            {error}
+        <div className="mt-8 space-y-5">
+          <AccountPanel className="border border-amber/25 bg-amber/[0.04]">
+            <p className="mb-0 font-sans text-[0.9rem] leading-relaxed text-[#fcd9a8]" role="alert">
+              {error}
+            </p>
+          </AccountPanel>
+          <p className="mb-0 font-sans text-[0.85rem] text-ink-muted">
+            Passwordless accounts only—we&apos;ll email you a new one-time link.
           </p>
           <Link
-            to={`/sign-in?next=${encodeURIComponent(nextPath)}`}
+            to={signInHref(nextPath)}
             className="inline-flex font-sans text-[0.9rem] font-medium text-teal-light underline-offset-4 hover:underline"
           >
             Back to sign in
           </Link>
         </div>
       ) : (
-        <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
+        <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
           Securing your session…
         </p>
       )}
-    </div>
+    </AccountPageShell>
   );
 }
