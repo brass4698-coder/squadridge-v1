@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../../contexts/AuthContext';
 import { createMockSession } from '../../test/fixtures';
@@ -28,23 +28,22 @@ const authDefaults: AuthContextValue = {
 };
 
 function renderProtectedRoute() {
-  const router = createMemoryRouter(
-    [
-      {
-        path: '/protected',
-        element: (
-          <RequireAuth requireCompleteProfile>
-            <div data-testid="protected-child">ok</div>
-          </RequireAuth>
-        ),
-      },
-      { path: '/sign-in', element: <div data-testid="sign-in-page">sign-in</div> },
-      { path: '/settings/profile', element: <div data-testid="profile-page">profile</div> },
-    ],
-    { initialEntries: ['/protected'] },
+  return render(
+    <MemoryRouter initialEntries={['/protected']}>
+      <Routes>
+        <Route
+          path="/protected"
+          element={
+            <RequireAuth requireCompleteProfile>
+              <div data-testid="protected-child">ok</div>
+            </RequireAuth>
+          }
+        />
+        <Route path="/sign-in" element={<div data-testid="sign-in-page">sign-in</div>} />
+        <Route path="/settings/profile" element={<div data-testid="profile-page">profile</div>} />
+      </Routes>
+    </MemoryRouter>,
   );
-  render(<RouterProvider router={router} />);
-  return router;
 }
 
 describe('RequireAuth', () => {
@@ -79,8 +78,7 @@ describe('RequireAuth', () => {
       patchProfile: vi.fn(),
       profileComplete: false,
     });
-    const router = renderProtectedRoute();
-    expect(router.state.location.pathname).toBe('/sign-in');
+    renderProtectedRoute();
     expect(screen.getByTestId('sign-in-page')).toBeInTheDocument();
   });
 
@@ -99,8 +97,7 @@ describe('RequireAuth', () => {
       patchProfile: vi.fn(),
       profileComplete: false,
     });
-    const router = renderProtectedRoute();
-    expect(router.state.location.pathname).toBe('/settings/profile');
+    renderProtectedRoute();
     expect(screen.getByTestId('profile-page')).toBeInTheDocument();
   });
 
