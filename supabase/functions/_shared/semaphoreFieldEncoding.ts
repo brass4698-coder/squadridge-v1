@@ -1,8 +1,8 @@
 /**
  * Bytes32 string encoding matching ethers `encodeBytes32String` + Semaphore field labels.
- * Keep in sync with `supabase/functions/_shared/semaphoreFieldEncoding.ts` (Edge).
+ * Keep in sync with `src/lib/zk/semaphoreFieldEncoding.ts` (Vite client).
  *
- * Avoids importing `ethers` (~large); used for Semaphore `message` / `scope` bigints.
+ * Avoids importing `ethers` in Edge Functions (~tens of MB bundled).
  */
 const MAX_LABEL = 31;
 
@@ -22,10 +22,6 @@ export function encodeBytes32String(text: string): string {
   );
 }
 
-/**
- * Matches `@semaphore-protocol/proof` string → bigint conversion for `message` / `scope`
- * (same as ethers `toBigInt(encodeBytes32String(...))`).
- */
 export function semaphoreFieldFromLabel(label: string): string {
   const s = label.trim().slice(0, MAX_LABEL);
   const preimage = s.length > 0 ? s : '\0';

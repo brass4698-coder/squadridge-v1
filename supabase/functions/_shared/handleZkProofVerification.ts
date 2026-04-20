@@ -3,11 +3,8 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { verifyProof } from 'npm:@semaphore-protocol/proof@4.14.2';
-import { encodeBytes32String } from 'npm:ethers@6.13.4/abi';
-import { toBigInt } from 'npm:ethers@6.13.4/utils';
 import { corsHeadersFor } from './cors.ts';
-
-const MAX_LABEL = 31;
+import { semaphoreFieldFromLabel } from './semaphoreFieldEncoding.ts';
 
 export type SemaphoreProofBody = {
   merkleTreeDepth: number;
@@ -23,11 +20,6 @@ export type ZkVerifyRequestBody = {
   credential_type: string;
   semaphore_proof: SemaphoreProofBody;
 };
-
-function fieldFromLabel(label: string): string {
-  const s = label.trim().slice(0, MAX_LABEL);
-  return toBigInt(encodeBytes32String(s)).toString();
-}
 
 function scopeToVerifiedAttribute(scope: string): {
   attribute_type: string;
@@ -53,10 +45,10 @@ function assertProofMatchesRequest(
   attributeScope: string,
   credentialType: string,
 ): void {
-  if (proof.message !== fieldFromLabel(attributeScope)) {
+  if (proof.message !== semaphoreFieldFromLabel(attributeScope)) {
     throw new Error('Proof message does not match attribute_scope');
   }
-  if (proof.scope !== fieldFromLabel(credentialType)) {
+  if (proof.scope !== semaphoreFieldFromLabel(credentialType)) {
     throw new Error('Proof scope does not match credential_type');
   }
 }

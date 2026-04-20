@@ -13,4 +13,11 @@ describe('semaphoreFieldFromLabel', () => {
     const v = semaphoreFieldFromLabel(`  ${long}  `);
     expect(v).toMatch(/^\d+$/);
   });
+
+  /** Locks parity with ethers `toBigInt(encodeBytes32String(...))` (used before Edge bundle fix). */
+  it('matches historical ethers output for hello', () => {
+    expect(semaphoreFieldFromLabel('hello')).toBe(
+      '47219736118171679016481614208494153725245902603978864281390662590579859259392',
+    );
+  });
 });
