@@ -98,8 +98,8 @@ jobs:
           if compgen -G "supabase/functions/*/index.ts" > /dev/null 2>&1; then
             echo "Deploying Edge Functions..."
             # --no-bundle: deploy Deno source as-is so large npm packages (e.g. snarkjs in
-            # verify-zk-proof / zk-verify) are resolved at runtime instead of being bundled
-            # into the upload artifact. Without this flag the bundle exceeds the 10 MB limit.
+            # verify-zk-proof) are resolved at runtime instead of being bundled into the
+            # upload artifact. Without this flag the bundle exceeds the 10 MB limit.
             supabase functions deploy --no-bundle
           else
             echo "No Edge Functions found (expected supabase/functions/<name>/index.ts); skipping."
