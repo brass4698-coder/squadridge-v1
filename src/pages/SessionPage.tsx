@@ -300,7 +300,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     } catch {
       /* sessionStorage may be unavailable */
     }
-  }, [squadId]);
+  }, [squadId, composerDraftKey]);
 
   useEffect(() => {
     if (!composerDraftKey) return;

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from './useProfile';
@@ -25,7 +24,8 @@ export function useAppNavContext(): AppNavContextValue {
   const { session } = useAuth();
   const { profileComplete, loading: profileLoading } = useProfile();
 
-  const resumeSquadId = useMemo(() => getLastSquadIdFromStorage(), [pathname]);
+  /** Re-read storage on each render; route changes re-render via `useLocation` (`pathname`). */
+  const resumeSquadId = getLastSquadIdFromStorage();
 
   const resumeHref = resumeSquadId ? `/session/${resumeSquadId}` : null;
 

@@ -180,11 +180,13 @@ export interface Database {
           id: string;
           email: string;
           created_at: string;
+          role_hint: string | null;
         };
         Insert: {
           id?: string;
           email: string;
           created_at?: string;
+          role_hint?: string | null;
         };
         Update: Partial<Database['public']['Tables']['waitlist_signups']['Insert']>;
         Relationships: [];

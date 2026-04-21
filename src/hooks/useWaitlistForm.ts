@@ -8,6 +8,7 @@ export function useWaitlistForm() {
   const externalUrl = getWaitlistFormUrl();
   const configured = isSupabaseConfigured();
   const [email, setEmail] = useState('');
+  const [roleHint, setRoleHint] = useState('');
   const [status, setStatus] = useState<WaitlistFormStatus>('idle');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [waitlistCount, setWaitlistCount] = useState<number | null>(null);
@@ -17,10 +18,9 @@ export function useWaitlistForm() {
     let cancelled = false;
     void (async () => {
       const { data, error } = await getSupabase().rpc('waitlist_signup_count');
-      if (cancelled || error) return;
-      if (data == null) return;
-      const n = typeof data === 'number' ? data : Number.parseInt(String(data), 10);
-      if (Number.isFinite(n)) setWaitlistCount(Math.max(0, n));
+      if (cancelled || error || data == null) return;
+      const count = typeof data === 'number' ? data : Number.parseInt(String(data), 10);
+      if (Number.isFinite(count)) setWaitlistCount(Math.max(0, count));
     })();
     return () => {
       cancelled = true;
@@ -34,17 +34,30 @@ export function useWaitlistForm() {
         e.currentTarget.elements.namedItem('website') as HTMLInputElement | null
       )?.value?.trim();
       if (trap) return;
+
       const trimmed = email.trim();
       if (!trimmed) return;
+
+      const role = roleHint.trim();
+      if (!role) {
+        setFeedback('Choose your role so we can match outreach to your background.');
+        setStatus('error');
+        return;
+      }
+
       if (!configured) {
         setFeedback('Waitlist capture needs Supabase env vars or an external form URL.');
         setStatus('error');
         return;
       }
+
       setStatus('loading');
       setFeedback(null);
+
       try {
-        const { error } = await getSupabase().from('waitlist_signups').insert({ email: trimmed });
+        const { error } = await getSupabase()
+          .from('waitlist_signups')
+          .insert({ email: trimmed, role_hint: role });
         if (error) {
           if (error.code === '23505') {
             setFeedback("You're already on the list. We'll be in touch.");
@@ -55,26 +68,31 @@ export function useWaitlistForm() {
           }
           return;
         }
+
         setStatus('success');
-        setFeedback("Thanks — you're on the list.");
+        setFeedback("Thanks - you're on the list.");
         setEmail('');
+        setRoleHint('');
         window.dispatchEvent(new Event(WAITLIST_CHANGED_EVENT));
-        const { data: c } = await getSupabase().rpc('waitlist_signup_count');
-        if (c != null) {
-          const n = typeof c === 'number' ? c : Number.parseInt(String(c), 10);
-          if (Number.isFinite(n)) setWaitlistCount(Math.max(0, n));
+
+        const { data } = await getSupabase().rpc('waitlist_signup_count');
+        if (data != null) {
+          const count = typeof data === 'number' ? data : Number.parseInt(String(data), 10);
+          if (Number.isFinite(count)) setWaitlistCount(Math.max(0, count));
         }
       } catch (err) {
         setFeedback(err instanceof Error ? err.message : 'Something went wrong.');
         setStatus('error');
       }
     },
-    [configured, email],
+    [configured, email, roleHint],
   );
 
   return {
     email,
     setEmail,
+    roleHint,
+    setRoleHint,
     status,
     feedback,
     handleSubmit,

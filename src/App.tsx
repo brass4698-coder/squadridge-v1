@@ -19,6 +19,7 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
+import { PitchDeckHubPage } from './pages/PitchDeckHubPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
@@ -90,6 +91,7 @@ export default function App() {
                     }
                   />
                   <Route path="/security" element={<SecurityDisclosurePage />} />
+                  <Route path="/pitch-deck-hub" element={<PitchDeckHubPage />} />
                   <Route path="/match" element={<Match />} />
                   <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
                   <Route

@@ -11,4 +11,8 @@ describe('mainContentPaddingClass', () => {
   it('uses default vertical padding for other routes', () => {
     expect(mainContentPaddingClass('/mod')).toBe('py-xl');
   });
+
+  it('uses tight padding for pitch hub', () => {
+    expect(mainContentPaddingClass('/pitch-deck-hub')).toBe('pt-0 pb-xl');
+  });
 });

@@ -3,13 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import SquadLogo from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { useAppNavContext, useIsModerator } from '../../hooks';
-import { isSupabaseConfigured } from '../../lib';
+import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../../lib';
 import { AccountMenu } from './AccountMenu';
+import { PrimaryCTA } from '../ui/PrimaryCTA';
 
 const navLinkBase =
-  'inline-flex items-center rounded-md px-3 py-2 text-[0.8125rem] font-medium leading-none transition-colors duration-150';
-const navMuted = `${navLinkBase} text-[#8b95a8] hover:bg-white/[0.05] hover:text-[#e2e8f0]`;
-const navActive = `${navLinkBase} text-[#f1f5f9]`;
+  'inline-flex min-h-[44px] items-center rounded-full px-3.5 py-2 text-[0.8125rem] font-medium leading-none transition-[color,background-color,border-color,box-shadow] duration-150';
+const navMuted = `${navLinkBase} border border-transparent text-[#8b95a8] hover:border-white/[0.06] hover:bg-white/[0.04] hover:text-[#e2e8f0]`;
+const navActive = `${navLinkBase} border border-white/[0.08] bg-white/[0.05] text-[#f1f5f9] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`;
 
 function mobileDrawerLinkClass(active: boolean) {
   return `block w-full rounded-lg py-2.5 text-[0.9rem] font-medium transition-colors duration-150 ${
@@ -44,13 +45,16 @@ function useDemoNavState() {
   const inSessionRoom = Boolean(sessionSquadId);
 
   return {
-    homeActive: pathname === '/' && hash !== '#waitlist',
+    homeActive: pathname === '/' && hash !== '#waitlist' && hash !== '#how-it-works',
     matchFlowActive: pathname.startsWith('/match') || pathname.startsWith('/intent'),
     intentActive: pathname.startsWith('/intent'),
     sessionLinkActive: pathname.startsWith('/session'),
     inSessionRoom,
     sessionHref: sessionSquadId ? `/session/${sessionSquadId}` : '/session',
     waitlistActive: pathname === '/' && hash === '#waitlist',
+    howItWorksActive: pathname === '/' && hash === '#how-it-works',
+    pilotAccessActive: pathname === '/' && hash === '#waitlist',
+    sampleOutputActive: pathname.startsWith('/ledger'),
     verifyActive: pathname.startsWith('/verify'),
     ledgerActive: pathname.startsWith('/ledger'),
     securityActive: pathname.startsWith('/security'),
@@ -60,8 +64,12 @@ function useDemoNavState() {
 }
 
 function JourneyStrip() {
+  const { pathname } = useLocation();
   const { showResumeCta, resumeHref, showOnboardingCta, onboardingHref, onboardingLabel } =
     useAppNavContext();
+  /** Landing, public ledger, security disclosure: no session-recovery strip. */
+  if (pathname === '/' || pathname.startsWith('/ledger') || pathname.startsWith('/security'))
+    return null;
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
     <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
@@ -87,7 +95,7 @@ function JourneyStrip() {
   );
 }
 
-/** Center bar: Home · Match · Session (only in a room). */
+/** Center bar: orientation + conversion (marketing). */
 function DemoDesktopNav({ onNavigate }: { onNavigate?: () => void }) {
   const nav = useDemoNavState();
   return (
@@ -95,17 +103,22 @@ function DemoDesktopNav({ onNavigate }: { onNavigate?: () => void }) {
       className="hidden flex-1 items-center justify-center gap-1 sm:gap-2 lg:flex"
       aria-label="Primary"
     >
-      <NavLink to="/" active={nav.homeActive} onNavigate={onNavigate}>
-        Home
+      <NavLink to="/#how-it-works" active={nav.howItWorksActive} onNavigate={onNavigate}>
+        How it works
       </NavLink>
-      <NavLink to="/match" active={nav.matchFlowActive} onNavigate={onNavigate}>
-        Match
+      <NavLink to="/security" active={nav.securityActive} onNavigate={onNavigate}>
+        Security
       </NavLink>
-      {nav.inSessionRoom ? (
-        <NavLink to={nav.sessionHref} active={nav.sessionLinkActive} onNavigate={onNavigate}>
-          Session
-        </NavLink>
-      ) : null}
+      <NavLink
+        to={`/ledger/${DEMO_PROPOSAL_ID}`}
+        active={nav.sampleOutputActive}
+        onNavigate={onNavigate}
+      >
+        Sample output
+      </NavLink>
+      <NavLink to="/#waitlist" active={nav.pilotAccessActive} onNavigate={onNavigate}>
+        Pilot access
+      </NavLink>
     </nav>
   );
 }
@@ -127,6 +140,9 @@ function MobileNavDrawer({
   const isDev = import.meta.env.DEV;
   const { pathname } = useLocation();
   const { data: isMod } = useIsModerator();
+  const showDevInDrawer = isDev && pathname !== '/' && !pathname.startsWith('/security');
+  const showAccountInDrawerFooter =
+    isSupabaseConfigured() && !pathname.startsWith('/ledger') && !pathname.startsWith('/security');
 
   useEffect(() => {
     onClose();
@@ -222,45 +238,49 @@ function MobileNavDrawer({
           <div className="space-y-6">
             <div>
               <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Navigate
+                Site
               </p>
               <ul className="space-y-0.5">
                 <li>
                   <Link
                     ref={firstLinkRef}
-                    to="/"
-                    className={mobileDrawerLinkClass(nav.homeActive)}
+                    to="/#how-it-works"
+                    className={mobileDrawerLinkClass(nav.howItWorksActive)}
                     onClick={onClose}
                   >
-                    Home
+                    How it works
                   </Link>
                 </li>
                 <li>
                   <Link
-                    to="/match"
-                    className={mobileDrawerLinkClass(nav.matchFlowActive)}
+                    to="/security"
+                    className={mobileDrawerLinkClass(nav.securityActive)}
                     onClick={onClose}
                   >
-                    Match
+                    Security
                   </Link>
                 </li>
-                {nav.inSessionRoom ? (
-                  <li>
-                    <Link
-                      to={nav.sessionHref}
-                      className={mobileDrawerLinkClass(nav.sessionLinkActive)}
-                      onClick={onClose}
-                    >
-                      Session
-                    </Link>
-                  </li>
-                ) : null}
+                <li>
+                  <Link
+                    to={`/ledger/${DEMO_PROPOSAL_ID}`}
+                    className={mobileDrawerLinkClass(nav.sampleOutputActive)}
+                    onClick={onClose}
+                  >
+                    Sample output
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="/#waitlist"
+                    className={mobileDrawerLinkClass(nav.pilotAccessActive)}
+                    onClick={onClose}
+                  >
+                    Pilot access
+                  </a>
+                </li>
               </ul>
-              <p className="mt-4 font-sans text-[0.8rem] leading-relaxed text-[#5c6573]">
-                Early access and ledger are on the home page and in the footer.
-              </p>
             </div>
-            {isDev ? (
+            {showDevInDrawer ? (
               <div>
                 <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
                   Dev
@@ -317,7 +337,7 @@ function MobileNavDrawer({
           </div>
         </nav>
         <div className="border-t border-[#1a2236] p-4">
-          <AccountMenu />
+          {showAccountInDrawerFooter ? <AccountMenu /> : null}
         </div>
       </div>
     </div>
@@ -328,15 +348,16 @@ function MobileMenuBar({
   open,
   onOpen,
   menuButtonRef,
+  showAccountMenu,
 }: {
   open: boolean;
   onOpen: () => void;
   menuButtonRef: React.RefObject<HTMLButtonElement | null>;
+  showAccountMenu: boolean;
 }) {
-  const showAccount = isSupabaseConfigured();
   return (
     <div className="flex shrink-0 items-center justify-end gap-3 lg:hidden">
-      {showAccount ? <AccountMenu /> : null}
+      {showAccountMenu ? <AccountMenu /> : null}
       <button
         ref={menuButtonRef}
         type="button"
@@ -365,10 +386,14 @@ function MobileMenuBar({
 }
 
 export function AppHeaderNav({ variant }: { variant: Variant }) {
+  const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const showAccount = isSupabaseConfigured();
+  /** Public ledger and security explainer read as documentation; session chrome undermines that framing. */
+  const showAccountMenuChrome =
+    showAccount && !pathname.startsWith('/ledger') && !pathname.startsWith('/security');
 
   if (variant === 'minimal') {
     return (
@@ -421,7 +446,16 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
           <DemoDesktopNav onNavigate={closeMobile} />
 
           <div className="flex shrink-0 items-center gap-3">
-            {showAccount ? (
+            <div className="hidden items-center gap-2 lg:flex">
+              <PrimaryCTA
+                label="Request pilot access"
+                href="/#waitlist"
+                size="sm"
+                shape="squircle"
+                className="px-5"
+              />
+            </div>
+            {showAccountMenuChrome ? (
               <div className="hidden lg:block">
                 <AccountMenu />
               </div>
@@ -430,6 +464,7 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
               open={mobileOpen}
               onOpen={() => setMobileOpen(true)}
               menuButtonRef={mobileMenuButtonRef}
+              showAccountMenu={showAccountMenuChrome}
             />
           </div>
         </div>

@@ -51,8 +51,13 @@ export function PrimaryCTA({
 
   const content = (
     <>
-      {label}
-      {icon ? <span className="inline-flex shrink-0">{icon}</span> : null}
+      <span className="relative z-[1]">{label}</span>
+      {icon ? (
+        <span className="relative z-[1] inline-flex shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-focus-visible:translate-x-1">
+          {icon}
+        </span>
+      ) : null}
+      <span className="primary-cta-sheen" aria-hidden />
     </>
   );
 
@@ -62,7 +67,7 @@ export function PrimaryCTA({
         <a
           id={id}
           href={href}
-          className={base}
+          className={twMerge(base, 'group relative isolate')}
           onClick={onClick}
           style={{ borderRadius: shape === 'squircle' ? 28 : undefined }}
           target={isHttp ? '_blank' : undefined}
@@ -77,7 +82,7 @@ export function PrimaryCTA({
         <a
           id={id}
           href={href}
-          className={base}
+          className={twMerge(base, 'group relative isolate')}
           onClick={onClick}
           style={variant === 'hero' ? { borderRadius: shape === 'squircle' ? 28 : 8 } : undefined}
         >
@@ -89,7 +94,7 @@ export function PrimaryCTA({
       <Link
         id={id}
         to={href}
-        className={base}
+        className={twMerge(base, 'group relative isolate')}
         onClick={onClick}
         style={{ borderRadius: shape === 'squircle' ? 28 : 8 }}
       >
@@ -102,7 +107,7 @@ export function PrimaryCTA({
     <button
       id={id}
       type={type}
-      className={base}
+      className={twMerge(base, 'group relative isolate')}
       style={{ borderRadius: shape === 'squircle' ? 28 : 8 }}
       onClick={onClick}
       disabled={disabled}

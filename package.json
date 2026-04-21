@@ -17,6 +17,7 @@
     "supabase:link": "supabase link",
     "waitlist:smoke": "node scripts/waitlist-smoke.mjs",
     "matchmaking:soak": "node scripts/matchmaking-soak.mjs",
+    "gen:investor-deck": "npx tsx scripts/generate-investor-deck-model.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
