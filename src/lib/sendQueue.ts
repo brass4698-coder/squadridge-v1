@@ -1,8 +1,3 @@
-/**
- * Persists outbound message ciphertext + preview text so a failed send can be retried
- * after refresh or crash (best-effort). Falls back to in-memory storage when IndexedDB
- * is unavailable (tests, SSR).
- */
 export type PendingSendRecord = {
   localId: string;
   squadId: string;
@@ -18,16 +13,10 @@ const MEM = new Map<string, PendingSendRecord>();
 
 let dbPromise: Promise<IDBDatabase | null> | null = null;
 
-/** Max automatic HTTP retries per message during a flush (exponential backoff between attempts). */
 export const SEND_RETRY_ATTEMPTS = 5;
-
-/** Base delay for send flush backoff (ms). */
 export const SEND_RETRY_BASE_MS = 1_000;
-
-/** Cap for send flush backoff (ms). */
 export const SEND_RETRY_MAX_MS = 30_000;
 
-/** Delay before attempt `attemptIndex` (0-based), capped. */
 export function sendRetryDelayMs(attemptIndex: number): number {
   return Math.min(SEND_RETRY_BASE_MS * 2 ** attemptIndex, SEND_RETRY_MAX_MS);
 }
@@ -110,5 +99,7 @@ export async function listPendingSendsForSquad(squadId: string): Promise<Pending
     req.onsuccess = () => resolve((req.result as PendingSendRecord[]) ?? []);
     req.onerror = () => reject(req.error);
   });
-  return rows.filter((r) => r.squadId === squadId).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  return rows
+    .filter((r) => r.squadId === squadId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }

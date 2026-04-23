@@ -47,10 +47,6 @@ function messageRowFingerprint(m: MessageRow): string {
   ].join('\u0001');
 }
 
-/**
- * Ordered fingerprint of the flattened list (oldest → newest). When `setQueryData` produces a new
- * object reference with identical rows, we reuse the previous array to avoid cascading re-renders.
- */
 function flattenPagesFingerprint(data: InfiniteData<MessageRow[], unknown> | undefined): string {
   if (!data?.pages.length) return '';
   const parts: string[] = [];
@@ -77,7 +73,6 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const [realtimeFatalError, setRealtimeFatalError] = useState<string | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState<RealtimeConnectionStatus>('idle');
-  /** Bumps when the user requests a full realtime resubscribe after a fatal error. */
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
 
   const mountedRef = useRef(false);

@@ -1,10 +1,5 @@
-/**
- * Ephemeral intent for matching (sessionStorage only in this build).
- * Not persisted as PII on the server — replace with hashed/vector pipeline when matching ships.
- */
 export const INTENT_SESSION_KEY = 'squadridge_session_intent';
 
-/** Intents older than this are treated as absent on read. */
 const SESSION_INTENT_MAX_AGE_MS = 30 * 60 * 1000;
 
 export type StoredSessionIntent = {
@@ -31,7 +26,9 @@ export function readSessionIntent(): StoredSessionIntent | null {
       return null;
     }
     const text = typeof o.text === 'string' ? o.text : '';
-    const tags = Array.isArray(o.tags) ? o.tags.filter((t): t is string => typeof t === 'string') : [];
+    const tags = Array.isArray(o.tags)
+      ? o.tags.filter((t): t is string => typeof t === 'string')
+      : [];
     return { text, tags, recordedAt: o.recordedAt };
   } catch {
     return null;

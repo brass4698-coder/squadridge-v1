@@ -1,10 +1,3 @@
-/**
- * AES-256-GCM helpers for app-level message encryption (Web Crypto).
- * Keys live on `squads.message_encryption_key` (32 raw bytes, base64 or base64url). RLS limits members;
- * the DB also generates a key on insert if omitted (see migration `20260417150000_*`). This is not
- * end-to-end encryption against the platform — see `docs/security/threat-model.md`.
- */
-
 const AES_GCM_IV_LENGTH = 12;
 
 function base64UrlToBytes(s: string): Uint8Array {
@@ -26,7 +19,6 @@ export function bytesToBase64Url(bytes: Uint8Array): string {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-/** Random 32-byte key, base64url (for `squads.message_encryption_key`). */
 export function generateSquadMessageKeyBase64Url(): string {
   const raw = new Uint8Array(32);
   crypto.getRandomValues(raw);
@@ -61,15 +53,14 @@ export function isPayloadV3(parsed: unknown): parsed is MessagePayloadV3 {
   );
 }
 
-export async function encryptPlaintextAesGcm(plain: string, key: CryptoKey): Promise<MessagePayloadV3> {
+export async function encryptPlaintextAesGcm(
+  plain: string,
+  key: CryptoKey,
+): Promise<MessagePayloadV3> {
   const iv = new Uint8Array(AES_GCM_IV_LENGTH);
   crypto.getRandomValues(iv);
   const ct = new Uint8Array(
-    await crypto.subtle.encrypt(
-      { name: 'AES-GCM', iv },
-      key,
-      new TextEncoder().encode(plain),
-    ),
+    await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain)),
   );
   return {
     v: 3,
@@ -79,7 +70,10 @@ export async function encryptPlaintextAesGcm(plain: string, key: CryptoKey): Pro
   };
 }
 
-export async function decryptPlaintextAesGcm(payload: MessagePayloadV3, key: CryptoKey): Promise<string> {
+export async function decryptPlaintextAesGcm(
+  payload: MessagePayloadV3,
+  key: CryptoKey,
+): Promise<string> {
   const iv = base64UrlToBytes(payload.iv);
   const ct = base64UrlToBytes(payload.ct);
   const buf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);

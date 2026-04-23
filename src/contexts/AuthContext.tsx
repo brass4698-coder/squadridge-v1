@@ -112,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo,
         },
       });
-      // TODO(ZK): On first verified session after OTP callback, bootstrap device-bound keypair / commitment registration.
       return { error: error ? new Error(error.message) : null };
     },
     [supabase],

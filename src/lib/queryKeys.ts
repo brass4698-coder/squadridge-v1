@@ -1,6 +1,3 @@
-/**
- * Centralized TanStack Query keys for server state (auth, profile, messages).
- */
 export const queryKeys = {
   auth: {
     session: ['auth', 'session'] as const,

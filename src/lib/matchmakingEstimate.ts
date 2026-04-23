@@ -1,7 +1,10 @@
 import { MATCHMAKING_SIDE_SIZE } from './matchmakingConstants';
 
-/** How many more waiters are needed on each side before a match can form (minimum per side). */
-export function matchPoolDeficit(waitingA: number, waitingB: number, sideSize: number = MATCHMAKING_SIDE_SIZE): {
+export function matchPoolDeficit(
+  waitingA: number,
+  waitingB: number,
+  sideSize: number = MATCHMAKING_SIDE_SIZE,
+): {
   needA: number;
   needB: number;
 } {
@@ -11,9 +14,6 @@ export function matchPoolDeficit(waitingA: number, waitingB: number, sideSize: n
   };
 }
 
-/**
- * Short user-facing hint — heuristic only (actual match timing depends on server pool logic).
- */
 export function formatMatchWaitHint(
   waitingA: number,
   waitingB: number,

@@ -1,8 +1,3 @@
-/**
- * Best-effort IndexedDB ring buffer for realtime / connection issues (debugging).
- * Writes are no-ops unless {@link isConnectionDebugLogEnabled} (`import.meta.env.DEV` or `VITE_DEBUG_CONNECTION_LOG=true`).
- */
-
 import { isConnectionDebugLogEnabled } from './env';
 
 export type ConnectionLogEntry = {
@@ -44,7 +39,9 @@ function openDb(): Promise<IDBDatabase | null> {
   return dbPromise;
 }
 
-export async function appendConnectionLog(entry: Omit<ConnectionLogEntry, 'id' | 'at'>): Promise<void> {
+export async function appendConnectionLog(
+  entry: Omit<ConnectionLogEntry, 'id' | 'at'>,
+): Promise<void> {
   if (!isConnectionDebugLogEnabled()) return;
   const db = await openDb();
   const row: ConnectionLogEntry = {

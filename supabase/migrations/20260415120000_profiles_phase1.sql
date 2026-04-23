@@ -1,6 +1,5 @@
 -- Phase 1: pseudonymous operator profile (auth.users.id-aligned).
 -- Placement fields map to product language: language / region_hint / timezone_window.
--- TODO(ZK): optional future columns for commitment anchors may be added alongside tags; keep eligibility as coarse flags only.
 
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,

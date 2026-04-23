@@ -6,7 +6,6 @@ import {
   formatMatchWaitHint,
   isDemoSquadShortcutsEnabled,
   isSupabaseConfigured,
-  MATCH_QUEUE_NO_SERVER_TIMEOUT,
   MATCHMAKING_SIDE_SIZE,
   MATCHED_SQUAD_TTL_HOURS,
   pollMatchmakingSnapshot,
@@ -428,16 +427,8 @@ export function Match() {
 
         <p className="mt-10 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
           Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people
-          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.
-          {import.meta.env.DEV ? (
-            <> {MATCH_QUEUE_NO_SERVER_TIMEOUT}</>
-          ) : (
-            <>
-              {' '}
-              There’s no automatic queue timeout in this pilot — use Leave queue when you stop
-              waiting.
-            </>
-          )}
+          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.{' '}
+          There’s no automatic queue timeout in this pilot — use Leave queue when you stop waiting.
         </p>
 
         {loadError ? (

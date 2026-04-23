@@ -244,7 +244,6 @@ export function ProfileSettingsPage() {
         <p className="mt-3 max-w-[52ch] font-sans text-[0.9rem] leading-relaxed text-[#6b7280]">
           Squads never see your email, phone, or real-world ID—only what&apos;s on this page.
         </p>
-        {/* TODO(ZK): Surface public commitment / verified-attribute flags here instead of editable raw tags where proofs exist. */}
         <form
           id="profile-settings-form"
           className="mt-10 space-y-12 pb-28"

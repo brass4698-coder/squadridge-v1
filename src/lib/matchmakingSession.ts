@@ -32,7 +32,6 @@ export function clearMatchmakingSession(): void {
   }
 }
 
-/** After instant match from intent, we route through `/match` for narrative; consumed when opening the room. */
 const PENDING_MATCH_SQUAD = 'squadridge_pending_match_squad_id';
 
 export function setPendingMatchReveal(squadId: string): void {

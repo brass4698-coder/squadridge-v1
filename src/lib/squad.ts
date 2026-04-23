@@ -2,12 +2,6 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { generateSquadMessageKeyBase64Url } from './messageCrypto';
 
-/**
- * Ensures a Supabase session exists for squad flows. If none, signs in anonymously.
- * Anonymous sessions are a **fallback** for frictionless demos; production rooms should
- * prefer magic-link (email) sessions for durability. See `docs/technical/auth-and-sessions.md`.
- */
-
 export const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
 
 export function getLastSquadIdFromStorage(): string | null {
@@ -28,9 +22,7 @@ export function setLastSquadIdInStorage(squadId: string): void {
   }
 }
 
-export async function ensureAnonymousSession(
-  supabase: SupabaseClient<Database>,
-): Promise<void> {
+export async function ensureAnonymousSession(supabase: SupabaseClient<Database>): Promise<void> {
   const {
     data: { session },
   } = await supabase.auth.getSession();

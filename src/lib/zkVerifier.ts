@@ -12,7 +12,6 @@ export type ZKProof = {
   nullifierHash: string;
   commitment: string;
   verifiedAt: string;
-  /** @deprecated Hash-only path; prefer Semaphore (`isStub: false`). */
   isStub?: boolean;
 };
 
@@ -23,11 +22,10 @@ async function sha256Hex(data: Uint8Array): Promise<string> {
     .join('');
 }
 
-/**
- * Local hash-shaped payload for demos / tests when `VITE_ZK_STUB=true`.
- * Does not provide Semaphore security guarantees.
- */
-export async function generateStubProof(credentialType: CredentialType, rawInput: string): Promise<ZKProof> {
+export async function generateStubProof(
+  credentialType: CredentialType,
+  rawInput: string,
+): Promise<ZKProof> {
   const encoder = new TextEncoder();
   const nullifierData = encoder.encode(`nullifier:${credentialType}:${rawInput}`);
   const commitData = encoder.encode(`commitment:${credentialType}:${Date.now()}`);
@@ -43,10 +41,6 @@ export async function generateStubProof(credentialType: CredentialType, rawInput
   };
 }
 
-/**
- * Generates a Semaphore proof in-browser: membership in a padded group + bound message/scope fields.
- * Proof verification runs on the `verify-zk-proof` Edge Function via `verifyProof`.
- */
 export async function generateSemaphoreProof(
   credentialType: CredentialType,
   attributeScope: string,

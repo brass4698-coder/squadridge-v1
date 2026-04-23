@@ -1,12 +1,8 @@
-/**
- * Bytes32 string encoding matching ethers `encodeBytes32String` + Semaphore field labels.
- * Keep in sync with `supabase/functions/_shared/semaphoreFieldEncoding.ts` (Edge).
- *
- * Avoids importing `ethers` (~large); used for Semaphore `message` / `scope` bigints.
- */
 const MAX_LABEL = 31;
 
-/** ABI `encodeBytes32String`: UTF-8 (max 31 bytes), right-padded with zeros to 32 bytes, `0x` hex. */
+/**
+ * ABI `encodeBytes32String`: UTF-8 (max 31 bytes), right-padded with zeros to 32 bytes, `0x` hex.
+ */
 export function encodeBytes32String(text: string): string {
   const bytes = new TextEncoder().encode(text);
   if (bytes.length > 31) {
@@ -22,10 +18,6 @@ export function encodeBytes32String(text: string): string {
   );
 }
 
-/**
- * Matches `@semaphore-protocol/proof` string → bigint conversion for `message` / `scope`
- * (same as ethers `toBigInt(encodeBytes32String(...))`).
- */
 export function semaphoreFieldFromLabel(label: string): string {
   const s = label.trim().slice(0, MAX_LABEL);
   const preimage = s.length > 0 ? s : '\0';

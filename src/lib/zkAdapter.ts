@@ -9,11 +9,6 @@ const USE_HASH_STUB = import.meta.env.VITE_ZK_STUB === 'true';
 /** Same credential kind as Semaphore `scope` preimage (must match Edge `credential_type`). */
 export const ZK_SESSION_CREDENTIAL_TYPE = 'session_attribute';
 
-/**
- * **Production path (default when `VITE_ZK_STUB` is unset or `false`):** generates a Semaphore proof in-browser and
- * verifies it via the `verify-zk-proof` Edge Function — this is the real ZK flow for demos and partners.
- * **Dev-only:** `VITE_ZK_STUB=true` swaps in a fast hash-only stub (not zero-knowledge); `ZkStubBanner` warns in the shell.
- */
 export async function runVerification(
   supabase: SupabaseClient<Database>,
   credentialType: CredentialType,
