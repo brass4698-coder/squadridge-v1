@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "clean": "node scripts/clean.mjs",
     "gen:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
+    "gen:types:local": "supabase gen types typescript --local > src/lib/database.types.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",

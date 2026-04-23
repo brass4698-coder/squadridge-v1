@@ -39,8 +39,14 @@ const ModDashboardPage = lazy(() =>
 );
 
 const routeChunkFallback = (
-  <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
-    Loading…
+  <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
+  >
+    <span className="sr-only">Loading page content.</span>
+    <span aria-hidden="true">Loading…</span>
   </div>
 );
 
@@ -59,13 +65,7 @@ export default function App() {
                 <Route
                   path="/onboarding"
                   element={
-                    <Suspense
-                      fallback={
-                        <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
-                          Loading…
-                        </div>
-                      }
-                    >
+                    <Suspense fallback={routeChunkFallback}>
                       <OnboardingApp />
                     </Suspense>
                   }

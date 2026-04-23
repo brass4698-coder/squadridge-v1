@@ -1,4 +1,21 @@
+/**
+ * `public` schema — aligned with `supabase/migrations` (not only CLI output: CHECK-backed unions
+ * and `expires_at` are typed here; `supabase gen types` may emit plain `string` for those).
+ * After `npm run gen:types` or `gen:types:local`, merge any new tables/columns from the diff into this file.
+ * CI `db` job runs `supabase start` + `db reset` so migration SQL is validated on each PR.
+ */
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+/** Mirrors CHECK on public.users (initial_schema). */
+export type UserStatus = 'active' | 'suspended' | 'deleted';
+/** Mirrors squads_status_check (scaling_session_features). */
+export type SquadStatus = 'forming' | 'active' | 'completed' | 'flagged' | 'archived';
+/** Mirrors messages status CHECK. */
+export type MessageStatus = 'sent' | 'retracted' | 'flagged';
+export type MatchQueueSide = 'A' | 'B';
+export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
+/** Mirrors ledger_proposals_status_check. */
+export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
 
 export interface Database {
   public: {
@@ -7,12 +24,12 @@ export interface Database {
         Row: {
           id: string;
           created_at: string;
-          status: string;
+          status: UserStatus;
         };
         Insert: {
           id: string;
           created_at?: string;
-          status?: string;
+          status?: UserStatus;
         };
         Update: Partial<Database['public']['Tables']['users']['Insert']>;
         Relationships: [];
@@ -91,7 +108,7 @@ export interface Database {
         Row: {
           id: string;
           topic: string;
-          status: string;
+          status: SquadStatus;
           created_at: string;
           expires_at: string;
           message_encryption_key: string | null;
@@ -100,7 +117,7 @@ export interface Database {
         Insert: {
           id?: string;
           topic: string;
-          status?: string;
+          status?: SquadStatus;
           created_at?: string;
           expires_at: string;
           message_encryption_key?: string | null;
@@ -130,7 +147,9 @@ export interface Database {
           sender_id: string | null;
           payload_ciphertext: string;
           sent_at: string;
-          status: string;
+          status: MessageStatus;
+          /** Normalized 7d TTL; see ttl_cleanup migration. */
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -138,7 +157,8 @@ export interface Database {
           sender_id?: string | null;
           payload_ciphertext: string;
           sent_at?: string;
-          status?: string;
+          status?: MessageStatus;
+          expires_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['messages']['Insert']>;
         Relationships: [];
@@ -196,21 +216,24 @@ export interface Database {
           id: string;
           user_id: string;
           pool_key: string;
-          side: string;
-          status: string;
+          side: MatchQueueSide;
+          status: MatchQueueStatus;
           squad_id: string | null;
           enqueued_at: string;
           matched_at: string | null;
+          /** Normalized 7d TTL; see ttl_cleanup migration. */
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
           pool_key: string;
-          side: string;
-          status: string;
+          side: MatchQueueSide;
+          status: MatchQueueStatus;
           squad_id?: string | null;
           enqueued_at?: string;
           matched_at?: string | null;
+          expires_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['match_queue']['Insert']>;
         Relationships: [];
@@ -271,7 +294,7 @@ export interface Database {
           summary: string;
           consensus_items: Json;
           tags: string[];
-          status: string;
+          status: LedgerProposalStatus;
           published_at: string | null;
           squad_id: string | null;
           ledger_ref: string | null;
@@ -284,7 +307,7 @@ export interface Database {
           summary: string;
           consensus_items?: Json;
           tags?: string[];
-          status?: string;
+          status?: LedgerProposalStatus;
           published_at?: string | null;
           squad_id?: string | null;
           ledger_ref?: string | null;

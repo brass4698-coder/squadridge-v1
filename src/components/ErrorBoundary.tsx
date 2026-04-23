@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, createRef, type ErrorInfo, type ReactNode } from 'react';
 import { captureBoundaryError, getErrorBoundaryCopy } from '../lib';
 
 interface Props {
@@ -13,9 +13,11 @@ interface State {
 
 /**
  * Outermost boundary (see `main.tsx`). Uses SquadRidge tokens — not shadcn CSS variables (`text-muted-foreground`, etc.).
- * Reports to Sentry via {@link captureBoundaryError} when `VITE_SENTRY_DSN` is set.
+ * Reports to Sentry via {@link captureBoundaryError} when Sentry initialized successfully.
  */
 export class ErrorBoundary extends Component<Props, State> {
+  private titleRef = createRef<HTMLHeadingElement>();
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -28,6 +30,12 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
     captureBoundaryError(error, info, { boundary: 'root' });
+  }
+
+  componentDidUpdate(_prevProps: Props, prevState: State): void {
+    if (this.state.hasError && !prevState.hasError) {
+      queueMicrotask(() => this.titleRef.current?.focus());
+    }
   }
 
   private handleRetry = (): void => {
@@ -46,12 +54,21 @@ export class ErrorBoundary extends Component<Props, State> {
           className="flex min-h-screen flex-col items-center justify-center bg-navy p-8 text-center"
           role="alert"
           aria-labelledby="root-error-title"
+          aria-describedby="root-error-desc"
         >
           <div className="w-full max-w-lg rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
-            <h1 id="root-error-title" className="font-heading text-fluid-h2 text-gray-light">
+            <h1
+              id="root-error-title"
+              ref={this.titleRef}
+              tabIndex={-1}
+              className="font-heading text-fluid-h2 text-gray-light outline-none focus-visible:ring-2 focus-visible:ring-teal/60"
+            >
               {copy?.title ?? 'Something went wrong'}
             </h1>
-            <p className="mt-3 max-w-md font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
+            <p
+              id="root-error-desc"
+              className="mt-3 max-w-md font-sans text-[0.95rem] leading-relaxed text-[#8892a4]"
+            >
               {copy?.description ??
                 'The app hit an unexpected error. Try again to remount the UI, or reload the page if the problem persists.'}
             </p>

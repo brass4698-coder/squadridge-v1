@@ -59,6 +59,8 @@ Semaphore is a ZK-based signaling framework that enables applications where user
 
 When a user completes verification in-app, they generate a Semaphore proof bound to labels (`attribute_scope`, `credential_type`). The Edge verifier checks the proof; **raw ID documents are not** stored in Postgres for this path.
 
+**Group construction and trust roots:** The client builds a small Merkle group (see `buildSessionAnonymityGroup` in `src/lib/zk/buildAnonymityGroup.ts`) for valid proofs in development; **issuer-maintained anonymity sets** and any **named trusted root registry** are a **diligence / deployment** topic—see [threat model §13](../security/threat-model.md).
+
 ### 2. zkTLS for Data Extraction (roadmap)
 
 Product materials reference **zkTLS** for extracting attributes from secure web sources [2]. That pipeline is **not implemented in this repository**; current verification uses in-browser Semaphore proving over configured scopes (see [`src/lib/zk/`](../../src/lib/zk/)) and server-side `verifyProof`. Treat zkTLS as **future / research** unless a dedicated integration lands in `src/` and Edge code.

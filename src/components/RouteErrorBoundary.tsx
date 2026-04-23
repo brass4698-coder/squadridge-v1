@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, createRef, type ErrorInfo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { captureBoundaryError } from '../lib';
 
@@ -22,6 +22,8 @@ interface State {
  * Catches render errors in the route tree so a failed route does not leave a blank screen.
  */
 export class RouteErrorBoundary extends Component<Props, State> {
+  private titleRef = createRef<HTMLHeadingElement>();
+
   state: State = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: Error): State {
@@ -31,6 +33,12 @@ export class RouteErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('[RouteErrorBoundary]', error, info.componentStack);
     captureBoundaryError(error, info, { boundary: 'route' });
+  }
+
+  componentDidUpdate(_prevProps: Props, prevState: State): void {
+    if (this.state.hasError && !prevState.hasError) {
+      queueMicrotask(() => this.titleRef.current?.focus());
+    }
   }
 
   private handleRetry = (): void => {
@@ -48,12 +56,20 @@ export class RouteErrorBoundary extends Component<Props, State> {
         : 'mx-auto flex min-h-[60vh] w-full max-w-lg flex-col justify-center gap-6 px-6 py-16';
 
       const alertBlock = (
-        <div role="alert" aria-labelledby="route-error-title">
+        <div role="alert" aria-labelledby="route-error-title" aria-describedby="route-error-desc">
           <div className="rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
-            <h1 id="route-error-title" className="font-heading text-fluid-h2 text-gray-light">
+            <h1
+              id="route-error-title"
+              ref={this.titleRef}
+              tabIndex={-1}
+              className="font-heading text-fluid-h2 text-gray-light outline-none focus-visible:ring-2 focus-visible:ring-teal/60"
+            >
               Something went wrong
             </h1>
-            <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
+            <p
+              id="route-error-desc"
+              className="mt-3 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]"
+            >
               The app hit an unexpected error. Your session data is not shown here for safety. You
               can try again or return home.
             </p>
