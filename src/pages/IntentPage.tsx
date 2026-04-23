@@ -157,8 +157,8 @@ export function IntentPage() {
         </h1>
         <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
           {demoPath
-            ? 'Supabase isn’t configured in this environment, so live matching and rooms are disabled. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
-            : 'Configure Supabase to use the squad room. See the home page for setup steps.'}
+            ? 'Live matching isn’t available in this environment, so real queues and rooms are off. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
+            : 'Configure the backend to use the squad room. See the home page for setup steps.'}
         </p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           {demoPath ? (
@@ -220,13 +220,16 @@ export function IntentPage() {
             className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] leading-snug text-[#8892a4]"
             id="intent-privacy-row"
           >
-            <span className="inline-flex items-center gap-1.5 text-[#94a3b8]">
+            <span
+              className="inline-flex items-center gap-1.5 text-[#94a3b8]"
+              title="Your intention helps us match you with the right group; facilitators may see it for routing."
+            >
               <Lock className="size-3.5 shrink-0 text-teal/90" aria-hidden />
-              <span>This stays private</span>
+              <span>Used only for routing</span>
             </span>
             <span
               className="inline-flex items-center rounded border border-teal/35 bg-teal/[0.08] px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal-light"
-              title="Intent is minimized for routing; verified attributes use ZK where enabled."
+              title="Your identity stays private; verification uses zero-knowledge proofs where the stack is live."
             >
               ZK-ready
             </span>
@@ -290,7 +293,8 @@ export function IntentPage() {
           </legend>
           <p className="mb-4 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
             We need people on both sides in the room at once. “A” and “B” are neutral labels — use
-            them to self-sort into two groups (not “good vs bad”).
+            them to self-sort into two groups (not “good vs bad”). E.g., “more regulation” vs “less
+            regulation” — both perspectives matter.
           </p>
           <div className="intent-perspective-track max-w-md" role="group" aria-label="Perspective">
             {(
@@ -337,6 +341,14 @@ export function IntentPage() {
         >
           Session hub only (skip matching)
         </button>
+        <p className="self-center max-w-[520px] text-center font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+          Account verification helps match you with vetted peers — optional if you want open
+          dialogue first. You can verify from the match screen or the{' '}
+          <Link to="/verify" className="text-teal-light/90 underline-offset-2 hover:underline">
+            Verify
+          </Link>{' '}
+          page.
+        </p>
 
         {error ? (
           <div

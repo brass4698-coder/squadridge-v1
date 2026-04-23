@@ -38,6 +38,7 @@ import {
   setSentrySquadContext,
   sleep,
   assertEdgeRateLimit,
+  MATCHED_SQUAD_TTL_HOURS,
 } from '../lib';
 
 /**
@@ -83,7 +84,14 @@ export function SessionPage({ squadId }: { squadId: string }) {
     fetchNextPage,
     isFetchingNextPage,
   } = useRealtimeMessages(squadId);
-  const { data: squad, refetch: refetchSquad } = useSquad(squadId);
+  const {
+    data: squad,
+    isSuccess: squadQuerySuccess,
+    isPending: squadQueryPending,
+    isError: squadQueryIsError,
+    error: squadQueryError,
+    refetch: refetchSquad,
+  } = useSquad(squadId);
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [archiving, setArchiving] = useState(false);
@@ -584,6 +592,65 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   if (authLoading) {
     return <SessionPageAuthSkeleton key={`${sessionPathKey}-auth`} />;
+  }
+
+  if (squadQueryPending) {
+    return <SessionPageAuthSkeleton key={`${sessionPathKey}-squad`} />;
+  }
+
+  if (squadQueryIsError) {
+    return (
+      <section className="panel space-y-sm" aria-labelledby="session-squad-error">
+        <h1 id="session-squad-error" className="font-heading text-fluid-h2 text-gray-light">
+          Couldn&apos;t open this room
+        </h1>
+        <p className="text-fluid-body text-gray-light">
+          {squadQueryError instanceof Error
+            ? squadQueryError.message
+            : 'Something went wrong while loading the squad.'}
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="btn-primary inline-flex w-fit"
+            onClick={() => void refetchSquad()}
+          >
+            Try again
+          </button>
+          <Link
+            to="/intent"
+            className="inline-flex min-h-[44px] items-center self-center text-teal underline-offset-4 hover:underline"
+          >
+            Start a new search
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  if (squadQuerySuccess && squad === null) {
+    return (
+      <section className="panel space-y-sm" aria-labelledby="session-squad-missing">
+        <h1 id="session-squad-missing" className="font-heading text-fluid-h2 text-gray-light">
+          This room isn&apos;t available anymore
+        </h1>
+        <p className="text-fluid-body text-gray-light">
+          The squad may have expired or the link is no longer valid. Rooms typically expire after
+          about {MATCHED_SQUAD_TTL_HOURS} hours.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Link to="/intent" className="btn-primary inline-flex w-fit">
+            Start a new search
+          </Link>
+          <Link
+            to="/session"
+            className="font-sans text-[0.9rem] text-teal underline-offset-4 hover:underline"
+          >
+            Session hub
+          </Link>
+        </div>
+      </section>
+    );
   }
 
   return (

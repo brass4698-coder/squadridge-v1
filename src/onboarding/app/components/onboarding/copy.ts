@@ -84,6 +84,9 @@ export const COPY = {
     signedIn: 'Session active',
     continue: 'Continue',
     checkEmail: 'Check your email for the sign-in link.',
+    /** After the ZK explainer; clarifies why you might verify later in the main app. */
+    optionalMatchBenefit:
+      'Verification later helps match you with vetted peers — optional for open dialogue.',
     conciergeTitle: 'Concierge',
     conciergeTips: [
       'Verification happens in the main app at /verify — your proof stays bound to your account, not shown as a dossier in chat.',

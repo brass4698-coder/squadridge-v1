@@ -95,6 +95,15 @@ export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) 
         </p>
       </motion.div>
 
+      <motion.p
+        initial={{ opacity: m.reduced ? 1 : 0 }}
+        animate={{ opacity: 1 }}
+        transition={m.fadeTransition(0.26)}
+        className="mb-8 font-sans text-[13px] leading-relaxed text-white/55"
+      >
+        {COPY.verification.optionalMatchBenefit}
+      </motion.p>
+
       {!sessionPending && configured && (
         <div className="mb-10 space-y-4">
           {hasSession ? (

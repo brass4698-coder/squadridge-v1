@@ -54,6 +54,7 @@ export function Match() {
   const poolKeyRef = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
+    // Skip refresh until intent stored a pool key (avoids snapshot RPC with a null key).
     if (!supabase || !poolKeyRef.current) return;
     try {
       const snap = await pollMatchmakingSnapshot(supabase, poolKeyRef.current);
@@ -237,12 +238,12 @@ export function Match() {
       return (
         <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
           <h2 className="font-heading text-xl font-semibold text-slate-100">
-            Matching needs Supabase
+            Live matching unavailable
           </h2>
           <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-slate-400">
             {canDemo
-              ? 'Connect a Supabase project for live queues and rooms, or run the short offline guided demo that walks match → sample session → ledger.'
-              : 'Configure Supabase for live matching. Enable demo shortcuts on staging if you need the offline story (see .env.example).'}
+              ? 'This environment doesn’t have live matching wired up, so queues and real rooms are off. You can still use the short offline walkthrough: match → sample session → ledger.'
+              : 'Live matching needs backend configuration. Enable demo shortcuts on staging if you need the offline story (see .env.example).'}
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
             {canDemo ? (
@@ -320,18 +321,15 @@ export function Match() {
               ? 'This step simulates matchmaking for walkthroughs. Next: a local-only sample session (no live sync).'
               : 'Your match is ready. We pause here so the story matches the full journey: intent → match → session.'}
           </p>
-          <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left">
-            {['A', 'B', 'C'].map((label, i) => (
-              <div
-                key={label}
-                className={`flex items-center gap-3 transition-opacity duration-300 ${
-                  slots[i] ? 'opacity-100' : 'opacity-0'
-                }`}
-              >
-                <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
-                <span className="font-sans text-sm text-slate-500">Participant {label}</span>
-              </div>
-            ))}
+          <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left" aria-live="polite">
+            {['A', 'B', 'C'].map((label, i) =>
+              slots[i] ? (
+                <div key={label} className="flex items-center gap-3">
+                  <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
+                  <span className="font-sans text-sm text-slate-500">Participant {label}</span>
+                </div>
+              ) : null,
+            )}
           </div>
         </div>
       </div>
@@ -354,9 +352,10 @@ export function Match() {
           Finding your squad
         </h2>
         <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400 md:text-base">
-          We form a room when there are at least {MATCHMAKING_SIDE_SIZE} people waiting on
-          perspective A and {MATCHMAKING_SIDE_SIZE} on B in the same pool. Low traffic means longer
-          waits. Matched squads expire after about {MATCHED_SQUAD_TTL_HOURS} hours.
+          Your room opens when we have enough people on both perspectives in your interest area
+          (from your optional tags and verification scope). We need {MATCHMAKING_SIDE_SIZE} on each
+          side before we open the room. Low traffic means longer waits. Squads expire after about{' '}
+          {MATCHED_SQUAD_TTL_HOURS} hours.
         </p>
         <p className="mt-4 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
           Need a verified role?{' '}
@@ -387,8 +386,8 @@ export function Match() {
               <span className="tabular-nums text-slate-200">{q.queue_position}</span>
             </p>
             <p className="mt-2 text-[0.8rem] leading-relaxed text-slate-500">
-              Waiting in pool: {q.waiting_a} on A · {q.waiting_b} on B. The room opens when we can
-              take {MATCHMAKING_SIDE_SIZE} from each side.
+              Waiting: {q.waiting_a} on perspective A · {q.waiting_b} on B. The room opens when we
+              can take {MATCHMAKING_SIDE_SIZE} from each side.
             </p>
             <p className="mt-3 text-[0.8rem] leading-relaxed text-slate-500">
               {formatMatchWaitHint(
@@ -405,29 +404,36 @@ export function Match() {
           </p>
         )}
 
-        <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left">
-          {['A', 'B', 'C'].map((label, i) => (
-            <div
-              key={label}
-              className={`flex items-center gap-3 transition-opacity duration-300 ${
-                slots[i] ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
-              <span className="font-sans text-sm text-slate-500">Participant {label}</span>
-            </div>
-          ))}
+        <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left" aria-live="polite">
+          {['A', 'B', 'C'].map((label, i) =>
+            slots[i] ? (
+              <div key={label} className="flex items-center gap-3">
+                <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
+                <span className="font-sans text-sm text-slate-500">Participant {label}</span>
+              </div>
+            ) : null,
+          )}
         </div>
 
         <p className="mt-10 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
           Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people
-          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.{' '}
-          {MATCH_QUEUE_NO_SERVER_TIMEOUT}
+          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.
+          {import.meta.env.DEV ? (
+            <> {MATCH_QUEUE_NO_SERVER_TIMEOUT}</>
+          ) : (
+            <>
+              {' '}
+              There’s no automatic queue timeout in this pilot — use Leave queue when you stop
+              waiting.
+            </>
+          )}
         </p>
 
         {loadError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
-            {loadError}
+            {import.meta.env.DEV
+              ? loadError
+              : 'Could not refresh your place in the queue. Check your connection or try leaving the queue and starting again.'}
           </p>
         ) : null}
 

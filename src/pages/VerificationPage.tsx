@@ -53,7 +53,7 @@ export function VerificationPage() {
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
         <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
           <p className="font-sans text-body-lg font-normal text-ink-secondary">
-            Supabase is not configured. Add your project keys to{' '}
+            Live verification isn’t available in this environment. Add your project keys to{' '}
             <code className="text-teal-light/90">.env</code> and deploy the{' '}
             <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this
             step.
@@ -93,6 +93,10 @@ export function VerificationPage() {
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
           Standalone page for tests and returning users. The cryptography is the same as in the main
           product flow; this route is optional if you already completed verification elsewhere.
+        </p>
+        <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-secondary">
+          Verification helps us match you with vetted peers when you use squad matching — optional
+          for open dialogue.
         </p>
         <p className="mb-0 mt-4 max-w-copy font-sans text-body-lg font-normal text-ink-secondary">
           This step never asks for documents, email, or phone. Your session stays pseudonymous: the

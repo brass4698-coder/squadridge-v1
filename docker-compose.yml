@@ -1,4 +1,5 @@
-# Optional local Redis for matching queues / rate limiting in backend workers (not required for Vite client).
+# Optional local Redis — reserved for future rate limits or queue workers. The app’s matchmaking
+# path uses PostgreSQL today; do not assume Redis is required to run the client or Supabase flows.
 services:
   redis:
     image: redis:7-alpine
