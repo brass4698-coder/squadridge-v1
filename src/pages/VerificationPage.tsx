@@ -52,7 +52,7 @@ export function VerificationPage() {
   if (!configured || !supabase) {
     return (
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
           <p className="font-sans text-body-lg font-normal text-ink-secondary">
             Live verification isn’t available in this environment. Add your project keys to{' '}
             <code className="text-teal-light/90">.env</code> and deploy the{' '}
@@ -76,7 +76,7 @@ export function VerificationPage() {
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(42vh,28rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.065)_0%,transparent_58%)]"
         aria-hidden="true"
       />
-      <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+      <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
         <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
           Verification
         </p>

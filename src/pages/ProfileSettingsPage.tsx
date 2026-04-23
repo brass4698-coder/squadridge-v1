@@ -170,7 +170,7 @@ export function ProfileSettingsPage() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12">
+      <div className="mx-auto max-w-copy px-gutter py-12">
         <p className="text-[#8892a4]">Supabase is not configured.</p>
         <Link
           to="/"
@@ -184,7 +184,7 @@ export function ProfileSettingsPage() {
 
   if (authLoading || !session) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
         {authLoading ? 'Loading…' : 'Sign in to edit your profile.'}
       </div>
     );
@@ -192,14 +192,14 @@ export function ProfileSettingsPage() {
 
   if (profileLoading && !profile) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
         Loading profile…
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-[560px] px-md py-12">
+    <div className="relative mx-auto w-full max-w-[560px] px-gutter py-12">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(36vh,22rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.055)_0%,transparent_58%)]"
         aria-hidden
@@ -554,7 +554,7 @@ export function ProfileSettingsPage() {
         </NextStepHint>
 
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-md py-3 backdrop-blur-md sm:px-6"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-gutter py-3 backdrop-blur-md sm:px-6"
           style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
         >
           <div className="pointer-events-auto flex w-full max-w-[560px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">

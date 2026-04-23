@@ -64,7 +64,7 @@ export function WaitlistSection() {
   } = useWaitlistForm();
 
   const titleClass =
-    'text-left font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink';
+    'text-left font-heading text-fluid-h2 font-bold leading-tight text-landing-ink';
 
   const inputClass =
     'waitlist-email-input w-full min-w-0 flex-1 rounded-none border-0 bg-transparent py-2 px-0 font-sans text-[0.95rem] font-normal text-[#e2e8f0] placeholder:text-landing-muted/60 outline-none disabled:opacity-50';

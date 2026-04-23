@@ -75,7 +75,7 @@ export function SessionHubPage() {
   return (
     <section
       key={sessionPathKey}
-      className="session-page-landing relative z-0 mx-auto flex w-full max-w-[640px] flex-col items-center px-md pb-12 pt-[80px] text-center"
+      className="session-page-landing relative z-0 mx-auto flex w-full max-w-[640px] flex-col items-center px-gutter pb-12 pt-[80px] text-center"
       aria-labelledby="session-landing-title"
     >
       {import.meta.env.DEV ? (

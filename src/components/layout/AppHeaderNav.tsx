@@ -14,7 +14,7 @@ const navMuted = `${navLinkBase} border border-transparent text-[#8b95a8] hover:
 const navActive = `${navLinkBase} border border-white/[0.08] bg-white/[0.05] text-[#f1f5f9] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`;
 
 function mobileDrawerItemClass(active: boolean) {
-  return `block w-full rounded-lg border-l-2 border-transparent py-2.5 pl-3 text-left text-[0.9rem] font-medium transition-colors duration-150 ${
+  return `flex min-h-[44px] w-full items-center rounded-lg border-l-2 border-transparent py-2.5 pl-3 text-left text-[0.9rem] font-medium transition-colors duration-150 ${
     active
       ? 'border-teal bg-teal/10 text-[#f1f5f9]'
       : 'text-[#8b95a8] hover:border-white/[0.08] hover:bg-white/[0.05] hover:text-[#e2e8f0]'
@@ -39,7 +39,8 @@ function mobileYouAreHereLabel(
   if (pathname.startsWith('/sign-in')) return 'Sign in';
   if (pathname.startsWith('/auth/callback')) return 'Account';
   if (pathname.startsWith('/pitch-deck-hub')) return 'Pitch materials';
-  return 'This page';
+  /** Unknown or rare routes: omit banner — “Current: This page” is noise. */
+  return null;
 }
 
 type Variant = 'full' | 'minimal';
@@ -100,11 +101,11 @@ function JourneyStrip() {
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
     <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-6 gap-y-2 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-6 gap-y-2 px-gutter">
         {showOnboardingCta ? (
           <Link
             to={onboardingHref}
-            className="font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
+            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
           >
             {onboardingLabel}
           </Link>
@@ -112,7 +113,7 @@ function JourneyStrip() {
         {showResumeCta && resumeHref ? (
           <Link
             to={resumeHref}
-            className="font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
+            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
           >
             Resume your room
           </Link>

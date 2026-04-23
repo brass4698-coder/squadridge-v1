@@ -41,7 +41,7 @@ export function AppLayout() {
         <AuthIssueBanner />
         <AppHeaderNav variant="full" />
         <main
-          className={`mx-auto flex w-full max-w-6xl flex-1 flex-col px-md ${mainPad} ${demoMainPad}`}
+          className={`mx-auto flex w-full max-w-6xl flex-1 flex-col px-gutter ${mainPad} ${demoMainPad}`}
         >
           <Breadcrumbs />
           <QueryErrorResetBoundary>
@@ -54,7 +54,7 @@ export function AppLayout() {
         </main>
         <MobileHomeFab />
         <footer className="border-t border-navy-light/50 bg-transparent">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-md py-10 text-center">
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-gutter py-10 text-center">
             <p className="max-w-md font-sans text-[0.9rem] font-normal leading-relaxed text-slate-500">
               Verified dialogue infrastructure for facilitator-led pilots, sensitive conversations,
               and citable public outcomes.
@@ -127,16 +127,17 @@ export function AppLayout() {
               </a>
             ) : null}
             {pathname !== '/' ? (
-              <p className="font-sans text-[0.8rem] text-slate-600">
+              <div className="flex max-w-md flex-col items-center gap-3 sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
                 <Link
                   to="/"
-                  className="underline-offset-4 transition-colors hover:text-slate-400 hover:underline"
+                  className="inline-flex min-h-[44px] min-w-[140px] items-center justify-center rounded-lg border border-[#2d3f55] bg-[#141c2e] px-5 py-2.5 font-heading text-[0.85rem] font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[color,background-color,border-color] hover:border-teal/45 hover:bg-[#1a2436] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/60"
                 >
                   Start over
                 </Link>
-                <span className="text-slate-700"> — </span>
-                <span className="text-slate-600">Return to the landing page</span>
-              </p>
+                <p className="text-center font-sans text-[0.8rem] leading-snug text-slate-500 sm:text-left">
+                  Return to the landing page and begin again from the top.
+                </p>
+              </div>
             ) : null}
           </div>
         </footer>

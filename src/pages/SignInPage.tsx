@@ -59,7 +59,7 @@ export function SignInPage() {
 
   if (!configured) {
     return (
-      <div className="relative mx-auto w-full max-w-copy px-md py-12">
+      <div className="relative mx-auto w-full max-w-copy px-gutter py-12">
         <p className="font-sans text-body-lg text-ink-muted">
           Supabase is not configured. Add{' '}
           <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a publishable or anon

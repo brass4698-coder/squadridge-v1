@@ -40,7 +40,7 @@ export function PrimaryCTA({
   const isHttp = href && /^https?:\/\//i.test(href);
   const isMail = href?.startsWith('mailto:');
   const base = twMerge(
-    'inline-flex min-w-0 max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:cursor-not-allowed disabled:opacity-50',
+    'inline-flex min-w-0 max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-ring disabled:cursor-not-allowed disabled:opacity-50',
     shape === 'squircle' && '!rounded-[1.75rem]',
     variant === 'hero'
       ? 'btn-hero-join landing-hero-cta-link w-fit overflow-hidden'

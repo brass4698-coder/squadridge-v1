@@ -216,7 +216,7 @@ function LedgerProposalDetailRoute({
   if (q.isPending) {
     return (
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-16">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-16">
           <p className="font-sans text-sm text-ink-muted">Loading proposal…</p>
           <div className="vault-frost mt-8 animate-pulse p-8">
             <div className="h-6 w-2/3 rounded bg-[#1e2a3d]" />
@@ -230,7 +230,7 @@ function LedgerProposalDetailRoute({
   if (q.isError) {
     return (
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
           <p
             className="rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-sm text-amber"
             role="alert"
@@ -277,7 +277,7 @@ function LedgerProposalFromDb({
 
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-      <div className="relative z-[1] mx-auto w-full max-w-6xl px-md py-10">
+      <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-10">
         <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
           Ledger
         </p>
@@ -359,7 +359,7 @@ const DEMO_CONSENSUS_LINES = [
 function LedgerDemoProposalDetail() {
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-      <div className="relative z-[1] mx-auto w-full max-w-6xl px-md py-10">
+      <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-10">
         <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
           Ledger
         </p>
@@ -468,7 +468,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
 
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-      <div className="relative z-[1] mx-auto w-full max-w-6xl px-md py-8 md:py-10">
+      <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-8 md:py-10">
         <div className="flex flex-col gap-4 border-b border-[#1a2236]/90 pb-8 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">

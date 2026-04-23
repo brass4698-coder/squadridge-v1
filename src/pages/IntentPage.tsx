@@ -150,7 +150,7 @@ export function IntentPage() {
     const demoPath = isDemoSquadShortcutsEnabled();
     return (
       <section
-        className="mx-auto w-full max-w-copy px-md py-12"
+        className="mx-auto w-full max-w-copy px-gutter py-12"
         aria-labelledby="intent-unconfigured"
       >
         <h1 id="intent-unconfigured" className="font-heading text-fluid-h2 text-gray-light">
@@ -197,7 +197,7 @@ export function IntentPage() {
 
   return (
     <section
-      className="intent-page-root mx-auto flex w-full max-w-[640px] flex-col px-md pb-16 pt-[100px] md:pt-[120px]"
+      className="intent-page-root mx-auto flex w-full max-w-[640px] flex-col px-gutter pb-16 pt-[100px] md:pt-[120px]"
       aria-labelledby="intent-heading"
     >
       <header className="flex flex-col gap-4">
@@ -275,10 +275,8 @@ export function IntentPage() {
                   aria-pressed={on}
                   data-active={on ? 'true' : 'false'}
                   onClick={() => toggleTag(tag)}
-                  className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
-                    on
-                      ? 'border-teal bg-teal/[0.12] text-[#e2e8f0]'
-                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1]'
+                  className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-ring ${
+                    on ? 'text-[#e2e8f0]' : 'border border-[#2d3f55] bg-transparent text-[#a8b2c1]'
                   }`}
                 >
                   {tag}

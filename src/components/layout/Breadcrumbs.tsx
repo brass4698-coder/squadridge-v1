@@ -54,14 +54,14 @@ export function Breadcrumbs() {
 
   return (
     <nav
-      className="mb-3 flex w-full max-w-6xl flex-wrap items-center gap-2 font-sans text-[0.75rem] text-slate-500"
+      className="mb-3 flex w-full max-w-6xl flex-wrap items-center gap-2 font-sans text-[0.8125rem] leading-snug text-slate-400"
       aria-label="Breadcrumb"
     >
       {trail.map((crumb, i) => {
         const isLast = i === trail.length - 1;
         if (isLast) {
           return (
-            <span key={`cur-${i}`} className="text-slate-400">
+            <span key={`cur-${i}`} className="font-medium text-slate-100">
               {crumb.label}
             </span>
           );
@@ -71,11 +71,11 @@ export function Breadcrumbs() {
             <span key={`link-${i}`} className="contents">
               <Link
                 to={crumb.to}
-                className="text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline"
+                className="text-slate-300 underline-offset-4 transition-colors hover:text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
               >
                 {crumb.label}
               </Link>
-              <span className="text-slate-600" aria-hidden>
+              <span className="text-slate-500" aria-hidden>
                 /
               </span>
             </span>

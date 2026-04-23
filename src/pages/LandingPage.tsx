@@ -25,7 +25,21 @@ function FullBleed({
     <div
       className={`col-span-12 relative left-1/2 min-w-0 w-[100vw] max-w-[100vw] -translate-x-1/2 ${alt ? 'bg-navy-light' : 'bg-navy'} ${className ?? ''}`}
     >
-      <div className={`mx-auto max-w-6xl px-md ${innerClassName ?? ''}`}>{children}</div>
+      <div className={`mx-auto max-w-6xl px-gutter ${innerClassName ?? ''}`}>{children}</div>
+    </div>
+  );
+}
+
+function SectionHeading({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-0 flex scroll-mt-24 items-end gap-4">
+      <div className="h-12 w-1 shrink-0 rounded-full bg-teal" aria-hidden />
+      <h2
+        id={id}
+        className="mb-0 max-w-[min(100%,40rem)] font-heading text-fluid-h2 font-bold leading-tight text-landing-ink"
+      >
+        {children}
+      </h2>
     </div>
   );
 }
@@ -90,7 +104,7 @@ export function LandingPage() {
           className="landing-hero-section col-span-12 overflow-x-hidden pb-[72px] pt-[132px]"
           aria-labelledby="hero-heading"
         >
-          <div className="relative mx-auto max-w-6xl px-md">
+          <div className="relative mx-auto max-w-6xl px-gutter">
             <div
               className="pointer-events-none absolute inset-x-0 top-[-3.5rem] z-0 h-[34rem] overflow-hidden"
               aria-hidden
@@ -109,7 +123,7 @@ export function LandingPage() {
                 </p>
                 <Link
                   to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  className="w-fit font-sans text-[0.875rem] font-semibold text-white underline decoration-white/35 underline-offset-[5px] transition-colors hover:text-teal-light hover:decoration-teal-light/70"
+                  className="inline-flex min-h-[44px] w-fit items-center font-sans text-[0.875rem] font-semibold text-white underline decoration-white/35 underline-offset-[5px] transition-colors hover:text-teal-light hover:decoration-teal-light/70"
                 >
                   View sample output
                 </Link>
@@ -125,7 +139,7 @@ export function LandingPage() {
                 </div>
                 <h1
                   id="hero-heading"
-                  className="landing-hero-animate-headline relative z-[1] mt-6 mb-0 max-w-[22ch] font-heading text-[clamp(3rem,5vw,4.4rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-landing-ink"
+                  className="landing-hero-animate-headline relative z-[1] mt-6 mb-0 max-w-[22ch] font-heading text-display-hero font-extrabold leading-[1.02] tracking-[-0.03em] text-landing-ink"
                 >
                   Private, facilitator-led dialogue for groups that cannot safely meet in public.
                 </h1>
@@ -225,7 +239,7 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-20 md:py-[5rem]" innerClassName="bg-transparent">
+        <FullBleed alt className="py-section md:py-section-lg" innerClassName="bg-transparent">
           <Testimonial
             id="quote-heading"
             quote="We reached more clarity in one structured session than we had in months of unstructured calls."
@@ -236,18 +250,13 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="pt-20 pb-12 md:pt-24 md:pb-14">
+        <FullBleed alt={false} className="pt-section pb-12 md:pt-section-lg md:pb-16">
           <section
             id="how-it-works"
             aria-labelledby="how-heading"
             className="landing-section-reveal"
           >
-            <h2
-              id="how-heading"
-              className="mb-0 font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink"
-            >
-              How it works
-            </h2>
+            <SectionHeading id="how-heading">How it works</SectionHeading>
             <p className="mt-6 max-w-2xl font-sans font-normal leading-[1.75] text-landing-body sm:mt-8">
               Move from eligibility to action in one structured path.
             </p>
@@ -268,20 +277,15 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-16 md:py-20">
+        <FullBleed alt className="py-16 md:py-section">
           <section aria-labelledby="compare-heading" className="landing-section-reveal">
-            <h2
-              id="compare-heading"
-              className="mb-0 font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink"
-            >
-              Why it&apos;s different
-            </h2>
+            <SectionHeading id="compare-heading">Why it&apos;s different</SectionHeading>
             <div className="mt-10 grid gap-8 md:grid-cols-2 md:gap-10">
               <article className="landing-surface-card rounded-lg p-6">
-                <h3 className="font-heading text-sm font-semibold text-landing-ink">
+                <h3 className="font-heading text-fluid-h3 font-semibold text-landing-ink">
                   Why generic tools fail in sensitive dialogue
                 </h3>
-                <ul className="mt-5 space-y-4 font-sans text-[0.95rem] font-normal leading-[1.65] text-landing-body">
+                <ul className="mt-5 space-y-4 font-sans text-body-lg font-normal leading-[1.65] text-landing-body">
                   <li className="border-l border-gray-600 pl-4">
                     Open channels expose who said what.
                   </li>
@@ -295,10 +299,10 @@ export function LandingPage() {
                 </ul>
               </article>
               <article className="landing-surface-card rounded-lg p-6">
-                <h3 className="font-heading text-sm font-semibold text-landing-ink">
+                <h3 className="font-heading text-fluid-h3 font-semibold text-landing-ink">
                   Why SquadRidge works differently
                 </h3>
-                <ul className="mt-5 space-y-4 font-sans text-[0.95rem] font-normal leading-[1.65] text-landing-body">
+                <ul className="mt-5 space-y-4 font-sans text-body-lg font-normal leading-[1.65] text-landing-body">
                   <li className="border-l border-gray-600 pl-4">
                     Access can be verified without turning identity into the product.
                   </li>
@@ -322,38 +326,35 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="py-16 md:py-20">
+        <FullBleed alt={false} className="py-16 md:py-section">
           <section aria-labelledby="belong-heading" className="landing-section-reveal">
-            <h2
-              id="belong-heading"
-              className="mb-0 font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink"
-            >
+            <SectionHeading id="belong-heading">
               Built for people who cannot afford sloppy infrastructure
-            </h2>
+            </SectionHeading>
             <div className="mt-8 space-y-8 font-sans leading-[1.7] text-ink-secondary">
               <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-[0.95rem] font-semibold text-landing-ink">
+                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
                   Facilitators and mediators
                 </h3>
-                <p className="mb-0 text-[0.95rem] text-landing-body">
+                <p className="mb-0 text-body-lg text-landing-body">
                   Run higher-trust sessions with clearer access boundaries, better cohort
                   composition, and more usable outcomes.
                 </p>
               </div>
               <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-[0.95rem] font-semibold text-landing-ink">
+                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
                   Peacebuilders, veterans, organizers, and cross-border teams
                 </h3>
-                <p className="mb-0 text-[0.95rem] text-landing-body">
+                <p className="mb-0 text-body-lg text-landing-body">
                   Participate in structured dialogue without being forced to trade safety for
                   access.
                 </p>
               </div>
               <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-[0.95rem] font-semibold text-landing-ink">
+                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
                   Partners and funders
                 </h3>
-                <p className="mb-0 text-[0.95rem] text-landing-body">
+                <p className="mb-0 text-body-lg text-landing-body">
                   Support processes that are easier to trust, easier to audit, and more credible
                   outside the room.
                 </p>
@@ -368,14 +369,11 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-16 md:py-20">
+        <FullBleed alt className="py-16 md:py-section">
           <section aria-labelledby="security-preview-heading" className="landing-section-reveal">
-            <h2
-              id="security-preview-heading"
-              className="mb-0 font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink"
-            >
+            <SectionHeading id="security-preview-heading">
               Security and privacy, by design
-            </h2>
+            </SectionHeading>
             <ul className="mt-8 max-w-copy space-y-4 font-sans text-[0.95rem] font-normal leading-[1.65] text-landing-body">
               <li className="border-l border-gray-600 pl-4">
                 Access control without identity exposure in the room
@@ -398,14 +396,11 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="py-16 md:py-20">
+        <FullBleed alt={false} className="py-16 md:py-section">
           <section aria-labelledby="ledger-heading" className="landing-section-reveal">
-            <h2
-              id="ledger-heading"
-              className="mb-0 font-heading text-[clamp(1.8rem,2.5vw,2rem)] font-bold leading-tight text-landing-ink"
-            >
+            <SectionHeading id="ledger-heading">
               Every strong session can leave a record
-            </h2>
+            </SectionHeading>
             <p className="mt-6 max-w-copy font-sans font-normal leading-[1.7] text-landing-body">
               Sensitive dialogue should not disappear the moment the meeting ends. When a squad
               reaches consensus, SquadRidge can publish a public, anonymous, timestamped proposal
@@ -429,7 +424,7 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="pt-12 pb-20 md:pt-14 md:pb-24">
+        <FullBleed alt className="pt-section-sm pb-section md:pt-14 md:pb-section-lg">
           <div className="mx-auto max-w-copy">
             <WaitlistSection />
           </div>
