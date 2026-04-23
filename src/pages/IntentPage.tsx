@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import {
   captureAppError,
@@ -333,6 +334,12 @@ export function IntentPage() {
             {busy ? 'Finding…' : 'Find my squad'}
           </button>
         </div>
+
+        <NextStepHint className="mt-6 w-full max-w-md self-center">
+          <span className="font-medium text-slate-400">Next:</span> You’ll join the match screen
+          with a live queue position. When we have enough people on both perspectives, we open the
+          room and take you there automatically.
+        </NextStepHint>
 
         <button
           type="button"

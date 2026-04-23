@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AccountPageShell, AccountPanel } from '../components';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
 
@@ -156,6 +157,20 @@ export function SignInPage() {
           password to recover.
         </p>
       ) : null}
+
+      {sent ? (
+        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
+          <span className="font-medium text-slate-400">Next:</span> Open the email link on this
+          device. We&apos;ll finish sign-in and route you
+          {nextPath !== '/' ? ' to your destination' : ' home'}.
+        </NextStepHint>
+      ) : (
+        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
+          <span className="font-medium text-slate-400">Next:</span> After the magic link signs you
+          in, we&apos;ll send you to the page you were trying to reach, or home if nothing is
+          queued.
+        </NextStepHint>
+      )}
 
       <nav
         className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-8 font-sans text-[0.85rem] text-ink-subtle"

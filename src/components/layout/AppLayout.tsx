@@ -8,6 +8,8 @@ import { ZkStubBanner } from '../ZkStubBanner';
 import { DEMO_PROPOSAL_ID, getPublicContactEmail, mainContentPaddingClass } from '../../lib';
 import { useIsModerator } from '../../hooks';
 import { AppHeaderNav } from './AppHeaderNav';
+import { Breadcrumbs } from './Breadcrumbs';
+import { MobileHomeFab } from './MobileHomeFab';
 import { DemoLayout } from '../../demo/DemoLayout';
 import { useDemoWalkthrough } from '../../demo';
 
@@ -41,6 +43,7 @@ export function AppLayout() {
         <main
           className={`mx-auto flex w-full max-w-6xl flex-1 flex-col px-md ${mainPad} ${demoMainPad}`}
         >
+          <Breadcrumbs />
           <QueryErrorResetBoundary>
             {({ reset }) => (
               <RouteErrorBoundary onRetry={reset} embedded>
@@ -49,6 +52,7 @@ export function AppLayout() {
             )}
           </QueryErrorResetBoundary>
         </main>
+        <MobileHomeFab />
         <footer className="border-t border-navy-light/50 bg-transparent">
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-md py-10 text-center">
             <p className="max-w-md font-sans text-[0.9rem] font-normal leading-relaxed text-slate-500">
@@ -121,6 +125,18 @@ export function AppLayout() {
               >
                 {contactEmail}
               </a>
+            ) : null}
+            {pathname !== '/' ? (
+              <p className="font-sans text-[0.8rem] text-slate-600">
+                <Link
+                  to="/"
+                  className="underline-offset-4 transition-colors hover:text-slate-400 hover:underline"
+                >
+                  Start over
+                </Link>
+                <span className="text-slate-700"> — </span>
+                <span className="text-slate-600">Return to the landing page</span>
+              </p>
             ) : null}
           </div>
         </footer>

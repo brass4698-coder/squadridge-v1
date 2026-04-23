@@ -13,10 +13,33 @@ const navLinkBase =
 const navMuted = `${navLinkBase} border border-transparent text-[#8b95a8] hover:border-white/[0.06] hover:bg-white/[0.04] hover:text-[#e2e8f0]`;
 const navActive = `${navLinkBase} border border-white/[0.08] bg-white/[0.05] text-[#f1f5f9] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`;
 
-function mobileDrawerLinkClass(active: boolean) {
-  return `block w-full rounded-lg py-2.5 text-[0.9rem] font-medium transition-colors duration-150 ${
-    active ? 'text-[#f1f5f9]' : 'text-[#8b95a8] hover:bg-white/[0.05] hover:text-[#e2e8f0]'
+function mobileDrawerItemClass(active: boolean) {
+  return `block w-full rounded-lg border-l-2 border-transparent py-2.5 pl-3 text-left text-[0.9rem] font-medium transition-colors duration-150 ${
+    active
+      ? 'border-teal bg-teal/10 text-[#f1f5f9]'
+      : 'text-[#8b95a8] hover:border-white/[0.08] hover:bg-white/[0.05] hover:text-[#e2e8f0]'
   }`;
+}
+
+function mobileYouAreHereLabel(
+  pathname: string,
+  nav: ReturnType<typeof useDemoNavState>,
+): string | null {
+  if (pathname === '/') return null;
+  if (nav.intentActive) return 'Find squad';
+  if (pathname.startsWith('/match')) return 'Matching';
+  if (nav.inSessionRoom) return 'Session room';
+  if (pathname.startsWith('/session')) return 'Session hub';
+  if (nav.verifyActive) return 'Verification';
+  if (nav.ledgerActive) return 'Outcomes & ledger';
+  if (nav.securityActive) return 'Security';
+  if (nav.modActive) return 'Moderation';
+  if (nav.supabaseActive) return 'Supabase health';
+  if (pathname.startsWith('/settings/')) return 'Profile & settings';
+  if (pathname.startsWith('/sign-in')) return 'Sign in';
+  if (pathname.startsWith('/auth/callback')) return 'Account';
+  if (pathname.startsWith('/pitch-deck-hub')) return 'Pitch materials';
+  return 'This page';
 }
 
 type Variant = 'full' | 'minimal';
@@ -147,6 +170,7 @@ function MobileNavDrawer({
   const showDevInDrawer = isDev && pathname !== '/' && !pathname.startsWith('/security');
   const showAccountInDrawerFooter =
     isSupabaseConfigured() && !pathname.startsWith('/ledger') && !pathname.startsWith('/security');
+  const youAreHere = mobileYouAreHereLabel(pathname, nav);
 
   useEffect(() => {
     onClose();
@@ -235,6 +259,13 @@ function MobileNavDrawer({
             ✕
           </button>
         </div>
+        {youAreHere ? (
+          <div className="border-b border-[#1a2236] bg-teal/[0.07] px-4 py-2.5">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-teal-light/95">
+              Current: {youAreHere}
+            </p>
+          </div>
+        ) : null}
         <nav
           className="flex-1 overflow-y-auto px-5 py-5 font-sans text-[0.9rem]"
           aria-label="Mobile"
@@ -249,37 +280,57 @@ function MobileNavDrawer({
                   <Link
                     ref={firstLinkRef}
                     to="/#how-it-works"
-                    className={mobileDrawerLinkClass(nav.howItWorksActive)}
+                    className={mobileDrawerItemClass(nav.howItWorksActive)}
                     onClick={onClose}
                   >
-                    How it works
+                    <span className="flex items-center gap-2">
+                      {nav.howItWorksActive ? (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                      ) : null}
+                      How it works
+                    </span>
                   </Link>
                 </li>
                 <li>
                   <Link
                     to="/security"
-                    className={mobileDrawerLinkClass(nav.securityActive)}
+                    className={mobileDrawerItemClass(nav.securityActive)}
                     onClick={onClose}
                   >
-                    Security
+                    <span className="flex items-center gap-2">
+                      {nav.securityActive ? (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                      ) : null}
+                      Security
+                    </span>
                   </Link>
                 </li>
                 <li>
                   <Link
                     to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                    className={mobileDrawerLinkClass(nav.sampleOutputActive)}
+                    className={mobileDrawerItemClass(nav.sampleOutputActive)}
                     onClick={onClose}
                   >
-                    Sample output
+                    <span className="flex items-center gap-2">
+                      {nav.sampleOutputActive ? (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                      ) : null}
+                      Sample output
+                    </span>
                   </Link>
                 </li>
                 <li>
                   <a
                     href="/#waitlist"
-                    className={mobileDrawerLinkClass(nav.pilotAccessActive)}
+                    className={mobileDrawerItemClass(nav.pilotAccessActive)}
                     onClick={onClose}
                   >
-                    Pilot access
+                    <span className="flex items-center gap-2">
+                      {nav.pilotAccessActive ? (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                      ) : null}
+                      Pilot access
+                    </span>
                   </a>
                 </li>
               </ul>
@@ -293,28 +344,43 @@ function MobileNavDrawer({
                   <li>
                     <Link
                       to="/verify"
-                      className={mobileDrawerLinkClass(nav.verifyActive)}
+                      className={mobileDrawerItemClass(nav.verifyActive)}
                       onClick={onClose}
                     >
-                      Verify
+                      <span className="flex items-center gap-2">
+                        {nav.verifyActive ? (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                        ) : null}
+                        Verify
+                      </span>
                     </Link>
                   </li>
                   <li>
                     <Link
                       to="/find-squad"
-                      className={mobileDrawerLinkClass(nav.intentActive)}
+                      className={mobileDrawerItemClass(nav.intentActive)}
                       onClick={onClose}
                     >
-                      Find squad
+                      <span className="flex items-center gap-2">
+                        {nav.intentActive ? (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                        ) : null}
+                        Find squad
+                      </span>
                     </Link>
                   </li>
                   <li>
                     <Link
                       to="/admin/health"
-                      className={mobileDrawerLinkClass(nav.supabaseActive)}
+                      className={mobileDrawerItemClass(nav.supabaseActive)}
                       onClick={onClose}
                     >
-                      Supabase health (mods)
+                      <span className="flex items-center gap-2">
+                        {nav.supabaseActive ? (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                        ) : null}
+                        Supabase health (mods)
+                      </span>
                     </Link>
                   </li>
                 </ul>
@@ -329,10 +395,15 @@ function MobileNavDrawer({
                   <li>
                     <Link
                       to="/mod"
-                      className={mobileDrawerLinkClass(nav.modActive)}
+                      className={mobileDrawerItemClass(nav.modActive)}
                       onClick={onClose}
                     >
-                      Mod
+                      <span className="flex items-center gap-2">
+                        {nav.modActive ? (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
+                        ) : null}
+                        Mod
+                      </span>
                     </Link>
                   </li>
                 </ul>

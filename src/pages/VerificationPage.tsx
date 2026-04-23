@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import {
   isSupabaseConfigured,
@@ -124,12 +125,16 @@ export function VerificationPage() {
                 Your verification is recorded for this session. Next, you&apos;ll set your intent so
                 we can match you into the right room.
               </p>
+              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
+                <span className="font-medium text-slate-400">Next:</span> Open Find squad, choose a
+                perspective, and start matching. Your verified role can improve pool routing.
+              </NextStepHint>
               <button
                 type="button"
                 className={onboardingDoneCtaClass}
                 onClick={() => navigate('/find-squad')}
               >
-                Continue to intent
+                Continue to Find squad
               </button>
             </div>
           ) : (
@@ -139,6 +144,11 @@ export function VerificationPage() {
                   {error}
                 </p>
               ) : null}
+
+              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
+                <span className="font-medium text-slate-400">Next:</span> After verification, use
+                Find squad to enter matchmaking. You can return here anytime this session.
+              </NextStepHint>
 
               <p className="mb-0 font-sans text-onboarding-body text-ink-muted">
                 This button generates a Semaphore proof in your browser and sends it to the{' '}

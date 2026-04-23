@@ -27,6 +27,7 @@ export * from './session/SessionRoomEntryTransition';
 export * from './session/SessionPageSkeleton';
 export * from './session/SquadPeerStrip';
 export * from './ui/HowItWorksStep';
+export * from './ui/NextStepHint';
 export * from './ui/PrimaryCTA';
 export * from './ui/SectionLabel';
 export * from './ui/StepCard';

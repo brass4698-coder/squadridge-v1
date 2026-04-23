@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../hooks';
 import { isSupabaseConfigured, PROFILE_ROLE_VALUES, type ProfileRole } from '../lib';
@@ -546,6 +547,11 @@ export function ProfileSettingsPage() {
             </div>
           </section>
         </form>
+
+        <NextStepHint className="mt-8 border-[#1e2a3a] bg-[#0c1118]/60">
+          <span className="font-medium text-slate-400">Next:</span> When you&apos;re ready to match,
+          use Find squad from the menu. This profile helps route you into the right pool.
+        </NextStepHint>
 
         <div
           className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-md py-3 backdrop-blur-md sm:px-6"
