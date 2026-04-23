@@ -27,6 +27,7 @@ import type {
   MessagingLayer,
   PitchDeck,
 } from '../pitch-deck-hub/types';
+import { pitchDeckHubHtmlFileNameForDeck } from '../pitch-deck-hub/deckHtmlRoutes';
 import {
   labelForConfidence,
   labelForStatus,
@@ -54,8 +55,10 @@ const HUB_NAV = [
 ] as const;
 
 const pitchDeckHubBase = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}pitch-deck-hub/`;
-const CORE_INVESTOR_DECK_HREF = `${pitchDeckHubBase}squadridge-core-investor-deck.html`;
-const PILOT_PARTNER_DECK_HREF = `${pitchDeckHubBase}pilot-partner-deck.html`;
+
+function viewDeckHrefForId(deckId: string): string {
+  return `${pitchDeckHubBase}${pitchDeckHubHtmlFileNameForDeck(deckId)}`;
+}
 
 const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
   masterPositioning: 'Master positioning',
@@ -599,13 +602,7 @@ export function PitchDeckHubPage() {
                 document.getElementById('hub-financial')?.scrollIntoView({ behavior: 'smooth' })
               }
               readiness={state.readiness.find((r) => r.deckId === deck.id)}
-              viewDeckHref={
-                deck.id === 'core-investor'
-                  ? CORE_INVESTOR_DECK_HREF
-                  : deck.id === 'pilot-partner'
-                    ? PILOT_PARTNER_DECK_HREF
-                    : undefined
-              }
+              viewDeckHref={viewDeckHrefForId(deck.id)}
             />
           ))}
         </div>

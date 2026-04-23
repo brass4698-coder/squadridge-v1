@@ -4,33 +4,42 @@
  * Include from each deck: <link rel="stylesheet" href="deck-hub-chrome.css" />
  */
 
-.deck-exit-hub {
+:root {
+  --deck-chrome-bottom: 52px;
+}
+
+.deck-exit-hub,
+a.deck-back-link {
   position: fixed;
-  top: 58px;
-  right: 16px;
+  top: 20px;
+  right: max(24px, env(safe-area-inset-right));
   z-index: 200;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  color: rgba(248, 250, 252, 0.92);
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.75);
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 17, 21, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 17, 21, 0.75);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
   transition:
     background 0.2s,
     border-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    opacity 0.2s;
 }
 
-.deck-exit-hub:hover {
-  background: rgba(30, 35, 45, 0.95);
+.deck-exit-hub:hover,
+a.deck-back-link:hover {
+  background: rgba(30, 35, 45, 0.92);
   border-color: rgba(255, 255, 255, 0.18);
   color: #fff;
+  opacity: 1;
 }
 
 .deck-side-arrow {
@@ -70,30 +79,40 @@
   cursor: not-allowed;
 }
 
-.deck-side-arrow--prev {
-  left: max(8px, env(safe-area-inset-left));
+.deck-side-arrow--prev,
+.slide-nav-prev {
+  left: max(20px, env(safe-area-inset-left));
 }
 
-.deck-side-arrow--next {
-  right: max(8px, env(safe-area-inset-right));
+.deck-side-arrow--next,
+.slide-nav-next {
+  right: max(20px, env(safe-area-inset-right));
 }
 
-/* Bottom controls row (viewport decks + scroll decks) */
-.deck-bottom-bar {
+/* Bottom controls row (viewport decks + scroll decks) — full-width bar */
+.deck-bottom-bar,
+[role='toolbar'][aria-label='Slide navigation'],
+.scroll-deck-nav-bar {
   position: fixed;
-  bottom: max(20px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--deck-chrome-bottom);
+  min-height: var(--deck-chrome-bottom);
+  transform: none;
   z-index: 160;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 18px;
-  border-radius: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(15, 17, 21, 0.85);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  gap: 20px;
+  padding: 0 max(16px, env(safe-area-inset-left)) env(safe-area-inset-bottom, 0px)
+    max(16px, env(safe-area-inset-right));
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  box-shadow: none;
 }
 
 .deck-bottom-bar .deck-nav-btn {
@@ -121,9 +140,14 @@
   cursor: not-allowed;
 }
 
-.deck-bottom-bar .deck-slide-counter {
-  font-size: 0.8rem;
+.deck-bottom-bar .deck-slide-counter,
+#scroll-deck-counter,
+#counter,
+.slide-counter {
+  font-size: 11px;
+  letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.45);
+  opacity: 0.35;
   min-width: 52px;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -157,8 +181,9 @@
 }
 
 @media (max-width: 640px) {
-  .deck-exit-hub {
-    font-size: 11px;
+  .deck-exit-hub,
+  a.deck-back-link {
+    font-size: 10px;
     padding: 6px 10px;
     right: max(8px, env(safe-area-inset-right));
   }
