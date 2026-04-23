@@ -214,7 +214,7 @@ export function Match() {
       });
       if (error) throw error;
       clearMatchmakingSession();
-      navigate('/intent', { replace: true });
+      navigate('/find-squad', { replace: true });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Could not leave queue.');
     }
@@ -254,8 +254,8 @@ export function Match() {
                 Guided demo (match → session)
               </Link>
             ) : null}
-            <Link to="/intent" className="text-teal underline-offset-4 hover:underline">
-              Set intention
+            <Link to="/find-squad" className="text-teal underline-offset-4 hover:underline">
+              Find squad
             </Link>
             <Link
               to="/"
@@ -270,27 +270,38 @@ export function Match() {
 
     return (
       <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-        <h2 className="font-heading text-xl font-semibold text-slate-100">Start from intent</h2>
-        <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-slate-400">
-          Matching starts after you set your intention and choose a perspective. That keeps the room
-          balanced across sides.
-        </p>
-        <p className="mt-6 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
-          Need a verified role?{' '}
+        <div className="relative flex max-w-lg flex-col items-center text-center">
+          <h2 className="font-heading text-xl font-semibold text-slate-100">
+            Let’s get you matched
+          </h2>
+          <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400">
+            First, tell us your perspective and any relevant context. This helps us match you with
+            people on the other side and keep the room balanced.
+          </p>
+          <p className="mt-6 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
+            Need a verified role?{' '}
+            <Link
+              to="/verify"
+              className="font-medium text-teal-light underline-offset-4 hover:underline"
+            >
+              Verify your account
+            </Link>
+            .
+          </p>
           <Link
-            to="/verify"
-            className="font-medium text-teal-light underline-offset-4 hover:underline"
+            to="/find-squad"
+            className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
           >
-            Verify your account
+            Go to Find squad
           </Link>
-          .
-        </p>
-        <Link
-          to="/intent"
-          className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
-        >
-          Set intention
-        </Link>
+          <p className="mt-6 max-w-md text-center font-sans text-[0.8rem] text-slate-500">
+            Already set your intent?{' '}
+            <Link to="/" className="text-teal underline-offset-4 hover:underline">
+              Return home
+            </Link>{' '}
+            or check your connection, then try again.
+          </p>
+        </div>
       </div>
     );
   }

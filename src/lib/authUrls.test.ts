@@ -10,8 +10,8 @@ describe('getAuthCallbackUrl', () => {
 
   it('appends next when path is safe', () => {
     vi.stubEnv('VITE_SITE_URL', 'https://app.example.com');
-    expect(getAuthCallbackUrl('/intent')).toBe(
-      'https://app.example.com/auth/callback?next=%2Fintent',
+    expect(getAuthCallbackUrl('/find-squad')).toBe(
+      'https://app.example.com/auth/callback?next=%2Ffind-squad',
     );
   });
 

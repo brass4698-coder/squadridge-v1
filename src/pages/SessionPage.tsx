@@ -618,7 +618,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
             Try again
           </button>
           <Link
-            to="/intent"
+            to="/find-squad"
             className="inline-flex min-h-[44px] items-center self-center text-teal underline-offset-4 hover:underline"
           >
             Start a new search
@@ -639,7 +639,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
           about {MATCHED_SQUAD_TTL_HOURS} hours.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link to="/intent" className="btn-primary inline-flex w-fit">
+          <Link to="/find-squad" className="btn-primary inline-flex w-fit">
             Start a new search
           </Link>
           <Link

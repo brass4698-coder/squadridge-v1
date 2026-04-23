@@ -73,7 +73,8 @@ export default function App() {
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/verify" element={<VerificationPage />} />
-                  <Route path="/intent" element={<IntentPage />} />
+                  <Route path="/find-squad" element={<IntentPage />} />
+                  <Route path="/intent" element={<Navigate to="/find-squad" replace />} />
                   <Route
                     path="/ledger"
                     element={
@@ -93,7 +94,7 @@ export default function App() {
                   <Route path="/security" element={<SecurityDisclosurePage />} />
                   <Route path="/pitch-deck-hub" element={<PitchDeckHubPage />} />
                   <Route path="/match" element={<Match />} />
-                  <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
+                  <Route path="/match-setup" element={<Navigate to="/find-squad" replace />} />
                   <Route
                     path="/admin/health"
                     element={

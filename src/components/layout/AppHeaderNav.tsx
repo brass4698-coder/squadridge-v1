@@ -5,6 +5,7 @@ import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { useAppNavContext, useIsModerator } from '../../hooks';
 import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../../lib';
 import { AccountMenu } from './AccountMenu';
+import { NavigationProgress } from './NavigationProgress';
 import { PrimaryCTA } from '../ui/PrimaryCTA';
 
 const navLinkBase =
@@ -46,8 +47,11 @@ function useDemoNavState() {
 
   return {
     homeActive: pathname === '/' && hash !== '#waitlist' && hash !== '#how-it-works',
-    matchFlowActive: pathname.startsWith('/match') || pathname.startsWith('/intent'),
-    intentActive: pathname.startsWith('/intent'),
+    matchFlowActive:
+      pathname.startsWith('/match') ||
+      pathname.startsWith('/find-squad') ||
+      pathname.startsWith('/intent'),
+    intentActive: pathname.startsWith('/find-squad') || pathname.startsWith('/intent'),
     sessionLinkActive: pathname.startsWith('/session'),
     inSessionRoom,
     sessionHref: sessionSquadId ? `/session/${sessionSquadId}` : '/session',
@@ -297,11 +301,11 @@ function MobileNavDrawer({
                   </li>
                   <li>
                     <Link
-                      to="/intent"
+                      to="/find-squad"
                       className={mobileDrawerLinkClass(nav.intentActive)}
                       onClick={onClose}
                     >
-                      Intent
+                      Find squad
                     </Link>
                   </li>
                   <li>
@@ -469,6 +473,7 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
           </div>
         </div>
       </header>
+      <NavigationProgress />
       <JourneyStrip />
       <MobileNavDrawer
         open={mobileOpen}

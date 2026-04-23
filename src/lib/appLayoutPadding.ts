@@ -7,6 +7,7 @@ export function mainContentPaddingClass(pathname: string): string {
   const tightPrefixes = [
     '/session',
     '/match',
+    '/find-squad',
     '/intent',
     '/ledger',
     '/verify',

@@ -127,7 +127,7 @@ export function VerificationPage() {
               <button
                 type="button"
                 className={onboardingDoneCtaClass}
-                onClick={() => navigate('/intent')}
+                onClick={() => navigate('/find-squad')}
               >
                 Continue to intent
               </button>

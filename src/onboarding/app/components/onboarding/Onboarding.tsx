@@ -41,7 +41,7 @@ function OnboardingInner() {
     const base =
       rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
         ? decodeURIComponent(rawNext)
-        : '/intent';
+        : '/find-squad';
     const keepDemo = searchParams.get('demo') === '1';
     const targetUrl = new URL(
       base,

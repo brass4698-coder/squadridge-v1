@@ -5,6 +5,7 @@ describe('mainContentPaddingClass', () => {
   it('uses tight padding for home and session routes', () => {
     expect(mainContentPaddingClass('/')).toBe('pt-0 pb-xl');
     expect(mainContentPaddingClass('/session/x')).toBe('pt-0 pb-xl');
+    expect(mainContentPaddingClass('/find-squad')).toBe('pt-0 pb-xl');
     expect(mainContentPaddingClass('/intent')).toBe('pt-0 pb-xl');
   });
 
