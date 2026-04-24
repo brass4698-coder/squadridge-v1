@@ -373,10 +373,12 @@ describe('useRealtimeMessages', () => {
       }
       expect(sawFatal).toBe(true);
 
-      const fatalMsg = screen.getByTestId('realtime-error').textContent ?? '';
-      expect(fatalMsg).toMatch(/Connection error|Offline/);
-      const fatalStatus = screen.getByTestId('realtime-status').textContent;
-      expect(fatalStatus === 'connection_error' || fatalStatus === 'offline').toBe(true);
+      await waitFor(() => {
+        const fatalMsg = screen.getByTestId('realtime-error').textContent ?? '';
+        expect(fatalMsg).toMatch(/Connection error|Offline/);
+        const fatalStatus = screen.getByTestId('realtime-status').textContent;
+        expect(fatalStatus === 'connection_error' || fatalStatus === 'offline').toBe(true);
+      });
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('retry-realtime'));
