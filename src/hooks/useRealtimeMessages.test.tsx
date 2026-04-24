@@ -1,10 +1,11 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, type InfiniteData } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../contexts/AuthContext';
 import { AuthContext } from '../contexts/AuthContext';
+import { queryKeys } from '../lib';
 import { createSupabaseMessagesStub, type MessageRow } from '../test/createSupabaseMessagesStub';
 import { MESSAGES_PAGE_SIZE, useRealtimeMessages } from './useRealtimeMessages';
 
@@ -112,6 +113,49 @@ function renderWithAuth(ui: ReactElement, supabase: AuthContextValue['supabase']
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={value}>{ui}</AuthContext.Provider>
+    </QueryClientProvider>,
+  );
+}
+
+/** Avoid flaky `isPending` on CI: hydrate the infinite query cache so realtime retry logic is tested in isolation. */
+function renderRetryHarnessWithCachedWindow(
+  supabase: AuthContextValue['supabase'],
+  squadId: string,
+  windowRows: MessageRow[],
+) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
+      },
+      mutations: { retry: false },
+    },
+  });
+  const key = queryKeys.messages.list(squadId);
+  queryClient.setQueryData<InfiniteData<MessageRow[], undefined>>(key, {
+    pages: [windowRows],
+    pageParams: [undefined],
+  });
+  const value: AuthContextValue = {
+    session: null,
+    user: null,
+    loading: false,
+    supabase,
+    supabaseClientInitError: null,
+    sessionError: null,
+    ensureAnonymousSession: async () => {},
+    signIn: async () => ({ error: null }),
+    signOut: async () => {},
+  };
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={value}>
+        <RetryHarness squadId={squadId} />
+      </AuthContext.Provider>
     </QueryClientProvider>,
   );
 }
@@ -288,20 +332,20 @@ describe('useRealtimeMessages', () => {
       ...Array.from({ length: 7 }, () => REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR),
       REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
     ];
+    const initialRow = baseRow({
+      id: 'a',
+      sent_at: '2025-01-01T10:00:00.000Z',
+      payload_ciphertext: 'first',
+    });
     const stub = createSupabaseMessagesStub({
-      initialMessages: [
-        baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', payload_ciphertext: 'first' }),
-      ],
+      initialMessages: [initialRow],
       subscribeStatusSequence: seq,
     });
 
-    // Let the infinite query finish before stubbing timers. Patching `setTimeout` from the first tick
-    // breaks TanStack Query / React scheduling on some runners so `count` never reaches 1.
-    renderWithAuth(<RetryHarness squadId="squad-1" />, stub);
+    renderRetryHarnessWithCachedWindow(stub, 'squad-1', [initialRow]);
 
-    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('1'), {
-      timeout: 30_000,
-    });
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+    expect(screen.getByTestId('count').textContent).toBe('1');
 
     vi.stubGlobal('setTimeout', (fn: TimerHandler, delay?: number, ...args: unknown[]) => {
       const ms = typeof delay === 'number' ? delay : 0;
