@@ -284,38 +284,33 @@ describe('useRealtimeMessages', () => {
 
   it('retryRealtimeConnection resubscribes after fatal subscribe errors', async () => {
     const origSetTimeout = globalThis.setTimeout.bind(globalThis);
-    // Collapse only long backoffs from `useRealtimeMessages` (≥500ms). Forcing *every* delay to 0
-    // breaks TanStack Query / scheduler timing on some CI runners so `isPending` never clears.
+    const seq = [
+      ...Array.from({ length: 7 }, () => REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR),
+      REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
+    ];
+    const stub = createSupabaseMessagesStub({
+      initialMessages: [
+        baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', payload_ciphertext: 'first' }),
+      ],
+      subscribeStatusSequence: seq,
+    });
+
+    // Let the infinite query finish before stubbing timers. Patching `setTimeout` from the first tick
+    // breaks TanStack Query / React scheduling on some runners so `count` never reaches 1.
+    renderWithAuth(<RetryHarness squadId="squad-1" />, stub);
+
+    await waitFor(() => expect(screen.getByTestId('count').textContent).toBe('1'), {
+      timeout: 30_000,
+    });
+
     vi.stubGlobal('setTimeout', (fn: TimerHandler, delay?: number, ...args: unknown[]) => {
       const ms = typeof delay === 'number' ? delay : 0;
-      const useDelay = ms >= 500 ? 0 : ms;
+      // Match `BASE_DELAY_MS` (1000) from the hook — collapse realtime backoffs only, keep 400ms catch-up.
+      const useDelay = ms >= 1000 ? 0 : ms;
       return origSetTimeout(fn, useDelay, ...args) as ReturnType<typeof setTimeout>;
     });
 
     try {
-      const seq = [
-        ...Array.from({ length: 7 }, () => REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR),
-        REALTIME_SUBSCRIBE_STATES.SUBSCRIBED,
-      ];
-      const stub = createSupabaseMessagesStub({
-        initialMessages: [
-          baseRow({ id: 'a', sent_at: '2025-01-01T10:00:00.000Z', payload_ciphertext: 'first' }),
-        ],
-        subscribeStatusSequence: seq,
-      });
-
-      renderWithAuth(<RetryHarness squadId="squad-1" />, stub);
-
-      await waitFor(
-        () => {
-          const loading = screen.getByTestId('loading').textContent;
-          const count = screen.getByTestId('count').textContent;
-          expect(loading === 'false' || count === '1').toBe(true);
-        },
-        { timeout: 30_000 },
-      );
-      expect(screen.getByTestId('count').textContent).toBe('1');
-
       // Hook retries use setTimeout; this test forces 0ms delays. Pump macrotasks explicitly — waitFor
       // does not drain the timer queue between polls.
       for (let i = 0; i < 500; i++) {
