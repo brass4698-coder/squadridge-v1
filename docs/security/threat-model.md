@@ -2,7 +2,7 @@
 
 This document is the **engineering source of truth** for high-stakes deployment decisions. It describes trust boundaries, realistic adversaries, and **what the codebase actually does today** versus **target architecture**. Product copy and investor-facing docs must not claim stronger properties than are listed here without an explicit engineering review.
 
-**Related:** [Data retention (ZK)](../technical/data-retention-zk.md) · [ZK implementation](../technical/zk-implementation.md) · [Security and privacy (overview)](../technical/security-privacy.md)
+**Related:** [Data retention (ZK)](../technical/data-retention-zk.md) · [ZK implementation](../technical/zk-implementation.md) · [Security and privacy (overview)](../technical/security-privacy.md) · **§13** (after §7): Semaphore issuer groups, trusted root posture, E2E definition vs MVP
 
 **MVP / marketing:** Public copy, landing pages, and pitch decks must not promise stronger privacy or anonymity than §5 (“Claims that hold today”) and §3 (honest-but-curious operator). If the product roadmap outpaces this document, update the threat model in the same change as the code.
 
@@ -20,13 +20,20 @@ This document is the **engineering source of truth** for high-stakes deployment 
 
 ## 2. Assets
 
+### 2.1 Identity, account, and profile surfaces
+
 | Asset | Location / mechanism | Notes |
 | ----- | ---------------------- | ----- |
 | Account identity | `auth.users`, `public.users.id` | Root identifier for correlation across tables and vendor logs. |
 | Email / phone | Supabase Auth (magic link / OTP) | Strong real-world identifier when used. |
 | Profile & routing fields | `public.profiles` | Pseudonymous; **re-identification risk** when combined (callsign uniqueness, `region_hint`, language, tags). **In-squad:** peers see a **limited projection** (callsign, role, coarse tags, region hint) via `get_squad_peer_profiles` — **no global profile directory** or cross-squad search. |
+
+### 2.2 Messaging, matchmaking, ZK, and social graph
+
+| Asset | Location / mechanism | Notes |
+| ----- | ---------------------- | ----- |
 | Matchmaking metadata | `public.match_queue` | `user_id`, `pool_key` (intent tags ± optional `|zk:` verified scope), `side`, timestamps; Realtime exposure — see migrations. |
-| Social graph | `squad_members`, `squads`, `messages` | Who met whom; message timing and volume. Pseudonymous **handles in-room** are visible to squad-mates only (see profiles row above). |
+| Social graph | `squad_members`, `squads`, `messages` | Who met whom; message timing and volume. Pseudonymous **handles in-room** are visible to squad-mates only (see §2.1). |
 | Message content | `messages.payload_ciphertext` | **Not E2E-encrypted in the cryptographic sense today** — see §5. |
 | ZK verification records | `zk_proof_submissions`, `verified_attributes` | Proof commitments and nullifiers **bound to `user_id`** server-side — see §5. |
 
@@ -129,3 +136,26 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | 2026-04-16 | Initial operational threat model aligned with current repo. |
 | 2026-04-16 | §5: Documented AES-GCM v3, squad key storage, moderator/service-role access, lack of forward secrecy/E2E, and server default key trigger (`20260417150000_*`). |
 | 2026-04-16 | §2: In-squad pseudonymous profile visibility via `get_squad_peer_profiles`; matchmaking `pool_key` may include `|zk:` verified scope. |
+| 2026-04-22 | §2 split into §2.1 / §2.2; new §13 (Semaphore issuer groups, trusted root posture, E2E definition vs MVP). |
+
+---
+
+## 13. Semaphore groups, trusted issuance, and end-to-end messaging (roadmap vs today)
+
+*Placed after the revision log so core sections 1–7 stay consecutive for readers; cross-reference in diligence materials may cite “§13” directly.*
+
+This section ties **who can mint Semaphore “membership”** and **messaging key hierarchy** to what partners should assume in **diligence** and **GTM** copy. It is **not** a promise of future ship dates; it is a **trust-root map**.
+
+### 13.1 Issuer groups (Semaphore Merkle set)
+
+- **Current client behavior:** Session proofs are built with a `Group` that includes the user’s **identity commitment** plus a small, **fixed set of in-source decoy commitments** (see `src/lib/zk/buildAnonymityGroup.ts`). That is sufficient for **valid Semaphore proofs** in development, but it is **not** the same as a **large, issuer-maintained anonymity set** operated by a separate credential authority or a public registry of members.
+- **Production-strength model (not fully specified in repo):** A realistic deployment uses a **Merkle root / group** updated by a defined **issuer** (or consortium) with clear **eligibility** rules and **revocation** semantics. The Edge verifier’s `verifyProof` checks cryptographic validity against **whatever group parameters** the client and server agree on for that product surface; **misconfiguration** (wrong tree, wrong depth, stale root) is an implementation risk to track in design reviews.
+- **Trusted “root” registry:** There is **no** separate, documented **on-chain or org-wide “trusted root registry”** component in the MVP app beyond **Semaphore group parameters and circuit identity** as wired in code. If a partner requires a **named trust anchor** (e.g. a government list root, a humanitarian issuer DID, a smart-contract group factory), that must be **designed, deployed, and named in docs** in the same change as the code path—not implied by “ZK in the product.”
+
+### 13.2 End-to-end messaging (definition used here)
+
+- **E2E (target definition):** Message plaintext is readable only to **end clients** in the session; the **server never holds** material sufficient to bulk-decrypt without **active participation** of clients (e.g. Signal-style or MLS, with a clear story for key distribution and recovery).
+- **Not E2E today:** As in §5, **squad symmetric keys in Postgres** mean the operator path can read content; do not describe MVP chat as E2E in **user copy**, **pitch**, or **policy decks** without an engineering review and an updated §5.
+- **Roadmap link:** The **pre-deployment gate** in §6 stands: either **ship and document** real E2E, or keep **operator-readable** as the public stance until then.
+
+**Cross-refs:** [ZK implementation](../technical/zk-implementation.md) (Semaphore + Edge) · [Encryption scope](encryption-scope.md) · §5 in this file.

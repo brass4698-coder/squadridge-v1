@@ -73,7 +73,7 @@ export function AuthCallbackPage() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div className="mx-auto max-w-copy px-md py-14 font-sans text-[0.95rem] text-ink-muted">
+      <div className="mx-auto max-w-copy px-gutter py-14 font-sans text-[0.95rem] text-ink-muted">
         Supabase is not configured.
       </div>
     );

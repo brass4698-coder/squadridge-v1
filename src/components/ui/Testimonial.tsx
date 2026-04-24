@@ -5,6 +5,8 @@ export interface TestimonialProps {
   attribution: string;
   className?: string;
   id?: string;
+  /** `caps` matches legacy investor-style labels; `sentence` for readable attributions. */
+  attributionVariant?: 'caps' | 'sentence';
 }
 
 export function Testimonial({
@@ -12,6 +14,7 @@ export function Testimonial({
   attribution,
   className,
   id = 'testimonial-quote',
+  attributionVariant = 'caps',
 }: TestimonialProps) {
   return (
     <figure
@@ -24,12 +27,19 @@ export function Testimonial({
       <blockquote className="m-0">
         <p
           id={id}
-          className="font-heading text-[clamp(1.3rem,2.2vw,1.5rem)] font-medium leading-[1.5] text-landing-quote"
+          className="font-heading text-[clamp(1.35rem,2.3vw,1.7rem)] font-medium leading-[1.45] text-landing-quote"
         >
           {quote}
         </p>
       </blockquote>
-      <figcaption className="mt-6 font-heading text-[0.75rem] font-medium uppercase tracking-[0.1em] text-landing-attribution">
+      <figcaption
+        className={cn(
+          'mt-6 font-heading text-[0.75rem] font-medium text-landing-attribution',
+          attributionVariant === 'sentence'
+            ? 'normal-case leading-relaxed tracking-normal'
+            : 'uppercase tracking-[0.12em]',
+        )}
+      >
         — {attribution}
       </figcaption>
     </figure>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" class="ds-pitch-deck">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SquadRidge — Technical / Security Deck</title>
+  <link rel="stylesheet" href="deck-hub-chrome.css" />
+  <link rel="stylesheet" href="deck-ds.css" />
+  <link rel="stylesheet" href="deck-layout-global.css" />
+</head>
+<body class="ds-pitch-deck">
+
+<a href="/pitch-deck-hub" class="deck-exit-hub">← Pitch Deck Hub</a>
+<button type="button" class="deck-side-arrow deck-side-arrow--prev" data-scroll-deck-prev aria-label="Previous slide">&#8249;</button>
+<button type="button" class="deck-side-arrow deck-side-arrow--next" data-scroll-deck-next aria-label="Next slide">&#8250;</button>
+<div class="deck-bottom-bar" role="toolbar" aria-label="Slide navigation">
+  <button type="button" class="deck-nav-btn" data-scroll-deck-prev aria-label="Previous slide">&#8249;</button>
+  <div class="deck-dot-row" id="scroll-deck-dots"></div>
+  <span class="deck-slide-counter" id="scroll-deck-counter">1 / 12</span>
+  <button type="button" class="deck-nav-btn" data-scroll-deck-next aria-label="Next slide">&#8250;</button>
+</div>
+
+<section class="slide">
+  <div class="ds-gradient-mesh" aria-hidden="true">
+    <div class="ds-blob" style="width:420px;height:420px;top:-100px;right:-80px;background:var(--color-accent-1)"></div>
+    <div class="ds-blob" style="width:280px;height:280px;bottom:-60px;left:-40px;background:var(--color-accent-3)"></div>
+  </div>
+  <div class="ds-title-lockup">
+    <div class="ds-mark-wrap"><img src="/assets/logo.png" alt="" /></div>
+    <img class="ds-wordmark-large" src="/assets/squadridge.svg" alt="SquadRidge" />
+    <p class="ds-eyebrow" style="margin-bottom:0.25rem">Technical / security diligence</p>
+    <p class="ds-small" style="margin-bottom:0.5rem">April 2026 · Aligned to public disclosure at <code>/security</code></p>
+    <p class="ds-lead" style="max-width:none">Identity boundaries, encryption scope, operator visibility, and explicit gaps versus roadmap — written for engineers and security reviewers.</p>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">01 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Logical architecture</p>
+  <h2>User → edge → app → data (high level)</h2>
+  <p class="ds-lead" style="margin-top:0.75rem">Layered boundaries — not a claim of zero-trust operator blindness; this is a communication map for reviews.</p>
+  <div style="margin-top:1.5rem;display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:0.75rem;max-width:960px;margin-left:auto;margin-right:auto">
+    <div class="ds-panel ds-panel--navy" style="flex:1;min-width:120px;text-align:center"><strong>Client</strong><p class="ds-small" style="margin-top:0.35rem">Browser / session</p></div>
+    <span style="align-self:center;color:var(--color-accent-1);font-size:1.2rem">→</span>
+    <div class="ds-panel ds-panel--gold" style="flex:1;min-width:120px;text-align:center"><strong>Edge / TLS</strong><p class="ds-small" style="margin-top:0.35rem">Transit encryption</p></div>
+    <span style="align-self:center;color:var(--color-accent-1);font-size:1.2rem">→</span>
+    <div class="ds-panel ds-panel--sage" style="flex:1;min-width:120px;text-align:center"><strong>Application</strong><p class="ds-small" style="margin-top:0.35rem">Auth, rooms, rules</p></div>
+    <span style="align-self:center;color:var(--color-accent-1);font-size:1.2rem">→</span>
+    <div class="ds-panel" style="flex:1;min-width:120px;text-align:center"><strong>Storage</strong><p class="ds-small" style="margin-top:0.35rem">Ciphertext + keys</p></div>
+  </div>
+  <p class="ds-disclaimer">Hosting and observability tools sit adjacent to this stack; treat log paths as in-scope for incident response reviews (policy details outside this deck).</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">02 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Identity &amp; verification</p>
+  <h2>Verified pseudonymous accounts</h2>
+  <div class="ds-grid-2" style="margin-top:1.25rem">
+    <div class="ds-panel">
+      <h3>What we aim for</h3>
+      <p>Accounts tied to a verification posture appropriate to the deployment — not “trust me” nickname anonymity in the product narrative.</p>
+      <p class="ds-small" style="margin-top:0.75rem">In-session presence is described as pseudonymous relative to public real-name identity in the room (see product copy).</p>
+    </div>
+    <div class="ds-panel ds-panel--sage">
+      <h3>What reviewers should confirm</h3>
+      <p>How verification is performed for your pilot (workflow, limitations, and failure modes) should be written with the customer — this deck does not substitute for a deployment-specific assessment.</p>
+    </div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">03 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Data paths</p>
+  <h2>Transit &amp; storage (current release)</h2>
+  <div class="ds-sec-row">
+    <div class="ds-sec-icon ds-sec-icon--gold" aria-hidden="true">↔</div>
+    <div><strong>In transit</strong><p class="ds-small" style="margin:0.35rem 0 0">Standard TLS between client and service — treat as baseline transport protection.</p></div>
+  </div>
+  <div class="ds-sec-row">
+    <div class="ds-sec-icon ds-sec-icon--sage" aria-hidden="true">▣</div>
+    <div><strong>At rest</strong><p class="ds-small" style="margin:0.35rem 0 0">Message payloads are encrypted before storage. Squad-scoped keys participate in how content is accessed in-product.</p></div>
+  </div>
+  <p class="ds-disclaimer">Exact algorithms and key management details: subject to disclosure package / docs — not abbreviated marketing claims on this slide.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">04 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Access control</p>
+  <h2>Squad keys &amp; gating</h2>
+  <p class="ds-lead">Each squad shares a squad-level key used so message content is not presented as plain text in the product experience without that key context.</p>
+  <ul style="margin-top:1rem;max-width:42rem;padding-left:1.2rem;color:var(--color-text-secondary);line-height:1.65;font-size:0.95rem">
+    <li style="margin-bottom:0.5rem">Design intent: scope access to cohort-shaped boundaries rather than broadcast feeds.</li>
+    <li>Threat review should include key distribution, rotation posture, and human support workflows.</li>
+  </ul>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">05 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Operator visibility</p>
+  <h2>Explicit, disclosure-consistent</h2>
+  <div class="ds-panel ds-panel--gold" style="max-width:42rem;margin-top:1rem">
+    <p style="margin:0;font-size:1rem;line-height:1.65;color:var(--color-text-secondary)">The hosting environment, including database and logs, may access ciphertext and keys during normal operation. SquadRidge does <strong>not</strong> currently claim that operators are technically unable to read stored messages when moderation, legal process, or incident response requires access.</p>
+  </div>
+  <p class="ds-small" style="margin-top:1rem">Mirror language on <code>/security</code> in external materials — avoid “server-blind” or “E2EE” unless the architecture matches.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">06 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Process</p>
+  <h2>Moderation &amp; legal requests</h2>
+  <div class="ds-grid-2">
+    <div class="ds-panel">
+      <h3>Operational reality</h3>
+      <p>Products in this category often require pathways for abuse reports, safety escalations, and lawful requests — design assumes those exist even when policies are still being hardened for your sector.</p>
+    </div>
+    <div class="ds-panel ds-panel--navy">
+      <h3>Documentation posture</h3>
+      <p>Runbooks and retention targets are typically provided under NDA or customer security review — not in a public slide.</p>
+    </div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">07 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Features</p>
+  <h2>Ledger &amp; proposals</h2>
+  <p class="ds-lead">Where enabled, proposal and ledger-style surfaces produce stakeholder-facing artifacts — security review should include export paths, access controls on exports, and how “citable” outputs relate to verification scope.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">08 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Observability</p>
+  <h2>Logging &amp; retention (posture)</h2>
+  <p class="ds-lead">Engineering systems commonly emit access logs, error telemetry, and audit trails. Treat logging as part of the threat model for insider risk and legal process — tighten with customers during pilot agreements.</p>
+  <p class="ds-small" style="margin-top:1rem">No specific retention period is asserted here as a universal commitment.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">09 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Honest limits</p>
+  <h2>Known limitations (current release)</h2>
+  <div class="ds-panel" style="max-width:42rem">
+    <ul style="margin:0;padding-left:1.1rem;color:var(--color-text-secondary);line-height:1.65;font-size:0.95rem">
+      <li style="margin-bottom:0.5rem">Per-user E2EE where the server never holds decryptable content is <strong>not</strong> part of the current release.</li>
+      <li>Any roadmap toward stronger client-side guarantees should be labeled roadmap, not “shipping today.”</li>
+    </ul>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">10 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Engineering roadmap</p>
+  <h2>Non-marketing next steps</h2>
+  <div class="ds-timeline" style="max-width:44rem;margin-top:1rem">
+    <div class="ds-tl-item">
+      <div class="ds-tl-date">Near</div>
+      <div class="ds-tl-spine"><div class="ds-tl-dot"></div><div class="ds-tl-line"></div></div>
+      <div><strong>Hardening &amp; review packs</strong><p>Artifact checklists, deployment notes, and test evidence for pilot security questionnaires.</p></div>
+    </div>
+    <div class="ds-tl-item">
+      <div class="ds-tl-date">Mid</div>
+      <div class="ds-tl-spine"><div class="ds-tl-dot ds-tl-dot--muted"></div></div>
+      <div><strong>Cryptography direction</strong><p>Evaluate client-hardening and E2EE directions against realistic operator requirements — explicit tradeoffs, not slogans.</p></div>
+    </div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">11 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">References</p>
+  <h2>Where to go deeper</h2>
+  <div class="ds-grid-2">
+    <div class="ds-panel">
+      <h3>Product</h3>
+      <p class="ds-small">Public security disclosure: <code>/security</code></p>
+      <p class="ds-small" style="margin-top:0.5rem">Repository paths (when sharing with technical audiences): <code>docs/security/encryption-scope.md</code>, <code>docs/security/threat-model.md</code></p>
+    </div>
+    <div class="ds-panel ds-panel--sage">
+      <h3>Review etiquette</h3>
+      <p class="ds-small">Bring scenario-specific constraints (sector, jurisdiction, export rules) into a written annex — slides are orientation, not a contract.</p>
+    </div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock">
+      <img class="mark" src="/assets/logo.png" alt="" />
+      <img class="wordmark" src="/assets/squadridge.svg" alt="SquadRidge" />
+    </div>
+    <div class="ds-slide-num js-deck-slide-num">12 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<script src="deck-scroll-deck.js" defer></script>
+</body>
+</html>

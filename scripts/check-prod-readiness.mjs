@@ -56,6 +56,7 @@ for (const m of [
   'supabase/migrations/20260418080000_fix_role_other_detail.sql',
   'supabase/migrations/20260418090000_ttl_cleanup.sql',
   'supabase/migrations/20260418100000_revoke_anon_matchmaking.sql',
+  'supabase/migrations/20260422100000_smoke_archived_status_updates.sql',
 ]) {
   if (existsSync(join(root, m))) {
     pass(`Migration present: ${m.split('/').pop()}`);
@@ -93,8 +94,10 @@ try {
   const netlify = read('netlify.toml');
   if (!netlify.includes('Content-Security-Policy')) {
     fail('netlify.toml CSP', 'missing Content-Security-Policy header');
+  } else if (!netlify.includes('X-Content-Type-Options')) {
+    fail('netlify.toml security headers', 'missing X-Content-Type-Options');
   } else {
-    pass('netlify.toml defines CSP');
+    pass('netlify.toml defines CSP + baseline security headers');
   }
 } catch (e) {
   fail('netlify.toml', String(e));
@@ -104,20 +107,24 @@ try {
   const vercel = read('vercel.json');
   if (!vercel.includes('Content-Security-Policy')) {
     fail('vercel.json CSP', 'missing Content-Security-Policy header');
+  } else if (!vercel.includes('X-Content-Type-Options')) {
+    fail('vercel.json security headers', 'missing X-Content-Type-Options');
   } else {
-    pass('vercel.json defines CSP');
+    pass('vercel.json defines CSP + baseline security headers');
   }
 } catch (e) {
   fail('vercel.json', String(e));
 }
 
-// 7. Sentry required in production (source check)
+// 7. Sentry init fail-soft (never bricks bootstrap)
 try {
   const sentry = read('src/lib/sentry.ts');
-  if (!sentry.includes('VITE_SENTRY_DSN is required in production')) {
-    fail('Sentry production', 'initSentry does not require DSN in prod');
+  if (!sentry.includes('Sentry.init')) {
+    fail('Sentry init', 'missing Sentry.init');
+  } else if (!sentry.includes('catch') || !sentry.includes('Initialization failed')) {
+    fail('Sentry fail-soft', 'Sentry.init should be wrapped in try/catch with user-visible warning');
   } else {
-    pass('Sentry init requires DSN in production builds');
+    pass('Sentry init is fail-soft (try/catch)');
   }
 } catch (e) {
   fail('Sentry check', String(e));

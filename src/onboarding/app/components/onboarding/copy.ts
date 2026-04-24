@@ -39,7 +39,7 @@ export const COPY = {
     /** First sentence of the lead (plain text). */
     leadOpen: "What's said here stays here. ",
     /** Second sentence — paired with collapsible explainer in RulesScreen. */
-    leadVerifiedPhrase: 'Verified anonymity is enforced.',
+    leadVerifiedPhrase: 'What “verified anonymity” means here',
     /** Short policy explainer (ZK / verification model); shown on demand under the lead. */
     verifiedAnonymityExplainer:
       'We confirm participants are real and eligible without exposing who you are in the room. Checks may be lighter in early phases; zero-knowledge verification applies where the stack is live. This is a gate for serious dialogue—not a dossier or background file.',
@@ -47,6 +47,12 @@ export const COPY = {
     /** Shown after the explainer; links to `/verify`. */
     verifiedAnonymityLinkLabel: 'Verification step',
     verifiedAnonymityLinkAfter: ' (main app, when you are ready).',
+    /** Optional collapsible; operator-readable chat per threat model — not E2E against the service. */
+    messagingPrivacyTriggerLabel: 'Squad chat & the operator',
+    messagingPrivacyTriggerAriaLabel: 'More about squad message privacy and operator access',
+    messagingPrivacyExplainer:
+      'Squad messages use per-squad keys managed with the app: storage is encrypted, but the service and authorized staff can read content under policy. That is not end-to-end encryption against the platform. Stronger device-only encryption is a roadmap goal—see the Security page in the main app for the full picture.',
+    messagingSecurityLinkLabel: 'Security (current release)',
     b1: 'No real names, units, or live operational details.',
     b2: 'Challenge ideas, not people. Assume everything here is sensitive.',
     b3: 'Misuse endangers everyone in the room.',
@@ -84,6 +90,9 @@ export const COPY = {
     signedIn: 'Session active',
     continue: 'Continue',
     checkEmail: 'Check your email for the sign-in link.',
+    /** After the ZK explainer; clarifies why you might verify later in the main app. */
+    optionalMatchBenefit:
+      'Verification later helps match you with vetted peers — optional for open dialogue.',
     conciergeTitle: 'Concierge',
     conciergeTips: [
       'Verification happens in the main app at /verify — your proof stays bound to your account, not shown as a dossier in chat.',
@@ -142,7 +151,7 @@ export const COPY_SCREEN_STATS = [
     id: 'rules',
     titleChars: COPY.rules.title.length,
     bodyWords: countWords(
-      `${COPY.rules.leadOpen}${COPY.rules.leadVerifiedPhrase} ${COPY.rules.verifiedAnonymityExplainer} ${COPY.rules.verifiedAnonymityLinkLabel} ${COPY.rules.b1} ${COPY.rules.b2} ${COPY.rules.b3}`,
+      `${COPY.rules.leadOpen}${COPY.rules.leadVerifiedPhrase} ${COPY.rules.verifiedAnonymityExplainer} ${COPY.rules.verifiedAnonymityLinkLabel} ${COPY.rules.messagingPrivacyExplainer} ${COPY.rules.messagingSecurityLinkLabel} ${COPY.rules.b1} ${COPY.rules.b2} ${COPY.rules.b3}`,
     ),
   },
   {
@@ -198,6 +207,9 @@ export const COPY_CHAR_MANIFEST = {
     verifiedAnonymityExplainer: COPY.rules.verifiedAnonymityExplainer.length,
     verifiedAnonymityLinkLabel: COPY.rules.verifiedAnonymityLinkLabel.length,
     verifiedAnonymityLinkAfter: COPY.rules.verifiedAnonymityLinkAfter.length,
+    messagingPrivacyTriggerLabel: COPY.rules.messagingPrivacyTriggerLabel.length,
+    messagingPrivacyExplainer: COPY.rules.messagingPrivacyExplainer.length,
+    messagingSecurityLinkLabel: COPY.rules.messagingSecurityLinkLabel.length,
     b1: COPY.rules.b1.length,
     b2: COPY.rules.b2.length,
     b3: COPY.rules.b3.length,

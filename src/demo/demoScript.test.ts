@@ -11,7 +11,7 @@ describe('pathsEqual', () => {
   });
 
   it('distinguishes different paths', () => {
-    expect(pathsEqual('/intent?demo=1', '/match?demo=1')).toBe(false);
+    expect(pathsEqual('/find-squad?demo=1', '/match?demo=1')).toBe(false);
   });
 });
 

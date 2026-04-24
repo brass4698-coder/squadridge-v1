@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../hooks';
 import { isSupabaseConfigured, PROFILE_ROLE_VALUES, type ProfileRole } from '../lib';
 
 const MAX_TAGS = 5;
 
-/** One line shown under Role when a value is selected (native `<option>` tooltips are inconsistent). */
-const ROLE_HINT: Partial<Record<ProfileRole, string>> = {
+/** One line per role: select `title` + hint below (native option tooltips vary by browser). */
+const ROLE_HINT: Record<ProfileRole, string> = {
   strategist: 'Plans campaigns and coordinates moves across the problem space.',
   analyst: 'Works with data, OSINT, and structured assessment.',
   policy: 'Law, doctrine, and institutional angles.',
   mediator: 'Facilitation and bridging between perspectives.',
   field: 'On-the-ground operations and lived context.',
+  other: 'Describe your lane in your own words when none of the presets fit.',
 };
 
 function parseTagsList(raw: string): string[] {
@@ -168,7 +170,7 @@ export function ProfileSettingsPage() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12">
+      <div className="mx-auto max-w-copy px-gutter py-12">
         <p className="text-[#8892a4]">Supabase is not configured.</p>
         <Link
           to="/"
@@ -182,7 +184,7 @@ export function ProfileSettingsPage() {
 
   if (authLoading || !session) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
         {authLoading ? 'Loading…' : 'Sign in to edit your profile.'}
       </div>
     );
@@ -190,14 +192,14 @@ export function ProfileSettingsPage() {
 
   if (profileLoading && !profile) {
     return (
-      <div className="mx-auto max-w-copy px-md py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
         Loading profile…
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-[560px] px-md py-12">
+    <div className="relative mx-auto w-full max-w-[560px] px-gutter py-12">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(36vh,22rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.055)_0%,transparent_58%)]"
         aria-hidden
@@ -227,6 +229,10 @@ export function ProfileSettingsPage() {
             </p>
           ) : null}
         </div>
+        <p className="mt-2 max-w-[52ch] font-sans text-[0.9rem] font-medium leading-relaxed text-[#b8c5d3]">
+          This profile is how you&apos;ll appear in rooms; it never includes your real-world
+          identifiers.
+        </p>
         <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-[#c4cdd9]">
           These settings shape how you&apos;re seen in squads and how we route you.
         </p>
@@ -289,7 +295,8 @@ export function ProfileSettingsPage() {
                 id="pf-callsign-hint"
                 className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]"
               >
-                Avoid real names or handles you use elsewhere; pick something memorable.
+                Avoid real names or handles you use elsewhere; pick something memorable (e.g.{' '}
+                <span className="font-mono text-[0.76rem] text-[#94a3b8]">Falcon-23</span>).
               </p>
             </div>
 
@@ -314,8 +321,12 @@ export function ProfileSettingsPage() {
               >
                 <option value="">Select…</option>
                 {PROFILE_ROLE_VALUES.map((r) => (
-                  <option key={r} value={r}>
-                    {r === 'field' ? 'Field practitioner' : r.replace(/_/g, ' ')}
+                  <option key={r} value={r} title={ROLE_HINT[r]}>
+                    {r === 'field'
+                      ? 'Field practitioner'
+                      : r === 'other'
+                        ? 'Other'
+                        : r.replace(/_/g, ' ')}
                   </option>
                 ))}
               </select>
@@ -359,13 +370,45 @@ export function ProfileSettingsPage() {
             ) : null}
 
             <div className="space-y-2">
-              <label htmlFor="pf-tags" className={fieldLabelClass(false)}>
-                Tags
-                <OptionalMark />
-              </label>
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <label htmlFor="pf-tags" className={fieldLabelClass(false)}>
+                  Tags
+                  <OptionalMark />
+                </label>
+                <span
+                  className={`font-mono text-[0.72rem] font-medium tabular-nums ${
+                    tagsTooMany
+                      ? 'text-amber'
+                      : tagsList.length >= MAX_TAGS
+                        ? 'text-teal-light/90'
+                        : 'text-[#64748b]'
+                  }`}
+                  aria-live="polite"
+                >
+                  {tagsList.length} / {MAX_TAGS} tags
+                </span>
+              </div>
               <p className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
-                Comma-separated. Aim for 3–5 tags; we cap at {MAX_TAGS}.
+                Comma-separated. Aim for 3–5 tags; the {MAX_TAGS}-tag cap keeps routing cues
+                scannable.
               </p>
+              {tagsList.length > 0 ? (
+                <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0" aria-label="Parsed tags">
+                  {tagsList.slice(0, MAX_TAGS).map((t) => (
+                    <li
+                      key={t}
+                      className="inline-flex max-w-full truncate rounded-md border border-[#2d3f55]/80 bg-[#0c1018] px-2 py-0.5 font-mono text-[0.68rem] text-[#94a3b8]"
+                    >
+                      {t}
+                    </li>
+                  ))}
+                  {tagsTooMany ? (
+                    <li className="inline-flex items-center rounded-md border border-amber/40 bg-amber/10 px-2 py-0.5 font-sans text-[0.68rem] font-medium text-amber">
+                      +{tagsList.length - MAX_TAGS} over cap
+                    </li>
+                  ) : null}
+                </ul>
+              ) : null}
               <input
                 id="pf-tags"
                 data-demo="profile-tags"
@@ -378,8 +421,15 @@ export function ProfileSettingsPage() {
                     : 'border-[#1a2236] focus-visible:border-[rgba(0,194,178,0.4)]'
                 }`}
                 aria-invalid={tagsTooMany}
-                aria-describedby={tagsTooMany ? 'pf-tags-error' : undefined}
+                aria-describedby={
+                  [tagsTooMany ? 'pf-tags-error' : '', 'pf-tags-count-hint']
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
               />
+              <p id="pf-tags-count-hint" className="sr-only">
+                Up to {MAX_TAGS} separate tags after splitting on commas.
+              </p>
               {tagsTooMany ? (
                 <p id="pf-tags-error" className="font-sans text-[0.8rem] text-amber" role="alert">
                   Use at most {MAX_TAGS} tags.
@@ -402,9 +452,29 @@ export function ProfileSettingsPage() {
               <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#4b5563]">
                 Optional signals for matching — keep them coarse; you can leave any blank.
               </p>
-              <p className="mt-2 max-w-[52ch] font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
-                Used for matching only — not shown to squads.
+              <p className="mt-2 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#5c6570]">
+                <strong className="font-semibold text-[#cbd5e1]">Used for matching only</strong>
+                <span className="text-[#64748b]"> — </span>
+                <span className="text-[#94a3b8]">not shown to squads.</span>
               </p>
+              <details className="group mt-3 rounded-lg border border-[#1e293b]/90 bg-[#070b10]/60 px-3 py-2">
+                <summary className="cursor-pointer list-none font-sans text-[0.78rem] font-medium text-teal-light/90 [&::-webkit-details-marker]:hidden">
+                  <span className="underline decoration-teal/30 underline-offset-2 group-open:decoration-teal/60">
+                    Why we ask for this
+                  </span>
+                </summary>
+                <p className="mt-2 border-t border-[#1e293b]/80 pt-2 font-sans text-[0.78rem] leading-relaxed text-[#64748b]">
+                  Matching needs coarse language, region, and timing hints—we don&apos;t use them to
+                  build a dossier, and squads never see these fields. For technical scope, see{' '}
+                  <Link
+                    to="/security"
+                    className="text-teal-light/90 underline-offset-2 hover:underline"
+                  >
+                    Security boundaries
+                  </Link>
+                  .
+                </p>
+              </details>
             </div>
 
             <div className="space-y-2">
@@ -478,18 +548,27 @@ export function ProfileSettingsPage() {
           </section>
         </form>
 
+        <NextStepHint className="mt-8 border-[#1e2a3a] bg-[#0c1118]/60">
+          <span className="font-medium text-slate-400">Next:</span> When you&apos;re ready to match,
+          use Find squad from the menu. This profile helps route you into the right pool.
+        </NextStepHint>
+
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-md py-3 backdrop-blur-md sm:px-6"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-gutter py-3 backdrop-blur-md sm:px-6"
           style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
         >
           <div className="pointer-events-auto flex w-full max-w-[560px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <p className="min-w-0 font-sans text-[0.8rem] leading-snug">
               {isDirty ? (
-                <span className="font-medium text-amber-200/95">Unsaved changes</span>
+                <span className="font-medium text-amber-200/95">
+                  Unsaved changes — click Save profile to apply.
+                </span>
               ) : ackSaved ? (
-                <span className="text-[#a8b8c9]">All changes saved</span>
+                <span className="text-[#a8b8c9]">All changes saved to your profile.</span>
               ) : (
-                <span className="text-[#64748b]">You&apos;re up to date.</span>
+                <span className="text-[#64748b]">
+                  No unsaved changes (same as last saved profile).
+                </span>
               )}
             </p>
             <button

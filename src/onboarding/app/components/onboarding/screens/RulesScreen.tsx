@@ -19,6 +19,7 @@ export function RulesScreen({ onNext, onBack }: RulesScreenProps) {
   const m = useOnboardingMotion();
   const { draft, setDraft } = useOnboarding();
   const verifiedExplainerId = useId();
+  const messagingExplainerId = useId();
 
   return (
     <motion.div
@@ -67,7 +68,9 @@ export function RulesScreen({ onNext, onBack }: RulesScreenProps) {
               className="mt-3 border-l-2 border-onboarding-accent/35 pl-3 font-sans text-[14px] font-normal leading-relaxed text-white/72 sm:text-[15px]"
             >
               <p className={`mb-0 ${obBodyMuted}`}>{COPY.rules.verifiedAnonymityExplainer}</p>
-              <p className={`mb-0 mt-2 text-[13px] leading-relaxed text-white/60 sm:text-[14px] ${obBodyMuted}`}>
+              <p
+                className={`mb-0 mt-2 text-[13px] leading-relaxed text-white/60 sm:text-[14px] ${obBodyMuted}`}
+              >
                 <Link
                   to="/verify"
                   className="font-medium text-onboarding-accent underline-offset-[3px] hover:underline"
@@ -92,6 +95,38 @@ export function RulesScreen({ onNext, onBack }: RulesScreenProps) {
         <li className="border-l-2 border-onboarding-accent/45 pl-4">{COPY.rules.b3}</li>
       </motion.ul>
 
+      <Collapsible className="mb-6 max-w-full">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            title={COPY.rules.messagingPrivacyTriggerAriaLabel}
+            className="mb-0 border-0 bg-transparent p-0 text-left font-sans text-[14px] font-normal text-white/72 underline decoration-dotted decoration-white/40 underline-offset-[3px] transition-colors hover:decoration-white/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-onboarding-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10] sm:text-[15px]"
+            aria-controls={messagingExplainerId}
+          >
+            {COPY.rules.messagingPrivacyTriggerLabel}
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent asChild>
+          <div
+            id={messagingExplainerId}
+            role="region"
+            className="mt-2 border-l-2 border-onboarding-accent/25 pl-3 font-sans text-[14px] font-normal leading-relaxed text-white/72 sm:text-[15px]"
+          >
+            <p className={`mb-0 ${obBodyMuted}`}>{COPY.rules.messagingPrivacyExplainer}</p>
+            <p
+              className={`mb-0 mt-2 text-[13px] leading-relaxed text-white/60 sm:text-[14px] ${obBodyMuted}`}
+            >
+              <Link
+                to="/security"
+                className="font-medium text-onboarding-accent underline-offset-[3px] hover:underline"
+              >
+                {COPY.rules.messagingSecurityLinkLabel}
+              </Link>
+            </p>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
       <motion.div
         initial={{ opacity: m.reduced ? 1 : 0 }}
         animate={{ opacity: 1 }}
@@ -104,7 +139,10 @@ export function RulesScreen({ onNext, onBack }: RulesScreenProps) {
           onCheckedChange={(v) => setDraft({ rulesAccepted: v === true })}
           className="mt-0.5 border-white/30 data-[state=checked]:border-onboarding-accent data-[state=checked]:bg-onboarding-accent"
         />
-        <Label htmlFor="rules-accept" className="cursor-pointer text-left text-sm font-normal leading-snug text-white/78">
+        <Label
+          htmlFor="rules-accept"
+          className="cursor-pointer text-left text-sm font-normal leading-snug text-white/78"
+        >
           {COPY.rules.checkbox}
         </Label>
       </motion.div>

@@ -19,6 +19,7 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
+import { PitchDeckHubPage } from './pages/PitchDeckHubPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
@@ -38,8 +39,14 @@ const ModDashboardPage = lazy(() =>
 );
 
 const routeChunkFallback = (
-  <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
-    Loading…
+  <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
+  >
+    <span className="sr-only">Loading page content.</span>
+    <span aria-hidden="true">Loading…</span>
   </div>
 );
 
@@ -58,13 +65,7 @@ export default function App() {
                 <Route
                   path="/onboarding"
                   element={
-                    <Suspense
-                      fallback={
-                        <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
-                          Loading…
-                        </div>
-                      }
-                    >
+                    <Suspense fallback={routeChunkFallback}>
                       <OnboardingApp />
                     </Suspense>
                   }
@@ -72,7 +73,8 @@ export default function App() {
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/verify" element={<VerificationPage />} />
-                  <Route path="/intent" element={<IntentPage />} />
+                  <Route path="/find-squad" element={<IntentPage />} />
+                  <Route path="/intent" element={<Navigate to="/find-squad" replace />} />
                   <Route
                     path="/ledger"
                     element={
@@ -90,8 +92,9 @@ export default function App() {
                     }
                   />
                   <Route path="/security" element={<SecurityDisclosurePage />} />
+                  <Route path="/pitch-deck-hub" element={<PitchDeckHubPage />} />
                   <Route path="/match" element={<Match />} />
-                  <Route path="/match-setup" element={<Navigate to="/intent" replace />} />
+                  <Route path="/match-setup" element={<Navigate to="/find-squad" replace />} />
                   <Route
                     path="/admin/health"
                     element={

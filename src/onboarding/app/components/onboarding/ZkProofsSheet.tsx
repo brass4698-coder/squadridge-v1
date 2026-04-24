@@ -19,7 +19,7 @@ export function ZkProofsLearnMore() {
         <span className="min-w-0 flex-1">How zero-knowledge proofs work</span>
         <ChevronDown
           className={cn(
-            'size-3.5 shrink-0 text-white/35 transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-white/50',
+            'size-3.5 shrink-0 text-white/35 transition-[transform,opacity] duration-300 ease-out group-hover:text-white/50',
             open && 'rotate-180',
           )}
           aria-hidden
@@ -34,15 +34,19 @@ export function ZkProofsLearnMore() {
       >
         <div className="border-t border-white/[0.06] pt-4 font-sans text-[14px] leading-relaxed text-white/70 sm:text-[15px]">
           <p>
-            A zero-knowledge proof lets you show that something is true without revealing the underlying data. In this
-            context, you can demonstrate eligibility or attributes the room needs — without exposing raw documents or
-            identity details to the platform or other members.
+            A zero-knowledge proof lets you show that something is true without revealing the
+            underlying data. In this context, you can demonstrate eligibility or attributes the room
+            needs — without exposing raw documents or identity details to the platform or other
+            members.
           </p>
           <p className="mt-4">
-            The system receives a cryptographic commitment: enough to match you with the right squad, not enough to
-            build a dossier or link your proof to your name in a reversible way.
+            The system receives a cryptographic commitment: enough to match you with the right
+            squad, not enough to build a dossier or link your proof to your name in a reversible
+            way.
           </p>
-          <p className="mt-4 text-[13px] text-white/50">This is a simplified explanation; implementation details may vary.</p>
+          <p className="mt-4 text-[13px] text-white/50">
+            This is a simplified explanation; implementation details may vary.
+          </p>
         </div>
       </CollapsibleContent>
     </Collapsible>

@@ -9,7 +9,9 @@ export function AuthIssueBanner() {
 
   if (!supabaseClientInitError && !sessionError) return null;
 
-  const title = supabaseClientInitError ? 'Connection setup failed' : 'Session could not be restored';
+  const title = supabaseClientInitError
+    ? 'Connection setup failed'
+    : 'Session could not be restored';
 
   const body = supabaseClientInitError
     ? 'The app could not start the database client. Check your configuration or reload the page.'
@@ -19,7 +21,7 @@ export function AuthIssueBanner() {
 
   return (
     <div
-      className="border-b border-amber/35 bg-[#1a1408] px-md py-3 font-sans text-[0.875rem] text-[#f5d7a3]"
+      className="border-b border-amber/35 bg-[#1a1408] px-gutter py-3 font-sans text-[0.875rem] text-[#f5d7a3]"
       role="alert"
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">

@@ -173,7 +173,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'intent',
-    path: '/intent?demo=1',
+    path: '/find-squad?demo=1',
     title: 'Intent',
     description: 'Slow intent text — choose perspective in the app.',
     inMainScript: true,

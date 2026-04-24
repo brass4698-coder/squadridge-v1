@@ -75,7 +75,7 @@ export function SessionHubPage() {
   return (
     <section
       key={sessionPathKey}
-      className="session-page-landing relative z-0 mx-auto flex w-full max-w-[640px] flex-col items-center px-md pb-12 pt-[80px] text-center"
+      className="session-page-landing relative z-0 mx-auto flex w-full max-w-[640px] flex-col items-center px-gutter pb-12 pt-[80px] text-center"
       aria-labelledby="session-landing-title"
     >
       {import.meta.env.DEV ? (
@@ -117,7 +117,7 @@ export function SessionHubPage() {
       </ol>
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <Link
-          to="/intent"
+          to="/find-squad"
           className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] rounded-[1.75rem]"
           style={{
             fontWeight: 600,

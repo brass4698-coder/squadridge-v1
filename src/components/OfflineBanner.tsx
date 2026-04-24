@@ -12,7 +12,7 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="sticky top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-b border-[#5c4a1f] bg-[#2a2210] px-md py-2.5 text-center font-sans text-[0.85rem] leading-snug text-[#f5d78e]"
+      className="sticky top-0 z-[60] flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-b border-[#5c4a1f] bg-[#2a2210] px-gutter py-2.5 text-center font-sans text-[0.85rem] leading-snug text-[#f5d78e]"
     >
       <WifiOff className="size-4 shrink-0 opacity-90" aria-hidden />
       <span>

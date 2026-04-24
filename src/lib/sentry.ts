@@ -1,41 +1,64 @@
 import * as Sentry from '@sentry/react';
 import type { ErrorInfo } from 'react';
 
-/** Initialize Sentry before render. Production builds require `VITE_SENTRY_DSN`. */
+let sentryInitialized = false;
+
+/** True only after a successful `Sentry.init` in {@link initSentry}. */
+export function isSentryEnabled(): boolean {
+  return sentryInitialized;
+}
+
+/**
+ * Initialize Sentry before render. Missing DSN, invalid config, or SDK failures are logged;
+ * the app always continues (no throw from this function).
+ */
 export function initSentry(): void {
-  const dsn = import.meta.env.VITE_SENTRY_DSN;
-  if (typeof dsn !== 'string' || dsn.trim().length === 0) {
+  sentryInitialized = false;
+  const dsnRaw = import.meta.env.VITE_SENTRY_DSN;
+  if (typeof dsnRaw !== 'string' || dsnRaw.trim().length === 0) {
     if (import.meta.env.PROD) {
-      throw new Error('VITE_SENTRY_DSN is required in production builds');
+      console.warn(
+        '[Sentry] VITE_SENTRY_DSN is not set; error reporting is disabled in this production build.',
+      );
     }
     return;
   }
 
+  const dsn = dsnRaw.trim();
   const environment =
     typeof import.meta.env.VITE_SENTRY_ENVIRONMENT === 'string' &&
     import.meta.env.VITE_SENTRY_ENVIRONMENT.trim().length > 0
       ? import.meta.env.VITE_SENTRY_ENVIRONMENT.trim()
       : import.meta.env.MODE;
 
-  Sentry.init({
-    dsn: dsn.trim(),
-    environment,
-    integrations: [Sentry.browserTracingIntegration()],
-    tracesSampleRate: import.meta.env.PROD ? 0.15 : 1,
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 0,
-    sendDefaultPii: false,
-    beforeSend(event) {
-      if (import.meta.env.DEV && event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
-        return null;
-      }
-      return event;
-    },
-  });
+  try {
+    Sentry.init({
+      dsn,
+      environment,
+      integrations: [Sentry.browserTracingIntegration()],
+      tracesSampleRate: import.meta.env.PROD ? 0.15 : 1,
+      replaysSessionSampleRate: 0,
+      replaysOnErrorSampleRate: 0,
+      sendDefaultPii: false,
+      beforeSend(event) {
+        if (
+          import.meta.env.DEV &&
+          event.exception?.values?.[0]?.value?.includes('ResizeObserver')
+        ) {
+          return null;
+        }
+        return event;
+      },
+    });
+    sentryInitialized = true;
+  } catch (err) {
+    console.warn('[Sentry] Initialization failed; continuing without error reporting.', err);
+    sentryInitialized = false;
+  }
 }
 
 export function captureRouteNavigation(pathname: string, search: string): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.addBreadcrumb({
     category: 'navigation',
     type: 'navigation',
@@ -54,7 +77,7 @@ export function captureBoundaryError(
     boundary?: 'root' | 'route' | 'session';
   },
 ): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   const tags: Record<string, string> = {};
   if (scope?.squadId) tags.squad_id = scope.squadId;
   if (scope?.boundary) tags.error_boundary = scope.boundary;
@@ -83,12 +106,12 @@ export function captureBoundaryError(
 
 /** Anonymous user id only; no PII. */
 export function setSentryUserContext(userId: string | null): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.setUser(userId ? { id: userId } : null);
 }
 
 export function setSentrySquadContext(squadId: string | null): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.setTag('squad_id', squadId ?? 'none');
   if (squadId) {
     Sentry.setContext('squad', { id: squadId });
@@ -99,7 +122,7 @@ export function captureAppError(
   error: unknown,
   context: { feature: string; extra?: Record<string, unknown> },
 ): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   const err =
     error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error');
   Sentry.captureException(err, {
@@ -110,7 +133,7 @@ export function captureAppError(
 
 /** Breadcrumb for realtime / connectivity (no message bodies). */
 export function addConnectionBreadcrumb(message: string, data?: Record<string, unknown>): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.addBreadcrumb({
     category: 'connection',
     level: 'info',
@@ -124,7 +147,7 @@ export function addSessionLifecycleBreadcrumb(
   phase: 'enter' | 'leave' | 'archive' | 'pause' | 'resume',
   data?: { squadId?: string },
 ): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.addBreadcrumb({
     category: 'session',
     level: 'info',
@@ -138,7 +161,7 @@ export function addAuthTransitionBreadcrumb(
   event: string,
   data?: { userId?: string | null },
 ): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.addBreadcrumb({
     category: 'auth',
     level: 'info',
@@ -153,7 +176,7 @@ export function addZkProofBreadcrumb(
   status: 'start' | 'success' | 'error',
   data?: Record<string, unknown>,
 ): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return;
+  if (!sentryInitialized) return;
   Sentry.addBreadcrumb({
     category: 'zk',
     level: status === 'error' ? 'warning' : 'info',

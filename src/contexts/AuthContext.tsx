@@ -84,12 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const session = supabase ? (sessionQuery.data ?? null) : null;
   const loading = supabase ? sessionQuery.isPending : false;
   const user = session?.user ?? null;
-  const sessionError =
-    sessionQuery.error instanceof Error
-      ? sessionQuery.error
-      : sessionQuery.error
-        ? new Error(String(sessionQuery.error))
-        : null;
+  const sessionError = useMemo((): Error | null => {
+    const err = sessionQuery.error;
+    if (!err) return null;
+    if (err instanceof Error) return err;
+    return new Error(String(err));
+  }, [sessionQuery.error]);
 
   useEffect(() => {
     setSentryUserContext(session?.user?.id ?? null);

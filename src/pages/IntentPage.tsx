@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import {
   captureAppError,
@@ -149,7 +150,7 @@ export function IntentPage() {
     const demoPath = isDemoSquadShortcutsEnabled();
     return (
       <section
-        className="mx-auto w-full max-w-copy px-md py-12"
+        className="mx-auto w-full max-w-copy px-gutter py-12"
         aria-labelledby="intent-unconfigured"
       >
         <h1 id="intent-unconfigured" className="font-heading text-fluid-h2 text-gray-light">
@@ -157,8 +158,8 @@ export function IntentPage() {
         </h1>
         <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
           {demoPath
-            ? 'Supabase isn’t configured in this environment, so live matching and rooms are disabled. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
-            : 'Configure Supabase to use the squad room. See the home page for setup steps.'}
+            ? 'Live matching isn’t available in this environment, so real queues and rooms are off. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
+            : 'Configure the backend to use the squad room. See the home page for setup steps.'}
         </p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           {demoPath ? (
@@ -196,7 +197,7 @@ export function IntentPage() {
 
   return (
     <section
-      className="intent-page-root mx-auto flex w-full max-w-[640px] flex-col px-md pb-16 pt-[100px] md:pt-[120px]"
+      className="intent-page-root mx-auto flex w-full max-w-[640px] flex-col px-gutter pb-16 pt-[100px] md:pt-[120px]"
       aria-labelledby="intent-heading"
     >
       <header className="flex flex-col gap-4">
@@ -220,13 +221,16 @@ export function IntentPage() {
             className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] leading-snug text-[#8892a4]"
             id="intent-privacy-row"
           >
-            <span className="inline-flex items-center gap-1.5 text-[#94a3b8]">
+            <span
+              className="inline-flex items-center gap-1.5 text-[#94a3b8]"
+              title="Your intention helps us match you with the right group; facilitators may see it for routing."
+            >
               <Lock className="size-3.5 shrink-0 text-teal/90" aria-hidden />
-              <span>This stays private</span>
+              <span>Used only for routing</span>
             </span>
             <span
               className="inline-flex items-center rounded border border-teal/35 bg-teal/[0.08] px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal-light"
-              title="Intent is minimized for routing; verified attributes use ZK where enabled."
+              title="Your identity stays private; verification uses zero-knowledge proofs where the stack is live."
             >
               ZK-ready
             </span>
@@ -271,10 +275,8 @@ export function IntentPage() {
                   aria-pressed={on}
                   data-active={on ? 'true' : 'false'}
                   onClick={() => toggleTag(tag)}
-                  className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
-                    on
-                      ? 'border-teal bg-teal/[0.12] text-[#e2e8f0]'
-                      : 'border-[#2d3f55] bg-transparent text-[#a8b2c1]'
+                  className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-ring ${
+                    on ? 'text-[#e2e8f0]' : 'border border-[#2d3f55] bg-transparent text-[#a8b2c1]'
                   }`}
                 >
                   {tag}
@@ -290,7 +292,8 @@ export function IntentPage() {
           </legend>
           <p className="mb-4 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
             We need people on both sides in the room at once. “A” and “B” are neutral labels — use
-            them to self-sort into two groups (not “good vs bad”).
+            them to self-sort into two groups (not “good vs bad”). E.g., “more regulation” vs “less
+            regulation” — both perspectives matter.
           </p>
           <div className="intent-perspective-track max-w-md" role="group" aria-label="Perspective">
             {(
@@ -330,6 +333,12 @@ export function IntentPage() {
           </button>
         </div>
 
+        <NextStepHint className="mt-6 w-full max-w-md self-center">
+          <span className="font-medium text-slate-400">Next:</span> You’ll join the match screen
+          with a live queue position. When we have enough people on both perspectives, we open the
+          room and take you there automatically.
+        </NextStepHint>
+
         <button
           type="button"
           onClick={handleSkip}
@@ -337,6 +346,14 @@ export function IntentPage() {
         >
           Session hub only (skip matching)
         </button>
+        <p className="self-center max-w-[520px] text-center font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+          Account verification helps match you with vetted peers — optional if you want open
+          dialogue first. You can verify from the match screen or the{' '}
+          <Link to="/verify" className="text-teal-light/90 underline-offset-2 hover:underline">
+            Verify
+          </Link>{' '}
+          page.
+        </p>
 
         {error ? (
           <div

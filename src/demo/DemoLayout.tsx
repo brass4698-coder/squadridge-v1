@@ -50,7 +50,7 @@ export function DemoLayout({ children }: Props) {
     <>
       {showDemoChrome ? (
         <div
-          className="relative z-[5] border-b border-amber/25 bg-amber/10 px-md py-2.5 text-center"
+          className="relative z-[5] border-b border-amber/25 bg-amber/10 px-gutter py-2.5 text-center"
           role="status"
         >
           <p className="font-sans text-[0.8rem] leading-snug text-amber/95 md:text-[0.85rem]">
@@ -62,7 +62,7 @@ export function DemoLayout({ children }: Props) {
       {showDemoChrome ? (
         <>
           <DemoOverlay steps={currentStep?.overlaySteps} layoutKey={currentStepIndex} />
-          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-navy-light/60 bg-[#070b12]/95 px-md py-3 backdrop-blur-md">
+          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-navy-light/60 bg-[#070b12]/95 px-gutter py-3 backdrop-blur-md">
             <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-400">
                 {currentStepIndex >= 0 && currentStepTitle ? (

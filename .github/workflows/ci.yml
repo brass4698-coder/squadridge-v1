@@ -42,3 +42,16 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
           # Explicit: production must not ship ZK stub (vite.config.ts also enforces).
           VITE_ZK_STUB: 'false'
+
+  # Applies all migrations to a local Supabase stack so broken SQL is caught on every PR.
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v2
+
+      - name: Start local stack and apply migrations
+        run: |
+          supabase start
+          supabase db reset

@@ -47,7 +47,14 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   const currentStepTitle = currentStep?.title ?? null;
 
-  const showDemoChrome = demoActive && currentStepIndex >= 0;
+  /** Keep landing/ledger/security polished: show guided chrome on those paths only when `?demo=1` is in the URL. */
+  const marketingPublicPath =
+    location.pathname === '/' ||
+    location.pathname.startsWith('/ledger') ||
+    location.pathname.startsWith('/security');
+
+  const showDemoChrome =
+    demoActive && currentStepIndex >= 0 && !(marketingPublicPath && !demoQuery);
 
   const onboardingDemoTour =
     location.pathname === '/onboarding' && searchParams.get('demo') === '1';
@@ -102,7 +109,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
   useEffect(() => {
     if (!demoActive || !currentStep) return;
     emitDemoPageView(currentStep.id);
-  }, [demoActive, currentStep?.id]);
+  }, [demoActive, currentStep]);
 
   useEffect(() => {
     cancelAutoActions();

@@ -44,11 +44,11 @@ export default {
           ink: '#f1f5f9',
           border: '#2d3748',
         },
-        /** Semantic text roles (onboarding, session, landing) */
+        /** Semantic text — four clear levels (primary → muted) */
         ink: {
           DEFAULT: '#f1f5f9',
-          secondary: '#94a3b8',
-          muted: '#64748b',
+          secondary: '#a8b2c1',
+          muted: '#6b7280',
           subtle: '#475569',
         },
         /** shadcn tokens (scoped under `.dark.onboarding-page-root` in onboarding.css) */
@@ -102,12 +102,13 @@ export default {
       },
       fontSize: {
         // Fluid typography using clamp() for modern scaling
-        'fluid-h1': 'clamp(2rem, 5vw, 3rem)',
+        'fluid-h1': 'clamp(2.75rem, 4vw, 3.75rem)',
         'fluid-h2': [
-          'clamp(1.5rem, 4vw, 2.5rem)',
+          'clamp(1.75rem, 3vw, 2.25rem)',
           { lineHeight: '1.25', letterSpacing: '-0.015em' },
         ],
-        'fluid-h3': 'clamp(1.25rem, 3vw, 2rem)',
+        'fluid-h3': 'clamp(1.2rem, 2vw, 1.5rem)',
+        'fluid-h4': 'clamp(1rem, 1.5vw, 1.125rem)',
         'fluid-body': 'clamp(1rem, 1.5vw, 1.125rem)',
         'fluid-small': 'clamp(0.875rem, 1vw, 1rem)',
         /** Landing hero display (~56–64px desktop), tight line height */
@@ -147,10 +148,16 @@ export default {
         '2xl': '3rem',
         /** ~72px between major landing sections */
         section: '4.5rem',
+        /** ~48px — tight blocks (sub-sections) */
+        'section-sm': '3rem',
+        /** ~96px — major vertical breaks */
+        'section-lg': '6rem',
         /** ~40px heading → body */
         'heading-body': '2.5rem',
         /** ~24px body → CTAs */
         'body-cta': '1.5rem',
+        /** Horizontal page gutter: scales 16px → 32px by viewport */
+        gutter: 'clamp(1rem, 5vw, 2rem)',
       },
       maxWidth: {
         /** ~640px reading column */
@@ -202,6 +209,10 @@ export default {
         'security-pulse': 'security-pulse 2.4s ease-in-out infinite',
         'security-breathe': 'security-breathe 3s ease-in-out infinite',
         'session-scan': 'session-scan 1.05s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        /** Ambient UI pulses — prefer these over ad-hoc durations */
+        'pulse-ambient': 'security-pulse 2.4s ease-in-out infinite',
+        'pulse-ambient-slow': 'security-pulse 3.2s ease-in-out infinite',
+        'pulse-ambient-fast': 'security-pulse 1.6s ease-in-out infinite',
       },
       transitionDuration: {
         progress: '220ms',

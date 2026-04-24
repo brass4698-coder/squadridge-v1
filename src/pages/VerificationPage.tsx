@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import {
   isSupabaseConfigured,
@@ -51,9 +52,9 @@ export function VerificationPage() {
   if (!configured || !supabase) {
     return (
       <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-        <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+        <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
           <p className="font-sans text-body-lg font-normal text-ink-secondary">
-            Supabase is not configured. Add your project keys to{' '}
+            Live verification isn’t available in this environment. Add your project keys to{' '}
             <code className="text-teal-light/90">.env</code> and deploy the{' '}
             <code className="text-teal-light/90">verify-zk-proof</code> Edge Function to enable this
             step.
@@ -75,7 +76,7 @@ export function VerificationPage() {
         className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(42vh,28rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.065)_0%,transparent_58%)]"
         aria-hidden="true"
       />
-      <div className="relative z-[1] mx-auto w-full max-w-copy px-md py-10">
+      <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
         <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
           Verification
         </p>
@@ -93,6 +94,10 @@ export function VerificationPage() {
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
           Standalone page for tests and returning users. The cryptography is the same as in the main
           product flow; this route is optional if you already completed verification elsewhere.
+        </p>
+        <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-secondary">
+          Verification helps us match you with vetted peers when you use squad matching — optional
+          for open dialogue.
         </p>
         <p className="mb-0 mt-4 max-w-copy font-sans text-body-lg font-normal text-ink-secondary">
           This step never asks for documents, email, or phone. Your session stays pseudonymous: the
@@ -120,12 +125,16 @@ export function VerificationPage() {
                 Your verification is recorded for this session. Next, you&apos;ll set your intent so
                 we can match you into the right room.
               </p>
+              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
+                <span className="font-medium text-slate-400">Next:</span> Open Find squad, choose a
+                perspective, and start matching. Your verified role can improve pool routing.
+              </NextStepHint>
               <button
                 type="button"
                 className={onboardingDoneCtaClass}
-                onClick={() => navigate('/intent')}
+                onClick={() => navigate('/find-squad')}
               >
-                Continue to intent
+                Continue to Find squad
               </button>
             </div>
           ) : (
@@ -135,6 +144,11 @@ export function VerificationPage() {
                   {error}
                 </p>
               ) : null}
+
+              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
+                <span className="font-medium text-slate-400">Next:</span> After verification, use
+                Find squad to enter matchmaking. You can return here anytime this session.
+              </NextStepHint>
 
               <p className="mb-0 font-sans text-onboarding-body text-ink-muted">
                 This button generates a Semaphore proof in your browser and sends it to the{' '}

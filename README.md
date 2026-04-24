@@ -75,7 +75,14 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 
 ## Documentation
 
-Specs and runbooks: [`docs/`](docs/). Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md). Accelerator and pitch notes: [`docs/pitch/`](docs/pitch/).
+- Current status snapshot: [`CURRENT_STATUS.md`](CURRENT_STATUS.md)
+- Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)
+- Specs and runbooks: [`docs/`](docs/)
+- Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md)
+- Pilot operations: [`docs/operations/pilot-runbook.md`](docs/operations/pilot-runbook.md)
+- Incident handling: [`docs/operations/incidents.md`](docs/operations/incidents.md)
+- Metrics definition: [`docs/product/metrics-spec.md`](docs/product/metrics-spec.md)
+- Partner and fundraising support: [`docs/business/pilot-partner-one-pager.md`](docs/business/pilot-partner-one-pager.md), [`docs/business/data-room-index.md`](docs/business/data-room-index.md), [`docs/pitch/`](docs/pitch/)
 
 ## License
 

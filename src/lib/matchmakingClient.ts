@@ -41,8 +41,7 @@ function parseSnapshot(data: unknown): MatchmakingSnapshot | null {
       side,
       waiting_a: typeof o.waiting_a === 'number' ? o.waiting_a : Number(o.waiting_a) || 0,
       waiting_b: typeof o.waiting_b === 'number' ? o.waiting_b : Number(o.waiting_b) || 0,
-      queue_position:
-        typeof o.queue_position === 'number' ? o.queue_position : Number(o.queue_position) || 1,
+      queue_position: Number(o.queue_position) || 1,
     };
   }
   return null;

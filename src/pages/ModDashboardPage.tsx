@@ -159,7 +159,7 @@ export function ModDashboardPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const squads = squadsQuery.data ?? [];
+  const squads = useMemo(() => squadsQuery.data ?? [], [squadsQuery.data]);
   const audits = auditQuery.data ?? [];
   const filteredSquads = useMemo(() => {
     const t = squadFilter.trim().toLowerCase();

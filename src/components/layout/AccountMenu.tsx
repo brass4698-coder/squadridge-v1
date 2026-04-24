@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks';
 import { isSupabaseConfigured } from '../../lib';
@@ -10,10 +10,14 @@ export type AccountMenuProps = {
 };
 
 export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
+  const { pathname } = useLocation();
   const { session, loading: authLoading, signOut } = useAuth();
   const { profile } = useProfile();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  /** Marketing and public document routes: neutral account chrome (no callsign / demo personas in the bar). */
+  const neutralAccountChrome =
+    pathname === '/' || pathname.startsWith('/ledger') || pathname.startsWith('/security');
 
   useEffect(() => {
     if (!open) return;
@@ -47,11 +51,12 @@ export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
     );
   }
 
-  const label =
-    menuTriggerLabel?.trim() ||
-    profile?.callsign?.trim() ||
-    session.user?.email?.split('@')[0] ||
-    'Operator';
+  const label = neutralAccountChrome
+    ? 'Account'
+    : menuTriggerLabel?.trim() ||
+      profile?.callsign?.trim() ||
+      session.user?.email?.split('@')[0] ||
+      'Operator';
 
   return (
     <div ref={rootRef} className="relative flex items-center">

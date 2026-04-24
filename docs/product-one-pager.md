@@ -1,4 +1,4 @@
-# Squadridge — how to explain it
+/# Squadridge — how to explain it
 
 This page is the default **spoken and written** spine for describing Squadridge. Public copy and pitches must not promise stronger privacy than [Operational threat model](security/threat-model.md) §5 (“Claims that hold today”).
 
