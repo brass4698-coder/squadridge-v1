@@ -2,6 +2,9 @@ import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../lib';
 
+/** Binds the host timer so subscribe callbacks still use macrotasks when tests stub `globalThis.setTimeout`. */
+const realSetTimeout = globalThis.setTimeout.bind(globalThis);
+
 export type MessageRow = Database['public']['Tables']['messages']['Row'];
 
 /** Oldest-first (matches SQL `ORDER BY sent_at ASC, id ASC`). */
@@ -146,7 +149,8 @@ export function createSupabaseMessagesStub(options: {
             subscribeCallCount += 1;
             const call = subscribeCallCount;
             // Macrotask (not queueMicrotask) so hook retry `setTimeout` delays can run between status deliveries.
-            setTimeout(() => {
+            // Use `realSetTimeout` so this stays on the host timer if the test stubs `globalThis.setTimeout`.
+            realSetTimeout(() => {
               const seq = options.subscribeStatusSequence;
               const status =
                 seq && seq.length > 0

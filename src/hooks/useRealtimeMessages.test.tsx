@@ -355,14 +355,23 @@ describe('useRealtimeMessages', () => {
     });
 
     try {
-      // Hook retries use setTimeout; this test forces 0ms delays. Pump macrotasks explicitly — waitFor
-      // does not drain the timer queue between polls.
-      for (let i = 0; i < 500; i++) {
+      // Pump macrotasks until fatal state (status + copy), not only non-empty `realtime-error`.
+      let sawFatal = false;
+      for (let i = 0; i < 2000; i++) {
         await act(async () => {
           await new Promise<void>((r) => origSetTimeout(r, 0));
         });
-        if (screen.getByTestId('realtime-error').textContent) break;
+        const msg = screen.getByTestId('realtime-error').textContent ?? '';
+        const status = screen.getByTestId('realtime-status').textContent;
+        if (
+          (status === 'connection_error' || status === 'offline') &&
+          /Connection error|Offline/.test(msg)
+        ) {
+          sawFatal = true;
+          break;
+        }
       }
+      expect(sawFatal).toBe(true);
 
       const fatalMsg = screen.getByTestId('realtime-error').textContent ?? '';
       expect(fatalMsg).toMatch(/Connection error|Offline/);
@@ -373,7 +382,7 @@ describe('useRealtimeMessages', () => {
         fireEvent.click(screen.getByTestId('retry-realtime'));
       });
 
-      for (let i = 0; i < 200; i++) {
+      for (let i = 0; i < 400; i++) {
         await act(async () => {
           await new Promise<void>((r) => origSetTimeout(r, 0));
         });
