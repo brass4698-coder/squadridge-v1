@@ -19,7 +19,7 @@ Use before tagging a release or pointing a production domain at the app.
 ## Smoke tests
 
 - [ ] Sign-in / anonymous fallback paths work for your policy.
-- [ ] Session room loads messages; ledger index lists published rows after [`ledger_proposals`](../../supabase/migrations/20260416183000_ledger_proposals.sql) migration.
+- [ ] Session room loads messages; ledger index lists published rows after [`ledger_proposals`](../../supabase/migrations/20260417120500_ledger_proposals.sql) migration.
 - [ ] For **ZK verification demos or recordings** (Semaphore + `verify-zk-proof`, not the hash stub): follow [`zk-demo-staging-checklist.md`](zk-demo-staging-checklist.md) and optionally [`zk-verify-demo-script.md`](zk-verify-demo-script.md).
 
 ## Ops
