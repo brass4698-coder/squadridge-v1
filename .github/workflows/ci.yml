@@ -28,6 +28,11 @@ jobs:
 
       - name: Test
         run: npm test
+        env:
+          # Placeholder values so the Supabase client can be initialized during tests.
+          # Tests that need a real client use in-test stubs/mocks; these only satisfy module-load validation.
+          VITE_SUPABASE_URL: https://placeholder-test.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
 
       - name: Production build
         run: npm run build
