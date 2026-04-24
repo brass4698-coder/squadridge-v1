@@ -145,7 +145,8 @@ export function createSupabaseMessagesStub(options: {
           if (typeof cb === 'function') {
             subscribeCallCount += 1;
             const call = subscribeCallCount;
-            queueMicrotask(() => {
+            // Macrotask (not queueMicrotask) so hook retry `setTimeout` delays can run between status deliveries.
+            setTimeout(() => {
               const seq = options.subscribeStatusSequence;
               const status =
                 seq && seq.length > 0
@@ -155,7 +156,7 @@ export function createSupabaseMessagesStub(options: {
                     ? options.firstSubscribeStatus
                     : REALTIME_SUBSCRIBE_STATES.SUBSCRIBED;
               cb(status);
-            });
+            }, 0);
           }
           return ch;
         },
