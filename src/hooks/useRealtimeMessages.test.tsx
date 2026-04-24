@@ -342,11 +342,9 @@ describe('useRealtimeMessages', () => {
       subscribeStatusSequence: seq,
     });
 
-    renderRetryHarnessWithCachedWindow(stub, 'squad-1', [initialRow]);
-
-    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
-    expect(screen.getByTestId('count').textContent).toBe('1');
-
+    // Install the stub before render so the hook's first retry setTimeout (1000 ms) is
+    // captured and collapsed during the initial subscribe, which fires as a microtask
+    // inside React's act() during render — before the stub would otherwise be installed.
     vi.stubGlobal('setTimeout', (fn: TimerHandler, delay?: number, ...args: unknown[]) => {
       const ms = typeof delay === 'number' ? delay : 0;
       // Match `BASE_DELAY_MS` (1000) from the hook — collapse realtime backoffs only, keep 400ms catch-up.
@@ -355,6 +353,11 @@ describe('useRealtimeMessages', () => {
     });
 
     try {
+      renderRetryHarnessWithCachedWindow(stub, 'squad-1', [initialRow]);
+
+      await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+      expect(screen.getByTestId('count').textContent).toBe('1');
+
       // Hook retries use setTimeout; this test forces 0ms delays. Pump macrotasks explicitly — waitFor
       // does not drain the timer queue between polls.
       for (let i = 0; i < 500; i++) {
