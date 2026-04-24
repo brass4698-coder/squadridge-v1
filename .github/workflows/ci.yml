@@ -1,4 +1,4 @@
-# Frontend: typecheck, tests, production build (catches VITE_ZK_STUB in production — see vite.config.ts)
+# Frontend: typecheck, tests, production build (catches VITE_ZK_STUB in production — see vite.config.ts), Playwright e2e
 
 name: CI
 
@@ -37,6 +37,32 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
           # Explicit: production must not ship ZK stub (vite.config.ts also enforces).
           VITE_ZK_STUB: 'false'
+
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      # Same placeholders as Production build — Playwright webServer runs `npm run build`.
+      VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+      VITE_ZK_STUB: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E
+        run: npx playwright test
+        env:
+          CI: true
 
   # Applies all migrations to a local Supabase stack so broken SQL is caught on every PR.
   db:
