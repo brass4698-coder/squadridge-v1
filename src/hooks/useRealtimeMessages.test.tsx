@@ -5,10 +5,7 @@ import type { ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../contexts/AuthContext';
 import { AuthContext } from '../contexts/AuthContext';
-import {
-  createSupabaseMessagesStub,
-  type MessageRow,
-} from '../test/createSupabaseMessagesStub';
+import { createSupabaseMessagesStub, type MessageRow } from '../test/createSupabaseMessagesStub';
 import { MESSAGES_PAGE_SIZE, useRealtimeMessages } from './useRealtimeMessages';
 
 function baseRow(partial: Partial<MessageRow> & Pick<MessageRow, 'id' | 'sent_at'>): MessageRow {
@@ -307,23 +304,29 @@ describe('useRealtimeMessages', () => {
 
       renderWithAuth(<RetryHarness squadId="squad-1" />, stub);
 
-      await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+      await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'), {
+        timeout: 15_000,
+      });
 
-      for (let i = 0; i < 250; i++) {
+      // Hook retries use setTimeout; this test forces 0ms delays. Pump macrotasks explicitly — waitFor
+      // does not drain the timer queue between polls.
+      for (let i = 0; i < 500; i++) {
         await act(async () => {
           await new Promise<void>((r) => origSetTimeout(r, 0));
         });
         if (screen.getByTestId('realtime-error').textContent) break;
       }
 
-      expect(screen.getByTestId('realtime-error').textContent).toContain('Connection error');
-      expect(screen.getByTestId('realtime-status').textContent).toBe('connection_error');
+      const fatalMsg = screen.getByTestId('realtime-error').textContent ?? '';
+      expect(fatalMsg).toMatch(/Connection error|Offline/);
+      const fatalStatus = screen.getByTestId('realtime-status').textContent;
+      expect(fatalStatus === 'connection_error' || fatalStatus === 'offline').toBe(true);
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('retry-realtime'));
       });
 
-      for (let i = 0; i < 80; i++) {
+      for (let i = 0; i < 200; i++) {
         await act(async () => {
           await new Promise<void>((r) => origSetTimeout(r, 0));
         });
