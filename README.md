@@ -1,6 +1,12 @@
 # SquadRidge
 
-Verified-anonymous cross-border dialogue platform: React, Vite, TypeScript, Tailwind, and **Supabase** (PostgreSQL + RLS, Auth, Realtime, Edge Functions). Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
+**Stop conflicts before they start.**
+
+SquadRidge is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
+
+**Built on React + Vite + TypeScript + Tailwind + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).**
+
+Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
 
 ## Prerequisites
 
