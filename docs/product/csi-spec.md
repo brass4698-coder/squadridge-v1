@@ -37,7 +37,9 @@ A Conflict Severity Index would give **vetted program partners** a structured vi
 
 ## Engineering touchpoints (when scoped)
 
-- [`../../src/lib/ai/pipeline.ts`](../../src/lib/ai/pipeline.ts) — optional persistence paths.  
+- [`../../src/lib/ai/pipeline.ts`](../../src/lib/ai/pipeline.ts) — optional feature inputs for CSI.  
+- [`../../src/lib/csiSnapshotPayload.ts`](../../src/lib/csiSnapshotPayload.ts) — map `computeConflictSeverityIndex` output to a `conflict_severity_snapshots` insert payload (service-role writers).  
+- [`../../src/lib/csiQueries.ts`](../../src/lib/csiQueries.ts) — moderator read queries for `/admin/csi`.  
 - Admin / moderator UIs — triage, not public feeds.  
 - [`../business/impact-metrics.md`](../business/impact-metrics.md) — outcome definitions.
 

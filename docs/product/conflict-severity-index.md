@@ -113,6 +113,18 @@ flowchart LR
   - **Regional rollups** for `conflict_severity_snapshots`: **5–15 minutes** for high-attention programs, **1 hour** for broader monitoring—tunable.  
 - **Storage:** `conflict_severity_snapshots` holds rollups; `escalation_alerts` stores squad-level (or program-level) triggers for mediators.
 
+## Engineering touchpoints (ingestion placement)
+
+Choose **one** primary place for regional rollups; all use the **service role** to `INSERT` / `UPDATE` CSI tables (never the browser anon key).
+
+| Option | When to use | Notes |
+| ------ | ----------- | ----- |
+| **Supabase Edge Function** + scheduler (e.g. dashboard cron or `pg_cron` calling HTTP) | Logic in TypeScript next to [`../../src/lib/conflictSeverityIndex.ts`](../../src/lib/conflictSeverityIndex.ts), easy to unit test | Keep secrets in project settings; rate-limit and log outcomes only. |
+| **`pg_cron` + SQL/Rust extension** | Heavy SQL-native rollups, minimal JS | Harder to reuse `computeConflictSeverityIndex`; duplicate math carefully or call a small HTTP worker. |
+| **External worker** (queue, Cloud Run, etc.) | Existing batch infra, multi-tenant egress | Use service role URL + key from a secret store; same RLS constraints. |
+
+**Persisting scores:** After feature extraction, call `computeConflictSeverityIndex`, then map the result to table columns and JSON using [`../../src/lib/csiSnapshotPayload.ts`](../../src/lib/csiSnapshotPayload.ts) (`conflictSeveritySnapshotInsertFromResult`) so `component_scores` carries the **trace** and **meta** for moderator audit. **Read path (moderator session):** [`../../src/lib/csiQueries.ts`](../../src/lib/csiQueries.ts) from `/admin/csi`.
+
 ## Regional aggregation
 
 - **`region_key`:** A stable string agreed with partners (e.g. `iso:UA-XX:volunteer:2026-Q2` or a coarse conflict-zone label). **Not** a raw user address.  
