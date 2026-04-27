@@ -10,6 +10,7 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 ## Product
 
+- CSI draft (not shipped): [`../product/csi-spec.md`](../product/csi-spec.md)
 - Product overview: [`../product/product-overview.md`](../product/product-overview.md)
 - Feature specifications: [`../product/feature-specifications.md`](../product/feature-specifications.md)
 - User journeys: [`../product/user-journeys.md`](../product/user-journeys.md)
@@ -31,6 +32,7 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 ## Business And Partnerships
 
+- Strategic positioning (roadmap; vision vs shipped): [`./strategic-positioning-early-warning.md`](./strategic-positioning-early-warning.md)
 - Pilot partner one-pager: [`./pilot-partner-one-pager.md`](./pilot-partner-one-pager.md)
 - Go-to-market: [`./go-to-market.md`](./go-to-market.md)
 - Impact metrics: [`./impact-metrics.md`](./impact-metrics.md)

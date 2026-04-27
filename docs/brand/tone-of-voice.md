@@ -4,6 +4,10 @@
 
 The SquadRidge tone of voice is designed to foster trust, de-escalate tension, and prioritize structured dialogue over public broadcasting [1]. Our communication must reflect the gravity of our mission—to enable verified-anonymous, cross-border dialogue—while remaining accessible and human-centric [1].
 
+## Positioning: vision vs shipped product
+
+External messaging may include a **prevention-minded** line (e.g. tensions rising, structured contact) **only** when paired with **pilot scope**, **facilitator-led** framing, and a clear link to security boundaries. Do not use **alarmist** or **prediction** language (“imminent violence,” “global early warning”) in product UI unless capability and evidence match. Strategy and roadmap narratives belong in [`../business/strategic-positioning-early-warning.md`](../business/strategic-positioning-early-warning.md); the live product story stays aligned with [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md).
+
 ## Core Principles
 
 ### 1. Calm and Measured

@@ -11,6 +11,17 @@ This folder is the **canonical** home for product, technical, security, and oper
 | User journeys | [product/user-journeys.md](product/user-journeys.md) |
 | Feature specifications | [product/feature-specifications.md](product/feature-specifications.md) |
 | Metrics | [product/metrics-spec.md](product/metrics-spec.md) |
+| CSI (draft, not shipped) | [product/csi-spec.md](product/csi-spec.md) |
+
+## Business & fundraising
+
+| Topic | Document |
+| ----- | -------- |
+| Strategic positioning (early warning / prevention narrative) | [business/strategic-positioning-early-warning.md](business/strategic-positioning-early-warning.md) |
+| Go-to-market | [business/go-to-market.md](business/go-to-market.md) |
+| Partnership strategy | [business/partnership-strategy.md](business/partnership-strategy.md) |
+| Pilot one-pager | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md) |
+| Impact metrics | [business/impact-metrics.md](business/impact-metrics.md) |
 
 ## Technical
 

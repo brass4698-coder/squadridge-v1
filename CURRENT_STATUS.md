@@ -35,6 +35,12 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Claims that AI de-escalation effectiveness or peace impact have already been validated in the field
 - Any high-risk deployment that has not passed a dedicated security review and operational readiness check
 
+## Strategic narrative (roadmap)
+
+Long-term **prevention / early-signal** positioning and partner archetypes live in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not a product spec.
+
+**Not shipped** until explicitly listed under “Shipped Now” above: Conflict Severity Index (CSI), mediator alert dashboards, automated “rapid response” squads, public CSI API feeds, and quantitative “lives saved” claims at scale. A **draft** CSI outline is in [`docs/product/csi-spec.md`](docs/product/csi-spec.md) for future engineering and privacy review.
+
 ## Roadmap Priorities
 
 1. Pilot operations: facilitator tooling, runbooks, incident handling, cohort support
@@ -77,6 +83,7 @@ Before any real pilot, confirm:
 ## Key Documents
 
 - Repo setup and shipping notes: [`README.md`](./README.md)
+- Strategic positioning (roadmap narrative): [`docs/business/strategic-positioning-early-warning.md`](./docs/business/strategic-positioning-early-warning.md)
 - Security source of truth: [`docs/security/threat-model.md`](./docs/security/threat-model.md)
 - Architecture summary: [`docs/technical/architecture-overview.md`](./docs/technical/architecture-overview.md)
 - Production checklist: [`docs/operations/production-checklist.md`](./docs/operations/production-checklist.md)

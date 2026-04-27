@@ -1,5 +1,9 @@
 # Go-To-Market Strategy
 
+## Strategic narrative (long-term category)
+
+For **fundraising and senior briefings**, the long-term category can be framed as **timely, structured cross-line contact** and **prevention-minded** programs—without implying shipped global early-warning. See [`strategic-positioning-early-warning.md`](strategic-positioning-early-warning.md) (vision vs what is real today per [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md)). Near-term GTM remains **institution-led, bounded pilots**.
+
 ## Overview
 
 SquadRidge enters the market to address a critical gap in the peace-tech ecosystem: the lack of a purpose-built, secure platform for cross-border citizen peacebuilding [3]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), our Go-To-Market (GTM) strategy focuses on establishing trust with key institutional partners while rapidly onboarding grassroots users in targeted conflict zones [1].

@@ -145,6 +145,11 @@ export function LandingPage() {
                 </h1>
               </div>
 
+              <p className="landing-hero-animate-sub mt-5 max-w-[60ch] font-sans text-[1rem] font-medium leading-[1.65] text-landing-body">
+                Built for moments when tensions rise—when structured, cross-line contact can still
+                shape outcomes, with facilitators in the lead.
+              </p>
+
               <p className="landing-hero-animate-sub mt-7 max-w-[58ch] font-sans text-[1.04rem] font-medium leading-[1.75] text-gray-light">
                 SquadRidge helps facilitators verify who belongs in the room, form small trusted
                 cohorts, and produce citable outcomes without exposing participant identity.

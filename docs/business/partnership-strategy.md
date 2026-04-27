@@ -1,5 +1,11 @@
 # Partnership Strategy
 
+## Outreach targets vs active integrations
+
+Tiered lists below include **archetypes and targets for conversation**. They are **not** recorded integrations unless separately documented (e.g. in a signed pilot or MOU). For bounded external language, see [`strategic-positioning-early-warning.md`](strategic-positioning-early-warning.md) and [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md).
+
+**Additional strategic archetypes** (same caveat — outreach only): UN regional mediation support and early-warning communities; protection-focused field actors; conflict-analysis organizations; academic labs for methodology validation. Treat any **data feed or API** partnership as **future** until listed under “Shipped” in current status.
+
 ## Overview
 
 SquadRidge's success depends on building a robust ecosystem of institutional partners, civil society organizations, and technology providers. Our strategy is designed to integrate our verified-anonymous cross-border dialogue platform into existing peacebuilding frameworks while addressing the critical "warning-response" gap [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), we aim to provide secure digital infrastructure at scale [1].
