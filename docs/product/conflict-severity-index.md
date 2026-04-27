@@ -1,6 +1,6 @@
 # Conflict Severity Index (CSI) — methodology and data design
 
-**Status:** Design / pilot path — not a shipped end-user product surface until listed in [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md). Aligns with the short **draft** pointer in [`csi-spec.md`](csi-spec.md) and the privacy and governance rules in [`../security/threat-model.md`](../security/threat-model.md).
+**Status:** Design / pilot path — **Postgres + RLS** and the **moderator-only** app route `/admin/csi` are in-repo; a public or partner-facing CSI product surface is not shipped until listed in [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md). Aligns with [`csi-spec.md`](csi-spec.md) and [`../security/threat-model.md`](../security/threat-model.md).
 
 ## Definition
 
@@ -122,6 +122,13 @@ flowchart LR
 ## Mediator/moderator access and RLS
 
 - Runtime access for humans uses the existing **`moderators`** roster: see migration `20260427120000_conflict_severity_index.sql`. **Service role** (Edge Functions, cron) writes snapshots/alerts; **mediators** (moderators) **read** via RLS. **No** public or anon access.
+
+## Ingestion and internal console
+
+- **Writers:** Only **service role** (or Supabase SQL as ops)—batch jobs that compute regional rollups from allowed features and insert into `conflict_severity_snapshots` / `escalation_alerts`. Browsers with the anon/publishable key **cannot** insert (no policy for `authenticated` insert).
+- **Typical pipeline:** (1) Feature extraction in a **trusted** worker (decrypt or use pre-aggregated `sentiment_metrics` / facilitator tags). (2) Call [`computeConflictSeverityIndex`](../../src/lib/conflictSeverityIndex.ts) with `CsiSignalInputs`. (3) Persist the composite score, per-component columns, and JSON trace in `component_scores`. (4) On threshold crossings, write `escalation_alerts` for moderator triage.
+- **Human UI:** Authenticated **moderators** can read the same data via the internal **`/admin/csi`** route in the app (no public CSI map until explicitly productized and reviewed).
+- **Local dev sample rows:** `supabase/seed.sql` (runs on `supabase db reset`) inserts illustrative squad, snapshot, and alert rows. For a **remote** project, run the same SQL in the Supabase SQL Editor (postgres role) if you need non-empty tables without Docker. Rows stay invisible in the app until your user is in `public.moderators`.
 
 ## Reference implementation
 

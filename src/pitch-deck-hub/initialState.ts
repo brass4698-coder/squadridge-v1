@@ -180,6 +180,32 @@ export const INITIAL_DECKS: PitchDeck[] = [
     ],
   },
   {
+    id: 'conflict-prevention-thesis',
+    name: 'Conflict Prevention Thesis',
+    audience: 'policy_government',
+    narrativeEmphasis:
+      'Institutional: detection/intervention/measurement pillars, honest shipped-vs-roadmap split, less financial density than investor decks.',
+    purpose:
+      'UN-adjacent and peacebuilding partners: early-warning posture, Conflict Severity Index as methodology (not a shipped public feed), rapid triage, and evidence discipline.',
+    status: 'draft',
+    lastUpdatedISO: new Date().toISOString(),
+    confidence: 'assumption_based',
+    slideCount: 10,
+    owner: 'Founder',
+    sectionsOutline: [
+      'Title: conflict prevention infrastructure',
+      'Problem: escalation and coordination under pressure',
+      'Three pillars: detect · intervene · measure',
+      'What ships today vs roadmap (CSI, rapid response)',
+      'Trust, threat model, operator visibility',
+      'Pilot and partner operating model',
+      'Evidence and evaluation (input required)',
+      'Deployment and governance constraints',
+      'Ask: co-design pilots + validation',
+      'Appendix: technical + security pointers',
+    ],
+  },
+  {
     id: 'market-competition',
     name: 'Market + Competition',
     audience: 'investors',

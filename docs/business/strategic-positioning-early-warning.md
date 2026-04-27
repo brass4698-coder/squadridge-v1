@@ -37,11 +37,11 @@ These elements are compatible with a **prevention-minded** narrative *if* copy s
 - Emphasize **moments when tensions rise** and **mediated structure** rather than generic connection.
 - Pair every bold sentence with **pilot scope**, **facilitator role**, and a pointer to the **security disclosure**.
 
-### Pillar 2 — Conflict Severity Index (CSI) — **roadmap concept**
+### Pillar 2 — Conflict Severity Index (CSI) — **roadmap concept** (with **partial** shipped plumbing)
 
-A **future** Conflict Severity Index would synthesize *allowed, ethically governed* signals (e.g. de-identified dialogue-derived metrics where enabled, facilitator inputs, and external data partners) into a **regional or program-level** view for vetted partners.
+A **full** partner-facing Conflict Severity Index would synthesize *allowed, ethically governed* signals (e.g. de-identified dialogue-derived metrics where enabled, facilitator inputs, and external data partners) into a **regional or program-level** view for vetted partners.
 
-**Not shipped.** Specification and privacy review live in [`../product/csi-spec.md`](../product/csi-spec.md) (draft). No public dashboard or API is implied until explicitly listed under “Shipped” in `CURRENT_STATUS.md`.
+**Shipped in MVP form (not a public or institutional product line yet):** Postgres tables, RLS, and an internal **moderator-only** console at `/admin/csi` for rostered staff — see [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md). **Not shipped:** public maps or APIs, broad automated ingestion, partner export, and any claim that CSI is a validated early-warning system at scale. Specification and privacy review: [`../product/csi-spec.md`](../product/csi-spec.md), [`../product/conflict-severity-index.md`](../product/conflict-severity-index.md) (draft methodology).
 
 ### Pillar 3 — Peace rapid response — **roadmap concept**
 

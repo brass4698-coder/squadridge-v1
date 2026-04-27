@@ -6,6 +6,11 @@ test.describe('critical path smoke', () => {
     await expect(page).toHaveTitle(/SquadRidge/i);
   });
 
+  test('admin CSI requires sign-in (no anonymous moderator UI)', async ({ page }) => {
+    await page.goto('/admin/csi');
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
   test('/dev/supabase is not a public route', async ({ page }) => {
     await page.goto('/dev/supabase');
     await expect(page).toHaveURL((url) => url.pathname === '/');

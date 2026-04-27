@@ -19,6 +19,7 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - CI workflows for lint, test, build, frontend deploy artifact creation, and Supabase deploys
 - Threat model and security/architecture documentation that explicitly describe current limits
 - Demo and walkthrough flows for investor and partner conversations
+- **Conflict Severity Index (CSI):** database tables and RLS (`conflict_severity_snapshots`, `escalation_alerts`); mediator-facing read UI at `/admin/csi` for authenticated users in the `moderators` roster. Automated ingestion, calibration, and any public or partner API surfaces are still roadmap work—see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md) and [`docs/product/csi-spec.md`](./docs/product/csi-spec.md).
 
 ## Pilot-Ready With Care
 
@@ -39,7 +40,7 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 
 Long-term **prevention / early-signal** positioning and partner archetypes live in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not a product spec.
 
-**Not shipped** until explicitly listed under “Shipped Now” above: Conflict Severity Index (CSI), mediator alert dashboards, automated “rapid response” squads, public CSI API feeds, and quantitative “lives saved” claims at scale. A **draft** CSI outline is in [`docs/product/csi-spec.md`](docs/product/csi-spec.md) for future engineering and privacy review.
+**Not shipped** as a full product line until explicitly called out here: **automated** CSI ingestion at scale, public CSI maps or feeds, and quantitative “lives saved” claims. Mediator read surfaces and **draft** methodology remain scoped to pilot operations. Specs: [`docs/product/csi-spec.md`](docs/product/csi-spec.md), [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md).
 
 ## Roadmap Priorities
 

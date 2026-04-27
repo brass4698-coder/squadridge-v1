@@ -47,18 +47,18 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
 const HOW_IT_WORKS_STEPS = [
   {
     number: '01',
-    heading: 'Verify access without exposing identity',
-    body: 'SquadRidge confirms that a participant belongs in the room without requiring their name, location, or documents to be exposed inside the conversation surface.',
+    heading: 'Detect and scope tension (pilot by pilot)',
+    body: 'Program-scoped signals and facilitator context help teams know when a cohort is heating up. A Conflict Severity-style composite is a design target under governance—not a public, omniscient feed in the current release.',
   },
   {
     number: '02',
-    heading: 'Form a small cohort that is ready to work',
-    body: 'Participants are matched by role, stakes, region, or shared constraints so the room starts with relevance, balance, and a clearer basis for trust.',
+    heading: 'Intervene with verified, facilitator-led squads',
+    body: 'Participants are matched into small rooms with clear rules; activation speed depends on your program, not a guaranteed global response time.',
   },
   {
     number: '03',
-    heading: 'Leave with an outcome, not just a transcript',
-    body: 'When a group reaches consensus, facilitators can publish a public, timestamped proposal that others can cite, review, or build on without revealing participant identities.',
+    heading: 'Measure with discipline',
+    body: 'Pre-registered metrics, citable public proposals where enabled, and partner-aligned evaluation—so claims stay honest as pilots grow.',
   },
 ] as const;
 
@@ -92,7 +92,11 @@ function HowItWorksSecurityGhostLink() {
   );
 }
 
-const TRUST_PILLS = ['Verified entry', 'Small guided cohorts', 'Public citable outputs'] as const;
+const TRUST_PILLS = [
+  'Verify · intervene · measure',
+  'Facilitator-led',
+  'Security disclosure at /security',
+] as const;
 
 export function LandingPage() {
   const configured = isSupabaseConfigured();
@@ -119,7 +123,7 @@ export function LandingPage() {
             <div className="relative z-[1] max-w-[60rem]">
               <div className="relative z-[2] flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8">
                 <p className="mb-0 inline-flex max-w-[min(100%,42rem)] rounded-full border border-white/20 bg-[#0f1624] px-4 py-2.5 font-heading text-[0.8rem] font-semibold leading-snug tracking-[0.02em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:text-[0.82rem]">
-                  Pilot-ready for facilitator-led cohorts and investor walkthroughs.
+                  Stop escalation before it hardens—pilot-by-pilot, facilitator-led, evidence-aware.
                 </p>
                 <Link
                   to={`/ledger/${DEMO_PROPOSAL_ID}`}
@@ -139,24 +143,26 @@ export function LandingPage() {
                 </div>
                 <h1
                   id="hero-heading"
-                  className="landing-hero-animate-headline relative z-[1] mt-6 mb-0 max-w-[22ch] font-heading text-display-hero font-extrabold leading-[1.02] tracking-[-0.03em] text-landing-ink"
+                  className="landing-hero-animate-headline relative z-[1] mt-6 mb-0 max-w-[min(100%,22ch)] font-heading text-display-hero font-extrabold leading-[1.02] tracking-[-0.03em] text-landing-ink"
                 >
-                  Private, facilitator-led dialogue for groups that cannot safely meet in public.
+                  Stop conflicts before they start.
                 </h1>
               </div>
 
               <p className="landing-hero-animate-sub mt-5 max-w-[60ch] font-sans text-[1rem] font-medium leading-[1.65] text-landing-body">
-                Built for moments when tensions rise—when structured, cross-line contact can still
-                shape outcomes, with facilitators in the lead.
+                Early-warning posture for rising tension: verified participants from opposite sides
+                of a conflict line, in structured dialogue with facilitators in the lead—not generic
+                social chat, not a claim of live global monitoring.
               </p>
 
               <p className="landing-hero-animate-sub mt-7 max-w-[58ch] font-sans text-[1.04rem] font-medium leading-[1.75] text-gray-light">
-                SquadRidge helps facilitators verify who belongs in the room, form small trusted
-                cohorts, and produce citable outcomes without exposing participant identity.
+                SquadRidge helps teams verify who belongs in the room, form small trusted cohorts,
+                and work toward citable outcomes—while being explicit that message confidentiality
+                today is operator-readable per the security model.
               </p>
               <p className="landing-hero-animate-sub mt-4 max-w-[60ch] font-sans text-body-lg font-normal leading-[1.75] text-landing-body">
-                Built for facilitators, peacebuilders, cross-border operators, and partner teams
-                running sensitive, high-trust conversations.
+                For facilitators, peacebuilders, and partner programs running sensitive, high-trust
+                conversations with bounded pilots and clear limits.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">

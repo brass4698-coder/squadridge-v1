@@ -10,6 +10,9 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 ## Product
 
+- Conflict Severity Index (methodology; internal moderator reads): [`../product/conflict-severity-index.md`](../product/conflict-severity-index.md)
+- Messaging framework (all deck audiences): [`./messaging-framework.md`](./messaging-framework.md)
+- Conflict prevention thesis (strategic, cross-links): [`./conflict-prevention-thesis.md`](./conflict-prevention-thesis.md)
 - CSI draft (not shipped): [`../product/csi-spec.md`](../product/csi-spec.md)
 - Product overview: [`../product/product-overview.md`](../product/product-overview.md)
 - Feature specifications: [`../product/feature-specifications.md`](../product/feature-specifications.md)
@@ -26,12 +29,18 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 ## Operations
 
 - Production checklist: [`../operations/production-checklist.md`](../operations/production-checklist.md)
+- Launch checklist (positioning): [`../operations/launch-checklist.md`](../operations/launch-checklist.md)
+- Evidence collection (pilots): [`../operations/evidence-collection.md`](../operations/evidence-collection.md)
+- Prevented-incident methodology (hypothesis): [`../operations/prevented-incident-methodology.md`](../operations/prevented-incident-methodology.md)
 - Incident response: [`../operations/incidents.md`](../operations/incidents.md)
 - Pilot runbook: [`../operations/pilot-runbook.md`](../operations/pilot-runbook.md)
 - Data retention guidance: [`../operations/data-retention-operators.md`](../operations/data-retention-operators.md)
+- Internal app: moderator CSI view at `/admin/csi` (rostered users only; not a public product surface)
 
 ## Business And Partnerships
 
+- Partner integration (aspirational): [`./partner-integration-guide.md`](./partner-integration-guide.md)
+- Impact reporting (template): [`./impact-reporting-template.md`](./impact-reporting-template.md)
 - Strategic positioning (roadmap; vision vs shipped): [`./strategic-positioning-early-warning.md`](./strategic-positioning-early-warning.md)
 - Pilot partner one-pager: [`./pilot-partner-one-pager.md`](./pilot-partner-one-pager.md)
 - Go-to-market: [`./go-to-market.md`](./go-to-market.md)

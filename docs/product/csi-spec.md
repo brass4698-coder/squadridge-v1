@@ -1,10 +1,12 @@
 # Conflict Severity Index (CSI) — draft specification
 
-**Status:** Draft / **not implemented** in the product. Do not treat this file as a shipped API or dashboard contract. Align any future build with [`../security/threat-model.md`](../security/threat-model.md) and [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md).
+**Status:** Draft spec for methodology and governance. **Partially in product today:** regional snapshot and escalation **tables** with **RLS**, a **reference calculator** in TypeScript, and a **moderator-only** read UI at `/admin/csi` (rostered in `public.moderators`) — see [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and [`conflict-severity-index.md`](conflict-severity-index.md). **Not** a public API, partner export, or automated ingestion pipeline until explicitly listed in `CURRENT_STATUS` and covered here.
+
+Do not treat this file as a contract for a full partner dashboard or public CSI feed. Align any future build with [`../security/threat-model.md`](../security/threat-model.md).
 
 **Full methodology, bands, data sources, and SQL:** [`conflict-severity-index.md`](conflict-severity-index.md) (and [`../../src/lib/conflictSeverityIndex.ts`](../../src/lib/conflictSeverityIndex.ts) for the reference calculator).
 
-## Purpose (future)
+## Purpose (fully scoped product — future)
 
 A Conflict Severity Index would give **vetted program partners** a structured view of **escalation-relevant signals** derived only from data the organization has chosen to collect and is allowed to process under its agreements and law. It is **not** omniscient “global early warning” and must not be marketed as such until governance and evidence standards are met.
 
@@ -26,11 +28,12 @@ A Conflict Severity Index would give **vetted program partners** a structured vi
 
 *Table is illustrative only; inclusion in the product requires a versioned spec and legal review.*
 
-## Product surfaces (future)
+## Product surfaces
 
-- Partner-facing dashboard (authenticated, RLS-scoped).  
-- Alerting to designated roles only; audit log of who saw what.  
-- Optional export API for partner systems — **no commitment** until documented in [`../technical/api-design.md`](../technical/api-design.md) or Edge Function specs.
+- **In repo today (moderator / ops):** read-only view of `conflict_severity_snapshots` and `escalation_alerts` at `/admin/csi` for users in the moderators roster; data written by **service role** (batch/cron) only.  
+- **Future:** Partner-facing dashboard (authenticated, RLS-scoped to partner orgs if added).  
+- **Future:** Alerting to designated roles only; audit log of who saw what.  
+- **Future:** Optional export API for partner systems — **no commitment** until documented in [`../technical/api-design.md`](../technical/api-design.md) or Edge Function specs.
 
 ## Engineering touchpoints (when scoped)
 

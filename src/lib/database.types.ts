@@ -16,7 +16,6 @@ export type MatchQueueSide = 'A' | 'B';
 export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
 /** Mirrors ledger_proposals_status_check. */
 export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
-
 export interface Database {
   public: {
     Tables: {
@@ -317,6 +316,95 @@ export interface Database {
         };
         Update: Partial<Database['public']['Tables']['ledger_proposals']['Insert']>;
         Relationships: [];
+      };
+      conflict_severity_snapshots: {
+        Row: {
+          id: string;
+          region_key: string;
+          period_start: string;
+          period_end: string;
+          snapshot_at: string;
+          csi_score: number;
+          severity_band: 'green' | 'yellow' | 'red';
+          sentiment_signal: number;
+          grievance_signal: number;
+          resource_signal: number;
+          ingroup_outgroup_signal: number;
+          escalation_velocity_signal: number;
+          violence_normalization_signal: number;
+          component_scores: Json;
+          top_grievances: Json;
+          squad_count: number;
+          message_count: number;
+          detected_escalation: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          region_key: string;
+          period_start: string;
+          period_end: string;
+          snapshot_at?: string;
+          csi_score: number;
+          severity_band: 'green' | 'yellow' | 'red';
+          sentiment_signal: number;
+          grievance_signal: number;
+          resource_signal: number;
+          ingroup_outgroup_signal: number;
+          escalation_velocity_signal: number;
+          violence_normalization_signal: number;
+          component_scores?: Json;
+          top_grievances?: Json;
+          squad_count?: number;
+          message_count?: number;
+          detected_escalation?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['conflict_severity_snapshots']['Insert']>;
+        Relationships: [];
+      };
+      escalation_alerts: {
+        Row: {
+          id: string;
+          squad_id: string;
+          region_key: string | null;
+          csi_score: number | null;
+          severity_level: 'green' | 'yellow' | 'red';
+          triggered_at: string;
+          recommended_action: string;
+          source_snapshot_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          squad_id: string;
+          region_key?: string | null;
+          csi_score?: number | null;
+          severity_level: 'green' | 'yellow' | 'red';
+          triggered_at?: string;
+          recommended_action?: string;
+          source_snapshot_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['escalation_alerts']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'escalation_alerts_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'escalation_alerts_source_snapshot_id_fkey';
+            columns: ['source_snapshot_id'];
+            isOneToOne: false;
+            referencedRelation: 'conflict_severity_snapshots';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: Record<string, never>;

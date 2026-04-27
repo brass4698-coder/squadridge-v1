@@ -34,6 +34,11 @@ export function AdminLayout() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/admin/csi" className={itemClass}>
+              CSI
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/admin/logs" className={itemClass}>
               Audit log
             </NavLink>

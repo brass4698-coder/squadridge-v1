@@ -32,6 +32,7 @@ import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
 import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
+import { AdminCsiPage } from './pages/admin/AdminCsiPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -141,6 +142,7 @@ export default function App() {
                     <Route path="logs" element={<AdminLogsPage />} />
                     <Route path="demo" element={<AdminDemoPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
+                    <Route path="csi" element={<AdminCsiPage />} />
                     <Route index element={<Navigate to="rooms" replace />} />
                   </Route>
                   <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
