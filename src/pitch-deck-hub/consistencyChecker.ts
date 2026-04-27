@@ -87,6 +87,53 @@ export function runConsistencyCheck(state: PitchDeckHubState): ConsistencyIssue[
     });
   }
 
+  // Trust model should disclose operator visibility (aligns with /security, threat model)
+  const trustNorm = normalize(m.trustModel);
+  if (trustNorm.length > 0 && !trustNorm.includes('operator')) {
+    issues.push({
+      severity: 'warning',
+      code: 'trust_operator_disclosure',
+      message:
+        'Trust model should mention operator visibility (e.g. operator-readable content) per the security disclosure.',
+      hint: 'Do not describe the current release as server-blind E2EE; cite /security.',
+    });
+  }
+
+  // Impact pillar: "lives saved" needs explicit defensibility (caveat, discipline, or “not a claim of…”)
+  const impactN = m.impactMeasurement.toLowerCase();
+  if (
+    impactN.includes('lives saved') &&
+    !/\bcaveat\b|not a claim|discipline|goal\b|hypothesis|pre-register|roadmap target/i.test(
+      m.impactMeasurement,
+    )
+  ) {
+    issues.push({
+      severity: 'warning',
+      code: 'impact_lives_saved_scope',
+      message:
+        '“Lives saved” in impact messaging should be paired with defensibility (pilot, pre-registration, or goal—not implied realized validation).',
+      hint: 'Add caveat language or point to pre-registered metrics / third-party plan.',
+    });
+  }
+
+  // Common overclaim substrings in short hero text (one-line, not the banned-phrase list itself)
+  const heroBlob = `${m.masterPositioning} ${m.oneLine}`.toLowerCase();
+  const overclaimPhrases = [
+    'proven peace impact at scale',
+    'operator-proof encryption',
+    'full anonymity',
+  ] as const;
+  for (const phrase of overclaimPhrases) {
+    if (heroBlob.includes(phrase)) {
+      issues.push({
+        severity: 'warning',
+        code: 'hero_overclaim_pattern',
+        message: `Hero messaging may echo a restricted phrase (“${phrase}”).`,
+        hint: 'Remove or reframe per banned phrases and evidence boundaries.',
+      });
+    }
+  }
+
   // ZK / AI overclaim hints in messaging (product uses verification — do not claim unscoped AI)
   const hype = ['revolution', 'disrupt', 'world-class', 'game-changing'];
   const blob = `${m.masterPositioning} ${m.oneLine}`.toLowerCase();

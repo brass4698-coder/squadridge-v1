@@ -62,11 +62,15 @@ function viewDeckHrefForId(deckId: string): string {
 
 const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
   masterPositioning: 'Master positioning',
+  conflictPreventionThesis: 'Conflict prevention thesis (shipped vs roadmap)',
   oneLine: 'One line',
   threeLine: 'Three lines',
   mission: 'Mission',
   problemStatement: 'Problem statement',
   solutionStatement: 'Solution statement',
+  detectionMechanism: 'Pillar: Detection',
+  interventionProtocol: 'Pillar: Intervention',
+  impactMeasurement: 'Pillar: Impact & measurement',
   whyNow: 'Why now',
   trustModel: 'Trust model',
   coreDifferentiators: 'Core differentiators',
@@ -436,13 +440,14 @@ export function PitchDeckHubPage() {
           Pitch Deck Hub
         </h1>
         <p className="mt-5 max-w-copy font-sans text-body-lg text-[#94a3b8]">
-          Verified-anonymous strategy rooms, facilitator-led operations, and ledger-grade outputs —
-          managed with institutional tone and defensible data boundaries. When a figure is unknown,
-          label it. Never upgrade a claim beyond what the product and sources support.{' '}
+          Conflict prevention and early-warning narrative—grounded in verified squads,
+          facilitator-led de-escalation, and honest security boundaries. When a figure is unknown,
+          label it. Separate shipped product from pilot and roadmap, and never upgrade a claim
+          beyond what sources and CURRENT_STATUS support.{' '}
           <span className="text-[#a8b2c1]">
-            Every variant shares the same design system — colors, typography, spacing, components,
-            and brand lockup — while content density, narrative angle, and slide emphasis shift by
-            audience.
+            Every deck variant shares the same design system — colors, typography, spacing,
+            components, and brand lockup — while content density, narrative angle, and slide
+            emphasis shift by audience.
           </span>
         </p>
 

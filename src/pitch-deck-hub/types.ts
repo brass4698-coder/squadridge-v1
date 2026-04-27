@@ -35,11 +35,15 @@ export interface PitchDeck {
 
 export interface MessagingLayer {
   masterPositioning: string;
+  conflictPreventionThesis: string;
   oneLine: string;
   threeLine: string;
   mission: string;
   problemStatement: string;
   solutionStatement: string;
+  detectionMechanism: string;
+  interventionProtocol: string;
+  impactMeasurement: string;
   whyNow: string;
   trustModel: string;
   coreDifferentiators: string;

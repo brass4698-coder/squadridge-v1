@@ -382,29 +382,37 @@ export const INITIAL_DECKS: PitchDeck[] = [
 
 export const INITIAL_MESSAGING = {
   masterPositioning:
-    'SquadRidge is a verified-anonymous platform for small-group, facilitator-led strategy rooms — structured dialogue, proposal flows, and ledger-grade outputs for sensitive cross-border contexts.',
+    'SquadRidge detects and prevents violence by listening to communities across conflict lines in real time. When tensions escalate, we activate rapid de-escalation to intervene before violence becomes inevitable.',
+  conflictPreventionThesis:
+    'Strategic direction: infrastructure for timely, structured contact and de-escalation across conflict lines—not generic social connection. Shipped today: verified access, small squads, facilitator-led session surfaces, moderation, and ledger-style public outcomes where appropriate. Not yet product-complete: population-scale “real-time” listening, automated Conflict Severity Index (CSI) dashboards, or guaranteed sub-hour rapid response—those are pilot design and roadmap under explicit methodology and privacy review. External copy must pair bold lines with cohort scope and the security disclosure.',
   oneLine:
-    'Verified-anonymous strategy rooms for sensitive, facilitator-led dialogue — with citable room outputs.',
+    'Conflict prevention and early-warning posture: verified squads and facilitator-led de-escalation when tensions rise—bounded pilots, honest security limits.',
   threeLine:
-    'In constrained group settings, verified pseudonymous accounts anchor trust without real-name identity in the room. Facilitator-led cohorts use structured dialogue, Match routing, and ledger-style outputs suitable for briefings — with explicit security boundaries in the current release.',
+    'SquadRidge aims to spot escalation early and move groups into structured, verified-anonymous dialogue before violence hardens—built on small squads, facilitator discipline, and citable outputs. Today’s product delivers verification, matching, rooms, moderation, and accountability surfaces; broader listening networks, CSI-style signal products, and rapid-response SLOs are targets for partners to define with us—not implied as global live infrastructure without evidence.',
   mission:
-    'Reduce escalatory misunderstanding in constrained dialogue settings by combining verification discipline, clear anonymity boundaries, and durable records where appropriate.',
+    'Make timely, trustworthy de-escalation the default when communities face rising tension: conflict prevention is the highest-ROI investment in peace at the margin—delivered first through institution-led pilots with clear ethics, metrics, and operator-visible boundaries where the current release requires them.',
   problemStatement:
-    'Sensitive coordination often fails when identity is either fully public (unsafe) or fully unverified (not credible). Cross-border and pre-conflict settings need bounded trust, structured facilitation, and outputs stakeholders can cite without exposing participants.',
+    'When tensions spike across lines, the gap is not “more chat”—it is trusted, fast-enough structure before threats become kinetic. Unverified rooms lack credibility; fully public identity is unsafe. Escalation often wins by default when there is no accountable, human-governed path to a bounded, timely conversation.',
   solutionStatement:
-    'Strategy rooms pair verification discipline with pseudonymity in-session, facilitator-led structure, and LedgerPage-style artifacts so groups can converge on testable proposals and documented outcomes.',
+    'Verified pseudonymous access, small squads, facilitator-led sessions, and durable outcomes (including ledger-style public proposals) so cohorts can de-escalate with a record institutions can use—scoped explicitly to what we ship, with roadmap concepts labeled as such.',
+  detectionMechanism:
+    'Pillar — Detection: We detect when conflict is about to turn violent by listening to grassroots voices across conflict lines. Caveat (defensible): at pilot scale this means structured intake, cohort patterns, and facilitator context—not unqualified claims of real-time, jurisdiction-wide open-web listening. A future Conflict Severity Index and broader signal fusion are roadmap; see docs/product/csi-spec.md (draft) and do not present as live product.',
+  interventionProtocol:
+    'Pillar — Intervention: When we detect escalation, we trigger rapid de-escalation dialogue within hours. Caveat: “within hours” is a pilot/response-design target with facilitators, not a guaranteed global SLA. Shipped: structured room flows, matching, and facilitation hooks—activation speed depends on program design and human availability.',
+  impactMeasurement:
+    'Pillar — Measurement: We measure lives saved with third-party validation. Caveat: that sentence describes our evaluation discipline and goal, not a claim of realized, audited “lives saved at scale” today. We pre-register cohort metrics where possible, separate pilot evidence from production assertions, and require arm’s-length review before strong causal claims—see docs/business/impact-metrics.md for approach.',
   whyNow:
-    'Geopolitical and civic stress tests are increasing demand for small-group dialogue infrastructure that is technically serious and operationally sober — not consumer chat rebranded as “peace tech.”',
+    'Cross-border and civic stress is rising; institutions need both prevention-minded posture and product realism—structured contact at the right moment, with transparent limits, not hype about omniscient early warning or operator-proof encryption.',
   trustModel:
-    'Participants use verified pseudonymous accounts; message payloads are encrypted for storage; squad-level keys gate content in-product. Operator visibility matches the current disclosure — do not describe as server-blind E2EE unless/until implemented.',
+    'Participants use verified pseudonymous accounts; message payloads are encrypted for storage; squad-level keys gate content in-product. Current message confidentiality is operator-readable for safety and policy reasons—this is not Signal-grade, server-blind E2EE. Describe exactly as in /security and the threat model; do not use “operator-proof” or “full anonymity” for the dialogue surface.',
   coreDifferentiators:
-    'Facilitator-led strategy rooms (not broadcast social); proposal and ledger outputs; Match/intent flows; explicit security posture vs roadmap; peacebuilding-adjacent framing without hype.',
+    'Not broadcast social or generic DMs. Facilitator-governed squads; cross-line relevance; citable outcomes. Conflict prevention is the highest-ROI investment in peace when dollars target escalation windows rather than only post-crisis spend. Differentiation is in governance, verification discipline, and evidence hygiene—not in claiming a shipped global early-warning network or CSI as live infrastructure.',
   proofPoints:
-    'Product surfaces to reference honestly: Match flow, DemoSessionPage, LedgerPage sample output (`/ledger` demo proposal where enabled), Security disclosure at `/security`. Do not imply pilots, revenue, or certifications not on record.',
+    'Honest references: product flows (e.g. Match, session, ledger where enabled), Security disclosure at /security, CURRENT_STATUS.md for shipped vs not shipped. For pilots: name only what is on record. Roadmap: CSI, rapid response, and broad listening—design and partner alignment, not current delivery until listed under “Shipped” in CURRENT_STATUS.md.',
   toneRules:
-    'Institutional, calm, precise. Separate “shipping today” from “roadmap.” Prefer “scenario model” over implied actuals. Name limits (ZK path, E2EE) exactly as implemented.',
+    'Calm, institutional, precise. Every slide: say what is shipped, pilot-bounded, or roadmap/scenario. Never upgrade roadmap to production fact. Cite security limits when discussing confidentiality. Prefer pre-registered metrics and “hypothesis, not claim” for impact. Pair strategic ambition with explicit cohort scope and ethics.',
   bannedPhrases:
-    'Avoid: revolutionizing, game-changing, world-class (unqualified), disrupting, AI-powered (unless the specific subsystem is shown), best-in-class without evidence. Avoid invented pilot logos, user counts, or ARR.',
+    'Avoid empty hype: revolutionizing, game-changing, world-class (unqualified), disrupting, AI-powered (unless the specific subsystem is shown), best-in-class without evidence, invented pilot logos, user counts, or ARR. Overclaim / accuracy bans (aligned with CURRENT_STATUS.md): "full anonymity," "operator-proof encryption" or "server-blind E2EE" as a description of the current release, "proven peace impact at scale," unqualified "global early-warning" or "CSI" as shipped, "lives saved" with implied validation without a cited methodology, "real time" for population-scale community listening as if live today, Signal-grade or comparable implied against the current operator-readable model. Do not assert lives saved, detection at scale, or sub-hour response as realized outcomes without third-party or pre-registered study language.',
 };
 
 export const INITIAL_EVIDENCE: EvidenceItem[] = [
