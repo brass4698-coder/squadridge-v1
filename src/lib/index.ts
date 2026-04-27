@@ -3,6 +3,7 @@ export * from './appErrors';
 export * from './appLayoutPadding';
 export * from './authUrls';
 export * from './cn';
+export * from './conflictSeverityIndex';
 export * from './connectionDebugLog';
 export * from './database.types';
 export * from './demoSession';

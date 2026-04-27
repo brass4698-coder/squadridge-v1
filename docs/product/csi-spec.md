@@ -2,6 +2,8 @@
 
 **Status:** Draft / **not implemented** in the product. Do not treat this file as a shipped API or dashboard contract. Align any future build with [`../security/threat-model.md`](../security/threat-model.md) and [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md).
 
+**Full methodology, bands, data sources, and SQL:** [`conflict-severity-index.md`](conflict-severity-index.md) (and [`../../src/lib/conflictSeverityIndex.ts`](../../src/lib/conflictSeverityIndex.ts) for the reference calculator).
+
 ## Purpose (future)
 
 A Conflict Severity Index would give **vetted program partners** a structured view of **escalation-relevant signals** derived only from data the organization has chosen to collect and is allowed to process under its agreements and law. It is **not** omniscient “global early warning” and must not be marketed as such until governance and evidence standards are met.
