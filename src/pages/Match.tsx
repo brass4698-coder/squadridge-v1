@@ -17,7 +17,7 @@ import {
   setLastSquadIdInStorage,
   type MatchmakingSnapshot,
 } from '../lib';
-import { DEMO_WALKTHROUGH_STORAGE_KEY } from '../demo/demoScript';
+import { readSessionIntent } from '../lib/intentStorage';
 
 /** Fallback poll while waiting: faster before Realtime connects; slower once subscribed (Realtime drives updates). */
 const POLL_MS_BEFORE_REALTIME = 4000;
@@ -30,10 +30,12 @@ type Gate =
   | 'loading'
   | 'no_pool'
   | 'waiting'
-  /** `/match?demo=1` — offline story beat before `DemoSessionPage`. */
+  /** `/match?demo=1` — story beat before confirm. */
   | 'guided_demo'
-  /** Instant match from intent: always pass through this page before `/session/:id`. */
-  | 'instant_reveal';
+  | 'instant_reveal'
+  | 'confirm_live'
+  | 'confirm_demo'
+  | 'confirm_instant';
 
 /**
  * Match — matchmaking gate: pool snapshot, narrative beats, and navigation into `/session/:squadId` when matched.
@@ -51,6 +53,7 @@ export function Match() {
   const [slots, setSlots] = useState([false, false, false]);
   const [snapshot, setSnapshot] = useState<MatchmakingSnapshot | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [pendingSquadId, setPendingSquadId] = useState<string | null>(null);
   const poolKeyRef = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -66,31 +69,25 @@ export function Match() {
         setGate('no_pool');
         return;
       }
-      if (snap?.outcome === 'matched') {
-        const id = snap.squad_id;
-        setLastSquadIdInStorage(id);
-        clearMatchmakingSession();
-        toast.success('Your squad is ready — opening the room.');
-        navigate(`/session/${id}`, { replace: true });
+      if (snap?.outcome === 'matched' && snap.squad_id) {
+        setPendingSquadId(snap.squad_id);
+        setGate('confirm_live');
+        return;
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not refresh match status.';
       setLoadError(msg);
     }
-  }, [supabase, navigate]);
+  }, [supabase]);
 
   useEffect(() => {
     if (guidedDemo) {
       clearPendingMatchReveal();
       setGate('guided_demo');
-      const walkthroughActive =
-        typeof sessionStorage !== 'undefined' &&
-        sessionStorage.getItem(DEMO_WALKTHROUGH_STORAGE_KEY) === '1';
-      if (walkthroughActive) {
-        return undefined;
-      }
+      /** Narrative beat then confirm — same route as scripted tour (`/match?demo=1`). Tour chrome may still advance via Space before this fires. */
       const t = window.setTimeout(() => {
-        navigate('/session/demo-session-001', { replace: true });
+        setPendingSquadId('demo-session-001');
+        setGate('confirm_demo');
       }, NARRATIVE_THEATER_MS);
       return () => clearTimeout(t);
     }
@@ -104,10 +101,8 @@ export function Match() {
       }
       setGate('instant_reveal');
       const t = window.setTimeout(() => {
-        clearPendingMatchReveal();
-        setLastSquadIdInStorage(pending);
-        toast.success('Your squad is ready — opening the room.');
-        navigate(`/session/${pending}`, { replace: true });
+        setPendingSquadId(pending);
+        setGate('confirm_instant');
       }, NARRATIVE_THEATER_MS);
       return () => clearTimeout(t);
     }
@@ -193,7 +188,16 @@ export function Match() {
   }, [supabase, session?.user?.id, gate, refresh]);
 
   useEffect(() => {
-    if (gate !== 'waiting' && gate !== 'guided_demo' && gate !== 'instant_reveal') return;
+    if (
+      gate !== 'waiting' &&
+      gate !== 'guided_demo' &&
+      gate !== 'instant_reveal' &&
+      gate !== 'confirm_live' &&
+      gate !== 'confirm_demo' &&
+      gate !== 'confirm_instant'
+    ) {
+      return;
+    }
     const timers = SLOT_STAGGER_MS.map((delay, i) =>
       window.setTimeout(() => {
         setSlots((prev) => {
@@ -301,6 +305,82 @@ export function Match() {
             </Link>{' '}
             or check your connection, then try again.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (gate === 'confirm_live' || gate === 'confirm_demo' || gate === 'confirm_instant') {
+    const mm = readMatchmakingSession();
+    const intent = readSessionIntent();
+    return (
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+        <div className="w-full max-w-md rounded-xl border border-slate-700/80 bg-slate-900/50 p-5 text-left">
+          <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
+            Match ready
+          </p>
+          <h2 className="mt-1 font-heading text-xl font-bold text-slate-100">
+            Confirm to enter the room
+          </h2>
+          <p className="mt-2 font-sans text-[0.85rem] leading-relaxed text-slate-400">
+            {gate === 'confirm_demo'
+              ? 'Offline walkthrough: no live participants. The next screen is a local-only sample session.'
+              : gate === 'confirm_instant'
+                ? 'We matched you from your intent. Review how we used your input, then open the room.'
+                : 'You are about to join a live squad. Keep this tab open; rooms expire after a period of inactivity.'}
+          </p>
+          <div className="mt-5 space-y-2 rounded-lg border border-white/[0.06] bg-[#0a1018] p-3 font-sans text-[0.8rem] text-slate-300">
+            <p>
+              <span className="text-slate-500">Squad / session</span>{' '}
+              <span className="font-mono text-[0.75rem] text-slate-200">
+                {pendingSquadId ?? '—'}
+              </span>
+            </p>
+            {mm ? (
+              <p>
+                <span className="text-slate-500">Your perspective in queue</span> Side {mm.side} ·
+                pool key{' '}
+                <span className="font-mono text-slate-400">{mm.poolKey.slice(0, 12)}…</span>
+              </p>
+            ) : null}
+            {intent?.text ? (
+              <p>
+                <span className="text-slate-500">Why this match (your intent)</span>{' '}
+                {intent.text.slice(0, 200)}
+                {intent.text.length > 200 ? '…' : ''}
+              </p>
+            ) : null}
+            {intent && intent.tags.length > 0 ? (
+              <p>
+                <span className="text-slate-500">Tags</span> {intent.tags.join(', ')}
+              </p>
+            ) : null}
+          </div>
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={() => navigate('/find-squad', { replace: true })}
+              className="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-slate-600 px-4 font-sans text-[0.9rem] text-slate-300 hover:bg-slate-800/50"
+            >
+              Not now
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const id = pendingSquadId;
+                if (!id) return;
+                if (gate === 'confirm_instant') clearPendingMatchReveal();
+                if (gate === 'confirm_live' || gate === 'confirm_instant')
+                  clearMatchmakingSession();
+                setLastSquadIdInStorage(id);
+                toast.success('Opening the room.');
+                navigate(`/session/${id}`, { replace: true });
+              }}
+              className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-teal px-5 font-heading text-[0.9rem] font-semibold text-[#0b0f1a]"
+            >
+              Enter room
+            </button>
+          </div>
         </div>
       </div>
     );

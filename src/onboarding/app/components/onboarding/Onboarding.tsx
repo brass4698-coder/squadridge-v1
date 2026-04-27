@@ -1,18 +1,24 @@
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { completeOnboardingProfile, isSupabaseConfigured } from '../../../lib/supabase/profile';
 import { OnboardingProvider, useOnboarding } from './OnboardingContext';
 import { OnboardingFlow } from './OnboardingFlow';
+import { isOnboardingStepId, ONBOARDING_FIRST_STEP } from './onboardingStepsConfig';
 
 const ONBOARDING_DONE_KEY = 'sr_onboarding_complete';
 
 function OnboardingInner() {
   const navigate = useNavigate();
+  const { stepId } = useParams<{ stepId: string }>();
   const [searchParams] = useSearchParams();
   const { draft } = useOnboarding();
 
+  if (stepId != null && !isOnboardingStepId(stepId)) {
+    return <Navigate to={`/onboarding/${ONBOARDING_FIRST_STEP}`} replace />;
+  }
+
   if (searchParams.get('demo') === '1' && searchParams.get('owt') === null) {
-    return <Navigate to="/onboarding?demo=1&owt=0" replace />;
+    return <Navigate to={`/onboarding/${ONBOARDING_FIRST_STEP}?demo=1&owt=0`} replace />;
   }
 
   const handleComplete = async () => {

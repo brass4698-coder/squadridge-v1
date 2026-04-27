@@ -16,9 +16,15 @@ type Crumb = { to?: string; label: string };
 const EXACT: Record<string, { parent: Crumb; current: string }> = {
   '/verify': { parent: { to: '/', label: 'Home' }, current: 'Verification' },
   '/security': { parent: { to: '/', label: 'Home' }, current: 'Security' },
-  '/settings/profile': { parent: { to: '/', label: 'Home' }, current: 'Profile & keys' },
-  '/admin/health': { parent: { to: '/', label: 'Home' }, current: 'Supabase health' },
-  '/mod': { parent: { to: '/', label: 'Home' }, current: 'Moderation' },
+  '/settings': { parent: { to: '/', label: 'Home' }, current: 'Settings' },
+  '/settings/profile': {
+    parent: { to: '/settings', label: 'Settings' },
+    current: 'Profile & keys',
+  },
+  '/settings/safety': { parent: { to: '/settings', label: 'Settings' }, current: 'Safety center' },
+  '/admin/health': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Supabase health' },
+  '/mod': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Moderation' },
+  '/invite': { parent: { to: '/', label: 'Home' }, current: 'Invite' },
   '/sign-in': { parent: { to: '/', label: 'Home' }, current: 'Sign in' },
   '/pitch-deck-hub': { parent: { to: '/', label: 'Home' }, current: 'Pitch materials' },
   '/auth/callback': { parent: { to: '/', label: 'Home' }, current: 'Account' },

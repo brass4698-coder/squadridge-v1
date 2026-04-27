@@ -12,7 +12,7 @@ export type AppNavContextValue = {
   showResumeCta: boolean;
   /** Signed-in user with incomplete profile; suggest completing profile. */
   showOnboardingCta: boolean;
-  onboardingHref: '/onboarding';
+  onboardingHref: string;
   onboardingLabel: string;
 };
 
@@ -39,7 +39,7 @@ export function useAppNavContext(): AppNavContextValue {
     Boolean(session) &&
     !profileLoading &&
     !profileComplete &&
-    !pathname.startsWith('/settings/profile') &&
+    !pathname.startsWith('/settings') &&
     !pathname.startsWith('/onboarding');
 
   return {
@@ -47,7 +47,7 @@ export function useAppNavContext(): AppNavContextValue {
     resumeHref,
     showResumeCta,
     showOnboardingCta,
-    onboardingHref: '/onboarding',
+    onboardingHref: '/onboarding/mission',
     onboardingLabel: 'Complete your profile',
   };
 }

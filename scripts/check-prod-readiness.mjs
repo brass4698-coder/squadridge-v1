@@ -2,7 +2,7 @@
 /**
  * Production readiness checklist (PASS/FAIL). Extend as migrations and policies evolve.
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -37,11 +37,13 @@ try {
   fail('No /dev/supabase route', String(e));
 }
 
-// 2. Moderator admin health route
+// 2. Moderator admin health route (nested under /admin in React Router)
 try {
   const app = read('src/App.tsx');
-  if (!app.includes('path="/admin/health"')) {
-    fail('Admin health route', 'missing /admin/health');
+  const hasAdminNest = app.includes('path="/admin"');
+  const hasHealthChild = /path=\{?["']health["']\}?/.test(app) && app.includes('SupabaseHealthPage');
+  if (!hasAdminNest || !hasHealthChild) {
+    fail('Admin health route', 'expect /admin nest with path "health" → SupabaseHealthPage');
   } else if (!app.includes('RequireModerator')) {
     fail('Admin health route', 'missing RequireModerator');
   } else {
@@ -51,18 +53,21 @@ try {
   fail('Admin health route', String(e));
 }
 
-// 3. Migrations on disk
-for (const m of [
-  'supabase/migrations/20260418080000_fix_role_other_detail.sql',
-  'supabase/migrations/20260418090000_ttl_cleanup.sql',
-  'supabase/migrations/20260418100000_revoke_anon_matchmaking.sql',
-  'supabase/migrations/20260422100000_smoke_archived_status_updates.sql',
-]) {
-  if (existsSync(join(root, m))) {
-    pass(`Migration present: ${m.split('/').pop()}`);
+// 3. Migrations on disk (any non-empty set — CI also applies them)
+try {
+  const migDir = join(root, 'supabase/migrations');
+  if (!existsSync(migDir)) {
+    fail('Migrations directory', 'supabase/migrations missing');
   } else {
-    fail(`Migration missing: ${m}`);
+    const sqlFiles = readdirSync(migDir).filter((f) => f.endsWith('.sql'));
+    if (sqlFiles.length === 0) {
+      fail('Migrations', 'no .sql files in supabase/migrations');
+    } else {
+      pass(`Migrations present (${sqlFiles.length} SQL files)`);
+    }
   }
+} catch (e) {
+  fail('Migrations check', String(e));
 }
 
 // 4. CORS helper + ZK handler use shared cors

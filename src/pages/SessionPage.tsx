@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -11,12 +10,14 @@ import {
   SessionTranslationPanel,
   SquadPeerStrip,
 } from '../components';
+import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
 import { useAuth } from '../contexts/AuthContext';
 import {
   useMessagePlaintexts,
   useOnlineStatus,
   useRealtimeMessages,
   useSquad,
+  useSquadInterventions,
   useSquadPeerProfiles,
   useTranslation,
   useUserPreferences,
@@ -45,12 +46,6 @@ import {
  * SessionPage — verified-anonymous squad dialogue room (app-layer encrypted payloads, realtime, optional translation).
  * Requires auth and a complete profile via {@link SessionAccess}.
  */
-const sessionChatHeadingStyle: CSSProperties = {
-  fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-};
-
 const PAUSE_MESSAGE_MS = 2000;
 const SEND_COOLDOWN_MS = 15_000;
 
@@ -92,6 +87,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     error: squadQueryError,
     refetch: refetchSquad,
   } = useSquad(squadId);
+  const { data: interventionRows = [] } = useSquadInterventions(supabase, squadId);
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [archiving, setArchiving] = useState(false);
@@ -667,18 +663,30 @@ export function SessionPage({ squadId }: { squadId: string }) {
         className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
         aria-labelledby="session-title"
       >
-        <header className="flex flex-col">
-          <h1
-            id="session-title"
-            className="font-heading text-gray-light"
-            style={sessionChatHeadingStyle}
-          >
-            Squad session
-          </h1>
-          <p className="mt-1 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-slate-500">
-            Private room
-          </p>
-        </header>
+        <SessionStrategyRoomChrome
+          topic={squad?.topic ?? 'Squad session'}
+          roomStartedAt={squad ? new Date(squad.created_at) : new Date()}
+          turnCta="When it is your turn, share one clear contribution. The phase rail is a local guide; your squad may move faster or slower than the labels suggest."
+          interventionBanner={
+            interventionRows[0]
+              ? `Signal: ${interventionRows[0].intervention_type.replace(/_/g, ' ')}`
+              : null
+          }
+          onReportRoom={() => {
+            toast.message(
+              `Room report reference: ${squadId.slice(0, 8)}… — MVP triage is manual; keep this tab if you need to share with support.`,
+            );
+          }}
+          onReportParticipant={() => {
+            toast.message(
+              'Report participant: describe what happened without doxxing. MVP reviews use moderator tools.',
+            );
+          }}
+        />
+
+        <h1 id="session-title" className="sr-only">
+          Squad session — {squad?.topic ?? squadId}
+        </h1>
 
         <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
 

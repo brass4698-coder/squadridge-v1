@@ -40,7 +40,7 @@ export function VerificationScreen({ onNext, onBack }: VerificationScreenProps) 
     setSending(true);
     const { error } = await sb.auth.signInWithOtp({
       email: trimmed,
-      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding') },
+      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding/mission') },
     });
     setSending(false);
     if (error) {

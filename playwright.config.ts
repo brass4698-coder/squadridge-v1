@@ -9,7 +9,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   webServer: {
-    command: `npm run build && npm run preview -- --port ${previewPort} --strictPort --host 127.0.0.1`,
+    /** `build:e2e` loads `.env.e2e` so `/match?demo=1` works without relying on shell env (Windows-safe). */
+    command: `npm run build:e2e && npm run preview -- --port ${previewPort} --strictPort --host 127.0.0.1`,
     url: previewOrigin,
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

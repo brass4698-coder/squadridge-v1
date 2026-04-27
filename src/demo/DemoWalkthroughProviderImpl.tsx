@@ -57,7 +57,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     demoActive && currentStepIndex >= 0 && !(marketingPublicPath && !demoQuery);
 
   const onboardingDemoTour =
-    location.pathname === '/onboarding' && searchParams.get('demo') === '1';
+    location.pathname.startsWith('/onboarding/') && searchParams.get('demo') === '1';
 
   const canGoNext =
     demoActive &&

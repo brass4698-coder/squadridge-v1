@@ -33,9 +33,9 @@ function mobileYouAreHereLabel(
   if (nav.verifyActive) return 'Verification';
   if (nav.ledgerActive) return 'Outcomes & ledger';
   if (nav.securityActive) return 'Security';
-  if (nav.modActive) return 'Moderation';
+  if (nav.modActive) return 'Admin';
   if (nav.supabaseActive) return 'Supabase health';
-  if (pathname.startsWith('/settings/')) return 'Profile & settings';
+  if (pathname.startsWith('/settings')) return 'Settings';
   if (pathname.startsWith('/sign-in')) return 'Sign in';
   if (pathname.startsWith('/auth/callback')) return 'Account';
   if (pathname.startsWith('/pitch-deck-hub')) return 'Pitch materials';
@@ -87,7 +87,7 @@ function useDemoNavState() {
     ledgerActive: pathname.startsWith('/ledger'),
     securityActive: pathname.startsWith('/security'),
     supabaseActive: pathname.startsWith('/admin/health'),
-    modActive: pathname.startsWith('/mod'),
+    modActive: pathname.startsWith('/mod') || pathname.startsWith('/admin/'),
   };
 }
 
@@ -395,7 +395,7 @@ function MobileNavDrawer({
                 <ul className="space-y-0.5">
                   <li>
                     <Link
-                      to="/mod"
+                      to="/admin/rooms"
                       className={mobileDrawerItemClass(nav.modActive)}
                       onClick={onClose}
                     >
@@ -403,7 +403,7 @@ function MobileNavDrawer({
                         {nav.modActive ? (
                           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
                         ) : null}
-                        Mod
+                        Admin
                       </span>
                     </Link>
                   </li>

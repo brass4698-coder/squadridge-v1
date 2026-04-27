@@ -47,6 +47,7 @@ Never commit `.env*` files with secrets. If `node_modules` shows as tracked, run
 | -------------- | ------------------------ |
 | `npm run dev`    | Start Vite dev server    |
 | `npm run build`  | Typecheck + production build |
+| `npm run build:e2e` | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke) |
 | `npm run preview` | Preview production build |
 
 ## After linking Supabase + GitHub
@@ -58,7 +59,7 @@ Use this checklist to confirm everything is wired (manual steps in the dashboard
 | 1 | **GitHub:** Repo → **Actions** → **Deploy Supabase to production** succeeds on `main`. If it fails, see [supabase/README.md](supabase/README.md) (secrets, PAT format, migration drift). |
 | 2 | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …). |
 | 3 | **Supabase:** **Authentication → Providers** — **Anonymous** enabled. |
-| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/intent` → **Find my squad** (or expand **Session hub** → developer **Create demo squad**) to exercise auth + RLS + Realtime. |
+| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/find-squad` (**Find my squad**; `/intent` redirects here), or expand **Session hub** → developer **Create demo squad** to exercise auth + RLS + Realtime. |
 | 5 | **Local (release gate):** Run `npm run build`, `npm test`, and `node scripts/check-prod-readiness.mjs` — should pass before you rely on CI or a deploy; mirrors checks in [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml). |
 
 ### Frontend hosting (MVP)
@@ -75,8 +76,10 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 
 ## Documentation
 
+- **Index:** [`docs/README.md`](docs/README.md) — curated map (product, technical, security, ops, ADRs).
 - Current status snapshot: [`CURRENT_STATUS.md`](CURRENT_STATUS.md)
 - Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)
+- Security reporting: [`SECURITY.md`](SECURITY.md)
 - Specs and runbooks: [`docs/`](docs/)
 - Security boundaries and non-goals: [`docs/security/threat-model.md`](docs/security/threat-model.md)
 - Pilot operations: [`docs/operations/pilot-runbook.md`](docs/operations/pilot-runbook.md)

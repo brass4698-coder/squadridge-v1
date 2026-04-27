@@ -7,15 +7,21 @@ interface OnboardingChromeProps {
 }
 
 /** Top bar: progress line only — no step numbers or counts (vault-style entry). */
-export function OnboardingChrome({
-  progressPercent,
-  onExitRequest,
-}: OnboardingChromeProps) {
+export function OnboardingChrome({ progressPercent, onExitRequest }: OnboardingChromeProps) {
   const m = useOnboardingMotion();
+
+  const rounded = Math.min(100, Math.max(0, Math.round(progressPercent)));
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50">
-      <div className="h-[2px] w-full bg-white/[0.06]">
+      <div
+        className="h-[2px] w-full bg-white/[0.06]"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={rounded}
+        aria-label="Onboarding progress"
+      >
         <motion.div
           className="h-full bg-gradient-to-r from-onboarding-accent/80 via-onboarding-accent to-onboarding-accent/90"
           initial={{ width: '0%' }}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SquadLogo, SquadRidgeWordmark } from '../../../../components';
+import { useOnboardingShell } from './OnboardingShellContext';
 
 interface Props {
   children: React.ReactNode;
@@ -12,6 +13,8 @@ interface Props {
   nextDisabled?: boolean;
   /** Guided tour: brief ring pulse before advancing (Mission → Identity). */
   pulseForwardAdvance?: boolean;
+  /** Short trust / safety line (anonymity, verification, data). */
+  trustNote?: string;
 }
 
 function ChevronLeft({ className }: { className?: string }) {
@@ -66,8 +69,12 @@ export function OnboardingLayout({
   nextLabel = 'Next',
   nextDisabled = false,
   pulseForwardAdvance = false,
+  trustNote = 'Anonymous in the room. No transcript leaves without your action. Data handling follows your consent.',
 }: Props) {
   const [forwardPulse, setForwardPulse] = useState(false);
+  const heightMode = useOnboardingShell();
+  const rootSizeClass =
+    heightMode === 'fill' ? 'h-full min-h-0 max-h-full' : 'h-dvh max-h-dvh min-h-0';
 
   const runForward = () => {
     if (nextDisabled) return;
@@ -92,7 +99,9 @@ export function OnboardingLayout({
   const forwardWrapClass = 'relative inline-flex shrink-0 items-center justify-center';
 
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden bg-onboarding-bg pt-5 text-ink sm:pt-6">
+    <div
+      className={`flex ${rootSizeClass} flex-col overflow-hidden bg-onboarding-bg pt-5 text-ink sm:pt-6`}
+    >
       <main className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto overscroll-y-contain px-5 py-2 sm:px-6 sm:py-3">
         <div className="mx-auto flex min-h-0 w-full max-w-[960px] flex-1 flex-col justify-center">
           <div className="flex min-h-0 w-full max-w-full flex-col gap-3 sm:gap-4">
@@ -105,6 +114,14 @@ export function OnboardingLayout({
               />
             </div>
             <div className="min-h-0">{children}</div>
+            {trustNote ? (
+              <p
+                className="mt-4 max-w-2xl font-sans text-[0.7rem] leading-relaxed text-ink-subtle/90 sm:mt-5"
+                role="note"
+              >
+                {trustNote}
+              </p>
+            ) : null}
           </div>
         </div>
       </main>

@@ -23,7 +23,7 @@ Onboarding-specific tokens live in `src/styles/onboarding.css` (and related onbo
 | ----- | ---- |
 | `/onboarding` | Multi-step **education and commitment** UI (`OnboardingPage` → `src/onboarding/...`). Copy may include **simulated or narrative** language in places; align strings in `src/onboarding/.../copy.ts` when behavior changes. |
 | `/verify` | **Production verification entry**: calls `runVerification` via `src/lib/zk` → `src/lib/zkAdapter.ts` (Semaphore + `verify-zk-proof` Edge Function, or hash stub when `VITE_ZK_STUB=true`). This is the code path to treat as **authoritative** for “user completed ZK verification” in the current build. |
-| `/intent` | Intent text/tags + perspective; writes **sessionStorage** (see below) and calls matchmaking APIs. |
+| `/find-squad` | Intent text/tags + perspective; writes **sessionStorage** (see below) and calls matchmaking APIs. (`/intent` redirects here.) |
 | `/ledger` | Ledger / proposals UI (evolves independently; not the same subsystem as onboarding tokens). |
 | `/session/:squadId` | Active squad chat after match (see session components under `src/components/` and `src/pages/SessionPage.tsx`). |
 

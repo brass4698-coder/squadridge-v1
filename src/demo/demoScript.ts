@@ -62,7 +62,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_mission',
-    path: '/onboarding?demo=1&owt=0',
+    path: '/onboarding/mission?demo=1&owt=0',
     title: 'Mission brief',
     description: 'Onboarding — read the brief, then use Next in the card to continue.',
     inMainScript: true,
@@ -70,7 +70,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_identity',
-    path: '/onboarding?demo=1&owt=1',
+    path: '/onboarding/identity?demo=1&owt=1',
     title: 'Identity',
     description: 'Callsign, lane, and operational context.',
     inMainScript: true,
@@ -96,7 +96,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_placement',
-    path: '/onboarding?demo=1&owt=2',
+    path: '/onboarding/placement?demo=1&owt=2',
     title: 'Placement',
     description: 'Language, region, and time window.',
     inMainScript: true,
@@ -129,7 +129,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_rules',
-    path: '/onboarding?demo=1&owt=3',
+    path: '/onboarding/rules?demo=1&owt=3',
     title: 'Rules & safety',
     description: 'Accept the rules to continue.',
     inMainScript: true,
@@ -141,7 +141,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_verification',
-    path: '/onboarding?demo=1&owt=4',
+    path: '/onboarding/verification?demo=1&owt=4',
     title: 'Verification',
     description: 'Verification step in onboarding.',
     inMainScript: true,
@@ -149,7 +149,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'onboarding_dryrun',
-    path: '/onboarding?demo=1&owt=5',
+    path: '/onboarding/dryrun?demo=1&owt=5',
     title: 'Dry run',
     description: 'Finish onboarding to enter the guided flow.',
     inMainScript: true,

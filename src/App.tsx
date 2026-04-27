@@ -11,6 +11,8 @@ import {
   SessionAccess,
   Toaster,
 } from './components';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
 import { LandingPage } from './pages/LandingPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
@@ -19,10 +21,17 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
-import { PitchDeckHubPage } from './pages/PitchDeckHubPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
+import { InvitePage } from './pages/InvitePage';
+import { SettingsIndexPage } from './pages/SettingsIndexPage';
+import { SafetyCenterPage } from './pages/SafetyCenterPage';
+import { AdminReportsPage } from './pages/admin/AdminReportsPage';
+import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
+import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
+import { AdminLogsPage } from './pages/admin/AdminLogsPage';
+import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -34,8 +43,8 @@ const LedgerPage = lazy(() =>
   import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
 );
 
-const ModDashboardPage = lazy(() =>
-  import('./pages/ModDashboardPage').then((m) => ({ default: m.ModDashboardPage })),
+const PitchDeckHubPage = lazy(() =>
+  import('./pages/PitchDeckHubPage').then((m) => ({ default: m.PitchDeckHubPage })),
 );
 
 const routeChunkFallback = (
@@ -53,7 +62,6 @@ const routeChunkFallback = (
 export default function App() {
   return (
     <>
-      {/* Stack above GrainOverlay (z-1) so routes/layout paint above the fixed grain texture */}
       <div className="relative z-10">
         <BrowserRouter>
           <SentryNavigationListener />
@@ -62,8 +70,9 @@ export default function App() {
             <AuthProvider>
               <Toaster position="top-center" richColors closeButton className="font-sans" />
               <Routes>
+                <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />
                 <Route
-                  path="/onboarding"
+                  path="/onboarding/:stepId"
                   element={
                     <Suspense fallback={routeChunkFallback}>
                       <OnboardingApp />
@@ -72,6 +81,8 @@ export default function App() {
                 />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+                  <Route path="/invite" element={<InvitePage />} />
                   <Route path="/verify" element={<VerificationPage />} />
                   <Route path="/find-squad" element={<IntentPage />} />
                   <Route path="/intent" element={<Navigate to="/find-squad" replace />} />
@@ -92,19 +103,47 @@ export default function App() {
                     }
                   />
                   <Route path="/security" element={<SecurityDisclosurePage />} />
-                  <Route path="/pitch-deck-hub" element={<PitchDeckHubPage />} />
+                  <Route
+                    path="/pitch-deck-hub"
+                    element={
+                      <Suspense fallback={routeChunkFallback}>
+                        <PitchDeckHubPage />
+                      </Suspense>
+                    }
+                  />
                   <Route path="/match" element={<Match />} />
                   <Route path="/match-setup" element={<Navigate to="/find-squad" replace />} />
                   <Route
-                    path="/admin/health"
+                    path="/settings"
+                    element={
+                      <RequireAuth>
+                        <SettingsLayout />
+                      </RequireAuth>
+                    }
+                  >
+                    <Route index element={<SettingsIndexPage />} />
+                    <Route path="profile" element={<ProfileSettingsPage />} />
+                    <Route path="safety" element={<SafetyCenterPage />} />
+                  </Route>
+                  <Route
+                    path="/admin"
                     element={
                       <RequireAuth>
                         <RequireModerator>
-                          <SupabaseHealthPage />
+                          <AdminLayout />
                         </RequireModerator>
                       </RequireAuth>
                     }
-                  />
+                  >
+                    <Route path="reports" element={<AdminReportsPage />} />
+                    <Route path="verification" element={<AdminVerificationPage />} />
+                    <Route path="rooms" element={<AdminRoomsPage />} />
+                    <Route path="logs" element={<AdminLogsPage />} />
+                    <Route path="demo" element={<AdminDemoPage />} />
+                    <Route path="health" element={<SupabaseHealthPage />} />
+                    <Route index element={<Navigate to="rooms" replace />} />
+                  </Route>
+                  <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
                   <Route path="/sign-in" element={<SignInPage />} />
                   <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
                   <Route
@@ -112,27 +151,6 @@ export default function App() {
                     element={<Navigate to="/sign-in?reason=link" replace />}
                   />
                   <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                  <Route
-                    path="/settings/profile"
-                    element={
-                      <RequireAuth>
-                        <ProfileSettingsPage />
-                      </RequireAuth>
-                    }
-                  />
-                  <Route
-                    path="/mod"
-                    element={
-                      <RequireAuth>
-                        <RequireModerator>
-                          <Suspense fallback={routeChunkFallback}>
-                            <ModDashboardPage />
-                          </Suspense>
-                        </RequireModerator>
-                      </RequireAuth>
-                    }
-                  />
-                  {/* Static offline squad demo — must be declared before `/session/:squadId?`. Developer-only shortcuts (create demo squad) still use isDemoSquadShortcutsEnabled in env. */}
                   <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
                   <Route
                     path="/session/demo"
@@ -146,7 +164,6 @@ export default function App() {
           </DemoWalkthroughProvider>
         </BrowserRouter>
       </div>
-      {/* Fixed grain (z-1); routes live in the z-10 wrapper above */}
       <GrainOverlay />
     </>
   );

@@ -8,6 +8,7 @@ import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../../lib/
 import { useOnboarding } from '../OnboardingContext';
 import { ONBOARDING_INPUT_CLASS } from '../onboardingShellStyles';
 import { obBody, obH1, obH1ToBlock, obLabel, obQuote } from '../onboardingStepClasses';
+import { TRUST_FOOTER } from '../onboardingTrustNotes';
 import type { StepProps } from '../types';
 
 export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
@@ -31,7 +32,7 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
     setSending(true);
     const { error } = await sb.auth.signInWithOtp({
       email: trimmed,
-      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding') },
+      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding/verification') },
     });
     setSending(false);
     if (error) {
@@ -53,6 +54,7 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
       onNext={handleContinue}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled || !canContinue}
+      trustNote={TRUST_FOOTER.verification}
     >
       <OnboardingCard>
         <div className="flex max-w-[40rem] flex-col gap-3">

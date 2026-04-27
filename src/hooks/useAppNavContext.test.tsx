@@ -119,7 +119,7 @@ describe('useAppNavContext', () => {
         wrapper({ children, initialPath: '/ledger', auth: baseAuth(makeSession()) }),
     });
     expect(result.current.showOnboardingCta).toBe(true);
-    expect(result.current.onboardingHref).toBe('/onboarding');
+    expect(result.current.onboardingHref).toBe('/onboarding/mission');
   });
 
   it('does not show onboarding CTA on profile settings route', () => {
@@ -155,7 +155,7 @@ describe('useAppNavContext', () => {
     });
     const { result } = renderHook(() => useAppNavContext(), {
       wrapper: ({ children }) =>
-        wrapper({ children, initialPath: '/onboarding', auth: baseAuth(makeSession()) }),
+        wrapper({ children, initialPath: '/onboarding/mission', auth: baseAuth(makeSession()) }),
     });
     expect(result.current.showOnboardingCta).toBe(false);
   });

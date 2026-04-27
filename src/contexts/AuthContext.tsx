@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           emailRedirectTo,
         },
       });
-      // TODO(ZK): On first verified session after OTP callback, bootstrap device-bound keypair / commitment registration.
+      // Deferred: device-bound keypair after verified OTP — see docs/adr/003-zk-device-bootstrap-deferred.md
       return { error: error ? new Error(error.message) : null };
     },
     [supabase],

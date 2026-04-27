@@ -5,6 +5,7 @@ import { upsertProfilePatch } from '../../../../lib/supabase/profile';
 import { useOnboarding } from '../OnboardingContext';
 import { ONBOARDING_INPUT_CLASS } from '../onboardingShellStyles';
 import { obBody, obH1, obH1ToLead, obHelper, obLabel } from '../onboardingStepClasses';
+import { TRUST_FOOTER } from '../onboardingTrustNotes';
 import type { StepProps } from '../types';
 
 export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
@@ -35,6 +36,7 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
       onNext={() => void handleContinue()}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled}
+      trustNote={TRUST_FOOTER.placement}
     >
       <OnboardingCard>
         <div className="grid min-h-0 grid-cols-1 items-start gap-x-6 gap-y-3 lg:grid-cols-[1.12fr_1fr] lg:gap-x-8">

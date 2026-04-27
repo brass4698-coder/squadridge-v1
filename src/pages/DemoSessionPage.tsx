@@ -1,14 +1,7 @@
-import type { CSSProperties } from 'react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
 import { DEMO_PROPOSAL_ID, getDemoSession } from '../lib';
-
-const sessionChatHeadingStyle: CSSProperties = {
-  fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  color: '#f1f5f9',
-};
 
 type DemoMessage = {
   id: string;
@@ -46,6 +39,7 @@ export function DemoSessionPage() {
   const anonymousId = useMemo(() => getDemoSession().anonymousId, []);
   const [messages, setMessages] = useState<DemoMessage[]>(SEED);
   const [composer, setComposer] = useState('');
+  const [roomStarted] = useState(() => new Date());
 
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -67,17 +61,20 @@ export function DemoSessionPage() {
       className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
       aria-labelledby="demo-session-title"
     >
-      <header className="flex flex-col gap-2">
-        <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
-          Offline squad demo
-        </p>
-        <h1 id="demo-session-title" className="font-heading" style={sessionChatHeadingStyle}>
-          Squad session
-        </h1>
-        <p className="font-heading text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-[#4b5563]">
-          Cross-border corridor · Session {anonymousId.slice(0, 8)}…
-        </p>
-      </header>
+      <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
+        Offline squad demo
+      </p>
+      <SessionStrategyRoomChrome
+        topic="Cross-border corridor — session preview"
+        roomStartedAt={roomStarted}
+        turnCta="(Demo) Take turns in any order. Live rooms follow your squad’s real phase state."
+        interventionBanner="Demo: if Slow down was used, an intervention line would appear here from the database."
+        onReportRoom={() => {}}
+        onReportParticipant={() => {}}
+      />
+      <h1 id="demo-session-title" className="sr-only">
+        Squad session {anonymousId.slice(0, 8)}
+      </h1>
 
       <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
         This screen is a <strong className="font-medium text-[#c4cdd9]">browser-only mock</strong>:

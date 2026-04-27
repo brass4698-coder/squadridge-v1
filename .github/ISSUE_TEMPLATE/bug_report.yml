@@ -1,0 +1,29 @@
+name: Bug report
+description: Something is broken in the app or tooling
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For **security vulnerabilities**, do not use this form — follow `SECURITY.md` in the repository root.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Expected vs actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: Route, clicks, env (e.g. local vs staging)…
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Browser, OS, branch/commit if known
+    validations:
+      required: false

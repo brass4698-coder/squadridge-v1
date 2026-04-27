@@ -293,6 +293,7 @@ export interface Database {
           title: string;
           summary: string;
           consensus_items: Json;
+          outcome_extras: Json;
           tags: string[];
           status: LedgerProposalStatus;
           published_at: string | null;
@@ -306,6 +307,7 @@ export interface Database {
           title: string;
           summary: string;
           consensus_items?: Json;
+          outcome_extras?: Json;
           tags?: string[];
           status?: LedgerProposalStatus;
           published_at?: string | null;

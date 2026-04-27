@@ -7,6 +7,7 @@ export * from './useProfile';
 export * from './useRealtimeMessages';
 export * from './useScrollReveal';
 export * from './useSquad';
+export * from './useSquadInterventions';
 export * from './useSquadPeerProfiles';
 export * from './useTranslation';
 export * from './useUserPreferences';

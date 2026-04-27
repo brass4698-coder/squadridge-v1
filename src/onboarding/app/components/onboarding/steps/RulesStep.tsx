@@ -5,6 +5,7 @@ import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
 import { useOnboarding } from '../OnboardingContext';
 import { obBody, obH1, obH1ToRulesLead, obQuote } from '../onboardingStepClasses';
+import { TRUST_FOOTER } from '../onboardingTrustNotes';
 import type { StepProps } from '../types';
 
 export function RulesStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
@@ -20,6 +21,7 @@ export function RulesStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps
       onNext={onNext}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled}
+      trustNote={TRUST_FOOTER.rules}
     >
       <OnboardingCard>
         <div className="flex max-w-[40rem] flex-col gap-3">

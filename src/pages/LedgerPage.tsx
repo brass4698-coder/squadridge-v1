@@ -20,6 +20,29 @@ function parseConsensusItems(raw: Json): string[] {
   return raw.filter((x): x is string => typeof x === 'string');
 }
 
+type OutcomeExtras = {
+  unresolved?: string[];
+  follow_up?: string[];
+  confidence_note?: string;
+  alignment?: string;
+};
+
+function parseOutcomeExtras(raw: Json): OutcomeExtras {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const o = raw as Record<string, unknown>;
+  const asStrArr = (k: string): string[] | undefined => {
+    const v = o[k];
+    if (!Array.isArray(v)) return undefined;
+    return v.filter((x): x is string => typeof x === 'string');
+  };
+  return {
+    unresolved: asStrArr('unresolved'),
+    follow_up: asStrArr('follow_up'),
+    confidence_note: typeof o.confidence_note === 'string' ? o.confidence_note : undefined,
+    alignment: typeof o.alignment === 'string' ? o.alignment : undefined,
+  };
+}
+
 const DEMO_LEDGER_ROOT_SHORT = '0x7f3a…c91d';
 /** Demo detail: publication date shown in trust block (aligns with index sample rows). */
 const DEMO_LEDGER_PUBLISHED = '2026-03-18';
@@ -267,12 +290,14 @@ function LedgerProposalFromDb({
     title: string;
     summary: string;
     consensus_items: Json;
+    outcome_extras: Json;
     tags: string[];
     published_at: string | null;
     ledger_ref: string | null;
   };
 }) {
   const bullets = parseConsensusItems(row.consensus_items);
+  const outcome = parseOutcomeExtras(row.outcome_extras);
   const dateStr = row.published_at ? new Date(row.published_at).toISOString().slice(0, 10) : '—';
 
   return (
@@ -325,6 +350,8 @@ function LedgerProposalFromDb({
             </p>
             <ConsensusOrdersList items={bullets} />
 
+            <LedgerOutcomeRecordSections outcome={outcome} />
+
             <div className="mt-8 flex flex-wrap gap-2">
               {row.tags.map((t) => (
                 <span
@@ -355,6 +382,86 @@ const DEMO_CONSENSUS_LINES = [
   'Corridor stewards post visible de-escalation markers at agreed intervals; if any marker is contested, all crossings pause for 15 minutes while the channel resolves the incident.',
   'Displaced civilians are routed through three pre-cleared nodes only; no ad-hoc detours occur without unanimous squad sign-off on the shared channel.',
 ] as const;
+
+const DEMO_OUTCOME: OutcomeExtras = {
+  unresolved: [
+    'Long-term status of cross-line observation posts not settled in this session (requires policy owners).',
+  ],
+  follow_up: [
+    'Schedule a neutral-facility dry run of marker placement before the next movement window.',
+    'Publish a single coordination frequency in the public annex before opening crossings.',
+  ],
+  confidence_note:
+    'Participants reported medium confidence in de-escalation markers; alignment on civilian routing was high.',
+  alignment: 'Strong on pause-and-resolve; medium on cross-authority comms for contested markers.',
+};
+
+function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
+  const has =
+    (outcome.unresolved?.length ?? 0) > 0 ||
+    (outcome.follow_up?.length ?? 0) > 0 ||
+    Boolean(outcome.confidence_note) ||
+    Boolean(outcome.alignment);
+  if (!has) {
+    return (
+      <p className="mt-6 font-sans text-[0.8rem] text-ink-muted">
+        No private outcome addenda stored for this proposal — published protocol set only.
+      </p>
+    );
+  }
+  return (
+    <div className="mt-8 space-y-6 border-t border-white/[0.08] pt-8">
+      <h2 className="break-words font-heading text-section-title font-bold text-ink">
+        Session outcome (structured)
+      </h2>
+      {outcome.unresolved && outcome.unresolved.length > 0 ? (
+        <div>
+          <h3 className="font-heading text-[0.8rem] font-semibold uppercase tracking-wide text-amber/90">
+            Unresolved
+          </h3>
+          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.88rem] text-ink-secondary">
+            {outcome.unresolved.map((x, i) => (
+              <li key={i}>{x}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {outcome.follow_up && outcome.follow_up.length > 0 ? (
+        <div>
+          <h3 className="font-heading text-[0.8rem] font-semibold uppercase tracking-wide text-teal/80">
+            Follow-up recommendations
+          </h3>
+          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.88rem] text-ink-secondary">
+            {outcome.follow_up.map((x, i) => (
+              <li key={i}>{x}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {outcome.alignment ? (
+        <p className="font-sans text-[0.88rem] text-ink-secondary">
+          <span className="font-medium text-ink-muted">Alignment: </span>
+          {outcome.alignment}
+        </p>
+      ) : null}
+      {outcome.confidence_note ? (
+        <p className="font-sans text-[0.88rem] text-ink-secondary">
+          <span className="font-medium text-ink-muted">Confidence: </span>
+          {outcome.confidence_note}
+        </p>
+      ) : null}
+      <p className="mt-2 font-sans text-[0.75rem] text-ink-subtle">
+        <button
+          type="button"
+          disabled
+          className="cursor-not-allowed rounded border border-white/[0.1] bg-[#0b0f14] px-3 py-1.5 text-ink-muted"
+        >
+          Export / share (coming soon)
+        </button>
+      </p>
+    </div>
+  );
+}
 
 function LedgerDemoProposalDetail() {
   return (
@@ -415,6 +522,8 @@ function LedgerDemoProposalDetail() {
               Measures approved for public release.
             </p>
             <ConsensusOrdersList items={[...DEMO_CONSENSUS_LINES]} />
+
+            <LedgerOutcomeRecordSections outcome={DEMO_OUTCOME} />
 
             <p className="vault-frost-subtle mt-8 rounded-lg border border-dashed border-white/10 p-4 font-sans text-[0.8rem] leading-relaxed text-ink-muted">
               <span className="block">

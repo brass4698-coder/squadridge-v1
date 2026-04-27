@@ -28,3 +28,8 @@ Pre-commit runs **lint-staged** (ESLint + Prettier on staged files). Husky is in
 ## PR checklist
 
 See `.github/pull_request_template.md`.
+
+## Security
+
+Report vulnerabilities per root [`SECURITY.md`](SECURITY.md), not public issues.
+

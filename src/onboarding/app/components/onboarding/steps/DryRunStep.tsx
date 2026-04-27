@@ -5,13 +5,15 @@ import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
 import { ONBOARDING_INPUT_CLASS } from '../onboardingShellStyles';
 import { obBody, obH1, obH1ToDryRunLeads, obLabel, obQuote } from '../onboardingStepClasses';
+import { TRUST_FOOTER } from '../onboardingTrustNotes';
 import type { StepProps } from '../types';
 
 function looksOperationalDetail(text: string): boolean {
   const t = text.trim();
   if (t.length < 4) return false;
   if (/\d{1,2}\.\d{4,}/.test(t)) return true;
-  if (/\b(coordinates?|grid\s+ref|battalion|classified|live\s+op|unit\s+\d)\b/i.test(t)) return true;
+  if (/\b(coordinates?|grid\s+ref|battalion|classified|live\s+op|unit\s+\d)\b/i.test(t))
+    return true;
   return false;
 }
 
@@ -54,6 +56,7 @@ export function DryRunStep({ onBack, onNext, nextDisabled }: StepProps) {
       forwardControl="text"
       nextLabel="Enter squad room"
       nextDisabled={nextDisabled}
+      trustNote={TRUST_FOOTER.dryrun}
     >
       <OnboardingCard>
         {phase === 'complete' ? (
@@ -89,7 +92,9 @@ export function DryRunStep({ onBack, onNext, nextDisabled }: StepProps) {
                 <p className="mb-1.5 text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-teal sm:text-[0.6875rem]">
                   {room.topicLabel}
                 </p>
-                <p className="whitespace-pre-line text-[0.8125rem] leading-[1.45] text-ink-secondary">{room.scenario}</p>
+                <p className="whitespace-pre-line text-[0.8125rem] leading-[1.45] text-ink-secondary">
+                  {room.scenario}
+                </p>
               </div>
 
               <div className="flex min-h-0 min-w-0 flex-col gap-1">
@@ -110,8 +115,8 @@ export function DryRunStep({ onBack, onNext, nextDisabled }: StepProps) {
                     className="text-[0.625rem] font-semibold uppercase leading-snug tracking-[0.12em] text-amber sm:text-[0.6875rem]"
                     role="status"
                   >
-                    This looks like operational detail. Try rephrasing at a higher level (no locations, no live
-                    movements).
+                    This looks like operational detail. Try rephrasing at a higher level (no
+                    locations, no live movements).
                   </p>
                 )}
               </div>
