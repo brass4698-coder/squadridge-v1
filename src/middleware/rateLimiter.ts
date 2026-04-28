@@ -178,9 +178,13 @@ export interface RateLimiterOptions {
  * ```
  */
 export function makeRateLimiter(opts: RateLimiterOptions = {}) {
+  // Parse env-var integers safely: parseInt returns NaN for empty/invalid strings,
+  // which falls back to the default cleanly (unlike Number('0') which is falsy).
+  const envMax = parseInt(process.env.RATE_LIMIT_MAX ?? '', 10);
+  const envWindow = parseInt(process.env.RATE_LIMIT_WINDOW ?? '', 10);
   const {
-    maxRequests = Number(process.env.RATE_LIMIT_MAX) || 60,
-    windowSeconds = Number(process.env.RATE_LIMIT_WINDOW) || 60,
+    maxRequests = !isNaN(envMax) && envMax > 0 ? envMax : 60,
+    windowSeconds = !isNaN(envWindow) && envWindow > 0 ? envWindow : 60,
     failOpen = true,
     keyHeader = 'x-anon-ip',
   } = opts;

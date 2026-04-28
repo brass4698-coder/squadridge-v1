@@ -106,7 +106,8 @@ export interface EncryptedPayload {
 function bytesToBase64Url(bytes: Uint8Array): string {
   let bin = '';
   for (let i = 0; i < bytes.length; i++) {
-    bin += String.fromCharCode(bytes[i]!);
+    // Safe: loop bound guarantees bytes[i] is defined.
+    bin += String.fromCharCode(bytes[i] as number);
   }
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -117,7 +118,8 @@ function base64UrlToBytes(s: string): Uint8Array {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) {
-    out[i] = bin.charCodeAt(i)!;
+    // Safe: loop bound guarantees bin[i] is defined; charCodeAt returns a number.
+    out[i] = bin.charCodeAt(i);
   }
   return out;
 }
@@ -154,6 +156,18 @@ export class LocalDevKmsProvider implements KmsProvider {
   private readonly masterKey: Uint8Array;
 
   constructor(masterKeyHex?: string) {
+    // Guard: refuse to run outside development/test environments.
+    // This provider uses XOR "encryption" which provides zero real security.
+    const nodeEnv =
+      typeof process !== 'undefined' ? (process.env.NODE_ENV ?? 'development') : 'unknown';
+    if (nodeEnv === 'production') {
+      throw new Error(
+        '[LocalDevKmsProvider] This provider is a dev/test scaffold and must NOT be used in ' +
+          'production. Set KMS_PROVIDER to a real KMS provider (aws, vault, cloudflare). ' +
+          'See src/utils/encryption.ts NEXT STEPS.',
+      );
+    }
+
     // In tests, use a deterministic master key; in prod, this must be a secret.
     const hex =
       masterKeyHex ??
