@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionAccess } from './SessionAccess';
 
 vi.mock('../../pages/SessionHubPage', () => ({
@@ -18,6 +18,10 @@ vi.mock('../auth/RequireAuth', () => ({
 }));
 
 describe('SessionAccess', () => {
+  beforeEach(() => {
+    vi.stubEnv('VITE_ZK_STUB', 'false');
+  });
+
   it('renders hub when no squad id', () => {
     const router = createMemoryRouter(
       [{ path: '/session/:squadId?', element: <SessionAccess /> }],
@@ -49,5 +53,20 @@ describe('SessionAccess', () => {
     );
     render(<RouterProvider router={router} />);
     expect(screen.getByTestId('session-page')).toHaveTextContent('demo-session-001');
+  });
+
+  it('blocks live squad routes when ZK hash stub is explicit', () => {
+    vi.stubEnv('VITE_ZK_STUB', 'true');
+    const router = createMemoryRouter(
+      [{ path: '/session/:squadId?', element: <SessionAccess /> }],
+      {
+        initialEntries: ['/session/real-squad'],
+      },
+    );
+    render(<RouterProvider router={router} />);
+    expect(screen.queryByTestId('session-page')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /Pilot squad sessions unavailable/i }),
+    ).toBeInTheDocument();
   });
 });

@@ -155,6 +155,13 @@ try {
   fail('.env.example', String(e));
 }
 
+// 9. Production / CI bundles must not enable hash-only ZK stub (vite + ensure script also guard this)
+if (process.env.VITE_ZK_STUB === 'true') {
+  fail('VITE_ZK_STUB', 'must not be true when building or checking production readiness');
+} else {
+  pass('VITE_ZK_STUB is not set to true for this check');
+}
+
 const failed = checks.filter((c) => !c.ok);
 console.log(`\nDone: ${checks.filter((c) => c.ok).length}/${checks.length} passed.`);
 if (failed.length) {

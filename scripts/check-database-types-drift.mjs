@@ -27,10 +27,16 @@ function braceSlice(s, openBraceIdx) {
 }
 
 function extractPublicTablesInner(src) {
-  const dbIdx = src.indexOf('export interface Database');
-  if (dbIdx === -1) throw new Error('No export interface Database');
-  const publicIdx = src.indexOf('public:', dbIdx);
-  if (publicIdx === -1) throw new Error('No public: in Database');
+  // Accept both legacy `export interface Database` (hand file) and the newer
+  // `export type Database = {` form emitted by `supabase gen types typescript --local`.
+  let dbIdx = src.indexOf('export interface Database');
+  if (dbIdx === -1) dbIdx = src.indexOf('export type Database');
+  if (dbIdx === -1) throw new Error('No export interface/type Database');
+  // Match `public:` only when it's a standalone schema key, not inside `graphql_public:`.
+  // Codegen indents schemas 2 spaces; hand file indents schemas 2 spaces inside `interface Database`.
+  const publicMatch = /(^|\r?\n)\s*public:/m.exec(src.slice(dbIdx));
+  if (!publicMatch) throw new Error('No public: in Database');
+  const publicIdx = dbIdx + publicMatch.index + publicMatch[0].indexOf('public:');
   const tablesKw = src.indexOf('Tables:', publicIdx);
   if (tablesKw === -1) throw new Error('No Tables: in public');
   /** First "{" opens Tables dict */
@@ -79,6 +85,7 @@ const genResult = spawnSync('npx', ['supabase', 'gen', 'types', 'typescript', '-
   cwd: root,
   encoding: 'utf8',
   maxBuffer: 15 * 1024 * 1024,
+  shell: process.platform === 'win32',
 });
 
 if (genResult.error || genResult.status !== 0) {

@@ -8,15 +8,15 @@ import { applyPolicy, humanReviewRecommended as reviewGate } from '../policies/e
 import { createPseudonymMap } from '../pseudonyms/roomScoped';
 import { scoreMessageRisk } from '../scoring/riskScore';
 import { applyFindingsToText, findingsToHighlights } from '../transformers/applyTransforms';
-import type {
-  AudienceType,
-  NamedEntityRecognizer,
-  RedactionRequest,
-  RedactionResult,
-  DetectorHit,
-  Finding,
+import {
+  RedactionRequestSchema,
+  type AudienceType,
+  type DetectorHit,
+  type Finding,
+  type NamedEntityRecognizer,
+  type RedactionRequest,
+  type RedactionResult,
 } from '../types';
-import { RedactionRequestSchema } from '../types';
 
 export type RedactionPipelineRequest = RedactionRequest & {
   /** Override default heuristic NER; integrate ONNX / API here. */

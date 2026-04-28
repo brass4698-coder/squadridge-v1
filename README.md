@@ -95,6 +95,15 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 - Metrics definition: [`docs/product/metrics-spec.md`](docs/product/metrics-spec.md)
 - Partner and fundraising support: [`docs/business/pilot-partner-one-pager.md`](docs/business/pilot-partner-one-pager.md), [`docs/business/data-room-index.md`](docs/business/data-room-index.md), [`docs/pitch/`](docs/pitch/)
 
+## Contributing
+
+- Branching, checks, and PR flow: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- PR template: [`.github/pull_request_template.md`](.github/pull_request_template.md)
+- Branch protection setup (one-time, repo owner): [`docs/operations/branch-protection.md`](docs/operations/branch-protection.md)
+- Security reporting: [`SECURITY.md`](SECURITY.md)
+
+Security-touching changes (RLS, migrations, Edge functions, ZK, encryption, auth) must go through a PR even if you have direct push access — see the **Security-touching change?** section of the PR template.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

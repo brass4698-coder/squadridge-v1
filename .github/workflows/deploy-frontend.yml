@@ -32,6 +32,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Ensure no ZK hash stub for production bundle
+        run: npm run check:no-zk-stub-prod
+
       - name: Production build
         run: npm run build
         env:

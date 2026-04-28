@@ -156,6 +156,19 @@ export function isZkTlsLabsEnabled(): boolean {
   return env.VITE_ZKTLS_LABS === 'true';
 }
 
+/**
+ * Pilot / demo flags in one place for UI gating (see pilot readiness review).
+ */
+export function getPilotSurfaceConfig(): {
+  zkStubExplicit: boolean;
+  demoSquadShortcutsEnabled: boolean;
+} {
+  return {
+    zkStubExplicit: env.VITE_ZK_STUB === 'true',
+    demoSquadShortcutsEnabled: isDemoSquadShortcutsEnabled(),
+  };
+}
+
 /** External waitlist URL (Typeform, Tally, etc.). When set, landing primary CTA uses this. */
 export function getWaitlistFormUrl(): string | undefined {
   const v = env.VITE_WAITLIST_FORM_URL;

@@ -29,6 +29,17 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 
 **Request body (both functions):** `{ attribute_scope: string, credential_type: string, semaphore_proof: SemaphoreProofBody }` — see `SemaphoreProofBody` / `ZkVerifyRequestBody` in the shared module.
 
+**JSON response contract (`verify-zk-proof` / `zk-verify`):** The Edge handler returns a **wrapped success** shape so clients can distinguish failures without guessing field presence:
+
+| Shape | Meaning |
+| ----- | ------- |
+| **`{ ok: true, proof: { proofId, credentialType, nullifierHash, commitment, verifiedAt, isStub? } }`** | Preferred — parsed by [`parseVerifyZkProofResponse`](../../src/lib/verifyZkProofResponse.ts). |
+| **Legacy flat proof object** (same fields at top level, without `ok`) | Still accepted by the parser for older deploys. |
+| **`{ ok: false, error: string, errorCode?: string }`** | Verification failed — client maps `errorCode` where present (unknown shapes → treated as generic rejection). |
+| **`{ error: string }`** only | Legacy error body without `ok`. |
+
+Client code **must not** trust arbitrary JSON shapes: [`parseVerifyZkProofResponse`](../../src/lib/verifyZkProofResponse.ts) validates with **zod** and fails closed.
+
 **SPA flow:**
 
 1. [`src/lib/zkAdapter.ts`](../../src/lib/zkAdapter.ts) `runVerification`: if `VITE_ZK_STUB === 'true'`, returns [`generateStubProof`](../../src/lib/zkVerifier.ts) (no Edge call; not shippable in production builds — [`vite.config.ts`](../../vite.config.ts)).
@@ -41,7 +52,7 @@ SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZK
 | **`true`** | Hash-only stub in [`zkVerifier`](../../src/lib/zkVerifier.ts); **no** Edge call. | **Build fails** — cannot ship. |
 | **Unset or `false`** | Semaphore + `verify-zk-proof` (needs network and a deployed function). | Same: Semaphore + `verify-zk-proof`. |
 
-Dev does **not** automatically skip the Edge Function—only `VITE_ZK_STUB=true` avoids it.
+Dev does **not** automatically skip the Edge Function—only `VITE_ZK_STUB=true` avoids it. With the stub enabled, [`SessionAccess`](../../src/components/session/SessionAccess.tsx) also blocks live `/session/:id` routes so cohort pilots do not enter encrypted squad chat while verification is hash-only (use the offline demo route documented in-app).
 
 **Legacy helper:** [`isZkStubDevPathAllowed()`](../../src/lib/env.ts) (formerly `isZkVerifierStubEnabled`) gates [`submitZkProofStub`](../../src/lib/zk/index.ts) only; it does not change `runVerification` / `zkAdapter` behavior. Verified scopes in `verified_attributes` can be mixed into matchmaking `pool_key` segments (`|zk:…`); see [`matchmakingPoolKey.ts`](../../src/lib/matchmakingPoolKey.ts) and migration `20260418130000_squad_peer_profiles_and_zk_pool.sql`.
 

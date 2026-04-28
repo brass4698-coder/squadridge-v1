@@ -30,6 +30,7 @@ export function conflictSeveritySnapshotInsertFromResult(
   },
 ): ConflictSeveritySnapshotInsert {
   const cs = result.componentScores;
+  /** Persist structured CSI audit blob — cast via unknown because typed structs are not assignable to recursive Json without assertion. */
   const component_scores = {
     version: 2,
     trace: result.trace,

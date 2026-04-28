@@ -6,7 +6,7 @@
 - `fix/<issue>` — bugfixes
 - `docs/<topic>` — documentation only
 
-Open PRs against `main`.
+Open PRs against `main`. **Do not push security-touching commits straight to `main`** even if you have direct push access — see the "Security-touching change?" section of the [PR template](.github/pull_request_template.md). The repo owner should also enable branch protection for `main` (require PR + green CI before merge); see [`docs/operations/branch-protection.md`](docs/operations/branch-protection.md).
 
 ## Development setup
 

@@ -1,13 +1,52 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
-import { addZkProofBreadcrumb } from './sentry';
+import { addZkProofBreadcrumb, type ZkProofBreadcrumbErrorCode } from './sentry';
 import type { CredentialType, ZKProof } from './zkVerifier';
+import {
+  parseVerifyZkProofErrorBody,
+  parseVerifyZkProofResponse,
+  VerifyZkProofParseError,
+} from './verifyZkProofResponse';
 
 /** When true, uses fast hash-only stubs (no Semaphore, no Edge verification). */
 const USE_HASH_STUB = import.meta.env.VITE_ZK_STUB === 'true';
 
+const VERIFY_EDGE_TIMEOUT_MS = 45_000;
+const VERIFY_EDGE_MAX_ATTEMPTS = 3;
+
 /** Same credential kind as Semaphore `scope` preimage (must match Edge `credential_type`). */
 export const ZK_SESSION_CREDENTIAL_TYPE = 'session_attribute';
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function isRetryableInvokeFailure(err: {
+  message?: string;
+  context?: { status?: number };
+}): boolean {
+  const status = err.context?.status;
+  if (status === 429 || status === 503 || status === 504 || status === 502) return true;
+  const m = err.message ?? '';
+  if (/failed to fetch|networkerror|load failed/i.test(m)) return true;
+  return false;
+}
+
+async function invokeVerifyWithTimeout(
+  supabase: SupabaseClient<Database>,
+  body: Record<string, unknown>,
+): Promise<{ data: unknown; error: { message: string; context?: { status?: number } } | null }> {
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('VERIFY_TIMEOUT')), VERIFY_EDGE_TIMEOUT_MS),
+  );
+  return Promise.race([
+    supabase.functions.invoke('verify-zk-proof', { body }),
+    timeoutPromise,
+  ]) as Promise<{
+    data: unknown;
+    error: { message: string; context?: { status?: number } } | null;
+  }>;
+}
 
 /**
  * **Production path (default when `VITE_ZK_STUB` is unset or `false`):** generates a Semaphore proof in-browser and
@@ -26,12 +65,14 @@ export async function runVerification(
       const proof = await generateStubProof(credentialType, rawInput);
       addZkProofBreadcrumb('stub_hash', 'success', { credentialType });
       return proof;
-    } catch (e) {
+    } catch {
       addZkProofBreadcrumb('stub_hash', 'error', {
         credentialType,
-        message: e instanceof Error ? e.message : String(e),
+        errorCode: 'stub_generate_failed',
       });
-      throw e;
+      throw new Error(
+        'Verification failed (demo hash mode). Turn off VITE_ZK_STUB for production pilots.',
+      );
     }
   }
 
@@ -43,41 +84,79 @@ export async function runVerification(
     const rawProof = await generateSemaphoreProof(credentialType, rawInput.trim());
     semaphoreProof = semaphoreProofToWireFormat(rawProof);
     addZkProofBreadcrumb('generate_local', 'success', { credentialType });
-  } catch (e) {
+  } catch {
     addZkProofBreadcrumb('generate_local', 'error', {
       credentialType,
-      message: e instanceof Error ? e.message : String(e),
+      errorCode: 'local_generate_failed',
     });
-    throw e;
+    throw new Error('Could not generate a verification proof in your browser.');
   }
+
+  const body = {
+    attribute_scope: rawInput.trim(),
+    credential_type: credentialType,
+    semaphore_proof: semaphoreProof,
+  };
 
   addZkProofBreadcrumb('invoke_verify_edge', 'start', { credentialType });
-  const { data, error } = await supabase.functions.invoke('verify-zk-proof', {
-    body: {
-      attribute_scope: rawInput.trim(),
-      credential_type: credentialType,
-      semaphore_proof: semaphoreProof,
-    },
-  });
 
-  if (error) {
-    addZkProofBreadcrumb('invoke_verify_edge', 'error', { credentialType, message: error.message });
-    throw new Error(`Verification failed: ${error.message}`);
-  }
-  if (
-    data &&
-    typeof data === 'object' &&
-    data !== null &&
-    'error' in data &&
-    (data as { error?: string }).error
-  ) {
-    addZkProofBreadcrumb('invoke_verify_edge', 'error', {
-      credentialType,
-      message: String((data as { error: string }).error),
-    });
-    throw new Error(String((data as { error: string }).error));
+  for (let attempt = 0; attempt < VERIFY_EDGE_MAX_ATTEMPTS; attempt++) {
+    try {
+      const { data, error } = await invokeVerifyWithTimeout(supabase, body);
+
+      if (!error) {
+        try {
+          const proof = parseVerifyZkProofResponse(data);
+          addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType });
+          return proof;
+        } catch (e) {
+          if (e instanceof VerifyZkProofParseError) {
+            addZkProofBreadcrumb('invoke_verify_edge', 'error', {
+              credentialType,
+              errorCode: 'response_invalid',
+            });
+            throw new Error('Verification service returned an unexpected response. Try again.');
+          }
+          throw e;
+        }
+      }
+
+      const bodyErr = parseVerifyZkProofErrorBody(data);
+      const msg = bodyErr?.message ?? error.message;
+
+      const retry = attempt < VERIFY_EDGE_MAX_ATTEMPTS - 1 && isRetryableInvokeFailure(error);
+
+      addZkProofBreadcrumb('invoke_verify_edge', 'error', {
+        credentialType,
+        errorCode: mapEdgeCodeToBreadcrumb(bodyErr?.errorCode),
+      });
+
+      if (retry) {
+        await sleep(400 * 2 ** attempt);
+        continue;
+      }
+
+      throw new Error(msg || 'Verification failed');
+    } catch (e) {
+      if (e instanceof Error && e.message === 'VERIFY_TIMEOUT') {
+        addZkProofBreadcrumb('invoke_verify_edge', 'error', {
+          credentialType,
+          errorCode: 'invoke_timeout',
+        });
+        if (attempt < VERIFY_EDGE_MAX_ATTEMPTS - 1) {
+          await sleep(400 * 2 ** attempt);
+          continue;
+        }
+        throw new Error('Verification timed out. Check your connection and try again.');
+      }
+      throw e;
+    }
   }
 
-  addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType });
-  return data as ZKProof;
+  throw new Error('Verification failed');
+}
+
+function mapEdgeCodeToBreadcrumb(code?: string): ZkProofBreadcrumbErrorCode {
+  void code;
+  return 'invoke_failed';
 }

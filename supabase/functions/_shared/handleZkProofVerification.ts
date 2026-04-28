@@ -53,6 +53,34 @@ function assertProofMatchesRequest(
   }
 }
 
+function zkFailBody(
+  message: string,
+  errorCode: string,
+): { ok: false; error: string; errorCode: string } {
+  return { ok: false, error: message, errorCode };
+}
+
+function zkErrorCodeForMessage(msg: string): string {
+  switch (msg) {
+    case 'Nullifier already used':
+      return 'NULLIFIER_REUSE';
+    case 'Invalid Semaphore proof':
+      return 'INVALID_SEMAPHORE_PROOF';
+    case 'Proof message does not match attribute_scope':
+    case 'Proof scope does not match credential_type':
+      return 'PROOF_BINDING_MISMATCH';
+    case 'Could not record proof':
+    case 'Could not record verified attributes':
+      return 'SERVER_WRITE_FAILED';
+    case 'Invalid attribute_scope':
+    case 'Invalid credential_type':
+    case 'Invalid semaphore_proof':
+      return 'INVALID_REQUEST';
+    default:
+      return 'VERIFICATION_FAILED';
+  }
+}
+
 export async function verifyAndPersistZkProof(
   supabaseUrl: string,
   serviceKey: string,
@@ -159,19 +187,19 @@ export async function handleZkProofPost(req: Request): Promise<Response> {
   }
 
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405, req);
+    return jsonResponse(zkFailBody('Method not allowed', 'METHOD_NOT_ALLOWED'), 405, req);
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !anonKey || !serviceKey) {
-    return jsonResponse({ error: 'Server configuration error' }, 500, req);
+    return jsonResponse(zkFailBody('Server configuration error', 'SERVER_CONFIG'), 500, req);
   }
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return jsonResponse({ error: 'Missing or invalid authorization' }, 401, req);
+    return jsonResponse(zkFailBody('Missing or invalid authorization', 'MISSING_AUTH'), 401, req);
   }
 
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -182,27 +210,43 @@ export async function handleZkProofPost(req: Request): Promise<Response> {
     error: userErr,
   } = await userClient.auth.getUser();
   if (userErr || !user) {
-    return jsonResponse({ error: 'Unauthorized' }, 401, req);
+    return jsonResponse(zkFailBody('Unauthorized', 'UNAUTHORIZED'), 401, req);
   }
 
   let body: ZkVerifyRequestBody;
   try {
     body = (await req.json()) as ZkVerifyRequestBody;
   } catch {
-    return jsonResponse({ error: 'Invalid JSON' }, 400, req);
+    return jsonResponse(zkFailBody('Invalid JSON', 'INVALID_JSON'), 400, req);
   }
 
   try {
     const result = await verifyAndPersistZkProof(supabaseUrl, serviceKey, user.id, body);
-    return jsonResponse(result, 200, req);
+    return jsonResponse(
+      {
+        ok: true,
+        proof: {
+          proofId: result.proofId,
+          credentialType: result.credentialType,
+          nullifierHash: result.nullifierHash,
+          commitment: result.commitment,
+          verifiedAt: result.verifiedAt,
+          isStub: false,
+        },
+      },
+      200,
+      req,
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Verification failed';
+    const code = zkErrorCodeForMessage(msg);
+    const bodyErr = zkFailBody(msg, code);
     if (msg === 'Nullifier already used') {
-      return jsonResponse({ error: msg }, 409, req);
+      return jsonResponse(bodyErr, 409, req);
     }
     if (msg === 'Could not record proof' || msg === 'Could not record verified attributes') {
-      return jsonResponse({ error: msg }, 500, req);
+      return jsonResponse(bodyErr, 500, req);
     }
-    return jsonResponse({ error: msg }, 400, req);
+    return jsonResponse(bodyErr, 400, req);
   }
 }

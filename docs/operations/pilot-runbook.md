@@ -81,6 +81,17 @@ Capture:
 - participant survey results
 - follow-up actions
 
+## Verification failures (facilitators)
+
+If participants cannot complete **`verify-zk-proof`** during the pilot window:
+
+1. Confirm **`VITE_ZK_STUB`** is **not** enabled on the deployed SPA (`false` or unset). Hash-stub builds block live squad sessions and must not be used for diligence-oriented pilots.
+2. Confirm the **`verify-zk-proof`** Edge Function is deployed and reachable from the participant network (TLS, mixed content, regional blocking, or corporate proxies).
+3. Capture a **safe** diagnostic: HTTP status line for `functions/v1/verify-zk-proof` only. **Do not** paste Semaphore proof bodies or attribute text into unsecured tickets or chat.
+4. Escalate to the technical owner with timestamp, cohort or environment name, and anonymized reproduction steps.
+
+Retry guidance for participants: reload the verification page once after ensuring an anonymous session is active; avoid rapid repeated attempts that may hit Edge rate limits.
+
 ## Metrics To Record
 
 Minimum useful pilot metrics:

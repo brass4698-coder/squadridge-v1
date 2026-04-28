@@ -91,6 +91,57 @@ An incident is not closed until:
 - follow-up tasks are assigned with owners
 - any needed doc or process changes are captured
 
+## Moderator decrypt-for-review
+
+This runbook entry covers the audited moderator-decrypt path added in migration `20260428120000_moderator_decrypt_audit_rpc.sql`. It is the **only** sanctioned way to read message plaintext outside the participants of a squad, and it is **not** server-blind — see [`docs/security/encryption-scope.md`](../security/encryption-scope.md).
+
+### When it is acceptable
+
+- a participant or facilitator has filed a **safety report** that requires reviewing the specific message
+- a `SEV-0` / `SEV-1` investigation requires correlating message content with audit evidence
+- a partner has invoked a contractual review clause for a named cohort
+
+It is **not** acceptable to:
+
+- skim plaintext to satisfy curiosity or "spot-check" content
+- decrypt messages in bulk (one-at-a-time, justified, per-incident)
+- decrypt outside the active incident or review ticket — close the modal as soon as the immediate question is answered
+
+### How to invoke
+
+Moderators (rows in `public.moderators`) use the **Mod dashboard** at `/admin/csi`:
+
+1. Open the squad → expand **Messages**
+2. Click **Decrypt for review** on the specific message
+3. Enter a **justification** of at least 8 characters that names the incident or ticket (for example, `SR-INC-2026-04-28 #14: safety report follow-up`)
+4. Click **Decrypt (audited)** — plaintext is returned only after `moderator_decrypt_message_for_review` writes the audit row
+
+The same flow runs through `src/lib/moderation/modDecrypt.ts`; direct database access (psql, Studio) **must not** be used to read `messages.payload_ciphertext` for review purposes — it bypasses the audit RPC.
+
+### What is logged
+
+Every decrypt-for-review writes a row to `public.moderation_audit_log` **before** plaintext is returned:
+
+- `action = 'message_plaintext_decrypt_review'`
+- `actor_user_id = auth.uid()` of the moderator
+- `target_type = 'message'`, `target_id = <message_id>`
+- `metadata` includes `squad_id` and the verbatim `justification`
+- `created_at` server timestamp
+
+The Mod dashboard surfaces recent rows in **Moderation audit log**. The same table is queryable for incident timelines.
+
+### Retention and review
+
+- **Audit rows are retained at least as long as the underlying squad's data** — they outlive the squad's archival event so that historical reviews of moderator behaviour remain auditable.
+- The **incident lead** (or moderation lead) reviews `moderation_audit_log` for `message_plaintext_decrypt_review` rows during every post-incident review (see below) and during scheduled compliance reviews.
+- If a decrypt-for-review row lacks a clear justification or appears to fall outside the policy above, treat it as a `SEV-1` "unauthorized moderator actions" incident and run the standard containment / communication steps.
+
+### What this audit does **not** prove
+
+- It does **not** make message content operator-blind: a privileged DB user with service-role access can still read ciphertext + key (see [`docs/security/threat-model.md`](../security/threat-model.md) §5).
+- It does **not** prevent a compromised moderator account from decrypting; it produces a tamper-resistant trail so misuse can be detected during review.
+- Any future per-user E2E key hierarchy work supersedes this control — see [`docs/technical/rfc-e2e-messaging-key-hierarchy.md`](../technical/rfc-e2e-messaging-key-hierarchy.md).
+
 ## Post-Incident Review
 
 Capture these items within 72 hours:

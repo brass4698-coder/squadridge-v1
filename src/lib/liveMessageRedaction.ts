@@ -1,6 +1,6 @@
 import { redactContent } from './redaction-engine';
 
-/** Client-side pre-submit masking (server should re-run before persistence when wired). */
+/** Client-side pre-submit masking; Edge `ingest-message` runs the same pipeline before INSERT — keep behavior aligned. */
 export async function redactOutgoingLiveMessage(
   body: string,
   squadId: string,

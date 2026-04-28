@@ -6,12 +6,13 @@ import App from './App';
 import { ErrorBoundary } from './components';
 import { clearDemoPersistedStateOnReload } from './demo/clearDemoPersistedStateOnReload';
 import { clearEphemeralStateOnBootstrap } from './lib/clearEphemeralStateOnBootstrap';
-import { createAppQueryClient, initSentry } from './lib';
+import { captureZkStubMisdeploySentinel, createAppQueryClient, initSentry } from './lib';
 import './styles/globals.css';
 
 clearEphemeralStateOnBootstrap();
 clearDemoPersistedStateOnReload();
 initSentry();
+captureZkStubMisdeploySentinel();
 
 const queryClient = createAppQueryClient();
 

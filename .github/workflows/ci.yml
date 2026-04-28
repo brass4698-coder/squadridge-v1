@@ -32,6 +32,9 @@ jobs:
       - name: Production readiness checks
         run: npm run check:prod-readiness
 
+      - name: Ensure no ZK hash stub for release artifacts
+        run: npm run check:no-zk-stub-prod
+
       - name: Test
         run: npm test
         env:
@@ -100,6 +103,9 @@ jobs:
 
       - name: Check database.types.ts vs codegen (local)
         run: npm run check:database-types
+
+      - name: Run pgTAP database tests
+        run: supabase test db
 
       - name: Bundle ingest-message Edge function
         run: npm run bundle:ingest-message

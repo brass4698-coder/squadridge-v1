@@ -27,6 +27,8 @@ The frontend is built using React, Vite, and TypeScript, providing a responsive 
 *   **Serverless functions**: Edge Functions (e.g. `verify-zk-proof` for Semaphore verification) for operations that must not run in the untrusted browser.
 *   **Matchmaking and queues**: Implemented with Postgres-backed RPCs and tables (`matchmaking_*`), not Redis. Optional Redis or dedicated workers may be considered later for extreme scale; `docker-compose.yml` includes an **optional** local Redis stub for experiments, not a dependency of the current Vite client.
 
+**Supabase client entrypoints (frontend):** The browser uses a single `createClient<Database>` from [`src/utils/supabase.ts`](../../src/utils/supabase.ts). Code in `src/lib` should prefer the typed accessor [`getSupabase()`](../../src/lib/supabase.ts), which wraps the same singleton. The onboarding subtree under `src/onboarding/` has its own [`getSupabaseBrowserClient`](../../src/onboarding/lib/supabase/client.ts) to keep the onboarding bundle isolated; new app features outside that tree should not add additional client factories without an architecture review.
+
 Older prospectus-style materials sometimes described a “horizontally scalable Node.js backend” with Redis [1]. **That design is not what this codebase runs today**; treat those references as forward-looking or superseded when reconciling audits against the repo.
 
 ### 3. Zero-Knowledge Privacy Stack (Enclave[ZK])

@@ -24,6 +24,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "check:prod-readiness": "node scripts/check-prod-readiness.mjs",
+    "check:no-zk-stub-prod": "node scripts/ensure-no-zk-stub-prod.mjs",
+    "check:banned-copy": "node scripts/check-banned-public-copy.mjs",
     "check:database-types": "node scripts/check-database-types-drift.mjs",
     "bundle:ingest-message": "node scripts/bundle-ingest-message.mjs",
     "prebuild": "node scripts/bundle-ingest-message.mjs",

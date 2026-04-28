@@ -109,6 +109,20 @@ export function VerificationPage() {
           permits by design: timestamps, coarse routing signals, squad keys for support contexts,
           and moderator-visible records under policy—not “operator-proof” secrecy.
         </p>
+        <ol className="mb-0 mt-6 list-decimal space-y-2 pl-5 font-sans text-[0.85rem] leading-relaxed text-ink-muted">
+          <li>Keep this tab or stay in the same browser session.</li>
+          <li>Run verification so the browser can prove your attribute to the Edge function.</li>
+          <li>Continue to Find squad when you are ready to match.</li>
+        </ol>
+        <p className="mb-0 mt-5 font-sans text-[0.82rem] leading-relaxed text-ink-muted">
+          Need help? Facilitators should follow{' '}
+          <code className="text-ink-secondary/90">docs/operations/pilot-runbook.md</code> — see
+          “Verification failures (facilitators)”. Participants can review the{' '}
+          <Link to="/security" className="text-teal-light underline underline-offset-4">
+            Security disclosure
+          </Link>
+          .
+        </p>
         {isZkTlsLabsEnabled() ? (
           <p
             className="mb-0 mt-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-[0.85rem] text-amber"

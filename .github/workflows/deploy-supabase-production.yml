@@ -32,6 +32,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ingest-message/index.ts imports ./edge.bundle.mjs (gitignored). Without this step
+      # `supabase functions deploy ingest-message` ships a broken function and message
+      # inserts fail in prod (migration 20260428194500 revokes direct client inserts).
+      - name: Bundle ingest-message Edge function
+        run: npm run bundle:ingest-message
+
       - uses: supabase/setup-cli@v1
         with:
           version: latest

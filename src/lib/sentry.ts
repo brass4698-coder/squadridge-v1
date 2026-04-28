@@ -170,19 +170,52 @@ export function addAuthTransitionBreadcrumb(
   });
 }
 
-/** ZK proof pipeline — no raw PII or preimage. */
+/** High-level failure bucket for ZK breadcrumbs — never includes raw verification strings. */
+export type ZkProofBreadcrumbErrorCode =
+  | 'stub_generate_failed'
+  | 'local_generate_failed'
+  | 'invoke_failed'
+  | 'invoke_timeout'
+  | 'response_invalid';
+
+/** ZK proof pipeline — metadata only (credential kind + coarse error bucket). No raw preimage or Edge error text. */
 export function addZkProofBreadcrumb(
   step: 'generate_local' | 'invoke_verify_edge' | 'stub_hash',
   status: 'start' | 'success' | 'error',
-  data?: Record<string, unknown>,
+  data?: {
+    credentialType?: string;
+    errorCode?: ZkProofBreadcrumbErrorCode;
+  },
 ): void {
   if (!sentryInitialized) return;
+  const sanitized: Record<string, unknown> = {};
+  if (data?.credentialType !== undefined) sanitized.credentialType = data.credentialType;
+  if (data?.errorCode !== undefined) sanitized.errorCode = data.errorCode;
   Sentry.addBreadcrumb({
     category: 'zk',
     level: status === 'error' ? 'warning' : 'info',
     message: `${step}:${status}`,
-    data,
+    data: Object.keys(sanitized).length ? sanitized : undefined,
   });
+}
+
+export function captureZkStubMisdeploySentinel(): void {
+  if (!sentryInitialized) return;
+  /** Avoid circular imports: sync read matches {@link isZkHashStubExplicit}. */
+  const stubExplicit = import.meta.env.VITE_ZK_STUB === 'true';
+  if (!stubExplicit || typeof window === 'undefined') return;
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return;
+  try {
+    if (sessionStorage.getItem('squadridge.zk_stub.sentinel.reported') === '1') return;
+    sessionStorage.setItem('squadridge.zk_stub.sentinel.reported', '1');
+  } catch {
+    /* ignore */
+  }
+  Sentry.captureMessage(
+    'ZK hash stub (VITE_ZK_STUB) active on non-localhost origin — unsafe for pilots',
+    'warning',
+  );
 }
 
 export { Sentry };

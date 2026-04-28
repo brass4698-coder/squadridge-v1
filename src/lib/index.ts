@@ -34,4 +34,5 @@ export * from './squad';
 export * from './squadMessageKey';
 export * from './supabase';
 export * from './supabaseClient';
+export * from './verifyZkProofResponse';
 export * from './zk';

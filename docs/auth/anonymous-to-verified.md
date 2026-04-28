@@ -25,7 +25,15 @@ Provision UI consent before calling finalize; failures raise SQL exceptions for 
 - Magic links and OAuth redirects typically hit: `/auth/callback?next=<encoded-path>`
 - Ensure `next` is an **internal path** only (the app already rejects `//` and off-origin URLs).
 
+## What carries over after a claim
+
+- **Squad membership** is rewritten to the verified `auth.users.id` by `finalize_demo_session_claim` (audit `demo_claim_finalized`).
+- **Existing message rows** keep their original `sender_id` (the anonymous user) — claims do not rewrite history. New messages from the verified account sit alongside the old ones in `messages`, encrypted with the same squad key.
+- **Outbound redaction** stays in force for both the anonymous demo session and the post-claim verified account: every message write goes through the `ingest-message` Edge Function (RLS revokes direct INSERTs since migration `20260428194500_messages_insert_edge_only.sql`).
+- **Moderator review** still applies — decrypt-for-review writes `message_plaintext_decrypt_review` rows to `moderation_audit_log` with the moderator's justification (see [`docs/security/encryption-scope.md`](../security/encryption-scope.md) and migration `20260428120000_moderator_decrypt_audit_rpc.sql`).
+
 ## Related
 
 - Profile schema: `supabase/migrations/*profiles*`
 - Sign-in UI: `/sign-in`
+- Edge ingest + redaction: [`docs/security/encryption-scope.md`](../security/encryption-scope.md), `supabase/functions/ingest-message/edgeHandler.ts`
