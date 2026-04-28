@@ -25,4 +25,6 @@ We support good-faith research that follows this reporting process and avoids ha
 
 ## Dependency and supply chain
 
-Keep dependencies current; run `npm audit` and address high-severity issues before pilot deployments. CI runs lint, unit tests, production build, and database migration apply on pull requests.
+Keep dependencies current; run `npm audit --omit=dev` and read [dependency advisories disposition](docs/security/dependency-advisories.md) before pilot deployments. Dependabot proposes weekly updates (`.github/dependabot.yml`). CI runs lint, unit tests, production build, database migrations, **dependency review on pull requests** (blocks newly introduced high/critical issues), and an informational production audit summary — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+Client error reporting posture (Sentry): [Observability and Sentry](docs/security/observability-and-sentry.md).

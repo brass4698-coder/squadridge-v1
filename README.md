@@ -35,11 +35,11 @@ Enable **Anonymous** sign-in under **Authentication → Providers** in the Supab
 
 The workflow [`.github/workflows/deploy-supabase-production.yml`](.github/workflows/deploy-supabase-production.yml) needs these **repository secrets** (Settings → Secrets and variables → Actions):
 
-| Secret | Purpose |
-| ------ | ------- |
-| `SUPABASE_ACCESS_TOKEN` | Classic Supabase PAT (`sbp_*`), not the anon or service_role API key |
-| `SUPABASE_DB_PASSWORD` | Database password for linking / migrations |
-| `SUPABASE_PROJECT_ID` | 20-character project ref (subdomain only), e.g. from `https://<ref>.supabase.co` |
+| Secret                  | Purpose                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| `SUPABASE_ACCESS_TOKEN` | Classic Supabase PAT (`sbp_*`), not the anon or service_role API key             |
+| `SUPABASE_DB_PASSWORD`  | Database password for linking / migrations                                       |
+| `SUPABASE_PROJECT_ID`   | 20-character project ref (subdomain only), e.g. from `https://<ref>.supabase.co` |
 
 The workflow validates token shape and project ref format; see comments in the YAML for PAT pitfalls (`sbp_v0_*` experimental tokens are rejected by the CLI).
 
@@ -51,24 +51,24 @@ Never commit `.env*` files with secrets. If `node_modules` shows as tracked, run
 
 ## Scripts
 
-| Command        | Description              |
-| -------------- | ------------------------ |
-| `npm run dev`    | Start Vite dev server    |
-| `npm run build`  | Typecheck + production build |
+| Command             | Description                                                       |
+| ------------------- | ----------------------------------------------------------------- |
+| `npm run dev`       | Start Vite dev server                                             |
+| `npm run build`     | Typecheck + production build                                      |
 | `npm run build:e2e` | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke) |
-| `npm run preview` | Preview production build |
+| `npm run preview`   | Preview production build                                          |
 
 ## After linking Supabase + GitHub
 
 Use this checklist to confirm everything is wired (manual steps in the dashboard where noted):
 
-| Step | Action |
-| ---- | ------ |
-| 1 | **GitHub:** Repo → **Actions** → **Deploy Supabase to production** succeeds on `main`. If it fails, see [supabase/README.md](supabase/README.md) (secrets, PAT format, migration drift). |
-| 2 | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …). |
-| 3 | **Supabase:** **Authentication → Providers** — **Anonymous** enabled. |
-| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/find-squad` (**Find my squad**; `/intent` redirects here), or expand **Session hub** → developer **Create demo squad** to exercise auth + RLS + Realtime. |
-| 5 | **Local (release gate):** Run `npm run build`, `npm test`, and `node scripts/check-prod-readiness.mjs` — should pass before you rely on CI or a deploy; mirrors checks in [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml). |
+| Step | Action                                                                                                                                                                                                                                                                                                 |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | **GitHub:** Repo → **Actions** → **Deploy Supabase to production** succeeds on `main`. If it fails, see [supabase/README.md](supabase/README.md) (secrets, PAT format, migration drift).                                                                                                               |
+| 2    | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …).                                                                                                                                                                               |
+| 3    | **Supabase:** **Authentication → Providers** — **Anonymous** enabled.                                                                                                                                                                                                                                  |
+| 4    | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/find-squad` (**Find my squad**; `/intent` redirects here), or expand **Session hub** → developer **Create demo squad** to exercise auth + RLS + Realtime. |
+| 5    | **Local (release gate):** Run `npm run build`, `npm test`, and `node scripts/check-prod-readiness.mjs` — should pass before you rely on CI or a deploy; mirrors checks in [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml).                                            |
 
 ### Frontend hosting (MVP)
 
@@ -94,6 +94,7 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 - Incident handling: [`docs/operations/incidents.md`](docs/operations/incidents.md)
 - Metrics definition: [`docs/product/metrics-spec.md`](docs/product/metrics-spec.md)
 - Partner and fundraising support: [`docs/business/pilot-partner-one-pager.md`](docs/business/pilot-partner-one-pager.md), [`docs/business/data-room-index.md`](docs/business/data-room-index.md), [`docs/pitch/`](docs/pitch/)
+- **Pitch materials:** Interactive hub at `/pitch-deck-hub` in the app (`src/pages/PitchDeckHubPage.tsx`); static HTML decks under `public/pitch-deck-hub/` (serve via `npm run dev` / production host).
 
 ## Contributing
 

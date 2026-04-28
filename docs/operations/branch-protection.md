@@ -2,26 +2,26 @@
 
 Goal: stop security-touching commits (RLS, migrations, Edge functions, ZK, encryption, auth) from landing on `main` without CI passing and at least one review. This is a **GitHub configuration step** — there is no in-repo enforcement that can replace it.
 
-The repo owner (or any account with admin access on `brass4698-coder/squadridge-v1`) should run through this checklist once and re-check after any policy change.
+The repository owner (or any account with **admin** access on this GitHub repository) should run through this checklist once and re-check after any policy change.
 
 ## 1. Enable branch protection on `main`
 
 GitHub → **Settings → Branches → Add branch protection rule**.
 
-| Setting | Value |
-| ------- | ----- |
-| Branch name pattern | `main` |
-| Require a pull request before merging | **on** |
-| Required approvals | **1** (or 2 for security-touching) |
-| Dismiss stale pull request approvals when new commits are pushed | **on** |
-| Require status checks to pass before merging | **on** |
-| Require branches to be up to date before merging | **on** |
-| Required checks | `build`, `e2e`, `db` (CI workflow jobs) |
-| Require conversation resolution before merging | **on** |
-| Require linear history | **on** (optional, enforces rebase/squash) |
-| Do not allow bypassing the above settings | **on** |
-| Allow force pushes | **off** |
-| Allow deletions | **off** |
+| Setting                                                          | Value                                               |
+| ---------------------------------------------------------------- | --------------------------------------------------- |
+| Branch name pattern                                              | `main`                                              |
+| Require a pull request before merging                            | **on**                                              |
+| Required approvals                                               | **1** (or 2 for security-touching)                  |
+| Dismiss stale pull request approvals when new commits are pushed | **on**                                              |
+| Require status checks to pass before merging                     | **on**                                              |
+| Require branches to be up to date before merging                 | **on**                                              |
+| Required checks                                                  | `build`, `e2e`, `db`, `security` (CI workflow jobs) |
+| Require conversation resolution before merging                   | **on**                                              |
+| Require linear history                                           | **on** (optional, enforces rebase/squash)           |
+| Do not allow bypassing the above settings                        | **on**                                              |
+| Allow force pushes                                               | **off**                                             |
+| Allow deletions                                                  | **off**                                             |
 
 Save. Verify the rule is listed and applies to **all** matching branches.
 
@@ -36,11 +36,12 @@ GitHub → **Settings → General → Pull Requests**.
 
 ## 3. Required CI jobs
 
-The `CI` workflow ([`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)) defines three jobs that must each be selected as required checks above:
+The `CI` workflow ([`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)) defines jobs that must each be selected as required checks above:
 
 - `build` — lint, banned-copy check, prod-readiness check, no-zk-stub-prod, tests, production build
 - `e2e` — Playwright smoke tests against the production build
 - `db` — local Supabase stack with all migrations applied, database types drift check, pgTAP database tests, Edge function bundle
+- `security` — dependency review on pull requests (blocks newly introduced high/critical advisories); informational production `npm audit` summary
 
 If a check renames in `ci.yml`, update the required-check list in the same PR or `main` will silently lose protection.
 

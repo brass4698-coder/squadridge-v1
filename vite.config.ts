@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     env.VITE_ALLOW_DEMO_DECOYS_IN_PROD !== 'true'
   ) {
     throw new Error(
-      'Production build blocked: VITE_SEMAPHORE_DEMO_GROUP=true ships bundled Squadridge Semaphore decoys, ' +
+      'Production build blocked: VITE_SEMAPHORE_DEMO_GROUP=true ships bundled SquadRidge Semaphore decoys, ' +
         'which collapses the anonymity set (see docs/technical/rfc-issuer-managed-anonymity-group.md). ' +
         'Either unset the flag for production or set VITE_ALLOW_DEMO_DECOYS_IN_PROD=true ' +
         'for a deliberate internal-demo build (CI prod release jobs must not set this).',

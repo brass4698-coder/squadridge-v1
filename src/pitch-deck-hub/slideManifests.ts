@@ -129,6 +129,29 @@ export const policyGovernmentManifest = m(
   ],
 );
 
+/** Static HTML: `public/pitch-deck-hub/conflict-prevention-thesis.html` — policy / prevention narrative with shipped-vs-roadmap split. */
+export const conflictPreventionThesisManifest = m(
+  'conflict-prevention-thesis',
+  'Conflict Prevention Thesis',
+  [
+    {
+      id: 's1',
+      title: 'Conflict prevention thesis',
+      layout: 'title',
+      eyebrow: 'Policy · partners · early warning (design)',
+    },
+    { id: 's2', title: 'Escalation outruns coordination' },
+    { id: 's3', title: 'Detect · Intervene · Measure' },
+    { id: 's4', title: 'What ships today vs roadmap' },
+    { id: 's5', title: 'Operator visibility is explicit' },
+    { id: 's6', title: 'Partner and pilot model' },
+    { id: 's7', title: 'Evaluation inputs required' },
+    { id: 's8', title: 'Deployment and governance' },
+    { id: 's9', title: 'Co-design pilots and validation' },
+    { id: 's10', title: 'Technical and compliance pointers' },
+  ],
+);
+
 export const marketCompetitionManifest = m('market-competition', 'Market + Competition', [
   { id: 's1', title: 'Title', layout: 'title' },
   { id: 's2', title: 'What we optimize for' },
@@ -231,6 +254,7 @@ export const ALL_DECK_MANIFESTS: PitchDeckSlideManifest[] = [
   problemSolutionManifest,
   productDemoManifest,
   policyGovernmentManifest,
+  conflictPreventionThesisManifest,
   marketCompetitionManifest,
   businessPricingManifest,
   tractionRoadmapManifest,

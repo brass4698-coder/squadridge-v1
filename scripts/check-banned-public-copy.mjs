@@ -6,6 +6,11 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const bad = [];
 
+/** Lines that expressly negate or cite limits — allowed to mention restricted terms for clarity. */
+function isDisclaimerLine(trimmed) {
+  return /\b(not|no|avoid|unless|don’t|don't)\b/i.test(trimmed) || /\b(disclaimer|Mirror language|\/security)/i.test(trimmed);
+}
+
 function scanFile(absPath, relDisplay) {
   const text = readFileSync(absPath, 'utf8');
   const lines = text.split(/\r?\n/);
@@ -17,7 +22,8 @@ function scanFile(absPath, relDisplay) {
     if (/\bend-to-end\s+encryption\b/i.test(trimmed) && !/qualified|research|scenario/i.test(trimmed))
       bad.push(`${relDisplay}:${idx + 1}: ${trimmed}`);
     if (/\bSignal-grade\b/i.test(trimmed) && !/\bnot\b/i.test(trimmed)) bad.push(`${relDisplay}:${idx + 1}: ${trimmed}`);
-    if (/\bserver-blind\b/i.test(trimmed)) bad.push(`${relDisplay}:${idx + 1}: ${trimmed}`);
+    if (/\bserver-blind\b/i.test(trimmed) && !isDisclaimerLine(trimmed))
+      bad.push(`${relDisplay}:${idx + 1}: ${trimmed}`);
   });
 }
 
@@ -29,6 +35,13 @@ if (existsSync(pubDir)) {
   for (const name of readdirSync(pubDir)) {
     if (!name.endsWith('.html')) continue;
     scanFile(join(pubDir, name), `public/${name}`);
+  }
+  const pitchHub = join(pubDir, 'pitch-deck-hub');
+  if (existsSync(pitchHub)) {
+    for (const name of readdirSync(pitchHub)) {
+      if (!name.endsWith('.html')) continue;
+      scanFile(join(pitchHub, name), `public/pitch-deck-hub/${name}`);
+    }
   }
 }
 

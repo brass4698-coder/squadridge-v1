@@ -6,11 +6,11 @@ This folder is the **canonical** home for product, technical, security, and oper
 
 The product surface uses three closely-related words inconsistently across the codebase (see Phase 3.1 of the audit remediation plan). New code and docs **must** use the canonical meanings below; older call-sites are migrating in stages.
 
-| Term | Canonical meaning | Where it shows up today |
-| ---- | ----------------- | ----------------------- |
-| **Squad** | A persisted cohort of two or more verified-anonymous participants matched into the same dialogue. Identified by `public.squads.id`. Outlives any single meeting; carries `message_encryption_key`, membership, message history. | DB tables `squads`, `squad_members`, `squad_peer_profiles`; client wrappers `src/lib/squad.ts`. |
-| **Session** | One time-bounded *meeting* of a squad — the bracket between "we entered the room" and "we left or archived". May be the only one a squad ever has, or one of a recurring series. The current MVP collapses session ≈ squad lifecycle, but new analytics (`metrics-spec.md`) and the pilot runbook talk about session counts. | "Pre-session checklist", "session metrics", `getDemoSession()`, `useSessionAccess`. |
-| **Room** | The *UI surface* a participant inhabits while a session is in progress (chat list, phase rail, reactions, alert button). A room renders one session of one squad. | `SessionPage.tsx`, `SessionStrategyRoomChrome.tsx`, "Exit to hub" link. |
+| Term        | Canonical meaning                                                                                                                                                                                                                                                                                                            | Where it shows up today                                                                         |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Squad**   | A persisted cohort of two or more verified-anonymous participants matched into the same dialogue. Identified by `public.squads.id`. Outlives any single meeting; carries `message_encryption_key`, membership, message history.                                                                                              | DB tables `squads`, `squad_members`, `squad_peer_profiles`; client wrappers `src/lib/squad.ts`. |
+| **Session** | One time-bounded _meeting_ of a squad — the bracket between "we entered the room" and "we left or archived". May be the only one a squad ever has, or one of a recurring series. The current MVP collapses session ≈ squad lifecycle, but new analytics (`metrics-spec.md`) and the pilot runbook talk about session counts. | "Pre-session checklist", "session metrics", `getDemoSession()`, `useSessionAccess`.             |
+| **Room**    | The _UI surface_ a participant inhabits while a session is in progress (chat list, phase rail, reactions, alert button). A room renders one session of one squad.                                                                                                                                                            | `SessionPage.tsx`, `SessionStrategyRoomChrome.tsx`, "Exit to hub" link.                         |
 
 **Renaming policy:**
 
@@ -26,68 +26,71 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 
 ## Product
 
-| Topic | Document |
-| ----- | -------- |
-| What SquadRidge is (mission, mechanics) | [product/product-overview.md](product/product-overview.md) |
-| Onboarding journey (product view) | [product/onboarding-flow.md](product/onboarding-flow.md) |
-| User journeys | [product/user-journeys.md](product/user-journeys.md) |
-| Feature specifications | [product/feature-specifications.md](product/feature-specifications.md) |
-| Metrics | [product/metrics-spec.md](product/metrics-spec.md) |
-| CSI (draft, not shipped) | [product/csi-spec.md](product/csi-spec.md) |
+| Topic                                   | Document                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------- |
+| What SquadRidge is (mission, mechanics) | [product/product-overview.md](product/product-overview.md)             |
+| Onboarding journey (product view)       | [product/onboarding-flow.md](product/onboarding-flow.md)               |
+| User journeys                           | [product/user-journeys.md](product/user-journeys.md)                   |
+| Feature specifications                  | [product/feature-specifications.md](product/feature-specifications.md) |
+| Metrics                                 | [product/metrics-spec.md](product/metrics-spec.md)                     |
+| CSI (draft, not shipped)                | [product/csi-spec.md](product/csi-spec.md)                             |
 
 ## Business & fundraising
 
-| Topic | Document |
-| ----- | -------- |
-| Strategic positioning (early warning / prevention narrative) | [business/strategic-positioning-early-warning.md](business/strategic-positioning-early-warning.md) |
-| Go-to-market | [business/go-to-market.md](business/go-to-market.md) |
-| Partnership strategy | [business/partnership-strategy.md](business/partnership-strategy.md) |
-| Pilot one-pager | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md) |
-| Impact metrics | [business/impact-metrics.md](business/impact-metrics.md) |
+| Topic                                                        | Document                                                                                                                          |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| Strategic positioning (early warning / prevention narrative) | [business/strategic-positioning-early-warning.md](business/strategic-positioning-early-warning.md)                                |
+| Go-to-market                                                 | [business/go-to-market.md](business/go-to-market.md)                                                                              |
+| Partnership strategy                                         | [business/partnership-strategy.md](business/partnership-strategy.md)                                                              |
+| Pilot one-pager                                              | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md)                                                        |
+| Pitch Deck Hub (app + static HTML)                           | In-app `/pitch-deck-hub`; [`public/pitch-deck-hub/`](../public/pitch-deck-hub/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
+| Impact metrics                                               | [business/impact-metrics.md](business/impact-metrics.md)                                                                          |
 
 ## Technical
 
-| Topic | Document |
-| ----- | -------- |
-| Architecture (client + Supabase) | [technical/architecture-overview.md](technical/architecture-overview.md) |
-| Onboarding implementation | [technical/onboarding-architecture.md](technical/onboarding-architecture.md) |
-| Demo / guided tour | [technical/demo-walkthrough.md](technical/demo-walkthrough.md) and [../src/demo/README.md](../src/demo/README.md) |
-| Data model | [technical/data-model.md](technical/data-model.md) |
-| Auth and sessions | [technical/auth-and-sessions.md](technical/auth-and-sessions.md) |
-| API / Edge Functions | [api/edge-functions.md](api/edge-functions.md) |
-| React Query caching | [technical/react-query-cache.md](technical/react-query-cache.md) |
+| Topic                            | Document                                                                                                          |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Architecture (client + Supabase) | [technical/architecture-overview.md](technical/architecture-overview.md)                                          |
+| Onboarding implementation        | [technical/onboarding-architecture.md](technical/onboarding-architecture.md)                                      |
+| Demo / guided tour               | [technical/demo-walkthrough.md](technical/demo-walkthrough.md) and [../src/demo/README.md](../src/demo/README.md) |
+| Data model                       | [technical/data-model.md](technical/data-model.md)                                                                |
+| Auth and sessions                | [technical/auth-and-sessions.md](technical/auth-and-sessions.md)                                                  |
+| API / Edge Functions             | [api/edge-functions.md](api/edge-functions.md)                                                                    |
+| React Query caching              | [technical/react-query-cache.md](technical/react-query-cache.md)                                                  |
 
 ## Security & trust
 
-| Topic | Document |
-| ----- | -------- |
-| Threat model | [security/threat-model.md](security/threat-model.md) |
-| Encryption scope | [security/encryption-scope.md](security/encryption-scope.md) |
-| Verified / anonymous auth narrative | [auth/anonymous-to-verified.md](auth/anonymous-to-verified.md) |
+| Topic                                | Document                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
+| Threat model                         | [security/threat-model.md](security/threat-model.md)                         |
+| Encryption scope                     | [security/encryption-scope.md](security/encryption-scope.md)                 |
+| npm audit disposition & supply chain | [security/dependency-advisories.md](security/dependency-advisories.md)       |
+| Sentry / client observability        | [security/observability-and-sentry.md](security/observability-and-sentry.md) |
+| Verified / anonymous auth narrative  | [auth/anonymous-to-verified.md](auth/anonymous-to-verified.md)               |
 
 ## Operations & piloting
 
-| Topic | Document |
-| ----- | -------- |
-| Pilot runbook | [operations/pilot-runbook.md](operations/pilot-runbook.md) |
-| Incidents | [operations/incidents.md](operations/incidents.md) |
+| Topic                | Document                                                                 |
+| -------------------- | ------------------------------------------------------------------------ |
+| Pilot runbook        | [operations/pilot-runbook.md](operations/pilot-runbook.md)               |
+| Incidents            | [operations/incidents.md](operations/incidents.md)                       |
 | Production checklist | [operations/production-checklist.md](operations/production-checklist.md) |
 
 ## Design & brand
 
-| Topic | Document |
-| ----- | -------- |
-| Design system | [design/design-system.md](design/design-system.md) |
-| UX patterns | [design/ux-patterns.md](design/ux-patterns.md) |
+| Topic         | Document                                                       |
+| ------------- | -------------------------------------------------------------- |
+| Design system | [design/design-system.md](design/design-system.md)             |
+| UX patterns   | [design/ux-patterns.md](design/ux-patterns.md)                 |
 | Accessibility | [design/accessibility-guide.md](design/accessibility-guide.md) |
-| Tone of voice | [brand/tone-of-voice.md](brand/tone-of-voice.md) |
+| Tone of voice | [brand/tone-of-voice.md](brand/tone-of-voice.md)               |
 
 ## Architecture decisions (ADRs)
 
-| ADR | Topic |
-| --- | ----- |
-| [001](adr/001-use-semaphore-zk.md) | Semaphore / ZK direction |
-| [002](adr/002-realtime-vs-polling.md) | Realtime vs polling |
+| ADR                                            | Topic                        |
+| ---------------------------------------------- | ---------------------------- |
+| [001](adr/001-use-semaphore-zk.md)             | Semaphore / ZK direction     |
+| [002](adr/002-realtime-vs-polling.md)          | Realtime vs polling          |
 | [003](adr/003-zk-device-bootstrap-deferred.md) | Deferred ZK device bootstrap |
 
 ## Short entrypoints (same folder)

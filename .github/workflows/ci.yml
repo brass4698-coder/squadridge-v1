@@ -89,6 +89,56 @@ jobs:
         env:
           CI: true
 
+  # Supply-chain hygiene. Two distinct gates:
+  #
+  #  1. dependency-review-action (PR-only): hard-fails when a pull request
+  #     introduces a NEW high or critical advisory. This protects forward
+  #     progress without needing to first eliminate the existing transitive
+  #     advisories tracked in docs/security/dependency-advisories.md.
+  #
+  #  2. npm audit (informational): emits a job summary of current production
+  #     advisories on every push and PR so dispositions in
+  #     docs/security/dependency-advisories.md can be kept in sync. This step
+  #     deliberately does NOT fail the build today (continue-on-error: true)
+  #     because the documented residual chain (@xenova/transformers,
+  #     @semaphore-protocol/proof transitive) cannot be remediated without
+  #     upstream movement; turning the gate on would block unrelated PRs.
+  #     Re-evaluate and remove continue-on-error once those chains are clean.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependency review (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit (production runtime, informational)
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          {
+            echo '## Production-runtime npm audit'
+            echo
+            echo 'See docs/security/dependency-advisories.md for the disposition of each currently-accepted advisory.'
+            echo
+            echo '```'
+            npm audit --omit=dev --audit-level=high || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          npm audit --omit=dev --audit-level=high
+
   # Applies all migrations to a local Supabase stack so broken SQL is caught on every PR.
   db:
     runs-on: ubuntu-latest
