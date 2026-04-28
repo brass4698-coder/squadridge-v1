@@ -19,7 +19,7 @@ info:
     squad message key. See `docs/security/encryption-scope.md` for details.
 
   contact:
-    email: security@squadridge.example  # Replace with real contact
+    email: security@squadridge.example  # TODO: Replace with real contact email before sharing publicly
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
