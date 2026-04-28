@@ -1,11 +1,72 @@
 import * as Sentry from '@sentry/react';
+import type { ErrorEvent as SentryErrorEvent } from '@sentry/react';
 import type { ErrorInfo } from 'react';
+import { hashUserIdForSentry, isSentryUserHash } from './sentryUserHash';
 
 let sentryInitialized = false;
+
+/**
+ * Cached salted-hash form of the current Supabase user id (see {@link ./sentryUserHash.ts}).
+ * Updated asynchronously by {@link setSentryUserContext}; used by sync error boundaries
+ * which cannot await a hash before reporting.
+ */
+let cachedHashedUserId: string | null = null;
+
+/** Maximum string length permitted in `extra`/`contexts` payloads (defense-in-depth
+ * against accidental message-body capture). Anything longer is stripped by `beforeSend`. */
+const MAX_SENTRY_FIELD_LENGTH = 512;
 
 /** True only after a successful `Sentry.init` in {@link initSentry}. */
 export function isSentryEnabled(): boolean {
   return sentryInitialized;
+}
+
+/**
+ * Walk a `contexts`-like object and replace any string value longer than
+ * {@link MAX_SENTRY_FIELD_LENGTH} with a truncated marker. Mutates in place
+ * (events are owned by the caller passing through `beforeSend`).
+ */
+function scrubLongStringsInPlace(node: unknown, depth = 0): void {
+  if (depth > 6 || node === null || typeof node !== 'object') return;
+  for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+    if (typeof v === 'string') {
+      if (v.length > MAX_SENTRY_FIELD_LENGTH) {
+        (node as Record<string, unknown>)[k] = `[redacted: >${MAX_SENTRY_FIELD_LENGTH}b]`;
+      }
+    } else if (v && typeof v === 'object') {
+      scrubLongStringsInPlace(v, depth + 1);
+    }
+  }
+}
+
+/**
+ * Pre-send sanitiser. Three responsibilities:
+ *   1. Drop ResizeObserver dev noise (existing behaviour).
+ *   2. Strip any `session_boundary.user_id` that does not look like a salted hash —
+ *      catches accidental future leaks of raw `auth.users.id` UUIDs.
+ *   3. Strip overlong strings in `extra` and `contexts` so an accidental message
+ *      body or stack-trace dump cannot exfiltrate plaintext through Sentry.
+ *
+ * Exported for unit testing — production wiring goes through `Sentry.init`.
+ */
+export function beforeSendSentryEvent(event: SentryErrorEvent): SentryErrorEvent | null {
+  if (import.meta.env.DEV && event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
+    return null;
+  }
+
+  const sb = event.contexts?.session_boundary as
+    | { user_id?: unknown; squad_id?: unknown }
+    | undefined;
+  if (sb && Object.prototype.hasOwnProperty.call(sb, 'user_id')) {
+    if (!isSentryUserHash(sb.user_id)) {
+      delete sb.user_id;
+    }
+  }
+
+  if (event.contexts) scrubLongStringsInPlace(event.contexts);
+  if (event.extra) scrubLongStringsInPlace(event.extra);
+
+  return event;
 }
 
 /**
@@ -40,15 +101,7 @@ export function initSentry(): void {
       replaysSessionSampleRate: 0,
       replaysOnErrorSampleRate: 0,
       sendDefaultPii: false,
-      beforeSend(event) {
-        if (
-          import.meta.env.DEV &&
-          event.exception?.values?.[0]?.value?.includes('ResizeObserver')
-        ) {
-          return null;
-        }
-        return event;
-      },
+      beforeSend: beforeSendSentryEvent,
     });
     sentryInitialized = true;
   } catch (err) {
@@ -72,7 +125,6 @@ export function captureBoundaryError(
   errorInfo: ErrorInfo,
   scope?: {
     squadId?: string;
-    userId?: string | null;
     /** Distinguishes root vs route vs session boundaries in Sentry. */
     boundary?: 'root' | 'route' | 'session';
   },
@@ -82,9 +134,8 @@ export function captureBoundaryError(
   if (scope?.squadId) tags.squad_id = scope.squadId;
   if (scope?.boundary) tags.error_boundary = scope.boundary;
 
-  const includeSessionContext =
-    !!scope &&
-    (typeof scope.squadId === 'string' || Object.prototype.hasOwnProperty.call(scope, 'userId'));
+  const hashedUserId = cachedHashedUserId;
+  const includeSessionContext = !!scope && (typeof scope.squadId === 'string' || hashedUserId);
 
   Sentry.captureException(error, {
     ...(Object.keys(tags).length > 0 ? { tags } : {}),
@@ -96,7 +147,7 @@ export function captureBoundaryError(
         ? {
             session_boundary: {
               squad_id: scope?.squadId,
-              user_id: scope?.userId ?? undefined,
+              user_id: hashedUserId ?? undefined,
             },
           }
         : {}),
@@ -104,10 +155,31 @@ export function captureBoundaryError(
   });
 }
 
-/** Anonymous user id only; no PII. */
-export function setSentryUserContext(userId: string | null): void {
-  if (!sentryInitialized) return;
-  Sentry.setUser(userId ? { id: userId } : null);
+/**
+ * Set the Sentry user context to the salted hash of `userId`. Asynchronous because
+ * the hash uses `crypto.subtle.digest`. Safe to fire-and-forget from `useEffect`;
+ * the cached hash also feeds {@link captureBoundaryError} so sync error boundaries
+ * still attach a non-PII identifier.
+ *
+ * Never sends raw `auth.users.id` — see {@link ./sentryUserHash.ts}.
+ */
+export async function setSentryUserContext(userId: string | null): Promise<void> {
+  if (userId === null) {
+    cachedHashedUserId = null;
+    if (sentryInitialized) Sentry.setUser(null);
+    return;
+  }
+  let hashed: string;
+  try {
+    hashed = await hashUserIdForSentry(userId);
+  } catch (err) {
+    console.warn('[Sentry] Could not hash user id; skipping setUser to avoid PII leak.', err);
+    cachedHashedUserId = null;
+    if (sentryInitialized) Sentry.setUser(null);
+    return;
+  }
+  cachedHashedUserId = hashed;
+  if (sentryInitialized) Sentry.setUser({ id: hashed });
 }
 
 export function setSentrySquadContext(squadId: string | null): void {
@@ -216,6 +288,11 @@ export function captureZkStubMisdeploySentinel(): void {
     'ZK hash stub (VITE_ZK_STUB) active on non-localhost origin — unsafe for pilots',
     'warning',
   );
+}
+
+/** Test-only: reset the cached hashed user id between cases. */
+export function __resetSentryUserCacheForTests(): void {
+  cachedHashedUserId = null;
 }
 
 export { Sentry };

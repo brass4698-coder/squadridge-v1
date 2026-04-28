@@ -22,6 +22,7 @@ const envSchema = z
     VITE_CONTACT_EMAIL: z.union([z.literal(''), z.string().email()]).optional(),
     VITE_SENTRY_DSN: z.union([z.string().url(), z.literal('')]).optional(),
     VITE_SENTRY_ENVIRONMENT: z.string().optional(),
+    VITE_SENTRY_USER_HASH_SALT: z.string().optional(),
     VITE_ENABLE_EDGE_RATE_LIMIT: viteBoolString.optional(),
   })
   .superRefine((data, ctx) => {
@@ -32,6 +33,19 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         message: 'Set VITE_SUPABASE_PUBLISHABLE_KEY or VITE_SUPABASE_ANON_KEY',
         path: ['VITE_SUPABASE_PUBLISHABLE_KEY'],
+      });
+    }
+    const dsn = data.VITE_SENTRY_DSN?.trim();
+    const salt = data.VITE_SENTRY_USER_HASH_SALT?.trim();
+    /** When Sentry is wired up in production, refuse to ship without a salt — keeps
+     * the hashed user id meaningful (see src/lib/sentryUserHash.ts). The bootstrap
+     * runs in DEV too; we only enforce the gate in PROD builds. */
+    if (import.meta.env.PROD && dsn && !salt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'VITE_SENTRY_USER_HASH_SALT is required when VITE_SENTRY_DSN is set in production builds',
+        path: ['VITE_SENTRY_USER_HASH_SALT'],
       });
     }
   });

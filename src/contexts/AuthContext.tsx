@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [sessionQuery.error]);
 
   useEffect(() => {
-    setSentryUserContext(session?.user?.id ?? null);
+    void setSentryUserContext(session?.user?.id ?? null);
   }, [session?.user?.id]);
 
   const ensureSession = useCallback(async () => {
