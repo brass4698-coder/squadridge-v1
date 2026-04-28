@@ -1,4 +1,6 @@
 import { useLocation } from 'react-router-dom';
+import { twMerge } from 'tailwind-merge';
+import { publicShellInnerClass } from './publicShell';
 
 const FLOW_STEPS = [
   { id: 'intent', label: 'Find squad', number: 1 },
@@ -18,13 +20,18 @@ function getFlowStepIndex(pathname: string): number {
 /** Linear progress for the match → session → ledger journey (not shown on marketing-only routes). */
 export function NavigationProgress() {
   const { pathname } = useLocation();
+  /** Published ledger routes are public records, not part of the match → session product flow. */
+  if (pathname.startsWith('/ledger')) return null;
   const currentIndex = getFlowStepIndex(pathname);
   if (currentIndex < 0) return null;
 
   return (
     <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.5)] py-2.5 sm:py-3">
       <nav
-        className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-2 gap-y-2 px-4 sm:justify-start sm:gap-x-4 sm:px-6 lg:px-8"
+        className={twMerge(
+          publicShellInnerClass,
+          'flex flex-wrap items-center justify-center gap-x-2 gap-y-2 sm:justify-start sm:gap-x-4',
+        )}
         aria-label="Match flow progress"
       >
         {FLOW_STEPS.map((step, i) => (

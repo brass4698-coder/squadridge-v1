@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { UserRound } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks';
@@ -7,9 +8,13 @@ import { isSupabaseConfigured } from '../../lib';
 export type AccountMenuProps = {
   /** When set (e.g. demo walkthrough), shown as the menu button label instead of callsign/email. */
   menuTriggerLabel?: string;
+  /**
+   * Public shell: signed-out keeps muted “Sign in”; signed-in uses icon-only trigger (no standalone “Account” label).
+   */
+  triggerVariant?: 'default' | 'public-shell';
 };
 
-export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
+export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: AccountMenuProps) {
   const { pathname } = useLocation();
   const { session, loading: authLoading, signOut } = useAuth();
   const { profile } = useProfile();
@@ -18,6 +23,9 @@ export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
   /** Marketing and public document routes: neutral account chrome (no callsign / demo personas in the bar). */
   const neutralAccountChrome =
     pathname === '/' || pathname.startsWith('/ledger') || pathname.startsWith('/security');
+  const publicShell = triggerVariant === 'public-shell';
+  /** Landing only: don’t compete with the hero primary CTA. */
+  const demoteOnLandingHome = pathname === '/';
 
   useEffect(() => {
     if (!open) return;
@@ -44,33 +52,53 @@ export function AccountMenu({ menuTriggerLabel }: AccountMenuProps) {
     return (
       <Link
         to="/sign-in"
-        className="inline-flex min-h-[36px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-3 py-1.5 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+        className={
+          demoteOnLandingHome
+            ? 'inline-flex min-h-[36px] items-center justify-center rounded-md px-2 py-1 font-sans text-[0.78rem] font-medium text-[#5f6b7c] transition-colors hover:text-[#94a3b8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/40'
+            : publicShell
+              ? 'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[6px] px-2 font-sans text-[0.8125rem] font-medium text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50'
+              : 'inline-flex min-h-[36px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-3 py-1.5 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]'
+        }
       >
         Sign in
       </Link>
     );
   }
 
-  const label = neutralAccountChrome
-    ? 'Account'
-    : menuTriggerLabel?.trim() ||
-      profile?.callsign?.trim() ||
-      session.user?.email?.split('@')[0] ||
-      'Operator';
+  const label =
+    neutralAccountChrome && !publicShell
+      ? 'Account'
+      : menuTriggerLabel?.trim() ||
+        profile?.callsign?.trim() ||
+        session.user?.email?.split('@')[0] ||
+        'Operator';
 
   return (
     <div ref={rootRef} className="relative flex items-center">
       <button
         type="button"
-        className="inline-flex max-w-[14rem] items-center gap-2 rounded-[8px] border border-[#2d3f55] bg-[#0f1623]/80 px-3 py-1.5 font-sans text-[0.85rem] font-medium text-[#e2e8f0] transition-colors hover:border-[#3d4f63]"
+        className={
+          publicShell && neutralAccountChrome
+            ? 'inline-flex size-11 shrink-0 items-center justify-center rounded-[6px] border border-white/[0.08] text-slate-400 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04] hover:text-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50'
+            : demoteOnLandingHome
+              ? 'inline-flex max-w-[12rem] items-center gap-1.5 rounded-md border border-white/[0.07] bg-transparent px-2.5 py-1 font-sans text-[0.78rem] font-medium text-[#64748b] transition-colors hover:border-white/[0.12] hover:text-[#94a3b8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/40'
+              : 'inline-flex max-w-[14rem] items-center gap-2 rounded-[8px] border border-[#2d3f55] bg-[#0f1623]/80 px-3 py-1.5 font-sans text-[0.85rem] font-medium text-[#e2e8f0] transition-colors hover:border-[#3d4f63]'
+        }
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={publicShell && neutralAccountChrome ? 'Account menu' : undefined}
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="truncate">{label}</span>
-        <span className="text-[#6b7280]" aria-hidden>
-          ▾
-        </span>
+        {publicShell && neutralAccountChrome ? (
+          <UserRound className="size-[18px] shrink-0" aria-hidden />
+        ) : (
+          <>
+            <span className="truncate">{label}</span>
+            <span className="text-[#6b7280]" aria-hidden>
+              ▾
+            </span>
+          </>
+        )}
       </button>
       {open ? (
         <div

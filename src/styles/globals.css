@@ -345,6 +345,15 @@
     @apply border-gray-500 text-white;
   }
 
+  /** Landing / paired-primary secondary — teal tint so it matches filled CTAs */
+  .btn-secondary-accent {
+    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-teal/40 bg-teal/[0.08] px-5 py-2.5 font-heading text-base font-semibold text-teal-light shadow-[inset_0_1px_0_rgba(0,194,178,0.12),0_0_0_1px_rgba(0,194,178,0.12)] transition-[color,background-color,border-color,box-shadow] duration-150;
+  }
+
+  .btn-secondary-accent:hover {
+    @apply border-teal/55 bg-teal/[0.14] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_24px_-8px_rgba(0,194,178,0.35)];
+  }
+
   /** Hero primary CTA — explicit 8px radius (not pill) */
   /** Hero CTA — same focus affordance as .btn-primary; extra lift + glow for landing */
   .btn-hero-join {

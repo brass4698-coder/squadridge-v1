@@ -1,107 +1,106 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import SquadLogo from '../SquadLogo';
-import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { useAppNavContext, useIsModerator } from '../../hooks';
-import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../../lib';
-import { AccountMenu } from './AccountMenu';
 import { NavigationProgress } from './NavigationProgress';
-import { PrimaryCTA } from '../ui/PrimaryCTA';
+import { publicShellInnerClass, shellListResetClass } from './publicShell';
+import { twMerge } from 'tailwind-merge';
 
-const navLinkBase =
-  'inline-flex min-h-[44px] items-center rounded-full px-3.5 py-2 text-[0.8125rem] font-medium leading-none transition-[color,background-color,border-color,box-shadow] duration-150';
-const navMuted = `${navLinkBase} border border-transparent text-[#8b95a8] hover:border-white/[0.06] hover:bg-white/[0.04] hover:text-[#e2e8f0]`;
-const navActive = `${navLinkBase} border border-white/[0.08] bg-white/[0.05] text-[#f1f5f9] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]`;
+const HEADER_SHELL =
+  'sticky top-0 z-[100] border-b border-white/[0.08] bg-[rgba(11,15,26,0.92)] backdrop-blur-[8px] supports-[backdrop-filter]:bg-[rgba(11,15,26,0.88)]';
 
-function mobileDrawerItemClass(active: boolean) {
-  return `flex min-h-[44px] w-full items-center rounded-lg border-l-2 border-transparent py-2.5 pl-3 text-left text-[0.9rem] font-medium transition-colors duration-150 ${
+/** Single primary row: 64px mobile, 72px desktop — context bar is always separate below. */
+const HEADER_MAIN_ROW = twMerge(
+  publicShellInnerClass,
+  'flex h-16 shrink-0 items-center justify-between gap-3 lg:grid lg:h-[72px] lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)_auto] lg:items-center lg:justify-normal lg:gap-6',
+);
+
+/** Institutional desktop nav — text-only states, no pill chrome */
+const deskNavLink = (active: boolean) =>
+  twMerge(
+    'inline-flex items-center border-b border-transparent pb-px text-[15px] font-medium leading-none tracking-normal transition-colors duration-150',
+    'min-h-[44px] min-w-0 shrink px-0.5 pt-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50',
     active
-      ? 'border-teal bg-teal/10 text-[#f1f5f9]'
-      : 'text-[#8b95a8] hover:border-white/[0.08] hover:bg-white/[0.05] hover:text-[#e2e8f0]'
-  }`;
-}
+      ? 'border-slate-200/90 text-slate-100'
+      : 'text-slate-500 hover:border-slate-500/50 hover:text-slate-300',
+  );
 
-function mobileYouAreHereLabel(
-  pathname: string,
-  nav: ReturnType<typeof useDemoNavState>,
-): string | null {
-  if (pathname === '/') return null;
-  if (nav.intentActive) return 'Find squad';
-  if (pathname.startsWith('/match')) return 'Matching';
-  if (nav.inSessionRoom) return 'Session room';
-  if (pathname.startsWith('/session')) return 'Session hub';
-  if (nav.verifyActive) return 'Verification';
-  if (nav.ledgerActive) return 'Outcomes & ledger';
-  if (nav.securityActive) return 'Security';
-  if (nav.modActive) return 'Admin';
-  if (nav.supabaseActive) return 'Supabase health';
-  if (pathname.startsWith('/settings')) return 'Settings';
-  if (pathname.startsWith('/sign-in')) return 'Sign in';
-  if (pathname.startsWith('/auth/callback')) return 'Account';
-  if (pathname.startsWith('/pitch-deck-hub')) return 'Pitch materials';
-  /** Unknown or rare routes: omit banner — “Current: This page” is noise. */
-  return null;
-}
+const mobileLink = (active: boolean) =>
+  twMerge(
+    'flex min-h-[44px] w-full items-center rounded-[6px] px-1 text-left text-[15px] font-medium leading-snug transition-colors',
+    active
+      ? 'text-slate-100 underline decoration-slate-500 underline-offset-4'
+      : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300',
+  );
 
 type Variant = 'full' | 'minimal';
 
-function NavLink({
-  to,
-  children,
-  active,
-  onNavigate,
-}: {
-  to: string;
-  children: React.ReactNode;
-  active: boolean;
-  onNavigate?: () => void;
-}) {
-  return (
-    <Link to={to} className={active ? navActive : navMuted} onClick={onNavigate}>
-      {children}
-    </Link>
-  );
+function usePublicNavActive() {
+  const { pathname, hash } = useLocation();
+  return {
+    howItWorks: pathname === '/' && hash === '#how-it-works',
+    security: pathname.startsWith('/security'),
+    ledger: pathname === '/ledger' || pathname === '/ledger/' || pathname.startsWith('/ledger/'),
+    pilotAccess: (pathname === '/' && hash === '#waitlist') || pathname.startsWith('/invite'),
+  };
 }
 
-function useDemoNavState() {
-  const { pathname, hash } = useLocation();
-  const sessionMatch = pathname.match(/^\/session\/([^/]+)\/?/);
-  const sessionSquadId = sessionMatch?.[1];
-  const inSessionRoom = Boolean(sessionSquadId);
-
-  return {
-    homeActive: pathname === '/' && hash !== '#waitlist' && hash !== '#how-it-works',
-    matchFlowActive:
-      pathname.startsWith('/match') ||
-      pathname.startsWith('/find-squad') ||
-      pathname.startsWith('/intent'),
-    intentActive: pathname.startsWith('/find-squad') || pathname.startsWith('/intent'),
-    sessionLinkActive: pathname.startsWith('/session'),
-    inSessionRoom,
-    sessionHref: sessionSquadId ? `/session/${sessionSquadId}` : '/session',
-    waitlistActive: pathname === '/' && hash === '#waitlist',
-    howItWorksActive: pathname === '/' && hash === '#how-it-works',
-    pilotAccessActive: pathname === '/' && hash === '#waitlist',
-    sampleOutputActive: pathname.startsWith('/ledger'),
-    verifyActive: pathname.startsWith('/verify'),
-    ledgerActive: pathname.startsWith('/ledger'),
-    securityActive: pathname.startsWith('/security'),
-    supabaseActive: pathname.startsWith('/admin/health'),
-    modActive: pathname.startsWith('/mod') || pathname.startsWith('/admin/'),
-  };
+function HeaderContextContent(): ReactNode | null {
+  const { pathname } = useLocation();
+  if (pathname === '/security') {
+    return (
+      <span className="text-[13px] font-medium leading-snug text-slate-500">
+        Security disclosure
+      </span>
+    );
+  }
+  if (pathname === '/ledger' || pathname === '/ledger/') {
+    return <span className="text-[13px] font-medium leading-snug text-slate-500">Ledger</span>;
+  }
+  const record = pathname.match(/^\/ledger\/([^/]+)\/?$/);
+  if (record) {
+    const slug = record[1];
+    return (
+      <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 gap-y-1 text-[13px] font-medium leading-snug text-slate-500">
+        <Link
+          to="/ledger"
+          className="shrink-0 text-slate-400 underline-offset-4 transition-colors hover:text-slate-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+        >
+          Ledger
+        </Link>
+        <span className="text-slate-600" aria-hidden>
+          /
+        </span>
+        <span className="shrink-0">Public outcome record</span>
+        <span className="text-slate-600" aria-hidden>
+          /
+        </span>
+        <span
+          className="min-w-0 truncate font-mono text-[12px] font-normal text-slate-400"
+          title={slug}
+        >
+          {slug}
+        </span>
+      </span>
+    );
+  }
+  return null;
 }
 
 function JourneyStrip() {
   const { pathname } = useLocation();
   const { showResumeCta, resumeHref, showOnboardingCta, onboardingHref, onboardingLabel } =
     useAppNavContext();
-  /** Landing, public ledger, security disclosure: no session-recovery strip. */
   if (pathname === '/' || pathname.startsWith('/ledger') || pathname.startsWith('/security'))
     return null;
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
     <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-end gap-x-6 gap-y-2 px-gutter">
+      <div
+        className={twMerge(
+          publicShellInnerClass,
+          'flex flex-wrap items-center justify-end gap-x-6 gap-y-2',
+        )}
+      >
         {showOnboardingCta ? (
           <Link
             to={onboardingHref}
@@ -123,55 +122,81 @@ function JourneyStrip() {
   );
 }
 
-/** Center bar: orientation + conversion (marketing). */
-function DemoDesktopNav({ onNavigate }: { onNavigate?: () => void }) {
-  const nav = useDemoNavState();
+function DesktopPrimaryNav({
+  active,
+  onNavigate,
+}: {
+  active: ReturnType<typeof usePublicNavActive>;
+  onNavigate?: () => void;
+}) {
+  const items = [
+    { key: 'how', to: '/#how-it-works', label: 'How it works', isActive: active.howItWorks },
+    { key: 'sec', to: '/security', label: 'Security', isActive: active.security },
+    { key: 'led', to: '/ledger', label: 'Ledger', isActive: active.ledger },
+    { key: 'pilot', to: '/#waitlist', label: 'Pilot access', isActive: active.pilotAccess },
+  ] as const;
+
   return (
-    <nav
-      className="hidden flex-1 items-center justify-center gap-1 sm:gap-2 lg:flex"
-      aria-label="Primary"
-    >
-      <NavLink to="/#how-it-works" active={nav.howItWorksActive} onNavigate={onNavigate}>
-        How it works
-      </NavLink>
-      <NavLink to="/security" active={nav.securityActive} onNavigate={onNavigate}>
-        Security
-      </NavLink>
-      <NavLink
-        to={`/ledger/${DEMO_PROPOSAL_ID}`}
-        active={nav.sampleOutputActive}
-        onNavigate={onNavigate}
+    <nav className="hidden min-w-0 w-full lg:flex lg:justify-center" aria-label="Primary">
+      <ul
+        className={twMerge(
+          shellListResetClass,
+          'flex min-w-0 flex-wrap items-center justify-center gap-x-6',
+        )}
       >
-        Sample output
-      </NavLink>
-      <NavLink to="/#waitlist" active={nav.pilotAccessActive} onNavigate={onNavigate}>
-        Pilot access
-      </NavLink>
+        {items.map(({ key, to, label, isActive }) => (
+          <li key={key} className="list-none">
+            {to.startsWith('/#') ? (
+              <a
+                href={to}
+                className={deskNavLink(isActive)}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={onNavigate}
+              >
+                {label}
+              </a>
+            ) : (
+              <Link
+                to={to}
+                className={deskNavLink(isActive)}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={onNavigate}
+              >
+                {label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 }
 
-function MobileNavDrawer({
+function MobileNavPanel({
   open,
+  active,
   onClose,
   returnFocusRef,
+  ctaMuted,
 }: {
   open: boolean;
+  active: ReturnType<typeof usePublicNavActive>;
   onClose: () => void;
   returnFocusRef: React.RefObject<HTMLButtonElement | null>;
+  ctaMuted: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const firstLinkRef = useRef<HTMLAnchorElement>(null);
-  const wasOpenRef = useRef(false);
+  const firstFocusRef = useRef<HTMLAnchorElement>(null);
   const titleId = useId();
-  const nav = useDemoNavState();
-  const isDev = import.meta.env.DEV;
+  const wasOpenRef = useRef(false);
   const { pathname } = useLocation();
   const { data: isMod } = useIsModerator();
-  const showDevInDrawer = isDev && pathname !== '/' && !pathname.startsWith('/security');
-  const showAccountInDrawerFooter =
-    isSupabaseConfigured() && !pathname.startsWith('/ledger') && !pathname.startsWith('/security');
-  const youAreHere = mobileYouAreHereLabel(pathname, nav);
+  const isDev = import.meta.env.DEV;
+  const showDev =
+    isDev &&
+    pathname !== '/' &&
+    !pathname.startsWith('/security') &&
+    !pathname.startsWith('/ledger');
 
   useEffect(() => {
     onClose();
@@ -186,7 +211,7 @@ function MobileNavDrawer({
 
   useEffect(() => {
     if (!open) return;
-    const t = window.setTimeout(() => firstLinkRef.current?.focus(), 0);
+    const t = window.setTimeout(() => firstFocusRef.current?.focus(), 0);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -213,13 +238,13 @@ function MobileNavDrawer({
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      const active = document.activeElement as HTMLElement | null;
+      const activeEl = document.activeElement as HTMLElement | null;
       if (e.shiftKey) {
-        if (active === first) {
+        if (activeEl === first) {
           e.preventDefault();
           last.focus();
         }
-      } else if (active === last) {
+      } else if (activeEl === last) {
         e.preventDefault();
         first.focus();
       }
@@ -230,268 +255,251 @@ function MobileNavDrawer({
 
   if (!open) return null;
 
+  const linkItems = [
+    { to: '/#how-it-works', label: 'How it works', active: active.howItWorks, hash: true },
+    { to: '/security', label: 'Security', active: active.security, hash: false },
+    { to: '/ledger', label: 'Ledger', active: active.ledger, hash: false },
+    { to: '/#waitlist', label: 'Pilot access', active: active.pilotAccess, hash: true },
+  ] as const;
+
   return (
-    <div className="fixed inset-0 z-[200] lg:hidden" role="presentation">
-      <button
-        type="button"
-        tabIndex={-1}
-        className="absolute inset-0 bg-black/60 backdrop-blur-[2px] motion-safe:transition-opacity"
-        aria-label="Close menu"
-        onClick={onClose}
-      />
-      <div
-        ref={panelRef}
-        id="mobile-nav-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        className="absolute right-0 top-0 flex h-full w-[min(100%,20rem)] flex-col border-l border-[#1a2236] bg-[#0b0f18] shadow-[-8px_0_32px_rgba(0,0,0,0.4)] motion-safe:transition-transform motion-safe:duration-200"
-      >
-        <div className="flex items-center justify-between border-b border-[#1a2236] px-4 py-3">
-          <h2 id={titleId} className="font-heading text-sm font-semibold text-[#e2e8f0]">
-            Menu
-          </h2>
-          <button
-            type="button"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg font-sans text-[0.85rem] text-[#a8b2c1] hover:bg-[#141c2e]"
+    <div
+      ref={panelRef}
+      id="public-site-mobile-nav"
+      role="region"
+      aria-labelledby={titleId}
+      className="absolute left-0 right-0 top-full border-b border-white/[0.07] bg-[rgba(10,14,22,0.98)] shadow-[0_8px_24px_rgba(0,0,0,0.28)] lg:hidden"
+    >
+      <h2 id={titleId} className="sr-only">
+        Site navigation
+      </h2>
+      <div className={twMerge(publicShellInnerClass, 'py-4')}>
+        <nav aria-label="Mobile primary">
+          <ul className={twMerge(shellListResetClass, 'flex flex-col gap-3.5')}>
+            {linkItems.map((item, i) => (
+              <li key={item.label} className="list-none">
+                {item.hash ? (
+                  <a
+                    ref={i === 0 ? firstFocusRef : undefined}
+                    href={item.to}
+                    className={mobileLink(item.active)}
+                    aria-current={item.active ? 'page' : undefined}
+                    onClick={onClose}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    ref={i === 0 ? firstFocusRef : undefined}
+                    to={item.to}
+                    className={mobileLink(item.active)}
+                    aria-current={item.active ? 'page' : undefined}
+                    onClick={onClose}
+                  >
+                    {item.label}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="mt-5 border-t border-white/[0.06] pt-5">
+          <a
+            href="/#waitlist"
+            className={twMerge(
+              'focus-ring inline-flex h-10 min-h-[40px] w-full items-center justify-center rounded-[8px] px-4 font-heading text-[0.875rem] font-semibold transition-opacity',
+              'bg-teal text-white hover:bg-teal-dark',
+              ctaMuted && 'opacity-[0.88]',
+            )}
             onClick={onClose}
-            aria-label="Close navigation"
           >
-            ✕
-          </button>
+            Request pilot access
+          </a>
         </div>
-        {youAreHere ? (
-          <div className="border-b border-[#1a2236] bg-teal/[0.07] px-4 py-2.5">
-            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-teal-light/95">
-              Current: {youAreHere}
+        {showDev ? (
+          <div className="mt-6 border-t border-white/[0.06] pt-4">
+            <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-slate-600">
+              Dev
             </p>
+            <ul className={twMerge(shellListResetClass, 'flex flex-col gap-2 text-[0.875rem]')}>
+              <li className="list-none">
+                <Link
+                  to="/verify"
+                  className="block min-h-[44px] py-2.5 text-slate-500 hover:text-slate-300"
+                  onClick={onClose}
+                >
+                  Verify
+                </Link>
+              </li>
+              <li className="list-none">
+                <Link
+                  to="/find-squad"
+                  className="block min-h-[44px] py-2.5 text-slate-500 hover:text-slate-300"
+                  onClick={onClose}
+                >
+                  Find squad
+                </Link>
+              </li>
+              <li className="list-none">
+                <Link
+                  to="/admin/health"
+                  className="block min-h-[44px] py-2.5 text-slate-500 hover:text-slate-300"
+                  onClick={onClose}
+                >
+                  Supabase health
+                </Link>
+              </li>
+            </ul>
           </div>
         ) : null}
-        <nav
-          className="flex-1 overflow-y-auto px-5 py-5 font-sans text-[0.9rem]"
-          aria-label="Mobile"
-        >
-          <div className="space-y-6">
-            <div>
-              <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                Site
-              </p>
-              <ul className="space-y-0.5">
-                <li>
-                  <Link
-                    ref={firstLinkRef}
-                    to="/#how-it-works"
-                    className={mobileDrawerItemClass(nav.howItWorksActive)}
-                    onClick={onClose}
-                  >
-                    <span className="flex items-center gap-2">
-                      {nav.howItWorksActive ? (
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                      ) : null}
-                      How it works
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/security"
-                    className={mobileDrawerItemClass(nav.securityActive)}
-                    onClick={onClose}
-                  >
-                    <span className="flex items-center gap-2">
-                      {nav.securityActive ? (
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                      ) : null}
-                      Security
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                    className={mobileDrawerItemClass(nav.sampleOutputActive)}
-                    onClick={onClose}
-                  >
-                    <span className="flex items-center gap-2">
-                      {nav.sampleOutputActive ? (
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                      ) : null}
-                      Sample output
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="/#waitlist"
-                    className={mobileDrawerItemClass(nav.pilotAccessActive)}
-                    onClick={onClose}
-                  >
-                    <span className="flex items-center gap-2">
-                      {nav.pilotAccessActive ? (
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                      ) : null}
-                      Pilot access
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            {showDevInDrawer ? (
-              <div>
-                <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                  Dev
-                </p>
-                <ul className="space-y-0.5">
-                  <li>
-                    <Link
-                      to="/verify"
-                      className={mobileDrawerItemClass(nav.verifyActive)}
-                      onClick={onClose}
-                    >
-                      <span className="flex items-center gap-2">
-                        {nav.verifyActive ? (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                        ) : null}
-                        Verify
-                      </span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/find-squad"
-                      className={mobileDrawerItemClass(nav.intentActive)}
-                      onClick={onClose}
-                    >
-                      <span className="flex items-center gap-2">
-                        {nav.intentActive ? (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                        ) : null}
-                        Find squad
-                      </span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/health"
-                      className={mobileDrawerItemClass(nav.supabaseActive)}
-                      onClick={onClose}
-                    >
-                      <span className="flex items-center gap-2">
-                        {nav.supabaseActive ? (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                        ) : null}
-                        Supabase health (mods)
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            ) : null}
-            {isMod ? (
-              <div>
-                <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#4b5563]">
-                  Staff
-                </p>
-                <ul className="space-y-0.5">
-                  <li>
-                    <Link
-                      to="/admin/rooms"
-                      className={mobileDrawerItemClass(nav.modActive)}
-                      onClick={onClose}
-                    >
-                      <span className="flex items-center gap-2">
-                        {nav.modActive ? (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal" aria-hidden />
-                        ) : null}
-                        Admin
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            ) : null}
+        {isMod ? (
+          <div className="mt-4">
+            <Link
+              to="/admin/rooms"
+              className="block min-h-[44px] py-2 text-[0.875rem] text-slate-500 hover:text-slate-300"
+              onClick={onClose}
+            >
+              Admin
+            </Link>
           </div>
-        </nav>
-        <div className="border-t border-[#1a2236] p-4">
-          {showAccountInDrawerFooter ? <AccountMenu /> : null}
-        </div>
+        ) : null}
       </div>
     </div>
   );
 }
 
-function MobileMenuBar({
-  open,
-  onOpen,
-  menuButtonRef,
-  showAccountMenu,
-}: {
-  open: boolean;
-  onOpen: () => void;
-  menuButtonRef: React.RefObject<HTMLButtonElement | null>;
-  showAccountMenu: boolean;
-}) {
+function PublicShellHeader() {
+  const { pathname } = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
+  const active = usePublicNavActive();
+  const contextNode = HeaderContextContent();
+  const showContext = pathname !== '/' && contextNode != null;
+  const ledgerRecord = /^\/ledger\/[^/]+\/?$/.test(pathname);
+  const ctaMuted = Boolean(ledgerRecord);
+
+  const menuId = 'public-site-mobile-nav';
+
   return (
-    <div className="flex shrink-0 items-center justify-end gap-3 lg:hidden">
-      {showAccountMenu ? <AccountMenu /> : null}
-      <button
-        ref={menuButtonRef}
-        type="button"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-[#2d3f55] bg-[#0f1623]/80 font-sans text-[0.85rem] text-[#e2e8f0] hover:border-[#3d4f63]"
-        aria-expanded={open}
-        aria-controls="mobile-nav-dialog"
-        aria-haspopup="dialog"
-        aria-label="Open navigation menu"
-        onClick={onOpen}
-      >
-        <span className="sr-only">Open menu</span>
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden
-        >
-          <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
-        </svg>
-      </button>
-    </div>
+    <header className={HEADER_SHELL}>
+      <div className="relative">
+        {/* Primary row only — brand | nav | CTA (nav + CTA hidden/replaced on small screens). */}
+        <div className={HEADER_MAIN_ROW}>
+          <Link
+            to="/"
+            className="flex max-w-[260px] min-w-0 shrink-0 flex-col gap-0.5 no-underline transition-opacity hover:opacity-[0.95] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
+            aria-label="SquadRidge home"
+          >
+            <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
+              SquadRidge
+            </span>
+            <span className="hidden sm:block text-[12px] font-normal leading-snug text-slate-500 lg:text-[13px]">
+              Verified dialogue infrastructure
+            </span>
+          </Link>
+
+          <DesktopPrimaryNav active={active} onNavigate={closeMobile} />
+
+          <div className="flex min-w-0 shrink-0 items-center justify-end gap-3 lg:justify-self-end">
+            <div className="hidden lg:block">
+              <a
+                href="/#waitlist"
+                className={twMerge(
+                  'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-teal px-[16px] font-heading text-[0.875rem] font-semibold text-white transition-[opacity,background-color] hover:bg-teal-dark',
+                  'lg:min-h-[44px]',
+                  ctaMuted && 'opacity-[0.88]',
+                )}
+              >
+                Request pilot access
+              </a>
+            </div>
+            <div className="flex items-center lg:hidden">
+              <button
+                ref={menuBtnRef}
+                type="button"
+                className="inline-flex size-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+                aria-expanded={mobileOpen}
+                aria-controls={menuId}
+                aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                onClick={() => setMobileOpen((o) => !o)}
+              >
+                {mobileOpen ? (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path
+                      d="M6 6l12 12M18 6L6 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <path
+                      d="M4 6h16M4 12h16M4 18h16"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Route context only — full-width row, never inline with the CTA */}
+        {showContext ? (
+          <div className="border-t border-white/[0.06] bg-[rgba(7,10,16,0.65)]">
+            <div
+              className={twMerge(
+                publicShellInnerClass,
+                'flex min-h-0 items-center py-2.5 lg:h-9 lg:py-0',
+              )}
+            >
+              <div className="min-w-0 flex-1">{contextNode}</div>
+            </div>
+          </div>
+        ) : null}
+
+        <MobileNavPanel
+          open={mobileOpen}
+          active={active}
+          onClose={closeMobile}
+          returnFocusRef={menuBtnRef}
+          ctaMuted={ctaMuted}
+        />
+      </div>
+    </header>
   );
 }
 
 export function AppHeaderNav({ variant }: { variant: Variant }) {
-  const { pathname } = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const closeMobile = useCallback(() => setMobileOpen(false), []);
-  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
-  const showAccount = isSupabaseConfigured();
-  /** Public ledger and security explainer read as documentation; session chrome undermines that framing. */
-  const showAccountMenuChrome =
-    showAccount && !pathname.startsWith('/ledger') && !pathname.startsWith('/security');
-
   if (variant === 'minimal') {
     return (
-      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.92)] backdrop-blur-[12px]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3.5 sm:px-6 lg:px-8">
+      <header className={HEADER_SHELL}>
+        <div
+          className={twMerge(
+            publicShellInnerClass,
+            'flex h-16 items-center justify-between gap-4 lg:h-[72px]',
+          )}
+        >
           <Link
             to="/"
-            className="inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90"
+            className="flex max-w-[260px] flex-col gap-0.5 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
             aria-label="SquadRidge home"
           >
-            <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={28} className="block" />
+            <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
+              SquadRidge
             </span>
-            <SquadRidgeWordmark
-              alt=""
-              className="h-8 w-auto max-w-[min(200px,50vw)] translate-y-0.5 sm:h-9"
-              aria-hidden
-            />
+            <span className="hidden sm:block text-[12px] font-normal text-slate-500 lg:text-[13px]">
+              Verified dialogue infrastructure
+            </span>
           </Link>
+          <span className="flex-1" aria-hidden />
           <Link
             to="/"
-            className="font-sans text-[0.85rem] font-medium text-[#8892a4] underline-offset-4 hover:text-[#c4cdd9] hover:underline"
+            className="min-h-[44px] shrink-0 content-center font-sans text-[0.875rem] font-medium text-slate-500 underline-offset-4 transition-colors hover:text-slate-300 hover:underline"
           >
             Exit to home
           </Link>
@@ -502,56 +510,9 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-solid border-[#141e30] bg-[rgba(11,15,26,0.92)] backdrop-blur-[12px]">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3.5 sm:gap-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-4">
-          <Link
-            to="/"
-            className="inline-flex min-w-0 shrink-0 items-center gap-3 transition-opacity hover:opacity-90"
-            aria-label="SquadRidge home"
-          >
-            <span className="flex shrink-0 items-center" aria-hidden>
-              <SquadLogo size={32} className="block" />
-            </span>
-            <SquadRidgeWordmark
-              alt=""
-              className="h-8 w-auto max-w-[min(200px,46vw)] translate-y-0.5 sm:h-9 md:h-10"
-              aria-hidden
-            />
-          </Link>
-
-          <DemoDesktopNav onNavigate={closeMobile} />
-
-          <div className="flex shrink-0 items-center gap-3">
-            <div className="hidden items-center gap-2 lg:flex">
-              <PrimaryCTA
-                label="Request pilot access"
-                href="/#waitlist"
-                size="sm"
-                shape="squircle"
-                className="px-5"
-              />
-            </div>
-            {showAccountMenuChrome ? (
-              <div className="hidden lg:block">
-                <AccountMenu />
-              </div>
-            ) : null}
-            <MobileMenuBar
-              open={mobileOpen}
-              onOpen={() => setMobileOpen(true)}
-              menuButtonRef={mobileMenuButtonRef}
-              showAccountMenu={showAccountMenuChrome}
-            />
-          </div>
-        </div>
-      </header>
+      <PublicShellHeader />
       <NavigationProgress />
       <JourneyStrip />
-      <MobileNavDrawer
-        open={mobileOpen}
-        onClose={closeMobile}
-        returnFocusRef={mobileMenuButtonRef}
-      />
     </>
   );
 }

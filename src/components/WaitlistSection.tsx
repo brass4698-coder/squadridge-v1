@@ -1,12 +1,11 @@
 import type { FormEvent } from 'react';
 import { useWaitlistForm } from '../hooks';
-import { PrimaryCTA } from './ui/PrimaryCTA';
 
 const ROLE_CHIPS = [
-  'Peacebuilder or mediator',
-  'Facilitator or coach',
+  'Mediator/peacebuilder',
+  'Facilitator/coach',
   'Cross-border operator',
-  'Partner or funder',
+  'Partner/funder',
   'Other',
 ] as const;
 
@@ -21,17 +20,17 @@ function RoleRadios({
 }) {
   return (
     <fieldset className="mt-6 border-0 p-0">
-      <legend className="mb-3 font-heading text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-teal/80">
-        Your role
+      <legend className="mb-3 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+        Role
       </legend>
       <div className="space-y-2">
         {ROLE_CHIPS.map((role) => (
           <label
             key={role}
-            className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-[border-color,background-color] ${
+            className={`flex cursor-pointer items-center gap-3 rounded border px-4 py-3 transition-colors ${
               roleHint === role
-                ? 'border-teal/45 bg-teal/[0.07]'
-                : 'border-white/10 bg-white/[0.02] hover:border-white/[0.18]'
+                ? 'border-teal/50 bg-[#0f1724]'
+                : 'border-[#2d3f55] bg-[#0a1018] hover:border-slate-600'
             }`}
           >
             <input
@@ -40,8 +39,14 @@ function RoleRadios({
               value={role}
               checked={roleHint === role}
               onChange={() => onChange(role)}
-              className="h-4 w-4 shrink-0 accent-teal"
+              className="peer sr-only"
             />
+            <span
+              className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-slate-500 bg-[#070b12] peer-checked:border-teal peer-checked:bg-teal/15 peer-checked:[&_.waitlist-radio-dot]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[#070b12]"
+              aria-hidden
+            >
+              <span className="waitlist-radio-dot h-1.5 w-1.5 rounded-full bg-teal opacity-0 transition-opacity" />
+            </span>
             <span className="font-sans text-[0.9rem] leading-snug text-landing-body">{role}</span>
           </label>
         ))}
@@ -64,39 +69,35 @@ export function WaitlistSection() {
   } = useWaitlistForm();
 
   const titleClass =
-    'text-left font-heading text-fluid-h2 font-bold leading-tight text-landing-ink';
+    'text-left font-heading text-xl font-semibold leading-snug tracking-tight text-landing-ink md:text-2xl';
 
   const inputClass =
     'waitlist-email-input w-full min-w-0 flex-1 rounded-none border-0 bg-transparent py-2 px-0 font-sans text-[0.95rem] font-normal text-[#e2e8f0] placeholder:text-landing-muted/60 outline-none disabled:opacity-50';
 
   function Shell({ children }: { children: React.ReactNode }) {
-    return (
-      <div className="landing-surface-card rounded-[1.5rem] px-6 py-7 md:px-8 md:py-8">
-        {children}
-      </div>
-    );
+    return <div className="border border-[#2a3548] bg-[#080d14] p-6 md:p-8">{children}</div>;
   }
 
   const introBlocks = (
     <>
-      <p className="mb-0 font-heading text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
+      <p className="mb-0 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
         Pilot access
       </p>
       <h2 id="waitlist-heading" className={`mt-3 ${titleClass}`}>
-        Join the shortlist for live cohorts and private walkthroughs
+        Request access to facilitator-led pilots and private walkthroughs
       </h2>
-      <div className="mt-5 max-w-copy rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 font-sans text-[0.82rem] leading-relaxed text-landing-muted">
-        <p className="mb-0 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-teal/75">
+      <div className="mt-6 border border-[#2d3f55] bg-[#0a1018] px-4 py-3">
+        <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
           Priority note
         </p>
-        <p className="mb-0 mt-2 text-landing-body">
+        <p className="mb-0 mt-2 font-sans text-[0.85rem] leading-relaxed text-landing-body">
           We prioritize pilots where the facilitator, participant profile, and risk model are
           already defined.
         </p>
       </div>
-      <p className="mt-6 max-w-copy font-sans font-normal leading-[1.7] text-landing-body">
-        Leave your email and role, and we&apos;ll only reach out when there is a facilitator-led
-        pilot, verified cohort, or walkthrough that matches your background.
+      <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+        Leave your role and contact email. We will only reach out when there is a facilitator-led
+        pilot or walkthrough that fits your background.
       </p>
     </>
   );
@@ -107,19 +108,18 @@ export function WaitlistSection() {
         <Shell>
           {introBlocks}
           <RoleRadios roleHint={roleHint} onChange={setRoleHint} name="waitlist-role-external" />
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <PrimaryCTA
-              label="Request pilot access"
+          <div className="mt-8">
+            <a
               href={externalUrl}
-              size="md"
-              shape="squircle"
-            />
+              className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold no-underline"
+              rel={/^https?:/i.test(externalUrl) ? 'noopener noreferrer' : undefined}
+              target={/^https?:/i.test(externalUrl) ? '_blank' : undefined}
+            >
+              Request pilot access
+            </a>
           </div>
-          <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-landing-muted">
-            We&apos;ll only contact you for relevant pilots or walkthroughs.
-          </p>
-          <p className="mt-4 font-sans text-[0.82rem] leading-relaxed text-landing-muted">
-            No public profile. No open directory. Just a way to contact you when the right pilot is
+          <p className="mt-6 font-sans text-[0.82rem] leading-relaxed text-slate-500">
+            No public profile. No open directory. Just direct outreach when the right pilot is
             ready.
           </p>
         </Shell>
@@ -134,7 +134,7 @@ export function WaitlistSection() {
         <form
           onSubmit={(e: FormEvent<HTMLFormElement>) => void handleSubmit(e)}
           className="mt-0 border-0 bg-transparent p-0 shadow-none"
-          aria-label="Join waitlist"
+          aria-label="Request pilot access"
           aria-busy={status === 'loading'}
         >
           <input
@@ -147,57 +147,51 @@ export function WaitlistSection() {
             defaultValue=""
           />
           <RoleRadios roleHint={roleHint} onChange={setRoleHint} name="waitlist-role" />
-          <div className="mt-8 rounded-[1.15rem] border border-white/10 bg-[#0d1420]/90 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <div className="flex flex-col gap-2">
+          <div className="mt-8 border border-[#2d3f55] bg-[#0a1018] p-5 sm:p-6">
+            <div className="flex flex-col gap-4">
               <div>
                 <p
                   id="waitlist-email-heading"
-                  className="mb-0 font-heading text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-teal/80"
+                  className="mb-0 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-slate-500"
                 >
                   Email
                 </p>
                 <label
                   id="waitlist-email-label"
                   htmlFor="waitlist-email"
-                  className="mt-1 block font-sans text-[0.8rem] text-landing-muted"
+                  className="mt-1 block font-sans text-[0.8rem] text-slate-500"
                 >
-                  Work or preferred contact email
+                  Contact email
                 </label>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <div className="min-w-0 flex-1 border-b border-[#2d3748] pb-1 transition-colors focus-within:border-teal/60">
-                  <input
-                    id="waitlist-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    inputMode="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@organization.com"
-                    className={inputClass}
-                    disabled={status === 'loading'}
-                    aria-invalid={status === 'error'}
-                    aria-labelledby="waitlist-email-heading waitlist-email-label"
-                  />
-                </div>
-                <PrimaryCTA
-                  id="waitlist-join-btn"
-                  label={status === 'loading' ? 'Sending...' : 'Request pilot access'}
-                  type="submit"
-                  size="md"
-                  shape="squircle"
-                  className="shrink-0 px-8"
-                  disabled={status === 'loading' || !configured}
+              <div className="min-w-0 border-b border-[#3d4f63] pb-1 transition-colors focus-within:border-teal/50">
+                <input
+                  id="waitlist-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@organization.com"
+                  className={inputClass}
+                  disabled={status === 'loading'}
+                  aria-invalid={status === 'error'}
+                  aria-labelledby="waitlist-email-heading waitlist-email-label"
                 />
               </div>
-              <p className="mb-0 mt-3 font-sans text-[0.8rem] leading-relaxed text-landing-muted">
-                We&apos;ll only contact you for relevant pilots or walkthroughs.
-              </p>
-              <p className="mb-0 mt-2 font-sans text-[0.8rem] leading-relaxed text-landing-muted">
-                No public profile. No open directory. Just a way to contact you when the right pilot
-                is ready.
+              <button
+                id="waitlist-join-btn"
+                type="submit"
+                className="focus-ring btn-primary w-full min-h-[44px] justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={status === 'loading' || !configured}
+              >
+                {status === 'loading' ? 'Sending...' : 'Request pilot access'}
+              </button>
+              <p className="mb-0 font-sans text-[0.82rem] leading-relaxed text-slate-500">
+                No public profile. No open directory. Just direct outreach when the right pilot is
+                ready.
               </p>
             </div>
           </div>
@@ -214,10 +208,10 @@ export function WaitlistSection() {
         ) : null}
         {feedback ? (
           <p
-            className={`mt-4 rounded-xl border px-4 py-3 font-sans text-fluid-small ${
+            className={`mt-4 border px-4 py-3 font-sans text-fluid-small ${
               status === 'error'
                 ? 'border-amber/30 bg-amber/[0.07] text-amber'
-                : 'border-teal/20 bg-teal/[0.06] text-landing-body'
+                : 'border-[#2d4f55] bg-[#0f1724] text-landing-body'
             }`}
             role="status"
             aria-live="polite"

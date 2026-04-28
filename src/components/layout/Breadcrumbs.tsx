@@ -42,6 +42,8 @@ function humanizeLastSegment(pathname: string) {
 
 function getTrail(pathname: string): Crumb[] | null {
   if (pathname === '/' || isInPrimaryMatchFlow(pathname)) return null;
+  /** Site header provides route context on the disclosure page. */
+  if (pathname === '/security') return null;
   const exact = EXACT[pathname];
   if (exact) {
     return [exact.parent, { label: exact.current }];
@@ -60,7 +62,7 @@ export function Breadcrumbs() {
 
   return (
     <nav
-      className="mb-3 flex w-full max-w-6xl flex-wrap items-center gap-2 font-sans text-[0.8125rem] leading-snug text-slate-400"
+      className="mb-3 flex w-full flex-wrap items-center gap-2 font-sans text-[0.8125rem] leading-snug text-slate-400"
       aria-label="Breadcrumb"
     >
       {trail.map((crumb, i) => {

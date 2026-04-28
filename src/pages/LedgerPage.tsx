@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { Check, ClipboardPen, List, Shield } from 'lucide-react';
+import { Check, ClipboardPen, Copy, List, Shield } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { LedgerPageSkeletonCards, LedgerPageSkeletonRows, PrimaryCTA } from '../components';
 import {
@@ -9,10 +9,10 @@ import {
 } from '../hooks';
 import {
   DEMO_PROPOSAL_ID,
-  DEMO_SESSION_ID,
   getSiteUrl,
   isSupabaseConfigured,
   type Json,
+  type LedgerProposalStatus,
 } from '../lib';
 
 function parseConsensusItems(raw: Json): string[] {
@@ -47,162 +47,339 @@ const DEMO_LEDGER_ROOT_SHORT = '0x7f3a…c91d';
 /** Demo detail: publication date shown in trust block (aligns with index sample rows). */
 const DEMO_LEDGER_PUBLISHED = '2026-03-18';
 
-function WhyPublishOutcomeNote() {
+/** Narrow reading measure for ledger prose — reads as a controlled artifact, not marketing width. */
+const ledgerReadCol = 'max-w-[min(100%,34rem)]';
+
+function ledgerLifecycleLabel(status: LedgerProposalStatus): string {
+  switch (status) {
+    case 'draft':
+      return 'DRAFT';
+    case 'published':
+      return 'PUBLISHED';
+    case 'archived':
+      return 'SUPERSEDED';
+    default:
+      return 'PUBLISHED';
+  }
+}
+
+/** Compact record strip: category · status · public slug (dominates hierarchy vs marketing chrome). */
+function LedgerPublicRecordHeader({
+  title,
+  statusLabel,
+  slug,
+}: {
+  title: string;
+  statusLabel: string;
+  slug: string;
+}) {
   return (
-    <p className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-ink-secondary">
-      <span className="font-medium text-ink-muted">Why publish the outcome, not the room.</span> The
-      session stays private; only the citable outcome agreed for public release appears here, so
-      partners and downstream actors can rely on a durable decision without inheriting chat or
-      attribution risk.
+    <header className="border-b border-white/[0.08] pb-8">
+      <p className="mb-5 font-mono text-[0.62rem] font-normal uppercase tracking-[0.12em] text-ink-muted">
+        <span className="text-ink-secondary">Public outcome record</span>
+        <span className="mx-2 text-ink-subtle" aria-hidden>
+          ·
+        </span>
+        <span className="font-semibold text-teal-light/95">{statusLabel}</span>
+        <span className="mx-2 text-ink-subtle" aria-hidden>
+          ·
+        </span>
+        <span className="break-all font-normal tracking-normal text-ink-secondary">{slug}</span>
+      </p>
+      <h1
+        className="font-heading text-ink"
+        style={{
+          fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+          fontWeight: 800,
+          letterSpacing: '-0.03em',
+          lineHeight: 1.12,
+        }}
+      >
+        {title}
+      </h1>
+    </header>
+  );
+}
+
+function LedgerMissionPublicationBlock({ missionLine }: { missionLine: React.ReactNode }) {
+  const publicationRest =
+    'The session remains private. Only the outcome approved for release is published here, giving downstream partners a citable record without exposing participant identity, raw discussion, or attribution risk.';
+  return (
+    <section
+      className="mt-8 border border-white/[0.08] bg-[#070b10]/60 px-4 py-4 sm:px-5 sm:py-5"
+      aria-labelledby="ledger-mission-heading"
+    >
+      <div className={`space-y-4 ${ledgerReadCol}`}>
+        <p
+          id="ledger-mission-heading"
+          className="mb-0 font-sans text-[0.9rem] font-medium leading-[1.55] text-ink"
+        >
+          {missionLine}
+        </p>
+        <p className="mb-0 font-sans text-[0.82rem] leading-[1.55] text-ink-secondary">
+          {publicationRest}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function LedgerVerificationStrip({
+  slug,
+  publishedLabel,
+  ledgerRef,
+}: {
+  slug: string;
+  publishedLabel: string;
+  ledgerRef: string;
+}) {
+  return (
+    <section
+      className="mt-8 overflow-hidden border border-white/[0.1] bg-[#060910]/90"
+      aria-label="Verification identifiers for this record"
+    >
+      <h2 className="border-b border-white/[0.07] bg-[#080d14] px-4 py-2 font-heading text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle">
+        Verification
+      </h2>
+      <div className="grid divide-y divide-white/[0.08] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="px-4 py-3.5">
+          <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+            Public slug
+          </p>
+          <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-snug text-ink-secondary">
+            {slug}
+          </p>
+        </div>
+        <div className="px-4 py-3.5">
+          <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+            Published
+          </p>
+          <p className="mt-1.5 font-mono text-[0.72rem] text-ink-secondary">{publishedLabel}</p>
+        </div>
+        <div className="px-4 py-3.5">
+          <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+            Ledger reference
+          </p>
+          <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-snug text-ink-secondary">
+            {ledgerRef}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type MachineFields = {
+  publicReleaseScope: string;
+  decisionClass: string;
+  sessionType: string;
+  downstreamApplicability: string;
+};
+
+function LedgerMachineReadablePanel({ fields }: { fields: MachineFields }) {
+  const rows: { k: keyof MachineFields; label: string }[] = [
+    { k: 'publicReleaseScope', label: 'Public release scope' },
+    { k: 'decisionClass', label: 'Decision class' },
+    { k: 'sessionType', label: 'Session type' },
+    { k: 'downstreamApplicability', label: 'Downstream applicability' },
+  ];
+  return (
+    <section
+      className="mt-10 border border-white/[0.09] bg-[#05080e]/80 p-4"
+      aria-labelledby="ledger-machine-heading"
+    >
+      <h2
+        id="ledger-machine-heading"
+        className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle"
+      >
+        Machine-readable summary
+      </h2>
+      <dl className="mt-4 space-y-2">
+        {rows.map(({ k, label }) => (
+          <div key={k} className="border border-white/[0.07] bg-[#060910]/70 px-3 py-2.5">
+            <dt className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle">
+              {label}
+            </dt>
+            <dd className="mt-1.5 min-w-0 font-sans text-[0.78rem] leading-relaxed text-ink-secondary">
+              {fields[k]}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function LedgerPrivacyConstraintsList() {
+  const limits = [
+    'Identity inside the room is not exposed.',
+    'Raw statements and deliberation paths are not exposed.',
+    'Room composition details are not exposed.',
+    'Only the agreed outcome and its verification data are public.',
+  ];
+  return (
+    <section
+      className="mt-10 border border-white/[0.08] bg-[#070b10]/50 px-4 py-4 sm:px-5"
+      aria-labelledby="privacy-constraints-h"
+    >
+      <h2
+        id="privacy-constraints-h"
+        className="font-heading text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-ink-muted"
+      >
+        Disclosure constraints
+      </h2>
+      <ul
+        className={`mt-3 list-none space-y-2 pl-0 font-sans text-[0.8rem] leading-relaxed text-ink-secondary ${ledgerReadCol}`}
+      >
+        {limits.map((x) => (
+          <li key={x} className="flex gap-2">
+            <span className="select-none text-ink-subtle" aria-hidden>
+              ·
+            </span>
+            <span>{x}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Short institutional citation line for reports and annexes. */
+function buildLedgerRecordCitationLine(args: {
+  title: string;
+  slug: string;
+  publishedDate: string;
+}): string {
+  return `SquadRidge public outcome record ${args.slug}, ${args.title}, published ${args.publishedDate}.`;
+}
+
+function LedgerCitationBlock({
+  title,
+  slug,
+  publishedDate,
+}: {
+  title: string;
+  slug: string;
+  publishedDate: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const line = buildLedgerRecordCitationLine({ title, slug, publishedDate });
+  const copy = useCallback(() => {
+    void navigator.clipboard.writeText(line).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    });
+  }, [line]);
+  return (
+    <section className="mt-10" aria-labelledby="citation-block-h">
+      <h2
+        id="citation-block-h"
+        className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle"
+      >
+        Cite this record
+      </h2>
+      <div className="mt-3 border border-white/[0.1] bg-[#060910] p-4">
+        <pre className="m-0 max-w-full overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] leading-relaxed text-ink-secondary">
+          {line}
+        </pre>
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={copy}
+            className="inline-flex min-h-[40px] items-center gap-2 rounded border border-white/[0.12] bg-[#0d141f] px-3 py-2 font-sans text-[0.8rem] text-ink-secondary transition-colors hover:border-white/[0.2] hover:text-ink"
+          >
+            {copied ? (
+              <Check className="size-4 text-teal-light" aria-hidden strokeWidth={2.5} />
+            ) : (
+              <Copy className="size-4 text-ink-muted" aria-hidden strokeWidth={2} />
+            )}
+            {copied ? 'Copied' : 'Copy citation'}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LedgerReleasedOrderCards({ items }: { items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <section className="mt-10" aria-labelledby="released-orders-h">
+      <h2
+        id="released-orders-h"
+        className="font-heading text-[1.05rem] font-bold leading-tight text-ink md:text-section-title"
+      >
+        Released orders
+      </h2>
+      <p className={`mt-2 font-sans text-[0.8rem] leading-snug text-ink-muted ${ledgerReadCol}`}>
+        The following directives were approved for public release.
+      </p>
+      <ul className="mt-6 space-y-3">
+        {items.map((line, i) => (
+          <li key={i}>
+            <article className="border border-white/[0.1] border-l-2 border-l-white/[0.18] bg-[#070b12]/55 px-4 py-3.5">
+              <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+                Order {(i + 1).toString().padStart(2, '0')}
+              </p>
+              <p
+                className={`mb-0 mt-2.5 font-sans text-[0.85rem] font-normal leading-[1.55] text-ink-secondary [word-break:break-word] ${ledgerReadCol}`}
+              >
+                {line}
+              </p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Single classification line, placed next to structured metadata (machine-readable block follows). */
+function LedgerClassificationRow({ segments }: { segments: readonly string[] }) {
+  if (segments.length === 0) return null;
+  return (
+    <p
+      className={`mt-10 font-sans text-[0.82rem] leading-relaxed text-ink-secondary ${ledgerReadCol}`}
+    >
+      <span className="font-medium text-ink-muted">Classification:</span> {segments.join(' · ')}
     </p>
   );
 }
 
-function TrustProvenanceGrid({ rows }: { rows: readonly { label: string; value: string }[] }) {
-  return (
-    <div
-      className="divide-y divide-white/[0.1] rounded-lg border border-white/[0.12] bg-[#070b12]/60"
-      role="list"
-    >
-      {rows.map((row) => (
-        <div
-          key={row.label}
-          className="flex flex-col gap-2 px-3 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
-          role="listitem"
-        >
-          <span className="shrink-0 pt-0.5 font-sans text-[0.72rem] font-semibold tracking-wide text-ink-muted">
-            {row.label}
-          </span>
-          <span className="min-w-0 break-all font-mono text-[0.72rem] leading-relaxed text-ink-secondary sm:max-w-[min(100%,24rem)] sm:text-right">
-            {row.value}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ConsensusOrdersList({ items }: { items: string[] }) {
-  if (items.length === 0) return null;
-  return (
-    <ul className="not-prose mt-5 space-y-0">
-      {items.map((line, i) => (
-        <li
-          key={i}
-          className="flex gap-3.5 border-t border-white/[0.07] py-4 first:border-t-0 first:pt-0"
-        >
-          <div className="relative mt-0.5 flex size-7 shrink-0 items-center justify-center">
-            <span className="ledger-consensus-verify-ring" aria-hidden />
-            <Check
-              className="relative z-[1] size-4 text-cajun-light drop-shadow-[0_0_10px_rgba(234,88,12,0.45)]"
-              strokeWidth={2.5}
-              aria-hidden
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle">
-              Order {(i + 1).toString().padStart(2, '0')}
-            </p>
-            <p className="mt-1.5 font-sans text-body-lg font-normal leading-relaxed text-ink-secondary [word-break:break-word]">
-              {line}
-            </p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function LedgerMetadataSidebarDemo() {
-  const rows = [
-    { label: 'Public slug', value: DEMO_PROPOSAL_ID },
-    { label: 'Published', value: DEMO_LEDGER_PUBLISHED },
-    { label: 'Ledger reference', value: `ledger:root=${DEMO_LEDGER_ROOT_SHORT}` },
-    { label: 'Session reference', value: DEMO_SESSION_ID },
-    { label: 'Verification set', value: 'Semaphore:v3-demo' },
-  ] as const;
-
-  return (
-    <aside
-      className="vault-frost-subtle min-w-0 space-y-3 rounded-xl border border-white/[0.06] p-4 lg:sticky lg:top-24"
-      aria-label="Trust and provenance for this ledger record"
-    >
-      <div>
-        <h3 className="font-heading text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-teal/85">
-          Trust &amp; provenance
-        </h3>
-        <p className="mt-2 font-sans text-[0.75rem] leading-relaxed text-ink-muted">
-          What you can verify without exposing who was in the room. Demo values mirror how a live
-          record is labeled.
-        </p>
-      </div>
-      <TrustProvenanceGrid rows={rows} />
-    </aside>
-  );
-}
-
-function LedgerMetadataSidebarDb({
-  slug,
-  publishedAt,
-  ledgerRef,
-}: {
-  slug: string;
-  publishedAt: string | null;
-  ledgerRef: string | null;
-}) {
-  const dateStr = publishedAt ? new Date(publishedAt).toISOString().slice(0, 10) : '—';
-  const rows = [
-    { label: 'Public slug', value: slug },
-    {
-      label: 'Published',
-      value: dateStr,
-    },
-    {
-      label: 'Ledger reference',
-      value: ledgerRef ?? '—',
-    },
-  ] as const;
-
-  return (
-    <aside
-      className="vault-frost-subtle min-w-0 space-y-3 rounded-xl border border-white/[0.06] p-4 lg:sticky lg:top-24"
-      aria-label="Trust and provenance for this ledger record"
-    >
-      <div>
-        <h3 className="font-heading text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-teal/85">
-          Trust &amp; provenance
-        </h3>
-        <p className="mt-2 font-sans text-[0.75rem] leading-relaxed text-ink-muted">
-          What you can verify without exposing who was in the room: identifiers, publication time,
-          and how the entry connects to the ledger.
-        </p>
-      </div>
-      <TrustProvenanceGrid rows={rows} />
-    </aside>
-  );
-}
-
 function LedgerDetailFooterNav() {
-  const primary =
-    'inline-flex items-center gap-2 font-sans text-sm text-teal-light underline-offset-4 transition-colors hover:underline';
-  const secondary =
-    'inline-flex items-center gap-2 font-sans text-sm text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline';
+  const cell =
+    'flex flex-1 flex-col gap-2 rounded border border-white/[0.1] bg-[#070b10]/80 px-4 py-4 transition-colors hover:border-white/[0.18]';
   return (
     <nav
-      className="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/10 pt-8"
-      aria-label="Ledger proposal navigation"
+      className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-10 md:flex-row md:gap-4"
+      aria-label="Next actions for this ledger record"
     >
-      <Link to="/security" className={primary}>
-        <Shield className="size-4 shrink-0 text-teal-light/90" aria-hidden />
-        Review security model
+      <Link to="/security" className={cell}>
+        <span className="font-mono text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-teal-light/90">
+          Verify
+        </span>
+        <span className="flex items-center gap-2 font-sans text-sm font-medium leading-snug text-ink">
+          <Shield className="size-4 shrink-0 text-teal-light/90" aria-hidden strokeWidth={2} />
+          Security model
+        </span>
       </Link>
-      <Link to="/ledger" className={secondary}>
-        <List className="size-4 shrink-0 text-ink-muted" aria-hidden />
-        All ledger entries
+      <Link to="/ledger" className={cell}>
+        <span className="font-mono text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+          Browse
+        </span>
+        <span className="flex items-center gap-2 font-sans text-sm font-medium leading-snug text-ink-secondary">
+          <List className="size-4 shrink-0 text-ink-muted" aria-hidden strokeWidth={2} />
+          Ledger index
+        </span>
       </Link>
-      <a href="/#waitlist" className={primary}>
-        <ClipboardPen className="size-4 shrink-0 text-teal-light/90" aria-hidden />
-        Request pilot access
+      <a href="/#waitlist" className={cell}>
+        <span className="font-mono text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+          Apply
+        </span>
+        <span className="flex items-center gap-2 font-sans text-sm font-medium leading-snug text-ink-secondary">
+          <ClipboardPen className="size-4 shrink-0 text-ink-muted" aria-hidden strokeWidth={2} />
+          Request pilot access
+        </span>
       </a>
     </nav>
   );
@@ -294,82 +471,51 @@ function LedgerProposalFromDb({
     tags: string[];
     published_at: string | null;
     ledger_ref: string | null;
+    status: LedgerProposalStatus;
   };
 }) {
   const bullets = parseConsensusItems(row.consensus_items);
   const outcome = parseOutcomeExtras(row.outcome_extras);
   const dateStr = row.published_at ? new Date(row.published_at).toISOString().slice(0, 10) : '—';
+  const ledgerRefLine = row.ledger_ref ?? '—';
+  const machine: MachineFields = {
+    publicReleaseScope:
+      'Published fields only: title, summary, consensus directives, timestamps, and ledger anchor — not room contents.',
+    decisionClass: 'Operational consensus directives (domain labels appear under Classification).',
+    sessionType:
+      'Facilitator-led squad session (private); publication follows squad release policy.',
+    downstreamApplicability:
+      'Partners may cite released directives; verify anchor and publication date before reliance.',
+  };
 
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-      <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-10">
-        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-          Ledger
-        </p>
-        <p className="mt-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
-          Published
-        </p>
-        <h1
-          className="mb-0 mt-2 font-heading text-ink"
-          style={{
-            fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-          }}
-        >
-          {row.title}
-        </h1>
-        <p className="mt-2 font-sans text-sm text-ink-muted">
-          Proposal ·{' '}
-          <span className="font-mono text-[0.8rem] tracking-tight text-ink-secondary">
-            {row.slug}
-          </span>{' '}
-          ·{' '}
-          <time
-            className="font-mono text-[0.8rem] tracking-tight text-ink-muted"
-            dateTime={dateStr}
-          >
-            {dateStr}
-          </time>
-        </p>
+      <div className="relative z-[1] mx-auto w-full max-w-3xl px-gutter py-10">
+        <LedgerPublicRecordHeader
+          title={row.title}
+          statusLabel={ledgerLifecycleLabel(row.status)}
+          slug={row.slug}
+        />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,17.5rem)] lg:items-start">
-          <div className="vault-frost min-w-0 overflow-x-auto p-6">
-            <p className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
-              {row.summary}
-            </p>
+        <LedgerMissionPublicationBlock missionLine={row.summary} />
 
-            <WhyPublishOutcomeNote />
+        <LedgerVerificationStrip
+          slug={row.slug}
+          publishedLabel={dateStr}
+          ledgerRef={ledgerRefLine}
+        />
 
-            <h2 className="mt-8 break-words font-heading text-section-title font-bold text-ink">
-              Published protocol set
-            </h2>
-            <p className="mt-2 font-sans text-[0.8rem] font-medium leading-snug text-ink-muted">
-              Measures approved for public release.
-            </p>
-            <ConsensusOrdersList items={bullets} />
+        <LedgerReleasedOrderCards items={bullets} />
 
-            <LedgerOutcomeRecordSections outcome={outcome} />
+        <LedgerOutcomeRecordSections outcome={outcome} />
 
-            <div className="mt-8 flex flex-wrap gap-2">
-              {row.tags.map((t) => (
-                <span
-                  key={t}
-                  className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
+        <LedgerClassificationRow segments={row.tags} />
 
-          <LedgerMetadataSidebarDb
-            slug={row.slug}
-            publishedAt={row.published_at}
-            ledgerRef={row.ledger_ref}
-          />
-        </div>
+        <LedgerMachineReadablePanel fields={machine} />
+
+        <LedgerPrivacyConstraintsList />
+
+        <LedgerCitationBlock title={row.title} slug={row.slug} publishedDate={dateStr} />
 
         <LedgerDetailFooterNav />
       </div>
@@ -404,14 +550,17 @@ function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
     Boolean(outcome.alignment);
   if (!has) {
     return (
-      <p className="mt-6 font-sans text-[0.8rem] text-ink-muted">
-        No private outcome addenda stored for this proposal — published protocol set only.
+      <p
+        className={`mt-10 font-sans text-[0.8rem] leading-relaxed text-ink-muted ${ledgerReadCol}`}
+      >
+        No private outcome addenda stored for this record — released orders only appear on this
+        page.
       </p>
     );
   }
   return (
-    <div className="mt-8 space-y-6 border-t border-white/[0.08] pt-8">
-      <h2 className="break-words font-heading text-section-title font-bold text-ink">
+    <div className="mt-10 max-w-[min(100%,38rem)] space-y-6 border-t border-white/[0.08] pt-8">
+      <h2 className="break-words font-heading text-[1.05rem] font-bold text-ink md:text-section-title">
         Session outcome (structured)
       </h2>
       {outcome.unresolved && outcome.unresolved.length > 0 ? (
@@ -419,7 +568,7 @@ function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
           <h3 className="font-heading text-[0.8rem] font-semibold uppercase tracking-wide text-amber/90">
             Unresolved
           </h3>
-          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.88rem] text-ink-secondary">
+          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
             {outcome.unresolved.map((x, i) => (
               <li key={i}>{x}</li>
             ))}
@@ -431,7 +580,7 @@ function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
           <h3 className="font-heading text-[0.8rem] font-semibold uppercase tracking-wide text-teal/80">
             Follow-up recommendations
           </h3>
-          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.88rem] text-ink-secondary">
+          <ul className="mt-2 list-disc space-y-1 pl-5 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
             {outcome.follow_up.map((x, i) => (
               <li key={i}>{x}</li>
             ))}
@@ -450,92 +599,55 @@ function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
           {outcome.confidence_note}
         </p>
       ) : null}
-      <p className="mt-2 font-sans text-[0.75rem] text-ink-subtle">
-        <button
-          type="button"
-          disabled
-          className="cursor-not-allowed rounded border border-white/[0.1] bg-[#0b0f14] px-3 py-1.5 text-ink-muted"
-        >
-          Export / share (coming soon)
-        </button>
-      </p>
     </div>
   );
 }
 
 function LedgerDemoProposalDetail() {
+  const demoTitle = 'Civilian protection protocols — displacement corridor';
+  const missionLine =
+    'Reduce civilian harm and miscoordination during corridor movements in mixed-control zones by operating temporary displacement corridors with time-boxed civilian movement windows agreed by armed actors.';
+  const demoMachine: MachineFields = {
+    publicReleaseScope:
+      'Consensus directives and public labels only; no transcript, attachments, or participant identifiers.',
+    decisionClass: 'Operational corridor controls · civilian routing',
+    sessionType: 'Facilitator-led squad session (private)',
+    downstreamApplicability:
+      'Movement coordinators, corridor stewards, humanitarian observers, and adjacent authorities citing public directives.',
+  };
+
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
-      <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-10">
-        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-          Ledger
-        </p>
-        <p className="mt-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
-          Investor demo
-        </p>
-        <h1
-          className="mb-0 mt-2 font-heading text-ink"
-          style={{
-            fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.1,
-          }}
-        >
-          Civilian protection protocols — displacement corridor
-        </h1>
-        <p className="mt-2 font-sans text-sm text-ink-muted">
-          Proposal ID ·{' '}
-          <span className="font-mono text-[0.8rem] tracking-tight text-ink-secondary">
-            {DEMO_PROPOSAL_ID}
-          </span>
-        </p>
+      <div className="relative z-[1] mx-auto w-full max-w-3xl px-gutter py-10">
+        <LedgerPublicRecordHeader
+          title={demoTitle}
+          statusLabel="PUBLISHED"
+          slug={DEMO_PROPOSAL_ID}
+        />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,17.5rem)] lg:items-start">
-          <div className="vault-frost min-w-0 overflow-x-auto p-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded border border-teal-500/40 bg-teal-500/10 px-2 py-0.5 font-heading text-[0.65rem] font-semibold uppercase tracking-wider text-teal-light">
-                Published
-              </span>
-              <span className="font-sans text-xs text-ink-muted">
-                ZK-attested summary · demo fixture
-              </span>
-            </div>
+        <LedgerMissionPublicationBlock missionLine={missionLine} />
 
-            <div className="mt-4 min-w-0 space-y-2 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
-              <p className="mb-0 break-words">
-                <span className="font-medium text-ink-muted">Objective.</span> Reduce civilian harm
-                and miscoordination during corridor movements in a mixed-control zone.
-              </p>
-              <p className="mb-0 break-words">
-                <span className="font-medium text-ink-muted">Scope.</span> Temporary displacement
-                corridors where armed actors agree to time-boxed movement windows for civilians.
-              </p>
-            </div>
+        <LedgerVerificationStrip
+          slug={DEMO_PROPOSAL_ID}
+          publishedLabel={DEMO_LEDGER_PUBLISHED}
+          ledgerRef={`ledger:root=${DEMO_LEDGER_ROOT_SHORT}`}
+        />
 
-            <WhyPublishOutcomeNote />
+        <LedgerReleasedOrderCards items={[...DEMO_CONSENSUS_LINES]} />
 
-            <h2 className="mt-8 break-words font-heading text-section-title font-bold text-ink">
-              Published protocol set
-            </h2>
-            <p className="mt-2 font-sans text-[0.8rem] font-medium leading-snug text-ink-muted">
-              Measures approved for public release.
-            </p>
-            <ConsensusOrdersList items={[...DEMO_CONSENSUS_LINES]} />
+        <LedgerOutcomeRecordSections outcome={DEMO_OUTCOME} />
 
-            <LedgerOutcomeRecordSections outcome={DEMO_OUTCOME} />
+        <LedgerClassificationRow segments={['Climate', 'Displacement', 'Corridor operations']} />
 
-            <p className="vault-frost-subtle mt-8 rounded-lg border border-dashed border-white/10 p-4 font-sans text-[0.8rem] leading-relaxed text-ink-muted">
-              <span className="block">
-                <span className="font-medium text-ink-subtle">Impact note.</span> These rules are
-                designed to lower the risk of cross-fire, corridor abuse, and last-minute rerouting
-                that leaves families exposed in transit.
-              </span>
-            </p>
-          </div>
+        <LedgerMachineReadablePanel fields={demoMachine} />
 
-          <LedgerMetadataSidebarDemo />
-        </div>
+        <LedgerPrivacyConstraintsList />
+
+        <LedgerCitationBlock
+          title={demoTitle}
+          slug={DEMO_PROPOSAL_ID}
+          publishedDate={DEMO_LEDGER_PUBLISHED}
+        />
 
         <LedgerDetailFooterNav />
       </div>

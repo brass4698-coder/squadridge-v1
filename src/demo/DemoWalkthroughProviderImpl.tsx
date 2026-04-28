@@ -53,8 +53,14 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     location.pathname.startsWith('/ledger') ||
     location.pathname.startsWith('/security');
 
+  /** Single published ledger records should read as artifacts, not a guided tour step. */
+  const isLedgerProposalDetail = /^\/ledger\/[^/]+$/.test(location.pathname);
+
   const showDemoChrome =
-    demoActive && currentStepIndex >= 0 && !(marketingPublicPath && !demoQuery);
+    demoActive &&
+    currentStepIndex >= 0 &&
+    !(marketingPublicPath && !demoQuery) &&
+    !isLedgerProposalDetail;
 
   const onboardingDemoTour =
     location.pathname.startsWith('/onboarding/') && searchParams.get('demo') === '1';

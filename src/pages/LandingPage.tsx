@@ -1,13 +1,6 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { twMerge } from 'tailwind-merge';
-import {
-  HeroWaitlistCounter,
-  HowItWorksStep,
-  PrimaryCTA,
-  Testimonial,
-  WaitlistSection,
-} from '../components';
+import { HowItWorksStep, WaitlistSection } from '../components';
 import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../lib';
 
 function FullBleed({
@@ -30,256 +23,208 @@ function FullBleed({
   );
 }
 
+/** Institutional section title — left rule, no decorative pillars */
 function SectionHeading({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <div className="mb-0 flex scroll-mt-24 items-end gap-4">
-      <div className="h-12 w-1 shrink-0 rounded-full bg-teal" aria-hidden />
-      <h2
-        id={id}
-        className="mb-0 max-w-[min(100%,40rem)] font-heading text-fluid-h2 font-bold leading-tight text-landing-ink"
-      >
-        {children}
-      </h2>
-    </div>
+    <h2
+      id={id}
+      className="scroll-mt-24 border-l-2 border-teal pl-4 font-heading text-xl font-semibold leading-snug tracking-tight text-landing-ink md:text-2xl"
+    >
+      {children}
+    </h2>
   );
 }
+
+const OPERATIONAL_STEPS = [
+  'Verify eligibility',
+  'Form the cohort',
+  'Run the session',
+  'Publish the public record',
+] as const;
+
+type ProofCard =
+  | { title: string; body: string }
+  | { title: string; body: string; href: '/security'; linkLabel: string };
+
+const PROOF_CARDS: readonly ProofCard[] = [
+  {
+    title: 'Facilitator-led',
+    body: 'Every active room is structured, bounded, and moderated against a defined pilot model.',
+  },
+  {
+    title: 'Security disclosure',
+    body: 'Trust assumptions, privacy boundaries, and system guarantees are documented openly.',
+    href: '/security',
+    linkLabel: 'Read disclosure',
+  },
+  {
+    title: 'Public artifact',
+    body: 'When enabled, a session can produce a citable public outcome instead of disappearing into a private transcript.',
+  },
+];
 
 const HOW_IT_WORKS_STEPS = [
   {
     number: '01',
-    heading: 'Detect and scope tension (pilot by pilot)',
-    body: 'Program-scoped signals and facilitator context help teams know when a cohort is heating up. A Conflict Severity-style composite is a design target under governance—not a public, omniscient feed in the current release.',
+    heading: 'Detect and scope tension',
+    body: 'Pilot-scoped signals and facilitator context help determine when a bounded intervention is warranted. Metrics remain governed artifacts, not public feeds.',
   },
   {
     number: '02',
-    heading: 'Intervene with verified, facilitator-led squads',
-    body: 'Participants are matched into small rooms with clear rules; activation speed depends on your program, not a guaranteed global response time.',
+    heading: 'Convene a verified room',
+    body: 'Eligible participants enter a small facilitator-led cohort with explicit room rules, clear access boundaries, and a defined intervention scope.',
   },
   {
     number: '03',
-    heading: 'Measure with discipline',
-    body: 'Pre-registered metrics, citable public proposals where enabled, and partner-aligned evaluation—so claims stay honest as pilots grow.',
+    heading: 'Produce a usable outcome',
+    body: 'Outcomes are evaluated against pre-registered measures and, where enabled, released as citable public records instead of buried in private notes.',
   },
 ] as const;
 
-function ChevronRight() {
+function LandingPublicRecordPreview() {
   return (
-    <svg
-      className="h-8 w-8 shrink-0 opacity-90"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path
-        fillRule="evenodd"
-        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-        clipRule="evenodd"
-      />
-    </svg>
+    <div className="rounded-lg border border-[#2a3548] bg-[#0b101c] p-5 font-sans sm:p-6">
+      <p className="mb-0 font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-slate-500">
+        Public outcome record
+      </p>
+      <p className="mt-2 font-mono text-[0.65rem] font-medium uppercase tracking-[0.1em] text-amber/90">
+        Published
+      </p>
+      <p className="mt-3 font-mono text-[0.75rem] leading-snug text-slate-400">
+        Proposal · Demo · <time dateTime="2025-04-01">2025-04-01</time>
+      </p>
+      <h3 className="mt-3 font-heading text-[1.05rem] font-semibold leading-snug text-landing-ink">
+        Sample consensus proposal
+      </h3>
+      <p className="mt-3 text-[0.85rem] leading-relaxed text-landing-body">
+        A public, timestamped outcome—not a transcript.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {['consensus', 'pilot', 'facilitator-led'].map((t) => (
+          <span
+            key={t}
+            className="rounded border border-[#2d3f55] bg-[#070b12] px-2 py-0.5 font-mono text-[0.62rem] text-slate-500"
+          >
+            {t}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
-
-function HowItWorksSecurityGhostLink() {
-  return (
-    <Link
-      to="/security"
-      className="group inline-flex max-w-full items-center gap-2 rounded-md border border-teal/35 bg-transparent px-3 py-2.5 font-sans text-[0.8125rem] font-medium leading-snug text-teal-light/95 no-underline transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-teal/55 hover:bg-teal/[0.06] hover:text-teal-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/45"
-    >
-      <span className="min-w-0 border-b border-transparent pb-px text-left transition-[border-color] duration-200 group-hover:border-teal/40">
-        See security model
-      </span>
-    </Link>
-  );
-}
-
-const TRUST_PILLS = [
-  'Verify · intervene · measure',
-  'Facilitator-led',
-  'Security disclosure at /security',
-] as const;
 
 export function LandingPage() {
   const configured = isSupabaseConfigured();
 
   return (
-    <div className="landing-page-root bg-navy">
-      <div className="landing-page-inner mx-auto grid w-full min-w-0 max-w-6xl grid-cols-12 gap-x-6">
+    <div className="min-h-0 bg-navy text-left">
+      <div className="mx-auto grid w-full min-w-0 max-w-6xl grid-cols-12 gap-x-6">
+        {/* 1. Hero */}
         <section
-          className="landing-hero-section col-span-12 overflow-x-hidden pb-[72px] pt-[132px]"
+          className="col-span-12 border-b border-white/[0.06] px-gutter pb-16 pt-[7.5rem] md:pb-20 md:pt-28"
           aria-labelledby="hero-heading"
         >
-          <div className="relative mx-auto max-w-6xl px-gutter">
-            <div
-              className="pointer-events-none absolute inset-x-0 top-[-3.5rem] z-0 h-[34rem] overflow-hidden"
-              aria-hidden
+          <p className="mb-4 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Pilot-by-pilot · facilitator-led · evidence-aware
+          </p>
+          <h1
+            id="hero-heading"
+            className="max-w-[40rem] font-heading text-[clamp(1.85rem,4vw,2.65rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-landing-ink"
+          >
+            Structured intervention before conflict escalates.
+          </h1>
+          <p className="mt-6 max-w-[42rem] font-sans text-[1rem] leading-[1.65] text-landing-body">
+            SquadRidge helps facilitators run verified small-group dialogue pilots and publish
+            trusted public outcomes without exposing room-level discussion, attribution, or
+            identity.
+          </p>
+          <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-slate-400">
+            Built for high-trust cohorts where access control, process discipline, and outcome
+            credibility matter more than scale.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <a
+              id="hero-waitlist-cta"
+              href="#waitlist"
+              className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold no-underline"
             >
-              <div className="landing-hero-aurora landing-hero-aurora-a" />
-              <div className="landing-hero-aurora landing-hero-aurora-b" />
-              <div className="landing-hero-grid" />
-              <div className="landing-hero-orbit landing-hero-orbit-a" />
-              <div className="landing-hero-orbit landing-hero-orbit-b" />
-            </div>
-
-            <div className="relative z-[1] max-w-[60rem]">
-              <div className="relative z-[2] flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8">
-                <p className="mb-0 inline-flex max-w-[min(100%,42rem)] rounded-full border border-white/20 bg-[#0f1624] px-4 py-2.5 font-heading text-[0.8rem] font-semibold leading-snug tracking-[0.02em] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:text-[0.82rem]">
-                  Stop escalation before it hardens—pilot-by-pilot, facilitator-led, evidence-aware.
-                </p>
-                <Link
-                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  className="inline-flex min-h-[44px] w-fit items-center font-sans text-[0.875rem] font-semibold text-white underline decoration-white/35 underline-offset-[5px] transition-colors hover:text-teal-light hover:decoration-teal-light/70"
-                >
-                  View sample output
-                </Link>
-              </div>
-              <div className="relative isolate">
-                <div
-                  className="pointer-events-none absolute right-0 top-1/2 z-[-1] max-w-[100vw] -translate-y-1/2 backdrop-blur-[2px]"
-                  aria-hidden
-                >
-                  <p className="landing-hero-watermark select-none font-heading text-[clamp(8rem,20vw,18rem)] font-black leading-none tracking-[-0.04em]">
-                    PEACE
-                  </p>
-                </div>
-                <h1
-                  id="hero-heading"
-                  className="landing-hero-animate-headline relative z-[1] mt-6 mb-0 max-w-[min(100%,22ch)] font-heading text-display-hero font-extrabold leading-[1.02] tracking-[-0.03em] text-landing-ink"
-                >
-                  Stop conflicts before they start.
-                </h1>
-              </div>
-
-              <p className="landing-hero-animate-sub mt-5 max-w-[60ch] font-sans text-[1rem] font-medium leading-[1.65] text-landing-body">
-                Early-warning posture for rising tension: verified participants from opposite sides
-                of a conflict line, in structured dialogue with facilitators in the lead—not generic
-                social chat, not a claim of live global monitoring.
-              </p>
-
-              <p className="landing-hero-animate-sub mt-7 max-w-[58ch] font-sans text-[1.04rem] font-medium leading-[1.75] text-gray-light">
-                SquadRidge helps teams verify who belongs in the room, form small trusted cohorts,
-                and work toward citable outcomes—while being explicit that message confidentiality
-                today is operator-readable per the security model.
-              </p>
-              <p className="landing-hero-animate-sub mt-4 max-w-[60ch] font-sans text-body-lg font-normal leading-[1.75] text-landing-body">
-                For facilitators, peacebuilders, and partner programs running sensitive, high-trust
-                conversations with bounded pilots and clear limits.
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <PrimaryCTA
-                  id="hero-waitlist-cta"
-                  label="Request pilot access"
-                  href="#waitlist"
-                  variant="hero"
-                  shape="squircle"
-                  icon={<ChevronRight />}
-                  className="landing-hero-animate-cta inline-flex w-fit overflow-hidden"
-                />
-                <Link
-                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  className="btn-secondary landing-hero-animate-sub inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 text-sm font-semibold no-underline"
-                >
-                  View sample proposal
-                </Link>
-              </div>
-              <div className="landing-hero-animate-sub mt-3">
-                <HeroWaitlistCounter />
-              </div>
-
-              <div className="landing-hero-animate-sub mt-5 flex flex-wrap gap-3">
-                {TRUST_PILLS.map((item) => (
-                  <span key={item} className="landing-trust-pill">
-                    <span className="landing-trust-pill-dot" aria-hidden />
-                    {item}
-                  </span>
-                ))}
-              </div>
-
-              <div className="landing-hero-animate-sub mt-10 grid max-w-3xl gap-4 sm:grid-cols-2">
-                <Link
-                  to="#waitlist"
-                  className={twMerge(
-                    'landing-surface-card group flex min-h-[44px] flex-col justify-center rounded-lg p-5',
-                  )}
-                >
-                  <span className="font-heading text-sm font-semibold text-landing-ink">
-                    Request pilot access
-                  </span>
-                  <span className="mt-1 font-sans text-[0.85rem] leading-relaxed text-landing-body">
-                    Join the shortlist for facilitator-led cohorts, private walkthroughs, and early
-                    partner pilots.
-                  </span>
-                  <span className="mt-3 font-sans text-[0.8rem] font-medium text-teal-light transition-transform duration-300 group-hover:translate-x-1">
-                    Request pilot access -&gt;
-                  </span>
-                </Link>
-                <Link
-                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  className={twMerge(
-                    'landing-surface-card group flex min-h-[44px] flex-col justify-center rounded-lg p-5',
-                  )}
-                >
-                  <span className="font-heading text-sm font-semibold text-landing-ink">
-                    See the end state
-                  </span>
-                  <span className="mt-1 font-sans text-[0.85rem] leading-relaxed text-landing-body">
-                    Open a sample consensus proposal to see what a successful session can produce
-                    outside the room.
-                  </span>
-                  <span className="mt-3 font-sans text-[0.8rem] font-medium text-teal-light transition-transform duration-300 group-hover:translate-x-1">
-                    View sample proposal -&gt;
-                  </span>
-                </Link>
-              </div>
-
-              {configured ? (
-                <div className="landing-hero-animate-sub mt-8 max-w-[58ch] space-y-3 font-sans text-[0.98rem] leading-[1.65] text-landing-body">
-                  <p className="mb-0">
-                    <span className="font-medium text-landing-ink">Live in pilot today:</span>{' '}
-                    verification, matching, and session entry are already functional.
-                  </p>
-                  <p className="mb-0 text-landing-body/95">
-                    The product is built for real walkthroughs and facilitator-led pilot cohorts,
-                    not just screenshots.
-                  </p>
-                </div>
-              ) : null}
-            </div>
+              Request pilot access
+            </a>
+            <Link
+              to={`/ledger/${DEMO_PROPOSAL_ID}`}
+              className="focus-ring inline-flex min-h-[44px] items-center justify-center rounded border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+            >
+              View sample public record
+            </Link>
           </div>
+          <p className="mt-10 max-w-[48rem] border-t border-white/[0.06] pt-6 font-mono text-[0.7rem] uppercase tracking-[0.08em] text-slate-500">
+            Verified access <span className="text-slate-600">|</span> Facilitator-led rooms{' '}
+            <span className="text-slate-600">|</span> Bounded confidentiality{' '}
+            <span className="text-slate-600">|</span> Citable outcomes
+          </p>
         </section>
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-section md:py-section-lg" innerClassName="bg-transparent">
-          <Testimonial
-            id="quote-heading"
-            quote="We reached more clarity in one structured session than we had in months of unstructured calls."
-            attribution="Verified participant in a facilitator-led cross-border working session."
-            attributionVariant="sentence"
-          />
+        {/* 2. Operational path */}
+        <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section id="operational-path" aria-labelledby="operational-heading">
+            <SectionHeading id="operational-heading">
+              Move from eligibility to public outcome through one controlled path.
+            </SectionHeading>
+
+            <div className="mt-8 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-3">
+              {OPERATIONAL_STEPS.map((label, i) => (
+                <Fragment key={label}>
+                  {i > 0 ? (
+                    <span className="hidden font-mono text-slate-600 md:inline" aria-hidden>
+                      →
+                    </span>
+                  ) : null}
+                  <span className="rounded border border-[#2d3f55] bg-[#0c121c] px-3 py-2 font-mono text-[0.75rem] font-medium text-slate-300">
+                    {label}
+                  </span>
+                </Fragment>
+              ))}
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-3 md:gap-8">
+              {PROOF_CARDS.map((card) => (
+                <div key={card.title} className="border border-[#1e293b] bg-[#080d14] p-5 md:p-6">
+                  <h3 className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                    {card.title}
+                  </h3>
+                  <p className="mt-3 font-sans text-[0.9rem] leading-relaxed text-landing-body">
+                    {card.body}
+                  </p>
+                  {'href' in card ? (
+                    <Link
+                      to={card.href}
+                      className="mt-4 inline-block font-mono text-[0.75rem] font-medium text-teal-light/90 underline-offset-4 hover:underline"
+                    >
+                      {card.linkLabel}
+                    </Link>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </section>
         </FullBleed>
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="pt-section pb-12 md:pt-section-lg md:pb-16">
-          <section
-            id="how-it-works"
-            aria-labelledby="how-heading"
-            className="landing-section-reveal"
-          >
+        {/* 3. How it works */}
+        <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section id="how-it-works" aria-labelledby="how-heading">
             <SectionHeading id="how-heading">How it works</SectionHeading>
-            <p className="mt-6 max-w-2xl font-sans font-normal leading-[1.75] text-landing-body sm:mt-8">
-              Move from eligibility to action in one structured path.
-            </p>
-            <ol className="mt-12 grid list-none gap-x-10 gap-y-16 md:mt-16 md:grid-cols-3 md:gap-x-12 md:gap-y-0 lg:gap-x-16">
-              {HOW_IT_WORKS_STEPS.map((step, index) => (
+            <ol className="mt-10 grid list-none gap-x-10 gap-y-14 md:mt-12 md:grid-cols-3 md:items-stretch md:gap-x-12 md:gap-y-0 lg:gap-x-14">
+              {HOW_IT_WORKS_STEPS.map((step) => (
                 <HowItWorksStep
                   key={step.number}
                   number={step.number}
                   heading={step.heading}
                   body={step.body}
-                  rail={index === 0 ? 'lead' : 'default'}
-                  footer={index === 0 ? <HowItWorksSecurityGhostLink /> : undefined}
+                  rail="default"
                 />
               ))}
             </ol>
@@ -288,48 +233,49 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-16 md:py-section">
-          <section aria-labelledby="compare-heading" className="landing-section-reveal">
-            <SectionHeading id="compare-heading">Why it&apos;s different</SectionHeading>
-            <div className="mt-10 grid gap-8 md:grid-cols-2 md:gap-10">
-              <article className="landing-surface-card rounded-lg p-6">
-                <h3 className="font-heading text-fluid-h3 font-semibold text-landing-ink">
-                  Why generic tools fail in sensitive dialogue
-                </h3>
-                <ul className="mt-5 space-y-4 font-sans text-body-lg font-normal leading-[1.65] text-landing-body">
-                  <li className="border-l border-gray-600 pl-4">
+        {/* 4. Why standard tools */}
+        <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section aria-labelledby="compare-heading">
+            <SectionHeading id="compare-heading">Why standard tools break down</SectionHeading>
+            <div className="mt-10 grid gap-8 border border-[#1e293b] md:grid-cols-2 md:gap-0">
+              <div className="border-b border-[#1e293b] p-6 md:border-b-0 md:border-r md:p-8">
+                <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  Standard tools
+                </p>
+                <ul className="mt-5 space-y-4 font-sans text-[0.92rem] leading-relaxed text-slate-400">
+                  <li className="border-l border-slate-700 pl-4">
                     Open channels expose who said what.
                   </li>
-                  <li className="border-l border-gray-600 pl-4">
-                    Closed channels hide the process and the outcome.
+                  <li className="border-l border-slate-700 pl-4">
+                    Closed channels hide the process and often erase the outcome.
                   </li>
-                  <li className="border-l border-gray-600 pl-4">
-                    Most collaboration tools optimize for volume, not trust, balance, or decision
-                    quality.
-                  </li>
-                </ul>
-              </article>
-              <article className="landing-surface-card rounded-lg p-6">
-                <h3 className="font-heading text-fluid-h3 font-semibold text-landing-ink">
-                  Why SquadRidge works differently
-                </h3>
-                <ul className="mt-5 space-y-4 font-sans text-body-lg font-normal leading-[1.65] text-landing-body">
-                  <li className="border-l border-gray-600 pl-4">
-                    Access can be verified without turning identity into the product.
-                  </li>
-                  <li className="border-l border-gray-600 pl-4">
-                    Small facilitator-led cohorts make the room calmer, more balanced, and easier to
-                    trust.
-                  </li>
-                  <li className="border-l border-gray-600 pl-4">
-                    Useful outcomes can leave the room as citable public proposals instead of
-                    vanishing inside private transcripts.
+                  <li className="border-l border-slate-700 pl-4">
+                    Most collaboration tools optimize for message volume, not trust, balance, or
+                    decision quality.
                   </li>
                 </ul>
-              </article>
+              </div>
+              <div className="bg-[#0a121f] p-6 md:p-8">
+                <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal/80">
+                  SquadRidge
+                </p>
+                <ul className="mt-5 space-y-4 font-sans text-[0.92rem] leading-relaxed text-landing-body">
+                  <li className="border-l border-teal/40 pl-4">
+                    Access can be verified without making identity the product.
+                  </li>
+                  <li className="border-l border-teal/40 pl-4">
+                    Small facilitator-led cohorts reduce noise and create better intervention
+                    conditions.
+                  </li>
+                  <li className="border-l border-teal/40 pl-4">
+                    Useful outcomes can leave the room as public records without exposing the room
+                    itself.
+                  </li>
+                </ul>
+              </div>
             </div>
-            <p className="mt-8 max-w-copy font-sans text-[0.88rem] leading-relaxed text-landing-muted">
-              When participants cannot safely attach their names to a conversation, the
+            <p className="mt-8 max-w-copy font-sans text-[0.88rem] leading-relaxed text-slate-500">
+              When participants cannot safely attach their names to the discussion, the
               infrastructure has to protect both access and outcome quality.
             </p>
           </section>
@@ -337,68 +283,74 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="py-16 md:py-section">
-          <section aria-labelledby="belong-heading" className="landing-section-reveal">
-            <SectionHeading id="belong-heading">
-              Built for people who cannot afford sloppy infrastructure
-            </SectionHeading>
-            <div className="mt-8 space-y-8 font-sans leading-[1.7] text-ink-secondary">
-              <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
+        {/* 5. Audiences */}
+        <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section aria-labelledby="audiences-heading">
+            <SectionHeading id="audiences-heading">Audiences</SectionHeading>
+            <div className="mt-10 grid gap-6 md:gap-8">
+              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
+                <h3 className="font-heading text-lg font-semibold text-landing-ink">
                   Facilitators and mediators
                 </h3>
-                <p className="mb-0 text-body-lg text-landing-body">
-                  Run higher-trust sessions with clearer access boundaries, better cohort
-                  composition, and more usable outcomes.
+                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                  Run structured sessions with clearer access boundaries, stronger cohort
+                  composition, and outcomes others can actually use.
                 </p>
-              </div>
-              <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
-                  Peacebuilders, veterans, organizers, and cross-border teams
+              </article>
+              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
+                <h3 className="font-heading text-lg font-semibold text-landing-ink">
+                  Veterans, organizers, and cross-border participants
                 </h3>
-                <p className="mb-0 text-body-lg text-landing-body">
-                  Participate in structured dialogue without being forced to trade safety for
-                  access.
+                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                  Join sensitive dialogue without being forced to trade personal safety for
+                  participation.
                 </p>
-              </div>
-              <div className="border-l-2 border-[#1a2236] pl-5">
-                <h3 className="mb-2 font-heading text-fluid-h3 font-semibold text-landing-ink">
+              </article>
+              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
+                <h3 className="font-heading text-lg font-semibold text-landing-ink">
                   Partners and funders
                 </h3>
-                <p className="mb-0 text-body-lg text-landing-body">
-                  Support processes that are easier to trust, easier to audit, and more credible
-                  outside the room.
+                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                  Support interventions that are easier to audit, easier to evaluate, and more
+                  credible outside the room.
                 </p>
-              </div>
+              </article>
             </div>
-            <p className="mt-8 max-w-copy font-sans text-[0.88rem] leading-relaxed text-landing-muted">
-              A squad is a small matched cohort, usually 4 to 8 participants, working through a
-              shared problem with facilitator guidance.
+            <p className="mt-8 max-w-copy border-l-2 border-[#2d3f55] pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-500">
+              <span className="font-medium text-slate-400">Squad definition:</span> A squad is a
+              small matched cohort, usually 4 to 8 participants, working through a shared problem
+              with facilitator guidance.
             </p>
           </section>
         </FullBleed>
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="py-16 md:py-section">
-          <section aria-labelledby="security-preview-heading" className="landing-section-reveal">
-            <SectionHeading id="security-preview-heading">
-              Security and privacy, by design
-            </SectionHeading>
-            <ul className="mt-8 max-w-copy space-y-4 font-sans text-[0.95rem] font-normal leading-[1.65] text-landing-body">
-              <li className="border-l border-gray-600 pl-4">
-                Access control without identity exposure in the room
+        {/* 6. Security and privacy */}
+        <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section aria-labelledby="security-heading">
+            <SectionHeading id="security-heading">Security and privacy</SectionHeading>
+            <ul className="mt-8 max-w-copy space-y-5 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+              <li className="border-l border-slate-600 pl-4">
+                Eligibility and access controls can be enforced without exposing identity inside the
+                room.
               </li>
-              <li className="border-l border-gray-600 pl-4">
-                Clear boundaries between session participation and public output
+              <li className="border-l border-slate-600 pl-4">
+                Session participation and public release are separated by explicit disclosure
+                boundaries.
               </li>
-              <li className="border-l border-gray-600 pl-4">
-                Public artifacts that are citable without revealing private discussion details
+              <li className="border-l border-slate-600 pl-4">
+                Public artifacts can be cited without revealing private discussion, attribution, or
+                participant identity.
               </li>
             </ul>
+            <p className="mt-8 max-w-copy border-l-2 border-teal/35 pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-400">
+              This is not privacy as branding. It is privacy as a structural constraint on what the
+              system is allowed to reveal.
+            </p>
             <Link
               to="/security"
-              className="btn-secondary mt-8 inline-flex min-h-[44px] w-fit items-center justify-center px-5 py-2.5 text-sm font-semibold no-underline"
+              className="focus-ring mt-8 inline-flex min-h-[44px] items-center border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
             >
               Review security model
             </Link>
@@ -407,64 +359,70 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt={false} className="py-16 md:py-section">
-          <section aria-labelledby="ledger-heading" className="landing-section-reveal">
-            <SectionHeading id="ledger-heading">
-              Every strong session can leave a record
+        {/* 7. Durable public record */}
+        <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
+          <section aria-labelledby="record-heading">
+            <SectionHeading id="record-heading">
+              A strong session can leave a durable public record
             </SectionHeading>
-            <p className="mt-6 max-w-copy font-sans font-normal leading-[1.7] text-landing-body">
-              Sensitive dialogue should not disappear the moment the meeting ends. When a squad
-              reaches consensus, SquadRidge can publish a public, anonymous, timestamped proposal
-              that others can cite, review, and build on.
-            </p>
-            <p className="mt-4 max-w-copy font-sans text-[0.95rem] font-medium leading-relaxed text-landing-muted">
-              The goal is not just safer conversation. It is durable, credible output.
-            </p>
-            <Link
-              to={`/ledger/${DEMO_PROPOSAL_ID}`}
-              className={twMerge(
-                'btn-secondary mt-8 inline-flex min-h-[44px] gap-2 text-sm font-semibold text-teal-light no-underline',
-                'border-teal/35 hover:border-teal/50 hover:text-white',
-              )}
-            >
-              Open sample proposal
-              <span aria-hidden>-&gt;</span>
-            </Link>
+            <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-start lg:gap-12">
+              <div className="min-w-0 space-y-4">
+                <p className="max-w-copy font-sans text-[0.98rem] leading-[1.7] text-landing-body">
+                  Sensitive dialogue should not disappear when the meeting ends. When a cohort
+                  reaches an outcome approved for release, SquadRidge can publish a public,
+                  anonymous, timestamped record others can cite, review, and build from.
+                </p>
+                <p className="max-w-copy font-sans text-[0.9rem] leading-relaxed text-slate-500">
+                  The goal is not only safer conversation. It is durable, credible output.
+                </p>
+              </div>
+              <div className="flex min-w-0 flex-col gap-4">
+                <LandingPublicRecordPreview />
+                <Link
+                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
+                  className="focus-ring inline-flex min-h-[44px] w-full items-center justify-center border border-[#3d4f63] bg-[#0c121c] px-5 py-2.5 font-heading text-sm font-medium text-slate-200 transition-colors hover:border-slate-500 hover:bg-[#101a28] lg:w-auto"
+                >
+                  Open sample public record
+                </Link>
+              </div>
+            </div>
           </section>
         </FullBleed>
 
         <hr className="sr-section-rule col-span-12" />
 
-        <FullBleed alt className="pt-section-sm pb-section md:pt-14 md:pb-section-lg">
+        {/* 8. Pilot access */}
+        <FullBleed alt className="py-14 md:pb-20" innerClassName="bg-transparent">
           <div className="mx-auto max-w-copy">
             <WaitlistSection />
           </div>
         </FullBleed>
 
-        <hr className="sr-section-rule col-span-12" />
-
-        {!configured && (
-          <section className="col-span-12 pb-10 pt-10" aria-labelledby="env-heading">
-            <div className="landing-surface-card mx-auto max-w-copy rounded-lg border border-amber/30 bg-navy-light/60 p-6">
-              <h2 id="env-heading" className="font-heading text-fluid-h3 font-semibold text-amber">
-                Configure Supabase to run the live product
-              </h2>
-              <p className="mt-4 font-sans text-fluid-small leading-relaxed text-landing-body">
-                Add{' '}
-                <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">
-                  VITE_SUPABASE_URL
-                </code>{' '}
-                and{' '}
-                <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">
-                  VITE_SUPABASE_PUBLISHABLE_KEY
-                </code>{' '}
-                to your{' '}
-                <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">.env</code>,
-                enable anonymous sign-in, and apply the migrations.
-              </p>
-            </div>
-          </section>
-        )}
+        {!configured ? (
+          <>
+            <hr className="sr-section-rule col-span-12" />
+            <section className="col-span-12 px-gutter pb-12 pt-8" aria-labelledby="env-heading">
+              <div className="mx-auto max-w-copy border border-amber/25 bg-navy-light/40 p-6">
+                <h2 id="env-heading" className="font-heading text-lg font-semibold text-amber">
+                  Configure Supabase to run the live product
+                </h2>
+                <p className="mt-4 font-sans text-sm leading-relaxed text-landing-body">
+                  Add{' '}
+                  <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">
+                    VITE_SUPABASE_URL
+                  </code>{' '}
+                  and{' '}
+                  <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">
+                    VITE_SUPABASE_PUBLISHABLE_KEY
+                  </code>{' '}
+                  to your{' '}
+                  <code className="rounded bg-navy-dark px-1.5 py-0.5 text-gray-light">.env</code>,
+                  enable anonymous sign-in, and apply the migrations.
+                </p>
+              </div>
+            </section>
+          </>
+        ) : null}
       </div>
     </div>
   );
