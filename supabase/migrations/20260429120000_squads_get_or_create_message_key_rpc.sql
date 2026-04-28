@@ -25,7 +25,7 @@ DECLARE
     uid uuid := auth.uid ();
     k text;
     is_member boolean;
-    is_moderator boolean;
+    is_moderator boolean := FALSE;
 BEGIN
     IF uid IS NULL THEN
         RAISE EXCEPTION 'not authorized'
