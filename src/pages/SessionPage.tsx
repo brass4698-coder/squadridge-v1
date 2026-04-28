@@ -743,7 +743,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
   }
 
   return (
-    <SessionFeatureErrorBoundary squadId={squadId} userId={userId} key={squadId}>
+    <SessionFeatureErrorBoundary squadId={squadId} key={squadId}>
       <SessionRoomEntryTransition key={squadId} squadId={squadId} />
       <section
         key={sessionPathKey}

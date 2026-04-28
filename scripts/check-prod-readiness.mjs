@@ -135,6 +135,38 @@ try {
   fail('Sentry check', String(e));
 }
 
+// 7b. Sentry user-id is hashed (no raw auth.users.id leaves the browser)
+try {
+  const sentry = read('src/lib/sentry.ts');
+  if (!sentry.includes('hashUserIdForSentry') && !sentry.includes('sentryUserHash')) {
+    fail(
+      'Sentry user hash',
+      'src/lib/sentry.ts must use hashUserIdForSentry (raw auth.users.id is PII-adjacent)',
+    );
+  } else if (!sentry.includes('beforeSend')) {
+    fail('Sentry beforeSend', 'src/lib/sentry.ts must define a beforeSend pre-send hook');
+  } else {
+    pass('Sentry hashes user ids and defines beforeSend');
+  }
+} catch (e) {
+  fail('Sentry user-hash check', String(e));
+}
+
+// 7c. Sentry user-hash salt documented in .env.example
+try {
+  const ex = read('.env.example');
+  if (!ex.includes('VITE_SENTRY_USER_HASH_SALT')) {
+    fail(
+      '.env.example Sentry hash salt',
+      'must document VITE_SENTRY_USER_HASH_SALT (required in prod when VITE_SENTRY_DSN is set)',
+    );
+  } else {
+    pass('.env.example documents VITE_SENTRY_USER_HASH_SALT');
+  }
+} catch (e) {
+  fail('.env.example Sentry hash salt', String(e));
+}
+
 // 8b. Explicit Semaphore demo decoy gate documented (vite env)
 try {
   const ex = read('.env.example');

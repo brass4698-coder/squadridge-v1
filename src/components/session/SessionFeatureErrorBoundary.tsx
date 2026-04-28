@@ -5,7 +5,6 @@ import { captureBoundaryError, setSentrySquadContext } from '../../lib';
 interface Props {
   children: ReactNode;
   squadId?: string;
-  userId?: string | null;
 }
 
 interface State {
@@ -15,6 +14,10 @@ interface State {
 
 /**
  * Isolates chat/message UI failures so the rest of the shell can stay usable.
+ *
+ * Note: `userId` is intentionally not a prop here. {@link captureBoundaryError}
+ * reads the salted hash from {@link setSentryUserContext}'s module cache, so
+ * raw `auth.users.id` UUIDs never traverse the boundary's React tree.
  */
 export class SessionFeatureErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, error: null };
@@ -24,9 +27,9 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    const { squadId, userId } = this.props;
+    const { squadId } = this.props;
     if (squadId) setSentrySquadContext(squadId);
-    captureBoundaryError(error, info, { squadId, userId, boundary: 'session' });
+    captureBoundaryError(error, info, { squadId, boundary: 'session' });
   }
 
   private handleRetry = (): void => {
