@@ -37,7 +37,11 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'jsdom',
       globals: false,
-      include: ['src/**/*.{test,spec}.{ts,tsx}', 'supabase/functions/**/*.{test,spec}.ts'],
+      include: [
+        'src/**/*.{test,spec}.{ts,tsx}',
+        'supabase/functions/**/*.{test,spec}.ts',
+        'tests/**/*.{test,spec}.{ts,tsx}',
+      ],
       setupFiles: ['./src/test/setupTests.ts'],
       coverage: {
         provider: 'v8',

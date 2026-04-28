@@ -1,0 +1,220 @@
+openapi: "3.1.0"
+info:
+  title: SquadRidge API
+  version: "0.1.0"
+  description: |
+    SquadRidge REST API scaffold.
+
+    **Status:** SCAFFOLD — endpoints are illustrative. Add request/response schemas,
+    authentication details, and error shapes as the API surface stabilises.
+    Generate a typed client with: `npx @openapitools/openapi-generator-cli generate -i openapi.yaml -g typescript-fetch -o src/api-client`
+
+    **Privacy notes:**
+    - All endpoints require a short-lived anonymous session token (Bearer JWT).
+    - Raw IP addresses and user-agent strings are never logged (see src/middleware/anonymizeRequest.ts).
+    - Message bodies are encrypted before transmission (see src/utils/encryption.ts).
+
+  contact:
+    email: api@squadridge.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.squadridge.com/v1
+    description: Production
+  - url: http://localhost:54321/functions/v1
+    description: Local Supabase Edge Functions
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase anonymous session JWT. Obtain via POST /auth/session.
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Human-readable error message (never contains PII or message content).
+        code:
+          type: string
+          description: Machine-readable error code.
+
+    SessionToken:
+      type: object
+      required: [token, expiresAt]
+      properties:
+        token:
+          type: string
+          description: Short-lived JWT. Treat as a secret.
+        expiresAt:
+          type: string
+          format: date-time
+
+    MatchRequest:
+      type: object
+      required: [intent, poolId]
+      properties:
+        intent:
+          type: string
+          description: User's anonymised intent category (e.g. "conflict-resolution").
+          maxLength: 64
+        poolId:
+          type: string
+          description: Squad pool identifier.
+          maxLength: 64
+        sideHint:
+          type: string
+          enum: [A, B]
+          description: Optional side hint for A/B matchmaking.
+
+    MatchResult:
+      type: object
+      required: [sessionId, status]
+      properties:
+        sessionId:
+          type: string
+          description: Ephemeral squad session ID.
+        status:
+          type: string
+          enum: [matched, queued, timeout]
+        estimatedWaitSeconds:
+          type: integer
+          minimum: 0
+
+    MessagePayload:
+      type: object
+      required: [conversationId, ciphertext, iv, wrappedKeyRef]
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        ciphertext:
+          type: string
+          format: byte
+          description: Base64-encoded AES-GCM ciphertext (with appended auth tag).
+        iv:
+          type: string
+          description: Base64-encoded 96-bit IV (24 chars).
+          minLength: 24
+          maxLength: 24
+        wrappedKeyRef:
+          type: string
+          description: Reference to the KMS-wrapped data key for this message.
+
+    MessageAck:
+      type: object
+      required: [id, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+
+paths:
+  /auth/session:
+    post:
+      summary: Create anonymous session
+      operationId: createSession
+      security: []
+      description: |
+        Creates a new anonymous session. No email or real-world identity required.
+        Returns a short-lived JWT for use as Bearer token on subsequent requests.
+      responses:
+        "201":
+          description: Session created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionToken"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /match:
+    post:
+      summary: Enqueue for matchmaking
+      operationId: enqueueMatch
+      description: |
+        Adds the authenticated session to a matchmaking pool.
+        Returns immediately with status `queued`; listen on the Supabase Realtime
+        channel for the `matched` event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchRequest"
+      responses:
+        "200":
+          description: Queued or immediately matched.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchResult"
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /messages:
+    post:
+      summary: Send encrypted message
+      operationId: sendMessage
+      description: |
+        Stores an encrypted message ciphertext. The server never sees plaintext.
+        Ciphertext must be AES-GCM encrypted with a KMS-wrapped data key
+        (see src/utils/encryption.ts).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessagePayload"
+      responses:
+        "201":
+          description: Message stored.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageAck"
+        "400":
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Invalid or expired session token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
