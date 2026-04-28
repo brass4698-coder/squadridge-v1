@@ -1,64 +1,115 @@
-# Privacy policy
+# Privacy Policy
 
-## Summary — short and direct
+**Last updated: 2026-04-28**
+**Status: Draft — legal review required before public launch**
 
-SquadRidge is designed to be privacy‑forward. We want people to feel safe sharing without fear of identification. This document explains, in plain language, what data we collect, why, and how we protect it. This is a readable summary for users and reviewers — legal review is required before publication.
+Hey — if you're using SquadRidge, you deserve a straight answer about what we collect, why, and what we don't. This is our best attempt at plain English. We'll keep it honest even when that means admitting gaps.
 
-## What we aim to protect
+---
 
-- Anonymity of participants in conversations
-- The content of messages (sensitive personal content)
-- Minimal operational metadata needed to run the service
+## The short version
 
-## What we collect (short list)
+We collect as little as possible to keep the service running. We never sell your data. We anonymize or hash identifying information server-side before persisting it. We are not yet fully end-to-end encrypted — we say that clearly below so you can make an informed choice.
 
-- Conversation content: by default messages are stored as ciphertext on the server (or in future releases, client-side encrypted). Plaintext is never intentionally logged.
-- Session tokens / ephemeral handles: short-lived tokens that let you resume a conversation in-browser. These do not include email unless you provide it.
-- Minimal metadata: timestamps (for ordering), conversation IDs, and lightweight metadata (tags, language) to enable basic product features and moderation. We hash or truncate identifying information where possible.
-- Diagnostics (only if you opt in): crash reports and logs with PII redaction enabled.
+---
 
-## What we do not collect (by default)
+## 1. What we collect and why
 
-- We do not require email or phone to start a conversation.
-- We do not collect raw IP addresses into persistent storage. On the server we replace IPs with a salted/peppered truncated hash to support rate limiting and abuse controls.
-- We do not store device fingerprints intended for long-term tracking.
+| Category | What | Why | Retention |
+|----------|------|-----|-----------|
+| Account | Email address (if you use magic-link sign-in) | Authenticate you, deliver your link | Until you delete your account |
+| Session identity | An internal `user_id` (UUID, Supabase-generated) | Tie your sessions together | Until you delete your account |
+| Profile | Your callsign, optional region hint, language, interest tags | Match you with a squad | Until you delete your account |
+| Messages | Encrypted message ciphertext, IV, and a key reference | Deliver the message and support moderation review | See [DATA_RETENTION.md](DATA_RETENTION.md) |
+| Matchmaking metadata | Pool key (your sorted intent tags), timestamp, side | Find the right squad for you | Short-lived; see retention doc |
+| ZK proofs | Semaphore nullifier, commitment, proof fields | Verify your credential without revealing the credential | Indefinite — audit integrity requires this |
+| Error telemetry | Anonymized error events via Sentry (no message bodies) | Fix bugs | 90 days in Sentry |
+| Server logs | Hashed request identifier (no raw IP), outcome code | Detect abuse, diagnose failures | 30 days |
 
-## How the data is used
+### What we explicitly do not collect
 
-- To deliver messages between participants.
-- To support moderation and safety (automated classifiers + human review when needed).
-- To operate and debug the service (with PII removed before storage or transmitted to monitoring services).
-- To run short-lived analytics for product improvement; all analytics are designed to minimize re-identification risk.
+- Raw IP addresses in persistent storage. We hash with a pepper (HMAC-SHA256) before any logging or rate-limiting.
+- User-agent strings in persistent storage. Stripped at the edge.
+- Message plaintext in logs. Message bodies are encrypted before storage; Sentry `beforeSend` scrubs any string over 512 bytes.
+- Precise GPS location. We ask for a coarse region hint (e.g. "Europe/East") only if you share it.
 
-## Security measures we have in place
+---
 
-- Field-level server-side encryption (KMS-wrapped keys) for sensitive fields is scaffolded in the repo. Real KMS wiring is a deployment step described in DATA_RETENTION.md and in the repo comments.
-- Request anonymization middleware strips and replaces sensitive headers before logging.
-- Access to production DBs and backups is limited to a small ops group; keys are stored in a secret manager (not in the repo).
-- We scrub PII from error reports (Sentry before-send hook is included as a scaffold).
+## 2. Anonymity — honest tradeoffs
 
-## Moderation and safety tradeoffs
+We care deeply about anonymity, but we want to be honest about what "anonymous" means here:
 
-- We use a combination of automated classifiers and human-in-the-loop moderation to flag abusive or crisis content.
-- In rare cases (imminent risk of harm) the product may surface crisis resources. We do not proactively share identifying information with third parties except under legal compulsion.
-- All flagged content handling is logged in a restricted audit trail. Audit logs are minimized and access-controlled.
+**What the platform cannot easily link to you:**
+- Message content (encrypted at rest with a per-squad key)
+- Your name, photo, or real-world identity (we don't ask)
 
-## User rights and requests
+**What the platform *can* link to your account, today:**
+- Your email address (if you signed in with magic link)
+- Your `user_id` across all tables and logs
+- Your ZK proof submissions — we know "this account submitted this proof," even though the proof itself doesn't contain your name
+- Message timing and squad membership
 
-- Data access: You can request details about what we store for your conversation. Since we design for anonymity, some data (e.g., IPs) is not stored in raw form.
-- Deletion: We provide an in-app “Leave & forget” option that ends your session and requests deletion of your recent messages. Deletion follows the schedule in DATA_RETENTION.md.
-- Legal requests: If a lawful request is made for our logs or data, we will follow legal process and push back where appropriate. We will notify users when permitted and we’ll document the legal request handling procedure internal to the company.
+**What this means in practice:**
+If you are in a high-risk situation (journalist, activist, person in authoritarian context), please read our [threat model](docs/security/threat-model.md) before relying on SquadRidge for anything operationally sensitive. The current platform protects against *accidental* exposure and *opportunistic* surveillance — not a determined, legally-compelled, or well-resourced adversary.
 
-## Limitations and tradeoffs (be honest)
+---
 
-- This repo includes scaffolds for encryption and KMS integration. The code shows the intended approach, but a production deployment must wire a real KMS provider and rotate keys.
-- Client-side E2EE (end-to-end encryption) is a future milestone. Until then, we encrypt server-side fields to reduce risk, but server‑side operators with DB access may be able to access ciphertext metadata. We document current status and roadmap tradeoffs in [`CURRENT_STATUS.md`](CURRENT_STATUS.md) and related product docs.
+## 3. End-to-end encryption — current state
 
-## Contact and next steps
+**We use AES-256-GCM encryption at the application layer.** Your messages are encrypted before they reach our database. However:
 
-- For privacy questions or data removal requests: privacy@squadridge.example (replace before publishing).
-- For legal or compliance reviews, see DATA_RETENTION.md and [`docs/security/threat-model.md`](docs/security/threat-model.md).
+- The encryption key is stored in our database (per-squad, in `squads.message_encryption_key`).
+- This means the SquadRidge team, Supabase (our infrastructure provider), or anyone with database access could read your messages.
+- This is **not** end-to-end encryption in the cryptographic sense (where only you and your squad-mates hold the keys).
 
-## Thank you
+Our roadmap includes true E2E encryption. Until then, we are transparent: messages are encrypted *in transit and at rest* but remain accessible to privileged platform operators. See [ROADMAP.md](ROADMAP.md).
 
-We want people to trust the platform. We’ll continue to iterate and to be transparent about the limits of what we can and cannot guarantee.
+---
+
+## 4. Sharing and third parties
+
+We share your data only with:
+
+| Recipient | What | Why |
+|-----------|------|-----|
+| Supabase | All data (hosted infrastructure) | We run on their platform |
+| Sentry | Anonymized crash reports (no message bodies, no raw user IDs) | Error monitoring |
+| Upstash Redis | Hashed request token for rate-limiting | Abuse prevention |
+
+We do not share data with advertisers, data brokers, or analytics companies. We do not sell your data.
+
+---
+
+## 5. Your rights
+
+Depending on where you are, you may have the right to:
+
+- **Access** what we hold about you
+- **Delete** your account and data
+- **Correct** inaccurate data
+- **Object** to certain processing
+- **Export** your data in a machine-readable format
+
+To exercise any of these, email us (see SECURITY.md for contact). We will respond within 30 days. If you are in the EU/UK, you may also lodge a complaint with your local data protection authority.
+
+---
+
+## 6. Children
+
+SquadRidge is not directed at children under 16. If you believe a child has created an account, please contact us immediately.
+
+---
+
+## 7. Changes
+
+We will update this document as the product evolves. Significant changes (new data categories, new sharing partners) will be communicated in-app and in the changelog.
+
+---
+
+## 8. Contact
+
+See [SECURITY.md](SECURITY.md) for the security contact. General privacy questions can be directed to the same address.
+
+---
+
+*This document is a living draft. If you spot something missing or misleading, open an issue — we'd rather fix it than defend it.*

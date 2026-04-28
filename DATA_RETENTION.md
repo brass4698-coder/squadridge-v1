@@ -1,83 +1,116 @@
-# Data retention
+# Data Retention Policy
 
-## Purpose
+**Last updated: 2026-04-28**
+**Status: Draft — legal and operational review required before public launch**
 
-This document explains how long different types of data are kept and how we delete them. It’s written to be practical: engineers should be able to implement it, and reviewers should understand operational tradeoffs. This is a draft and should be reviewed by legal before publication.
+This document describes what we keep, for how long, why, and how we delete it. It is the companion to [PRIVACY_POLICY.md](PRIVACY_POLICY.md) and the engineering reference to the threat model at [docs/security/threat-model.md](docs/security/threat-model.md).
 
-## Retention categories and recommended defaults
+---
 
-- Messages (ciphertext): 90 days by default.
-  - Rationale: gives users time to continue conversations and allows short-term moderation, but keeps the data life short for privacy.
-  - Implementation note: messages are stored as ciphertext + metadata. We recommend partitioning the messages table by month and dropping partitions older than 90 days.
+## Guiding principle
 
-- Message metadata (conversation_id, language tags, minimal routing info): 180 days.
-  - Rationale: metadata helps product analytics and abuse detection while keeping message content shorter lived.
-  - Note: metadata values must be minimized and avoid storing PII.
+Keep the minimum data for the minimum time needed to deliver the service, investigate abuse, and meet legal obligations. When in doubt, delete sooner.
 
-- Audit logs (moderation actions, admin changes): 365 days.
-  - Rationale: we need an audit trail for operational integrity and dispute resolution. These logs are access‑controlled and do not contain raw user PII.
+---
 
-- Access logs / monitoring traces: 30 days (raw), 180 days (aggregates).
-  - Raw logs are scrubbed for PII before storage. Aggregates for product telemetry may be retained longer with privacy protections.
+## 1. Retention windows
 
-- Crash reports / error traces: 30 days by default, scrubbed on ingest.
-  - Sentry/example before-send hook is scaffolded to remove user messages and headers.
+| Data type | Retention window | Notes |
+|-----------|-----------------|-------|
+| Message ciphertext (`messages.payload_ciphertext`) | **90 days** from `created_at` | Default window; adjustable per deployment |
+| Message metadata (sender handle, timestamps) | **90 days** from `created_at` | Co-located with ciphertext in the same row |
+| Matchmaking queue rows (`match_queue`) | **24 hours** after match or cancel | Swept by the matchmaking cron job |
+| Squad membership (`squad_members`) | Until squad is archived | Archived squads are retained for **30 days** then purged |
+| Squad encryption snapshots (`squad_encryption_snapshots`) | 90 days after archive | Required for moderator review of archived sessions |
+| ZK proof submissions (`zk_proof_submissions`) | **Indefinite** | Required for audit integrity and nullifier deduplication |
+| User accounts | Until user-requested deletion or 12 months of inactivity | Inactivity purge is a roadmap item |
+| Moderation audit log | **1 year** | Required for abuse review; minimal PII |
+| Server-side error logs (Sentry) | 90 days | Configured in Sentry project settings |
+| Rate-limit tokens (Redis) | **1 hour** rolling window | Volatile; lost on Redis restart |
+| IP hash (request anonymizer) | Not persisted | Hashed in-flight; never written to DB |
+| Build/CI logs | 30 days | GitHub Actions default |
 
-## Deletion, purge, and retention enforcement
+---
 
-- Partitioning approach:
-  - Use a partitioned messages table (RANGE on created_at). Create partitions per calendar month.
-  - A scheduled job (pg_cron or an external orchestrator) will drop partitions older than the retention window. Dropping partitions is fast and reduces risk of accidental partial deletion.
+## 2. Message retention in detail
 
-- Deletion requests:
-  - “Leave & forget” will mark a session as ended and enqueue a deletion job for messages in that session. Deletions may be batched for operational efficiency.
-  - Upon deletion completion, write an immutable audit entry recording the deletion (who/what requested it and timestamp), but avoid including the content removed.
+Messages are stored in a partitioned `messages` table. Each partition covers one calendar month. Retention is enforced by **dropping the entire partition** when it falls outside the retention window.
 
-- Partial retention for investigations:
-  - If a lawful request or serious safety investigation requires preservation, a limited hold may be placed. This is exceptional and must be approved by a documented internal process. Holds are time-limited and audited.
+### Why partitions instead of row-level deletes?
 
-## Backups and disaster recovery
+- Partition drops are a single metadata operation — much faster than `DELETE WHERE created_at < ...` on millions of rows.
+- They are harder to accidentally reverse (no row-level audit delta to exploit).
+- They release storage immediately (no bloat from dead rows).
 
-- Backups must follow the same retention rules. Backups containing message partitions older than the retention window must be purged or encrypted with separate keys and access-limited.
-- We recommend encrypting backups with a dedicated KMS key and storing rotation/usage logs.
+### Partition naming convention
 
-## Access controls
+```
+messages_YYYY_MM
+```
 
-- Production DB and storage access is limited to a small, named group. Access is audited and uses short-lived credentials where possible.
-- Developer machines do not store production keys. Developers who need access must request time-limited privileges through an internal process.
+A retention job (scheduled via `pg_cron`) drops partitions older than the retention window. See [scripts/retention_job.sql](scripts/retention_job.sql) and [migrations/20260428_message_partitioning.sql](migrations/20260428_message_partitioning.sql).
 
-## Operational runbook (high level)
+---
 
-- Daily:
-  - Health checks on retention job; alert if retention lag > 2x scheduled window.
-- Weekly:
-  - Review audit log access patterns.
-- Monthly:
-  - Confirm partitions and that old partitions are dropped as expected.
-- Incident:
-  - If data with retention obligations is exposed, follow the Incident Response Plan (see SECURITY.md) and notify legal/privacy as required.
+## 3. User-requested deletion
 
-## What remains / scaffold notes
+When a user requests account deletion:
 
-- The repo includes migrations/20260428_message_partitioning.sql with a partitioned table example and a scripts/retention_job.sql sample for pg_cron. These are scaffolds — they show the intended approach but need validation against your production DB engine, timezone settings, and backup strategy.
-- Before production use:
-  - Decide and document final retention windows (the defaults above are recommendations).
-  - Wire pg_cron or a scheduler and test the drop-partition flow carefully on a staging DB (do NOT run on production without a tested backup and restore plan).
-  - Ensure backups follow the same retention and encryption rules.
+1. **Immediately:** Revoke their Supabase auth session; remove their profile row.
+2. **Within 24 hours:** Orphan their `squad_members` rows (soft delete or cascade, depending on squad status).
+3. **Within 30 days:** Purge any remaining rows linked to their `user_id` that were not yet swept by the partition job. Message ciphertext rows are retained until the partition drops (their author handle is pseudonymous, not linked to real identity in the row itself).
+4. **Not deleted:** ZK nullifiers (needed for proof deduplication) and moderation audit log entries referencing the user's moderation actions.
 
-## Legal & compliance notes
+> **Scaffold note:** The deletion pipeline is not yet fully automated. Today it requires manual steps. A task queue + cron job for the 30-day sweep is in the roadmap.
 
-- Retention windows may need to be adjusted for local legal obligations (e.g., regional requirements for records or law enforcement holds). Coordinate with legal for country-specific changes.
-- Any request to preserve or disclose data for legal reasons must be logged and handled via the legal team. Don’t attempt to reply to subpoenas without legal guidance.
+---
 
-## Quick checklist for engineers
+## 4. Audit logs
 
-- [ ] Review partition boundaries and timezone behavior in migrations/20260428_message_partitioning.sql
-- [ ] Configure pg_cron or a scheduled job to run the retention script
-- [ ] Add monitoring/alerting for retention job successes/failures
-- [ ] Confirm backup encryption and retention policies match the live retention plan
-- [ ] Legal review of retention windows and hold procedures
+Moderation audit log entries (`moderation_audit_log`) record:
+- Which moderator requested message plaintext
+- The message ID reviewed
+- The justification provided
+- Timestamp
 
-## Thank you
+These are retained for **1 year** and are only readable by service-role access. They are **not** shown to users. They exist to provide accountability for platform-side message review.
 
-This policy balances user privacy and necessary operational needs. Follow-up work may include a tested runbook for partition creation, a safe staging script, and a small demo that simulates dropping an old partition on a non-prod dataset.
+---
+
+## 5. Exceptions and overrides
+
+| Situation | Handling |
+|-----------|----------|
+| Active abuse investigation | Relevant rows may be held past retention window with a documented legal hold |
+| Legal/regulatory request | Data may be preserved under applicable law; we document each hold |
+| Ongoing moderation action | Squad data retained until action closes |
+| User has an open support ticket | Profile retained until ticket resolves |
+
+Each exception is tracked in an internal legal-hold register (not in this repo).
+
+---
+
+## 6. How we enforce retention (engineering)
+
+- **Partition drops:** `pg_cron` job runs nightly; SQL in [scripts/retention_job.sql](scripts/retention_job.sql).
+- **Queue TTL sweep:** Matchmaking cron (see `docs/technical/matchmaking-automation.md`).
+- **Sentry:** Retention configured in Sentry project settings (90-day default).
+- **Redis:** TTL set on every key; no persistent storage of PII.
+
+---
+
+## 7. Auditing the retention process
+
+Each partition drop is logged to `partition_drop_log` (to be implemented — see roadmap). Logs include partition name, row count, and timestamp. This log is retained for 1 year.
+
+> **Scaffold note:** `partition_drop_log` and its associated alerting are in the roadmap. Until implemented, retention is enforced but not automatically audited.
+
+---
+
+## 8. Changes
+
+Changes to retention windows should go through PR review with a comment in this doc and a note in the threat model if the change affects anonymity guarantees.
+
+---
+
+*If you have questions about what data we hold about you, see [PRIVACY_POLICY.md § Your rights](PRIVACY_POLICY.md#5-your-rights).*
