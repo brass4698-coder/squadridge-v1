@@ -12,6 +12,15 @@ let sentryInitialized = false;
  */
 let cachedHashedUserId: string | null = null;
 
+/**
+ * Monotonically increasing call counter for {@link setSentryUserContext}. Used to
+ * discard stale `await hashUserIdForSentry` results when a newer call (e.g. the
+ * synchronous `null` on logout) has superseded an in-flight hash. Without this
+ * guard, a slow hash could resolve after logout and re-attribute subsequent
+ * errors to the previous user's hashed id.
+ */
+let sentryUserContextGeneration = 0;
+
 /** Maximum string length permitted in `extra`/`contexts` payloads (defense-in-depth
  * against accidental message-body capture). Anything longer is stripped by `beforeSend`. */
 const MAX_SENTRY_FIELD_LENGTH = 512;
@@ -46,6 +55,9 @@ function scrubLongStringsInPlace(node: unknown, depth = 0): void {
  *      catches accidental future leaks of raw `auth.users.id` UUIDs.
  *   3. Strip overlong strings in `extra` and `contexts` so an accidental message
  *      body or stack-trace dump cannot exfiltrate plaintext through Sentry.
+ *      `contexts.react.componentStack` is exempted — it is set by our own error
+ *      boundaries, contains only component names (no PII), and is the most
+ *      valuable diagnostic for render errors.
  *
  * Exported for unit testing — production wiring goes through `Sentry.init`.
  */
@@ -63,7 +75,22 @@ export function beforeSendSentryEvent(event: SentryErrorEvent): SentryErrorEvent
     }
   }
 
-  if (event.contexts) scrubLongStringsInPlace(event.contexts);
+  if (event.contexts) {
+    /**
+     * `contexts.react.componentStack` is set by our error boundaries and is the
+     * single most useful diagnostic field for render errors. It contains only
+     * component names (no PII / message bodies) but routinely exceeds
+     * {@link MAX_SENTRY_FIELD_LENGTH} given this app's nesting depth, so we
+     * exempt it from length scrubbing.
+     */
+    const reactCtx = event.contexts.react as { componentStack?: unknown } | undefined;
+    const preservedComponentStack =
+      reactCtx && typeof reactCtx.componentStack === 'string' ? reactCtx.componentStack : undefined;
+    scrubLongStringsInPlace(event.contexts);
+    if (preservedComponentStack !== undefined && reactCtx) {
+      reactCtx.componentStack = preservedComponentStack;
+    }
+  }
   if (event.extra) scrubLongStringsInPlace(event.extra);
 
   return event;
@@ -170,6 +197,7 @@ export function captureBoundaryError(
  * Never sends raw `auth.users.id` — see {@link ./sentryUserHash.ts}.
  */
 export async function setSentryUserContext(userId: string | null): Promise<void> {
+  const generation = ++sentryUserContextGeneration;
   if (userId === null) {
     cachedHashedUserId = null;
     if (sentryInitialized) Sentry.setUser(null);
@@ -182,12 +210,14 @@ export async function setSentryUserContext(userId: string | null): Promise<void>
     // Hashing-failure diagnostic — never carries a Supabase user id (we caught
     // before the hash succeeded). Hand-rolled console call is fine here per
     // src/lib/log.ts policy; the ban applies to free-form interpolation.
+    if (generation !== sentryUserContextGeneration) return;
     // eslint-disable-next-line no-restricted-syntax
     console.warn('[Sentry] Could not hash user id; skipping setUser to avoid PII leak.', err);
     cachedHashedUserId = null;
     if (sentryInitialized) Sentry.setUser(null);
     return;
   }
+  if (generation !== sentryUserContextGeneration) return;
   cachedHashedUserId = hashed;
   if (sentryInitialized) Sentry.setUser({ id: hashed });
 }
@@ -303,6 +333,7 @@ export function captureZkStubMisdeploySentinel(): void {
 /** Test-only: reset the cached hashed user id between cases. */
 export function __resetSentryUserCacheForTests(): void {
   cachedHashedUserId = null;
+  sentryUserContextGeneration = 0;
 }
 
 export { Sentry };
