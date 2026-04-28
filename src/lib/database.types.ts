@@ -473,6 +473,10 @@ export interface Database {
         Args: { p_message_id: string; p_justification: string };
         Returns: undefined;
       };
+      get_or_create_squad_message_key: {
+        Args: { p_squad_id: string };
+        Returns: string;
+      };
       create_demo_session_claim: {
         Args: Record<string, never>;
         Returns: string;
