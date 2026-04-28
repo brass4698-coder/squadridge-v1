@@ -28,6 +28,7 @@ import {
   captureAppError,
   encodeSecureMessagePayload,
   ensureSquadMessageKey,
+  fetchOwnMessageReviewStatus,
   isAiPipelineEnabled,
   isSupabaseConfigured,
   logIntervention,
@@ -97,6 +98,16 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
   const [archiving, setArchiving] = useState(false);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
+  /**
+   * `message_id → reviewed_at` for the *caller's own* messages that a moderator
+   * has decrypted via `moderator_record_decrypt_audit`. Powers the small
+   * "Reviewed by moderator" pill in `SessionMessageItem` (Phase 2.2). The
+   * `get_my_messages_review_status` RPC enforces `sender_id = auth.uid()`,
+   * never returning moderator identity or justification.
+   */
+  const [reviewStatusByMessage, setReviewStatusByMessage] = useState<Map<string, string>>(
+    () => new Map(),
+  );
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
   const loadOlderSentinelRef = useRef<HTMLLIElement | null>(null);
   const prefs = useUserPreferences();
@@ -162,6 +173,39 @@ export function SessionPage({ squadId }: { squadId: string }) {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
 
   const userId = session?.user?.id ?? null;
+
+  useEffect(() => {
+    if (!supabase || !userId) return;
+    const ownIds = messages
+      .filter((m) => m.sender_id === userId && m.status !== 'retracted')
+      .map((m) => m.id);
+    if (ownIds.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const map = await fetchOwnMessageReviewStatus(supabase, ownIds);
+        if (cancelled || map.size === 0) return;
+        // Merge so we never lose a previously-seen review timestamp when older
+        // pages drop out of the visible window.
+        setReviewStatusByMessage((prev) => {
+          let changed = false;
+          const next = new Map(prev);
+          for (const [id, ts] of map) {
+            if (next.get(id) !== ts) {
+              next.set(id, ts);
+              changed = true;
+            }
+          }
+          return changed ? next : prev;
+        });
+      } catch (e) {
+        captureAppError(e, { feature: 'session_review_status', extra: { squadId } });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [supabase, userId, messages, squadId]);
 
   function epochForMessage(messageId: string): number {
     const map = receivedEpochById.current;
@@ -769,6 +813,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               'Report participant: describe what happened without doxxing. MVP reviews use moderator tools.',
             );
           }}
+          squadId={squadId}
         />
 
         <h1 id="session-title" className="sr-only">
@@ -970,6 +1015,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
                         receivedEpoch={epochForMessage(m.id)}
                         translate={translate}
                         onPullBack={() => void handlePullBack(m.id)}
+                        reviewedAt={reviewStatusByMessage.get(m.id) ?? null}
                       />
                     );
                   })

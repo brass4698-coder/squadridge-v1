@@ -124,6 +124,63 @@ describe('processIngestRequest', () => {
     });
   });
 
+  it('happy path persists ciphertext-only shape — no plaintext / redacted-text columns', async () => {
+    let capturedInsert: Record<string, unknown> | null = null;
+
+    const deps = makeDeps();
+    deps.adminSupabase = {
+      from: vi.fn((table: string) => {
+        if (table !== 'messages') throw new Error(`unexpected admin table ${table}`);
+        return {
+          insert: (row: Record<string, unknown>) => {
+            capturedInsert = row;
+            return {
+              select: () => ({
+                single: () =>
+                  Promise.resolve({
+                    data: {
+                      id: 'msg-1',
+                      squad_id: 'squad-1',
+                      sender_id: 'user-1',
+                      payload_ciphertext: row.payload_ciphertext,
+                    },
+                    error: null,
+                  }),
+              }),
+            };
+          },
+        };
+      }),
+    } as unknown as IngestDeps['adminSupabase'];
+
+    const res = await processIngestRequest(postJson(validBody, authHeader), deps);
+    expect(res.status).toBe(200);
+
+    // The handler must write the ciphertext output of `encode(redact(decode(input)))`
+    // and only the three structural columns (squad_id, sender_id, payload_ciphertext).
+    // Real Postgres has no `plaintext` / `redacted_body` columns; this asserts the
+    // handler keeps that contract even if a future change adds rows to the insert.
+    expect(capturedInsert).not.toBeNull();
+    expect(Object.keys(capturedInsert!).sort()).toEqual([
+      'payload_ciphertext',
+      'sender_id',
+      'squad_id',
+    ]);
+    expect(capturedInsert).not.toHaveProperty('plaintext');
+    expect(capturedInsert).not.toHaveProperty('redacted_body');
+    expect(capturedInsert).not.toHaveProperty('content');
+
+    // Response body mirrors the inserted row (the test mock returns it verbatim) and
+    // must not include any plaintext-bearing field either.
+    const responseJson = (await res.clone().json()) as { message: Record<string, unknown> };
+    expect(Object.keys(responseJson.message).sort()).toEqual([
+      'id',
+      'payload_ciphertext',
+      'sender_id',
+      'squad_id',
+    ]);
+  });
+
   it('responds to OPTIONS preflight with 200 and CORS headers', async () => {
     const deps = makeDeps();
     const req = new Request('https://example.test/functions/v1/ingest-message', {

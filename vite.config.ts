@@ -10,6 +10,18 @@ export default defineConfig(({ mode }) => {
       'Production build blocked: VITE_ZK_STUB=true ships hash-only ZK stubs (no Semaphore, no Edge verification). Remove it from .env.production and hosting env for release builds.',
     );
   }
+  if (
+    mode === 'production' &&
+    env.VITE_SEMAPHORE_DEMO_GROUP === 'true' &&
+    env.VITE_ALLOW_DEMO_DECOYS_IN_PROD !== 'true'
+  ) {
+    throw new Error(
+      'Production build blocked: VITE_SEMAPHORE_DEMO_GROUP=true ships bundled Squadridge Semaphore decoys, ' +
+        'which collapses the anonymity set (see docs/technical/rfc-issuer-managed-anonymity-group.md). ' +
+        'Either unset the flag for production or set VITE_ALLOW_DEMO_DECOYS_IN_PROD=true ' +
+        'for a deliberate internal-demo build (CI prod release jobs must not set this).',
+    );
+  }
 
   return {
     plugins: [

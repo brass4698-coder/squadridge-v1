@@ -10,17 +10,29 @@ export async function importSquadMessageKey(keyBase64: string | null): Promise<C
 }
 
 /**
- * Returns the squad's AES-256-GCM key, generating one server-side if missing.
+ * Resolves a squad's message encryption key for client decryption / encryption.
  *
- * Fast path: if the caller already has a non-empty `message_encryption_key` on the squad
- * row (e.g. from the realtime subscription or initial fetch), import it directly with no
- * server round-trip.
+ * Key custody is fully server-side (audit Phase 0.2). Three layers cooperate:
  *
- * Slow path: call the SECURITY DEFINER RPC `get_or_create_squad_message_key` (added in
- * migration 20260429120000), which row-locks the squad, authorises the caller as a member
- * or moderator, and returns the existing or newly-generated key. This replaces the
- * previous client-side `UPDATE squads SET message_encryption_key = …` that allowed two
- * concurrent callers to race and produce divergent keys.
+ *   1. The `BEFORE INSERT` trigger `squads_set_default_message_encryption_key`
+ *      (migration `20260417150000`) generates a 32-byte AES key via
+ *      `pgcrypto.gen_random_bytes` for every new `squads` row and back-fills
+ *      historical NULLs. This is the common path.
+ *   2. Migration `20260428210000_rotate_pre_trigger_demo_squad_keys` rotates
+ *      demo squads created before the trigger so no key persisted in
+ *      production traces back to an unaudited client-side CSPRNG.
+ *   3. The RPC `get_or_create_squad_message_key` (migration `20260429120000`)
+ *      is the slow path: row-locks the squad, authorises the caller as a
+ *      member or moderator, and returns the existing or newly-generated key.
+ *      Replaces the previous client-side `UPDATE squads SET ...` race.
+ *
+ * Fast path: if the caller already has a non-empty `message_encryption_key`
+ * on the squad row (e.g. from the realtime subscription or initial fetch),
+ * import it directly with no server round-trip.
+ *
+ * Slow path: call the RPC. We never fabricate a key client-side — that would
+ * put unaudited key material into the operator's database and is exactly
+ * what the audit forbade.
  */
 export async function ensureSquadMessageKey(
   supabase: SupabaseClient<Database>,

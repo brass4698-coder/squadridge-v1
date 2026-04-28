@@ -17,6 +17,14 @@ type Props = {
   /** Shown when delivery failed — user-triggered retry (e.g. after HTTP error while "online"). */
   onRetrySend?: () => void;
   retryDisabled?: boolean;
+  /**
+   * ISO timestamp returned by `get_my_messages_review_status` (see migration
+   * `20260428250000`). Set only on the *author's* own messages where a
+   * moderator has logged a `message_plaintext_decrypt_review` audit row;
+   * we render a small pill so the author knows their message was reviewed
+   * without exposing moderator identity or justification.
+   */
+  reviewedAt?: string | null;
 };
 
 /**
@@ -37,6 +45,7 @@ export function SessionMessageItem({
   deliveryStatus,
   onRetrySend,
   retryDisabled,
+  reviewedAt,
 }: Props) {
   const [translated, setTranslated] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -115,6 +124,19 @@ export function SessionMessageItem({
         >
           {showOriginal ? 'Show translation' : 'Show original'}
         </button>
+      ) : null}
+      {isOwn && reviewedAt ? (
+        <p
+          className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-amber/35 bg-amber/10 px-2 py-0.5 font-sans text-[0.7rem] text-amber"
+          title="A moderator decrypted this message for safety review. Their identity and notes are not shown to you."
+        >
+          <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-amber" />
+          Reviewed by a moderator on{' '}
+          {(() => {
+            const t = Date.parse(reviewedAt);
+            return Number.isFinite(t) ? new Date(t).toLocaleString() : reviewedAt;
+          })()}
+        </p>
       ) : null}
       <div className="mt-2 flex items-center gap-2">
         {deliveryStatus === 'pending' ? (

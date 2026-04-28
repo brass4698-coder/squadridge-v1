@@ -78,6 +78,8 @@ export function initSentry(): void {
   const dsnRaw = import.meta.env.VITE_SENTRY_DSN;
   if (typeof dsnRaw !== 'string' || dsnRaw.trim().length === 0) {
     if (import.meta.env.PROD) {
+      // Bootstrap diagnostic for operators looking at devtools — no PII.
+      // eslint-disable-next-line no-restricted-syntax
       console.warn(
         '[Sentry] VITE_SENTRY_DSN is not set; error reporting is disabled in this production build.',
       );
@@ -105,6 +107,10 @@ export function initSentry(): void {
     });
     sentryInitialized = true;
   } catch (err) {
+    // Init-time diagnostic; the SDK constructor error rarely contains PII (no
+    // session, no user yet). If a future SDK version starts echoing config we
+    // pass in (e.g. DSN), revisit this and route through `logWarn` instead.
+    // eslint-disable-next-line no-restricted-syntax
     console.warn('[Sentry] Initialization failed; continuing without error reporting.', err);
     sentryInitialized = false;
   }
@@ -173,6 +179,10 @@ export async function setSentryUserContext(userId: string | null): Promise<void>
   try {
     hashed = await hashUserIdForSentry(userId);
   } catch (err) {
+    // Hashing-failure diagnostic — never carries a Supabase user id (we caught
+    // before the hash succeeded). Hand-rolled console call is fine here per
+    // src/lib/log.ts policy; the ban applies to free-form interpolation.
+    // eslint-disable-next-line no-restricted-syntax
     console.warn('[Sentry] Could not hash user id; skipping setUser to avoid PII leak.', err);
     cachedHashedUserId = null;
     if (sentryInitialized) Sentry.setUser(null);

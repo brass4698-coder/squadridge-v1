@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
-import { generateSquadMessageKeyBase64Url } from './messageCrypto';
 
 /**
  * Ensures a Supabase session exists for squad flows. If none, signs in anonymously.
@@ -28,9 +27,7 @@ export function setLastSquadIdInStorage(squadId: string): void {
   }
 }
 
-export async function ensureAnonymousSession(
-  supabase: SupabaseClient<Database>,
-): Promise<void> {
+export async function ensureAnonymousSession(supabase: SupabaseClient<Database>): Promise<void> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -39,38 +36,25 @@ export async function ensureAnonymousSession(
   if (error) throw error;
 }
 
+/**
+ * Creates a demo squad and the caller's membership row atomically via the
+ * `create_demo_squad` RPC (migration `20260428220000`). The RPC is `SECURITY DEFINER`
+ * and runs both inserts in a single transaction, so a failure on the membership row
+ * rolls back the squad — replacing the previous brittle two-INSERT client flow.
+ *
+ * `message_encryption_key` is omitted from the insert; the server-side trigger
+ * `squads_set_default_message_encryption_key` (migration `20260417150000`) generates
+ * one with `pgcrypto.gen_random_bytes(32)`. See `docs/security/secrets-rotation.md`.
+ */
 export async function createDemoSquad(supabase: SupabaseClient<Database>): Promise<string> {
   await ensureAnonymousSession(supabase);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
 
-  // Client-chosen id avoids SELECT after INSERT: RLS only allows squads SELECT for members,
-  // and membership row does not exist until the next insert.
-  const squadId = crypto.randomUUID();
+  const { data, error } = await supabase.rpc('create_demo_squad');
+  if (error) throw error;
+  if (!data || typeof data !== 'string') {
+    throw new Error('create_demo_squad RPC returned no squad id');
+  }
 
-  const expires = new Date();
-  expires.setDate(expires.getDate() + 1);
-
-  // Squad key at insert time (also enforced server-side via trigger if omitted).
-  const { error: squadError } = await supabase.from('squads').insert({
-    id: squadId,
-    topic: 'Demo dialogue',
-    status: 'active',
-    expires_at: expires.toISOString(),
-    message_encryption_key: generateSquadMessageKeyBase64Url(),
-  });
-
-  if (squadError) throw squadError;
-
-  const { error: memberError } = await supabase.from('squad_members').insert({
-    squad_id: squadId,
-    user_id: user.id,
-  });
-
-  if (memberError) throw memberError;
-
-  setLastSquadIdInStorage(squadId);
-  return squadId;
+  setLastSquadIdInStorage(data);
+  return data;
 }

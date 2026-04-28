@@ -31,6 +31,7 @@ export * from './ui/HowItWorksStep';
 export * from './ui/NextStepHint';
 export * from './ui/PrimaryCTA';
 export * from './ui/SectionLabel';
+export * from './ui/StatusBlock';
 export * from './ui/StepCard';
 export * from './ui/Testimonial';
 export * from './ui/sonner';

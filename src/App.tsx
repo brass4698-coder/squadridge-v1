@@ -23,6 +23,7 @@ import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
+import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { InvitePage } from './pages/InvitePage';
 import { SettingsIndexPage } from './pages/SettingsIndexPage';
@@ -153,11 +154,31 @@ export default function App() {
                     element={<Navigate to="/sign-in?reason=link" replace />}
                   />
                   <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                  <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                  <Route
-                    path="/session/demo"
-                    element={<Navigate to="/session/demo-session-001" replace />}
-                  />
+                  {/*
+                    `/session/demo-session-001` is a browser-only mock used for marketing
+                    walkthroughs. In production builds we only mount the route when
+                    `VITE_ENABLE_DEMO_SQUAD=true` (staging) — otherwise the demo URL
+                    redirects home so a stray link cannot land users in the no-privacy
+                    mock. Dev and test always have it. See Phase 2.3 in
+                    `c:\\Users\\encla\\.cursor\\plans\\audit_remediation_phases_*.plan.md`.
+                  */}
+                  {isDemoSquadShortcutsEnabled() ? (
+                    <>
+                      <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
+                      <Route
+                        path="/session/demo"
+                        element={<Navigate to="/session/demo-session-001" replace />}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Route
+                        path="/session/demo-session-001"
+                        element={<Navigate to="/" replace />}
+                      />
+                      <Route path="/session/demo" element={<Navigate to="/" replace />} />
+                    </>
+                  )}
                   <Route path="/session/:squadId?" element={<SessionAccess />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

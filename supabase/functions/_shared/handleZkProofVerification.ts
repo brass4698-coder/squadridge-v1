@@ -3,6 +3,7 @@
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { corsHeadersFor } from './cors.ts';
+import { logError, safeErrorMessage } from './log.ts';
 import { semaphoreFieldFromLabel } from './semaphoreFieldEncoding.ts';
 import { verifySemaphoreProof } from './verifySemaphoreProof.ts';
 
@@ -19,6 +20,14 @@ export type ZkVerifyRequestBody = {
   attribute_scope: string;
   credential_type: string;
   semaphore_proof: SemaphoreProofBody;
+  /**
+   * Optional: when set, the Edge handler enforces that
+   *   `semaphore_proof.merkleTreeRoot === issuer_groups.current_root`
+   * for the named issuer group (RFC: rfc-issuer-managed-anonymity-group).
+   * When omitted, the proof is accepted with whatever root the prover used —
+   * this is the legacy demo / bundled-decoy path and is intended for staging only.
+   */
+  issuer_group_id?: string;
 };
 
 function scopeToVerifiedAttribute(scope: string): {
@@ -75,10 +84,63 @@ function zkErrorCodeForMessage(msg: string): string {
     case 'Invalid attribute_scope':
     case 'Invalid credential_type':
     case 'Invalid semaphore_proof':
+    case 'Invalid issuer_group_id':
       return 'INVALID_REQUEST';
+    case 'Issuer group not enrolled':
+      return 'ISSUER_NOT_ENROLLED';
+    case 'Stale proof root':
+      return 'STALE_PROOF_ROOT';
     default:
       return 'VERIFICATION_FAILED';
   }
+}
+
+interface IssuerGroupRow {
+  group_id: string;
+  current_root: string;
+}
+
+/**
+ * Look up the enrolled issuer group and assert the proof's Merkle root matches
+ * the issuer's current published root. Returns the row (for persistence) on
+ * success; throws otherwise. Manifest *refetching* (when the cached root has
+ * expired) is intentionally out of scope for v1: the migration column
+ * `current_root_expires_at` is in place so a follow-up Edge cron can refresh
+ * the row server-side. For now, an expired cache fails closed with
+ * `Stale proof root`, which clients can surface as "issuer manifest needs
+ * refresh — try again shortly".
+ */
+async function assertIssuerRootOrThrow(
+  supabaseUrl: string,
+  serviceKey: string,
+  issuerGroupId: string,
+  proofRoot: string,
+): Promise<IssuerGroupRow> {
+  const admin = createClient(supabaseUrl, serviceKey);
+  const { data, error } = await admin
+    .from('issuer_groups')
+    .select('group_id, current_root, current_root_expires_at')
+    .eq('group_id', issuerGroupId)
+    .maybeSingle();
+  if (error) {
+    logError('issuer_groups_lookup_failed', {
+      function: 'handleZkProofVerification',
+      error_code: error.code ?? null,
+      error_message: safeErrorMessage(new Error(error.message)),
+    });
+    throw new Error('Issuer group not enrolled');
+  }
+  if (!data) {
+    throw new Error('Issuer group not enrolled');
+  }
+  const expiresAt = Date.parse(String(data.current_root_expires_at));
+  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+    throw new Error('Stale proof root');
+  }
+  if (proofRoot !== data.current_root) {
+    throw new Error('Stale proof root');
+  }
+  return { group_id: data.group_id, current_root: data.current_root };
 }
 
 export async function verifyAndPersistZkProof(
@@ -114,6 +176,26 @@ export async function verifyAndPersistZkProof(
 
   assertProofMatchesRequest(semaphore_proof, attribute_scope, credential_type);
 
+  // Issuer-managed anonymity group enforcement (RFC: rfc-issuer-managed-anonymity-group).
+  // When the request declares an issuer_group_id, refuse the proof unless its
+  // Merkle root matches the issuer's current published root. Without this the
+  // client could pick its own group of {user, decoy_*} and the issuer story is
+  // decorative.
+  let issuerGroupId: string | null = null;
+  if (typeof body.issuer_group_id === 'string' && body.issuer_group_id.trim().length > 0) {
+    const trimmed = body.issuer_group_id.trim();
+    if (trimmed.length > 200) {
+      throw new Error('Invalid issuer_group_id');
+    }
+    const row = await assertIssuerRootOrThrow(
+      supabaseUrl,
+      serviceKey,
+      trimmed,
+      semaphore_proof.merkleTreeRoot,
+    );
+    issuerGroupId = row.group_id;
+  }
+
   const proof_commitment = await sha256Hex(
     JSON.stringify({
       merkleTreeRoot: semaphore_proof.merkleTreeRoot,
@@ -135,13 +217,18 @@ export async function verifyAndPersistZkProof(
     proof_commitment,
     nullifier_hash: nullifierHash,
     attribute_scope: attribute_scope.trim(),
+    issuer_group_id: issuerGroupId,
   });
 
   if (zkErr) {
     if (zkErr.code === '23505') {
       throw new Error('Nullifier already used');
     }
-    console.error('zk_proof_submissions insert failed:', zkErr.message);
+    logError('zk_proof_submissions_insert_failed', {
+      function: 'handleZkProofVerification',
+      error_code: zkErr.code ?? null,
+      error_message: safeErrorMessage(new Error(zkErr.message)),
+    });
     throw new Error('Could not record proof');
   }
 
@@ -155,7 +242,11 @@ export async function verifyAndPersistZkProof(
     { onConflict: 'user_id,attribute_type' },
   );
   if (attrErr) {
-    console.error('verified_attributes upsert failed:', attrErr.message);
+    logError('verified_attributes_upsert_failed', {
+      function: 'handleZkProofVerification',
+      error_code: attrErr.code ?? null,
+      error_message: safeErrorMessage(new Error(attrErr.message)),
+    });
     throw new Error('Could not record verified attributes');
   }
 

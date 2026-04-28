@@ -26,6 +26,9 @@ export function resolveRoomPseudonymSecret(
   const mode = options?.modeOverride ?? import.meta.env.MODE;
 
   if (mode === 'development' || mode === 'test') {
+    // Dev-only fallback warning; no user / room data is logged. Production
+    // throws below before reaching this branch.
+    // eslint-disable-next-line no-restricted-syntax
     console.warn(
       '[squadridge/redaction-engine] Missing roomPseudonymSecret — using insecure dev-only pseudonym derivation. Set context.roomPseudonymSecret before production.',
     );

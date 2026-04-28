@@ -5,6 +5,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
 import { isAiPipelineEnabled, isRemoteToneEnabled } from '../env';
+import { logWarn, safeErrorMessage } from '../log';
 
 export interface ToneInsight {
   tensionLevel: number;
@@ -82,7 +83,11 @@ export async function recordLocalToneAndMaybePersist(
     tension_level: insight.tensionLevel,
   });
   if (error) {
-    console.warn('[ai] sentiment_metrics insert failed', error.message);
+    logWarn('sentiment_metrics_insert_failed', {
+      feature: 'ai_pipeline',
+      error_code: error.code ?? null,
+      error_message: safeErrorMessage(new Error(error.message)),
+    });
     return { insight, persistOk: false };
   }
   return { insight, persistOk: true };
@@ -98,6 +103,10 @@ export async function logIntervention(
     intervention_type: interventionType,
   });
   if (error) {
-    console.warn('[interventions] insert failed', error.message);
+    logWarn('interventions_insert_failed', {
+      feature: 'ai_pipeline',
+      error_code: error.code ?? null,
+      error_message: safeErrorMessage(new Error(error.message)),
+    });
   }
 }

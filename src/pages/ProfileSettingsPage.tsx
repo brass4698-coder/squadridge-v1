@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
+import { DemoClaimConsentModal } from '../components/settings/DemoClaimConsentModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../hooks';
 import {
@@ -9,6 +10,8 @@ import {
   type ProfileRole,
   createDemoSessionClaim,
   finalizeDemoSessionClaim,
+  issueDemoClaimConsent,
+  describeDemoClaimError,
 } from '../lib';
 
 const MAX_TAGS = 5;
@@ -84,6 +87,10 @@ export function ProfileSettingsPage() {
   const [finalizeBusy, setFinalizeBusy] = useState(false);
   const [finalizeErr, setFinalizeErr] = useState<string | null>(null);
   const [finalizeMsg, setFinalizeMsg] = useState<string | null>(null);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [consentToken, setConsentToken] = useState<string | null>(null);
+  const [consentExpiresAt, setConsentExpiresAt] = useState<string | null>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
@@ -197,7 +204,7 @@ export function ProfileSettingsPage() {
     }
   }
 
-  async function handleFinalizeDemoClaim() {
+  async function handleRequestConsent() {
     if (!supabase) return;
     const trimmed = finalizeCode.trim();
     if (!trimmed) return;
@@ -205,17 +212,56 @@ export function ProfileSettingsPage() {
     setFinalizeErr(null);
     setFinalizeMsg(null);
     try {
-      const res = await finalizeDemoSessionClaim(supabase, trimmed);
-      const n = res.migrated_memberships ?? 0;
+      const res = await issueDemoClaimConsent(supabase, trimmed);
+      if (!res.ok) {
+        setFinalizeErr(describeDemoClaimError(res.error_code));
+        return;
+      }
+      setConsentToken(res.consent_token);
+      setConsentExpiresAt(res.expires_at);
+      setConsentChecked(false);
+      setConsentOpen(true);
+    } catch (e) {
+      setFinalizeErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setFinalizeBusy(false);
+    }
+  }
+
+  function closeConsentModal() {
+    setConsentOpen(false);
+    setConsentChecked(false);
+    setConsentToken(null);
+    setConsentExpiresAt(null);
+  }
+
+  async function handleConfirmFinalize() {
+    if (!supabase) return;
+    if (!consentToken) return;
+    const trimmed = finalizeCode.trim();
+    if (!trimmed) return;
+    setFinalizeBusy(true);
+    setFinalizeErr(null);
+    setFinalizeMsg(null);
+    try {
+      const res = await finalizeDemoSessionClaim(supabase, trimmed, consentToken);
+      if (!res.ok) {
+        setFinalizeErr(describeDemoClaimError(res.error_code));
+        closeConsentModal();
+        return;
+      }
+      const n = res.migrated_memberships;
       setFinalizeMsg(
-        res.ok
-          ? `Transfer applied. Squad memberships migrated: ${Number.isFinite(n) ? n : 0}.`
-          : 'Transfer completed.',
+        n > 0
+          ? `Transfer applied. Squad memberships migrated: ${n}.`
+          : 'Transfer completed. No new memberships needed migrating.',
       );
       setFinalizeCode('');
       setDemoClaimCode(null);
+      closeConsentModal();
     } catch (e) {
       setFinalizeErr(e instanceof Error ? e.message : String(e));
+      closeConsentModal();
     } finally {
       setFinalizeBusy(false);
     }
@@ -652,11 +698,11 @@ export function ProfileSettingsPage() {
                 <button
                   type="button"
                   disabled={finalizeBusy || !finalizeCode.trim()}
-                  onClick={() => void handleFinalizeDemoClaim()}
+                  onClick={() => void handleRequestConsent()}
                   className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border-0 bg-teal/90 px-4 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ borderRadius: 8 }}
                 >
-                  {finalizeBusy ? 'Applying…' : 'Apply transfer'}
+                  {finalizeBusy ? 'Working…' : 'Review and confirm transfer'}
                 </button>
                 {finalizeMsg ? (
                   <p className="font-sans text-[0.82rem] text-[#94d82d]/95">{finalizeMsg}</p>
@@ -668,6 +714,16 @@ export function ProfileSettingsPage() {
             </div>
           </section>
         ) : null}
+
+        <DemoClaimConsentModal
+          open={consentOpen}
+          busy={finalizeBusy}
+          consented={consentChecked}
+          onConsentChange={setConsentChecked}
+          expiresAt={consentExpiresAt}
+          onConfirm={() => void handleConfirmFinalize()}
+          onCancel={closeConsentModal}
+        />
 
         <NextStepHint className="mt-8 border-[#1e2a3a] bg-[#0c1118]/60">
           <span className="font-medium text-slate-400">Next:</span> When you&apos;re ready to match,

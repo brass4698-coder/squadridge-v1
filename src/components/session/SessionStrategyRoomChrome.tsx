@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AlertFacilitatorButton } from './AlertFacilitatorButton';
+import { CrisisResources } from './CrisisResources';
 
 const PHASES = ['Intro', 'Round 1', 'Synthesis', 'Close'] as const;
 
@@ -16,6 +18,7 @@ export function SessionStrategyRoomChrome({
   interventionBanner,
   onReportRoom,
   onReportParticipant,
+  squadId,
 }: {
   topic: string;
   roomStartedAt: Date;
@@ -25,6 +28,11 @@ export function SessionStrategyRoomChrome({
   interventionBanner: string | null;
   onReportRoom: () => void;
   onReportParticipant: () => void;
+  /**
+   * When set, an "Alert facilitator" button calls the `crisis-alert` Edge
+   * Function for this squad. Omit for the offline demo room (no Supabase).
+   */
+  squadId?: string;
 }) {
   const [uncontrolledPhase, setUncontrolledPhase] = useState<PhaseId>('Intro');
   const phase = controlledPhase ?? uncontrolledPhase;
@@ -132,11 +140,14 @@ export function SessionStrategyRoomChrome({
           >
             Report participant
           </button>
+          {squadId ? <AlertFacilitatorButton squadId={squadId} /> : null}
         </div>
         <span className="max-w-[14rem] text-right font-sans text-[0.7rem] leading-snug text-slate-500">
           If in immediate danger, use your local emergency number — not the app.
         </span>
       </div>
+
+      <CrisisResources className="mt-1" />
     </div>
   );
 }

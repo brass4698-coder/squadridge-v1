@@ -481,7 +481,15 @@ export interface Database {
         Args: Record<string, never>;
         Returns: string;
       };
+      create_demo_squad: {
+        Args: Record<string, never>;
+        Returns: string;
+      };
       finalize_demo_session_claim: {
+        Args: { p_claim_code: string; p_consent_token: string };
+        Returns: Json;
+      };
+      issue_demo_claim_consent: {
         Args: { p_claim_code: string };
         Returns: Json;
       };
@@ -494,6 +502,13 @@ export interface Database {
           role_other_detail: string | null;
           tags: string[];
           region_hint: string | null;
+        }[];
+      };
+      get_my_messages_review_status: {
+        Args: { p_message_ids: string[] };
+        Returns: {
+          message_id: string;
+          reviewed_at: string;
         }[];
       };
     };

@@ -33,6 +33,19 @@ describe('squadMessageKey', () => {
     expect(supabase.from).not.toHaveBeenCalled();
   });
 
+  it('ensureSquadMessageKey treats an empty-string key as missing and routes to the RPC', async () => {
+    const generated = generateSquadMessageKeyBase64Url();
+    const rpc = vi.fn().mockResolvedValue({ data: generated, error: null });
+    const supabase = { from: vi.fn(), rpc };
+    const out = await ensureSquadMessageKey(supabase as unknown as SupabaseClient, 'squad-y', {
+      message_encryption_key: '',
+    });
+    expect(out.keyBase64).toBe(generated);
+    expect(rpc).toHaveBeenCalledWith('get_or_create_squad_message_key', {
+      p_squad_id: 'squad-y',
+    });
+  });
+
   it('ensureSquadMessageKey surfaces RPC errors', async () => {
     const rpc = vi
       .fn()

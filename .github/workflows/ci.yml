@@ -35,6 +35,12 @@ jobs:
       - name: Ensure no ZK hash stub for release artifacts
         run: npm run check:no-zk-stub-prod
 
+      - name: Ensure no bundled Semaphore demo decoys for release artifacts
+        run: npm run check:no-demo-decoys-prod
+
+      - name: Ensure no raw console.* in production-data paths
+        run: npm run check:no-raw-console
+
       - name: Test
         run: npm test
         env:
@@ -50,17 +56,20 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
           # Explicit: production must not ship ZK stub (vite.config.ts also enforces).
           VITE_ZK_STUB: 'false'
-          # Bundled demo Semaphore decoys — opt-in for CI bundle; issuer-managed group for real pilots only.
-          VITE_SEMAPHORE_DEMO_GROUP: 'true'
+          # NOTE: VITE_SEMAPHORE_DEMO_GROUP is intentionally NOT set here. Bundled decoys would
+          # collapse the prod anonymity set (see scripts/ensure-no-demo-decoys-prod.mjs and
+          # vite.config.ts). The e2e job below uses `npm run build:e2e` (mode=e2e) where
+          # bundled decoys are deliberate via .env.e2e.
 
   e2e:
     runs-on: ubuntu-latest
     env:
-      # Same placeholders as Production build — Playwright webServer runs `npm run build`.
+      # Playwright webServer runs `npm run build:e2e` (mode=e2e), which loads `.env.e2e`.
+      # Bundled Semaphore demo decoys are deliberate for e2e since proofs run against the
+      # CI Supabase placeholder; this mode never produces a release artifact.
       VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
       VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
       VITE_ZK_STUB: 'false'
-      VITE_SEMAPHORE_DEMO_GROUP: 'true'
     steps:
       - uses: actions/checkout@v4
 

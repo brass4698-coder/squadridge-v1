@@ -194,6 +194,19 @@ if (process.env.VITE_ZK_STUB === 'true') {
   pass('VITE_ZK_STUB is not set to true for this check');
 }
 
+// 10. Bundled Semaphore demo decoys must not ship in prod release artifacts (see ensure-no-demo-decoys-prod.mjs).
+if (
+  process.env.VITE_SEMAPHORE_DEMO_GROUP === 'true' &&
+  process.env.VITE_ALLOW_DEMO_DECOYS_IN_PROD !== 'true'
+) {
+  fail(
+    'VITE_SEMAPHORE_DEMO_GROUP',
+    'bundled demo decoys collapse anonymity in prod; unset the flag or set VITE_ALLOW_DEMO_DECOYS_IN_PROD=true for a deliberate internal-demo build',
+  );
+} else {
+  pass('Bundled Semaphore demo decoys are gated for this check');
+}
+
 const failed = checks.filter((c) => !c.ok);
 console.log(`\nDone: ${checks.filter((c) => c.ok).length}/${checks.length} passed.`);
 if (failed.length) {

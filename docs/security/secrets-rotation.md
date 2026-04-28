@@ -102,7 +102,39 @@ Frontend builds that need real Supabase URLs/keys are typically configured on th
 
 ---
 
-## 4. Incident-oriented notes
+## 4. Squad message encryption keys
+
+`squads.message_encryption_key` (32-byte AES-256-GCM, base64) is owned by Postgres. The `BEFORE INSERT` trigger `squads_set_default_message_encryption_key` (migration `20260417150000`) generates the key with `pgcrypto.gen_random_bytes(32)`; client code must never supply or generate one.
+
+**Why this matters.** A client-generated key persisted to a server-controlled column gives the operator an unaudited copy of key material. It also makes provenance impossible to verify after the fact ("did this key come from our CSPRNG or some user's browser?"). Phase 0.2 of the [audit remediation plan](../../README.md) removed all client-side calls to `generateSquadMessageKeyBase64Url` from runtime paths; the helper now lives in [`src/lib/messageCrypto.ts`](../../src/lib/messageCrypto.ts) for tests and tooling only.
+
+### One-time rotation: pre-trigger demo keys
+
+Migration `20260428210000_rotate_pre_trigger_demo_squad_keys.sql` rotates the message key for every row where `topic = 'Demo dialogue'`. Demo squads are ephemeral (1-day TTL) so rotating invalidates only stale demo ciphertext. **Production matched squads (`topic = 'Matched dialogue'`) are intentionally not rotated** — that would invalidate live message history. If you need to rotate a real squad's key (suspected leak, etc.), do it manually with `extensions.gen_random_bytes(32)` and accept that decryption of existing messages will fail.
+
+### Routine rotation policy
+
+| Trigger | Rotate? |
+| ------- | ------- |
+| New squad created | Always (trigger handles it) |
+| Suspected operator-side leak / DB snapshot exposure | Yes, project-wide; expect message history to become undecipherable |
+| Code change that bypasses the trigger | Investigate first — fix the code path before rotating |
+| Regular schedule | Not required if the trigger remains the only source of keys |
+
+### Verifying the trigger is intact
+
+```sql
+SELECT tgname, tgenabled
+FROM pg_trigger
+WHERE tgrelid = 'public.squads'::regclass
+  AND tgname = 'squads_message_encryption_key_default';
+```
+
+`tgenabled = 'O'` (origin/always) is expected. Anything else means an operator disabled it; re-enable before continuing prod traffic.
+
+---
+
+## 5. Incident-oriented notes
 
 - **Leaked `service_role` or secret key:** Create a new secret key, redeploy all backends using it, delete the compromised key; assume data exfiltration possible until reviewed.
 - **Leaked publishable/anon key:** Rotate the publishable key; treat as exposure of “public” surface — RLS and auth still matter.

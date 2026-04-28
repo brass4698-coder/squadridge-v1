@@ -20,6 +20,12 @@ interface ImportMetaEnv {
    * Omit or `false` to require issuer-provided identities (see src/lib/zk/buildAnonymityGroup.ts).
    */
   readonly VITE_SEMAPHORE_DEMO_GROUP?: string;
+  /**
+   * Production escape hatch for `VITE_SEMAPHORE_DEMO_GROUP`. Required *in addition to*
+   * the demo flag for any `mode === 'production'` build that intentionally ships bundled
+   * decoys (e.g. controlled internal demo). Default off; CI prod builds reject when set.
+   */
+  readonly VITE_ALLOW_DEMO_DECOYS_IN_PROD?: string;
   /** Research UI for zkTLS-style flows (default off). */
   readonly VITE_ZKTLS_LABS?: string;
   /** External waitlist URL (Typeform, Tally, etc.). */

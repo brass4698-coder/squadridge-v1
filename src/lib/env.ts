@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logError } from './log';
 
 /** Boolean flags exposed as the strings `"true"` / `"false"` in Vite env. */
 const viteBoolString = z.enum(['true', 'false']);
@@ -59,7 +60,16 @@ export type ValidatedViteEnv = z.infer<typeof envSchema>;
 export const validateEnv = (): ValidatedViteEnv => {
   const result = envSchema.safeParse(import.meta.env);
   if (!result.success) {
-    console.error('Invalid environment:', result.error.flatten());
+    // Log only the *names* of the offending fields. The values may include
+    // Supabase URLs or partial keys; we never want to echo those into a console
+    // that could be screenshotted or persisted to Sentry breadcrumbs.
+    const fieldErrors = result.error.flatten().fieldErrors ?? {};
+    const offendingKeys = Object.keys(fieldErrors).join(',');
+    logError('env_validation_failed', {
+      feature: 'env_bootstrap',
+      error_code: 'invalid_env',
+      error_message: offendingKeys.length > 0 ? `keys=${offendingKeys}` : 'unknown',
+    });
     throw new Error('Environment validation failed');
   }
   return result.data;

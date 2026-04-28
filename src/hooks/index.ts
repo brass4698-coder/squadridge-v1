@@ -2,6 +2,7 @@ export * from './useAppNavContext';
 export * from './useIsModerator';
 export * from './useLedgerProposals';
 export * from './useMessagePlaintexts';
+export * from './useNetworkAware';
 export * from './useOnlineStatus';
 export * from './useProfile';
 export * from './useRealtimeMessages';

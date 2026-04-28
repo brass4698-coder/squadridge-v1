@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
-import { DEMO_PROPOSAL_ID, getDemoSession } from '../lib';
+import { DEMO_PROPOSAL_ID, LAST_SQUAD_KEY, clearDemoSession, getDemoSession } from '../lib';
 
 type DemoMessage = {
   id: string;
@@ -35,14 +35,22 @@ const SEED: DemoMessage[] = [
   },
 ];
 
+const SEMAPHORE_IDENTITY_LOCAL_STORAGE_KEYS = [
+  'squadridge_semaphore_identity',
+  'squadridge_zk_identity',
+];
+
 export function DemoSessionPage() {
+  const navigate = useNavigate();
   const anonymousId = useMemo(() => getDemoSession().anonymousId, []);
   const [messages, setMessages] = useState<DemoMessage[]>(SEED);
   const [composer, setComposer] = useState('');
   const [roomStarted] = useState(() => new Date());
+  const [consentGiven, setConsentGiven] = useState(false);
 
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
+    if (!consentGiven) return;
     const text = composer.trim();
     if (!text) return;
     const next: DemoMessage = {
@@ -56,6 +64,22 @@ export function DemoSessionPage() {
     setComposer('');
   }
 
+  function handleLeaveAndForget() {
+    try {
+      clearDemoSession();
+      localStorage.removeItem(LAST_SQUAD_KEY);
+      for (const k of SEMAPHORE_IDENTITY_LOCAL_STORAGE_KEYS) {
+        localStorage.removeItem(k);
+      }
+    } catch {
+      /* ignore: storage may be unavailable in private mode */
+    }
+    setMessages(SEED);
+    setComposer('');
+    setConsentGiven(false);
+    navigate('/', { replace: true });
+  }
+
   return (
     <section
       className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
@@ -63,10 +87,11 @@ export function DemoSessionPage() {
     >
       <div
         role="status"
-        className="rounded-lg border border-amber/45 bg-amber/10 px-4 py-3 font-sans text-[0.78rem] leading-relaxed text-amber"
+        className="rounded-lg border border-amber/45 bg-amber/10 px-4 py-3 font-sans text-[0.82rem] leading-relaxed text-amber"
       >
-        <strong className="font-semibold text-amber">Demo only:</strong> browser mock — no live
-        databases, queues, or production privacy guarantees.
+        <strong className="font-semibold text-amber">Demo only — your privacy:</strong> Messages you
+        type here are kept in this browser tab and never leave it. This is a walkthrough, not a real
+        session.
       </div>
       <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
         Offline squad demo
@@ -83,24 +108,48 @@ export function DemoSessionPage() {
         Squad session {anonymousId.slice(0, 8)}
       </h1>
 
-      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
-        This screen is a <strong className="font-medium text-[#c4cdd9]">browser-only mock</strong>:
-        no Supabase Realtime, no squad encryption as in production. The live product uses app-layer
-        message encryption; it is <strong className="font-medium text-[#c4cdd9]">not</strong>{' '}
-        end-to-end against the operator — see{' '}
-        <Link
-          to="/security"
-          className="font-medium text-teal-light underline-offset-4 hover:underline"
-        >
-          Security &amp; privacy
-        </Link>
-        .
+      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-[#a8b2c1]">
+        <p className="font-medium text-[#e2e8f0]">What this demo does and doesn&apos;t do</p>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-[0.82rem]">
+          <li>
+            <span className="font-medium text-[#c4cdd9]">Stays in your browser:</span> nothing you
+            type is sent to a server, queue, or another participant.
+          </li>
+          <li>
+            <span className="font-medium text-[#c4cdd9]">Not encrypted end-to-end</span> in real
+            sessions either: live rooms use app-layer encryption, but trained facilitators may
+            review messages flagged for safety. See{' '}
+            <Link
+              to="/security"
+              className="font-medium text-teal-light underline-offset-4 hover:underline"
+            >
+              Security &amp; privacy
+            </Link>
+            .
+          </li>
+          <li>
+            <span className="font-medium text-[#c4cdd9]">Translation and live sync are off</span>{' '}
+            here. Real squads route messages through Supabase Realtime and the redaction pipeline.
+          </li>
+        </ul>
       </div>
 
-      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.8rem] leading-relaxed text-[#8892a4]">
-        Translation and live sync are disabled here. Messages you type stay in this tab until you
-        refresh.
-      </div>
+      <label className="flex items-start gap-3 rounded-lg border border-[#1a2236] bg-[#0b0f14] px-4 py-3">
+        <input
+          type="checkbox"
+          checked={consentGiven}
+          onChange={(e) => setConsentGiven(e.target.checked)}
+          className="mt-1 h-4 w-4 cursor-pointer accent-teal"
+          aria-describedby="demo-consent-help"
+        />
+        <span className="font-sans text-[0.85rem] leading-relaxed text-[#c4cdd9]">
+          I understand this is a non-private demo and that anything I type stays in this browser
+          tab.
+          <span id="demo-consent-help" className="mt-1 block text-[0.78rem] text-[#5c6570]">
+            Required before sending in this preview. Real sessions show a different consent flow.
+          </span>
+        </span>
+      </label>
 
       <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
         <div className="flex min-h-0 flex-1 flex-col p-4 pt-3 sm:p-6 sm:pt-4">
@@ -136,8 +185,13 @@ export function DemoSessionPage() {
           data-demo="session-composer"
           aria-label="Message"
           rows={4}
-          className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)]"
-          placeholder="Draft a protocol line… (saved locally)"
+          disabled={!consentGiven}
+          className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)] disabled:cursor-not-allowed disabled:opacity-50"
+          placeholder={
+            consentGiven
+              ? 'Draft a protocol line… (saved locally)'
+              : 'Acknowledge the demo notice above to start drafting.'
+          }
           value={composer}
           onChange={(e) => setComposer(e.target.value)}
         />
@@ -147,7 +201,7 @@ export function DemoSessionPage() {
             data-demo="session-send"
             className="inline-flex shrink-0 items-center justify-center border-0 bg-teal px-7 py-2.5 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50"
             style={{ borderRadius: 8 }}
-            disabled={!composer.trim()}
+            disabled={!consentGiven || !composer.trim()}
           >
             Send
           </button>
@@ -158,7 +212,20 @@ export function DemoSessionPage() {
           >
             Open ledger proposal
           </Link>
+          <button
+            type="button"
+            data-demo="session-leave-and-forget"
+            onClick={handleLeaveAndForget}
+            className="ml-auto inline-flex items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] text-[#94a3b8] transition-colors hover:border-amber/50 hover:text-amber"
+          >
+            Leave and forget
+          </button>
         </div>
+        <p className="mt-2 font-sans text-[0.72rem] text-[#5c6570]">
+          <span className="font-medium text-[#94a3b8]">Leave and forget</span> clears the demo
+          session, last-squad pointer, and any local Semaphore identity stored by this browser, then
+          returns you to the home page.
+        </p>
       </form>
     </section>
   );

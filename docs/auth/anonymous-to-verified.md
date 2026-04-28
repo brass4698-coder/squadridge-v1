@@ -13,12 +13,15 @@
 
 ### Claim-code migration (DB)
 
-Use when a demo/anonymous session should hand off squad membership to the post-verify account:
+Three RPCs gate the anonymous → verified hand-off (see migrations `20260428124500_demo_session_claim.sql` and `20260428230000_demo_claim_consent_token.sql`):
 
-- `create_demo_session_claim()` — authenticated user (typically anonymous/demo) obtains a stable claim code (audit `demo_claim_created`).
-- `finalize_demo_session_claim(p_claim_code)` — signed-in verified user merges eligible `squad_members` rows **only where** there is no duplicate `[squad_id, verified_user]` membership yet.
+1. `create_demo_session_claim()` — authenticated user (typically anonymous/demo) obtains a stable claim code (audit `demo_claim_created`).
+2. `issue_demo_claim_consent(p_claim_code)` — verified user requests consent. Returns a 32-byte hex `consent_token` with a 5-minute lifetime, bound to `(claim_code, verified_user_id)` in `demo_session_claims` (audit `demo_claim_consent_issued`).
+3. `finalize_demo_session_claim(p_claim_code, p_consent_token)` — verified user merges eligible `squad_members` rows **only where** there is no duplicate `[squad_id, verified_user]` membership yet (audit `demo_claim_finalized`).
 
-Provision UI consent before calling finalize; failures raise SQL exceptions for conflicts.
+All three return structured `jsonb`: `{ok: true, ...}` on success or `{ok: false, error_code: ...}` on documented failures (see [`src/lib/sessionClaim.ts`](../../src/lib/sessionClaim.ts) `DemoClaimErrorCode`). User-facing copy is rendered by `describeDemoClaimError`. Network/auth errors still throw — `error_code` is reserved for *expected* user-visible conditions.
+
+The UI must show an explicit consent modal **between** steps 2 and 3 (see [`src/components/settings/DemoClaimConsentModal.tsx`](../../src/components/settings/DemoClaimConsentModal.tsx)) describing what migrates and what does not. Closing the modal counts as cancel; the consent token then expires unused.
 
 ## Callback URL
 

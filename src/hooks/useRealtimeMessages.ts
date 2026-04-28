@@ -3,7 +3,15 @@ import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/r
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import { useAuth } from '../contexts/AuthContext';
-import { addConnectionBreadcrumb, appendConnectionLog, queryKeys, type Database } from '../lib';
+import {
+  addConnectionBreadcrumb,
+  appendConnectionLog,
+  queryKeys,
+  recordRealtimeError,
+  recordRealtimeFallback,
+  recordRealtimeSubscribe,
+  type Database,
+} from '../lib';
 
 type MessageRow = Database['public']['Tables']['messages']['Row'];
 
@@ -179,6 +187,11 @@ export function useRealtimeMessages(squadId: string | undefined) {
   const backfillAfterReconnect = useCallback(async () => {
     if (!supabase || !squadId || !mountedRef.current) return;
 
+    // Phase 3.2: every backfill is effectively the "polling fallback" referenced
+    // by ADR 002. Track count so dashboards can surface realtime health
+    // (sustained fallback usage = realtime stack misbehaving).
+    recordRealtimeFallback();
+
     const max = maxSentAtRef.current;
     let query = supabase.from('messages').select('*').eq('squad_id', squadId);
     if (max) {
@@ -302,6 +315,10 @@ export function useRealtimeMessages(squadId: string | undefined) {
     shouldBackfillOnSubscribeRef.current = false;
     setRealtimeFatalError(null);
 
+    // Phase 3.2 telemetry: record subscribe / unsubscribe so operators can
+    // sample realtime pressure (see `getRealtimeTelemetry` in src/lib).
+    const releaseTelemetry = recordRealtimeSubscribe(`messages:${squadId}`);
+
     const subscribe = () => {
       const channel = supabase
         .channel(`messages:squad:${squadId}`)
@@ -378,6 +395,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
             status === REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR ||
             status === REALTIME_SUBSCRIBE_STATES.TIMED_OUT
           ) {
+            recordRealtimeError();
             if (retryCountRef.current < MAX_RETRIES) {
               shouldBackfillOnSubscribeRef.current = true;
               setReconnecting(true);
@@ -431,6 +449,7 @@ export function useRealtimeMessages(squadId: string | undefined) {
         void supabase.removeChannel(channelRef.current);
         channelRef.current = undefined;
       }
+      releaseTelemetry();
     };
   }, [supabase, squadId, backfillAfterReconnect, queryClient, subscriptionEpoch]);
 
