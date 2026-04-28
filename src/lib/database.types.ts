@@ -408,6 +408,24 @@ export interface Database {
           },
         ];
       };
+      demo_session_claims: {
+        Row: {
+          claim_code: string;
+          anon_user_id: string;
+          created_at: string;
+          consumed_at: string | null;
+          verified_user_id: string | null;
+        };
+        Insert: {
+          claim_code: string;
+          anon_user_id: string;
+          created_at?: string;
+          consumed_at?: string | null;
+          verified_user_id?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['demo_session_claims']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
