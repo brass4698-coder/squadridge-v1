@@ -160,3 +160,6 @@ Thumbs.db
 
 # Supabase Edge (esbuild bundle; run npm run bundle:ingest-message / npm run build)
 /supabase/functions/ingest-message/edge.bundle.mjs
+
+# Local tooling output (git secret scan reports, etc.)
+/tmp/

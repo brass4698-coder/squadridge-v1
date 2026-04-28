@@ -1,0 +1,44 @@
+# gitleaks configuration
+# See https://github.com/gitleaks/gitleaks for full reference.
+# Run: gitleaks detect --source . --config .gitleaks.toml
+
+title = "SquadRidge gitleaks config"
+
+[extend]
+# Inherit the default ruleset from gitleaks
+useDefault = true
+
+# ── Allowlists ──────────────────────────────────────────────────────────────
+# Suppress known false positives (e.g. placeholder keys in .env.example,
+# .env.test, CI env vars in ci.yml, and test fixture files).
+
+[[rules]]
+id = "generic-api-key-allowlist"
+description = "Suppress placeholder API keys in example/test files"
+allowlist.paths = [
+  ".env.example",
+  ".env.test",
+  ".env.e2e",
+  ".github/workflows/ci.yml",
+  "scripts/matchmaking-soak.mjs",
+]
+
+[[rules]]
+id = "supabase-anon-key-allowlist"
+description = "Supabase CI placeholder keys are intentionally public and not secrets"
+allowlist.regexes = [
+  "ci-placeholder-publishable-key",
+  "ci-placeholder-anon-key",
+  "test-placeholder-key",
+  "xxxxxxxxxxxxxxxxxxxx\\.supabase\\.co",
+]
+
+[allowlist]
+# Globally ignore generated lock files and dist output
+paths = [
+  "package-lock.json",
+  "dist/",
+  "coverage/",
+  "node_modules/",
+  ".git/",
+]
