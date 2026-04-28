@@ -16,13 +16,15 @@ Avoid broad public launches as the first proving ground.
 
 ## Pilot Owners
 
-Assign before launch:
+Assign before launch and record the actual names, emails, and on-call contacts in [`pilot-owners.md`](./pilot-owners.md):
 
 - product owner
 - technical owner
 - moderation owner
 - facilitator owner
 - partner owner
+
+For an in-flight emergency reference, see [`pilot-quickstart.md`](./pilot-quickstart.md).
 
 ## Before The Pilot
 
