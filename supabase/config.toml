@@ -385,9 +385,6 @@ backend = "postgres"
 [functions.verify-zk-proof]
 verify_jwt = true
 
-[functions.zk-verify]
-verify_jwt = true
-
 [functions.rate-limit]
 verify_jwt = false
 

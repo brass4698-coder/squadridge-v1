@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Header and mobile navigation now surface request access, ledger, and security paths more directly.
 - Waitlist capture UX upgraded with a stronger visual container and clearer feedback states.
 - `.agents/` gitignored (not shipped in repo).
-- `/admin/health` mod-only; ZK Edge CORS not wildcard; prod build requires `VITE_SENTRY_DSN`.
+- `/admin/health` mod-only; ZK Edge CORS not wildcard; `VITE_SENTRY_DSN` recommended for prod observability (builds no longer hard-fail without it).
 - Optional sentiment uses `@xenova/transformers` when `VITE_ENABLE_AI=true`; infra doc matches app-layer crypto + TTL.
 
 ## [0.0.1] — 2026-04-17

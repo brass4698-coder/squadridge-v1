@@ -1,5 +1,5 @@
 /**
- * Shared Semaphore verification + DB persistence for `verify-zk-proof` and `zk-verify`.
+ * Shared Semaphore verification + DB persistence for `verify-zk-proof`.
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { corsHeadersFor } from './cors.ts';
