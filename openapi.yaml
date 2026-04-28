@@ -1,0 +1,452 @@
+openapi: '3.1.0'
+info:
+  title: SquadRidge API
+  version: '0.1.0'
+  description: |
+    SquadRidge API — Supabase-hosted REST + Edge Functions.
+
+    **Scaffold**: This OpenAPI stub describes the key endpoint shapes.
+    It is not auto-generated from code yet; treat it as a living contract
+    document. Full generation from the PostgREST schema and Edge Functions
+    is on the roadmap.
+
+    **Authentication**: All authenticated endpoints require a Supabase JWT
+    (from magic-link / OTP sign-in) as a Bearer token. Anonymous (unauthenticated)
+    access to the PostgREST Data API is governed by Supabase RLS with the anon role.
+
+    **Privacy note**: Message content is stored as AES-GCM ciphertext. The API
+    returns ciphertext, not plaintext. Decryption happens client-side using the
+    squad message key. See `docs/security/encryption-scope.md` for details.
+
+  contact:
+    email: security@squadridge.example  # Replace with real contact
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://{project}.supabase.co
+    description: Supabase hosted (replace {project} with your project ref)
+    variables:
+      project:
+        default: your-project-ref
+        description: Supabase project reference
+  - url: http://localhost:54321
+    description: Local Supabase (supabase start)
+
+tags:
+  - name: sessions
+    description: Squad session creation and management
+  - name: conversations
+    description: Squad rooms and active conversation state
+  - name: messages
+    description: Encrypted message read access (write via ingest-message Edge)
+  - name: matchmaking
+    description: Queue entry, cancel, and status
+  - name: zk
+    description: Zero-knowledge proof verification
+  - name: moderation
+    description: Moderation actions (requires moderator role)
+  - name: rate-limit
+    description: Edge Function rate limiter
+
+paths:
+  # ---------------------------------------------------------------------------
+  # Sessions (squads)
+  # ---------------------------------------------------------------------------
+  /rest/v1/squads:
+    get:
+      tags: [sessions]
+      summary: List squads the authenticated user is a member of
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, pending]
+      responses:
+        '200':
+          description: List of squads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Squad'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ---------------------------------------------------------------------------
+  # Conversations (squad detail + member list)
+  # ---------------------------------------------------------------------------
+  /rest/v1/rpc/get_squad_peer_profiles:
+    post:
+      tags: [conversations]
+      summary: Get limited peer profiles for current user's squad mates
+      description: |
+        Returns a restricted projection: callsign, role, coarse tags, and
+        region hint. No global profile directory; no cross-squad search.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [squad_id]
+              properties:
+                squad_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: List of peer profile projections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeerProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ---------------------------------------------------------------------------
+  # Messages (read only — write via Edge ingest-message)
+  # ---------------------------------------------------------------------------
+  /rest/v1/messages:
+    get:
+      tags: [messages]
+      summary: Retrieve messages for a squad
+      description: |
+        Returns ciphertext payloads. The client decrypts using the squad key.
+        Direct inserts are blocked by RLS; use the `ingest-message` Edge Function
+        to send messages (see `/functions/v1/ingest-message`).
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+        - name: squad_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Filter to a specific squad (eq. operator)
+          example: 'squad_id=eq.{uuid}'
+        - name: order
+          in: query
+          schema:
+            type: string
+            default: 'created_at.desc'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            maximum: 100
+      responses:
+        '200':
+          description: Array of message ciphertext rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /functions/v1/ingest-message:
+    post:
+      tags: [messages]
+      summary: Send a message (Edge Function — decrypt, redact, re-encrypt, store)
+      description: |
+        The primary write path for chat messages. The Edge Function:
+        1. Validates the sender's JWT.
+        2. Decrypts the payload with the squad key.
+        3. Runs `redactOutgoingLiveMessage` (policy enforcement).
+        4. Re-encrypts and inserts via service role.
+
+        **Do not** POST directly to `/rest/v1/messages` — RLS blocks it.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestMessageRequest'
+      responses:
+        '200':
+          description: Message stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid payload or squad not found
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  # ---------------------------------------------------------------------------
+  # Rate limit Edge Function
+  # ---------------------------------------------------------------------------
+  /functions/v1/rate-limit:
+    post:
+      tags: [rate-limit]
+      summary: Check rate limit for a named action
+      description: |
+        Call this before matchmaking, message send, or other rate-limited actions.
+        Returns 200 (allowed) or 429 (exceeded). Backed by Upstash Redis.
+        Returns 503 if Upstash is not configured — clients should fail open.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  description: Named action being rate-limited (e.g. "send_message", "join_queue")
+      responses:
+        '200':
+          description: Allowed
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: Rate limit service unavailable — client should fail open
+
+  # ---------------------------------------------------------------------------
+  # ZK verification
+  # ---------------------------------------------------------------------------
+  /functions/v1/verify-zk-proof:
+    post:
+      tags: [zk]
+      summary: Verify a Semaphore zero-knowledge proof
+      description: |
+        Verifies a Semaphore membership proof against the issuer-managed Merkle
+        root. On success, stores proof commitment and nullifier bound to the
+        authenticated user. The user proves membership without revealing which
+        member they are.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZkProofRequest'
+      responses:
+        '200':
+          description: Proof verified and stored
+        '400':
+          description: Invalid proof or expired Merkle root
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ---------------------------------------------------------------------------
+  # Matchmaking
+  # ---------------------------------------------------------------------------
+  /rest/v1/match_queue:
+    post:
+      tags: [matchmaking]
+      summary: Join the matchmaking queue
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/supabaseAnonKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchQueueEntry'
+      responses:
+        '201':
+          description: Added to queue
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT from magic-link / OTP sign-in
+
+  parameters:
+    supabaseAnonKey:
+      name: apikey
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Supabase anon/publishable key (VITE_SUPABASE_PUBLISHABLE_KEY)
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Invalid token
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until the rate limit window resets
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Rate limit exceeded
+
+  schemas:
+    Squad:
+      type: object
+      description: A squad session
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, archived, pending]
+        created_at:
+          type: string
+          format: date-time
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        # message_encryption_key is intentionally omitted from public schema docs
+        # — it is not returned via the public API surface
+
+    PeerProfile:
+      type: object
+      description: Limited peer profile projection (no global directory)
+      properties:
+        callsign:
+          type: string
+        role:
+          type: string
+          enum: [sharer, listener, observer]
+        region_hint:
+          type: string
+          nullable: true
+          description: Coarse region hint (e.g. "Europe", "South Asia") — not precise location
+        tags:
+          type: array
+          items:
+            type: string
+
+    Message:
+      type: object
+      description: |
+        Encrypted message row. `payload_ciphertext` is an AES-GCM v3 JSON blob.
+        Decrypt client-side using the squad message key.
+        This is NOT end-to-end encrypted against the operator (see threat model).
+      properties:
+        id:
+          type: string
+          format: uuid
+        squad_id:
+          type: string
+          format: uuid
+        sender_handle:
+          type: string
+          description: Ephemeral pseudonym — no link to auth.users in this response
+        payload_ciphertext:
+          type: string
+          description: |
+            JSON string: {"v":3,"alg":"AES-256-GCM","iv":"<base64url>","ct":"<base64url>"}
+        created_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [sent, retracted, flagged]
+
+    IngestMessageRequest:
+      type: object
+      required: [squad_id, payload]
+      properties:
+        squad_id:
+          type: string
+          format: uuid
+        payload:
+          type: object
+          description: AES-GCM v3 encrypted payload object from messageCrypto.ts
+          properties:
+            v:
+              type: integer
+              enum: [3]
+            alg:
+              type: string
+              enum: [AES-256-GCM]
+            iv:
+              type: string
+              description: Base64url-encoded 12-byte nonce
+            ct:
+              type: string
+              description: Base64url-encoded ciphertext
+
+    ZkProofRequest:
+      type: object
+      required: [proof, publicSignals, credentialType]
+      properties:
+        proof:
+          type: object
+          description: Semaphore proof object (pi_a, pi_b, pi_c)
+        publicSignals:
+          type: array
+          items:
+            type: string
+          description: Public signals (merkleTreeRoot, nullifierHash, message, scope)
+        credentialType:
+          type: string
+          description: The type of credential being proved (e.g. "verified_participant")
+
+    MatchQueueEntry:
+      type: object
+      required: [pool_key, side]
+      properties:
+        pool_key:
+          type: string
+          description: Sorted intent tags, optionally with "|zk:" scope suffix
+        side:
+          type: string
+          enum: [requester, responder]
