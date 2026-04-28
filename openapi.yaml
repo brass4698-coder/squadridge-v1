@@ -1,0 +1,457 @@
+openapi: '3.1.0'
+
+info:
+  title: SquadRidge API
+  version: '0.1.0'
+  description: |
+    SquadRidge API — privacy-first anonymous squad communication platform.
+
+    **SCAFFOLD**: This OpenAPI specification describes the intended API surface.
+    The current implementation uses Supabase's auto-generated REST API and
+    Edge Functions rather than a bespoke Express server. This spec documents
+    the target contract for a future dedicated API layer.
+
+    ## Authentication
+    All endpoints (except `/health`) require a Supabase JWT in the
+    `Authorization: Bearer <token>` header. Anonymous sessions are supported
+    (Supabase issues a JWT for anonymous users).
+
+    ## Privacy notes
+    - Raw IP addresses are never logged. The `x-anon-ip` header (HMAC-SHA256
+      hash of client IP) is used for rate limiting.
+    - Message content is transmitted as ciphertext. The API never accepts or
+      returns plaintext message bodies.
+    - The `user_id` in responses is always a server-generated UUID — never an
+      email address or real-world identifier.
+
+    ## Rate limiting
+    All endpoints are rate-limited per `x-anon-ip`. The default is 60 requests
+    per 60-second window. Exceeding the limit returns `429 Too Many Requests`
+    with a `Retry-After` header.
+
+  contact:
+    name: SquadRidge Security
+    url: https://github.com/brass4698-coder/squadridge-v1/blob/main/SECURITY.md
+
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: https://your-supabase-project.supabase.co
+    description: Production (Supabase hosted)
+  - url: http://localhost:54321
+    description: Local Supabase dev stack
+
+tags:
+  - name: sessions
+    description: Anonymous session management
+  - name: conversations
+    description: Squad conversations (squads)
+  - name: messages
+    description: Encrypted message operations
+  - name: health
+    description: Health and readiness checks
+
+# ─── Paths ────────────────────────────────────────────────────────────────────
+
+paths:
+
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      description: Returns 200 if the API is reachable. No auth required.
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /rest/v1/rpc/create_demo_squad:
+    post:
+      tags: [sessions]
+      summary: Create a demo squad (authenticated)
+      description: |
+        Creates a demo squad for the authenticated user. Requires a valid
+        Supabase JWT. The squad is tagged as a demo and is subject to shorter
+        retention windows.
+
+        **Scaffold note:** The RPC implementation is in
+        `supabase/migrations/20260428220000_create_demo_squad_rpc.sql`.
+      operationId: createDemoSquad
+      security:
+        - supabaseAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDemoSquadRequest'
+      responses:
+        '200':
+          description: Demo squad created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDemoSquadResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /rest/v1/squads:
+    get:
+      tags: [conversations]
+      summary: List squads for the authenticated user
+      description: |
+        Returns squads the authenticated user is a member of.
+        Results are paginated. No plaintext message content is returned here.
+      operationId: listSquads
+      security:
+        - supabaseAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+      responses:
+        '200':
+          description: List of squads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Squad'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /rest/v1/squads/{squad_id}:
+    get:
+      tags: [conversations]
+      summary: Get squad details
+      operationId: getSquad
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: squad_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Squad details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Squad'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /functions/v1/ingest-message:
+    post:
+      tags: [messages]
+      summary: Ingest an encrypted message into a squad
+      description: |
+        The primary message ingestion endpoint. The client encrypts the
+        message body client-side (AES-256-GCM with the squad key) and sends
+        the ciphertext here.
+
+        The Edge Function:
+          1. Verifies the JWT.
+          2. Rate-limits via x-anon-ip.
+          3. Decrypts the message with the squad key.
+          4. Runs server-side policy redaction.
+          5. Re-encrypts the (possibly redacted) plaintext.
+          6. Writes the ciphertext to `messages` using the service role.
+
+        **Clients must never send plaintext.** The `ciphertext` field in the
+        request body must be the AES-256-GCM encrypted message (base64url-encoded).
+
+        **Scaffold note:** The real implementation is in
+        `supabase/functions/ingest-message/`.
+      operationId: ingestMessage
+      security:
+        - supabaseAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestMessageRequest'
+      responses:
+        '201':
+          description: Message ingested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestMessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /rest/v1/messages:
+    get:
+      tags: [messages]
+      summary: List messages in a squad (ciphertext only)
+      description: |
+        Returns paginated encrypted message records for a squad. The client
+        decrypts each message locally using the squad key.
+
+        **No plaintext is returned by this endpoint.** The `payload` field
+        contains the AES-256-GCM ciphertext payload as stored.
+      operationId: listMessages
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: squad_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
+      responses:
+        '200':
+          description: List of encrypted messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+# ─── Components ───────────────────────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    supabaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Supabase JWT. Obtain via Supabase Auth (magic link, anonymous session,
+        or OAuth). Anonymous sessions are supported.
+
+  parameters:
+    PageLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    PageOffset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated but not authorized for this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid request body or parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          description: Seconds until the rate-limit window resets
+          schema:
+            type: integer
+        X-RateLimit-Limit:
+          description: Maximum requests per window
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          description: Remaining requests in current window
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error description (may be omitted in production)
+
+    Squad:
+      type: object
+      required: [id, created_at, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Squad identifier
+        created_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, archived, ended]
+        member_count:
+          type: integer
+          description: Number of members (may be approximate for large squads)
+        # Note: squad encryption key is NEVER returned via this API.
+        # It is fetched separately through the RLS-gated squads.message_encryption_key column.
+
+    Message:
+      type: object
+      required: [id, squad_id, created_at, payload]
+      description: |
+        An encrypted message record. The `payload` field contains the
+        AES-256-GCM ciphertext (v3 format: {"v":3,"alg":"AES-256-GCM","iv":"...","ct":"..."}).
+        Clients decrypt locally using the squad key.
+
+        **Privacy note:** `sender_handle` is an ephemeral pseudonym generated
+        for the session — it is not linked to a real identity in this response.
+      properties:
+        id:
+          type: string
+          format: uuid
+        squad_id:
+          type: string
+          format: uuid
+        sender_handle:
+          type: string
+          description: Ephemeral pseudonym for the sender within this squad session
+        payload:
+          $ref: '#/components/schemas/EncryptedPayloadV3'
+        created_at:
+          type: string
+          format: date-time
+        # Fields NOT returned by this API (see threat model):
+        # - plaintext (never)
+        # - encryption key (never)
+        # - user_id (privacy; use sender_handle for display)
+
+    EncryptedPayloadV3:
+      type: object
+      required: [v, alg, iv, ct]
+      description: |
+        AES-256-GCM ciphertext payload (v3 format used by src/lib/messageCrypto.ts).
+        The `ct` field is the base64url-encoded ciphertext including the GCM auth tag.
+        Decrypt with the squad key using AES-GCM (12-byte IV, 256-bit key).
+      properties:
+        v:
+          type: integer
+          enum: [3]
+        alg:
+          type: string
+          enum: ['AES-256-GCM']
+        iv:
+          type: string
+          description: Base64url-encoded 12-byte GCM initialization vector
+          example: 'abc123defgh456'
+        ct:
+          type: string
+          description: Base64url-encoded ciphertext (includes 16-byte GCM auth tag)
+          example: 'encrypted-content-base64url'
+
+    CreateDemoSquadRequest:
+      type: object
+      required: [consent_token]
+      properties:
+        consent_token:
+          type: string
+          description: |
+            Demo session consent token from the claim flow.
+            See migration 20260428230000_demo_claim_consent_token.sql.
+
+    CreateDemoSquadResponse:
+      type: object
+      required: [squad_id]
+      properties:
+        squad_id:
+          type: string
+          format: uuid
+
+    IngestMessageRequest:
+      type: object
+      required: [squad_id, payload]
+      properties:
+        squad_id:
+          type: string
+          format: uuid
+        payload:
+          $ref: '#/components/schemas/EncryptedPayloadV3'
+          description: |
+            AES-256-GCM encrypted message (encrypt client-side with the squad key
+            BEFORE sending). Never send plaintext.
+
+    IngestMessageResponse:
+      type: object
+      required: [id, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
