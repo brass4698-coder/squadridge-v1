@@ -20,7 +20,12 @@ export {
   redactContent,
   type RedactionPipelineRequest,
 } from './pipelines/redactContent';
-export { createPseudonymMap, labelForUser } from './pseudonyms/roomScoped';
+export {
+  createPseudonymMap,
+  labelForUser,
+  resolveRoomPseudonymSecret,
+} from './pseudonyms/roomScoped';
+export type { PseudonymResolutionOptions } from './pseudonyms/roomScoped';
 export { scoreMessageRisk, hitRiskContribution } from './scoring/riskScore';
 export {
   applyFindingsToText as transformContent,

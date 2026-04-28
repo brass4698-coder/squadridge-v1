@@ -61,6 +61,13 @@ export function DemoSessionPage() {
       className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
       aria-labelledby="demo-session-title"
     >
+      <div
+        role="status"
+        className="rounded-lg border border-amber/45 bg-amber/10 px-4 py-3 font-sans text-[0.78rem] leading-relaxed text-amber"
+      >
+        <strong className="font-semibold text-amber">Demo only:</strong> browser mock — no live
+        databases, queues, or production privacy guarantees.
+      </div>
       <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
         Offline squad demo
       </p>

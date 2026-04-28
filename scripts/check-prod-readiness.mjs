@@ -135,6 +135,26 @@ try {
   fail('Sentry check', String(e));
 }
 
+// 8b. Explicit Semaphore demo decoy gate documented (vite env)
+try {
+  const ex = read('.env.example');
+  if (
+    !ex.includes('VITE_SEMAPHORE_DEMO_GROUP') ||
+    (!ex.includes('buildAnonymityGroup') &&
+      !ex.includes('Issuer-managed') &&
+      !ex.includes('bundled demo Merkle'))
+  ) {
+    fail(
+      '.env.example Semaphore demo',
+      'must document VITE_SEMAPHORE_DEMO_GROUP and reference issuer-managed decoys vs demo',
+    );
+  } else {
+    pass('.env.example documents VITE_SEMAPHORE_DEMO_GROUP');
+  }
+} catch (e) {
+  fail('.env.example', String(e));
+}
+
 const failed = checks.filter((c) => !c.ok);
 console.log(`\nDone: ${checks.filter((c) => c.ok).length}/${checks.length} passed.`);
 if (failed.length) {

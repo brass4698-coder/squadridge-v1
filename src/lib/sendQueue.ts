@@ -12,6 +12,9 @@ export type PendingSendRecord = {
   createdAt: string;
 };
 
+/** Cross-tab BroadcastChannel — peers notify each other when pending sends arrive or flush may be needed (see SessionPage). */
+export const SEND_QUEUE_BROADCAST_CHANNEL = 'squadridge:sendQueue';
+
 const DB_NAME = 'squadridge-send-queue';
 const STORE = 'pending';
 const MEM = new Map<string, PendingSendRecord>();
@@ -110,5 +113,7 @@ export async function listPendingSendsForSquad(squadId: string): Promise<Pending
     req.onsuccess = () => resolve((req.result as PendingSendRecord[]) ?? []);
     req.onerror = () => reject(req.error);
   });
-  return rows.filter((r) => r.squadId === squadId).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  return rows
+    .filter((r) => r.squadId === squadId)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }

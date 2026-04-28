@@ -15,6 +15,11 @@ interface ImportMetaEnv {
   /** Enable demo squad shortcuts in production-like builds (e.g. staging). */
   readonly VITE_ENABLE_DEMO_SQUAD?: string;
   readonly VITE_ZK_STUB?: string;
+  /**
+   * When `true`, allows bundled Squadridge demo Semaphore decoys in production bundles.
+   * Omit or `false` to require issuer-provided identities (see src/lib/zk/buildAnonymityGroup.ts).
+   */
+  readonly VITE_SEMAPHORE_DEMO_GROUP?: string;
   /** Research UI for zkTLS-style flows (default off). */
   readonly VITE_ZKTLS_LABS?: string;
   /** External waitlist URL (Typeform, Tally, etc.). */

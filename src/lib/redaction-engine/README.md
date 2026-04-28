@@ -35,6 +35,10 @@ const result = await redactContent({
 // Log result.audit (hashes only) — never log raw message with audit in production.
 ```
 
+### Pseudonym secret (production)
+
+`context.roomPseudonymSecret` is **required** in production bundles (`vite build` sets `import.meta.env.MODE` to `production`). If it is missing, `createPseudonymMap` / `resolveRoomPseudonymSecret` **throw** so pseudonyms are never keyed with a silent guessable default. Only `development` and `test` modes may omit the secret (a `console.warn` + insecure fallback for local runs). Preview/staging deployments that use other modes must still supply the secret.
+
 ## Integration points
 
 1. **Chat submit** — `mode: 'live_chat'`, `audience: 'participant'`, enforce server-side before insert.

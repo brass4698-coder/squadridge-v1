@@ -3,7 +3,13 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfile } from '../hooks';
-import { isSupabaseConfigured, PROFILE_ROLE_VALUES, type ProfileRole } from '../lib';
+import {
+  isSupabaseConfigured,
+  PROFILE_ROLE_VALUES,
+  type ProfileRole,
+  createDemoSessionClaim,
+  finalizeDemoSessionClaim,
+} from '../lib';
 
 const MAX_TAGS = 5;
 
@@ -48,7 +54,7 @@ function OptionalMark() {
 
 export function ProfileSettingsPage() {
   const [searchParams] = useSearchParams();
-  const { session, loading: authLoading, ensureAnonymousSession } = useAuth();
+  const { session, loading: authLoading, ensureAnonymousSession, supabase } = useAuth();
   const { profile, loading: profileLoading, upsertProfile } = useProfile();
 
   useEffect(() => {
@@ -70,6 +76,14 @@ export function ProfileSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   /** After a successful save, footer can say “All changes saved” until the user edits again. */
   const [ackSaved, setAckSaved] = useState(false);
+
+  const [demoClaimBusy, setDemoClaimBusy] = useState(false);
+  const [demoClaimErr, setDemoClaimErr] = useState<string | null>(null);
+  const [demoClaimCode, setDemoClaimCode] = useState<string | null>(null);
+  const [finalizeCode, setFinalizeCode] = useState('');
+  const [finalizeBusy, setFinalizeBusy] = useState(false);
+  const [finalizeErr, setFinalizeErr] = useState<string | null>(null);
+  const [finalizeMsg, setFinalizeMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -165,6 +179,45 @@ export function ProfileSettingsPage() {
     if (!isDirty) return;
     if (!window.confirm('You have unsaved profile changes. Leave without saving?')) {
       e.preventDefault();
+    }
+  }
+
+  async function handleCreateDemoClaim() {
+    if (!supabase) return;
+    setDemoClaimBusy(true);
+    setDemoClaimErr(null);
+    setFinalizeMsg(null);
+    try {
+      const code = await createDemoSessionClaim(supabase);
+      setDemoClaimCode(code);
+    } catch (e) {
+      setDemoClaimErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDemoClaimBusy(false);
+    }
+  }
+
+  async function handleFinalizeDemoClaim() {
+    if (!supabase) return;
+    const trimmed = finalizeCode.trim();
+    if (!trimmed) return;
+    setFinalizeBusy(true);
+    setFinalizeErr(null);
+    setFinalizeMsg(null);
+    try {
+      const res = await finalizeDemoSessionClaim(supabase, trimmed);
+      const n = res.migrated_memberships ?? 0;
+      setFinalizeMsg(
+        res.ok
+          ? `Transfer applied. Squad memberships migrated: ${Number.isFinite(n) ? n : 0}.`
+          : 'Transfer completed.',
+      );
+      setFinalizeCode('');
+      setDemoClaimCode(null);
+    } catch (e) {
+      setFinalizeErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setFinalizeBusy(false);
     }
   }
 
@@ -547,6 +600,74 @@ export function ProfileSettingsPage() {
             </div>
           </section>
         </form>
+
+        {supabase ? (
+          <section className="mt-10 rounded-[12px] border border-[#1e2a3a] bg-[#0c1118]/80 p-6">
+            <h2 className="font-heading text-[1.05rem] font-semibold uppercase tracking-[0.12em] text-[#a8b2c1]">
+              Demo session hand-off
+            </h2>
+            <p className="mt-2 font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+              Optional migration for anonymous/demo squad membership after you verify. Generate a
+              code in the demo session, then finalize here signed in as your verified account.
+              Conflicts skip squads where you&apos;re already a member.
+            </p>
+            <div className="mt-5 grid gap-6 sm:grid-cols-2">
+              <div className="space-y-3">
+                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#64748b]">
+                  Step 1 — demo / anonymous session
+                </p>
+                <button
+                  type="button"
+                  disabled={demoClaimBusy}
+                  onClick={() => void handleCreateDemoClaim()}
+                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 font-sans text-[0.88rem] text-[#e2e8f0] transition hover:bg-[#131c2e] disabled:opacity-60"
+                >
+                  {demoClaimBusy ? 'Generating…' : 'Generate transfer code'}
+                </button>
+                {demoClaimCode ? (
+                  <p className="break-all rounded-[6px] border border-[#1a2536] bg-[#080c12] px-3 py-2 font-mono text-[0.8rem] text-teal-light/95">
+                    {demoClaimCode}
+                  </p>
+                ) : null}
+                {demoClaimErr ? (
+                  <p className="font-sans text-[0.8rem] text-rose-300/95">{demoClaimErr}</p>
+                ) : null}
+              </div>
+              <div className="space-y-3">
+                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#64748b]">
+                  Step 2 — verified account
+                </p>
+                <label htmlFor="demo-claim-finalize" className="sr-only">
+                  Paste claim code
+                </label>
+                <input
+                  id="demo-claim-finalize"
+                  value={finalizeCode}
+                  autoComplete="off"
+                  spellCheck={false}
+                  onChange={(e) => setFinalizeCode(e.target.value)}
+                  placeholder="Paste code from demo session…"
+                  className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-mono text-[0.85rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                />
+                <button
+                  type="button"
+                  disabled={finalizeBusy || !finalizeCode.trim()}
+                  onClick={() => void handleFinalizeDemoClaim()}
+                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border-0 bg-teal/90 px-4 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ borderRadius: 8 }}
+                >
+                  {finalizeBusy ? 'Applying…' : 'Apply transfer'}
+                </button>
+                {finalizeMsg ? (
+                  <p className="font-sans text-[0.82rem] text-[#94d82d]/95">{finalizeMsg}</p>
+                ) : null}
+                {finalizeErr ? (
+                  <p className="font-sans text-[0.8rem] text-rose-300/95">{finalizeErr}</p>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <NextStepHint className="mt-8 border-[#1e2a3a] bg-[#0c1118]/60">
           <span className="font-medium text-slate-400">Next:</span> When you&apos;re ready to match,

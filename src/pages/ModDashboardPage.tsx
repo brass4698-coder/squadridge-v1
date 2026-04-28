@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { moderatorDecryptMessageForReview } from '../lib/moderation/modDecrypt';
 import { assertEdgeRateLimit } from '../lib/rateLimitEdge';
 
 type SquadSummary = {
@@ -37,6 +38,9 @@ export function ModDashboardPage() {
   const [archiveSquadId, setArchiveSquadId] = useState<string | null>(null);
   const [flagMessageId, setFlagMessageId] = useState<string | null>(null);
   const [flagReasonDraft, setFlagReasonDraft] = useState('');
+  const [decryptTarget, setDecryptTarget] = useState<MessageRow | null>(null);
+  const [decryptJustification, setDecryptJustification] = useState('');
+  const [decryptPlaintext, setDecryptPlaintext] = useState<string | null>(null);
 
   const squadsQuery = useQuery({
     queryKey: ['mod', 'squads', 'recent'],
@@ -91,6 +95,21 @@ export function ModDashboardPage() {
     enabled: !!supabase && !!expandedId,
   });
 
+  const squadKeyQuery = useQuery({
+    queryKey: ['mod', 'squad-key', expandedId],
+    queryFn: async (): Promise<string | null> => {
+      if (!supabase || !expandedId) return null;
+      const { data, error } = await supabase
+        .from('squads')
+        .select('message_encryption_key')
+        .eq('id', expandedId)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.message_encryption_key ?? null;
+    },
+    enabled: !!supabase && !!expandedId,
+  });
+
   const sentimentQuery = useQuery({
     queryKey: ['mod', 'sentiment', expandedId],
     queryFn: async () => {
@@ -138,6 +157,28 @@ export function ModDashboardPage() {
       toast.success('Message flagged.');
       setFlagMessageId(null);
       setFlagReasonDraft('');
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const decryptMutation = useMutation({
+    mutationFn: async () => {
+      if (!supabase || !expandedId || !decryptTarget) throw new Error('Missing context');
+      await assertEdgeRateLimit(supabase, 'moderator_decrypt_review');
+      const squadKey = squadKeyQuery.data ?? null;
+      if (!squadKey) throw new Error('No squad encryption key — cannot decrypt.');
+      return moderatorDecryptMessageForReview(supabase, {
+        messageId: decryptTarget.id,
+        squadId: expandedId,
+        payloadCiphertext: decryptTarget.payload_ciphertext,
+        squadMessageKeyBase64Url: squadKey,
+        justification: decryptJustification.trim(),
+      });
+    },
+    onSuccess: async (data) => {
+      setDecryptPlaintext(data.plaintext);
+      toast.success('Recorded in moderation audit.');
+      await queryClient.invalidateQueries({ queryKey: ['mod', 'audit', 'recent'] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -216,6 +257,108 @@ export function ModDashboardPage() {
         </AlertDialog.Portal>
       </AlertDialog.Root>
 
+      {decryptTarget ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="presentation"
+          onClick={() => {
+            setDecryptTarget(null);
+            setDecryptPlaintext(null);
+            setDecryptJustification('');
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mod-decrypt-title"
+            className="w-full max-w-md rounded-lg border border-navy-light bg-navy-dark p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              id="mod-decrypt-title"
+              className="font-heading text-lg font-semibold text-gray-light"
+            >
+              Decrypt message for review
+            </h2>
+            <p className="mt-2 font-sans text-[0.875rem] text-slate-400">
+              An audit row is recorded before plaintext is shown. Minimum 8 characters explaining
+              why you need to read this message.
+            </p>
+            {decryptPlaintext !== null ? (
+              <div className="mt-4">
+                <p className="font-sans text-[0.75rem] font-medium uppercase tracking-wide text-slate-500">
+                  Plaintext
+                </p>
+                <pre className="mt-2 max-h-48 max-w-full overflow-auto whitespace-pre-wrap rounded border border-navy-light bg-[#0a1018] p-3 font-sans text-[0.8rem] text-gray-light">
+                  {decryptPlaintext}
+                </pre>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    className="rounded-lg border border-navy-light px-4 py-2 font-sans text-[0.875rem] text-slate-300 hover:bg-navy-light/30"
+                    onClick={() => {
+                      setDecryptTarget(null);
+                      setDecryptPlaintext(null);
+                      setDecryptJustification('');
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <label
+                  htmlFor="mod-decrypt-justification"
+                  className="mt-4 block font-sans text-[0.75rem] text-slate-500"
+                >
+                  Justification (required)
+                </label>
+                <textarea
+                  id="mod-decrypt-justification"
+                  value={decryptJustification}
+                  onChange={(e) => setDecryptJustification(e.target.value)}
+                  rows={4}
+                  className="mt-1 w-full resize-y rounded-lg border border-navy-light bg-[#0a1018] px-3 py-2 font-sans text-[0.875rem] text-gray-light placeholder:text-slate-500 focus:border-teal/40 focus:outline-none"
+                  placeholder="e.g. Safety report follow-up · internal ref …"
+                />
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    className="rounded-lg border border-navy-light px-4 py-2 font-sans text-[0.875rem] text-slate-300 hover:bg-navy-light/30"
+                    onClick={() => {
+                      setDecryptTarget(null);
+                      setDecryptPlaintext(null);
+                      setDecryptJustification('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      decryptMutation.isPending ||
+                      !squadKeyQuery.data ||
+                      squadKeyQuery.isLoading ||
+                      decryptJustification.trim().length < 8
+                    }
+                    className="rounded-lg bg-teal px-4 py-2 font-sans text-[0.875rem] font-medium text-navy-dark hover:bg-teal-light disabled:opacity-50"
+                    onClick={() => decryptMutation.mutate()}
+                  >
+                    {decryptMutation.isPending ? 'Auditing…' : 'Decrypt (audited)'}
+                  </button>
+                </div>
+                {!squadKeyQuery.data && !squadKeyQuery.isLoading ? (
+                  <p className="mt-2 font-sans text-[0.75rem] text-amber" role="alert">
+                    No squad encryption key available for this squad.
+                  </p>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       {flagMessageId ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -282,6 +425,16 @@ export function ModDashboardPage() {
         >
           Moderation
         </h1>
+        <div
+          role="status"
+          className="mt-4 max-w-[72ch] rounded-lg border border-amber/40 bg-amber/10 p-4 font-sans text-[0.82rem] leading-relaxed text-amber"
+        >
+          <strong className="font-semibold text-amber">Operator visibility:</strong> Squad message
+          keys are stored for this product; moderators can read ciphertext and decrypt for review.
+          Each decrypt requires a written justification and logs{' '}
+          <code className="font-mono text-[0.72rem]">message_plaintext_decrypt_review</code> in the
+          audit log. This is not server-blind or Signal-grade encryption.
+        </div>
         <p className="mt-2 max-w-[60ch] font-sans text-[0.9rem] leading-relaxed text-slate-400">
           Active squads with member counts, message ciphertext preview (not decrypted), flag
           message, and archive squad. Moderator accounts are provisioned in the database — not
@@ -421,17 +574,31 @@ export function ModDashboardPage() {
                               {previewCipher(m.payload_ciphertext)}
                             </p>
                             {m.status === 'sent' ? (
-                              <button
-                                type="button"
-                                disabled={flagMutation.isPending}
-                                className="mt-2 font-sans text-[0.75rem] font-medium text-amber hover:underline disabled:opacity-50"
-                                onClick={() => {
-                                  setFlagMessageId(m.id);
-                                  setFlagReasonDraft('');
-                                }}
-                              >
-                                Flag message
-                              </button>
+                              <div className="mt-2 flex flex-wrap gap-3">
+                                <button
+                                  type="button"
+                                  disabled={flagMutation.isPending}
+                                  className="font-sans text-[0.75rem] font-medium text-amber hover:underline disabled:opacity-50"
+                                  onClick={() => {
+                                    setFlagMessageId(m.id);
+                                    setFlagReasonDraft('');
+                                  }}
+                                >
+                                  Flag message
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={decryptMutation.isPending}
+                                  className="font-sans text-[0.75rem] font-medium text-teal hover:underline disabled:opacity-50"
+                                  onClick={() => {
+                                    setDecryptTarget(m);
+                                    setDecryptJustification('');
+                                    setDecryptPlaintext(null);
+                                  }}
+                                >
+                                  Decrypt for review
+                                </button>
+                              </div>
                             ) : null}
                           </li>
                         ))}

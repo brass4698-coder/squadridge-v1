@@ -157,3 +157,6 @@ Thumbs.db
 
 # Accidental nested clone (safe to delete locally if present)
 /SquadRidge/
+
+# Supabase Edge (esbuild bundle; run npm run bundle:ingest-message / npm run build)
+/supabase/functions/ingest-message/edge.bundle.mjs

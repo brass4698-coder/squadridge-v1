@@ -104,6 +104,11 @@ export function VerificationPage() {
           system stores only a cryptographic commitment and a nullifier after server-side
           verification—nothing that links this visit to your legal identity.
         </p>
+        <p className="mb-0 mt-4 rounded-lg border border-teal/25 bg-navy-dark/50 px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-ink-muted">
+          What verification proves here: cryptographic attribute checks for matching. What it still
+          permits by design: timestamps, coarse routing signals, squad keys for support contexts,
+          and moderator-visible records under policy—not “operator-proof” secrecy.
+        </p>
         {isZkTlsLabsEnabled() ? (
           <p
             className="mb-0 mt-4 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 font-sans text-[0.85rem] text-amber"

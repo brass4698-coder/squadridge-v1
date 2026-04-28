@@ -24,6 +24,7 @@ export * from './ledger/LedgerPageSkeleton';
 export * from './session/SessionAccess';
 export * from './session/SessionFeatureErrorBoundary';
 export * from './session/SessionRoomEntryTransition';
+export * from './session/SessionSafetyStrip';
 export * from './session/SessionPageSkeleton';
 export * from './session/SquadPeerStrip';
 export * from './ui/HowItWorksStep';

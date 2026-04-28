@@ -431,6 +431,14 @@ export function Match() {
 
   return (
     <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      {demoQuery ? (
+        <div
+          role="status"
+          className="mb-8 w-full max-w-lg rounded-lg border border-amber/40 bg-amber/10 px-4 py-2 font-sans text-[0.75rem] leading-snug text-amber"
+        >
+          Demo path (<code>?demo=1</code>): staging-style flow — not a live cohort.
+        </div>
+      ) : null}
       <div className="relative flex max-w-lg flex-col items-center text-center">
         <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
           <div

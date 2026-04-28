@@ -90,10 +90,10 @@ export async function redactContent(req: RedactionPipelineRequest): Promise<Reda
   const messageRiskScore = scoreMessageRisk(hits, parsed.mode);
   trace.push({ step: 'risk', detail: `score=${messageRiskScore}` });
 
-  const pseudonymMap = await createPseudonymMap(
-    parsed.context,
-    parsed.roomParticipantUserIds ?? [],
-  );
+  const pseudonymMap =
+    (parsed.skipPseudonymMap ?? false)
+      ? []
+      : await createPseudonymMap(parsed.context, parsed.roomParticipantUserIds ?? []);
 
   const viewsByAudience: Record<string, string> = {};
   let primaryFindings: Finding[] = [];

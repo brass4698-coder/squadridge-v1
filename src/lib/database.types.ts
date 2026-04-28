@@ -1,8 +1,8 @@
 /**
- * `public` schema — aligned with `supabase/migrations` (not only CLI output: CHECK-backed unions
- * and `expires_at` are typed here; `supabase gen types` may emit plain `string` for those).
- * After `npm run gen:types` or `gen:types:local`, merge any new tables/columns from the diff into this file.
- * CI `db` job runs `supabase start` + `db reset` so migration SQL is validated on each PR.
+ * `public` schema — aligned with `supabase/migrations` (hand-maintained: CHECK-backed unions
+ * and `expires_at` typed where `supabase gen types` may emit plain string).
+ * CI `db` job runs `supabase db reset` then `npm run check:database-types` so new tables/columns
+ * from `--local` codegen are merged into this file (see `npm run gen:types:local`).
  */
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
@@ -112,6 +112,7 @@ export interface Database {
           expires_at: string;
           message_encryption_key: string | null;
           archived_at: string | null;
+          archived_encryption_key_snapshot: string | null;
         };
         Insert: {
           id?: string;
@@ -121,6 +122,7 @@ export interface Database {
           expires_at: string;
           message_encryption_key?: string | null;
           archived_at?: string | null;
+          archived_encryption_key_snapshot?: string | null;
         };
         Update: Partial<Database['public']['Tables']['squads']['Insert']>;
         Relationships: [];
@@ -448,6 +450,18 @@ export interface Database {
       moderator_archive_squad: {
         Args: { p_squad_id: string };
         Returns: undefined;
+      };
+      moderator_record_decrypt_audit: {
+        Args: { p_message_id: string; p_justification: string };
+        Returns: undefined;
+      };
+      create_demo_session_claim: {
+        Args: Record<string, never>;
+        Returns: string;
+      };
+      finalize_demo_session_claim: {
+        Args: { p_claim_code: string };
+        Returns: Json;
       };
       get_squad_peer_profiles: {
         Args: { p_squad_id: string };

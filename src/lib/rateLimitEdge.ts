@@ -30,7 +30,12 @@ export async function assertEdgeRateLimit(
   });
 
   if (res.status === 429) {
-    throw new Error('Too many requests. Try again shortly.');
+    const ra = res.headers.get('retry-after');
+    const hint =
+      ra && /^\d+$/.test(ra.trim())
+        ? ` Try again in about ${ra.trim()} seconds.`
+        : ' Try again shortly.';
+    throw new Error(`You’re sending requests too quickly.${hint}`);
   }
   // Upstash not configured in Edge env — fail open so messaging/matchmaking still work; deploy Redis for enforcement.
   if (res.status === 503) {

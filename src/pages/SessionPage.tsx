@@ -7,6 +7,7 @@ import {
   SessionPageAuthSkeleton,
   SessionPageMessagesSkeleton,
   SessionRoomEntryTransition,
+  SessionSafetyStrip,
   SessionTranslationPanel,
   SquadPeerStrip,
 } from '../components';
@@ -35,12 +36,15 @@ import {
   listPendingSendsForSquad,
   removePendingSend,
   SEND_RETRY_ATTEMPTS,
+  SEND_QUEUE_BROADCAST_CHANNEL,
   sendRetryDelayMs,
   setSentrySquadContext,
   sleep,
   assertEdgeRateLimit,
   MATCHED_SQUAD_TTL_HOURS,
+  type Database,
 } from '../lib';
+import { redactOutgoingLiveMessage } from '../lib/liveMessageRedaction';
 
 /**
  * SessionPage — verified-anonymous squad dialogue room (app-layer encrypted payloads, realtime, optional translation).
@@ -90,6 +94,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const { data: interventionRows = [] } = useSquadInterventions(supabase, squadId);
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
+  const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
   const [archiving, setArchiving] = useState(false);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
@@ -99,7 +104,6 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const online = useOnlineStatus();
   const receivedEpochById = useRef(new Map<string, number>());
   const translationWarmupDone = useRef(false);
-  const plaintextById = useMessagePlaintexts(messages, messageKey);
 
   useEffect(() => {
     setSentrySquadContext(squadId);
@@ -113,19 +117,26 @@ export function SessionPage({ squadId }: { squadId: string }) {
   useEffect(() => {
     if (!supabase || !squadId || !squad) {
       setMessageKey(null);
+      setMessageKeyMaterial(null);
       return;
     }
     let cancelled = false;
     void (async () => {
       try {
-        const { key } = await ensureSquadMessageKey(supabase, squadId, squad);
-        if (!cancelled) setMessageKey(key);
+        const { key, keyBase64 } = await ensureSquadMessageKey(supabase, squadId, squad);
+        if (!cancelled) {
+          setMessageKey(key);
+          setMessageKeyMaterial(keyBase64);
+        }
         if (!squad.message_encryption_key) {
           await refetchSquad();
         }
       } catch (e) {
         captureAppError(e, { feature: 'session_message_key', extra: { squadId } });
-        if (!cancelled) setMessageKey(null);
+        if (!cancelled) {
+          setMessageKey(null);
+          setMessageKeyMaterial(null);
+        }
       }
     })();
     return () => {
@@ -194,9 +205,37 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   const [httpDegraded, setHttpDegraded] = useState(false);
   const flushLockRef = useRef(false);
+  const tabIdRef = useRef<string>(
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID()
+      : `squadridge-tab-${Math.random().toString(36).slice(2)}`,
+  );
+  const sendQueueBcRef = useRef<BroadcastChannel | null>(null);
   const composerDraftKey = `squadridge-composer-draft:${squadId}`;
   const optimisticRef = useRef<OptimisticMessage[]>([]);
   optimisticRef.current = optimisticMessages;
+
+  const mergePendingFromIndexedDb = useCallback(() => {
+    return listPendingSendsForSquad(squadId).then((rows) => {
+      const fromDb = rows.map((r) => ({
+        optimisticId: r.localId,
+        squad_id: r.squadId,
+        sender_id: r.senderId,
+        payload_ciphertext: r.payload_ciphertext,
+        plainBody: r.plainBody,
+        sent_at: r.createdAt,
+        status: 'active',
+        deliveryStatus: 'pending' as const,
+      }));
+      setOptimisticMessages((prev) => {
+        if (prev.length === 0) return fromDb;
+        const seen = new Set(prev.map((p) => p.optimisticId));
+        return [...prev, ...fromDb.filter((x) => !seen.has(x.optimisticId))];
+      });
+    });
+  }, [squadId]);
+
+  const plaintextById = useMessagePlaintexts(messages, messageKey, messageKeyMaterial);
 
   const tryInsertMessage = useCallback(
     async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
@@ -210,25 +249,35 @@ export function SessionPage({ squadId }: { squadId: string }) {
         });
         return { ok: false };
       }
-      const { data: insertedRow, error: sendError } = await supabase
-        .from('messages')
-        .insert({
-          squad_id: m.squad_id,
-          sender_id: m.sender_id,
-          payload_ciphertext: m.payload_ciphertext,
-        })
-        .select()
-        .single();
-      if (sendError) {
-        captureAppError(sendError, {
+      type IngestPayload = { message: Database['public']['Tables']['messages']['Row'] };
+      const { data, error: fnError } = await supabase.functions.invoke<IngestPayload>(
+        'ingest-message',
+        {
+          body: {
+            squad_id: m.squad_id,
+            payload_ciphertext: m.payload_ciphertext,
+          },
+        },
+      );
+
+      if (fnError) {
+        captureAppError(new Error(fnError.message || 'ingest-message failed'), {
           feature: 'message_send',
-          extra: { squadId: m.squad_id, code: sendError.code, message: sendError.message },
+          extra: { squadId: m.squad_id, code: fnError.name },
+        });
+        return { ok: false };
+      }
+      const insertedRow = data?.message;
+      if (!insertedRow) {
+        captureAppError(new Error('ingest-message returned no row'), {
+          feature: 'message_send',
+          extra: { squadId: m.squad_id },
         });
         return { ok: false };
       }
       await removePendingSend(m.optimisticId);
       setOptimisticMessages((prev) => prev.filter((x) => x.optimisticId !== m.optimisticId));
-      if (insertedRow) applyLocalMessage(insertedRow);
+      applyLocalMessage(insertedRow);
       return { ok: true };
     },
     [supabase, applyLocalMessage],
@@ -248,54 +297,85 @@ export function SessionPage({ squadId }: { squadId: string }) {
     [tryInsertMessage],
   );
 
-  const flushPendingMessages = useCallback(async () => {
-    if (!supabase || !squadId || sending || flushLockRef.current) return;
-    flushLockRef.current = true;
-    try {
-      for (;;) {
-        const pending = optimisticRef.current.filter((x) => x.deliveryStatus === 'pending');
-        if (pending.length === 0) break;
-        const m = pending[0]!;
-        const result = await tryInsertWithBackoff(m);
-        if (!result.ok) {
-          setOptimisticMessages((prev) =>
-            prev.map((x) =>
-              x.optimisticId === m.optimisticId ? { ...x, deliveryStatus: 'failed' } : x,
-            ),
-          );
-          setHttpDegraded(true);
-          break;
-        }
+  const flushPendingMessages = useCallback(
+    async (options?: { quietly?: boolean }) => {
+      if (!supabase || !squadId || sending) return;
+      const quietly = options?.quietly === true;
+      if (!quietly) {
+        sendQueueBcRef.current?.postMessage({
+          type: 'flush-needed',
+          squadId,
+          fromTab: tabIdRef.current,
+        });
       }
-    } finally {
-      flushLockRef.current = false;
-    }
-  }, [supabase, squadId, sending, tryInsertWithBackoff]);
+
+      const work = async () => {
+        if (flushLockRef.current) return;
+        flushLockRef.current = true;
+        try {
+          for (;;) {
+            const pending = optimisticRef.current.filter((x) => x.deliveryStatus === 'pending');
+            if (pending.length === 0) break;
+            const m = pending[0]!;
+            const result = await tryInsertWithBackoff(m);
+            if (!result.ok) {
+              setOptimisticMessages((prev) =>
+                prev.map((x) =>
+                  x.optimisticId === m.optimisticId ? { ...x, deliveryStatus: 'failed' } : x,
+                ),
+              );
+              setHttpDegraded(true);
+              break;
+            }
+          }
+        } finally {
+          flushLockRef.current = false;
+        }
+      };
+
+      const lockName = `squadridge-session-send-queue-${squadId}`;
+      if (
+        typeof navigator !== 'undefined' &&
+        typeof navigator.locks !== 'undefined' &&
+        typeof navigator.locks.request === 'function'
+      ) {
+        await navigator.locks.request(lockName, { mode: 'exclusive' }, work);
+      } else {
+        await work();
+      }
+    },
+    [supabase, squadId, sending, tryInsertWithBackoff],
+  );
 
   useEffect(() => {
-    let cancelled = false;
-    void listPendingSendsForSquad(squadId).then((rows) => {
-      if (cancelled) return;
-      const fromDb = rows.map((r) => ({
-        optimisticId: r.localId,
-        squad_id: r.squadId,
-        sender_id: r.senderId,
-        payload_ciphertext: r.payload_ciphertext,
-        plainBody: r.plainBody,
-        sent_at: r.createdAt,
-        status: 'active',
-        deliveryStatus: 'pending' as const,
-      }));
-      setOptimisticMessages((prev) => {
-        if (prev.length === 0) return fromDb;
-        const seen = new Set(prev.map((p) => p.optimisticId));
-        return [...prev, ...fromDb.filter((x) => !seen.has(x.optimisticId))];
-      });
-    });
-    return () => {
-      cancelled = true;
+    if (typeof BroadcastChannel === 'undefined') return;
+    const ch = new BroadcastChannel(SEND_QUEUE_BROADCAST_CHANNEL);
+    sendQueueBcRef.current = ch;
+    const onMsg = (ev: MessageEvent) => {
+      const d = ev.data as { type?: string; squadId?: string; fromTab?: string };
+      if (!d || d.fromTab === tabIdRef.current) return;
+      if (d.squadId !== squadId) return;
+      if (d.type === 'pending-enqueued') {
+        void mergePendingFromIndexedDb().then(() => {
+          void flushPendingMessages({ quietly: true });
+        });
+        return;
+      }
+      if (d.type === 'flush-needed') {
+        void flushPendingMessages({ quietly: true });
+      }
     };
-  }, [squadId]);
+    ch.addEventListener('message', onMsg);
+    return () => {
+      ch.removeEventListener('message', onMsg);
+      ch.close();
+      sendQueueBcRef.current = null;
+    };
+  }, [squadId, flushPendingMessages, mergePendingFromIndexedDb]);
+
+  useEffect(() => {
+    void mergePendingFromIndexedDb();
+  }, [mergePendingFromIndexedDb]);
 
   useEffect(() => {
     if (!composerDraftKey) return;
@@ -429,9 +509,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
     }
 
     let enc: string;
+    let bodyForSend: string;
     try {
       const { key } = await ensureSquadMessageKey(supabase, squadId, squad);
-      enc = await encodeSecureMessagePayload(text, key);
+      bodyForSend = await redactOutgoingLiveMessage(text, squadId, user.id);
+      enc = await encodeSecureMessagePayload(bodyForSend, key);
       if (!squad.message_encryption_key) {
         await refetchSquad();
       }
@@ -449,7 +531,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
       squad_id: squadId,
       sender_id: user.id,
       payload_ciphertext: enc,
-      plainBody: text,
+      plainBody: bodyForSend,
       sent_at: sentAt,
       status: 'active',
       deliveryStatus: 'pending',
@@ -461,8 +543,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
         squadId,
         senderId: user.id,
         payload_ciphertext: enc,
-        plainBody: text,
+        plainBody: bodyForSend,
         createdAt: sentAt,
+      });
+      sendQueueBcRef.current?.postMessage({
+        type: 'pending-enqueued',
+        squadId,
+        fromTab: tabIdRef.current,
       });
     } catch {
       setComposer(text);
@@ -496,7 +583,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     setHttpDegraded(false);
 
     if (isAiPipelineEnabled() && squadId) {
-      const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, text);
+      const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, bodyForSend);
       if (!persistOk) {
         toast.warning(
           'Your message was sent, but tone insight could not be saved. Dialogue continues as normal.',
@@ -689,6 +776,8 @@ export function SessionPage({ squadId }: { squadId: string }) {
         </h1>
 
         <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
+
+        <SessionSafetyStrip squadId={squadId} />
 
         {squad?.archived_at ? (
           <div

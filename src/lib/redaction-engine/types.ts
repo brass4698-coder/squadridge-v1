@@ -130,6 +130,8 @@ export const RedactionRequestSchema = z.object({
   roomParticipantUserIds: z.array(z.string()).optional(),
   /** Skip heuristic / pluggable NER even if mode would normally run it (live fast path). */
   skipDeepEntityPass: z.boolean().optional(),
+  /** Skip expensive pseudonym map when only masking text (client pre-submit). */
+  skipPseudonymMap: z.boolean().optional(),
   /** System actor label for audit. */
   actorLabel: z.string().optional(),
 });
