@@ -4,7 +4,7 @@
  * This module demonstrates the recommended pattern for wrapping AES-256-GCM
  * data keys with a cloud KMS (AWS KMS, GCP Cloud KMS, or Azure Key Vault).
  *
- * Current state: this is a PSEUDOCODE / SKELETON skeleton.
+ * Current state: this is a PSEUDOCODE / SKELETON for planning purposes.
  * The in-browser AES-256-GCM implementation for squad messages is already
  * production-ready in `src/lib/messageCrypto.ts`.
  * This file documents the KMS-wrapping layer needed for server-side (Edge
