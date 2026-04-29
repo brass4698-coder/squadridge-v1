@@ -64,10 +64,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(0, 194, 178, 0.08), transparent 28%),
-    radial-gradient(circle at 82% 10%, rgba(245, 166, 35, 0.08), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 18%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 22%);
   z-index: 0;
 }
 
@@ -105,20 +102,20 @@
   opacity: 0.9;
 }
 
+/**
+ * Hero washes intentionally muted — single restrained accent, no amber glow.
+ * Keeps class hooks for any historical references but renders as near-noise.
+ */
 .landing-hero-aurora-a {
   left: -4%;
   top: 8%;
   height: 17rem;
   width: 20rem;
-  background: radial-gradient(circle, rgba(0, 194, 178, 0.18), transparent 68%);
+  background: radial-gradient(circle, rgba(42, 163, 154, 0.06), transparent 68%);
 }
 
 .landing-hero-aurora-b {
-  right: -2%;
-  top: 0;
-  height: 18rem;
-  width: 18rem;
-  background: radial-gradient(circle, rgba(245, 166, 35, 0.18), transparent 70%);
+  display: none;
 }
 
 .landing-hero-grid {
@@ -186,30 +183,21 @@
     0 0 14px rgba(0, 194, 178, 0.4);
 }
 
+/**
+ * Surface card: flat institutional panel — no hover lift, no glass blur.
+ * Border-only emphasis on hover keeps reading rhythm calm.
+ */
 .landing-surface-card {
-  border: 1px solid rgba(71, 85, 105, 0.65);
-  background:
-    linear-gradient(180deg, rgba(14, 20, 32, 0.82), rgba(8, 12, 19, 0.72)),
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), transparent 34%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 24px 60px -32px rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--sr-line);
+  background: var(--sr-bg-elevated);
+  box-shadow: none;
   transition:
-    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 220ms ease,
-    box-shadow 280ms ease,
-    background-color 220ms ease;
+    border-color 180ms ease,
+    background-color 180ms ease;
 }
 
 .landing-surface-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(51, 212, 199, 0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 36px 70px -36px rgba(0, 0, 0, 0.75),
-    0 0 0 1px rgba(51, 212, 199, 0.06);
+  border-color: var(--sr-line-strong);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -355,22 +343,16 @@
   }
 
   /** Hero primary CTA — explicit 8px radius (not pill) */
-  /** Hero CTA — same focus affordance as .btn-primary; extra lift + glow for landing */
+  /**
+   * Hero CTA — calm primary on the marketing page. Single subtle border
+   * (no stacked glow), no transform on hover. Matches institutional tone.
+   */
   .btn-hero-join {
-    @apply focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-[8px] bg-teal px-5 py-3 font-heading text-base font-semibold text-white transition-[transform,background-color,box-shadow] duration-200;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 0 0 1px rgba(51, 212, 199, 0.35),
-      0 18px 36px -20px rgba(0, 194, 178, 0.55);
+    @apply focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-[8px] bg-teal px-5 py-3 font-sans text-base font-semibold text-white transition-colors duration-150;
   }
 
   .btn-hero-join:hover {
     @apply bg-teal-light;
-    transform: translateY(-1px);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.16),
-      0 0 0 1px rgba(51, 212, 199, 0.45),
-      0 22px 42px -18px rgba(0, 194, 178, 0.62);
   }
 
   .btn-ghost {
@@ -656,108 +638,66 @@
   }
 }
 
-/* Intent page — Obsidian Moss border pulse, scan lines, chips, perspective rail */
-@keyframes intent-obsidian-border-pulse {
-  0%,
-  100% {
-    border-color: rgba(30, 45, 61, 0.95);
-    box-shadow:
-      0 0 0 1px rgba(15, 22, 35, 0.6),
-      0 0 18px rgba(0, 194, 178, 0.06);
-  }
-  50% {
-    border-color: rgba(52, 92, 78, 0.55);
-    box-shadow:
-      0 0 0 1px rgba(0, 194, 178, 0.18),
-      0 0 22px rgba(0, 194, 178, 0.12);
-  }
-}
-
-@keyframes intent-chip-active-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px rgba(0, 194, 178, 0.45),
-      0 0 16px rgba(0, 194, 178, 0.22);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px rgba(0, 194, 178, 0.58),
-      0 0 24px rgba(0, 194, 178, 0.32);
-  }
-}
+/**
+ * Intent page — calm institutional form chrome.
+ *
+ * Removed (per redesign): infinite border pulse, scanline overlay, gradient
+ * "system live" CTA glow, animated chip rings. Replaced with single-line
+ * borders, calm focus rings, and a flat primary CTA matching `.btn-primary`.
+ */
 
 .intent-textarea-shell {
-  border-radius: 10px;
-  padding: 1px;
-  background: linear-gradient(145deg, rgba(30, 45, 61, 0.5), rgba(15, 22, 35, 0.9));
-  animation: intent-obsidian-border-pulse 4.5s ease-in-out infinite;
+  border-radius: 8px;
+  padding: 0;
+  background: transparent;
 }
 
-/* Active field: Cajun / amber “system live” ring (not default teal) */
 .intent-textarea-shell:focus-within {
-  animation: none;
   box-shadow:
-    0 0 0 2px rgba(234, 88, 12, 0.65),
-    0 0 0 1px rgba(245, 166, 35, 0.35),
-    0 0 28px rgba(234, 88, 12, 0.32),
-    0 0 48px rgba(245, 166, 35, 0.12);
+    0 0 0 1px var(--sr-primary),
+    0 0 0 3px var(--sr-primary-ring);
+  border-radius: 8px;
 }
 
 .intent-textarea-inner {
   position: relative;
-  overflow: hidden;
-  border-radius: 9px;
-  background-color: #0f1623;
+  border: 1px solid var(--sr-line);
+  border-radius: 8px;
+  background-color: var(--sr-bg-elevated);
 }
 
+/* Scanline overlay retired; kept inert so existing JSX renders nothing. */
 .intent-textarea-scanlines {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: inherit;
-  opacity: 0.07;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 194, 178, 0.12) 2px,
-    rgba(0, 194, 178, 0.12) 3px
-  );
+  display: none;
 }
 
 .intent-chip {
   border-width: 1px;
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.22s ease,
-    color 0.15s ease,
-    background-color 0.15s ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    background-color 150ms ease;
 }
 
 .intent-chip:hover {
-  border-color: rgba(0, 194, 178, 0.45);
-  box-shadow: 0 0 16px rgba(0, 194, 178, 0.18);
+  border-color: var(--sr-line-strong);
+  color: var(--sr-ink);
 }
 
 .intent-chip[data-active='true'] {
-  border-color: #00c2b2;
-  background: linear-gradient(180deg, rgba(0, 194, 178, 0.2), rgba(0, 194, 178, 0.08));
-  animation: intent-chip-active-pulse 2.4s ease-in-out infinite;
+  border-color: var(--sr-primary);
+  background: var(--sr-primary-soft);
+  color: var(--sr-ink);
 }
 
 .intent-perspective-track {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.35rem;
-  padding: 0.35rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(45, 63, 85, 0.85);
-  background: linear-gradient(180deg, rgba(8, 12, 22, 0.95), rgba(12, 18, 32, 0.98));
-  box-shadow:
-    inset 0 2px 10px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--sr-line);
+  background: var(--sr-bg-elevated);
 }
 
 .intent-perspective-toggle {
@@ -766,74 +706,46 @@
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem;
+  border-radius: 6px;
   border: 1px solid transparent;
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
-    color 0.15s ease;
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 .intent-perspective-toggle[data-active='false'] {
   background: transparent;
-  color: #a8b2c1;
-  box-shadow: none;
+  color: var(--sr-ink-secondary);
 }
 
 .intent-perspective-toggle[data-active='false']:hover {
-  border-color: rgba(45, 63, 85, 0.95);
-  color: #c4cdd9;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--sr-ink);
 }
 
 .intent-perspective-toggle[data-active='true'] {
-  border-color: rgba(0, 194, 178, 0.45);
-  background: linear-gradient(180deg, rgba(0, 194, 178, 0.16), rgba(0, 194, 178, 0.06));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 0 0 1px rgba(0, 194, 178, 0.25),
-    0 4px 14px rgba(0, 0, 0, 0.35);
-  color: #e2e8f0;
+  border-color: var(--sr-primary);
+  background: var(--sr-primary-soft);
+  color: var(--sr-ink);
 }
 
 .intent-primary-cta {
-  background: linear-gradient(180deg, #2dd4c4 0%, #00b5a8 42%, #008f84 100%);
-  box-shadow:
-    0 0 0 1px rgba(51, 212, 199, 0.55),
-    0 0 0 2px rgba(0, 194, 178, 0.2),
-    0 0 36px rgba(0, 194, 178, 0.42),
-    0 0 64px rgba(0, 194, 178, 0.12),
-    0 8px 24px rgba(0, 0, 0, 0.42);
+  background-color: var(--sr-primary);
+  color: var(--sr-on-primary);
+  border-radius: 8px;
   transition:
-    box-shadow 200ms ease,
-    filter 200ms ease,
-    transform 200ms ease;
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .intent-primary-cta:focus-visible {
-  outline: 2px solid #00c2b2;
+  outline: 2px solid var(--sr-focus);
   outline-offset: 2px;
 }
 
 .intent-primary-cta:hover:not(:disabled) {
-  box-shadow:
-    0 0 0 1px rgba(51, 212, 199, 0.65),
-    0 0 0 2px rgba(0, 194, 178, 0.28),
-    0 0 44px rgba(0, 194, 178, 0.52),
-    0 0 72px rgba(0, 194, 178, 0.14),
-    0 10px 28px rgba(0, 0, 0, 0.45);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .intent-textarea-shell {
-    animation: none;
-    border-color: rgba(30, 45, 61, 0.9);
-  }
-
-  .intent-chip[data-active='true'] {
-    animation: none;
-    box-shadow: 0 0 0 1px rgba(0, 194, 178, 0.4);
-  }
+  background-color: var(--sr-primary-hover);
 }
 
 /* Ledger proposal — consensus “orders” verified pulse (Cajun amber) */

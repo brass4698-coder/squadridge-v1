@@ -1,6 +1,6 @@
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { HowItWorksStep, WaitlistSection } from '../components';
+import { HowItWorksStep, StatusBadge, Stepper, WaitlistSection } from '../components';
 import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../lib';
 
 function FullBleed({
@@ -36,10 +36,10 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
 }
 
 const OPERATIONAL_STEPS = [
-  'Verify eligibility',
-  'Form the cohort',
-  'Run the session',
-  'Publish the public record',
+  { label: 'Verify eligibility', helper: 'Pilot-scoped access' },
+  { label: 'Form the cohort', helper: '4–8 matched participants' },
+  { label: 'Run the session', helper: 'Facilitator-led rounds' },
+  { label: 'Publish the public record', helper: 'Citable outcome' },
 ] as const;
 
 type ProofCard =
@@ -157,11 +157,12 @@ export function LandingPage() {
               View sample public record
             </Link>
           </div>
-          <p className="mt-10 max-w-[48rem] border-t border-white/[0.06] pt-6 font-mono text-[0.7rem] uppercase tracking-[0.08em] text-slate-500">
-            Verified access <span className="text-slate-600">|</span> Facilitator-led rooms{' '}
-            <span className="text-slate-600">|</span> Bounded confidentiality{' '}
-            <span className="text-slate-600">|</span> Citable outcomes
-          </p>
+          <div className="mt-10 flex max-w-[48rem] flex-wrap gap-2 border-t border-white/[0.06] pt-6">
+            <StatusBadge>Verified access</StatusBadge>
+            <StatusBadge>Facilitator-led rooms</StatusBadge>
+            <StatusBadge>Bounded confidentiality</StatusBadge>
+            <StatusBadge>Citable outcomes</StatusBadge>
+          </div>
         </section>
 
         <hr className="sr-section-rule col-span-12" />
@@ -173,19 +174,11 @@ export function LandingPage() {
               Move from eligibility to public outcome through one controlled path.
             </SectionHeading>
 
-            <div className="mt-8 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-3">
-              {OPERATIONAL_STEPS.map((label, i) => (
-                <Fragment key={label}>
-                  {i > 0 ? (
-                    <span className="hidden font-mono text-slate-600 md:inline" aria-hidden>
-                      →
-                    </span>
-                  ) : null}
-                  <span className="rounded border border-[#2d3f55] bg-[#0c121c] px-3 py-2 font-mono text-[0.75rem] font-medium text-slate-300">
-                    {label}
-                  </span>
-                </Fragment>
-              ))}
+            <div className="mt-8">
+              <Stepper
+                ariaLabel="Operational path from eligibility to public outcome"
+                steps={OPERATIONAL_STEPS}
+              />
             </div>
 
             <div className="mt-12 grid gap-6 md:grid-cols-3 md:gap-8">

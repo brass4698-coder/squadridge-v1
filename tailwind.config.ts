@@ -44,10 +44,15 @@ export default {
           ink: '#f1f5f9',
           border: '#2d3748',
         },
-        /** Semantic text — four clear levels (primary → muted) */
+        /**
+         * Semantic text — four clear levels (primary → muted).
+         * `faint` is the new token-backed step between `secondary` and `subtle`,
+         * preferred by post-redesign primitives. Existing names stay stable.
+         */
         ink: {
           DEFAULT: '#f1f5f9',
           secondary: '#a8b2c1',
+          faint: 'var(--sr-ink-faint)',
           muted: '#6b7280',
           subtle: '#475569',
         },
@@ -93,12 +98,49 @@ export default {
           accent: '#c9a66b',
         },
         /** Card / panel fill (onboarding shell, dense surfaces) */
-        surface: '#0c1219',
+        surface: {
+          DEFAULT: 'var(--sr-bg)',
+          elevated: 'var(--sr-bg-elevated)',
+          secondary: 'var(--sr-bg-secondary)',
+          sunken: 'var(--sr-bg-sunken)',
+          /** Legacy onboarding fill — kept as a static fallback. */
+          legacy: '#0c1219',
+        },
+        line: {
+          DEFAULT: 'var(--sr-line)',
+          strong: 'var(--sr-line-strong)',
+          divider: 'var(--sr-divider)',
+        },
+        /** Restrained brand accent (slate-teal) — single primary across UI. */
+        brand: {
+          DEFAULT: 'var(--sr-primary)',
+          hover: 'var(--sr-primary-hover)',
+          pressed: 'var(--sr-primary-pressed)',
+          soft: 'var(--sr-primary-soft)',
+          ring: 'var(--sr-primary-ring)',
+          on: 'var(--sr-on-primary)',
+        },
+        /** Semantic statuses — text/border/icon, not decorative fills. */
+        sem: {
+          success: 'var(--sr-success)',
+          'success-soft': 'var(--sr-success-soft)',
+          warning: 'var(--sr-warning)',
+          'warning-soft': 'var(--sr-warning-soft)',
+          danger: 'var(--sr-danger)',
+          'danger-soft': 'var(--sr-danger-soft)',
+          info: 'var(--sr-info)',
+          'info-soft': 'var(--sr-info-soft)',
+        },
       },
       fontFamily: {
-        sans: ['"Public Sans"', 'system-ui', 'sans-serif'],
-        heading: ['"Public Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Public Sans"', 'system-ui', 'sans-serif'],
+        /** Body / UI — operational, legible at 16px+. */
+        sans: ['"IBM Plex Sans"', '"Public Sans"', 'system-ui', 'sans-serif'],
+        /** Reserved for marketing H1/H2 and rare product heroes. */
+        display: ['"IBM Plex Serif"', '"IBM Plex Sans"', 'Georgia', 'serif'],
+        /** Legacy alias — `font-heading` keeps building. New code prefers `font-sans`. */
+        heading: ['"IBM Plex Sans"', '"Public Sans"', 'system-ui', 'sans-serif'],
+        /** Ledger refs, timestamps, codes. */
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontSize: {
         // Fluid typography using clamp() for modern scaling

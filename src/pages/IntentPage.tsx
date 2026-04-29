@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
+import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { useAuth } from '../contexts/AuthContext';
 import {
   captureAppError,
@@ -237,7 +238,6 @@ export function IntentPage() {
           </div>
           <div className="intent-textarea-shell">
             <div className="intent-textarea-inner">
-              <div className="intent-textarea-scanlines" aria-hidden />
               <textarea
                 id="intent-text"
                 name="intent"
@@ -295,29 +295,17 @@ export function IntentPage() {
             them to self-sort into two groups (not “good vs bad”). E.g., “more regulation” vs “less
             regulation” — both perspectives matter.
           </p>
-          <div className="intent-perspective-track max-w-md" role="group" aria-label="Perspective">
-            {(
-              [
-                { id: 'A' as const, label: 'Perspective A' },
-                { id: 'B' as const, label: 'Perspective B' },
-              ] as const
-            ).map(({ id, label }) => {
-              const on = perspective === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  aria-pressed={on}
-                  data-active={on ? 'true' : 'false'}
-                  data-demo={id === 'A' ? 'intent-perspective-a' : undefined}
-                  onClick={() => setPerspective(id)}
-                  className="intent-perspective-toggle font-sans text-[0.9rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+          <SegmentedControl<MatchPerspective>
+            ariaLabel="Perspective"
+            value={perspective}
+            onChange={setPerspective}
+            fill
+            className="max-w-md"
+            options={[
+              { value: 'A', label: 'Perspective A', demoId: 'intent-perspective-a' },
+              { value: 'B', label: 'Perspective B' },
+            ]}
+          />
         </fieldset>
 
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">

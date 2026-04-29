@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { SegmentedControl } from '../ui/SegmentedControl';
 import { AlertFacilitatorButton } from './AlertFacilitatorButton';
 import { CrisisResources } from './CrisisResources';
 
@@ -64,24 +65,13 @@ export function SessionStrategyRoomChrome({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Session phase">
-        {PHASES.map((p) => (
-          <button
-            key={p}
-            type="button"
-            role="tab"
-            aria-selected={phase === p}
-            onClick={() => setPhase(p)}
-            className={`rounded-full border px-3 py-1.5 font-sans text-[0.75rem] font-medium transition-colors ${
-              phase === p
-                ? 'border-teal/50 bg-teal/15 text-slate-100'
-                : 'border-[#1a2236] text-slate-500 hover:border-slate-600 hover:text-slate-300'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<PhaseId>
+        ariaLabel="Session phase"
+        size="sm"
+        value={phase}
+        onChange={setPhase}
+        options={PHASES.map((p) => ({ value: p, label: p }))}
+      />
 
       <div className="rounded-lg border border-dashed border-[#2a3548] bg-[#0a0e14] px-4 py-3">
         <p className="font-sans text-[0.7rem] font-semibold uppercase tracking-wide text-slate-500">
