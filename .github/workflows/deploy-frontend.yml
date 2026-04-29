@@ -44,6 +44,12 @@ jobs:
           VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
           VITE_ZK_STUB: 'false'
+          # Sentry (optional — empty values mean "no Sentry in this artifact").
+          # When VITE_SENTRY_DSN is set, src/lib/env.ts requires VITE_SENTRY_USER_HASH_SALT
+          # in production builds, so configure both secrets together or neither.
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_SENTRY_USER_HASH_SALT: ${{ secrets.VITE_SENTRY_USER_HASH_SALT }}
+          VITE_SENTRY_ENVIRONMENT: ${{ vars.VITE_SENTRY_ENVIRONMENT || 'production' }}
           # NOTE: VITE_SEMAPHORE_DEMO_GROUP / VITE_ALLOW_DEMO_DECOYS_IN_PROD are intentionally
           # NOT set here. Bundled decoys collapse the anonymity set; production must source
           # decoys from an issuer-managed group at runtime (see

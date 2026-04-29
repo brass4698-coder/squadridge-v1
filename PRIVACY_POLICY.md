@@ -20,7 +20,7 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 ## What we do not collect (by default)
 
 - We do not require email or phone to start a conversation.
-- We do not collect raw IP addresses into persistent storage. On the server we replace IPs with a salted/peppered truncated hash to support rate limiting and abuse controls.
+- The application does not store raw IP addresses in its own tables. Rate limiting in the Edge Functions keys on the authenticated user id rather than on IP (see [`supabase/functions/rate-limit/index.ts`](./supabase/functions/rate-limit/index.ts)). IPs that appear at the platform edge (Supabase, the host, the CDN) are governed by those platforms' log retention settings; we limit dashboard access and document each surface in [`docs/operations/ip-logging.md`](./docs/operations/ip-logging.md).
 - We do not store device fingerprints intended for long-term tracking.
 
 ## How the data is used
@@ -32,10 +32,10 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 
 ## Security measures we have in place
 
-- Field-level server-side encryption (KMS-wrapped keys) for sensitive fields is scaffolded in the repo. Real KMS wiring is a deployment step described in DATA_RETENTION.md and in the repo comments.
-- Request anonymization middleware strips and replaces sensitive headers before logging.
-- Access to production DBs and backups is limited to a small ops group; keys are stored in a secret manager (not in the repo).
-- We scrub PII from error reports (Sentry before-send hook is included as a scaffold).
+- Application-layer AES-256-GCM encryption for message payloads, using a per-squad symmetric key stored in `squads.message_encryption_key`. This is operator-readable, not Signal-grade end-to-end encryption; see [`docs/security/threat-model.md`](./docs/security/threat-model.md) for the exact boundary. KMS-wrapped envelope encryption for backup keys is a target, not a deployed control today.
+- All chat writes go through the `ingest-message` Edge Function, which redacts the message server-side before persistence; direct client `INSERT` into `public.messages` is denied by RLS (migration `20260428194500_messages_insert_edge_only.sql`).
+- Sentry error reports are sanitised by a `beforeSend` hook ([`src/lib/sentry.ts`](./src/lib/sentry.ts)): dev noise is dropped, oversized strings in `extra` / `contexts` are truncated, and the user id sent to Sentry is a salted SHA-256 truncation rather than the raw `auth.users.id`.
+- Access to production databases and backups is limited to a small ops group; keys are kept in the host secret manager and never committed to the repo.
 
 ## Moderation and safety tradeoffs
 
@@ -51,8 +51,8 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 
 ## Limitations and tradeoffs (be honest)
 
-- This repo includes scaffolds for encryption and KMS integration. The code shows the intended approach, but a production deployment must wire a real KMS provider and rotate keys.
-- Client-side E2EE (end-to-end encryption) is a future milestone. Until then, we encrypt server-side fields to reduce risk, but server‑side operators with DB access may be able to access ciphertext metadata. We document current status and roadmap tradeoffs in [`CURRENT_STATUS.md`](CURRENT_STATUS.md) and related product docs.
+- KMS-wrapped backup keys, application-layer IP hashing, and partitioned message storage are described elsewhere as targets. They are not deployed today; the source-of-truth for what is implemented is [`docs/security/threat-model.md`](./docs/security/threat-model.md) and [`DATA_RETENTION.md`](./DATA_RETENTION.md).
+- Client-side end-to-end encryption is a future milestone. Until it ships, message payloads are encrypted with a per-squad key that any squad member, sanctioned moderator, or operator with direct database access can read. We do not describe this as Signal-grade or operator-blind. See [`CURRENT_STATUS.md`](./CURRENT_STATUS.md) and related product docs for what we will and will not claim publicly.
 
 ## Contact and next steps
 

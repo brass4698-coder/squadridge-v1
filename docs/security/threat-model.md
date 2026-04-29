@@ -162,6 +162,7 @@ This section ties **who can mint Semaphore “membership”** and **messaging ke
 
 - **E2E (target definition):** Message plaintext is readable only to **end clients** in the session; the **server never holds** material sufficient to bulk-decrypt without **active participation** of clients (e.g. Signal-style or MLS, with a clear story for key distribution and recovery).
 - **Not E2E today:** As in §5, **squad symmetric keys in Postgres** mean the operator path can read content; do not describe MVP chat as E2E in **user copy**, **pitch**, or **policy decks** without an engineering review and an updated §5.
+- **Decision posture:** [ADR 004](../adr/004-defer-operator-blind-e2e.md) records the explicit deferral and the triggers (partner contract, threat-model change, external review finding, sustained engineering capacity, or standards maturity) that would re-open the build decision.
 - **Roadmap link:** The **pre-deployment gate** in §6 stands: either **ship and document** real E2E, or keep **operator-readable** as the public stance until then.
 
-**Cross-refs:** [ZK implementation](../technical/zk-implementation.md) (Semaphore + Edge) · [Encryption scope](encryption-scope.md) · §5 in this file.
+**Cross-refs:** [ZK implementation](../technical/zk-implementation.md) (Semaphore + Edge) · [Encryption scope](encryption-scope.md) · [ADR 004 (defer operator-blind E2E)](../adr/004-defer-operator-blind-e2e.md) · §5 in this file.

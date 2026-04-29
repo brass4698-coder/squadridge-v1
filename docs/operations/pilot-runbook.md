@@ -145,6 +145,14 @@ SELECT * FROM public.pilot_crisis_alerts_open;
 
 **Page the on-call moderator** when a row with `reason_code = 'immediate_danger'` has `open_seconds > 60`.
 
+### Retention cleanup (24h)
+
+```sql
+SELECT * FROM public.pilot_retention_cleanup_24h ORDER BY hour_bucket DESC LIMIT 24;
+```
+
+The hourly `cleanup-expired-data` cron now calls `public.run_expired_data_cleanup()` (migration `20260429140000_retention_cleanup_metrics.sql`) and writes one row to `public.retention_cleanup_runs` per pass. **Alert when no rows have been written in the last 90 minutes** — the cron stalled and the TTL story is no longer enforced. During an active pilot, `messages_deleted = 0` for every hour over 24h while traffic is flowing is a separate alert: the trigger that sets `expires_at` may have been disabled.
+
 ### Realtime telemetry
 
 The realtime hook records subscribe/unsubscribe and fallback events into an in-tab counter (`getRealtimeTelemetry()`). For now it is a devtools / Sentry-breadcrumb signal; a future cron will sample it. See [`docs/adr/002-realtime-vs-polling.md`](../adr/002-realtime-vs-polling.md) Phase 3.2 follow-up.

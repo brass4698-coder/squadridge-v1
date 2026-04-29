@@ -2,7 +2,7 @@
 
 ## Status
 
-Design / pre-implementation. **Do not** ship user-facing “full E2E” claims until this RFC is reviewed and the threat model is updated.
+Design / pre-implementation. **Do not** ship user-facing “full E2E” claims until this RFC is reviewed and the threat model is updated. The decision to defer building this RFC, and the triggers that would re-open it, is recorded in [ADR 004](../adr/004-defer-operator-blind-e2e.md).
 
 ## Problem
 
