@@ -1,126 +1,198 @@
-# SquadRidge — narrative, traction, and market (draft for applications)
+# SquadRidge — investor and partner narrative source
 
-Program deadlines and fit: [program-map.md](program-map.md).
+Program fit and application strategy: [program-map.md](program-map.md).
 
-Use this as source material for decks and forms. Claims below are aligned with the engineering notes in [`docs/security/threat-model.md`](../security/threat-model.md). If the product changes, update this document in the same change as the code.
-
----
-
-## One-sentence description
-
-SquadRidge is a **verified-anonymous cross-border dialogue** product: people join matched groups, exchange messages, and can complete **zero-knowledge attribute verification** (Semaphore proofs verified by your backend) so matchmaking and trust do not depend on sharing ID documents in chat.
+Use this file as the shared source for decks, accelerator forms, partner one-pagers, and diligence answers. Every claim below is intended to stay aligned with [`CURRENT_STATUS.md`](../../CURRENT_STATUS.md), [`DILIGENCE_OVERVIEW.md`](../../DILIGENCE_OVERVIEW.md), and the engineering source of truth in [`docs/security/threat-model.md`](../security/threat-model.md).
 
 ---
 
-## 1. Problem
+## One-line description
 
-People who need to talk across borders or under pressure often face a bad choice: **speak under a real name** and accept retaliation, surveillance, or exclusion—or **stay silent**. Pure anonymity helps, but many contexts still need **some** signal that a participant meets a condition (role, jurisdiction, risk profile) without exposing raw personal data to every peer and every observer.
+SquadRidge is a pilot-stage platform for **verified access, facilitator-led dialogue, and bounded cross-border cohorts** where institutions need more trust structure than generic chat or meeting tools provide.
 
-When platforms handle that tradeoff poorly, the failure modes are predictable: people **walk away**, **stay and get exposed** (metadata, profile fields, or timing), or **never join** because the institution cannot defend the process to its own stakeholders. Retaliation and capture sit on the same spectrum: once trust in the process breaks, the dialogue does not recover easily.
+## Core deck family
 
-SquadRidge is built for settings where **honest engineering** matters as much as intent: the team documents what the server can see, what cryptography proves, and what remains roadmap work.
-
----
-
-## 2. Product (what exists today vs later)
-
-**In the current codebase (shipped path):**
-
-- **Stack:** Web app (React, Vite, TypeScript), **Supabase** for PostgreSQL, Row Level Security, Auth, Realtime, and Edge Functions.
-- **Accounts:** Includes **anonymous** Supabase auth for low-friction flows; the system still assigns a **persistent user id**—this is a product choice, not “no server-side identity.”
-- **Verification:** **Semaphore**-based proofs in the browser, verified by the **`verify-zk-proof`** Edge Function; production builds are expected to run **without** the hash-only stub (`VITE_ZK_STUB`). Proof records are **bound to the logged-in account** on the server—users are not uploading ID scans to chat, but the platform records that *this account* completed a given proof scope.
-- **Messaging:** Message bodies are encrypted at the **application layer** (AES-GCM) and stored as ciphertext; the **squad key** lives in the database, and **moderators or anyone with service-role access** can read traffic today. That is **not** end-to-end encryption against the operator. Say so plainly in any serious conversation.
-
-**Explicitly not sold as shipped:**
-
-- **End-to-end messaging** against the operator (would require different key distribution and is **not** implemented).
-- **zkTLS-style** attribute extraction from websites — **research** behind a labs flag in docs; not a production promise.
-- **Tor-only hosting, regional legal playbooks,** and other items called out as out-of-scope in the threat model unless you design them in.
+| Deck | Best use | What it should prove |
+| ---- | -------- | -------------------- |
+| **Company overview** | First investor, advisor, or partner conversation | What SquadRidge is, why the wedge matters, and why the current stage is still credible |
+| **Core investor deck** | Fundraising and accelerator conversations | Market wedge, product reality, use of funds, and the difference between shipped facts and scenario-model assumptions |
+| **Pilot / partner deck** | NGOs, labs, facilitators, Track II operators | Pilot shape, operator boundaries, runbook expectations, and measurable outcomes |
+| **Technical / security deck** | Security reviewers, technical diligence, enterprise buyers | Threat model alignment, verification path, encryption scope, logging, and known limitations |
+| **Policy / peacebuilding deck** | Governments, multilaterals, peacebuilding programs | Governance, records posture, evaluation discipline, and deployment constraints |
 
 ---
 
-## 3. Why now
+## 1. What the repository proves today
 
-Regulators and institutions are asking harder questions about **identity, content, and duty of care**. At the same time, privacy-preserving cryptography has moved from papers to **libraries you can ship**. The point is not “ZK for its own sake”; it is **structured dialogue** where participants need **attributes without dossiers**. SquadRidge addresses that need—provided you keep the privacy story **accurate**.
+These are the strongest repo-defensible facts to repeat across decks:
 
----
+- **Stage:** advanced MVP / pilot foundation, best suited to bounded, facilitator-led pilots rather than broad public launch.
+- **Shipped product surfaces:** landing, onboarding, verification, intent selection, matching, session, ledger, profile, moderator, and admin routes.
+- **Backend posture:** React + Vite + TypeScript frontend with Supabase for Postgres, RLS, Auth, Realtime, and Edge Functions.
+- **Verification:** Semaphore-based proofs are verified server-side; proof submissions are tied to a logged-in account.
+- **Messaging:** message bodies are encrypted before storage, but the current release is **not** operator-blind end-to-end encryption; moderators and privileged operator paths still matter.
+- **Pilot operations:** the repo already contains runbooks, launch checklists, incident guidance, partner one-pagers, and a data-room index.
+- **Conflict Severity Index (CSI):** moderator-facing read surfaces exist for authenticated moderator users; automated ingestion, public feeds, and broad early-warning claims remain roadmap.
 
-## 4. Moat (honest account)
+## 2. What must stay labeled as roadmap or pilot design
 
-- **Workflow and trust:** Matchmaking, squad lifecycle, and moderator tooling embed your assumptions about safety and governance. That is hard to copy overnight if you run serious pilots.
-- **Verification integration:** Semaphore plus server-side verification is a real technical path; the defensibility is in **correctness, scope discipline, and operations** (who can see what in the dashboard), not in a label.
-- **Roadmap:** True end-to-end messaging, tighter data minimization, and regional hosting would deepen moats but require engineering and capital. Label them as **roadmap**, not as done.
+Do **not** upgrade any of the following into current-state product claims:
 
----
-
-## 5. Traction
-
-Claims here must match [`docs/security/threat-model.md`](../security/threat-model.md): do not imply E2E messaging against the operator or anonymity stronger than documented (persistent `user_id`, operator-visible ciphertext with squad key in DB).
-
-**What the repository and README substantiate today (no external cohort numbers in-repo):**
-
-- **Product:** Shipped development path: React/Vite client, Supabase (Postgres, RLS, Auth including anonymous, Realtime, Edge Functions), Semaphore proofs verified by `verify-zk-proof`, application-layer message crypto per threat model. CI deploys database migrations ([`.github/workflows/deploy-supabase-production.yml`](../../.github/workflows/deploy-supabase-production.yml)); frontend build runs with `VITE_ZK_STUB` off for production-style verification ([`README.md`](../../README.md)). Evaluation flows: `/session/demo-session-001` (offline demo UI), **Start guided tour** (see [`src/demo/demoScript.ts`](../../src/demo/demoScript.ts)), `/admin/health` for moderator connectivity checks.
-- **Users or conversations:** Add here before each investor or accelerator conversation: real counts (squads, messages, date range, pilot vs production). Until you have them, say so plainly—e.g. internal QA and guided-tour validation only—rather than vague “traction.”
-- **Discovery:** Add structured interview or pilot counts and roles when you have them (mediators, civic orgs, diaspora organizers, etc.).
-- **Partners:** Name advisors, LOIs, or design partners you can reference in diligence—avoid unnamed “interest.”
-
-Small numbers with context beat empty superlatives: “Four squads in a two-week closed test” is stronger than “strong engagement.”
+- operator-proof or Signal-style E2E messaging
+- full anonymity or “no server-side identity”
+- broad self-serve onboarding for high-risk populations
+- population-scale early-warning infrastructure
+- automated CSI ingestion or public conflict feeds
+- validated peace impact, "lives saved," or field-proven AI de-escalation claims
+- named customer, partner, revenue, or usage claims that are not already on record
 
 ---
 
-## 6. Impact metrics (diligence-safe)
+## 3. Problem framing that remains credible
 
-Pick a **small set** you can instrument honestly. For **what we measure today** (queries, dashboards, manual baselines), see [`docs/business/impact-metrics.md`](../business/impact-metrics.md) — *Current measurement (MVP)*.
+The strongest framing is not “more chat.” It is the gap between:
 
-| Metric | Why it matters |
-| ------ | ---------------- |
-| **Squad completion rate** | Did groups reach a defined end state or goal? |
-| **Return rate** | Did participants come back for a second session or squad? |
-| **Time to match** | Queue latency and dropout before match. |
-| **Moderator hours per active squad** | Operational load for institutional buyers. |
-| **Incidents / reports** | Safety signal—define severity and response time. |
-| **Verification success rate** | Semaphore + Edge path vs errors or abandonment. |
+- **public identity**, which can silence participants when retaliation or stigma is real; and
+- **unverified anonymity**, which can undermine trust, moderation leverage, and downstream usability.
 
-Avoid vanity metrics unless you define them tightly (e.g. “messages per squad” with cohort size).
+SquadRidge sits in the middle: enough verification to support accountable process, enough pseudonymity to reduce unnecessary exposure, and enough structure for facilitators or sponsors to run serious cohorts.
 
 ---
 
-## 7. Market framing (no invented TAM)
+## 4. Why now
 
-**Who benefits:** Participants in sensitive dialogues; facilitators and institutions that need auditability without publishing private dossiers.
+Use the “why now” story that the repo can support today:
 
-**Who might pay:** NGOs and foundations running programs, platforms hosting facilitated conversations, enterprises with internal or cross-border dialogue use cases—**if** you prove operational fit and safeguarding.
-
-**Illustrative scale (optional):** You can cite **public** estimates for online mediation, corporate training, or civic-tech budgets as **context**, not as “SquadRidge TAM.” Label any number as illustrative and name the source. Do not multiply headline figures into fake precision.
-
----
-
-## 8. Solo founder — reusable paragraph
-
-**General:**
-
-I am a solo founder: decisions are fast, and there is no ambiguity about ownership of the product vision. I hire or partner for what I do not do full-time—design, field partnerships, security review—so that specialists cover gaps without diluting focus. The constraint is real; the mitigation is explicit roles and a short list of advisors I actually call.
-
-**Accelerator variant (emphasis: speed, users, scale):**
-
-I run the company alone, which has kept the build tight and the feedback loop short. As usage grows, I will add capacity in sales/partnerships and operations before I optimize for headcount elsewhere. I can name the first functions I will hire or contract once the first institutional pilot or seed milestone we define together is hit.
-
-**Grant variant (emphasis: milestones, openness, stewardship):**
-
-I am the primary maintainer of the codebase and the accountable person for security claims. Milestones, documentation, and public artifacts will be delivered under my name with named contributors where applicable; I will not overstate community size or maintenance capacity.
+- institutions are under more pressure to explain identity, safety, and governance in digital programs
+- privacy-preserving verification has become practical enough to ship in real product flows
+- buyers increasingly need documented risk boundaries, not vague security marketing
+- the repo already shows uncommon diligence discipline for an early-stage product: threat model, runbooks, release gates, and investor/partner collateral exist together
 
 ---
 
-## 9. Grant vs accelerator — emphasis shift
+## 5. Best-fit buyers, partners, and users
 
-| Topic | Grant application | Accelerator application |
-| ----- | ------------------- | ------------------------- |
-| **Lead with** | Concrete deliverables, open artifacts, how funds map to milestones | User growth, revenue path, weekly progress |
-| **Security** | Threat model, reproducible builds, what you will publish | Same honesty, plus “what breaks if we scale 10×” |
-| **Team** | Maintenance and governance | How you recruit after acceptance |
+### Best near-term buyer / sponsor archetypes
+
+- peacebuilding organizations
+- academic or policy labs running structured cohorts
+- Track II / Track 1.5 facilitators
+- mission-aligned programs that can support bounded pilots, facilitation, and review cycles
+
+### Best near-term user posture
+
+- vetted participants in bounded cohorts
+- moderator- or facilitator-supported sessions
+- programs that need reporting, readouts, or durable proposals after sessions
+
+### Weak near-term fit
+
+- mass-market consumer growth motions
+- high-risk public onboarding without dedicated security review
+- buyers expecting operator-blind encryption today
+
+---
+
+## 6. Evidence and traction language
+
+### Repo-backed proof points
+
+Use these before you reach for speculative market language:
+
+- current-state summary in [`CURRENT_STATUS.md`](../../CURRENT_STATUS.md)
+- diligence framing in [`DILIGENCE_OVERVIEW.md`](../../DILIGENCE_OVERVIEW.md)
+- threat model and encryption scope in [`docs/security/threat-model.md`](../security/threat-model.md)
+- pilot playbooks and runbooks in [`docs/operations/`](../operations)
+- demo and walkthrough flows in [`src/demo/demoScript.ts`](../../src/demo/demoScript.ts) and related routes
+- partner one-pager, GTM notes, and data-room index in [`docs/business/`](../business)
+
+### Honest traction language when numbers are still thin
+
+Say some version of:
+
+> The repo substantiates a serious pilot foundation and a complete diligence story. We are strongest today on shipped product surface, security honesty, and partner-readiness artifacts; real external cohort metrics should only be named when they are date-bounded and on record.
+
+If you do not have customer counts, say so plainly. “Internal QA, guided-tour demos, and partner-prep materials are ready” is better than vague “strong traction.”
+
+---
+
+## 7. Diligence-safe metrics
+
+Use metrics that the current product and operations can support now or with light pilot process:
+
+| Metric | Why it matters | Safe posture today |
+| ------ | -------------- | ------------------ |
+| **Verification completion** | Shows whether the proof flow is usable in practice | Safe to measure in pilot cohorts |
+| **Time to match** | Captures queue friction and dropout risk | Safe to derive from queue + squad timestamps |
+| **Session completion rate** | Shows operational reliability | Safe to track through bounded pilot cohorts |
+| **Repeat participation** | Indicates user willingness to return | Safe if scoped to cohort windows |
+| **Incidents / moderator interventions** | Safety and ops load | Safe if severity rules are defined in advance |
+| **Facilitator feedback** | Core buyer signal in early pilots | Best captured with written post-session review |
+
+Avoid vanity metrics unless you define them carefully and can explain what counts as demo data versus real pilot data.
+
+---
+
+## 8. Market framing without invented TAM
+
+The cleanest market story is a **buyer-first wedge**, not a giant top-down TAM slide.
+
+Use language like:
+
+- “We start where sensitive dialogue programs already spend money on facilitation, safety review, and cohort operations.”
+- “We compete for the budget line that currently patches together chat, moderation process, and partner reporting.”
+- “Market expansion depends on proving repeatable pilot operations before claiming broad category ownership.”
+
+If you add market numbers, they must be cited to named public sources and clearly labeled as context rather than “SquadRidge TAM.”
+
+---
+
+## 9. Business model posture
+
+The current repo supports a **pilot-first revenue narrative**:
+
+- scoped cohort or seat-month pilot packaging
+- setup / enablement / reporting work disclosed honestly when services are included
+- repeatable expansion within the same sponsor only after pilot evidence exists
+- financial appendix figures treated as **scenario models**, not historical actuals
+
+---
+
+## 10. Defensibility / moat (honest version)
+
+The best moat story today is operational and product-specific:
+
+- facilitator-led workflow and governance discipline
+- security honesty that survives diligence
+- verification integrated into real product flows rather than only a whitepaper claim
+- partner-facing artifacts (runbooks, data room, reporting templates) that reduce pilot friction
+
+Future moats such as stronger privacy architecture, CSI scale-up, or regional compliance depth should stay labeled as roadmap until shipped.
+
+---
+
+## 11. Solo founder paragraph
+
+Use this where a founder paragraph is required:
+
+> SquadRidge is currently founder-led. The strength of that structure is speed, product coherence, and direct accountability for security claims. The constraint is bandwidth, so the near-term operating model is explicit: keep the core build tight, bring in specialist support for security review, design, and partner operations, and expand only against real pilot demand rather than vanity headcount.
+
+---
+
+## 12. What never to say
+
+Never describe the current release as:
+
+- “full anonymity”
+- “operator-proof encryption”
+- “Signal-grade E2EE”
+- “proven peace impact at scale”
+- “global early-warning infrastructure”
+- “AI de-escalation proven in the field”
+- “named traction” unless the names and numbers are cleared for use
 
 ---
 
 ## Revision note
 
-Internal engineering source of truth: [`docs/security/threat-model.md`](../security/threat-model.md). If marketing copy diverges from section 5 there, fix the copy or the code—not the investor story alone.
+If any investor, partner, or policy copy diverges from [`docs/security/threat-model.md`](../security/threat-model.md) or [`CURRENT_STATUS.md`](../../CURRENT_STATUS.md), fix the copy or the product story before you send the deck.

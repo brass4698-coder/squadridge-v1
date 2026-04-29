@@ -1,74 +1,70 @@
-# Program map — where SquadRidge might fit
+# Program map — where SquadRidge is most likely to fit
 
-Companion narrative and metrics: [squadridge-pitch.md](squadridge-pitch.md).
+Companion narrative and deck source: [squadridge-pitch.md](squadridge-pitch.md).
 
-This is a working map, not an exhaustive list. Dates and forms change; confirm on each program’s own page before you submit.
+This is a working application map, not a calendar guarantee. Program dates change. Official program pages always win.
 
-### Active focus (default plan for SquadRidge)
-
-| Priority | Program | Why | Deadline (confirm on official site) |
-| -------- | ------- | --- | ------------------------------------- |
-| **1 — Accelerator** | **Y Combinator** — Summer 2026 batch | Best general fit for “ship fast, show users, clarify story” per [§Y Combinator](#y-combinator) below | **May 4, 2026, 8pm PT** (on-time); decision by **June 5**; batch **July–September 2026** |
-| **2 — Accelerator (backup)** | **Techstars** — program TBD | Sector-aligned cohort and pilots; pick one program on [techstars.com/accelerators](https://www.techstars.com/accelerators) | **Re-verify** directory labels (e.g. Jun 10 / May 6 have appeared—labels change) |
-| **3 — Grant / public goods** | **Gitcoin** and/or **Ethereum ESP** | Milestones and open artifacts; see fit notes below—ESP needs Ethereum-facing deliverables | Round-driven; no fixed calendar without checking [gitcoin.co](https://www.gitcoin.co/) / [ESP](https://esp.ethereum.foundation/) |
-
-**Calendar:** Copy the **Y Combinator** deadline above into your calendar from [ycombinator.com/apply](https://www.ycombinator.com/apply) the week you submit (dates drift—official page wins). Add Techstars only after you choose a specific program.
+**Last refreshed:** 2026-04-29 using the public materials available during this repo update.
 
 ---
 
-## Category matrix (tracks)
+## Priority order
 
-| Track | Examples to verify dates and forms | What “fit” usually means |
-| ----- | ---------------------------------- | ------------------------ |
-| General accelerators | [Y Combinator](https://www.ycombinator.com/apply), [Techstars programs](https://www.techstars.com/accelerators) | Team, market, traction; written application then often a video interview |
-| Web3 / public goods | [Gitcoin](https://www.gitcoin.co/), [Ethereum ESP](https://esp.ethereum.foundation/) | Open-source alignment, milestones, community norms; round-based or Wishlist/RFP |
-| Privacy / cryptography | Labs, fellowships, ZK-adjacent funds (program-specific) | Threat model, reproducible artifacts, technical credibility |
-| Peace / civic / dialogue | Regional peace-tech, mediation tech, civic funders | Theory of change, local partners, ethics and safeguarding |
+| Priority | Program / track | Why it fits | Timing posture |
+| -------- | --------------- | ----------- | -------------- |
+| **1** | **Y Combinator** | Strongest general accelerator fit if the story stays specific: shipped product, disciplined security language, and a clear pilot wedge | Check the official apply page directly before you submit; do not rely on cached deadlines in this repo |
+| **2** | **Techstars** | Best backup accelerator path when you want mentorship and pilot-friendly program infrastructure | Public guidance says application windows typically open a few months before each cohort; each program page carries its own deadline |
+| **3** | **Gitcoin / public-goods funding** | Good only if you present open artifacts, reusable verification or dialogue primitives, and a public-goods framing | 2026 cadence has shifted away from simple fixed biannual rounds; verify current campaign structure before planning around it |
+| **4** | **Ethereum Foundation ESP** | Viable only if you can name Ethereum-facing open-source deliverables, not just “we use ZK” | Rolling / ongoing rather than a fixed cohort calendar |
 
 ---
 
-## Priority programs (defaults)
+## Category matrix
+
+| Track | Best use for SquadRidge | What to lead with |
+| ----- | ----------------------- | ----------------- |
+| **General accelerators** | Fundraising discipline, speed, customer development, distribution pressure | Wedge clarity, shipped product, credible next metrics, and founder execution speed |
+| **Public-goods / web3 grants** | Open-source components, reusable tooling, milestone-based funding | Open artifacts, roadmap deliverables, and why the work benefits more than one company |
+| **Privacy / cryptography programs** | Technical credibility and security posture | Threat model discipline, verification path, reproducible product claims |
+| **Peace / civic / dialogue funders** | Partner pilots and methodology validation | Safeguarding, runbooks, local or institutional partners, and evidence discipline |
+
+---
+
+## Program notes
 
 ### Y Combinator
 
-- **What they ask for:** Online application ([apply.ycombinator.com](https://apply.ycombinator.com/)), then a short video interview if you advance. Expect questions on problem, product, users, founders, equity, and progress.
-- **Cadence (from public copy on ycombinator.com/apply):** **Summer 2026** batch; on-time deadline **May 4, 8pm PT**; on-time applicants get a decision by **June 5**; batch runs **July–September** in San Francisco. You can also apply to **future** batches via [Early Decision](https://www.ycombinator.com/early-decision).
-- **Form shape:** Written application; possible follow-up interview (typically video).
-- **Fit for SquadRidge:** Strong if the story is specific—who cannot speak safely under real names, what you shipped, what users did in the product, what you measure next. Security copy must match your internal threat model (operator-visible chat is documented; do not oversell E2E). They favor velocity and clarity over long theory-of-change memos.
+- **Best use:** the cleanest place to tell the “small but serious” story — advanced MVP, strong diligence posture, narrow pilot wedge.
+- **What to emphasize:** shipped product, honest threat model, why generic chat fails this use case, and what evidence you plan to gather next.
+- **What to avoid:** abstract peace-tech theory without concrete user/buyer motion; overclaiming privacy or field impact.
+- **Action:** review [ycombinator.com/apply](https://www.ycombinator.com/apply) directly when preparing the application and copy the official deadline into your calendar that week.
 
 ### Techstars
 
-- **What they ask for:** Program-specific applications on [techstars.com/accelerators](https://www.techstars.com/accelerators); use filters for location and format. Each page lists deadline, format, and length.
-- **Cadence (snapshot from directory labels—confirm on the program you pick):** Multiple cohorts showed **Apply by Jun 10** (including **Techstars Anywhere**); **Techstars Tokyo** showed **Apply by May 6**. Techstars updates these labels; verify the day you apply.
-- **Form shape:** Application form; program-dependent interviews or selection steps.
-- **Fit for SquadRidge:** Strong when you want mentorship, cohort peers, and a path to institutional pilots. Choose a program whose sector matches your first buyer (e.g. civic, health, remote-first). Be ready to explain how you acquire squads or partners; good code without distribution is a weak solo pitch.
+- **Best use:** a program-specific mentor network and faster access to pilot-minded customers.
+- **What to emphasize:** who buys, who facilitates, how pilots are scoped, and what success looks like operationally.
+- **What to avoid:** applying to a program that does not match the first buyer or geography.
+- **Action:** choose one specific program via [techstars.com/accelerators](https://www.techstars.com/accelerators) and treat that page as the only valid source for deadlines and requirements.
 
-### Gitcoin Grants
+### Gitcoin / public-goods rounds
 
-- **What they ask for:** Project profile on the Gitcoin stack, clear scope; round rules depend on the active program (community rounds, domain rounds, etc.).
-- **Cadence:** **Gitcoin Grants 24** ran in **October 2025**; the next round is announced on [gitcoin.co](https://www.gitcoin.co/) and [Gitcoin support](https://support.gitcoin.co/). Do not assume a fixed calendar without checking.
-- **Form shape:** On-platform project setup; may include reporting or retroactive elements depending on the round.
-- **Fit for SquadRidge:** Natural if the work stays **open**, milestones are public, and the narrative is public-good (reusable verification or dialogue primitives). A closed enterprise-only story fits poorly unless you split an open core or libraries worth funding.
+- **Best use:** open-source verification, safety, or dialogue infrastructure that can live beyond SquadRidge as a single company.
+- **What to emphasize:** public deliverables, milestone-based funding, and reusable primitives.
+- **What to avoid:** pitching a closed enterprise SaaS story as if it were automatically a public good.
+- **Action:** verify the live Gitcoin campaign structure before committing time; 2026 public materials indicate a more domain-focused campaign model rather than a simple fixed-round calendar.
 
-### Ethereum Foundation — Ecosystem Support Program (ESP)
+### Ethereum Foundation ESP
 
-- **What they ask for:** Alignment with [Wishlist / RFP](https://esp.ethereum.foundation/) items; office hours sometimes precede a formal application. Emphasis on **open-source** work that strengthens Ethereum: tooling, infrastructure, research, community.
-- **Cadence:** Rolling; individual calls (e.g. fellowships) have their own windows.
-- **Form shape:** Application to a specific opportunity; may include technical annexes.
-- **Fit for SquadRidge:** Candid: the app is **Supabase + Semaphore verification** today, not necessarily Ethereum L1 product work. ESP fits if you can name **Ethereum-facing** deliverables (libraries, standards, integrations) you will ship. “We use ZK” without ecosystem output is a weak match.
-
----
-
-## Other tracks (shorter notes)
-
-**Privacy / cryptography:** Lead with what the code proves (Semaphore verified server-side; messages not E2E against the operator). Funders here penalize overstated anonymity.
-
-**Peace / civic / dialogue:** Lead with partners, safeguarding, and geography. Software-only grants without field credibility are a hard sell.
+- **Best use:** open-source work that clearly strengthens the Ethereum ecosystem.
+- **What to emphasize:** concrete Ethereum-facing deliverables such as libraries, integrations, standards work, or public research outputs.
+- **What to avoid:** assuming that “uses Semaphore / ZK” is enough on its own.
+- **Action:** treat the program as rolling and confirm current priorities at the official grants pages before preparing an application.
 
 ---
 
-## How to use this map
+## Recommended submission order
 
-1. Pick **one** accelerator track and **one** grant or public-goods track first; tune emphasis (growth vs milestones).
-2. Copy deadlines from **official** pages into your calendar the week you submit.
-3. Reuse **one** short paragraph of security honesty in every deck and form so investor copy and engineering reality stay aligned.
+1. Pick **one accelerator path** first: YC or one specific Techstars program.
+2. Pick **one public-goods path** only if you can name open deliverables and milestones.
+3. Reuse the same security-honesty paragraph in every form so the application story stays aligned with the repo.
+4. Do not put a deadline into any deck unless you have rechecked the official page that same week.

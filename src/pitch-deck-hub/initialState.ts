@@ -66,7 +66,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'High-level who / what / why before deep diligence — lighter than the full investor deck; same visual system.',
     purpose:
       'A concise narrative arc: mission, problem structure, product shape, proof surfaces to point to honestly, and how the team frames risk.',
-    status: 'draft',
+    status: 'external_ready',
     lastUpdatedISO: new Date().toISOString(),
     confidence: 'mixed',
     slideCount: 10,
@@ -92,7 +92,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'More operations, cadence, and risk-control slides; lighter market/fundraising density — same components, partner-first story.',
     purpose:
       'Workflow, trust boundaries, facilitator-led operations, risk controls, and practical implementation for mission-aligned pilots.',
-    status: 'internal',
+    status: 'external_ready',
     lastUpdatedISO: new Date().toISOString(),
     confidence: 'mixed',
     slideCount: 12,
@@ -164,7 +164,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'Emphasis on governance, records, ethics, and evaluation framing — restrained slide density; same brand surfaces, policy-appropriate tone.',
     purpose:
       'Structured dialogue, de-escalation posture, record-keeping boundaries, security model, and measurable outcomes — without overclaiming certifications.',
-    status: 'needs_review',
+    status: 'external_ready',
     lastUpdatedISO: new Date().toISOString(),
     confidence: 'assumption_based',
     slideCount: 11,
@@ -332,7 +332,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'Highest depth on architecture, limits, and threat-relevant facts; minimal growth narrative — identical visual system, engineering-forward weighting.',
     purpose:
       'Technical diligence: identity, verification posture, ciphertext storage, squad keys, moderator visibility, gaps vs roadmap — aligned to /security disclosure.',
-    status: 'internal',
+    status: 'external_ready',
     lastUpdatedISO: new Date().toISOString(),
     confidence: 'verified',
     slideCount: 12,
@@ -388,7 +388,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'Operational FAQ, diligence shortcuts, and pointers to /security and the financial hub — not a substitute for counsel.',
     purpose:
       'Recurring questions on anonymity, encryption scope, roadmaps, pilots, and how to describe limits without overclaiming.',
-    status: 'internal',
+    status: 'external_ready',
     lastUpdatedISO: new Date().toISOString(),
     confidence: 'mixed',
     slideCount: 8,
@@ -408,37 +408,37 @@ export const INITIAL_DECKS: PitchDeck[] = [
 
 export const INITIAL_MESSAGING = {
   masterPositioning:
-    'SquadRidge detects and prevents violence by listening to communities across conflict lines in real time. When tensions escalate, we activate rapid de-escalation to intervene before violence becomes inevitable.',
+    'SquadRidge is a pilot-stage platform for verified access, facilitator-led dialogue, and bounded cross-border cohorts where institutions need more trust structure than generic chat or meeting tools provide.',
   conflictPreventionThesis:
-    'Strategic direction: infrastructure for timely, structured contact and de-escalation across conflict lines—not generic social connection. Shipped today: verified access, small squads, facilitator-led session surfaces, moderation, and ledger-style public outcomes where appropriate. Not yet product-complete: population-scale “real-time” listening, automated Conflict Severity Index (CSI) dashboards, or guaranteed sub-hour rapid response—those are pilot design and roadmap under explicit methodology and privacy review. External copy must pair bold lines with cohort scope and the security disclosure.',
+    'Long-term strategic lens: prevention-minded infrastructure for timely, structured contact across conflict lines. Shipped today: verified access, matching, sessions, moderation, ledger-style outputs where enabled, and a moderator-facing CSI read surface. Not shipped today: population-scale listening, automated CSI ingestion, public signal feeds, guaranteed rapid-response SLAs, or validated impact claims. Every external narrative must separate current product from roadmap and methodology work.',
   oneLine:
-    'Conflict prevention and early-warning posture: verified squads and facilitator-led de-escalation when tensions rise—bounded pilots, honest security limits.',
+    'Pilot-stage trust and dialogue infrastructure: verified access, facilitator-led cohorts, and honest security boundaries.',
   threeLine:
-    'SquadRidge aims to spot escalation early and move groups into structured, verified-anonymous dialogue before violence hardens—built on small squads, facilitator discipline, and citable outputs. Today’s product delivers verification, matching, rooms, moderation, and accountability surfaces; broader listening networks, CSI-style signal products, and rapid-response SLOs are targets for partners to define with us—not implied as global live infrastructure without evidence.',
+    'SquadRidge helps institutions run structured, sensitive dialogue programs with verified access, bounded cohorts, moderation, and durable outputs. The current release is strongest in facilitator-led pilots and technical diligence: the repo already shows product surface, threat-model honesty, and operating materials. Broader early-warning infrastructure, CSI automation, and strong causal impact claims remain roadmap until separately demonstrated.',
   mission:
-    'Make timely, trustworthy de-escalation the default when communities face rising tension: conflict prevention is the highest-ROI investment in peace at the margin—delivered first through institution-led pilots with clear ethics, metrics, and operator-visible boundaries where the current release requires them.',
+    'Help institutions run safer, more accountable dialogue programs before sensitive conversations collapse into silence, drift, or unmanaged escalation—starting with bounded pilots and explicit operator-visible boundaries where the current release requires them.',
   problemStatement:
-    'When tensions spike across lines, the gap is not “more chat”—it is trusted, fast-enough structure before threats become kinetic. Unverified rooms lack credibility; fully public identity is unsafe. Escalation often wins by default when there is no accountable, human-governed path to a bounded, timely conversation.',
+    'In sensitive dialogue settings, public identity can silence participants while unverified anonymity can weaken credibility, moderation leverage, and downstream usability. Institutions need a middle path: enough verification to support accountable process, enough pseudonymity to reduce unnecessary exposure, and enough structure to produce usable outcomes.',
   solutionStatement:
-    'Verified pseudonymous access, small squads, facilitator-led sessions, and durable outcomes (including ledger-style public proposals) so cohorts can de-escalate with a record institutions can use—scoped explicitly to what we ship, with roadmap concepts labeled as such.',
+    'SquadRidge combines verified access, small-group matching, facilitator-led sessions, moderation, and reportable outputs where enabled. It is best positioned today as an advanced MVP / pilot foundation for bounded institutional cohorts—not as mass-market social software or a fully operator-blind privacy product.',
   detectionMechanism:
-    'Pillar — Detection: We detect when conflict is about to turn violent by listening to grassroots voices across conflict lines. Caveat (defensible): at pilot scale this means structured intake, cohort patterns, and facilitator context—not unqualified claims of real-time, jurisdiction-wide open-web listening. A future Conflict Severity Index and broader signal fusion are roadmap; see docs/product/csi-spec.md (draft) and do not present as live product.',
+    'Pillar — Detection: at pilot scale, detection means structured intake, verification state, queue and cohort patterns, moderator observations, and the current moderator-only CSI read surface. It does not mean population-scale real-time listening or public conflict feeds in the shipped product.',
   interventionProtocol:
-    'Pillar — Intervention: When we detect escalation, we trigger rapid de-escalation dialogue within hours. Caveat: “within hours” is a pilot/response-design target with facilitators, not a guaranteed global SLA. Shipped: structured room flows, matching, and facilitation hooks—activation speed depends on program design and human availability.',
+    'Pillar — Intervention: intervention in the current release means facilitator-led routing, moderation support, incident handling, and partner-defined escalation paths. Timing depends on pilot design and human staffing; do not imply an unconditional rapid-response SLA.',
   impactMeasurement:
-    'Pillar — Measurement: We measure lives saved with third-party validation. Caveat: that sentence describes our evaluation discipline and goal, not a claim of realized, audited “lives saved at scale” today. We pre-register cohort metrics where possible, separate pilot evidence from production assertions, and require arm’s-length review before strong causal claims—see docs/business/impact-metrics.md for approach.',
+    'Pillar — Measurement: the current diligence-safe metrics are verification completion, time to match, session completion, repeat participation, incidents or moderator interventions, and facilitator feedback. Stronger peace-impact claims require external methodology, pre-registered evaluation, and evidence beyond the repo.',
   whyNow:
-    'Cross-border and civic stress is rising; institutions need both prevention-minded posture and product realism—structured contact at the right moment, with transparent limits, not hype about omniscient early warning or operator-proof encryption.',
+    'Institutions are under more pressure to explain identity, safety, and governance in digital programs, while privacy-preserving verification is finally practical enough to ship. The opportunity is not hype about omniscient early warning; it is serious program infrastructure with documented tradeoffs.',
   trustModel:
-    'Participants use verified pseudonymous accounts; message payloads are encrypted for storage; squad-level keys gate content in-product. Current message confidentiality is operator-readable for safety and policy reasons—this is not Signal-grade, server-blind E2EE. Describe exactly as in /security and the threat model; do not use “operator-proof” or “full anonymity” for the dialogue surface.',
+    'Participants use verified or verification-aware accounts; message payloads are encrypted before storage; squad-level keys govern in-product access. Current message confidentiality is operator-readable for moderators and privileged operator paths, so the product should not be described as Signal-grade, operator-proof, or fully anonymous.',
   coreDifferentiators:
-    'Not broadcast social or generic DMs. Facilitator-governed squads; cross-line relevance; citable outcomes. Conflict prevention is the highest-ROI investment in peace when dollars target escalation windows rather than only post-crisis spend. Differentiation is in governance, verification discipline, and evidence hygiene—not in claiming a shipped global early-warning network or CSI as live infrastructure.',
+    'The differentiation is operational: facilitator-governed cohorts, verification integrated into a real product flow, security honesty that survives diligence, and partner-ready artifacts such as runbooks, one-pagers, and data-room materials. The moat is not a slogan about global early warning.',
   proofPoints:
-    'Honest references: product flows (e.g. Match, session, ledger where enabled), Security disclosure at /security, CURRENT_STATUS.md for shipped vs not shipped. For pilots: name only what is on record. Roadmap: CSI, rapid response, and broad listening—design and partner alignment, not current delivery until listed under “Shipped” in CURRENT_STATUS.md.',
+    'Anchor claims to CURRENT_STATUS.md, DILIGENCE_OVERVIEW.md, the threat model, pilot runbooks, partner one-pager, and demo flows such as the guided tour, /admin/health, and /admin/csi for rostered moderators. If a claim is not in those materials, label it roadmap, scenario, or internal only.',
   toneRules:
-    'Calm, institutional, precise. Every slide: say what is shipped, pilot-bounded, or roadmap/scenario. Never upgrade roadmap to production fact. Cite security limits when discussing confidentiality. Prefer pre-registered metrics and “hypothesis, not claim” for impact. Pair strategic ambition with explicit cohort scope and ethics.',
+    'Calm, specific, and review-ready. Every deck should distinguish shipped product, pilot-ready operations, scenario-model assumptions, and roadmap items. Prefer named documents and bounded metrics over adjectives. When in doubt, tighten the claim instead of polishing the language.',
   bannedPhrases:
-    'Avoid empty hype: revolutionizing, game-changing, world-class (unqualified), disrupting, AI-powered (unless the specific subsystem is shown), best-in-class without evidence, invented pilot logos, user counts, or ARR. Overclaim / accuracy bans (aligned with CURRENT_STATUS.md): "full anonymity," "operator-proof encryption" or "server-blind E2EE" as a description of the current release, "proven peace impact at scale," unqualified "global early-warning" or "CSI" as shipped, "lives saved" with implied validation without a cited methodology, "real time" for population-scale community listening as if live today, Signal-grade or comparable implied against the current operator-readable model. Do not assert lives saved, detection at scale, or sub-hour response as realized outcomes without third-party or pre-registered study language.',
+    'Avoid empty hype and banned overclaims: revolutionizing, game-changing, world-class, AI-powered without a shown subsystem, best-in-class without evidence, full anonymity, operator-proof encryption, server-blind E2EE for the current release, proven peace impact at scale, global early-warning infrastructure, public CSI feeds as shipped, lives saved without methodology, or named traction that is not explicitly on record.',
 };
 
 export const INITIAL_EVIDENCE: EvidenceItem[] = [
@@ -446,7 +446,8 @@ export const INITIAL_EVIDENCE: EvidenceItem[] = [
     id: 'ev-security-page',
     title: 'Public security disclosure (current release)',
     category: 'security_note',
-    summary: 'Authoritative copy on encryption scope, squad keys, and operator visibility.',
+    summary:
+      'Authoritative copy on encryption scope, squad keys, operator visibility, and current messaging limits.',
     sourceUrl: '/security',
     confidence: 'verified',
     approvedForExternal: true,
@@ -466,9 +467,10 @@ export const INITIAL_EVIDENCE: EvidenceItem[] = [
   },
   {
     id: 'ev-pilot-criteria-tbd',
-    title: 'Pilot success criteria',
+    title: 'Pilot metric template',
     category: 'pilot_assumption',
-    summary: placeholderLabel('input_required'),
+    summary:
+      'Use verification completion, time to match, session completion, repeat participation, incident counts, and facilitator feedback before claiming broader impact.',
     confidence: 'assumption_based',
     approvedForExternal: false,
     dataLabel: 'input_required',
@@ -479,7 +481,7 @@ export const INITIAL_EVIDENCE: EvidenceItem[] = [
     title: 'Market sizing',
     category: 'market_research',
     summary:
-      'Any TAM/SAM figures must be sourced or explicitly labeled scenario model — not included here as fact.',
+      'Use sourced budget categories or named partner pipeline notes; omit TAM slides entirely if you cannot cite them cleanly.',
     confidence: 'assumption_based',
     approvedForExternal: false,
     dataLabel: 'scenario_model',
@@ -510,7 +512,7 @@ export const INITIAL_CLAIMS: ContentClaim[] = [
     id: 'claim-raise-amount',
     claim: 'Fundraising ask in materials',
     context: 'Investor deck ask slide',
-    source: 'Financial model — scenario',
+    source: 'Pitch Deck Hub financial appendix — scenario model',
     confidence: 'assumption_based',
     approvedForExternal: false,
     owner: 'Founder',
@@ -535,7 +537,7 @@ export const DEFAULT_ASSUMPTIONS: FinancialAssumptions = {
   contingencyRate: 0.08,
   fundraisingAskUsd: 750000,
   milestoneFirstTranche:
-    'Ship facilitator playbook + first paid pilot contract structure (input required).',
+    'Pilot readiness pack, facilitator playbook, and first signed pilot or design-partner agreement.',
 };
 
 function defaultReadiness(deckId: string): DeckReadiness {
@@ -561,7 +563,7 @@ export function buildInitialReadiness(decks: PitchDeck[]): DeckReadiness[] {
 }
 
 export const INITIAL_STATE: PitchDeckHubState = {
-  version: 2,
+  version: 3,
   decks: INITIAL_DECKS,
   messaging: INITIAL_MESSAGING,
   evidence: INITIAL_EVIDENCE,
