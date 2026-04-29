@@ -1,6 +1,5 @@
 import type {
   ContentClaim,
-  DataIntegrityLabel,
   DeckReadiness,
   EvidenceItem,
   FinancialAssumptions,
@@ -23,23 +22,6 @@ const STANDARD_INVESTOR_SECTIONS = [
   'Team',
   'Ask',
 ] as const;
-
-function placeholderLabel(kind: DataIntegrityLabel): string {
-  switch (kind) {
-    case 'scenario_model':
-      return 'Scenario model — not historical actuals.';
-    case 'assumption':
-      return 'Assumption — replace with sourced inputs.';
-    case 'input_required':
-      return 'Input required before external use.';
-    case 'pending_validation':
-      return 'Pending validation.';
-    case 'illustrative_only':
-      return 'Illustrative only — not for external use.';
-    default:
-      return '';
-  }
-}
 
 /** Prefilled structure: product-accurate framing + explicitly labeled gaps. */
 export const INITIAL_DECKS: PitchDeck[] = [
