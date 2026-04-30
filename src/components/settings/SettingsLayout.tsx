@@ -7,9 +7,7 @@ const tabClass = ({ isActive }: { isActive: boolean }) =>
       : 'border-transparent text-slate-500 hover:border-white/10 hover:text-slate-300'
   }`;
 
-/**
- * Sub-navigation for account settings: profile, safety, notifications (placeholder).
- */
+/** Tab bar + outlet for the account settings sub-routes. */
 export function SettingsLayout() {
   return (
     <div className="mx-auto w-full max-w-3xl px-gutter py-8">
@@ -31,12 +29,9 @@ export function SettingsLayout() {
         <NavLink to="/settings/safety" className={tabClass}>
           Safety center
         </NavLink>
-        <span
-          className="inline-flex min-h-[44px] cursor-not-allowed items-center border-b-2 border-transparent px-1 pb-2 pt-1 font-sans text-[0.85rem] font-medium text-slate-600"
-          title="Coming soon"
-        >
+        <NavLink to="/settings/notifications" className={tabClass}>
           Notifications
-        </span>
+        </NavLink>
       </nav>
       <Outlet />
     </div>

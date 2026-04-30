@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { describeCrisisAlertResult, postCrisisAlert, type CrisisAlertReason } from '../../lib';
 import { useAuth } from '../../contexts/AuthContext';
+import { useUserPreferences } from '../../hooks';
 
 /**
  * Out-of-band "alert facilitator" control (Phase 2.4 of the audit remediation
@@ -30,6 +31,7 @@ const REASONS: ReadonlyArray<{ id: CrisisAlertReason; label: string; hint: strin
 
 export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
   const { supabase } = useAuth();
+  const { preferredLanguage } = useUserPreferences();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pickedReason, setPickedReason] = useState<CrisisAlertReason | null>(null);
@@ -44,7 +46,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
     setBusy(true);
     try {
       const result = await postCrisisAlert(supabase, squadId, pickedReason);
-      const message = describeCrisisAlertResult(result);
+      const message = describeCrisisAlertResult(result, preferredLanguage);
       if (result.ok) {
         toast.success(message);
       } else {

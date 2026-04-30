@@ -1,6 +1,9 @@
 import type { SemaphoreProof } from '@semaphore-protocol/proof';
 import { generateProof as generateSemaphoreProofLib } from '@semaphore-protocol/proof';
-import { buildSessionAnonymityGroup } from './zk/buildAnonymityGroup';
+import {
+  buildSessionAnonymityGroup,
+  type SessionAnonymityGroupOptions,
+} from './zk/buildAnonymityGroup';
 import { getOrCreateSessionIdentity } from './zk/semaphoreIdentityStorage';
 import { semaphoreFieldFromLabel } from './zk/semaphoreFieldEncoding';
 
@@ -49,13 +52,22 @@ export async function generateStubProof(
 /**
  * Generates a Semaphore proof in-browser: membership in a padded group + bound message/scope fields.
  * Proof verification runs on the `verify-zk-proof` Edge Function via `verifyProof`.
+ *
+ * When `groupOptions.issuerGroupId` + `groupOptions.issuerManifestFetcher` are
+ * supplied, the anonymity group is built from the issuer's signed Merkle root
+ * (RFC: `docs/technical/rfc-issuer-managed-anonymity-group.md`) and the
+ * caller is expected to forward the same `issuer_group_id` to the Edge
+ * verifier so the server can cross-check `merkleTreeRoot` against
+ * `issuer_groups.current_root`. Without options, the existing decoy / demo
+ * path is used per `shouldUseBuiltinSemaphoreDecoys`.
  */
 export async function generateSemaphoreProof(
   credentialType: CredentialType,
   attributeScope: string,
+  groupOptions?: SessionAnonymityGroupOptions,
 ): Promise<SemaphoreProof> {
   const identity = getOrCreateSessionIdentity();
-  const group = await buildSessionAnonymityGroup(identity);
+  const group = await buildSessionAnonymityGroup(identity, groupOptions);
   const message = semaphoreFieldFromLabel(attributeScope);
   const scope = semaphoreFieldFromLabel(credentialType);
   return generateSemaphoreProofLib(identity, group, message, scope);

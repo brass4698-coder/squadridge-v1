@@ -1,23 +1,12 @@
 import { logWarn } from './log';
 
 /**
- * Lightweight realtime telemetry — records subscribe / unsubscribe / fallback
- * events so operators have a quick sample of socket pressure without standing
- * up a full metrics pipeline (Phase 3.2 of the audit remediation plan).
- *
- * The counters are in-memory per browser tab; the dashboards / Sentry plumbing
- * lands in Phase 3.4. Until then, the helper is enough to surface unexpected
- * behaviour during a pilot — e.g. a hot reload loop that opens 40 channels for
- * the same squad — and `getRealtimeTelemetry()` can be called from devtools.
- *
- * The per-squad cap is **soft**: we log a warning when crossed but do not
- * disconnect, because a brief overlap during a hot reload or rapid route
- * change is benign. Hard enforcement (server-side `subscribe_to_squad` RPC)
- * is documented in `docs/adr/002-realtime-vs-polling.md` and remains future
- * work.
+ * In-memory realtime counters per browser tab. Logs a warning when more than
+ * MAX_REALTIME_SUBSCRIBERS_PER_SQUAD channels open for the same tag (typical
+ * hot-reload symptom). The cap is soft on purpose; hard enforcement lives
+ * server-side (see `docs/adr/002-realtime-vs-polling.md`).
  */
 
-/** Hot-reload safety: dedupe across multi-component remounts within a tab. */
 const MAX_REALTIME_SUBSCRIBERS_PER_SQUAD = 4;
 
 interface RealtimeTelemetryState {

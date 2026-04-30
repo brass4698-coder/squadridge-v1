@@ -28,6 +28,17 @@ export function SettingsIndexPage() {
           </p>
         </Link>
       </li>
+      <li>
+        <Link
+          to="/settings/notifications"
+          className="block rounded-xl border border-white/[0.08] bg-[#0c121c] p-5 transition-colors hover:border-teal/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1a]"
+        >
+          <h2 className="font-heading text-lg text-slate-100">Notifications</h2>
+          <p className="mt-2 font-sans text-[0.9rem] leading-relaxed text-slate-500">
+            Choose which session and ledger updates surface in-app. Email is preferences-only today.
+          </p>
+        </Link>
+      </li>
     </ul>
   );
 }

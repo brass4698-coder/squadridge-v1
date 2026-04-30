@@ -74,6 +74,26 @@ VALUES
         1,
         45,
         true
+    ),
+    (
+        'b0000000-0000-4000-8000-000000000003'::uuid,
+        'demo-mena',
+        timezone('utc'::text, now()) - interval '3 days',
+        timezone('utc'::text, now()),
+        timezone('utc'::text, now()) - interval '10 minutes',
+        88,
+        'red',
+        85,
+        90,
+        78,
+        82,
+        88,
+        80,
+        '{"version":1,"rollups":{}}'::jsonb,
+        '[{"theme": "violence_normalization", "weight": 0.62}, {"theme": "escalation_velocity", "weight": 0.41}]'::jsonb,
+        3,
+        210,
+        true
     )
 ON CONFLICT (id) DO NOTHING;
 

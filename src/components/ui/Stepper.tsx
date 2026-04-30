@@ -2,23 +2,9 @@ import type { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 /**
- * Stepper — horizontal procedural rail.
- *
- * Communicates a small ordered path (eligibility → cohort → session →
- * record) without decorative arrows or chips. Steps are inert by default;
- * use `currentIndex` to mark the active stage.
- *
- * Anatomy:
- *   - numbered tile (1px border, mono numeral)
- *   - label
- *   - thin connector line between tiles
- *
- * When to use:
- *   - up to ~6 ordered, equal-weight steps in a single row
- *
- * When NOT to use:
- *   - branching workflows → use a structured timeline component
- *   - long content per step → use a vertical case timeline
+ * Inert horizontal rail of up to ~6 ordered, equal-weight steps. Set
+ * `currentIndex` to highlight the active stage; omit to render purely
+ * informationally. For branching or long-content flows use a timeline.
  */
 export interface StepperStep {
   label: string;

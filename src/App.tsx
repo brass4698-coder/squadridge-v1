@@ -28,6 +28,7 @@ import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { InvitePage } from './pages/InvitePage';
 import { SettingsIndexPage } from './pages/SettingsIndexPage';
 import { SafetyCenterPage } from './pages/SafetyCenterPage';
+import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
 import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
@@ -126,6 +127,7 @@ export default function App() {
                     <Route index element={<SettingsIndexPage />} />
                     <Route path="profile" element={<ProfileSettingsPage />} />
                     <Route path="safety" element={<SafetyCenterPage />} />
+                    <Route path="notifications" element={<NotificationsSettingsPage />} />
                   </Route>
                   <Route
                     path="/admin"
@@ -155,13 +157,11 @@ export default function App() {
                   />
                   <Route path="/auth/callback" element={<AuthCallbackPage />} />
                   {/*
-                    `/session/demo-session-001` is a browser-only mock used for marketing
-                    walkthroughs. In production builds we only mount the route when
-                    `VITE_ENABLE_DEMO_SQUAD=true` (staging) — otherwise the demo URL
-                    redirects home so a stray link cannot land users in the no-privacy
-                    mock. Dev and test always have it. See Phase 2.3 in
-                    `c:\\Users\\encla\\.cursor\\plans\\audit_remediation_phases_*.plan.md`.
-                  */}
+                  The `/session/demo-session-001` route is a browser-only marketing
+                  walkthrough. We only mount it in dev/test or when
+                  `VITE_ENABLE_DEMO_SQUAD=true`; otherwise the URL redirects home
+                  so a stray link cannot land users in the no-privacy mock.
+                */}
                   {isDemoSquadShortcutsEnabled() ? (
                     <>
                       <Route path="/session/demo-session-001" element={<DemoSessionPage />} />

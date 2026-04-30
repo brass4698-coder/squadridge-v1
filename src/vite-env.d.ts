@@ -28,6 +28,18 @@ interface ImportMetaEnv {
   readonly VITE_ALLOW_DEMO_DECOYS_IN_PROD?: string;
   /** Research UI for zkTLS-style flows (default off). */
   readonly VITE_ZKTLS_LABS?: string;
+  /**
+   * Issuer-managed anonymity group `group_id` (RFC: rfc-issuer-managed-anonymity-group).
+   * Optional: when set together with the manifest URL and signing key, the client proof
+   * path builds the Semaphore group from the issuer's published Merkle root and forwards
+   * `issuer_group_id` to the Edge verifier so it can cross-check against `issuer_groups.current_root`.
+   * Leave unset for the decoy / demo path.
+   */
+  readonly VITE_ISSUER_GROUP_ID?: string;
+  /** HTTPS URL serving the signed issuer manifest JSON. Required with `VITE_ISSUER_GROUP_ID`. */
+  readonly VITE_ISSUER_MANIFEST_URL?: string;
+  /** Pinned Ed25519 public key (base64url, 32 bytes raw). Required with `VITE_ISSUER_GROUP_ID`. */
+  readonly VITE_ISSUER_SIGNING_KEY_BASE64URL?: string;
   /** External waitlist URL (Typeform, Tally, etc.). */
   readonly VITE_WAITLIST_FORM_URL?: string;
   /** Public contact for footer (optional) */

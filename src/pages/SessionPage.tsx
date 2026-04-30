@@ -11,7 +11,10 @@ import {
   SessionTranslationPanel,
   SquadPeerStrip,
 } from '../components';
+import { SessionConsensusPanel } from '../components/session/SessionConsensusPanel';
+import { SessionPresenceList } from '../components/session/SessionPresenceList';
 import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
+import { TypingIndicator } from '../components/session/TypingIndicator';
 import { useAuth } from '../contexts/AuthContext';
 import {
   useMessagePlaintexts,
@@ -20,6 +23,8 @@ import {
   useSquad,
   useSquadInterventions,
   useSquadPeerProfiles,
+  useSquadPresence,
+  useSquadTyping,
   useTranslation,
   useUserPreferences,
 } from '../hooks';
@@ -94,6 +99,8 @@ export function SessionPage({ squadId }: { squadId: string }) {
   } = useSquad(squadId);
   const { data: interventionRows = [] } = useSquadInterventions(supabase, squadId);
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
+  const presentUserIds = useSquadPresence(squadId);
+  const { typing: typingUserIds, notifyTyping } = useSquadTyping(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
   const [archiving, setArchiving] = useState(false);
@@ -822,6 +829,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
         <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
 
+        <SessionPresenceList
+          peers={squadPeers}
+          presentUserIds={presentUserIds}
+          currentUserId={session?.user?.id}
+        />
+
         <SessionSafetyStrip squadId={squadId} />
 
         {squad?.archived_at ? (
@@ -835,6 +848,8 @@ export function SessionPage({ squadId }: { squadId: string }) {
         ) : null}
 
         <SessionTranslationPanel modelLoading={modelLoading} />
+
+        <SessionConsensusPanel squadId={squadId} archived={!!squad?.archived_at} />
 
         {queryError || realtimeError ? (
           <div
@@ -1048,6 +1063,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
           </div>
         </div>
 
+        <TypingIndicator
+          peers={squadPeers}
+          typingUserIds={typingUserIds}
+          currentUserId={session?.user?.id}
+        />
+
         <form
           className="flex flex-col"
           onSubmit={(e) => {
@@ -1064,7 +1085,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
               className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)] disabled:opacity-60"
               placeholder="Write with intention…"
               value={composer}
-              onChange={(e) => setComposer(e.target.value)}
+              onChange={(e) => {
+                setComposer(e.target.value);
+                if (e.target.value.trim().length > 0) notifyTyping();
+              }}
               disabled={sending || slowDownBreathing || Boolean(squad?.archived_at)}
             />
             {slowDownBreathing ? (

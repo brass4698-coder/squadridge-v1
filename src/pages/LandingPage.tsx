@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { HowItWorksStep, StatusBadge, Stepper, WaitlistSection } from '../components';
 import { DEMO_PROPOSAL_ID, isSupabaseConfigured } from '../lib';
@@ -36,10 +36,10 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
 }
 
 const OPERATIONAL_STEPS = [
-  { label: 'Verify eligibility', helper: 'Pilot-scoped access' },
-  { label: 'Form the cohort', helper: '4–8 matched participants' },
-  { label: 'Run the session', helper: 'Facilitator-led rounds' },
-  { label: 'Publish the public record', helper: 'Citable outcome' },
+  { label: 'Verify eligibility', helper: 'Invite-only, pilot-scoped access' },
+  { label: 'Form the cohort', helper: 'Matched 4–8 person room' },
+  { label: 'Run the session', helper: 'Facilitator-led, structured rounds' },
+  { label: 'Publish the public record', helper: 'Anonymous, timestamped, citable' },
 ] as const;
 
 type ProofCard =
@@ -49,37 +49,219 @@ type ProofCard =
 const PROOF_CARDS: readonly ProofCard[] = [
   {
     title: 'Facilitator-led',
-    body: 'Every active room is structured, bounded, and moderated against a defined pilot model.',
+    body: 'Every active room is structured, bounded, and moderated against a defined pilot model. Facilitators set scope, cohort, and release conditions before the room opens.',
   },
   {
     title: 'Security disclosure',
-    body: 'Trust assumptions, privacy boundaries, and system guarantees are documented openly.',
+    body: 'Trust assumptions, privacy boundaries, and system guarantees are documented openly — not summarized in marketing.',
     href: '/security',
     linkLabel: 'Read disclosure',
   },
   {
     title: 'Public artifact',
-    body: 'When enabled, a session can produce a citable public outcome instead of disappearing into a private transcript.',
+    body: 'When approved for release, a session produces a citable public outcome — not a transcript, and not a private note that disappears with the room.',
   },
 ];
 
 const HOW_IT_WORKS_STEPS = [
   {
     number: '01',
-    heading: 'Detect and scope tension',
-    body: 'Pilot-scoped signals and facilitator context help determine when a bounded intervention is warranted. Metrics remain governed artifacts, not public feeds.',
+    heading: 'Scope the room',
+    body: 'Set cohort criteria, topic boundaries, and release conditions before the room opens. The facilitator decides what enters and what is allowed to leave.',
   },
   {
     number: '02',
-    heading: 'Convene a verified room',
-    body: 'Eligible participants enter a small facilitator-led cohort with explicit room rules, clear access boundaries, and a defined intervention scope.',
+    heading: 'Convene a verified cohort',
+    body: 'Eligible participants join a small facilitator-led room — matched on context, not on social profile. Identity stays inside structural access controls.',
   },
   {
     number: '03',
-    heading: 'Produce a usable outcome',
-    body: 'Outcomes are evaluated against pre-registered measures and, where enabled, released as citable public records instead of buried in private notes.',
+    heading: 'Release a usable outcome',
+    body: 'When a result is approved for release, SquadRidge publishes a public, anonymous, timestamped record others can cite. The discussion itself never leaves.',
   },
 ] as const;
+
+const TRUST_PROOFS = [
+  { label: 'Verified access', proof: 'Pilot-scoped invites only.' },
+  { label: 'Facilitator-led rooms', proof: 'Structured 4–8 person cohorts.' },
+  { label: 'Bounded confidentiality', proof: 'Identity stays inside the room.' },
+  { label: 'Citable outcomes', proof: 'Public record, not a transcript.' },
+] as const;
+
+const HERO_FLOW = [
+  {
+    number: '01',
+    label: 'Verified participants',
+    detail: 'Invited and pilot-scoped. Eligibility checked before access.',
+  },
+  {
+    number: '02',
+    label: 'Facilitator-led room',
+    detail: 'Small cohort, structured rounds, explicit boundaries.',
+  },
+  {
+    number: '03',
+    label: 'Public outcome',
+    detail: 'Anonymous, timestamped, citable — not a transcript.',
+  },
+] as const;
+
+const CONTRAST_ROWS = [
+  {
+    axis: 'Identity exposure',
+    standard: 'Open channels make identity public. People self-censor or stay out entirely.',
+    squadridge: 'Verified access without making identity the product.',
+  },
+  {
+    axis: 'Outcome retention',
+    standard: 'Closed channels keep things private — and bury the outcome with the room.',
+    squadridge: 'Public, anonymous, timestamped record. The room itself stays private.',
+  },
+  {
+    axis: 'Intervention quality',
+    standard: 'Generic collaboration tools optimize for activity, reach, and message volume.',
+    squadridge: 'Small facilitator-led cohorts built for intervention, not throughput.',
+  },
+] as const;
+
+const AUDIENCES = [
+  {
+    title: 'Facilitators and mediators',
+    primary: true,
+    body: 'You run sensitive sessions: team conflict, post-incident debriefs, intergroup dialogue, mediation. SquadRidge gives you cleaner cohort composition, defined release conditions, and outcomes other people can actually use.',
+  },
+  {
+    title: 'Veterans, organizers, and cross-border participants',
+    primary: false,
+    body: 'Subjects where attribution can hurt — veteran reintegration dialogue, civic organizing across hostile contexts, cross-border conversations. Participate without trading personal safety for presence.',
+  },
+  {
+    title: 'Partners and funders',
+    primary: false,
+    body: 'Programs you fund have to be auditable and credible outside the room. Citable public outcomes give you something to evaluate that did not have to be a transcript.',
+  },
+] as const;
+
+const PILOT_BENEFITS = [
+  'A private walkthrough of the facilitator flow.',
+  'A working session on pilot fit, risk model, and release conditions.',
+  'Early access to facilitator-led pilots when there is real alignment.',
+] as const;
+
+/**
+ * Hero-side "verified exchange" timeline. Intentionally distinct from
+ * LandingPublicRecordPreview below: that one is a single-record detail used in
+ * the lower public-record section; this one is a system-at-a-glance preview
+ * for the hero, mirroring the upgrade-plan suggestion of a "timeline of
+ * verified exchanges" graphic. Motion-free per .cursor/rules/squadridge.mdc.
+ */
+function LandingHeroLedgerPreview() {
+  const rows = [
+    {
+      stamp: '00:04',
+      actor: 'cohort A · perspective A',
+      tone: 'info' as const,
+      label: 'verified',
+    },
+    {
+      stamp: '00:11',
+      actor: 'cohort A · perspective B',
+      tone: 'success' as const,
+      label: 'acknowledged',
+    },
+    {
+      stamp: '00:23',
+      actor: 'facilitator',
+      tone: 'brand' as const,
+      label: 'round 2',
+    },
+  ];
+  return (
+    <div
+      aria-hidden
+      className="rounded-lg border border-line bg-surface-elevated p-4 font-sans md:p-5"
+    >
+      <p className="font-mono text-[0.6rem] font-medium uppercase tracking-[0.16em] text-ink-faint">
+        Verified exchange · pilot-scoped
+      </p>
+      <ul className="mt-3 space-y-2.5">
+        {rows.map((row) => (
+          <li key={row.stamp} className="flex items-center gap-3">
+            <span className="font-mono text-[0.7rem] tabular-nums text-ink-faint">{row.stamp}</span>
+            <span className="min-w-0 flex-1 truncate font-mono text-[0.72rem] text-ink-secondary">
+              {row.actor}
+            </span>
+            <StatusBadge tone={row.tone}>{row.label}</StatusBadge>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-4 flex items-center justify-between border-t border-divider pt-3">
+        <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-ink-faint">
+          Outcome released
+        </span>
+        <Link
+          to={`/ledger/${DEMO_PROPOSAL_ID}`}
+          className="font-mono text-[0.7rem] text-brand underline-offset-4 hover:underline"
+        >
+          2025-04-01 →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * HeroFlowDiagram — full-width 3-step strip placed directly under the hero
+ * text. Communicates the system in one glance:
+ *
+ *   Verified participants → Facilitator-led room → Public outcome
+ *
+ * Intentionally minimal and motion-free. Designed to reduce explanatory copy
+ * needed above the fold. On narrow screens the steps stack vertically; the
+ * connector becomes a thin vertical rule between cards.
+ */
+function HeroFlowDiagram() {
+  return (
+    <div
+      aria-label="How SquadRidge works at a glance"
+      className="rounded-lg border border-[#1e293b] bg-[#080d14] p-5 sm:p-6"
+    >
+      <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        How it flows
+      </p>
+      <ol className="mt-4 grid gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-stretch md:gap-3">
+        {HERO_FLOW.map((step, i) => {
+          const isLast = i === HERO_FLOW.length - 1;
+          return (
+            <Fragment key={step.number}>
+              <li className="flex min-w-0 flex-col gap-2 rounded-md border border-[#1e293b] bg-[#0a121f] p-4">
+                <div className="flex items-center gap-2.5">
+                  <span
+                    aria-hidden
+                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded border border-teal/40 bg-teal/10 font-mono text-[0.65rem] font-semibold tabular-nums text-teal-light"
+                  >
+                    {step.number}
+                  </span>
+                  <p className="font-heading text-[0.92rem] font-semibold leading-snug text-landing-ink">
+                    {step.label}
+                  </p>
+                </div>
+                <p className="font-sans text-[0.82rem] leading-relaxed text-landing-body">
+                  {step.detail}
+                </p>
+              </li>
+              {!isLast ? (
+                <li aria-hidden className="flex items-center justify-center md:px-1">
+                  <span className="font-mono text-base text-slate-600 md:text-lg">→</span>
+                </li>
+              ) : null}
+            </Fragment>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
 
 function LandingPublicRecordPreview() {
   return (
@@ -97,7 +279,7 @@ function LandingPublicRecordPreview() {
         Sample consensus proposal
       </h3>
       <p className="mt-3 text-[0.85rem] leading-relaxed text-landing-body">
-        A public, timestamped outcome—not a transcript.
+        A public, timestamped outcome — not a transcript.
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
         {['consensus', 'pilot', 'facilitator-led'].map((t) => (
@@ -119,59 +301,81 @@ export function LandingPage() {
   return (
     <div className="min-h-0 bg-navy text-left">
       <div className="mx-auto grid w-full min-w-0 max-w-6xl grid-cols-12 gap-x-6">
-        {/* 1. Hero */}
+        {/* 1. Hero — facilitator-first, 3-layer copy, flow diagram, proof strip */}
         <section
           className="col-span-12 border-b border-white/[0.06] px-gutter pb-16 pt-[7.5rem] md:pb-20 md:pt-28"
           aria-labelledby="hero-heading"
         >
-          <p className="mb-4 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Pilot-by-pilot · facilitator-led · evidence-aware
-          </p>
-          <h1
-            id="hero-heading"
-            className="max-w-[40rem] font-heading text-[clamp(1.85rem,4vw,2.65rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-landing-ink"
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start lg:gap-14">
+            <div className="min-w-0">
+              <p className="mb-4 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                For facilitators and mediators · Pilot-by-pilot · Evidence-aware
+              </p>
+              <h1
+                id="hero-heading"
+                className="max-w-[42rem] font-heading text-[clamp(1.85rem,4vw,2.65rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-landing-ink"
+              >
+                Run sensitive dialogue. Publish a citable outcome. Never expose the room.
+              </h1>
+              <p className="mt-6 max-w-[38rem] font-sans text-[1rem] leading-[1.65] text-landing-body">
+                SquadRidge is verified, facilitator-led infrastructure for small-group dialogue on
+                hard topics — and a way to release a public record without revealing who said what.
+              </p>
+              <p className="mt-4 max-w-[38rem] font-sans text-[0.92rem] leading-relaxed text-slate-400">
+                Built for team conflict, veteran dialogue, community mediation, and cross-border
+                conversations where attribution is unsafe.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <a
+                  id="hero-waitlist-cta"
+                  href="#waitlist"
+                  className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold no-underline"
+                >
+                  Request pilot access
+                </a>
+                <Link
+                  to={`/ledger/${DEMO_PROPOSAL_ID}`}
+                  className="focus-ring inline-flex min-h-[44px] items-center justify-center rounded border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                >
+                  View sample public record
+                </Link>
+              </div>
+            </div>
+            <div className="min-w-0 lg:pt-2">
+              <LandingHeroLedgerPreview />
+            </div>
+          </div>
+
+          {/* Hero flow diagram — full-width, sits directly below CTAs */}
+          <div className="mt-12">
+            <HeroFlowDiagram />
+          </div>
+
+          {/* Proof strip — labeled, not just chips */}
+          <ul
+            aria-label="Trust posture"
+            className="mt-10 grid gap-4 border-t border-white/[0.06] pt-6 sm:grid-cols-2 lg:grid-cols-4"
           >
-            Structured intervention before conflict escalates.
-          </h1>
-          <p className="mt-6 max-w-[42rem] font-sans text-[1rem] leading-[1.65] text-landing-body">
-            SquadRidge helps facilitators run verified small-group dialogue pilots and publish
-            trusted public outcomes without exposing room-level discussion, attribution, or
-            identity.
-          </p>
-          <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-slate-400">
-            Built for high-trust cohorts where access control, process discipline, and outcome
-            credibility matter more than scale.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <a
-              id="hero-waitlist-cta"
-              href="#waitlist"
-              className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold no-underline"
-            >
-              Request pilot access
-            </a>
-            <Link
-              to={`/ledger/${DEMO_PROPOSAL_ID}`}
-              className="focus-ring inline-flex min-h-[44px] items-center justify-center rounded border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
-            >
-              View sample public record
-            </Link>
-          </div>
-          <div className="mt-10 flex max-w-[48rem] flex-wrap gap-2 border-t border-white/[0.06] pt-6">
-            <StatusBadge>Verified access</StatusBadge>
-            <StatusBadge>Facilitator-led rooms</StatusBadge>
-            <StatusBadge>Bounded confidentiality</StatusBadge>
-            <StatusBadge>Citable outcomes</StatusBadge>
-          </div>
+            {TRUST_PROOFS.map((item) => (
+              <li key={item.label} className="border-l-2 border-teal/40 pl-4">
+                <p className="font-heading text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-landing-ink">
+                  {item.label}
+                </p>
+                <p className="mt-1.5 font-sans text-[0.82rem] leading-relaxed text-slate-400">
+                  {item.proof}
+                </p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 2. Operational path */}
+        {/* 2. Operational path — one controlled flow, eligibility to public outcome */}
         <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
           <section id="operational-path" aria-labelledby="operational-heading">
             <SectionHeading id="operational-heading">
-              Move from eligibility to public outcome through one controlled path.
+              One controlled path: from eligibility to a public outcome.
             </SectionHeading>
 
             <div className="mt-8">
@@ -206,10 +410,14 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 3. How it works */}
+        {/* 3. How it works — facilitator framing: scope → convene → release */}
         <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
           <section id="how-it-works" aria-labelledby="how-heading">
             <SectionHeading id="how-heading">How it works</SectionHeading>
+            <p className="mt-4 max-w-copy font-sans text-[0.95rem] leading-relaxed text-slate-400">
+              Three beats the facilitator controls — what the room is for, who is in it, and what is
+              allowed to leave.
+            </p>
             <ol className="mt-10 grid list-none gap-x-10 gap-y-14 md:mt-12 md:grid-cols-3 md:items-stretch md:gap-x-12 md:gap-y-0 lg:gap-x-14">
               {HOW_IT_WORKS_STEPS.map((step) => (
                 <HowItWorksStep
@@ -226,47 +434,69 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 4. Why standard tools */}
+        {/* 4. Why standard tools break down — 3-row aligned contrast matrix */}
         <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
           <section aria-labelledby="compare-heading">
             <SectionHeading id="compare-heading">Why standard tools break down</SectionHeading>
-            <div className="mt-10 grid gap-8 border border-[#1e293b] md:grid-cols-2 md:gap-0">
-              <div className="border-b border-[#1e293b] p-6 md:border-b-0 md:border-r md:p-8">
-                <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                  Standard tools
-                </p>
-                <ul className="mt-5 space-y-4 font-sans text-[0.92rem] leading-relaxed text-slate-400">
-                  <li className="border-l border-slate-700 pl-4">
-                    Open channels expose who said what.
-                  </li>
-                  <li className="border-l border-slate-700 pl-4">
-                    Closed channels hide the process and often erase the outcome.
-                  </li>
-                  <li className="border-l border-slate-700 pl-4">
-                    Most collaboration tools optimize for message volume, not trust, balance, or
-                    decision quality.
-                  </li>
-                </ul>
+            <p className="mt-4 max-w-copy font-sans text-[0.95rem] leading-relaxed text-slate-400">
+              SquadRidge is not a Slack, Discord, or Zoom alternative. The structure of the problem
+              is different, so the structure of the tool is different.
+            </p>
+
+            <div className="mt-10 overflow-hidden border border-[#1e293b]">
+              {/* Header row */}
+              <div className="hidden grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] border-b border-[#1e293b] md:grid">
+                <div className="border-r border-[#1e293b] p-4">
+                  <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Axis
+                  </p>
+                </div>
+                <div className="border-r border-[#1e293b] p-4">
+                  <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Standard tools
+                  </p>
+                </div>
+                <div className="bg-[#0a121f] p-4">
+                  <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80">
+                    SquadRidge
+                  </p>
+                </div>
               </div>
-              <div className="bg-[#0a121f] p-6 md:p-8">
-                <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal/80">
-                  SquadRidge
-                </p>
-                <ul className="mt-5 space-y-4 font-sans text-[0.92rem] leading-relaxed text-landing-body">
-                  <li className="border-l border-teal/40 pl-4">
-                    Access can be verified without making identity the product.
-                  </li>
-                  <li className="border-l border-teal/40 pl-4">
-                    Small facilitator-led cohorts reduce noise and create better intervention
-                    conditions.
-                  </li>
-                  <li className="border-l border-teal/40 pl-4">
-                    Useful outcomes can leave the room as public records without exposing the room
-                    itself.
-                  </li>
-                </ul>
-              </div>
+
+              {/* Rows */}
+              {CONTRAST_ROWS.map((row, i) => (
+                <div
+                  key={row.axis}
+                  className={`grid gap-0 md:grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] ${i > 0 ? 'border-t border-[#1e293b]' : ''}`}
+                >
+                  <div className="border-b border-[#1e293b] p-5 md:border-b-0 md:border-r md:p-6">
+                    <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">
+                      Axis
+                    </p>
+                    <p className="mt-1 font-heading text-[0.95rem] font-semibold text-landing-ink md:mt-0">
+                      {row.axis}
+                    </p>
+                  </div>
+                  <div className="border-b border-[#1e293b] p-5 md:border-b-0 md:border-r md:p-6">
+                    <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">
+                      Standard tools
+                    </p>
+                    <p className="mt-2 font-sans text-[0.9rem] leading-relaxed text-slate-400 md:mt-0">
+                      {row.standard}
+                    </p>
+                  </div>
+                  <div className="bg-[#0a121f] p-5 md:p-6">
+                    <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80 md:hidden">
+                      SquadRidge
+                    </p>
+                    <p className="mt-2 font-sans text-[0.9rem] leading-relaxed text-landing-body md:mt-0">
+                      {row.squadridge}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
+
             <p className="mt-8 max-w-copy font-sans text-[0.88rem] leading-relaxed text-slate-500">
               When participants cannot safely attach their names to the discussion, the
               infrastructure has to protect both access and outcome quality.
@@ -276,38 +506,37 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 5. Audiences */}
+        {/* 5. Audiences — facilitators first, with a concrete example per row */}
         <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
           <section aria-labelledby="audiences-heading">
-            <SectionHeading id="audiences-heading">Audiences</SectionHeading>
+            <SectionHeading id="audiences-heading">Who this is built for</SectionHeading>
+            <p className="mt-4 max-w-copy font-sans text-[0.95rem] leading-relaxed text-slate-400">
+              SquadRidge is built first for the operators running sensitive sessions, not for
+              general users.
+            </p>
             <div className="mt-10 grid gap-6 md:gap-8">
-              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
-                <h3 className="font-heading text-lg font-semibold text-landing-ink">
-                  Facilitators and mediators
-                </h3>
-                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
-                  Run structured sessions with clearer access boundaries, stronger cohort
-                  composition, and outcomes others can actually use.
-                </p>
-              </article>
-              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
-                <h3 className="font-heading text-lg font-semibold text-landing-ink">
-                  Veterans, organizers, and cross-border participants
-                </h3>
-                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
-                  Join sensitive dialogue without being forced to trade personal safety for
-                  participation.
-                </p>
-              </article>
-              <article className="border border-[#1e293b] bg-[#080d14] p-6 md:p-7">
-                <h3 className="font-heading text-lg font-semibold text-landing-ink">
-                  Partners and funders
-                </h3>
-                <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
-                  Support interventions that are easier to audit, easier to evaluate, and more
-                  credible outside the room.
-                </p>
-              </article>
+              {AUDIENCES.map((audience) => (
+                <article
+                  key={audience.title}
+                  className={`border bg-[#080d14] p-6 md:p-7 ${
+                    audience.primary ? 'border-teal/40 bg-[#0a121f]' : 'border-[#1e293b]'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="font-heading text-lg font-semibold text-landing-ink">
+                      {audience.title}
+                    </h3>
+                    {audience.primary ? (
+                      <span className="rounded border border-teal/40 bg-teal/10 px-2 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal-light">
+                        Primary audience
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                    {audience.body}
+                  </p>
+                </article>
+              ))}
             </div>
             <p className="mt-8 max-w-copy border-l-2 border-[#2d3f55] pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-500">
               <span className="font-medium text-slate-400">Squad definition:</span> A squad is a
@@ -319,11 +548,17 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 6. Security and privacy */}
+        {/* 6. Security and privacy — pull-quote elevated */}
         <FullBleed alt className="py-14 md:py-20" innerClassName="bg-transparent">
           <section aria-labelledby="security-heading">
             <SectionHeading id="security-heading">Security and privacy</SectionHeading>
-            <ul className="mt-8 max-w-copy space-y-5 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+
+            <blockquote className="mt-8 max-w-copy border-l-2 border-teal pl-5 font-heading text-[1.15rem] font-semibold leading-snug tracking-tight text-landing-ink md:text-[1.3rem]">
+              This is not privacy as branding. It is privacy as a structural constraint on what the
+              system is allowed to reveal.
+            </blockquote>
+
+            <ul className="mt-10 max-w-copy space-y-5 font-sans text-[0.95rem] leading-relaxed text-landing-body">
               <li className="border-l border-slate-600 pl-4">
                 Eligibility and access controls can be enforced without exposing identity inside the
                 room.
@@ -333,14 +568,11 @@ export function LandingPage() {
                 boundaries.
               </li>
               <li className="border-l border-slate-600 pl-4">
-                Public artifacts can be cited without revealing private discussion, attribution, or
+                Public records expose outcomes — not room-level discussion, attribution, or
                 participant identity.
               </li>
             </ul>
-            <p className="mt-8 max-w-copy border-l-2 border-teal/35 pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-400">
-              This is not privacy as branding. It is privacy as a structural constraint on what the
-              system is allowed to reveal.
-            </p>
+
             <Link
               to="/security"
               className="focus-ring mt-8 inline-flex min-h-[44px] items-center border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
@@ -356,14 +588,15 @@ export function LandingPage() {
         <FullBleed alt={false} className="py-14 md:py-20" innerClassName="bg-transparent">
           <section aria-labelledby="record-heading">
             <SectionHeading id="record-heading">
-              A strong session can leave a durable public record
+              A strong session can leave a public record worth citing
             </SectionHeading>
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-start lg:gap-12">
               <div className="min-w-0 space-y-4">
                 <p className="max-w-copy font-sans text-[0.98rem] leading-[1.7] text-landing-body">
-                  Sensitive dialogue should not disappear when the meeting ends. When a cohort
-                  reaches an outcome approved for release, SquadRidge can publish a public,
-                  anonymous, timestamped record others can cite, review, and build from.
+                  Sensitive dialogue should not vanish when the meeting ends. When a cohort reaches
+                  a result approved for release, SquadRidge publishes it as a public, anonymous,
+                  timestamped record — not a transcript, but an outcome others can cite, review, and
+                  build from.
                 </p>
                 <p className="max-w-copy font-sans text-[0.9rem] leading-relaxed text-slate-500">
                   The goal is not only safer conversation. It is durable, credible output.
@@ -384,9 +617,39 @@ export function LandingPage() {
 
         <hr className="sr-section-rule col-span-12" />
 
-        {/* 8. Pilot access */}
+        {/* 8. Pilot access — preface card with "if accepted" benefits + form */}
         <FullBleed alt className="py-14 md:pb-20" innerClassName="bg-transparent">
           <div className="mx-auto max-w-copy">
+            <section aria-labelledby="pilot-benefits-heading" className="mb-8">
+              <div className="border border-teal/30 bg-[#0a121f] p-6 md:p-7">
+                <p className="font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-teal-light">
+                  If we are a fit
+                </p>
+                <h2
+                  id="pilot-benefits-heading"
+                  className="mt-3 font-heading text-xl font-semibold leading-snug tracking-tight text-landing-ink md:text-2xl"
+                >
+                  What you get when accepted
+                </h2>
+                <ul className="mt-5 space-y-3 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+                  {PILOT_BENEFITS.map((benefit) => (
+                    <li key={benefit} className="flex gap-3">
+                      <span
+                        aria-hidden
+                        className="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-teal/70"
+                      />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-6 border-t border-[#1e293b] pt-5 font-sans text-[0.9rem] leading-relaxed text-slate-300">
+                  <span className="font-semibold text-landing-ink">No public profile.</span>{' '}
+                  <span className="font-semibold text-landing-ink">No open directory.</span> Just
+                  direct outreach when the right pilot is ready.
+                </p>
+              </div>
+            </section>
+
             <WaitlistSection />
           </div>
         </FullBleed>

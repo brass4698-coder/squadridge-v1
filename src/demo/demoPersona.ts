@@ -6,7 +6,7 @@ export const DEMO_PERSONA = {
   callsign: 'Northstar-7',
   /** Matches onboarding radio + profile `<select>` value. */
   role: 'strategist',
-  /** Onboarding era `<Select>` value (`IdentityScreen` ERAS). */
+  /** Onboarding era `<Select>` value (`IdentityStep` ERAS). */
   eraAffiliation: 'contemporary',
   /** Profile “Era lens” free text — same era story as onboarding. */
   eraLens: 'Contemporary',

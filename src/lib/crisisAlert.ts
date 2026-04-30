@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { describeCrisisAlertResultIn } from './crisisAlertMessages';
 
 /**
  * Out-of-band crisis alert client.
@@ -48,24 +49,11 @@ export async function postCrisisAlert(
 }
 
 /**
- * Plain-language copy for the alert button + result toasts. Localized via the
- * caller's preferred-language pref where possible (TODO: full i18n integration —
- * the same keys live in `src/components/session/CrisisResources.tsx`).
+ * Plain-language copy for the alert button + result toasts. Default locale is
+ * English; pass {@link locale} (typically `useUserPreferences().preferredLanguage`)
+ * to get a localized string. Catalog lives in `crisisAlertMessages.ts`; missing
+ * locales fall back to `en` automatically.
  */
-export function describeCrisisAlertResult(r: CrisisAlertResult): string {
-  if (r.ok) {
-    return 'Facilitator alerted. Help is on the way.';
-  }
-  switch (r.error_code) {
-    case 'unauthorized':
-      return 'Please sign in again before alerting a facilitator.';
-    case 'forbidden':
-      return 'You can only alert from a session you are part of.';
-    case 'rate_limited':
-      return 'Too many alerts in a short time — try again in a minute.';
-    case 'invalid':
-      return 'Could not send the alert. Reload and try once more.';
-    case 'server_error':
-      return 'We could not record the alert. Use your local emergency number if this is urgent.';
-  }
+export function describeCrisisAlertResult(r: CrisisAlertResult, locale?: string): string {
+  return describeCrisisAlertResultIn(r, locale);
 }

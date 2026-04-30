@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 import { fetchCsiSnapshots, fetchEscalationAlerts } from '../../lib/csiQueries';
 import type { CsiSnapshotRow, EscalationAlertRow } from '../../lib/csiQueries';
@@ -15,11 +16,14 @@ function bandClass(band: string): string {
   }
 }
 
+const SAMPLE_INSERT_ENABLED = import.meta.env.DEV || import.meta.env.MODE === 'e2e';
+
 /**
  * Moderator-only Conflict Severity Index rollups and escalation rows (RLS: moderators roster).
  */
 export function AdminCsiPage() {
   const { supabase } = useAuth();
+  const queryClient = useQueryClient();
 
   const snapshotsQ = useQuery({
     queryKey: ['admin', 'csi', 'snapshots'],
@@ -39,6 +43,28 @@ export function AdminCsiPage() {
     enabled: !!supabase,
   });
 
+  const sampleInsert = useMutation({
+    mutationFn: async (band: 'green' | 'yellow' | 'red') => {
+      if (!supabase) throw new Error('Supabase client unavailable');
+      const { data, error } = await supabase.functions.invoke<{
+        ok?: boolean;
+        snapshot_id?: string;
+      }>('admin-csi-sample-insert', {
+        body: { severity_band: band, region_key: `sample-${band}` },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.ok) throw new Error('Edge function did not confirm insert');
+      return data.snapshot_id;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'csi'] });
+      toast.success('Sample snapshot inserted.');
+    },
+    onError: (e) => {
+      toast.error(e instanceof Error ? e.message : 'Could not insert sample.');
+    },
+  });
+
   return (
     <section className="space-y-10" aria-labelledby="admin-csi">
       <header>
@@ -47,11 +73,32 @@ export function AdminCsiPage() {
         </h1>
         <p className="mt-1 max-w-[66ch] font-sans text-[0.88rem] text-slate-500">
           Regional snapshots and squad alerts ingested by trusted workers (service role). Shipped
-          product today is facilitator-led rooms and moderation; CSI rollups are pilot-path—empty
-          until your pipeline writes rows. Methodology:{' '}
+          product today is facilitator-led rooms and moderation; CSI rollups are pilot-path. The
+          dashboard is empty until a CSI worker writes rows. Methodology:{' '}
           <code className="text-slate-400">docs/product/conflict-severity-index.md</code>. Ops:{' '}
           <code className="text-slate-400">docs/operations/pilot-runbook.md</code>.
         </p>
+        {SAMPLE_INSERT_ENABLED ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-amber/30 bg-amber/5 px-3 py-2">
+            <p className="font-mono text-[0.72rem] uppercase tracking-[0.06em] text-amber">
+              Dev / staging only
+            </p>
+            <p className="font-sans text-[0.78rem] text-slate-400">
+              Insert a sample snapshot via the moderator-only Edge function.
+            </p>
+            {(['green', 'yellow', 'red'] as const).map((band) => (
+              <button
+                key={band}
+                type="button"
+                onClick={() => sampleInsert.mutate(band)}
+                disabled={sampleInsert.isPending}
+                className="inline-flex items-center justify-center rounded-md border border-navy-light bg-[#0c1219] px-2.5 py-1 font-mono text-[0.72rem] text-slate-300 transition-colors hover:border-teal/35 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Insert {band}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </header>
 
       <div>

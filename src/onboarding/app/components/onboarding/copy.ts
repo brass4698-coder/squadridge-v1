@@ -38,7 +38,7 @@ export const COPY = {
     title: 'Rules & safety',
     /** First sentence of the lead (plain text). */
     leadOpen: "What's said here stays here. ",
-    /** Second sentence — paired with collapsible explainer in RulesScreen. */
+    /** Second sentence — paired with the verified-anonymity explainer in RulesStep. */
     leadVerifiedPhrase: 'What “verified anonymity” means here',
     /** Short policy explainer (ZK / verification model); shown on demand under the lead. */
     verifiedAnonymityExplainer:
@@ -77,7 +77,7 @@ export const COPY = {
     /** U+2011 in "sign‑in" keeps the compound from breaking across lines. */
     leadLine2:
       'Sign\u2011in creates your account. Cryptographic verification uses Semaphore proofs in the main app (\u201cVerify\u201d) — checked by our Edge function, not a dossier.',
-    /** Shown in badge block before zkGateRest; rendered strong in VerificationScreen. */
+    /** Shown in the badge block before zkGateRest; rendered strong in VerificationStep. */
     zkGateEmphasis: 'Zero-knowledge verification',
     zkGateRest:
       ' runs at /verify: your browser builds a Semaphore proof; the verify-zk-proof function verifies it server-side. Never ship VITE_ZK_STUB=true to users (dev hash placeholder only).',

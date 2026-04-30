@@ -1,8 +1,14 @@
 # RFC: Issuer-managed Semaphore anonymity group
 
-**Status:** Draft (design only — no production deployment until accepted and implemented)
+**Status:** Implemented v1 (client + Edge wired; manifest refresh cron deferred per §4.3)
 **Owners:** ZK / privacy
-**Related:** [`docs/security/threat-model.md`](../security/threat-model.md) §13.1 · [`docs/adr/001-use-semaphore-zk.md`](../adr/001-use-semaphore-zk.md) · [`docs/technical/zk-implementation.md`](zk-implementation.md) · [`src/lib/zk/buildAnonymityGroup.ts`](../../src/lib/zk/buildAnonymityGroup.ts)
+**Related:** [`docs/security/threat-model.md`](../security/threat-model.md) §13.1 · [`docs/adr/001-use-semaphore-zk.md`](../adr/001-use-semaphore-zk.md) · [`docs/technical/zk-implementation.md`](zk-implementation.md) · [`src/lib/zk/buildAnonymityGroup.ts`](../../src/lib/zk/buildAnonymityGroup.ts) · [`src/lib/zk/issuerManifest.ts`](../../src/lib/zk/issuerManifest.ts) · [`src/lib/zk/issuerRegistry.ts`](../../src/lib/zk/issuerRegistry.ts) · [`supabase/functions/_shared/handleZkProofVerification.ts`](../../supabase/functions/_shared/handleZkProofVerification.ts)
+
+## Revision history
+
+| Date | Change |
+| ---- | ------ |
+| 2026-04-30 | Status: Draft → Implemented v1. Client proof path now resolves `VITE_ISSUER_GROUP_ID` / `VITE_ISSUER_MANIFEST_URL` / `VITE_ISSUER_SIGNING_KEY_BASE64URL`, builds the group from the issuer's signed manifest via `resolveIssuerRegistry`, and forwards `issuer_group_id` to the Edge verifier so `merkleTreeRoot` is cross-checked against `issuer_groups.current_root`. Decoy / demo path unchanged. |
 
 ## 1. Problem
 

@@ -267,12 +267,15 @@ export function addZkProofBreadcrumb(
   data?: {
     credentialType?: string;
     errorCode?: ZkProofBreadcrumbErrorCode;
+    /** True when the proof path is bound to an issuer-managed Merkle root (RFC). */
+    issuerEnforced?: boolean;
   },
 ): void {
   if (!sentryInitialized) return;
   const sanitized: Record<string, unknown> = {};
   if (data?.credentialType !== undefined) sanitized.credentialType = data.credentialType;
   if (data?.errorCode !== undefined) sanitized.errorCode = data.errorCode;
+  if (data?.issuerEnforced !== undefined) sanitized.issuerEnforced = data.issuerEnforced;
   Sentry.addBreadcrumb({
     category: 'zk',
     level: status === 'error' ? 'warning' : 'info',

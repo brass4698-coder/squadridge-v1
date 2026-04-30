@@ -81,10 +81,10 @@ export function WaitlistSection() {
   const introBlocks = (
     <>
       <p className="mb-0 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
-        Pilot access
+        Request access
       </p>
       <h2 id="waitlist-heading" className={`mt-3 ${titleClass}`}>
-        Request access to facilitator-led pilots and private walkthroughs
+        Request pilot access
       </h2>
       <div className="mt-6 border border-[#2d3f55] bg-[#0a1018] px-4 py-3">
         <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
@@ -118,10 +118,6 @@ export function WaitlistSection() {
               Request pilot access
             </a>
           </div>
-          <p className="mt-6 font-sans text-[0.82rem] leading-relaxed text-slate-500">
-            No public profile. No open directory. Just direct outreach when the right pilot is
-            ready.
-          </p>
         </Shell>
       </section>
     );
@@ -189,10 +185,6 @@ export function WaitlistSection() {
               >
                 {status === 'loading' ? 'Sending...' : 'Request pilot access'}
               </button>
-              <p className="mb-0 font-sans text-[0.82rem] leading-relaxed text-slate-500">
-                No public profile. No open directory. Just direct outreach when the right pilot is
-                ready.
-              </p>
             </div>
           </div>
         </form>

@@ -55,12 +55,9 @@ export function analyzeToneLocal(text: string): ToneInsight {
 }
 
 /**
- * When AI is enabled, persist a de-identified tension sample for the squad (analytics path).
- * When disabled, this is a no-op so core messaging never depends on AI.
- */
-/**
- * When `VITE_ENABLE_REMOTE_TONE=true`, a future Edge Function can return richer tension data.
- * Until wired, returns null — local path remains `analyzeToneLocal` + optional `sentiment_metrics`.
+ * Reserved for an Edge Function that returns richer tension data when
+ * `VITE_ENABLE_REMOTE_TONE=true`. Until that path is wired, returns null
+ * and callers fall back to {@link analyzeToneLocal} / {@link analyzeToneWithModel}.
  */
 export async function fetchRemoteToneInsight(
   _squadId: string,

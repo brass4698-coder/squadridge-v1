@@ -16,6 +16,8 @@ export type MatchQueueSide = 'A' | 'B';
 export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
 /** Mirrors ledger_proposals_status_check. */
 export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
+
+export type LedgerProposalVote = 'approve' | 'reject' | 'abstain';
 export interface Database {
   public: {
     Tables: {
@@ -426,8 +428,74 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['demo_session_claims']['Insert']>;
         Relationships: [];
       };
+      ledger_proposal_votes: {
+        Row: {
+          id: string;
+          proposal_id: string;
+          squad_id: string;
+          user_id: string;
+          vote: LedgerProposalVote;
+          voted_at: string;
+        };
+        Insert: {
+          id?: string;
+          proposal_id: string;
+          squad_id: string;
+          user_id: string;
+          vote: LedgerProposalVote;
+          voted_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['ledger_proposal_votes']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'ledger_proposal_votes_proposal_id_fkey';
+            columns: ['proposal_id'];
+            isOneToOne: false;
+            referencedRelation: 'ledger_proposals';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'ledger_proposal_votes_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_notification_prefs: {
+        Row: {
+          user_id: string;
+          in_app_session_alerts: boolean;
+          in_app_publish_alerts: boolean;
+          email_pilot_updates: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          in_app_session_alerts?: boolean;
+          in_app_publish_alerts?: boolean;
+          email_pilot_updates?: boolean;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
+        Relationships: [];
+      };
     };
-    Views: Record<string, never>;
+    Views: {
+      ledger_proposal_vote_summary: {
+        Row: {
+          proposal_id: string;
+          squad_id: string | null;
+          status: LedgerProposalStatus;
+          approve_count: number;
+          reject_count: number;
+          abstain_count: number;
+          total_eligible: number;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       waitlist_signup_count: {
         Args: Record<string, never>;

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import { addZkProofBreadcrumb, type ZkProofBreadcrumbErrorCode } from './sentry';
 import type { CredentialType, ZKProof } from './zkVerifier';
+import { resolveIssuerRegistry, type IssuerRegistryConfig } from './zk/issuerRegistry';
 import {
   parseVerifyZkProofErrorBody,
   parseVerifyZkProofResponse,
@@ -10,6 +11,16 @@ import {
 
 /** When true, uses fast hash-only stubs (no Semaphore, no Edge verification). */
 const USE_HASH_STUB = import.meta.env.VITE_ZK_STUB === 'true';
+
+/**
+ * Resolve the active issuer registry once per module import. Returns `null`
+ * for the documented "decoys / no issuer configured" path, in which case the
+ * adapter sends no `issuer_group_id` and the Edge verifier skips the issuer
+ * cross-check (existing behavior).
+ */
+function getIssuerRegistry(): IssuerRegistryConfig | null {
+  return resolveIssuerRegistry(import.meta.env);
+}
 
 const VERIFY_EDGE_TIMEOUT_MS = 45_000;
 const VERIFY_EDGE_MAX_ATTEMPTS = 3;
@@ -76,29 +87,45 @@ export async function runVerification(
     }
   }
 
-  addZkProofBreadcrumb('generate_local', 'start', { credentialType });
+  const issuer = getIssuerRegistry();
+  const issuerEnforced = issuer !== null;
+
+  addZkProofBreadcrumb('generate_local', 'start', { credentialType, issuerEnforced });
   const { generateSemaphoreProof } = await import('./zkVerifier');
   const { semaphoreProofToWireFormat } = await import('./zk/serializeSemaphoreProof');
   let semaphoreProof;
   try {
-    const rawProof = await generateSemaphoreProof(credentialType, rawInput.trim());
+    const rawProof = await generateSemaphoreProof(
+      credentialType,
+      rawInput.trim(),
+      issuer ? { issuerGroupId: issuer.groupId, issuerManifestFetcher: issuer.fetcher } : undefined,
+    );
     semaphoreProof = semaphoreProofToWireFormat(rawProof);
-    addZkProofBreadcrumb('generate_local', 'success', { credentialType });
+    addZkProofBreadcrumb('generate_local', 'success', { credentialType, issuerEnforced });
   } catch {
     addZkProofBreadcrumb('generate_local', 'error', {
       credentialType,
       errorCode: 'local_generate_failed',
+      issuerEnforced,
     });
     throw new Error('Could not generate a verification proof in your browser.');
   }
 
-  const body = {
+  const body: {
+    attribute_scope: string;
+    credential_type: string;
+    semaphore_proof: typeof semaphoreProof;
+    issuer_group_id?: string;
+  } = {
     attribute_scope: rawInput.trim(),
     credential_type: credentialType,
     semaphore_proof: semaphoreProof,
   };
+  if (issuer) {
+    body.issuer_group_id = issuer.groupId;
+  }
 
-  addZkProofBreadcrumb('invoke_verify_edge', 'start', { credentialType });
+  addZkProofBreadcrumb('invoke_verify_edge', 'start', { credentialType, issuerEnforced });
 
   for (let attempt = 0; attempt < VERIFY_EDGE_MAX_ATTEMPTS; attempt++) {
     try {
@@ -107,13 +134,14 @@ export async function runVerification(
       if (!error) {
         try {
           const proof = parseVerifyZkProofResponse(data);
-          addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType });
+          addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType, issuerEnforced });
           return proof;
         } catch (e) {
           if (e instanceof VerifyZkProofParseError) {
             addZkProofBreadcrumb('invoke_verify_edge', 'error', {
               credentialType,
               errorCode: 'response_invalid',
+              issuerEnforced,
             });
             throw new Error('Verification service returned an unexpected response. Try again.');
           }
@@ -129,6 +157,7 @@ export async function runVerification(
       addZkProofBreadcrumb('invoke_verify_edge', 'error', {
         credentialType,
         errorCode: mapEdgeCodeToBreadcrumb(bodyErr?.errorCode),
+        issuerEnforced,
       });
 
       if (retry) {
@@ -142,6 +171,7 @@ export async function runVerification(
         addZkProofBreadcrumb('invoke_verify_edge', 'error', {
           credentialType,
           errorCode: 'invoke_timeout',
+          issuerEnforced,
         });
         if (attempt < VERIFY_EDGE_MAX_ATTEMPTS - 1) {
           await sleep(400 * 2 ** attempt);

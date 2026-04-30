@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Check, ClipboardPen, Copy, List, Shield } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { LedgerPageSkeletonCards, LedgerPageSkeletonRows, PrimaryCTA } from '../components';
@@ -667,8 +667,44 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
 
   const citation = useLedgerCitation();
   const configured = isSupabaseConfigured();
-  const dbRows = listQuery.data ?? EMPTY_LEDGER_ROWS;
+  const allDbRows = listQuery.data ?? EMPTY_LEDGER_ROWS;
+
+  // Search / tag / sort state — filters are applied client-side over the
+  // already-fetched list; the published-row volume in v1 is small enough that
+  // a server-side filter would only complicate the cache key.
+  const [searchInput, setSearchInput] = useState('');
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
+
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const row of allDbRows) {
+      for (const t of row.tags ?? []) set.add(t);
+    }
+    return Array.from(set).sort();
+  }, [allDbRows]);
+
+  const dbRows = useMemo(() => {
+    const q = searchInput.trim().toLowerCase();
+    let rows = allDbRows.filter((r) => {
+      const matchesTag = !activeTag || (r.tags ?? []).includes(activeTag);
+      if (!matchesTag) return false;
+      if (!q) return true;
+      const haystack = `${r.title} ${r.summary}`.toLowerCase();
+      return haystack.includes(q);
+    });
+    rows = rows.slice().sort((a, b) => {
+      if (sortBy === 'title') return a.title.localeCompare(b.title);
+      const ta = a.published_at ? Date.parse(a.published_at) : 0;
+      const tb = b.published_at ? Date.parse(b.published_at) : 0;
+      return sortBy === 'newest' ? tb - ta : ta - tb;
+    });
+    return rows;
+  }, [allDbRows, searchInput, activeTag, sortBy]);
+
   const showDb = configured && !listQuery.isError && dbRows.length > 0;
+  const filteredEverything =
+    configured && !listQuery.isError && allDbRows.length > 0 && dbRows.length === 0;
 
   const copyCitation = useCallback(() => {
     void navigator.clipboard.writeText(citation).then(() => {
@@ -747,12 +783,85 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
           </p>
         ) : null}
 
-        <p
-          className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3 font-sans text-sm leading-relaxed text-ink-muted"
-          role="status"
+        <div
+          className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+          role="search"
+          aria-label="Filter ledger entries"
         >
-          Search and filters are coming soon.
-        </p>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <label className="block min-w-0 flex-1">
+              <span className="sr-only">Search published proposals</span>
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search title or summary"
+                className="block w-full rounded-md border border-white/[0.08] bg-[#070b13] px-3 py-2 font-sans text-sm text-ink placeholder:text-ink-subtle focus:border-teal/60 focus:outline-none"
+              />
+            </label>
+            <div className="flex items-center gap-2 md:shrink-0">
+              <label className="font-mono text-[0.7rem] uppercase tracking-[0.08em] text-ink-subtle">
+                Sort
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title')}
+                className="rounded-md border border-white/[0.08] bg-[#070b13] px-2 py-1.5 font-sans text-sm text-ink focus:border-teal/60 focus:outline-none"
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="title">By title</option>
+              </select>
+            </div>
+          </div>
+          {allTags.length ? (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                aria-pressed={activeTag === null}
+                onClick={() => setActiveTag(null)}
+                className={`rounded-full border px-2.5 py-0.5 font-mono text-[0.7rem] transition-colors ${
+                  activeTag === null
+                    ? 'border-teal/60 bg-teal/15 text-teal-light'
+                    : 'border-white/10 bg-white/[0.02] text-ink-secondary hover:border-teal/30 hover:text-ink'
+                }`}
+              >
+                All tags
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  aria-pressed={activeTag === tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`rounded-full border px-2.5 py-0.5 font-mono text-[0.7rem] transition-colors ${
+                    activeTag === tag
+                      ? 'border-teal/60 bg-teal/15 text-teal-light'
+                      : 'border-white/10 bg-white/[0.02] text-ink-secondary hover:border-teal/30 hover:text-ink'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {filteredEverything ? (
+            <p className="mt-3 font-sans text-sm text-ink-muted">
+              No published entries match the current filters.{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('');
+                  setActiveTag(null);
+                }}
+                className="text-teal-light underline-offset-4 hover:underline"
+              >
+                Reset filters
+              </button>
+              .
+            </p>
+          ) : null}
+        </div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_min(22rem,100%)] lg:items-start lg:gap-12">
           <div className="min-w-0">
