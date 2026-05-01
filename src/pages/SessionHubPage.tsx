@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SessionPageAuthSkeleton } from '../components';
@@ -9,13 +8,6 @@ import {
   isDemoSquadShortcutsEnabled,
   isSupabaseConfigured,
 } from '../lib';
-
-const sessionLandingHeadingStyle: CSSProperties = {
-  fontSize: 'clamp(2.2rem, 4vw, 3rem)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  lineHeight: 1.1,
-};
 
 /**
  * Public `/session` hub — no squad room hooks (realtime, translation worker, crypto) so nav here stays stable.
@@ -85,8 +77,7 @@ export function SessionHubPage() {
       <header className="flex w-full max-w-[520px] flex-col items-center gap-4">
         <h1
           id="session-landing-title"
-          className="font-heading font-extrabold"
-          style={sessionLandingHeadingStyle}
+          className="sr-page-title font-heading font-extrabold text-ink"
         >
           Squad room
         </h1>
