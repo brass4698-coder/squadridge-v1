@@ -442,24 +442,59 @@
 
   /** Form fields — use with `className="sr-input"` (or extend shadcn Input). */
   .sr-input {
-    @apply w-full min-h-[44px] rounded-lg border border-slate-600 bg-navy-light px-4 py-2.5 font-sans text-sm text-gray-light placeholder:text-slate-600 transition-[border-color,box-shadow] duration-200;
+    @apply w-full min-h-[44px] rounded-lg border border-line bg-navy-light px-4 py-2.5 font-sans text-[0.95rem] text-ink placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-200;
   }
 
   .sr-input:hover:not(:disabled):not(:focus) {
-    border-color: rgba(0, 194, 178, 0.28);
+    border-color: rgba(42, 163, 154, 0.28);
   }
 
   .sr-input:focus {
-    border-color: #00c2b2;
+    border-color: var(--sr-primary);
     outline: none;
     box-shadow:
-      0 0 0 2px rgba(0, 194, 178, 0.12),
-      0 0 0 1px #00c2b2;
+      0 0 0 2px rgba(42, 163, 154, 0.12),
+      0 0 0 1px var(--sr-primary);
   }
 
   .sr-input[aria-invalid='true'] {
     border-color: #f5a623;
     box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.12);
+  }
+
+  /**
+   * Journey page section card — use in place of ad-hoc
+   * `rounded-xl border border-[#1a2236]/70 bg-[#060a10]/55`.
+   */
+  .sr-section-card {
+    @apply rounded-xl border border-white/[0.08] bg-navy-dark/55 p-6 sm:p-8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /**
+   * Standard uppercase eyebrow label.
+   * Usage: <p className="sr-eyebrow">Settings</p>
+   */
+  .sr-eyebrow {
+    @apply font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80;
+  }
+
+  /**
+   * Standard page h1 scale — eliminates CSSProperties `style={}` overrides.
+   * Pair with `font-heading font-extrabold text-ink`.
+   */
+  .sr-page-title {
+    font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  /**
+   * Muted ghost text link — for "Leave queue", "Skip", "Back to home" etc.
+   */
+  .sr-ghost-link {
+    @apply font-sans text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline;
   }
 }
 

@@ -15,7 +15,6 @@ const sessionLandingHeadingStyle: CSSProperties = {
   fontWeight: 800,
   letterSpacing: '-0.02em',
   lineHeight: 1.1,
-  color: '#f1f5f9',
 };
 
 /**
@@ -79,7 +78,7 @@ export function SessionHubPage() {
       aria-labelledby="session-landing-title"
     >
       {import.meta.env.DEV ? (
-        <span className="mb-6 inline-flex rounded border border-[#1a2236] px-2 py-0.5 font-heading text-[0.65rem] font-normal uppercase tracking-[0.12em] text-[#4b5563]">
+        <span className="mb-6 inline-flex rounded border border-line px-2 py-0.5 font-heading text-[0.65rem] font-normal uppercase tracking-[0.12em] text-ink-subtle">
           Dev only
         </span>
       ) : null}
@@ -91,25 +90,24 @@ export function SessionHubPage() {
         >
           Squad room
         </h1>
-        <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
-          Get matched into a live room from{' '}
-          <strong className="font-medium text-[#c4cdd9]">Intent</strong> — we pair perspectives and
-          open a squad when the queue has enough people. Complete your profile first so you are
-          ready for the room.
+        <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-ink-faint">
+          Get matched into a live room from <strong className="font-medium text-ink">Intent</strong>{' '}
+          — we pair perspectives and open a squad when the queue has enough people. Complete your
+          profile first so you are ready for the room.
         </p>
       </header>
-      <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-[#6b7280]">
+      <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-ink-muted">
         <li>
-          <strong className="font-medium text-[#a8b2c1]">Intent</strong> — choose side A or B and
-          optional tags; you enter the matchmaking pool.
+          <strong className="font-medium text-ink-secondary">Intent</strong> — choose side A or B
+          and optional tags; you enter the matchmaking pool.
         </li>
         <li>
-          <strong className="font-medium text-[#a8b2c1]">Match</strong> — wait until enough people
-          on both sides are queued; then we open the squad.
+          <strong className="font-medium text-ink-secondary">Match</strong> — wait until enough
+          people on both sides are queued; then we open the squad.
         </li>
         <li>
-          <strong className="font-medium text-[#a8b2c1]">Room</strong> — you land in{' '}
-          <code className="rounded bg-[#0f1623] px-1 py-0.5 font-mono text-[0.75rem] text-[#8892a4]">
+          <strong className="font-medium text-ink-secondary">Room</strong> — you land in{' '}
+          <code className="rounded bg-navy-light px-1 py-0.5 font-mono text-[0.75rem] text-ink-faint">
             /session/&lt;id&gt;
           </code>{' '}
           automatically (no manual UUID handoff).
@@ -118,37 +116,30 @@ export function SessionHubPage() {
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <Link
           to="/find-squad"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] rounded-[1.75rem]"
-          style={{
-            fontWeight: 600,
-          }}
+          className="btn-primary btn-squircle inline-flex min-h-[44px] shrink-0 items-center justify-center px-8 py-[0.65rem] text-[0.95rem]"
         >
           Find a squad
         </Link>
         <Link
           to="/settings/profile"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9] rounded-[1.75rem]"
-          style={{
-            fontWeight: 500,
-          }}
+          className="btn-secondary btn-squircle inline-flex min-h-[44px] shrink-0 items-center justify-center px-8 py-[0.65rem] text-[0.95rem]"
         >
           Profile settings
         </Link>
       </div>
       {isDemoSquadShortcutsEnabled() ? (
         <details className="mt-10 w-full max-w-[440px] text-left">
-          <summary className="cursor-pointer font-sans text-[0.85rem] font-medium text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1]">
+          <summary className="sr-ghost-link cursor-pointer text-[0.85rem] font-medium">
             Developer: create a private test squad
           </summary>
-          <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+          <p className="mt-3 font-sans text-[0.8rem] leading-relaxed text-ink-muted">
             Spins a squad with only your account — useful for API and UI checks without waiting on
             matchmaking.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
-              className="inline-flex min-h-[40px] shrink-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderRadius: 8 }}
+              className="inline-flex min-h-[40px] shrink-0 items-center justify-center rounded-[8px] border border-dashed border-line-strong bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-ink-faint transition-colors hover:border-amber/40 hover:text-ink-secondary disabled:cursor-not-allowed disabled:opacity-50"
               onClick={() => void handleCreateDemo()}
               disabled={!supabase}
             >

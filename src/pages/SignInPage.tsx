@@ -97,7 +97,7 @@ export function SignInPage() {
 
       {showLinkHelpBanner ? (
         <div
-          className="mt-6 rounded-lg border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-[#fcd9a8]"
+          className="mt-6 rounded-lg border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-amber-200"
           role="status"
         >
           No password to reset—enter your email below and we&apos;ll send a fresh magic link.
@@ -135,15 +135,14 @@ export function SignInPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-ink-secondary placeholder:text-ink-subtle focus-visible:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/20"
+                className="sr-input"
                 placeholder="you@organization.org"
               />
             </div>
             <button
               type="submit"
               disabled={busy}
-              className="inline-flex min-h-[44px] w-full items-center justify-center border-0 bg-teal px-6 py-3 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderRadius: 8 }}
+              className="btn-primary w-full justify-center text-[0.95rem]"
             >
               {busy ? 'Sending link…' : 'Email me a link'}
             </button>
@@ -159,15 +158,15 @@ export function SignInPage() {
       ) : null}
 
       {sent ? (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> Open the email link on this
+        <NextStepHint className="mt-8">
+          <span className="font-medium text-ink-secondary">Next:</span> Open the email link on this
           device. We&apos;ll finish sign-in and route you
           {nextPath !== '/' ? ' to your destination' : ' home'}.
         </NextStepHint>
       ) : (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> After the magic link signs you
-          in, we&apos;ll send you to the page you were trying to reach, or home if nothing is
+        <NextStepHint className="mt-8">
+          <span className="font-medium text-ink-secondary">Next:</span> After the magic link signs
+          you in, we&apos;ll send you to the page you were trying to reach, or home if nothing is
           queued.
         </NextStepHint>
       )}

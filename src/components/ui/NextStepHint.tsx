@@ -6,14 +6,14 @@ type NextStepHintProps = {
 };
 
 /**
- * Consistent “what happens next” callout for flow and account pages.
+ * Consistent "what happens next" callout for flow and account pages.
  */
 export function NextStepHint({ children, className = '' }: NextStepHintProps) {
   return (
     <div
-      className={`rounded-lg border border-slate-700/50 bg-slate-900/30 px-4 py-3 ${className}`.trim()}
+      className={`rounded-lg border border-line/60 bg-navy-dark/50 px-4 py-3 ${className}`.trim()}
     >
-      <p className="text-[0.8rem] leading-relaxed text-slate-500">{children}</p>
+      <p className="text-[0.8rem] leading-relaxed text-ink-faint">{children}</p>
     </div>
   );
 }

@@ -77,18 +77,8 @@ export function VerificationPage() {
         aria-hidden="true"
       />
       <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-10">
-        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-          Verification
-        </p>
-        <h1
-          className="mb-0 mt-2 font-heading text-ink"
-          style={{
-            fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.08,
-          }}
-        >
+        <p className="sr-eyebrow mb-0">Verification</p>
+        <h1 className="sr-page-title mb-0 mt-2 font-heading text-ink">
           Prove you belong without exposing identity
         </h1>
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">
@@ -137,16 +127,17 @@ export function VerificationPage() {
           </p>
         ) : null}
 
-        <section className="mt-10 rounded-2xl border border-[#1e2a3a] bg-gradient-to-b from-[#101722] via-[#0d121c] to-[#0a0f16] px-7 py-9 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_32px_64px_-28px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.04] md:px-11 md:py-11">
+        <section className="sr-section-card mt-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_32px_64px_-28px_rgba(0,0,0,0.5)]">
           {done ? (
             <div className="space-y-6">
               <p className="mb-0 font-sans text-onboarding-body text-ink-secondary">
                 Your verification is recorded for this session. Next, you&apos;ll set your intent so
                 we can match you into the right room.
               </p>
-              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
-                <span className="font-medium text-slate-400">Next:</span> Open Find squad, choose a
-                perspective, and start matching. Your verified role can improve pool routing.
+              <NextStepHint>
+                <span className="font-medium text-ink-secondary">Next:</span> Open Find squad,
+                choose a perspective, and start matching. Your verified role can improve pool
+                routing.
               </NextStepHint>
               <button
                 type="button"
@@ -164,9 +155,9 @@ export function VerificationPage() {
                 </p>
               ) : null}
 
-              <NextStepHint className="border-[#1e2a3a] bg-[#0c1118]/80">
-                <span className="font-medium text-slate-400">Next:</span> After verification, use
-                Find squad to enter matchmaking. You can return here anytime this session.
+              <NextStepHint>
+                <span className="font-medium text-ink-secondary">Next:</span> After verification,
+                use Find squad to enter matchmaking. You can return here anytime this session.
               </NextStepHint>
 
               <p className="mb-0 font-sans text-onboarding-body text-ink-muted">
@@ -190,7 +181,7 @@ export function VerificationPage() {
 
                 <Link
                   to="/"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-heading text-[0.9rem] font-medium text-ink-secondary shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-[#3d4f65] hover:text-ink"
+                  className="btn-secondary inline-flex min-h-[44px] items-center justify-center px-4 py-2"
                 >
                   Back
                 </Link>
