@@ -25,6 +25,12 @@ Optional local tooling can live under `.agents/` (gitignored).
 
 Pre-commit runs **lint-staged** (ESLint + Prettier on staged files). Husky is installed via the `prepare` script.
 
+## Shared UI ownership
+
+- Put reusable primitives in `src/components/ui/` first; onboarding, admin, and page folders should only keep feature-specific compositions.
+- Reuse `src/lib/cn.ts` for class merging instead of adding feature-local helpers.
+- For production bundle review, run `ANALYZE=1 npm run build` and inspect the generated `dist/stats.html` for repeated feature-local UI code before adding new primitives.
+
 ## PR checklist
 
 See `.github/pull_request_template.md`.
@@ -32,4 +38,3 @@ See `.github/pull_request_template.md`.
 ## Security
 
 Report vulnerabilities per root [`SECURITY.md`](SECURITY.md), not public issues.
-

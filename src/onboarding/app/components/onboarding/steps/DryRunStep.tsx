@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { cn } from '../../ui/utils';
+import { cn } from '../../../../../lib/cn';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';

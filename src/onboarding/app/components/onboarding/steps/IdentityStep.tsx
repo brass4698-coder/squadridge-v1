@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { cn } from '../../ui/utils';
+import { cn } from '../../../../../lib/cn';
 import { upsertProfilePatch } from '../../../../lib/supabase/profile';
 import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib';
 import {

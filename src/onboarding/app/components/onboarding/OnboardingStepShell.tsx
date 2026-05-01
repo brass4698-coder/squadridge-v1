@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { cn } from '../ui/utils';
+import { cn } from '../../../../lib/cn';
 
 /**
  * Shared vault / console surface for every onboarding step (same shell as the commitment step).

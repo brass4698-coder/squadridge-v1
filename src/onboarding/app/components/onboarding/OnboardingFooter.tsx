@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '../ui/utils';
+import { cn } from '../../../../lib/cn';
 import { useOnboardingMotion } from './onboardingMotion';
 
 export type OnboardingNavMode = 'first' | 'middle' | 'last';
@@ -66,8 +66,14 @@ export function OnboardingFooter({
   const hasQuote = Boolean(tagline?.trim());
   const finalizeClass =
     finalizeVariant === 'emphasis'
-      ? cn(finalizeBtnEmphasis, nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:shadow-none')
-      : cn(finalizeBtn, nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:text-white');
+      ? cn(
+          finalizeBtnEmphasis,
+          nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:shadow-none',
+        )
+      : cn(
+          finalizeBtn,
+          nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:text-white',
+        );
 
   return (
     <div
@@ -91,7 +97,9 @@ export function OnboardingFooter({
             </blockquote>
           ) : (
             <blockquote className="border-l-[4px] border-onboarding-accent py-2 pl-6">
-              <p className="font-display text-lg font-semibold text-white/95 italic leading-snug md:text-xl">{tagline}</p>
+              <p className="font-display text-lg font-semibold text-white/95 italic leading-snug md:text-xl">
+                {tagline}
+              </p>
             </blockquote>
           )}
         </motion.figure>

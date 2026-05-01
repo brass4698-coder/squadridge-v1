@@ -1,4 +1,7 @@
-/** Join class names; falsy values are omitted. */
-export function cn(...parts: Array<string | undefined | false | null>): string {
-  return parts.filter(Boolean).join(' ');
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+/** Join class names; falsy values are omitted and Tailwind conflicts are merged. */
+export function cn(...parts: ClassValue[]): string {
+  return twMerge(clsx(parts));
 }

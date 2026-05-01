@@ -7,8 +7,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { cn } from '../ui/utils';
+} from '../../../../components';
+import { cn } from '../../../../lib/cn';
 
 interface OnboardingExitDialogProps {
   open: boolean;
@@ -16,7 +16,11 @@ interface OnboardingExitDialogProps {
   onConfirmExit: () => void;
 }
 
-export function OnboardingExitDialog({ open, onOpenChange, onConfirmExit }: OnboardingExitDialogProps) {
+export function OnboardingExitDialog({
+  open,
+  onOpenChange,
+  onConfirmExit,
+}: OnboardingExitDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
