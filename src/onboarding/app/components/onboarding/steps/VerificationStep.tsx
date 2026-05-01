@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
-import { getAuthCallbackUrl } from '../../../../../lib';
+import { getAuthCallbackUrl, withPendingInvitePath } from '../../../../../lib';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '../../../../lib/supabase/client';
 import { useOnboarding } from '../OnboardingContext';
 import { ONBOARDING_INPUT_CLASS } from '../onboardingShellStyles';
@@ -32,7 +32,9 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
     setSending(true);
     const { error } = await sb.auth.signInWithOtp({
       email: trimmed,
-      options: { emailRedirectTo: getAuthCallbackUrl('/onboarding/verification') },
+      options: {
+        emailRedirectTo: getAuthCallbackUrl(withPendingInvitePath('/onboarding/verification')),
+      },
     });
     setSending(false);
     if (error) {

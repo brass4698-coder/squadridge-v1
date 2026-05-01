@@ -1,6 +1,6 @@
 # SquadRidge documentation
 
-This folder is the **canonical** home for product, technical, security, and operations documentation. Start here, then open the linked files — avoid duplicating long-form content.
+This folder is the **canonical** home for product, technical, security, and operations documentation. Start with [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) for the honest current-state snapshot, then use the links below for detail — avoid duplicating long-form content or making stronger claims than the current status and threat model support.
 
 ## Glossary (canonical domain terms)
 

@@ -5,11 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
 import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { useAuth } from '../contexts/AuthContext';
+import { useInviteClaim } from '../hooks';
 import {
+  attachInviteCohortToPoolKey,
   captureAppError,
   classifyClientError,
   clearSessionIntent,
   enqueueMatchmaking,
+  getMyActiveInviteClaim,
   isDemoSquadShortcutsEnabled,
   isSupabaseConfigured,
   matchmakingUnavailableClassified,
@@ -41,13 +44,14 @@ const primaryCtaStyle: CSSProperties = {
 const OPTIONAL_TAGS = [
   'Processing something hard',
   'Wanting to be heard',
-  'Cross\u2011cultural dialogue',
+  'Cross-cultural dialogue',
   'Military / veteran experience',
 ] as const;
 
 export function IntentPage() {
   const navigate = useNavigate();
   const { supabase, ensureAnonymousSession } = useAuth();
+  const inviteClaimQuery = useInviteClaim();
   const configured = isSupabaseConfigured();
   const [text, setText] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -58,6 +62,7 @@ export function IntentPage() {
   const [perspective, setPerspective] = useState<MatchPerspective | null>(null);
 
   const len = text.length;
+  const activeInvite = inviteClaimQuery.data;
 
   function toggleTag(label: string) {
     setSelected((prev) => {
@@ -84,6 +89,14 @@ export function IntentPage() {
         tags,
       });
       await ensureAnonymousSession();
+      const inviteClaim = activeInvite ?? (await getMyActiveInviteClaim(supabase));
+      if (!inviteClaim || !inviteClaim.allow_matchmaking) {
+        setError(
+          'Invite access is required before you can join matchmaking. Redeem your pilot invite first.',
+        );
+        setErrorCode('MATCHMAKING_UNAVAILABLE');
+        return;
+      }
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id;
       let zkScope: string | null = null;
@@ -97,7 +110,8 @@ export function IntentPage() {
           .maybeSingle();
         zkScope = va?.attribute_value ?? null;
       }
-      const poolKey = poolKeyFromIntentTags(tags, zkScope);
+      const basePoolKey = poolKeyFromIntentTags(tags, zkScope);
+      const poolKey = attachInviteCohortToPoolKey(basePoolKey, inviteClaim.cohort_key);
       const snap = await enqueueMatchmaking(supabase, poolKey, perspective);
       if (!snap) {
         const c = matchmakingUnavailableClassified();
@@ -211,6 +225,25 @@ export function IntentPage() {
       </header>
 
       <div className="mt-12 flex flex-col gap-12">
+        {inviteClaimQuery.isLoading ? (
+          <p className="rounded-[10px] border border-white/10 bg-white/[0.03] px-4 py-3 font-sans text-[0.85rem] text-slate-400">
+            Checking pilot invite access…
+          </p>
+        ) : activeInvite ? (
+          <div className="rounded-[10px] border border-teal/20 bg-teal/[0.05] px-4 py-3 font-sans text-[0.85rem] text-[#b9f4ec]">
+            Matchmaking is bound to cohort{' '}
+            <span className="font-semibold">{activeInvite.cohort_label}</span>. We&apos;ll keep you
+            in that pilot lane until the invite expires or is revoked.
+          </div>
+        ) : (
+          <div className="rounded-[10px] border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] text-[#f5d7a3]">
+            This pilot uses invite-scoped access. Redeem your invite before joining the queue.
+            <Link to="/invite" className="ml-2 text-teal-light underline-offset-4 hover:underline">
+              Open invite gate
+            </Link>
+          </div>
+        )}
+
         <div>
           <label
             htmlFor="intent-text"
@@ -312,7 +345,7 @@ export function IntentPage() {
           <button
             type="button"
             data-demo="intent-find-squad"
-            disabled={busy || !supabase || perspective === null}
+            disabled={busy || !supabase || perspective === null || inviteClaimQuery.isLoading}
             onClick={() => void handleFindSquad()}
             className="intent-primary-cta inline-flex min-h-[52px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-bold text-[#0b0f1a] transition-[box-shadow,opacity] duration-150 ease-out hover:opacity-[0.97] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             style={primaryCtaStyle}
@@ -361,6 +394,12 @@ export function IntentPage() {
               >
                 Retry
               </button>
+              <Link
+                to="/invite"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
+              >
+                Invite gate
+              </Link>
               <button
                 type="button"
                 className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"

@@ -1,4 +1,5 @@
 export * from './useAppNavContext';
+export * from './useInviteClaim';
 export * from './useIsModerator';
 export * from './useLedgerProposals';
 export * from './useLedgerProposalVotes';

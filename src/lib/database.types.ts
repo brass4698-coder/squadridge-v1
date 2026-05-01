@@ -255,6 +255,74 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['matchmaking_sweep_runs']['Insert']>;
         Relationships: [];
       };
+      invite_cohorts: {
+        Row: {
+          key: string;
+          label: string;
+          allow_matchmaking: boolean;
+          created_at: string;
+        };
+        Insert: {
+          key: string;
+          label: string;
+          allow_matchmaking?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['invite_cohorts']['Insert']>;
+        Relationships: [];
+      };
+      invites: {
+        Row: {
+          id: string;
+          cohort_key: string;
+          code_digest: string;
+          code_hint: string | null;
+          max_uses: number | null;
+          expires_at: string | null;
+          disabled_at: string | null;
+          metadata: Json;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cohort_key: string;
+          code_digest: string;
+          code_hint?: string | null;
+          max_uses?: number | null;
+          expires_at?: string | null;
+          disabled_at?: string | null;
+          metadata?: Json;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['invites']['Insert']>;
+        Relationships: [];
+      };
+      invite_claims: {
+        Row: {
+          id: string;
+          invite_id: string;
+          user_id: string;
+          cohort_key: string;
+          claimed_at: string;
+          last_validated_at: string;
+          revoked_at: string | null;
+          source_code_hint: string | null;
+        };
+        Insert: {
+          id?: string;
+          invite_id: string;
+          user_id?: string;
+          cohort_key: string;
+          claimed_at?: string;
+          last_validated_at?: string;
+          revoked_at?: string | null;
+          source_code_hint?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['invite_claims']['Insert']>;
+        Relationships: [];
+      };
       moderators: {
         Row: {
           user_id: string;
@@ -287,6 +355,64 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['moderation_audit_log']['Insert']>;
+        Relationships: [];
+      };
+      session_reports: {
+        Row: {
+          id: string;
+          reporter_user_id: string;
+          squad_id: string;
+          report_type: 'room' | 'participant';
+          target_user_id: string | null;
+          reason: string;
+          evidence: string | null;
+          status: 'open' | 'triaged' | 'in_review' | 'resolved' | 'dismissed';
+          assigned_moderator_user_id: string | null;
+          resolution_notes: string | null;
+          resolved_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          reporter_user_id?: string;
+          squad_id: string;
+          report_type: 'room' | 'participant';
+          target_user_id?: string | null;
+          reason: string;
+          evidence?: string | null;
+          status?: 'open' | 'triaged' | 'in_review' | 'resolved' | 'dismissed';
+          assigned_moderator_user_id?: string | null;
+          resolution_notes?: string | null;
+          resolved_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['session_reports']['Insert']>;
+        Relationships: [];
+      };
+      participant_safety_controls: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          target_user_id: string;
+          control_type: 'block' | 'mute';
+          reason: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_user_id?: string;
+          target_user_id: string;
+          control_type: 'block' | 'mute';
+          reason?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['participant_safety_controls']['Insert']>;
         Relationships: [];
       };
       ledger_proposals: {
@@ -571,6 +697,14 @@ export interface Database {
           tags: string[];
           region_hint: string | null;
         }[];
+      };
+      claim_invite_code: {
+        Args: { p_code: string };
+        Returns: Json;
+      };
+      get_my_active_invite_claim: {
+        Args: Record<string, never>;
+        Returns: Json;
       };
       get_my_messages_review_status: {
         Args: { p_message_ids: string[] };

@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AccountPageShell, AccountPanel } from '../components';
 import { NextStepHint } from '../components/ui/NextStepHint';
 import { useAuth } from '../contexts/AuthContext';
-import { isSupabaseConfigured } from '../lib';
+import { getPendingInviteCode, isSupabaseConfigured, withPendingInvitePath } from '../lib';
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -18,6 +18,11 @@ export function SignInPage() {
         : '/',
     [nextRaw],
   );
+  const pendingInviteCode = getPendingInviteCode();
+  const resolvedNextPath = useMemo(() => {
+    if (nextPath !== '/') return nextPath;
+    return pendingInviteCode ? withPendingInvitePath('/find-squad') : '/';
+  }, [nextPath, pendingInviteCode]);
 
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
@@ -27,12 +32,13 @@ export function SignInPage() {
 
   const configured = isSupabaseConfigured();
   const showLinkHelpBanner = reason === 'link';
+  const showInviteBanner = resolvedNextPath.startsWith('/invite') || !!pendingInviteCode;
 
   useEffect(() => {
     if (!loading && session) {
-      navigate(nextPath, { replace: true });
+      navigate(resolvedNextPath, { replace: true });
     }
-  }, [loading, session, navigate, nextPath]);
+  }, [loading, session, navigate, resolvedNextPath]);
 
   if (!loading && session) {
     return (
@@ -47,7 +53,7 @@ export function SignInPage() {
     setError(null);
     setBusy(true);
     const { error: err } = await signIn(email, {
-      nextPath: nextPath !== '/' ? nextPath : undefined,
+      nextPath: resolvedNextPath !== '/' ? resolvedNextPath : undefined,
     });
     setBusy(false);
     if (err) {
@@ -104,12 +110,22 @@ export function SignInPage() {
         </div>
       ) : null}
 
+      {showInviteBanner ? (
+        <div
+          className="mt-4 rounded-lg border border-teal/25 bg-teal/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-[#b9f4ec]"
+          role="status"
+        >
+          Invite-bound access is waiting. After the email link signs you in, we&apos;ll validate
+          your invite and return you to the pilot cohort flow.
+        </div>
+      ) : null}
+
       {sent ? (
         <AccountPanel className="mt-10">
           <p className="mb-0 font-sans text-[0.95rem] text-ink-secondary">
             Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
             we&apos;ll route you
-            {nextPath !== '/' ? ' to your squad room.' : '.'}
+            {resolvedNextPath !== '/' ? ' to your destination.' : '.'}
           </p>
         </AccountPanel>
       ) : (
@@ -162,7 +178,7 @@ export function SignInPage() {
         <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
           <span className="font-medium text-slate-400">Next:</span> Open the email link on this
           device. We&apos;ll finish sign-in and route you
-          {nextPath !== '/' ? ' to your destination' : ' home'}.
+          {resolvedNextPath !== '/' ? ' to your destination' : ' home'}.
         </NextStepHint>
       ) : (
         <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">

@@ -13,6 +13,7 @@ import {
 } from '../components';
 import { SessionConsensusPanel } from '../components/session/SessionConsensusPanel';
 import { SessionPresenceList } from '../components/session/SessionPresenceList';
+import { SessionReportDialog } from '../components/session/SessionReportDialog';
 import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
 import { TypingIndicator } from '../components/session/TypingIndicator';
 import { useAuth } from '../contexts/AuthContext';
@@ -104,6 +105,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
   const [archiving, setArchiving] = useState(false);
+  const [reportMode, setReportMode] = useState<'room' | 'participant' | null>(null);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
   /**
    * `message_id → reviewed_at` for the *caller's own* messages that a moderator
@@ -180,6 +182,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
 
   const userId = session?.user?.id ?? null;
+  const reportablePeers = squadPeers.map((peer) => ({
+    user_id: peer.user_id,
+    callsign: peer.callsign,
+    role_archetype: peer.role_archetype,
+  }));
 
   useEffect(() => {
     if (!supabase || !userId) return;
@@ -796,6 +803,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
   return (
     <SessionFeatureErrorBoundary squadId={squadId} key={squadId}>
       <SessionRoomEntryTransition key={squadId} squadId={squadId} />
+      <SessionReportDialog
+        open={reportMode !== null}
+        mode={reportMode ?? 'room'}
+        squadId={squadId}
+        peers={reportablePeers}
+        onClose={() => setReportMode(null)}
+      />
       <section
         key={sessionPathKey}
         className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
@@ -811,14 +825,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
               : null
           }
           onReportRoom={() => {
-            toast.message(
-              `Room report reference: ${squadId.slice(0, 8)}… — MVP triage is manual; keep this tab if you need to share with support.`,
-            );
+            setReportMode('room');
           }}
           onReportParticipant={() => {
-            toast.message(
-              'Report participant: describe what happened without doxxing. MVP reviews use moderator tools.',
-            );
+            setReportMode('participant');
           }}
           squadId={squadId}
         />

@@ -10,6 +10,8 @@ export const queryKeys = {
   squadPeerProfiles: (squadId: string | undefined) =>
     ['squad', 'peerProfiles', squadId ?? 'none'] as const,
   moderator: (userId: string | null | undefined) => ['moderator', userId ?? 'none'] as const,
+  inviteClaim: (userId: string | null | undefined) =>
+    ['invite', 'claim', userId ?? 'none'] as const,
   messages: {
     list: (squadId: string | undefined) => ['messages', 'list', squadId ?? 'none'] as const,
   },

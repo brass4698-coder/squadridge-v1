@@ -1,12 +1,12 @@
 # SquadRidge
 
-**Stop conflicts before they start.**
+**Pilot-stage infrastructure for facilitator-led, verified dialogue.**
 
-SquadRidge is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
+SquadRidge is an advanced MVP / pilot foundation for small, structured, cross-border cohorts. The shipped product focuses on verified access, facilitator-guided matching, session safety workflows, and pilot reporting for bounded institutional pilots — not a broad public launch.
 
 **Built on React + Vite + TypeScript + Tailwind + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).**
 
-**How it works (at a glance):** (1) **Detect** — program-scoped signals and (where enabled) a Conflict Severity Index methodology for triage, not a public omniscient feed. (2) **Intervene** — facilitator-led, verified small squads with structured session UX. (3) **Measure** — pre-registered metrics and partner-aligned evaluation. See [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md) and [`CURRENT_STATUS.md`](CURRENT_STATUS.md) for what is shipped today vs pilot/roadmap.
+**How it works (at a glance):** (1) **Access** — invite-scoped, cohort-bound pilot entry plus passwordless sign-in. (2) **Match** — facilitator-oriented, verified small squads with structured session UX. (3) **Measure** — operational pilot metrics and moderation workflows, not validated field-impact claims. See [`CURRENT_STATUS.md`](CURRENT_STATUS.md) and [`docs/security/threat-model.md`](docs/security/threat-model.md) for the current product truth and security boundaries.
 
 Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
 
@@ -77,6 +77,9 @@ Use the same variables as local production builds (`VITE_SUPABASE_URL`, `VITE_SU
 The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml) workflow runs tests, `npm run build` (with `VITE_ZK_STUB=false`), and uploads the `dist/` folder as a **build artifact** for download or attachment to your host (Vercel/Netlify/Cloudflare Pages typically use the same env vars in project settings instead of this artifact).
 
 ### Demos (investors and staging)
+
+These flows are for walkthroughs and partner diligence. Do not describe them as field-validated impact, operator-proof privacy, or a production-scale early-warning system unless those claims are separately demonstrated and added to [`CURRENT_STATUS.md`](CURRENT_STATUS.md).
+
 
 - **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
 - **Guided tour:** From the home page, **Start guided tour** runs the scripted steps in [`src/demo/demoScript.ts`](src/demo/demoScript.ts), including onboarding, **ZK verification** (`/verify?demo=1`), intent, match, the offline session, ledger, security, and profile (`/settings/profile?demo=1` creates an anonymous session for the profile step).

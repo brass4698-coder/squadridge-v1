@@ -14,6 +14,7 @@ export * from './errors';
 export * from './ephemeral/matchingQueue';
 export * from './ephemeral/rateLimit';
 export * from './i18n/languages';
+export * from './inviteAccess';
 export * from './intentStorage';
 export * from './liveMessageRedaction';
 export * from './matchmakingClient';
