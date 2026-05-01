@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply bg-navy font-sans font-normal text-gray-light antialiased;
+    @apply bg-surface font-sans font-normal text-ink antialiased;
     font-size: theme('fontSize.fluid-body');
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
@@ -22,7 +22,7 @@
   h4,
   h5,
   h6 {
-    @apply font-heading font-bold text-gray-light;
+    @apply font-sans font-bold text-ink;
   }
 
   h1 {
@@ -306,19 +306,19 @@
   }
 
   .focus-ring {
-    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
   }
 
   .btn-primary {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] px-5 py-2.5 font-heading text-base font-semibold text-white bg-teal transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] bg-brand px-5 py-2.5 font-sans text-base font-semibold text-brand-on transition-colors duration-150;
   }
 
   .btn-primary:hover:not(:disabled) {
-    @apply bg-teal-light;
+    @apply bg-brand-hover;
   }
 
   .btn-primary:active:not(:disabled) {
-    @apply bg-teal-dark;
+    @apply bg-brand-pressed;
   }
 
   .btn-primary:disabled {
@@ -326,7 +326,7 @@
   }
 
   .btn-secondary {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-gray-600 bg-transparent px-5 py-2.5 font-heading text-base font-medium text-gray-light transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-5 py-2.5 font-sans text-base font-medium text-ink-secondary transition-colors duration-150;
   }
 
   .btn-secondary:hover {
@@ -442,25 +442,33 @@
 
   /** Form fields — use with `className="sr-input"` (or extend shadcn Input). */
   .sr-input {
-    @apply w-full min-h-[44px] rounded-lg border border-slate-600 bg-navy-light px-4 py-2.5 font-sans text-sm text-gray-light placeholder:text-slate-600 transition-[border-color,box-shadow] duration-200;
+    @apply min-h-[44px] w-full rounded-lg border border-line bg-surface-elevated px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-200;
   }
 
   .sr-input:hover:not(:disabled):not(:focus) {
-    border-color: rgba(0, 194, 178, 0.28);
+    border-color: var(--sr-line-strong);
   }
 
   .sr-input:focus {
-    border-color: #00c2b2;
+    border-color: var(--sr-primary);
     outline: none;
     box-shadow:
-      0 0 0 2px rgba(0, 194, 178, 0.12),
-      0 0 0 1px #00c2b2;
+      0 0 0 2px var(--sr-primary-soft),
+      0 0 0 1px var(--sr-primary);
   }
 
   .sr-input[aria-invalid='true'] {
-    border-color: #f5a623;
-    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.12);
+    border-color: var(--sr-warning);
+    box-shadow: 0 0 0 2px var(--sr-warning-soft);
   }
+}
+
+.sr-record-sheet {
+  color: var(--sr-record-ink);
+  background:
+    linear-gradient(90deg, rgba(20, 24, 31, 0.035) 1px, transparent 1px), var(--sr-record-paper);
+  background-size: 28px 28px;
+  border: 1px solid var(--sr-record-line);
 }
 
 /* Early access Join — squircle comfort CTA */

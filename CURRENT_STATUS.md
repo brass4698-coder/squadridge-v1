@@ -15,7 +15,8 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Supabase-backed schema, migrations, and Edge Functions in [`supabase/`](./supabase/)
 - Semaphore-style ZK verification path with production guardrails around `VITE_ZK_STUB`
 - Anonymous and passwordless sign-in flows
-- Matchmaking, squad, message, moderation, and ledger data model
+- Invite-code redemption with server-side matchmaking enforcement for live queue entry
+- Matchmaking, squad, message, moderation, participant report/blocking, and ledger data model
 - CI workflows for lint, test, build, frontend deploy artifact creation, and Supabase deploys
 - Threat model and security/architecture documentation that explicitly describe current limits
 - Demo and walkthrough flows for investor and partner conversations
@@ -27,6 +28,7 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Staging or controlled production demos for partner diligence
 - Measurement of basic operational metrics such as verification completion, time to match, session completion, and repeat participation
 - Moderator-supported sessions where operator visibility and current security boundaries are clearly disclosed
+- Invite-gated cohorts, participant-submitted reports, participant blocking, and moderator report disposition when the pilot team has named owners
 
 ## Demo Only Or Requires Extra Validation
 
@@ -56,6 +58,7 @@ Long-term **prevention / early-signal** positioning and partner archetypes live 
 - Metadata and privileged-access risks remain material for higher-risk deployments
 - Demo and roadmap narratives are stronger than current pilot evidence
 - Operational maturity for live pilots still depends on written process and disciplined environment management
+- Report/block workflows are now first-class primitives, but repeat-abuse policy, facilitator staffing, and partner escalation playbooks still need pilot-specific ownership
 - Some business and funding docs are still strategy-forward and should not be treated as validated traction
 
 ## Recommended Near-Term Positioning

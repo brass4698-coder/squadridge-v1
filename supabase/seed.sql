@@ -1,5 +1,25 @@
 -- Optional seed data for local `supabase db reset`.
 -- CI deploys schema via `supabase db push` only (migrations; seed is not applied remotely by default).
+-- Local invite code for exercising the gated match flow: demo-pilot-2026
+
+INSERT INTO public.invite_codes (
+    code_hash,
+    label,
+    cohort_key,
+    max_redemptions,
+    expires_at,
+    metadata
+)
+VALUES (
+        private.invite_code_hash('demo-pilot-2026'),
+        'Local demo pilot',
+        'local-demo',
+        100,
+        timezone('utc'::text, now()) + interval '1 year',
+        '{"seed": true}'::jsonb
+    )
+ON CONFLICT (code_hash) DO NOTHING;
+
 -- Demo rows so `/admin/csi` and CSI queries are non-empty after local reset.
 -- RLS: seed runs with elevated privileges; the app still requires an authenticated session and a row in
 -- `public.moderators` (your `auth.users` id) to SELECT CSI tables—add that via SQL Editor or dashboard if the UI is empty.

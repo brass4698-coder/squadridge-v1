@@ -103,6 +103,7 @@ export default {
           elevated: 'var(--sr-bg-elevated)',
           secondary: 'var(--sr-bg-secondary)',
           sunken: 'var(--sr-bg-sunken)',
+          sealed: 'var(--sr-bg-sealed)',
           /** Legacy onboarding fill — kept as a static fallback. */
           legacy: '#0c1219',
         },
@@ -130,6 +131,14 @@ export default {
           'danger-soft': 'var(--sr-danger-soft)',
           info: 'var(--sr-info)',
           'info-soft': 'var(--sr-info-soft)',
+        },
+        record: {
+          paper: 'var(--sr-record-paper)',
+          muted: 'var(--sr-record-paper-muted)',
+          line: 'var(--sr-record-line)',
+          ink: 'var(--sr-record-ink)',
+          'ink-muted': 'var(--sr-record-muted)',
+          faint: 'var(--sr-record-faint)',
         },
       },
       fontFamily: {

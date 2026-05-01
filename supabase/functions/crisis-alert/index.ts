@@ -58,7 +58,8 @@ async function assertEdgeRateLimit(jwt: string): Promise<void> {
   if (res.status === 429) {
     throw new Error('rate_limited');
   }
-  if (res.status === 503) return;
+  if (res.status === 503 && Deno.env.get('RATE_LIMIT_FAIL_OPEN') === 'true') return;
+  if (res.status === 503) throw new Error('rate_limit_unavailable');
   if (!res.ok) throw new Error('rate_limit_check_failed');
 }
 

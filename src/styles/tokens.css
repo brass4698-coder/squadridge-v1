@@ -12,15 +12,16 @@
 
 :root {
   /* Surfaces — graphite ladder */
-  --sr-bg: #0c0e12;
-  --sr-bg-elevated: #12151c;
-  --sr-bg-secondary: #0f1116;
-  --sr-bg-sunken: #08090d;
+  --sr-bg: #0b0d10;
+  --sr-bg-elevated: #12151a;
+  --sr-bg-secondary: #101217;
+  --sr-bg-sunken: #07080b;
+  --sr-bg-sealed: #0a0c10;
 
   /* Lines */
-  --sr-line: #232831;
-  --sr-line-strong: #2f3640;
-  --sr-divider: #1a1e26;
+  --sr-line: #282d33;
+  --sr-line-strong: #3a4149;
+  --sr-divider: #1d2229;
 
   /* Ink — four levels */
   --sr-ink: #e8eaef;
@@ -29,12 +30,20 @@
   --sr-ink-subtle: #555c69;
 
   /* Single accent — slate-teal (desaturated from legacy `teal`) */
-  --sr-primary: #2aa39a;
-  --sr-primary-hover: #34b8ae;
-  --sr-primary-pressed: #1f8a82;
-  --sr-primary-soft: rgba(42, 163, 154, 0.12);
-  --sr-primary-ring: rgba(42, 163, 154, 0.45);
+  --sr-primary: #2f8f86;
+  --sr-primary-hover: #3aa79d;
+  --sr-primary-pressed: #24756e;
+  --sr-primary-soft: rgba(47, 143, 134, 0.12);
+  --sr-primary-ring: rgba(47, 143, 134, 0.45);
   --sr-on-primary: #06121a;
+
+  /* Public record surfaces — warmer paper inside a dark institutional shell */
+  --sr-record-paper: #f4f0e8;
+  --sr-record-paper-muted: #e9e2d6;
+  --sr-record-line: #d8d0c2;
+  --sr-record-ink: #171a1f;
+  --sr-record-muted: #545b64;
+  --sr-record-faint: #7d7468;
 
   /* Semantic — used for status, never decoration */
   --sr-success: #5aa67f;
@@ -59,6 +68,7 @@
   --sr-bg-elevated: #ffffff;
   --sr-bg-secondary: #efece6;
   --sr-bg-sunken: #ebe8e1;
+  --sr-bg-sealed: #e7e1d7;
 
   --sr-line: #e2dfd9;
   --sr-line-strong: #cfcbc2;
@@ -75,6 +85,13 @@
   --sr-primary-soft: rgba(31, 122, 114, 0.1);
   --sr-primary-ring: rgba(31, 122, 114, 0.35);
   --sr-on-primary: #ffffff;
+
+  --sr-record-paper: #ffffff;
+  --sr-record-paper-muted: #f1ede6;
+  --sr-record-line: #d8d0c2;
+  --sr-record-ink: #14181f;
+  --sr-record-muted: #525a66;
+  --sr-record-faint: #81776a;
 
   --sr-success: #2f7754;
   --sr-success-soft: rgba(47, 119, 84, 0.08);

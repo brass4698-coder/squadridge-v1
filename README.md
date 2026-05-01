@@ -1,12 +1,12 @@
 # SquadRidge
 
-**Stop conflicts before they start.**
+**Pilot-stage verified dialogue infrastructure.**
 
-SquadRidge is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
+SquadRidge is a pilot-stage web product for structured, facilitator-led cross-border dialogue. It combines verified access, pseudonymous small-squad matching, encrypted-at-rest session chat, moderator-aware safety workflows, and public ledger-style outcome records. The repo supports serious bounded pilots; it does **not** yet prove global conflict-prevention impact, operator-blind messaging, or public early-warning infrastructure.
 
 **Built on React + Vite + TypeScript + Tailwind + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).**
 
-**How it works (at a glance):** (1) **Detect** — program-scoped signals and (where enabled) a Conflict Severity Index methodology for triage, not a public omniscient feed. (2) **Intervene** — facilitator-led, verified small squads with structured session UX. (3) **Measure** — pre-registered metrics and partner-aligned evaluation. See [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md) and [`CURRENT_STATUS.md`](CURRENT_STATUS.md) for what is shipped today vs pilot/roadmap.
+**How it works today:** (1) **Verify** — pilot-scoped access and Semaphore-style attribute verification. (2) **Convene** — small squads enter a structured session room with facilitator and moderator affordances. (3) **Record outcomes** — consensus records can be published to an anonymous, timestamped ledger surface. CSI / early-signal work is roadmap and internal triage scaffolding unless [`CURRENT_STATUS.md`](CURRENT_STATUS.md) explicitly says otherwise.
 
 The shipped backend is **pure BaaS** — Supabase (Postgres + Realtime + Edge Functions). There is no Node tier and no local Redis dependency; Edge rate limiting uses **Upstash Redis REST** from `supabase/functions/rate-limit/` when configured. Older docs that mention a `docker-compose.yml` Redis stub pre-date this simplification; ignore them.
 

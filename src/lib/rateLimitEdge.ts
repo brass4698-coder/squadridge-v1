@@ -37,9 +37,9 @@ export async function assertEdgeRateLimit(
         : ' Try again shortly.';
     throw new Error(`You’re sending requests too quickly.${hint}`);
   }
-  // Upstash not configured in Edge env — fail open so messaging/matchmaking still work; deploy Redis for enforcement.
   if (res.status === 503) {
-    return;
+    if (import.meta.env.DEV || import.meta.env.VITE_EDGE_RATE_LIMIT_FAIL_OPEN === 'true') return;
+    throw new Error('Rate limiting is not configured for this environment.');
   }
   if (!res.ok) {
     throw new Error('Rate limit check failed');

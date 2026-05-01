@@ -36,7 +36,8 @@ async function assertEdgeRateLimit(jwt: string, action: string): Promise<void> {
         : ' Try again shortly.';
     throw new Error(`You’re sending requests too quickly.${hint}`);
   }
-  if (res.status === 503) return;
+  if (res.status === 503 && Deno.env.get('RATE_LIMIT_FAIL_OPEN') === 'true') return;
+  if (res.status === 503) throw new Error('Rate limit unavailable');
   if (!res.ok) throw new Error('Rate limit check failed');
 }
 

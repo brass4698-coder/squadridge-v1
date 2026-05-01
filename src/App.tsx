@@ -21,6 +21,7 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
@@ -98,7 +99,7 @@ export default function App() {
                     }
                   />
                   <Route
-                    path="/ledger/:proposalId"
+                    path="/ledger/:proposalSlug"
                     element={
                       <Suspense fallback={routeChunkFallback}>
                         <LedgerPage />
@@ -180,7 +181,7 @@ export default function App() {
                     </>
                   )}
                   <Route path="/session/:squadId?" element={<SessionAccess />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Routes>
             </AuthProvider>

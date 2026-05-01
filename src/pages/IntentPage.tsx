@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lock } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
 import { SegmentedControl } from '../components/ui/SegmentedControl';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,15 +9,19 @@ import {
   captureAppError,
   classifyClientError,
   clearSessionIntent,
+  describeInviteResult,
   enqueueMatchmaking,
+  getMyActiveInvite,
   isDemoSquadShortcutsEnabled,
   isSupabaseConfigured,
   matchmakingUnavailableClassified,
   poolKeyFromIntentTags,
+  redeemInviteCode,
   setLastSquadIdInStorage,
   setMatchmakingSession,
   setPendingMatchReveal,
   writeSessionIntent,
+  type ActiveInvite,
   type AppErrorCode,
   type MatchPerspective,
 } from '../lib';
@@ -47,8 +51,10 @@ const OPTIONAL_TAGS = [
 
 export function IntentPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { supabase, ensureAnonymousSession } = useAuth();
   const configured = isSupabaseConfigured();
+  const inviteCode = searchParams.get('code')?.trim() ?? '';
   const [text, setText] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
@@ -56,8 +62,47 @@ export function IntentPage() {
   /** Dev-only: last classified code for support / Sentry correlation */
   const [errorCode, setErrorCode] = useState<AppErrorCode | null>(null);
   const [perspective, setPerspective] = useState<MatchPerspective | null>(null);
+  const [activeInvite, setActiveInvite] = useState<ActiveInvite | null>(null);
+  const [inviteChecking, setInviteChecking] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null);
 
   const len = text.length;
+
+  useEffect(() => {
+    if (!configured || !supabase) return;
+    let cancelled = false;
+
+    void (async () => {
+      setInviteChecking(true);
+      setInviteMessage(null);
+      try {
+        await ensureAnonymousSession();
+        const result = inviteCode
+          ? await redeemInviteCode(supabase, inviteCode)
+          : await getMyActiveInvite(supabase);
+        if (cancelled) return;
+
+        if (result.ok) {
+          setActiveInvite(result.invite);
+          setInviteMessage(describeInviteResult(result));
+        } else {
+          setActiveInvite(null);
+          setInviteMessage(describeInviteResult(result));
+        }
+      } catch {
+        if (!cancelled) {
+          setActiveInvite(null);
+          setInviteMessage('Could not verify pilot access right now. Try again in a moment.');
+        }
+      } finally {
+        if (!cancelled) setInviteChecking(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [configured, ensureAnonymousSession, inviteCode, supabase]);
 
   function toggleTag(label: string) {
     setSelected((prev) => {
@@ -72,6 +117,14 @@ export function IntentPage() {
     if (!supabase) return;
     if (perspective === null) {
       setError('Choose perspective A or B so we can balance both sides of the room.');
+      return;
+    }
+    if (inviteChecking) {
+      setError('Still verifying your pilot invite. Try again in a moment.');
+      return;
+    }
+    if (!activeInvite) {
+      setError('Enter a valid pilot invite before joining the match queue.');
       return;
     }
     setBusy(true);
@@ -308,11 +361,32 @@ export function IntentPage() {
           />
         </fieldset>
 
+        <div
+          className={`rounded-[10px] border px-4 py-3 font-sans text-[0.84rem] leading-relaxed ${
+            activeInvite
+              ? 'border-teal/30 bg-teal/[0.06] text-teal-light'
+              : 'border-amber/30 bg-[#1a1408]/70 text-[#f5d7a3]'
+          }`}
+          role={activeInvite ? 'status' : 'alert'}
+        >
+          <p className="font-medium">
+            {inviteChecking
+              ? 'Verifying pilot access…'
+              : activeInvite
+                ? `Pilot access active: ${activeInvite.label}`
+                : 'Pilot invite required'}
+          </p>
+          <p className="mt-1 text-[0.78rem] opacity-85">
+            {inviteMessage ??
+              'Use /invite with a cohort code before entering a live matching queue.'}
+          </p>
+        </div>
+
         <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
             data-demo="intent-find-squad"
-            disabled={busy || !supabase || perspective === null}
+            disabled={busy || inviteChecking || !activeInvite || !supabase || perspective === null}
             onClick={() => void handleFindSquad()}
             className="intent-primary-cta inline-flex min-h-[52px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-bold text-[#0b0f1a] transition-[box-shadow,opacity] duration-150 ease-out hover:opacity-[0.97] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             style={primaryCtaStyle}

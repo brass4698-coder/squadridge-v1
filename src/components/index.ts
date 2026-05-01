@@ -31,6 +31,7 @@ export * from './session/SessionPageSkeleton';
 export * from './session/SquadPeerStrip';
 export * from './ui/HowItWorksStep';
 export * from './ui/NextStepHint';
+export * from './ui/PlatformPrimitives';
 export * from './ui/PrimaryCTA';
 export * from './ui/SegmentedControl';
 export * from './ui/StatusBadge';

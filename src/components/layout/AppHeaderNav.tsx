@@ -6,7 +6,7 @@ import { publicShellInnerClass, shellListResetClass } from './publicShell';
 import { twMerge } from 'tailwind-merge';
 
 const HEADER_SHELL =
-  'sticky top-0 z-[100] border-b border-white/[0.08] bg-[rgba(11,15,26,0.92)] backdrop-blur-[8px] supports-[backdrop-filter]:bg-[rgba(11,15,26,0.88)]';
+  'sticky top-0 z-[100] border-b border-line-divider bg-[rgba(11,13,16,0.94)] backdrop-blur-[8px] supports-[backdrop-filter]:bg-[rgba(11,13,16,0.9)]';
 
 /** Single primary row: 64px mobile, 72px desktop — context bar is always separate below. */
 const HEADER_MAIN_ROW = twMerge(
@@ -18,18 +18,18 @@ const HEADER_MAIN_ROW = twMerge(
 const deskNavLink = (active: boolean) =>
   twMerge(
     'inline-flex items-center border-b border-transparent pb-px text-[15px] font-medium leading-none tracking-normal transition-colors duration-150',
-    'min-h-[44px] min-w-0 shrink px-0.5 pt-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50',
+    'min-h-[44px] min-w-0 shrink px-0.5 pt-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand',
     active
-      ? 'border-slate-200/90 text-slate-100'
-      : 'text-slate-500 hover:border-slate-500/50 hover:text-slate-300',
+      ? 'border-record-line text-ink'
+      : 'text-ink-faint hover:border-ink-faint/50 hover:text-ink-secondary',
   );
 
 const mobileLink = (active: boolean) =>
   twMerge(
     'flex min-h-[44px] w-full items-center rounded-[6px] px-1 text-left text-[15px] font-medium leading-snug transition-colors',
     active
-      ? 'text-slate-100 underline decoration-slate-500 underline-offset-4'
-      : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300',
+      ? 'text-ink underline decoration-ink-faint underline-offset-4'
+      : 'text-ink-faint hover:bg-white/[0.04] hover:text-ink-secondary',
   );
 
 type Variant = 'full' | 'minimal';
@@ -130,9 +130,9 @@ function DesktopPrimaryNav({
   onNavigate?: () => void;
 }) {
   const items = [
-    { key: 'how', to: '/#how-it-works', label: 'How it works', isActive: active.howItWorks },
-    { key: 'sec', to: '/security', label: 'Security', isActive: active.security },
-    { key: 'led', to: '/ledger', label: 'Ledger', isActive: active.ledger },
+    { key: 'how', to: '/#how-it-works', label: 'Model', isActive: active.howItWorks },
+    { key: 'sec', to: '/security', label: 'Security model', isActive: active.security },
+    { key: 'led', to: '/ledger', label: 'Public ledger', isActive: active.ledger },
     { key: 'pilot', to: '/#waitlist', label: 'Pilot access', isActive: active.pilotAccess },
   ] as const;
 
@@ -256,9 +256,9 @@ function MobileNavPanel({
   if (!open) return null;
 
   const linkItems = [
-    { to: '/#how-it-works', label: 'How it works', active: active.howItWorks, hash: true },
-    { to: '/security', label: 'Security', active: active.security, hash: false },
-    { to: '/ledger', label: 'Ledger', active: active.ledger, hash: false },
+    { to: '/#how-it-works', label: 'Model', active: active.howItWorks, hash: true },
+    { to: '/security', label: 'Security model', active: active.security, hash: false },
+    { to: '/ledger', label: 'Public ledger', active: active.ledger, hash: false },
     { to: '/#waitlist', label: 'Pilot access', active: active.pilotAccess, hash: true },
   ] as const;
 
@@ -308,12 +308,12 @@ function MobileNavPanel({
             href="/#waitlist"
             className={twMerge(
               'focus-ring inline-flex h-10 min-h-[40px] w-full items-center justify-center rounded-[8px] px-4 font-heading text-[0.875rem] font-semibold transition-opacity',
-              'bg-teal text-white hover:bg-teal-dark',
+              'bg-brand text-brand-on hover:bg-brand-hover',
               ctaMuted && 'opacity-[0.88]',
             )}
             onClick={onClose}
           >
-            Request pilot access
+            Apply for a pilot
           </a>
         </div>
         {showDev ? (
@@ -391,11 +391,11 @@ function PublicShellHeader() {
             className="flex max-w-[260px] min-w-0 shrink-0 flex-col gap-0.5 no-underline transition-opacity hover:opacity-[0.95] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
             aria-label="SquadRidge home"
           >
-            <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
+            <span className="font-display text-[17px] font-semibold tracking-tight text-ink lg:text-[18px]">
               SquadRidge
             </span>
-            <span className="hidden sm:block text-[12px] font-normal leading-snug text-slate-500 lg:text-[13px]">
-              Verified dialogue infrastructure
+            <span className="hidden sm:block text-[12px] font-normal leading-snug text-ink-faint lg:text-[13px]">
+              Sealed rooms. Public records.
             </span>
           </Link>
 
@@ -406,12 +406,12 @@ function PublicShellHeader() {
               <a
                 href="/#waitlist"
                 className={twMerge(
-                  'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-teal px-[16px] font-heading text-[0.875rem] font-semibold text-white transition-[opacity,background-color] hover:bg-teal-dark',
+                  'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-brand px-[16px] font-sans text-[0.875rem] font-semibold text-brand-on transition-[opacity,background-color] hover:bg-brand-hover',
                   'lg:min-h-[44px]',
                   ctaMuted && 'opacity-[0.88]',
                 )}
               >
-                Request pilot access
+                Apply for a pilot
               </a>
             </div>
             <div className="flex items-center lg:hidden">

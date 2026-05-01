@@ -74,20 +74,20 @@ function LedgerPublicRecordHeader({
   slug: string;
 }) {
   return (
-    <header className="border-b border-white/[0.08] pb-8">
-      <p className="mb-5 font-mono text-[0.62rem] font-normal uppercase tracking-[0.12em] text-ink-muted">
-        <span className="text-ink-secondary">Public outcome record</span>
+    <header className="sr-record-sheet p-6 md:p-8">
+      <p className="mb-5 font-mono text-[0.62rem] font-normal uppercase tracking-[0.12em] text-record-faint">
+        <span className="text-record-muted">Public outcome record</span>
         <span className="mx-2 text-ink-subtle" aria-hidden>
           ·
         </span>
-        <span className="font-semibold text-teal-light/95">{statusLabel}</span>
+        <span className="font-semibold text-brand">{statusLabel}</span>
         <span className="mx-2 text-ink-subtle" aria-hidden>
           ·
         </span>
         <span className="break-all font-normal tracking-normal text-ink-secondary">{slug}</span>
       </p>
       <h1
-        className="font-heading text-ink"
+        className="font-display text-record-ink"
         style={{
           fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
           fontWeight: 800,
@@ -389,28 +389,28 @@ function LedgerDetailFooterNav() {
  * Public SquadRidge Ledger — index lists published proposals from Postgres when configured; detail by slug.
  */
 export function LedgerPage() {
-  const { proposalId } = useParams<{ proposalId?: string }>();
+  const { proposalSlug } = useParams<{ proposalSlug?: string }>();
   const configured = isSupabaseConfigured();
 
-  if (proposalId) {
-    return <LedgerProposalDetailRoute proposalId={proposalId} configured={configured} />;
+  if (proposalSlug) {
+    return <LedgerProposalDetailRoute proposalSlug={proposalSlug} configured={configured} />;
   }
 
   return <LedgerIndex />;
 }
 
 function LedgerProposalDetailRoute({
-  proposalId,
+  proposalSlug,
   configured,
 }: {
-  proposalId: string;
+  proposalSlug: string;
   configured: boolean;
 }) {
-  const q = useLedgerProposalBySlug(proposalId);
+  const q = useLedgerProposalBySlug(proposalSlug);
 
   if (!configured) {
-    if (proposalId === DEMO_PROPOSAL_ID) return <LedgerDemoProposalDetail />;
-    return <LedgerIndex unknownProposalId={proposalId} />;
+    if (proposalSlug === DEMO_PROPOSAL_ID) return <LedgerDemoProposalDetail />;
+    return <LedgerIndex unknownProposalSlug={proposalSlug} />;
   }
 
   if (q.isPending) {
@@ -452,11 +452,11 @@ function LedgerProposalDetailRoute({
     return <LedgerProposalFromDb row={q.data} />;
   }
 
-  if (proposalId === DEMO_PROPOSAL_ID) {
+  if (proposalSlug === DEMO_PROPOSAL_ID) {
     return <LedgerDemoProposalDetail />;
   }
 
-  return <LedgerIndex unknownProposalId={proposalId} />;
+  return <LedgerIndex unknownProposalSlug={proposalSlug} />;
 }
 
 function LedgerProposalFromDb({
@@ -657,7 +657,7 @@ function LedgerDemoProposalDetail() {
 
 const EMPTY_LEDGER_ROWS: LedgerProposalListRow[] = [];
 
-function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {}) {
+function LedgerIndex({ unknownProposalSlug }: { unknownProposalSlug?: string } = {}) {
   const listQuery = useLedgerPublishedList();
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
   const [citeCopied, setCiteCopied] = useState(false);
@@ -728,11 +728,11 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
       <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-8 md:py-10">
         <div className="flex flex-col gap-4 border-b border-[#1a2236]/90 pb-8 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-              Ledger
+            <p className="mb-0 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand">
+              Public record layer
             </p>
             <h1
-              className="mb-0 mt-2 flex flex-wrap items-end gap-x-3 gap-y-2 font-heading text-ink"
+              className="mb-0 mt-2 flex flex-wrap items-end gap-x-3 gap-y-2 font-display text-ink"
               style={{
                 fontSize: 'clamp(1.85rem, 3.2vw, 2.65rem)',
                 fontWeight: 800,
@@ -740,12 +740,11 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 lineHeight: 1.08,
               }}
             >
-              <span className="min-w-0">SquadRidge</span>
-              <span className="min-w-0">Ledger</span>
+              <span className="min-w-0">The SquadRidge Ledger</span>
             </h1>
             <p className="mt-3 max-w-2xl font-sans text-body-lg font-normal leading-relaxed text-ink-secondary">
-              A public archive of cross-border squad consensus proposals — citable, timestamped, and
-              verified without exposing who sat in the room.
+              A public archive of approved outcomes from sealed facilitator-led rooms. Citable,
+              timestamped, and structurally separate from the private discussion.
             </p>
           </div>
           <button
@@ -763,10 +762,10 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
           cite, review, and build on what was agreed.
         </p>
 
-        {unknownProposalId ? (
+        {unknownProposalSlug ? (
           <p className="mt-6 rounded-lg border border-amber/25 bg-amber/5 px-4 py-3 font-sans text-sm text-ink-secondary">
             No public entry for{' '}
-            <span className="font-mono text-ink-muted">{unknownProposalId}</span> yet. Browse the
+            <span className="font-mono text-ink-muted">{unknownProposalSlug}</span> yet. Browse the
             ledger below or start from a squad session when entries go live.
           </p>
         ) : null}
@@ -910,6 +909,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                             tags={row.tags}
                             href={`/ledger/${row.slug}`}
                             demo={row.slug === DEMO_PROPOSAL_ID}
+                            ledgerRef={row.ledger_ref}
                           />
                         ))}
                         <LedgerDemoRowDesktop
@@ -930,6 +930,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                           tags={['Climate', 'Displacement']}
                           href={`/ledger/${DEMO_PROPOSAL_ID}`}
                           demo
+                          ledgerRef={`ledger:root=${DEMO_LEDGER_ROOT_SHORT}`}
                         />
                         <LedgerDemoRowDesktop
                           date="2026-02-02"
@@ -964,6 +965,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                         tags={row.tags}
                         href={`/ledger/${row.slug}`}
                         demo={row.slug === DEMO_PROPOSAL_ID}
+                        ledgerRef={row.ledger_ref}
                       />
                     ))}
                     <LedgerDemoCard
@@ -984,6 +986,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                       tags={['Climate', 'Displacement']}
                       href={`/ledger/${DEMO_PROPOSAL_ID}`}
                       demo
+                      ledgerRef={`ledger:root=${DEMO_LEDGER_ROOT_SHORT}`}
                     />
                     <LedgerDemoCard
                       date="2026-02-02"
@@ -1003,22 +1006,72 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
           <aside className="min-w-0 space-y-8 lg:sticky lg:top-24">
             <section className="vault-frost p-5">
               <h2 className="font-heading text-[0.95rem] font-bold text-ink">How entries work</h2>
+              <p className="mt-2 font-sans text-[0.78rem] leading-snug text-ink-faint">
+                What is true today, and what is on the roadmap.
+              </p>
               <ul className="mt-4 list-none space-y-4 font-sans text-[0.875rem] leading-relaxed text-ink-secondary">
                 <li>
-                  <span className="font-medium text-ink-muted">Publishing.</span> When a squad
-                  closes a session with consensus, the platform derives a compact proposal — not a
-                  transcript — and anchors it to the ledger with a public timestamp.
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="inline-flex items-center rounded border border-teal/45 bg-teal/10 px-1.5 py-0.5 font-mono text-[0.55rem] font-semibold uppercase tracking-[0.16em] text-teal-light"
+                    >
+                      Live
+                    </span>
+                    <span className="font-medium text-ink-muted">Publishing</span>
+                  </div>
+                  When a facilitator-led squad closes a session with consensus, a compact proposal —
+                  not a transcript — is published here with a public timestamp and a moderator
+                  attestation in the audit log.
                 </li>
                 <li>
-                  <span className="font-medium text-ink-muted">Anonymous, verifiable.</span>{' '}
-                  Identities stay off the record; cryptographic commitments and privacy-preserving
-                  verification are designed to let readers trust the outcome without learning who
-                  was in the room.
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="inline-flex items-center rounded border border-teal/45 bg-teal/10 px-1.5 py-0.5 font-mono text-[0.55rem] font-semibold uppercase tracking-[0.16em] text-teal-light"
+                    >
+                      Live
+                    </span>
+                    <span className="font-medium text-ink-muted">Anonymous and verifiable</span>
+                  </div>
+                  Identities stay off the record. Each entry carries a public ledger reference (
+                  <code className="font-mono text-[0.78rem] text-ink-secondary">ledger:root=…</code>
+                  ) tying it to the squad session and anonymity set, so a reader can confirm the
+                  outcome was attested by a verified squad without learning who was in the room.
                 </li>
                 <li>
-                  <span className="font-medium text-ink-muted">Time &amp; immutability.</span> Each
-                  entry is anchored in time, so the version you cite is the version that was
-                  attested, not silently edited later.
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="inline-flex items-center rounded border border-teal/45 bg-teal/10 px-1.5 py-0.5 font-mono text-[0.55rem] font-semibold uppercase tracking-[0.16em] text-teal-light"
+                    >
+                      Live
+                    </span>
+                    <span className="font-medium text-ink-muted">Append-only by policy</span>
+                  </div>
+                  Published rows are never silently edited or deleted. A correction appears as a new
+                  entry that{' '}
+                  <em className="not-italic font-medium text-ink-secondary">supersedes</em> the old
+                  one; the original stays in the ledger marked{' '}
+                  <code className="font-mono text-[0.78rem] text-ink-secondary">SUPERSEDED</code>.
+                  The version you cite today is the version that was attested.
+                </li>
+                <li className="border-t border-white/[0.07] pt-4">
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="inline-flex items-center rounded border border-amber/35 bg-amber/[0.08] px-1.5 py-0.5 font-mono text-[0.55rem] font-semibold uppercase tracking-[0.16em] text-amber/95"
+                    >
+                      Coming next
+                    </span>
+                    <span className="font-medium text-ink-muted">External hash anchoring</span>
+                  </div>
+                  <p className="m-0 text-ink-faint">
+                    Cryptographic chaining of ledger entries to an external anchor for
+                    cross-platform verifiability. Today the chain of trust ends at SquadRidge’s
+                    audited moderator attestation; a future release adds a third-party-verifiable
+                    hash trail.
+                  </p>
                 </li>
               </ul>
             </section>
@@ -1161,12 +1214,28 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
   );
 }
 
-/** Uses {@link getSiteUrl} — set `VITE_SITE_URL` in production so citations show your public domain instead of localhost. */
+/**
+ * Stable canonical origin for the *displayed* sample citation.
+ *
+ * The sample is a public-facing example of how a real citation should look.
+ * If the deployment has a public origin set (`VITE_SITE_URL`), use that.
+ * Otherwise — including dev / preview / localhost — fall back to a stable
+ * production-shaped placeholder. We deliberately do NOT use
+ * `window.location.origin` here, because a sample that says "localhost:5173"
+ * undermines the archival feel of the whole page.
+ */
+const LEDGER_CITATION_FALLBACK_ORIGIN = 'https://squadridge.org';
+
+function isPublicOrigin(origin: string): boolean {
+  if (!origin) return false;
+  return !/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|\d+\.\d+\.\d+\.\d+)(:|$|\/)/i.test(
+    origin,
+  );
+}
+
 function buildLedgerCitationLine(): string {
-  const origin =
-    getSiteUrl().replace(/\/$/, '') ||
-    (typeof window !== 'undefined' ? window.location.origin : '') ||
-    'https://squadridge.example';
+  const configured = getSiteUrl().replace(/\/$/, '');
+  const origin = isPublicOrigin(configured) ? configured : LEDGER_CITATION_FALLBACK_ORIGIN;
   return `SquadRidge Ledger. “Civilian protection protocols — displacement corridor” (example entry). Retrieved ${todayIso()}, from ${origin}/ledger.`;
 }
 
@@ -1186,6 +1255,64 @@ function todayIso(): string {
   }
 }
 
+/**
+ * Compact metadata row shown on each ledger index entry. Communicates that
+ * each row is a verifiable record, not just a content list item:
+ *   - Facilitator-approved (true for any published row by the publish flow)
+ *   - Consensus reached (true for any published row by definition)
+ *   - Anchor (truncated `ledger:root=...` reference, when available)
+ *
+ * If `anchor` is omitted the anchor pill is not rendered.
+ */
+function LedgerEntryMetaStrip({ anchor }: { anchor?: string | null }) {
+  return (
+    <div
+      className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-sans text-[0.7rem] leading-none text-ink-faint"
+      aria-label="Provenance metadata"
+    >
+      <span className="inline-flex items-center gap-1 text-ink-secondary">
+        <span aria-hidden className="text-teal-light">
+          ✓
+        </span>
+        Facilitator-approved
+      </span>
+      <span aria-hidden className="text-ink-subtle">
+        ·
+      </span>
+      <span className="inline-flex items-center gap-1 text-ink-secondary">
+        <span aria-hidden className="text-teal-light">
+          ✓
+        </span>
+        Consensus reached
+      </span>
+      {anchor ? (
+        <>
+          <span aria-hidden className="text-ink-subtle">
+            ·
+          </span>
+          <span
+            className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-ink-faint"
+            title={`Ledger anchor: ${anchor}`}
+          >
+            <span className="text-ink-subtle">Anchor</span>
+            <span className="text-ink-secondary">{anchor}</span>
+          </span>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Reduce a `ledger:root=0x7f3a…c91d · session_ref=…` reference to just the
+ * truncated root hash for the index strip. Defensive against unexpected shapes.
+ */
+function shortLedgerAnchor(ref: string | null | undefined): string | null {
+  if (!ref) return null;
+  const m = /root\s*=\s*([^\s·,]+)/i.exec(ref);
+  return m?.[1] ?? null;
+}
+
 function LedgerDemoRowDesktop({
   date,
   topic,
@@ -1193,6 +1320,7 @@ function LedgerDemoRowDesktop({
   tags,
   href,
   demo,
+  ledgerRef,
 }: {
   date: string;
   topic: string;
@@ -1200,11 +1328,16 @@ function LedgerDemoRowDesktop({
   tags: readonly string[];
   href: string | null;
   demo: boolean;
+  ledgerRef?: string | null;
 }) {
+  const anchor = shortLedgerAnchor(ledgerRef);
   return (
     <tr className="border-b border-white/10 align-top">
       <td className="whitespace-nowrap px-4 py-4 font-mono text-xs text-ink-muted">{date}</td>
-      <td className="min-w-[8rem] px-4 py-4 align-top font-medium break-words text-ink">{topic}</td>
+      <td className="min-w-[8rem] px-4 py-4 align-top break-words">
+        <p className="m-0 font-medium text-ink">{topic}</p>
+        <LedgerEntryMetaStrip anchor={anchor} />
+      </td>
       <td className="min-w-[12rem] px-4 py-4 align-top break-words text-ink-secondary">
         {summary}
       </td>
@@ -1256,6 +1389,7 @@ function LedgerDemoCard({
   tags,
   href,
   demo,
+  ledgerRef,
 }: {
   date: string;
   topic: string;
@@ -1263,14 +1397,17 @@ function LedgerDemoCard({
   tags: readonly string[];
   href: string | null;
   demo: boolean;
+  ledgerRef?: string | null;
 }) {
+  const anchor = shortLedgerAnchor(ledgerRef);
   return (
     <article className="min-w-0 px-4 py-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <time className="font-mono text-xs text-ink-muted">{date}</time>
       </div>
       <h3 className="mt-2 break-words font-heading text-[1.05rem] font-bold text-ink">{topic}</h3>
-      <p className="mt-2 break-words font-sans text-sm leading-relaxed text-ink-secondary">
+      <LedgerEntryMetaStrip anchor={anchor} />
+      <p className="mt-3 break-words font-sans text-sm leading-relaxed text-ink-secondary">
         {summary}
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">

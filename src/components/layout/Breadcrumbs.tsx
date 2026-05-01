@@ -23,6 +23,15 @@ const EXACT: Record<string, { parent: Crumb; current: string }> = {
   },
   '/settings/safety': { parent: { to: '/settings', label: 'Settings' }, current: 'Safety center' },
   '/admin/health': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Supabase health' },
+  '/admin/reports': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Reports' },
+  '/admin/verification': {
+    parent: { to: '/admin/rooms', label: 'Admin' },
+    current: 'Verification',
+  },
+  '/admin/rooms': { parent: { to: '/', label: 'Home' }, current: 'Admin rooms' },
+  '/admin/logs': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Audit log' },
+  '/admin/csi': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'CSI' },
+  '/admin/demo': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Demo' },
   '/mod': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Moderation' },
   '/invite': { parent: { to: '/', label: 'Home' }, current: 'Invite' },
   '/sign-in': { parent: { to: '/', label: 'Home' }, current: 'Sign in' },
@@ -49,7 +58,10 @@ function getTrail(pathname: string): Crumb[] | null {
     return [exact.parent, { label: exact.current }];
   }
   if (pathname.startsWith('/settings/')) {
-    return [{ to: '/', label: 'Home' }, { label: humanizeLastSegment(pathname) }];
+    return [{ to: '/settings', label: 'Settings' }, { label: humanizeLastSegment(pathname) }];
+  }
+  if (pathname.startsWith('/admin/')) {
+    return [{ to: '/admin/rooms', label: 'Admin' }, { label: humanizeLastSegment(pathname) }];
   }
   return [{ to: '/', label: 'Home' }, { label: humanizeLastSegment(pathname) }];
 }

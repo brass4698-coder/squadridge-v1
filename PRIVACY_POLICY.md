@@ -56,7 +56,7 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 
 ## Contact and next steps
 
-- For privacy questions or data removal requests: privacy@squadridge.example (replace before publishing).
+- For privacy questions or data removal requests during a private pilot, contact the active pilot owner listed in [`docs/operations/pilot-owners.md`](docs/operations/pilot-owners.md). Do not publish this policy externally until a real dedicated privacy contact is configured.
 - For legal or compliance reviews, see DATA_RETENTION.md and [`docs/security/threat-model.md`](docs/security/threat-model.md).
 
 ## Thank you

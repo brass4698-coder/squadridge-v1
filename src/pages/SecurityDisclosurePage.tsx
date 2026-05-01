@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../components/ui/StatusBadge';
+import { BoundaryCard, InstitutionalPanel, MetadataRow, SectionKicker } from '../components';
 
 /**
  * Plain-language security posture for participants, facilitators, and security
@@ -30,7 +31,9 @@ export function SecurityDisclosurePage() {
 
         <article className="mx-auto w-full max-w-copy">
           <SecurityHeader />
-          <SecurityAtAGlanceSection className="mt-8" />
+          <SecurityBoundaryModelSection className="mt-8" />
+          <SecurityKeyCaveatsSection className="mt-6" />
+          <SecurityAtAGlanceSection className="mt-6" />
           <SecurityTableOfContents variant="inline" className="mt-8 lg:hidden" />
 
           <div className="mt-10 flex flex-col gap-7 md:gap-8">
@@ -49,7 +52,7 @@ export function SecurityDisclosurePage() {
               to="/#waitlist"
               className="font-sans text-[0.875rem] font-medium text-[#94a3b8] underline-offset-4 transition-colors hover:text-[#cbd5e1] hover:underline"
             >
-              Request pilot access
+              Apply for a pilot
             </Link>
             <Link
               to="/"
@@ -67,13 +70,15 @@ export function SecurityDisclosurePage() {
 function SecurityHeader() {
   return (
     <header>
-      <p className="font-sans text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
-        SECURITY DISCLOSURE
-      </p>
-      <h1 className="mt-2.5 font-sans text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-[1.15] tracking-tight text-[#f1f5f9]">
-        Security boundaries in the current release
+      <SectionKicker>Security disclosure</SectionKicker>
+      <h1 className="mt-2.5 font-display text-[clamp(2rem,4vw,3.35rem)] font-semibold leading-[1.05] tracking-[-0.04em] text-ink">
+        Trust boundaries for sealed rooms and public records.
       </h1>
-      <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-[#a8b2c1]">
+      <p className="mt-5 max-w-[44rem] border-l-2 border-brand pl-4 font-sans text-[1rem] font-medium leading-[1.6] text-ink md:text-[1.05rem]">
+        Security here is structural: verification before access, bounded confidentiality inside the
+        room, release controls before publication, and honest disclosure of operator visibility.
+      </p>
+      <p className="mt-5 max-w-[40rem] font-sans text-[0.92rem] leading-[1.65] text-[#a8b2c1]">
         This page describes what SquadRidge protects today, what operators can still access during
         normal operation, and which guarantees are not yet part of the current release. Trust comes
         from clarity here, not from claims.
@@ -87,6 +92,50 @@ function SecurityHeader() {
         as the primary source.
       </p>
     </header>
+  );
+}
+
+function SecurityBoundaryModelSection({ className = '' }: { className?: string }) {
+  return (
+    <section
+      aria-labelledby="security-boundary-model"
+      className={`grid gap-4 md:grid-cols-2 ${className}`.trim()}
+    >
+      <BoundaryCard label="Private surface" title="The room is not the artifact" tone="sealed">
+        <p className="mb-0">
+          Participants enter after eligibility checks. The session is facilitated, time-bounded, and
+          not exported as a raw transcript.
+        </p>
+      </BoundaryCard>
+      <BoundaryCard label="Public surface" title="The record is approved release" tone="record">
+        <p className="mb-0">
+          Publication is a separate act. Approved outcomes can be cited without exposing participant
+          identity, raw statements, or deliberation paths.
+        </p>
+      </BoundaryCard>
+      <InstitutionalPanel className="md:col-span-2">
+        <h2
+          id="security-boundary-model"
+          className="mb-4 font-sans text-[1rem] font-semibold text-ink"
+        >
+          What structure enforces
+        </h2>
+        <dl>
+          <MetadataRow
+            label="Access"
+            value="Verification and invite state are checked before live matching or room entry."
+          />
+          <MetadataRow
+            label="Exposure"
+            value="In-room identity and public attribution are separated by design."
+          />
+          <MetadataRow
+            label="Release"
+            value="A leaked snippet is not a citable outcome. Only approved release produces a public record."
+          />
+        </dl>
+      </InstitutionalPanel>
+    </section>
   );
 }
 
@@ -144,59 +193,147 @@ function SecurityTableOfContents({
   );
 }
 
-const AT_A_GLANCE: ReadonlyArray<{
-  tone: 'success' | 'danger' | 'warning';
-  label: 'We do' | 'We do not' | 'Not yet';
-  body: string;
+const KEY_CAVEATS: ReadonlyArray<{ label: string; detail: string }> = [
+  {
+    label: 'Operators can still decrypt — with audited justification',
+    detail:
+      'Plaintext access is not technically prevented today. Every decrypt action requires a written justification and is logged before plaintext is returned. Moderation is audited, not blinded.',
+  },
+  {
+    label: 'No raw transcript export',
+    detail:
+      'By design — even facilitators cannot pull a full transcript out of the platform. The most attractive artifact in a future compromise does not exist.',
+  },
+  {
+    label: 'End-to-end encryption is not yet live',
+    detail:
+      'Per-user E2E is on the roadmap. Today the squad’s symmetric key sits on the platform alongside ciphertext. This is documented honestly rather than implied away.',
+  },
+];
+
+function SecurityKeyCaveatsSection({ className = '' }: { className?: string }) {
+  return (
+    <section
+      aria-label="Read this first: three caveats"
+      className={`rounded-md border border-amber/35 bg-amber/[0.04] px-5 py-5 md:px-6 md:py-6 ${className}`.trim()}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-sans text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-amber/90">
+          Read this first
+        </p>
+        <p className="font-sans text-[0.6rem] font-medium uppercase tracking-[0.12em] text-ink-faint">
+          Three caveats
+        </p>
+      </div>
+      <ol className="m-0 mt-4 grid list-none gap-3 p-0 md:grid-cols-3 md:gap-4">
+        {KEY_CAVEATS.map((c, i) => (
+          <li
+            key={c.label}
+            className="m-0 flex flex-col gap-2 rounded-md border border-amber/25 bg-[#0a121f] p-4"
+          >
+            <div className="flex items-baseline gap-2">
+              <span
+                aria-hidden
+                className="font-mono text-[0.65rem] font-semibold tabular-nums text-amber/80"
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p className="m-0 font-sans text-[0.92rem] font-semibold leading-snug text-ink">
+                {c.label}
+              </p>
+            </div>
+            <p className="m-0 font-sans text-[0.85rem] leading-[1.6] text-ink-secondary">
+              {c.detail}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const SCAN_CARDS: ReadonlyArray<{
+  label: string;
+  tone: 'success' | 'info' | 'default' | 'warning';
+  items: ReadonlyArray<string>;
 }> = [
   {
+    label: 'What we protect',
     tone: 'success',
-    label: 'We do',
-    body: 'Encrypt every message payload at rest with AES-256-GCM before it is written to storage.',
+    items: [
+      'Message payloads encrypted at rest with AES-256-GCM.',
+      'Identity stays inside the room — public records are anonymous and timestamped.',
+      'No publishing without an explicit in-room approval vote.',
+    ],
   },
   {
-    tone: 'success',
-    label: 'We do',
-    body: 'Log every operator decrypt action — with a written justification — before plaintext is returned.',
+    label: 'What staff can access',
+    tone: 'info',
+    items: [
+      'Ciphertext and squad keys during normal operation.',
+      'Plaintext only via an audited RPC requiring a written justification.',
+      'Every decrypt action is logged before plaintext is returned.',
+    ],
   },
   {
-    tone: 'danger',
-    label: 'We do not',
-    body: 'Publish anything outside the room without an explicit in-room approval vote.',
+    label: 'What gets published',
+    tone: 'default',
+    items: [
+      'A public outcome record only when in-room approval is granted.',
+      'The outcome — not the transcript, not participant identifiers.',
+      'Citable, anonymous, timestamped. Cannot be retracted in place once published.',
+    ],
   },
   {
-    tone: 'danger',
-    label: 'We do not',
-    body: 'Stand up real-name profiles, cross-pilot identity reuse, or raw transcript exports.',
-  },
-  {
+    label: 'What is not yet true',
     tone: 'warning',
-    label: 'Not yet',
-    body: 'Operator-blind end-to-end encryption — the platform can still decrypt content for moderation today.',
+    items: [
+      'Operator-blind end-to-end encryption.',
+      'Automated key rotation between sessions / managed-KMS storage of squad keys.',
+      'Operator-blind moderation tooling — current model is audited, not blinded.',
+    ],
   },
 ];
 
 function SecurityAtAGlanceSection({ className = '' }: { className?: string }) {
   return (
     <section
-      aria-label="Key guarantees and non-guarantees at a glance"
-      className={`rounded-md border border-line bg-surface-elevated px-5 py-5 ${className}`.trim()}
+      aria-label="At a glance: what we protect, who can access what, what gets published, and what is not yet true"
+      className={`rounded-md border border-line bg-surface-elevated px-5 py-5 md:px-6 md:py-6 ${className}`.trim()}
     >
       <p className="font-sans text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-faint">
         At a glance
       </p>
-      <ul className="m-0 mt-3 grid list-none gap-2.5 p-0 sm:grid-cols-2">
-        {AT_A_GLANCE.map((item, i) => (
-          <li key={i} className="m-0 flex items-start gap-2.5 p-0">
-            <StatusBadge tone={item.tone} className="mt-0.5 shrink-0">
-              {item.label}
-            </StatusBadge>
-            <p className="m-0 font-sans text-[0.85rem] leading-[1.55] text-ink-secondary">
-              {item.body}
-            </p>
-          </li>
+      <div className="m-0 mt-4 grid gap-3 p-0 sm:grid-cols-2 sm:gap-4">
+        {SCAN_CARDS.map((card) => (
+          <div
+            key={card.label}
+            className="flex h-full flex-col gap-3 rounded-md border border-line bg-[#0a121f] p-4"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="m-0 font-sans text-[0.95rem] font-semibold leading-snug text-ink">
+                {card.label}
+              </h3>
+              <StatusBadge tone={card.tone} className="shrink-0">
+                {card.tone === 'success'
+                  ? 'Active'
+                  : card.tone === 'info'
+                    ? 'Honest'
+                    : card.tone === 'warning'
+                      ? 'Not yet'
+                      : 'Explicit'}
+              </StatusBadge>
+            </div>
+            <ul className="m-0 list-disc space-y-1.5 pl-5 font-sans text-[0.85rem] leading-[1.55] text-ink-secondary marker:text-slate-600">
+              {card.items.map((item) => (
+                <li key={item} className="pl-1">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
     </section>
   );
 }
@@ -449,52 +586,80 @@ function SecurityPermissionsSection() {
   );
 }
 
+const DEPLOYMENT_CARDS: ReadonlyArray<{
+  term: string;
+  body: React.ReactNode;
+}> = [
+  {
+    term: 'Hosting',
+    body: (
+      <>
+        Supabase managed Postgres and Edge Functions, fronted by HTTPS. The platform vendor and its
+        subprocessors are part of the trust boundary; their access posture is described in §3 of the
+        threat model.
+      </>
+    ),
+  },
+  {
+    term: 'Privileged access',
+    body: (
+      <>
+        Service-role and dashboard access require MFA, are limited to a minimal headcount, and
+        follow a documented break-glass procedure. Authorization is not based on user-editable JWT
+        metadata.
+      </>
+    ),
+  },
+  {
+    term: 'Logging',
+    body: (
+      <>
+        Edge Functions emit structured outcome-only logs in production. Full proof bodies, raw
+        payloads, and PII are not logged. Vendor-edge auth-event metadata is disclosed in the pilot
+        agreement.
+      </>
+    ),
+  },
+  {
+    term: 'Incident response',
+    body: (
+      <>
+        Suspected mass correlation, export, or key compromise is treated as Severity-0, with a
+        runbook covering key rotation and pilot-partner notification. Report concerns to the contact
+        in your pilot agreement, or the security email in{' '}
+        <code className="font-mono text-[0.85rem] text-ink-secondary">
+          docs/security/threat-model.md
+        </code>
+        .
+      </>
+    ),
+  },
+];
+
 function SecurityDeploymentSection() {
   return (
     <DocSection id="security-deployment" labelledBy="security-deployment-heading">
       <SectionHeading id="security-deployment-heading">Deployment and operations</SectionHeading>
-      <p className="mb-4 font-sans text-[0.95rem] leading-[1.65] text-ink-secondary">
+      <p className="mb-4 font-sans text-[0.92rem] leading-[1.6] text-ink-secondary">
         Concrete environment details for security reviewers and counsel. Pilot-specific parameters
-        (region, named subprocessors, retention windows) are documented in each pilot agreement.
+        (region, named subprocessors, retention windows) are set per pilot agreement.
       </p>
-      <dl className="m-0 grid gap-x-6 gap-y-3 p-0 sm:grid-cols-[10rem_minmax(0,1fr)]">
-        <SecurityKv term="Hosting">
-          Supabase managed Postgres and Edge Functions, fronted by HTTPS. The platform vendor and
-          its subprocessors are part of the trust boundary; their access posture is described in §3
-          of the threat model.
-        </SecurityKv>
-        <SecurityKv term="Privileged access">
-          Service-role and dashboard access require multi-factor authentication, are limited to a
-          minimal headcount, and follow a documented break-glass procedure. Authorization decisions
-          are not based on user-editable JWT metadata.
-        </SecurityKv>
-        <SecurityKv term="Logging">
-          Edge Functions emit structured outcome-only logs in production. Full proof bodies, raw
-          payloads, and PII are not logged. Auth-event metadata captured by the platform vendor at
-          the edge is disclosed in the pilot agreement.
-        </SecurityKv>
-        <SecurityKv term="Incident response">
-          Suspected mass correlation, export, or key compromise is treated as Severity-0 with a
-          runbook that includes key rotation and pilot-partner notification. Report concerns to the
-          contact in your pilot agreement, or to the security email referenced in{' '}
-          <code className="font-mono text-[0.85rem] text-ink-secondary">
-            docs/security/threat-model.md
-          </code>
-          .
-        </SecurityKv>
-      </dl>
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+        {DEPLOYMENT_CARDS.map((card) => (
+          <div
+            key={card.term}
+            className="flex h-full flex-col gap-2 rounded-md border border-line bg-[#0a121f] p-4"
+          >
+            <p className="m-0 font-sans text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+              {card.term}
+            </p>
+            <p className="m-0 font-sans text-[0.88rem] leading-[1.6] text-ink-secondary">
+              {card.body}
+            </p>
+          </div>
+        ))}
+      </div>
     </DocSection>
-  );
-}
-
-function SecurityKv({ term, children }: { term: string; children: React.ReactNode }) {
-  return (
-    <>
-      <dt className="m-0 font-sans text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-ink-faint">
-        {term}
-      </dt>
-      <dd className="m-0 font-sans text-[0.9rem] leading-[1.6] text-ink-secondary">{children}</dd>
-    </>
   );
 }
 
@@ -558,12 +723,12 @@ function SecurityFaqSection() {
         {FAQS.map((item, i) => (
           <div
             key={item.q}
-            className={`${i === 0 ? 'pt-0' : 'pt-4'} ${i === FAQS.length - 1 ? 'pb-0' : 'pb-4'}`}
+            className={`${i === 0 ? 'pt-0' : 'pt-6'} ${i === FAQS.length - 1 ? 'pb-0' : 'pb-6'}`}
           >
-            <dt className="m-0 font-sans text-[0.92rem] font-semibold leading-snug text-ink">
+            <dt className="m-0 font-sans text-[0.98rem] font-semibold leading-snug text-ink">
               {item.q}
             </dt>
-            <dd className="m-0 mt-1.5 font-sans text-[0.9rem] leading-[1.6] text-ink-secondary">
+            <dd className="m-0 mt-3 font-sans text-[0.9rem] leading-[1.7] text-ink-secondary">
               {item.a}
             </dd>
           </div>

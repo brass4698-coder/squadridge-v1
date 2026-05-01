@@ -30,15 +30,18 @@ import {
 } from '../hooks';
 import {
   addSessionLifecycleBreadcrumb,
+  blockParticipant,
   captureAppError,
   encodeSecureMessagePayload,
   ensureSquadMessageKey,
+  fetchActiveParticipantBlocks,
   fetchOwnMessageReviewStatus,
   isAiPipelineEnabled,
   isSupabaseConfigured,
   logIntervention,
   recordLocalToneAndMaybePersist,
   enqueuePendingSend,
+  describeParticipantReportResult,
   listPendingSendsForSquad,
   removePendingSend,
   SEND_RETRY_ATTEMPTS,
@@ -48,7 +51,10 @@ import {
   sleep,
   assertEdgeRateLimit,
   MATCHED_SQUAD_TTL_HOURS,
+  submitParticipantReport,
+  unblockParticipant,
   type Database,
+  type ParticipantReportReason,
 } from '../lib';
 import { redactOutgoingLiveMessage } from '../lib/liveMessageRedaction';
 
@@ -71,6 +77,12 @@ type OptimisticMessage = {
   sent_at: string;
   status: string;
   deliveryStatus: DeliveryStatus;
+};
+
+type ReportDraft = {
+  reportType: 'room' | 'participant';
+  reasonCode: ParticipantReportReason;
+  contextNote: string;
 };
 
 export function SessionPage({ squadId }: { squadId: string }) {
@@ -103,6 +115,8 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const { typing: typingUserIds, notifyTyping } = useSquadTyping(squadId);
   const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
   const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
+  const [reportDraft, setReportDraft] = useState<ReportDraft | null>(null);
+  const [reportSubmitting, setReportSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
   /**
@@ -115,6 +129,8 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const [reviewStatusByMessage, setReviewStatusByMessage] = useState<Map<string, string>>(
     () => new Map(),
   );
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(() => new Set());
+  const [blockingUserId, setBlockingUserId] = useState<string | null>(null);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
   const loadOlderSentinelRef = useRef<HTMLLIElement | null>(null);
   const prefs = useUserPreferences();
@@ -122,6 +138,32 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const online = useOnlineStatus();
   const receivedEpochById = useRef(new Map<string, number>());
   const translationWarmupDone = useRef(false);
+  const userId = session?.user?.id ?? null;
+
+  const submitRoomReport = useCallback(
+    async (draft: ReportDraft) => {
+      if (!supabase || !userId) {
+        toast.error('Sign in again before submitting a report.');
+        return;
+      }
+
+      setReportSubmitting(true);
+      const result = await submitParticipantReport(supabase, {
+        squadId,
+        reporterUserId: userId,
+        reportType: draft.reportType,
+        reasonCode: draft.reasonCode,
+        contextNote: draft.contextNote.trim() || null,
+      });
+
+      const message = describeParticipantReportResult(result);
+      if (result.ok) toast.success(message);
+      else toast.error(message);
+      setReportSubmitting(false);
+      if (result.ok) setReportDraft(null);
+    },
+    [squadId, supabase, userId],
+  );
 
   useEffect(() => {
     setSentrySquadContext(squadId);
@@ -178,8 +220,6 @@ export function SessionPage({ squadId }: { squadId: string }) {
     io.observe(target);
     return () => io.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
-
-  const userId = session?.user?.id ?? null;
 
   useEffect(() => {
     if (!supabase || !userId) return;
@@ -287,6 +327,66 @@ export function SessionPage({ squadId }: { squadId: string }) {
   }, [squadId]);
 
   const plaintextById = useMessagePlaintexts(messages, messageKey, messageKeyMaterial);
+  const visibleMessages = messages.filter(
+    (m) => !m.sender_id || m.sender_id === userId || !blockedUserIds.has(m.sender_id),
+  );
+
+  const refreshParticipantBlocks = useCallback(async () => {
+    if (!supabase || !userId) {
+      setBlockedUserIds(new Set());
+      return;
+    }
+    const rows = await fetchActiveParticipantBlocks(supabase, squadId);
+    setBlockedUserIds(new Set(rows.map((r) => r.blocked_user_id)));
+  }, [squadId, supabase, userId]);
+
+  useEffect(() => {
+    void refreshParticipantBlocks().catch((e) => {
+      captureAppError(e, { feature: 'participant_blocks_load' });
+    });
+  }, [refreshParticipantBlocks]);
+
+  const handleBlockParticipant = useCallback(
+    async (blockedUserId: string) => {
+      if (!supabase || !userId) return;
+      setBlockingUserId(blockedUserId);
+      try {
+        await blockParticipant(supabase, {
+          squadId,
+          blockerUserId: userId,
+          blockedUserId,
+        });
+        await refreshParticipantBlocks();
+        toast.success('Participant blocked for this room.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Could not block participant.');
+      } finally {
+        setBlockingUserId(null);
+      }
+    },
+    [refreshParticipantBlocks, squadId, supabase, userId],
+  );
+
+  const handleUnblockParticipant = useCallback(
+    async (blockedUserId: string) => {
+      if (!supabase || !userId) return;
+      setBlockingUserId(blockedUserId);
+      try {
+        await unblockParticipant(supabase, {
+          squadId,
+          blockerUserId: userId,
+          blockedUserId,
+        });
+        await refreshParticipantBlocks();
+        toast.success('Participant unblocked.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Could not unblock participant.');
+      } finally {
+        setBlockingUserId(null);
+      }
+    },
+    [refreshParticipantBlocks, squadId, supabase, userId],
+  );
 
   const tryInsertMessage = useCallback(
     async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
@@ -796,6 +896,78 @@ export function SessionPage({ squadId }: { squadId: string }) {
   return (
     <SessionFeatureErrorBoundary squadId={squadId} key={squadId}>
       <SessionRoomEntryTransition key={squadId} squadId={squadId} />
+      {reportDraft ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-report-title"
+          className="fixed inset-0 z-[200] flex items-end bg-black/65 p-4 backdrop-blur-sm sm:items-center sm:justify-center"
+        >
+          <form
+            className="w-full max-w-lg border border-line bg-surface-elevated p-5 shadow-2xl"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submitRoomReport(reportDraft);
+            }}
+          >
+            <p className="mb-2 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-brand">
+              Protected report
+            </p>
+            <h2 id="session-report-title" className="mb-0 font-sans text-lg font-semibold text-ink">
+              Ask for facilitator review
+            </h2>
+            <p className="mt-3 font-sans text-[0.88rem] leading-relaxed text-ink-secondary">
+              Reports create a moderator-visible safety record. Do not include private contact
+              details, doxxing details, or information that is not needed for review.
+            </p>
+            <label className="mt-5 block font-sans text-[0.82rem] font-medium text-ink-secondary">
+              Reason
+              <select
+                value={reportDraft.reasonCode}
+                onChange={(e) =>
+                  setReportDraft((d) =>
+                    d ? { ...d, reasonCode: e.target.value as ParticipantReportReason } : d,
+                  )
+                }
+                className="sr-input mt-2"
+              >
+                <option value="facilitator_help">Facilitator help</option>
+                <option value="harassment">Harassment</option>
+                <option value="threat">Threat</option>
+                <option value="doxxing">Doxxing</option>
+                <option value="spam">Spam</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label className="mt-4 block font-sans text-[0.82rem] font-medium text-ink-secondary">
+              Context note
+              <textarea
+                value={reportDraft.contextNote}
+                maxLength={1200}
+                rows={5}
+                onChange={(e) =>
+                  setReportDraft((d) => (d ? { ...d, contextNote: e.target.value } : d))
+                }
+                className="sr-input mt-2 resize-y"
+                placeholder="Optional. Describe what needs review."
+              />
+            </label>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setReportDraft(null)}
+                disabled={reportSubmitting}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn-primary" disabled={reportSubmitting}>
+                {reportSubmitting ? 'Submitting…' : 'Submit report'}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
       <section
         key={sessionPathKey}
         className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
@@ -811,14 +983,18 @@ export function SessionPage({ squadId }: { squadId: string }) {
               : null
           }
           onReportRoom={() => {
-            toast.message(
-              `Room report reference: ${squadId.slice(0, 8)}… — MVP triage is manual; keep this tab if you need to share with support.`,
-            );
+            setReportDraft({
+              reportType: 'room',
+              reasonCode: 'facilitator_help',
+              contextNote: '',
+            });
           }}
           onReportParticipant={() => {
-            toast.message(
-              'Report participant: describe what happened without doxxing. MVP reviews use moderator tools.',
-            );
+            setReportDraft({
+              reportType: 'participant',
+              reasonCode: 'other',
+              contextNote: '',
+            });
           }}
           squadId={squadId}
         />
@@ -827,7 +1003,14 @@ export function SessionPage({ squadId }: { squadId: string }) {
           Squad session — {squad?.topic ?? squadId}
         </h1>
 
-        <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
+        <SquadPeerStrip
+          peers={squadPeers}
+          currentUserId={session?.user?.id}
+          blockedUserIds={blockedUserIds}
+          onBlockParticipant={(blockedUserId) => void handleBlockParticipant(blockedUserId)}
+          onUnblockParticipant={(blockedUserId) => void handleUnblockParticipant(blockedUserId)}
+          blockingUserId={blockingUserId}
+        />
 
         <SessionPresenceList
           peers={squadPeers}
@@ -1007,13 +1190,15 @@ export function SessionPage({ squadId }: { squadId: string }) {
                 </li>
               ) : null}
               {loading ? <SessionPageMessagesSkeleton count={5} /> : null}
-              {messages.length === 0 && optimisticMessages.length === 0 && !loading ? (
+              {visibleMessages.length === 0 && optimisticMessages.length === 0 && !loading ? (
                 <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
-                  No messages yet. Say hello calmly.
+                  {messages.length > 0
+                    ? 'Messages from blocked participants are hidden.'
+                    : 'No messages yet. Say hello calmly.'}
                 </li>
               ) : null}
               {!loading
-                ? messages.map((m) => {
+                ? visibleMessages.map((m) => {
                     const body = plaintextById[m.id] ?? '';
                     const retracted = m.status === 'retracted';
                     const isOwn = Boolean(userId && m.sender_id && m.sender_id === userId);
