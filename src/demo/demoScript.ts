@@ -253,7 +253,7 @@ export const demoSteps: DemoStep[] = [
   {
     id: 'security',
     path: '/security?demo=1',
-    title: 'Security & privacy',
+    title: 'Security Disclosure',
     description: 'Zero-knowledge posture and verification.',
     inMainScript: true,
     envModes: mockAll,

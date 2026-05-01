@@ -6,6 +6,19 @@ test.describe('critical path smoke', () => {
     await expect(page).toHaveTitle(/SquadRidge/i);
   });
 
+  test('investor surfaces are reachable without auth', async ({ page }) => {
+    for (const path of ['/dialogues', '/trust', '/insights', '/partners']) {
+      await page.goto(path);
+      await expect(page).toHaveTitle(/SquadRidge/i);
+      await expect(page.locator('main')).toBeVisible();
+    }
+  });
+
+  test('/insights/dashboard requires sign-in (no anonymous moderator UI)', async ({ page }) => {
+    await page.goto('/insights/dashboard');
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
   test('admin CSI requires sign-in (no anonymous moderator UI)', async ({ page }) => {
     await page.goto('/admin/csi');
     await expect(page).toHaveURL(/\/sign-in/);

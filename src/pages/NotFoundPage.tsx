@@ -17,7 +17,7 @@ export function NotFoundPage() {
         </h1>
         <p className="mt-5 max-w-[42rem] font-sans text-[1rem] leading-relaxed text-ink-secondary">
           SquadRidge does not silently translate unknown links into a live page. Return to the
-          platform overview, browse the ledger, or review the security model.
+          platform overview, browse the ledger, or review the Security Disclosure.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link to="/" className="btn-primary no-underline">
@@ -27,7 +27,7 @@ export function NotFoundPage() {
             Browse ledger
           </Link>
           <Link to="/security" className="btn-secondary no-underline">
-            Security model
+            Security Disclosure
           </Link>
         </div>
       </InstitutionalPanel>

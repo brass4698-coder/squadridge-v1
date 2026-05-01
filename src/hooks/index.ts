@@ -1,5 +1,6 @@
 export * from './useAppNavContext';
 export * from './useIsModerator';
+export * from './useRole';
 export * from './useLedgerProposals';
 export * from './useLedgerProposalVotes';
 export * from './useMessagePlaintexts';

@@ -17,6 +17,8 @@
   --sr-bg-secondary: #101217;
   --sr-bg-sunken: #07080b;
   --sr-bg-sealed: #0a0c10;
+  --sr-band-navy: #0b0d10;
+  --sr-band-black: #07080b;
 
   /* Lines */
   --sr-line: #282d33;
@@ -55,6 +57,12 @@
   --sr-info: #6f8ab1;
   --sr-info-soft: rgba(111, 138, 177, 0.1);
 
+  /* Status — first-class loading/empty/error state colors used by StatusDot. */
+  --sr-status-live: #5aa67f;
+  --sr-status-stale: #c79a4a;
+  --sr-status-empty: #7b8290;
+  --sr-status-error: #c46a5e;
+
   /* Focus ring */
   --sr-focus: var(--sr-primary);
 
@@ -69,6 +77,8 @@
   --sr-bg-secondary: #efece6;
   --sr-bg-sunken: #ebe8e1;
   --sr-bg-sealed: #e7e1d7;
+  --sr-band-navy: #f8f6f2;
+  --sr-band-black: #ebe8e1;
 
   --sr-line: #e2dfd9;
   --sr-line-strong: #cfcbc2;
@@ -101,6 +111,11 @@
   --sr-danger-soft: rgba(154, 67, 56, 0.08);
   --sr-info: #3d5a82;
   --sr-info-soft: rgba(61, 90, 130, 0.08);
+
+  --sr-status-live: #2f7754;
+  --sr-status-stale: #8a6418;
+  --sr-status-empty: #7c8390;
+  --sr-status-error: #9a4338;
 
   --sr-shadow-sm: 0 1px 2px rgba(20, 24, 31, 0.06);
   --sr-shadow-md: 0 8px 24px -16px rgba(20, 24, 31, 0.18);

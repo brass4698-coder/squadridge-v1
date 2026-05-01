@@ -666,7 +666,7 @@ export function ProfileSettingsPage() {
                   type="button"
                   disabled={demoClaimBusy}
                   onClick={() => void handleCreateDemoClaim()}
-                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 font-sans text-[0.88rem] text-[#e2e8f0] transition hover:bg-[#131c2e] disabled:opacity-60"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-2 font-sans text-[0.88rem] text-[#e2e8f0] transition hover:bg-[#131c2e] disabled:opacity-60"
                 >
                   {demoClaimBusy ? 'Generating…' : 'Generate transfer code'}
                 </button>
@@ -699,7 +699,7 @@ export function ProfileSettingsPage() {
                   type="button"
                   disabled={finalizeBusy || !finalizeCode.trim()}
                   onClick={() => void handleRequestConsent()}
-                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border-0 bg-teal/90 px-4 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center rounded-[8px] border-0 bg-teal/90 px-4 py-2 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ borderRadius: 8 }}
                 >
                   {finalizeBusy ? 'Working…' : 'Review and confirm transfer'}

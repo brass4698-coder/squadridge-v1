@@ -42,7 +42,7 @@ export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: Ac
 
   if (authLoading) {
     return (
-      <span className="inline-flex min-h-[36px] min-w-[5rem] items-center justify-end font-sans text-[0.8rem] text-[#4b5563]">
+      <span className="inline-flex min-h-[44px] min-w-[5rem] items-center justify-end font-sans text-[0.8rem] text-[#4b5563]">
         …
       </span>
     );
@@ -54,10 +54,10 @@ export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: Ac
         to="/sign-in"
         className={
           demoteOnLandingHome
-            ? 'inline-flex min-h-[36px] items-center justify-center rounded-md px-2 py-1 font-sans text-[0.78rem] font-medium text-[#5f6b7c] transition-colors hover:text-[#94a3b8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/40'
+            ? 'inline-flex min-h-[44px] items-center justify-center rounded-md px-2 py-2 font-sans text-[0.78rem] font-medium text-[#5f6b7c] transition-colors hover:text-[#94a3b8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/40'
             : publicShell
               ? 'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[6px] px-2 font-sans text-[0.8125rem] font-medium text-slate-500 transition-colors hover:bg-white/[0.05] hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50'
-              : 'inline-flex min-h-[36px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-3 py-1.5 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]'
+              : 'inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-3 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]'
         }
       >
         Sign in

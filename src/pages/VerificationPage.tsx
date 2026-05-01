@@ -10,7 +10,7 @@ import {
 } from '../lib';
 
 const onboardingDoneCtaClass =
-  'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-max flex-none items-center justify-center px-[2.5rem] py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
+  'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-full items-center justify-center px-6 py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal sm:px-[2.5rem]';
 
 /**
  * Verification entry: no PII forms. Uses {@link runVerification} (Semaphore + `verify-zk-proof`, or hash stub if `VITE_ZK_STUB=true`).

@@ -93,7 +93,7 @@ export function DemoClaimConsentModal({
           <p className="text-[#94a3b8]">
             Moderation policy still applies to all squads (see{' '}
             <a href="/security" className="text-teal-light underline-offset-4 hover:underline">
-              Security &amp; privacy
+              Security Disclosure
             </a>
             ).
           </p>
@@ -124,7 +124,7 @@ export function DemoClaimConsentModal({
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-5 font-sans text-[0.88rem] text-[#c4cdd9] transition hover:border-teal/40 hover:text-[#e2e8f0] disabled:opacity-60"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-5 py-2 font-sans text-[0.88rem] text-[#c4cdd9] transition hover:border-teal/40 hover:text-[#e2e8f0] disabled:opacity-60"
           >
             Cancel
           </button>
@@ -132,7 +132,7 @@ export function DemoClaimConsentModal({
             type="button"
             onClick={onConfirm}
             disabled={busy || !consented}
-            className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-5 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-5 py-2 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? 'Applying…' : 'Confirm and migrate'}
           </button>

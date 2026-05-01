@@ -112,21 +112,21 @@ export function SessionStrategyRoomChrome({
         <div className="flex flex-wrap gap-2">
           <Link
             to="/session"
-            className="inline-flex min-h-[40px] items-center rounded-md border border-[#2d3f55] px-3 font-sans text-[0.8rem] text-slate-300 hover:border-teal/35"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-[#2d3f55] px-3 py-2 font-sans text-[0.8rem] text-slate-300 hover:border-teal/35"
           >
             Exit to hub
           </Link>
           <button
             type="button"
             onClick={onReportRoom}
-            className="inline-flex min-h-[40px] items-center rounded-md border border-amber/25 px-3 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-amber/25 px-3 py-2 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
           >
             Report room
           </button>
           <button
             type="button"
             onClick={onReportParticipant}
-            className="inline-flex min-h-[40px] items-center rounded-md border border-amber/25 px-3 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-amber/25 px-3 py-2 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
           >
             Report participant
           </button>

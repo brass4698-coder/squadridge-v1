@@ -118,7 +118,7 @@ export function SessionHubPage() {
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <Link
           to="/find-squad"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border-0 bg-teal px-8 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] rounded-[1.75rem]"
+          className="inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal px-6 py-[0.65rem] font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 ease-out hover:opacity-[0.88] rounded-[1.75rem] sm:px-8"
           style={{
             fontWeight: 600,
           }}
@@ -127,7 +127,7 @@ export function SessionHubPage() {
         </Link>
         <Link
           to="/settings/profile"
-          className="inline-flex min-h-[44px] shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9] rounded-[1.75rem]"
+          className="inline-flex min-h-[44px] min-w-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-6 py-[0.65rem] font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors duration-150 hover:border-[#3d4f63] hover:text-[#c4cdd9] rounded-[1.75rem] sm:px-8"
           style={{
             fontWeight: 500,
           }}
@@ -147,7 +147,7 @@ export function SessionHubPage() {
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
-              className="inline-flex min-h-[40px] shrink-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-[44px] min-w-0 items-center justify-center border border-dashed border-[#3d4f63] bg-transparent px-5 py-2 font-heading text-[0.85rem] font-medium text-[#8892a4] transition-colors hover:border-amber/40 hover:text-[#c4cdd9] disabled:cursor-not-allowed disabled:opacity-50"
               style={{ borderRadius: 8 }}
               onClick={() => void handleCreateDemo()}
               disabled={!supabase}

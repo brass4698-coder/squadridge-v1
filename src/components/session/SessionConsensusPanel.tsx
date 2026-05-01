@@ -248,7 +248,7 @@ function DraftForm({
       <button
         type="submit"
         disabled={!canSubmit}
-        className="inline-flex min-h-[40px] items-center justify-center rounded-md border border-teal/35 bg-teal/15 px-4 font-heading text-[0.85rem] font-semibold text-teal-light transition-colors hover:border-teal/55 hover:bg-teal/20 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-teal/35 bg-teal/15 px-4 py-2 font-heading text-[0.85rem] font-semibold text-teal-light transition-colors hover:border-teal/55 hover:bg-teal/20 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {busy ? 'Posting…' : 'Post draft'}
       </button>
@@ -322,7 +322,7 @@ function ProposalView({
               type="button"
               disabled={castVoteBusy}
               onClick={() => void castVote(v)}
-              className={`min-h-[36px] rounded-md border px-3 font-sans text-[0.8rem] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+              className={`min-h-[44px] rounded-md border px-3 py-2 font-sans text-[0.8rem] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                 myVote === v
                   ? 'border-teal/60 bg-teal/15 text-teal-light'
                   : 'border-[#1f2940] bg-[#0c1219] text-[#a8b2c1] hover:border-teal/40 hover:text-[#e2e8f0]'
@@ -345,7 +345,7 @@ function ProposalView({
             type="button"
             onClick={() => void publish()}
             disabled={publishBusy}
-            className="inline-flex min-h-[36px] items-center justify-center rounded-md border border-teal/45 bg-teal/15 px-3 font-heading text-[0.8rem] font-semibold text-teal-light transition-colors hover:border-teal/65 hover:bg-teal/25 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-teal/45 bg-teal/15 px-3 py-2 font-heading text-[0.8rem] font-semibold text-teal-light transition-colors hover:border-teal/65 hover:bg-teal/25 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {publishBusy ? 'Publishing…' : 'Publish to ledger'}
           </button>

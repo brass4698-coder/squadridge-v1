@@ -1051,7 +1051,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               {realtimeError ? (
                 <button
                   type="button"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
                   onClick={() => retryRealtimeConnection()}
                 >
                   Retry live connection
@@ -1059,7 +1059,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               ) : null}
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0] disabled:opacity-60"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0] disabled:opacity-60"
                 aria-busy={refreshingMessages}
                 disabled={refreshingMessages}
                 onClick={() => void handleRefreshMessages()}
@@ -1069,7 +1069,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               {realtimeError ? (
                 <button
                   type="button"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
                   onClick={() => window.location.reload()}
                 >
                   Refresh now
@@ -1102,14 +1102,14 @@ export function SessionPage({ squadId }: { squadId: string }) {
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
                 onClick={() => retryRealtimeConnection()}
               >
                 Retry live connection
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
                 onClick={() => window.location.reload()}
               >
                 Refresh now
@@ -1290,7 +1290,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <button
               type="submit"
-              className={`inline-flex shrink-0 items-center justify-center border-0 bg-teal font-heading text-[0.95rem] text-[#0b0f1a] transition-opacity duration-150 hover:opacity-[0.88] disabled:cursor-not-allowed ${
+              className={`inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal font-heading text-[0.95rem] text-[#0b0f1a] transition-opacity duration-150 hover:opacity-[0.88] disabled:cursor-not-allowed ${
                 sendPaused ? 'pointer-events-none opacity-40' : 'disabled:opacity-50'
               }`}
               style={{
@@ -1311,7 +1311,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
             ) : null}
             <button
               type="button"
-              className="inline-flex shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-[#a8b2c1] transition-colors duration-150 hover:border-[rgba(0,194,178,0.4)] hover:text-[#e2e8f0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(0,194,178,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-[44px] min-w-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-[#a8b2c1] transition-colors duration-150 hover:border-[rgba(0,194,178,0.4)] hover:text-[#e2e8f0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(0,194,178,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
               style={{
                 borderRadius: 8,
                 fontWeight: 500,

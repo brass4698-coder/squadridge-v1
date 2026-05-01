@@ -46,7 +46,7 @@ export function AdminDemoPage() {
           to="/ledger"
           className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-navy-light px-4 text-[0.9rem] text-slate-200 hover:bg-navy-light/30"
         >
-          Public ledger
+          Ledger
         </Link>
       </div>
       <p className="font-sans text-[0.8rem] text-slate-600" aria-live="polite">

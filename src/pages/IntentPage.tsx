@@ -429,7 +429,7 @@ export function IntentPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={busy || perspective === null}
                 onClick={() => void handleFindSquad()}
               >
@@ -437,7 +437,7 @@ export function IntentPage() {
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
                 onClick={() => navigate('/session', { replace: false })}
               >
                 Session hub

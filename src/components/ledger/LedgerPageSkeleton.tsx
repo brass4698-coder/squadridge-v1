@@ -7,26 +7,22 @@ export function LedgerPageSkeletonRows({ count }: { count: number }) {
     <>
       {Array.from({ length: count }, (_, i) => (
         <tr key={i} className="border-b border-[#1e2a3a]/50 align-top animate-pulse">
-          <td className="px-4 py-4">
+          <td className="px-4 py-5">
             <div className="h-3 w-20 rounded bg-[#1e2a3a]/90" />
           </td>
-          <td className="px-4 py-4">
-            <div className="h-3 w-28 rounded bg-[#1e2a3a]/90" />
-          </td>
-          <td className="px-4 py-4">
+          <td className="px-4 py-5">
             <div className="space-y-2">
-              <div className="h-3 max-w-[12rem] rounded bg-[#1e2a3a]/80" />
-              <div className="h-3 max-w-[9rem] rounded bg-[#1e2a3a]/60" />
+              <div className="h-4 max-w-[18rem] rounded bg-[#1e2a3a]/90" />
+              <div className="h-3 max-w-[28rem] rounded bg-[#1e2a3a]/70" />
+              <div className="flex gap-1.5 pt-1">
+                <div className="h-5 w-12 rounded bg-[#1e2a3a]/60" />
+                <div className="h-5 w-16 rounded bg-[#1e2a3a]/60" />
+                <div className="h-5 w-24 rounded bg-[#1e2a3a]/50" />
+              </div>
             </div>
           </td>
-          <td className="px-4 py-4">
-            <div className="flex gap-1.5">
-              <div className="h-5 w-12 rounded bg-[#1e2a3a]/70" />
-              <div className="h-5 w-14 rounded bg-[#1e2a3a]/70" />
-            </div>
-          </td>
-          <td className="px-4 py-4">
-            <div className="h-4 w-24 rounded bg-[#1e2a3a]/70" />
+          <td className="px-4 py-5">
+            <div className="ml-auto h-9 w-24 rounded bg-[#1e2a3a]/70" />
           </td>
         </tr>
       ))}

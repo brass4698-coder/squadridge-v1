@@ -181,7 +181,7 @@ export function SignInPage() {
           className="inline-flex items-center gap-2 text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
         >
           <Shield className="size-3 shrink-0 opacity-50" aria-hidden />
-          Security &amp; privacy
+          Security Disclosure
         </Link>
         <Link
           to="/"

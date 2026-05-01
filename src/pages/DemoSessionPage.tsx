@@ -199,7 +199,7 @@ export function DemoSessionPage() {
           <button
             type="submit"
             data-demo="session-send"
-            className="inline-flex shrink-0 items-center justify-center border-0 bg-teal px-7 py-2.5 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal px-6 py-2.5 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:px-7"
             style={{ borderRadius: 8 }}
             disabled={!consentGiven || !composer.trim()}
           >
@@ -207,7 +207,7 @@ export function DemoSessionPage() {
           </button>
           <Link
             to={`/ledger/${DEMO_PROPOSAL_ID}`}
-            className="inline-flex items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-[#a8b2c1] transition-colors hover:border-teal/40 hover:text-[#e2e8f0]"
+            className="inline-flex min-h-[44px] min-w-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-[#a8b2c1] transition-colors hover:border-teal/40 hover:text-[#e2e8f0]"
             style={{ borderRadius: 8, fontWeight: 500 }}
           >
             Open ledger proposal

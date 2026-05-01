@@ -90,6 +90,20 @@ export class ErrorBoundary extends Component<Props, State> {
                 Reload page
               </button>
             </div>
+            <nav
+              aria-label="Fallback trust links"
+              className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-sans text-[0.86rem]"
+            >
+              <a className="text-teal underline-offset-4 hover:underline" href="/">
+                Home
+              </a>
+              <a className="text-teal underline-offset-4 hover:underline" href="/trust">
+                Trust &amp; Safety
+              </a>
+              <a className="text-teal underline-offset-4 hover:underline" href="/security">
+                Security Disclosure
+              </a>
+            </nav>
             {import.meta.env.DEV && error ? (
               <pre className="mt-6 max-h-48 overflow-auto rounded-md border border-[#1a2236] bg-[#0b0f1a] p-4 text-left font-mono text-[0.75rem] text-amber">
                 {error.stack ?? error.message}

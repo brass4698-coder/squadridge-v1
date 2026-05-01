@@ -15,6 +15,10 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
 import { LandingPage } from './pages/LandingPage';
+import { DialoguesPage } from './pages/DialoguesPage';
+import { TrustSafetyPage } from './pages/TrustSafetyPage';
+import { InsightsDashboardPage, InsightsPage } from './pages/InsightsPage';
+import { PartnersPage } from './pages/PartnersPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { SignInPage } from './pages/SignInPage';
@@ -22,6 +26,8 @@ import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { AcceptableUsePage, PrivacyPolicyPage, TermsOfUsePage } from './pages/LegalPages';
+import { ContactPage } from './pages/ContactPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
@@ -85,6 +91,24 @@ export default function App() {
                 />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/dialogues" element={<DialoguesPage />} />
+                  <Route path="/trust" element={<TrustSafetyPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsOfUsePage />} />
+                  <Route path="/acceptable-use" element={<AcceptableUsePage />} />
+                  <Route path="/insights" element={<InsightsPage />} />
+                  <Route
+                    path="/insights/dashboard"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <InsightsDashboardPage />
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="/partners" element={<PartnersPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
                   <Route path="/login" element={<Navigate to="/sign-in" replace />} />
                   <Route path="/invite" element={<InvitePage />} />
                   <Route path="/verify" element={<VerificationPage />} />
@@ -106,6 +130,7 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  {/* Trust & Safety is the top-level public IA; Security Disclosure remains a technical subpage. */}
                   <Route path="/security" element={<SecurityDisclosurePage />} />
                   <Route
                     path="/pitch-deck-hub"

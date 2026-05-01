@@ -137,7 +137,7 @@ export function AdminReportsPage() {
           <button
             type="button"
             onClick={refetch}
-            className="btn-secondary mt-5 min-h-[40px] px-3 text-[0.85rem]"
+            className="btn-secondary mt-5 min-h-[44px] px-3 text-[0.85rem]"
           >
             Refresh
           </button>
@@ -208,7 +208,7 @@ export function AdminReportsPage() {
                       {r.status === 'open' ? (
                         <button
                           type="button"
-                          className="btn-secondary min-h-[36px] px-3 text-[0.78rem]"
+                          className="btn-secondary min-h-[44px] px-3 text-[0.78rem]"
                           disabled={updateReportStatus.isPending}
                           onClick={() =>
                             updateReportStatus.mutate({ id: r.id, status: 'reviewing' })
@@ -219,7 +219,7 @@ export function AdminReportsPage() {
                       ) : null}
                       <button
                         type="button"
-                        className="btn-secondary min-h-[36px] px-3 text-[0.78rem]"
+                        className="btn-secondary min-h-[44px] px-3 text-[0.78rem]"
                         disabled={updateReportStatus.isPending}
                         onClick={() => {
                           const note = window.prompt('Optional moderator note for resolution:');
@@ -232,7 +232,7 @@ export function AdminReportsPage() {
                       </button>
                       <button
                         type="button"
-                        className="btn-secondary min-h-[36px] px-3 text-[0.78rem]"
+                        className="btn-secondary min-h-[44px] px-3 text-[0.78rem]"
                         disabled={updateReportStatus.isPending}
                         onClick={() => {
                           const note = window.prompt('Optional moderator note for dismissal:');

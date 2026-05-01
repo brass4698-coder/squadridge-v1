@@ -83,7 +83,7 @@ export function ErrorBlock({
           type="button"
           onClick={onRetry}
           disabled={retrying}
-          className="inline-flex min-h-[36px] items-center justify-center rounded-md border border-amber/45 bg-amber/10 px-3 font-sans text-[0.82rem] font-medium text-amber-100 transition hover:border-amber/70 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-amber/45 bg-amber/10 px-3 py-2 font-sans text-[0.82rem] font-medium text-amber-100 transition hover:border-amber/70 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {retrying ? `${retryLabel}…` : retryLabel}
         </button>

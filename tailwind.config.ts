@@ -107,6 +107,10 @@ export default {
           /** Legacy onboarding fill — kept as a static fallback. */
           legacy: '#0c1219',
         },
+        band: {
+          navy: 'var(--sr-band-navy)',
+          black: 'var(--sr-band-black)',
+        },
         line: {
           DEFAULT: 'var(--sr-line)',
           strong: 'var(--sr-line-strong)',
@@ -131,6 +135,13 @@ export default {
           'danger-soft': 'var(--sr-danger-soft)',
           info: 'var(--sr-info)',
           'info-soft': 'var(--sr-info-soft)',
+        },
+        /** First-class system state colors for StatusDot and KPI freshness. */
+        status: {
+          live: 'var(--sr-status-live)',
+          stale: 'var(--sr-status-stale)',
+          empty: 'var(--sr-status-empty)',
+          error: 'var(--sr-status-error)',
         },
         record: {
           paper: 'var(--sr-record-paper)',
@@ -162,11 +173,13 @@ export default {
         'fluid-h4': 'clamp(1rem, 1.5vw, 1.125rem)',
         'fluid-body': 'clamp(1rem, 1.5vw, 1.125rem)',
         'fluid-small': 'clamp(0.875rem, 1vw, 1rem)',
-        /** Landing hero display (~56–64px desktop), tight line height */
+        /** Landing hero display — page-title scale, not theatrical (~36–52px). */
         'display-hero': [
-          'clamp(2.875rem, 4.5vw + 1.25rem, 4rem)',
-          { lineHeight: '1.08', letterSpacing: '-0.03em' },
+          'clamp(2.25rem, 3.5vw + 1rem, 3.25rem)',
+          { lineHeight: '1.1', letterSpacing: '-0.025em' },
         ],
+        /** KPI captions and metadata — tabular feel, slightly compressed. */
+        meta: ['0.72rem', { lineHeight: '1.45', letterSpacing: '0.04em' }],
         /** Section titles ~20–24px */
         'section-title': [
           'clamp(1.25rem, 1.5vw, 1.5rem)',
