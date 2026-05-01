@@ -1,4 +1,10 @@
-# Investor Readiness Audit
+# Investor readiness — retrospective polish notes
+
+> This is a **retrospective self-review** of a landing / investor-demo sprint,
+> not a diligence artifact. Partners and reviewers should read
+> [`CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and
+> [`DILIGENCE_OVERVIEW.md`](../../DILIGENCE_OVERVIEW.md) at the repo root
+> instead. Kept here so the decisions and remaining gaps are traceable.
 
 ## What was weak before
 

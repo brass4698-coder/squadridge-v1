@@ -45,6 +45,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Pilot one-pager                                              | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md)                                                        |
 | Pitch Deck Hub (app + static HTML)                           | In-app `/pitch-deck-hub`; [`public/pitch-deck-hub/`](../public/pitch-deck-hub/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
 | Impact metrics                                               | [business/impact-metrics.md](business/impact-metrics.md)                                                                          |
+| Investor-readiness polish notes (retrospective)              | [business/investor-readiness-audit.md](business/investor-readiness-audit.md)                                                      |
 
 ## Technical
 

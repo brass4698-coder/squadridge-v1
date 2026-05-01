@@ -8,7 +8,7 @@ SquadRidge is an early-warning system that detects rising violence in communitie
 
 **How it works (at a glance):** (1) **Detect** — program-scoped signals and (where enabled) a Conflict Severity Index methodology for triage, not a public omniscient feed. (2) **Intervene** — facilitator-led, verified small squads with structured session UX. (3) **Measure** — pre-registered metrics and partner-aligned evaluation. See [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md) and [`CURRENT_STATUS.md`](CURRENT_STATUS.md) for what is shipped today vs pilot/roadmap.
 
-Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
+The shipped backend is **pure BaaS** — Supabase (Postgres + Realtime + Edge Functions). There is no Node tier and no local Redis dependency; Edge rate limiting uses **Upstash Redis REST** from `supabase/functions/rate-limit/` when configured. Older docs that mention a `docker-compose.yml` Redis stub pre-date this simplification; ignore them.
 
 ## Prerequisites
 

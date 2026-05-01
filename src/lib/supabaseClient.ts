@@ -1,4 +1,5 @@
 /**
- * Browser Supabase singleton (typed). Prefer {@link getSupabase} from `./supabase` for injection tests.
+ * Legacy import path. The canonical client lives in `./supabase`;
+ * this file re-exports it so older imports continue to resolve.
  */
-export { supabase } from '../utils/supabase';
+export { supabase } from './supabase';

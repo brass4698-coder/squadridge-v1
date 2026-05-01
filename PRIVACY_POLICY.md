@@ -46,7 +46,7 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 ## User rights and requests
 
 - Data access: You can request details about what we store for your conversation. Since we design for anonymity, some data (e.g., IPs) is not stored in raw form.
-- Deletion: We provide an in-app “Leave & forget” option that ends your session and requests deletion of your recent messages. Deletion follows the schedule in DATA_RETENTION.md.
+- Deletion: The in-product "Leave and forget" control (on the demo session surface) clears **local browser state only** — last-squad pointer and local Semaphore identity. It does **not** issue server-side deletes, and the offline demo has no server rows to delete. For a **real squad**, messages are removed by the TTL schedule in [`DATA_RETENTION.md`](./DATA_RETENTION.md) (currently 7 days via `expires_at` + hourly `pg_cron`); an immediate in-squad self-serve delete is not yet available — contact operators to request early deletion, which is recorded in `moderation_audit_log`.
 - Legal requests: If a lawful request is made for our logs or data, we will follow legal process and push back where appropriate. We will notify users when permitted and we’ll document the legal request handling procedure internal to the company.
 
 ## Limitations and tradeoffs (be honest)

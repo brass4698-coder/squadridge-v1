@@ -1,18 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../lib';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
-
 /**
- * Supabase browser client (Supabase quickstart pattern).
- * @see https://supabase.com/docs/guides/getting-started/quickstarts/reactjs
+ * Legacy import path. The canonical client lives in `src/lib/supabase.ts`;
+ * this file re-exports it so older imports continue to resolve.
  */
-export const supabase = createClient<Database>(supabaseUrl ?? '', supabaseKey ?? '', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+export { supabase } from '../lib/supabase';
