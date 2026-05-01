@@ -463,11 +463,6 @@
   }
 }
 
-/* Early access Join — squircle comfort CTA */
-#waitlist-join-btn {
-  border-radius: 1.75rem !important;
-}
-
 /* Hero GOAL watermark: obsidian lift + Cajun bloom; stays z-[-1] under headline (see LandingPage) */
 .landing-hero-watermark {
   color: #151b2a;

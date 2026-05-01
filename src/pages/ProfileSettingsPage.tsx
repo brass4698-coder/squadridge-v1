@@ -35,13 +35,13 @@ function parseTagsList(raw: string): string[] {
 
 function fieldLabelClass(required: boolean) {
   return required
-    ? 'block font-sans text-[0.8rem] font-medium text-[#a8b2c1]'
-    : 'block font-sans text-[0.8rem] font-medium text-[#8892a4]';
+    ? 'block font-sans text-[0.8rem] font-medium text-ink-secondary'
+    : 'block font-sans text-[0.8rem] font-medium text-ink-faint';
 }
 
 function RequiredMark() {
   return (
-    <span className="ml-1.5 align-middle font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[#7dd3fc]/90">
+    <span className="ml-1.5 align-middle font-sans text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sem-info">
       Required
     </span>
   );
@@ -49,7 +49,7 @@ function RequiredMark() {
 
 function OptionalMark() {
   return (
-    <span className="ml-1.5 align-middle font-sans text-[0.6rem] font-normal uppercase tracking-[0.08em] text-[#3f4c5c]">
+    <span className="ml-1.5 align-middle font-sans text-[0.6rem] font-normal uppercase tracking-[0.08em] text-ink-subtle">
       Optional
     </span>
   );
@@ -270,11 +270,8 @@ export function ProfileSettingsPage() {
   if (!isSupabaseConfigured()) {
     return (
       <div className="mx-auto max-w-copy px-gutter py-12">
-        <p className="text-[#8892a4]">Supabase is not configured.</p>
-        <Link
-          to="/"
-          className="mt-4 inline-block text-teal-light underline-offset-4 hover:underline"
-        >
+        <p className="text-ink-faint">Supabase is not configured.</p>
+        <Link to="/" className="mt-4 inline-block text-brand underline-offset-4 hover:underline">
           Home
         </Link>
       </div>
@@ -283,7 +280,7 @@ export function ProfileSettingsPage() {
 
   if (authLoading || !session) {
     return (
-      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-ink-faint">
         {authLoading ? 'Loading…' : 'Sign in to edit your profile.'}
       </div>
     );
@@ -291,7 +288,7 @@ export function ProfileSettingsPage() {
 
   if (profileLoading && !profile) {
     return (
-      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-[#8892a4]">
+      <div className="mx-auto max-w-copy px-gutter py-12 font-sans text-ink-faint">
         Loading profile…
       </div>
     );
@@ -300,7 +297,7 @@ export function ProfileSettingsPage() {
   return (
     <div className="relative mx-auto w-full max-w-[560px] px-gutter py-12">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(36vh,22rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(0,194,178,0.055)_0%,transparent_58%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(36vh,22rem)] bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(42,163,154,0.07)_0%,transparent_58%)]"
         aria-hidden
       />
       <div className="relative z-[1]">
@@ -308,14 +305,7 @@ export function ProfileSettingsPage() {
           Settings
         </p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <h1
-            className="font-heading font-extrabold text-[#f1f5f9]"
-            style={{
-              fontSize: 'clamp(1.65rem, 2.8vw, 2.1rem)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.12,
-            }}
-          >
+          <h1 className="font-heading text-fluid-h2 font-extrabold leading-[1.12] tracking-[-0.03em] text-ink">
             Profile &amp; keys
           </h1>
           {isDirty ? (
@@ -328,19 +318,19 @@ export function ProfileSettingsPage() {
             </p>
           ) : null}
         </div>
-        <p className="mt-2 max-w-[52ch] font-sans text-[0.9rem] font-medium leading-relaxed text-[#b8c5d3]">
+        <p className="mt-2 max-w-[52ch] font-sans text-[0.9rem] font-medium leading-relaxed text-ink-secondary">
           This profile is how you&apos;ll appear in rooms; it never includes your real-world
           identifiers.
         </p>
-        <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-[#c4cdd9]">
+        <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-ink-secondary">
           These settings shape how you&apos;re seen in squads and how we route you.
         </p>
-        <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
+        <p className="mt-3 max-w-[52ch] font-sans text-[0.95rem] leading-relaxed text-ink-faint">
           We verify you without building a dossier. What you set here is what squads see—callsign,
           lane, and tags. Below that, coarse hints help matching without turning this into a
           dossier.
         </p>
-        <p className="mt-3 max-w-[52ch] font-sans text-[0.9rem] leading-relaxed text-[#6b7280]">
+        <p className="mt-3 max-w-[52ch] font-sans text-[0.9rem] leading-relaxed text-ink-subtle">
           Squads never see your email, phone, or real-world ID—only what&apos;s on this page.
         </p>
         {/* When ZK commitments ship, surface verified-attribute flags here (ADR 003). */}
@@ -361,17 +351,17 @@ export function ProfileSettingsPage() {
           ) : null}
 
           <section
-            className="space-y-6 rounded-xl border border-[#1a2236]/70 bg-[#060a10]/55 p-6 sm:p-7"
+            className="glass-card space-y-6 p-6 sm:p-7"
             aria-labelledby="pf-identity-heading"
           >
             <div>
               <h2
                 id="pf-identity-heading"
-                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]"
+                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-ink-secondary"
               >
                 In the room
               </h2>
-              <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#4b5563]">
+              <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
                 The minimum squads need to address you and understand your lane.
               </p>
             </div>
@@ -386,13 +376,13 @@ export function ProfileSettingsPage() {
                 data-demo="profile-callsign"
                 value={callsign}
                 onChange={(e) => setCallsign(e.target.value)}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                className="sr-input"
                 autoComplete="off"
                 aria-describedby="pf-callsign-hint"
               />
               <p
                 id="pf-callsign-hint"
-                className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]"
+                className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle"
               >
                 Avoid real names or handles you use elsewhere; pick something memorable (e.g.{' '}
                 <span className="font-mono text-[0.76rem] text-[#94a3b8]">Falcon-23</span>).
@@ -406,7 +396,7 @@ export function ProfileSettingsPage() {
               </label>
               <p
                 id="pf-role-desc"
-                className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]"
+                className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle"
               >
                 How you&apos;ll primarily contribute in squads.
               </p>
@@ -415,7 +405,7 @@ export function ProfileSettingsPage() {
                 data-demo="profile-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value as ProfileRole | '')}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                className="sr-input"
                 aria-describedby="pf-role-desc pf-role-hint"
               >
                 <option value="">Select…</option>
@@ -433,9 +423,9 @@ export function ProfileSettingsPage() {
                 id="pf-role-hint"
                 className={
                   role && role !== 'other' && ROLE_HINT[role]
-                    ? 'font-sans text-[0.78rem] leading-relaxed text-[#5c6570]'
+                    ? 'font-sans text-[0.78rem] leading-relaxed text-ink-subtle'
                     : role === 'other'
-                      ? 'font-sans text-[0.78rem] leading-relaxed text-[#5c6570]'
+                      ? 'font-sans text-[0.78rem] leading-relaxed text-ink-subtle'
                       : 'sr-only'
                 }
               >
@@ -458,7 +448,7 @@ export function ProfileSettingsPage() {
                   value={roleOther}
                   onChange={(e) => setRoleOther(e.target.value.slice(0, 80))}
                   rows={3}
-                  className="w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                  className="sr-input resize-y"
                 />
                 {roleOtherInvalid ? (
                   <p className="font-sans text-[0.8rem] text-amber">
@@ -479,15 +469,15 @@ export function ProfileSettingsPage() {
                     tagsTooMany
                       ? 'text-amber'
                       : tagsList.length >= MAX_TAGS
-                        ? 'text-teal-light/90'
-                        : 'text-[#64748b]'
+                        ? 'text-brand'
+                        : 'text-ink-subtle'
                   }`}
                   aria-live="polite"
                 >
                   {tagsList.length} / {MAX_TAGS} tags
                 </span>
               </div>
-              <p className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+              <p className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
                 Comma-separated. Aim for 3–5 tags; the {MAX_TAGS}-tag cap keeps routing cues
                 scannable.
               </p>
@@ -496,7 +486,7 @@ export function ProfileSettingsPage() {
                   {tagsList.slice(0, MAX_TAGS).map((t) => (
                     <li
                       key={t}
-                      className="inline-flex max-w-full truncate rounded-md border border-[#2d3f55]/80 bg-[#0c1018] px-2 py-0.5 font-mono text-[0.68rem] text-[#94a3b8]"
+                      className="inline-flex max-w-full truncate rounded-md border border-line-strong bg-surface-elevated px-2 py-0.5 font-mono text-[0.68rem] text-ink-faint"
                     >
                       {t}
                     </li>
@@ -514,10 +504,8 @@ export function ProfileSettingsPage() {
                 value={tagsRaw}
                 onChange={(e) => setTagsRaw(e.target.value)}
                 placeholder="e.g. cross_cultural_dialogue, military_veteran"
-                className={`w-full rounded-[8px] border bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none ${
-                  tagsTooMany
-                    ? 'border-amber/50 focus-visible:border-amber/60'
-                    : 'border-[#1a2236] focus-visible:border-[rgba(0,194,178,0.4)]'
+                className={`sr-input ${
+                  tagsTooMany ? 'border-amber/50 focus-visible:border-amber/60' : 'border-line'
                 }`}
                 aria-invalid={tagsTooMany}
                 aria-describedby={
@@ -537,38 +525,32 @@ export function ProfileSettingsPage() {
             </div>
           </section>
 
-          <section
-            className="space-y-6 rounded-xl border border-[#1a2236]/70 bg-[#060a10]/55 p-6 sm:p-8"
-            aria-labelledby="pf-routing-heading"
-          >
+          <section className="glass-card space-y-6 p-6 sm:p-8" aria-labelledby="pf-routing-heading">
             <div>
               <h2
                 id="pf-routing-heading"
-                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]"
+                className="font-heading text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-ink-secondary"
               >
                 Routing hints
               </h2>
-              <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#4b5563]">
+              <p className="mt-1.5 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
                 Optional signals for matching — keep them coarse; you can leave any blank.
               </p>
-              <p className="mt-2 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-[#5c6570]">
-                <strong className="font-semibold text-[#cbd5e1]">Used for matching only</strong>
-                <span className="text-[#64748b]"> — </span>
-                <span className="text-[#94a3b8]">not shown to squads.</span>
+              <p className="mt-2 max-w-[52ch] font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
+                <strong className="font-semibold text-ink">Used for matching only</strong>
+                <span className="text-ink-subtle"> — </span>
+                <span className="text-ink-faint">not shown to squads.</span>
               </p>
-              <details className="group mt-3 rounded-lg border border-[#1e293b]/90 bg-[#070b10]/60 px-3 py-2">
-                <summary className="cursor-pointer list-none font-sans text-[0.78rem] font-medium text-teal-light/90 [&::-webkit-details-marker]:hidden">
+              <details className="group mt-3 rounded-lg border border-line bg-surface-sunken px-3 py-2">
+                <summary className="cursor-pointer list-none font-sans text-[0.78rem] font-medium text-brand [&::-webkit-details-marker]:hidden">
                   <span className="underline decoration-teal/30 underline-offset-2 group-open:decoration-teal/60">
                     Why we ask for this
                   </span>
                 </summary>
-                <p className="mt-2 border-t border-[#1e293b]/80 pt-2 font-sans text-[0.78rem] leading-relaxed text-[#64748b]">
+                <p className="mt-2 border-t border-line/80 pt-2 font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
                   Matching needs coarse language, region, and timing hints—we don&apos;t use them to
                   build a dossier, and squads never see these fields. For technical scope, see{' '}
-                  <Link
-                    to="/security"
-                    className="text-teal-light/90 underline-offset-2 hover:underline"
-                  >
+                  <Link to="/security" className="text-brand underline-offset-2 hover:underline">
                     Security boundaries
                   </Link>
                   .
@@ -581,7 +563,7 @@ export function ProfileSettingsPage() {
                 Era lens
                 <OptionalMark />
               </label>
-              <p className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+              <p className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
                 What eras or events shape how you see this conflict?
               </p>
               <input
@@ -590,7 +572,7 @@ export function ProfileSettingsPage() {
                 value={era}
                 onChange={(e) => setEra(e.target.value)}
                 placeholder="e.g. Cold War, post-2014, future scenarios"
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                className="sr-input"
               />
             </div>
 
@@ -600,7 +582,7 @@ export function ProfileSettingsPage() {
                   Primary language
                   <OptionalMark />
                 </label>
-                <p className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+                <p className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
                   Coarse is fine; no need for dialects.
                 </p>
                 <input
@@ -609,7 +591,7 @@ export function ProfileSettingsPage() {
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                   placeholder="e.g. English, Arabic"
-                  className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                  className="sr-input"
                 />
               </div>
               <div className="space-y-2">
@@ -623,7 +605,7 @@ export function ProfileSettingsPage() {
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   placeholder="e.g. Western Europe, MENA"
-                  className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                  className="sr-input"
                 />
               </div>
               <div className="space-y-2">
@@ -631,7 +613,7 @@ export function ProfileSettingsPage() {
                   Typical meeting window
                   <OptionalMark />
                 </label>
-                <p className="font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+                <p className="font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
                   Use your local time — no need to convert to UTC.
                 </p>
                 <input
@@ -640,7 +622,7 @@ export function ProfileSettingsPage() {
                   value={timeWindow}
                   onChange={(e) => setTimeWindow(e.target.value)}
                   placeholder="e.g. weekday evenings, Sat mornings"
-                  className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                  className="sr-input"
                 />
               </div>
             </div>
@@ -648,39 +630,39 @@ export function ProfileSettingsPage() {
         </form>
 
         {supabase ? (
-          <section className="mt-10 rounded-[12px] border border-[#1e2a3a] bg-[#0c1118]/80 p-6">
-            <h2 className="font-heading text-[1.05rem] font-semibold uppercase tracking-[0.12em] text-[#a8b2c1]">
+          <section className="glass-card mt-10 p-6">
+            <h2 className="font-heading text-[1.05rem] font-semibold uppercase tracking-[0.12em] text-ink-secondary">
               Demo session hand-off
             </h2>
-            <p className="mt-2 font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+            <p className="mt-2 font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
               Optional migration for anonymous/demo squad membership after you verify. Generate a
               code in the demo session, then finalize here signed in as your verified account.
               Conflicts skip squads where you&apos;re already a member.
             </p>
             <div className="mt-5 grid gap-6 sm:grid-cols-2">
               <div className="space-y-3">
-                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#64748b]">
+                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-ink-subtle">
                   Step 1 — demo / anonymous session
                 </p>
                 <button
                   type="button"
                   disabled={demoClaimBusy}
                   onClick={() => void handleCreateDemoClaim()}
-                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 font-sans text-[0.88rem] text-[#e2e8f0] transition hover:bg-[#131c2e] disabled:opacity-60"
+                  className="sr-input inline-flex min-h-[40px] w-full items-center justify-center transition hover:bg-surface-elevated disabled:opacity-60"
                 >
                   {demoClaimBusy ? 'Generating…' : 'Generate transfer code'}
                 </button>
                 {demoClaimCode ? (
-                  <p className="break-all rounded-[6px] border border-[#1a2536] bg-[#080c12] px-3 py-2 font-mono text-[0.8rem] text-teal-light/95">
+                  <p className="break-all rounded-[6px] border border-line bg-surface-sunken px-3 py-2 font-mono text-[0.8rem] text-brand">
                     {demoClaimCode}
                   </p>
                 ) : null}
                 {demoClaimErr ? (
-                  <p className="font-sans text-[0.8rem] text-rose-300/95">{demoClaimErr}</p>
+                  <p className="font-sans text-[0.8rem] text-sem-danger">{demoClaimErr}</p>
                 ) : null}
               </div>
               <div className="space-y-3">
-                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-[#64748b]">
+                <p className="font-sans text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-ink-subtle">
                   Step 2 — verified account
                 </p>
                 <label htmlFor="demo-claim-finalize" className="sr-only">
@@ -693,22 +675,21 @@ export function ProfileSettingsPage() {
                   spellCheck={false}
                   onChange={(e) => setFinalizeCode(e.target.value)}
                   placeholder="Paste code from demo session…"
-                  className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-mono text-[0.85rem] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:outline-none"
+                  className="sr-input font-mono text-[0.85rem]"
                 />
                 <button
                   type="button"
                   disabled={finalizeBusy || !finalizeCode.trim()}
                   onClick={() => void handleRequestConsent()}
-                  className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[8px] border-0 bg-teal/90 px-4 font-heading text-[0.88rem] font-semibold text-[#0b0f1a] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ borderRadius: 8 }}
+                  className="focus-ring btn-primary inline-flex min-h-[40px] w-full items-center justify-center px-4 font-heading text-[0.88rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {finalizeBusy ? 'Working…' : 'Review and confirm transfer'}
                 </button>
                 {finalizeMsg ? (
-                  <p className="font-sans text-[0.82rem] text-[#94d82d]/95">{finalizeMsg}</p>
+                  <p className="font-sans text-[0.82rem] text-sem-success">{finalizeMsg}</p>
                 ) : null}
                 {finalizeErr ? (
-                  <p className="font-sans text-[0.8rem] text-rose-300/95">{finalizeErr}</p>
+                  <p className="font-sans text-[0.8rem] text-sem-danger">{finalizeErr}</p>
                 ) : null}
               </div>
             </div>
@@ -725,13 +706,13 @@ export function ProfileSettingsPage() {
           onCancel={closeConsentModal}
         />
 
-        <NextStepHint className="mt-8 border-[#1e2a3a] bg-[#0c1118]/60">
+        <NextStepHint className="mt-8 border-line bg-surface-elevated/60">
           <span className="font-medium text-slate-400">Next:</span> When you&apos;re ready to match,
           use Find squad from the menu. This profile helps route you into the right pool.
         </NextStepHint>
 
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-[#1a2236] bg-[#080c12]/92 px-gutter py-3 backdrop-blur-md sm:px-6"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex justify-center border-t border-line bg-surface-sunken/95 px-gutter py-3 backdrop-blur-md sm:px-6"
           style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
         >
           <div className="pointer-events-auto flex w-full max-w-[560px] flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
@@ -741,9 +722,9 @@ export function ProfileSettingsPage() {
                   Unsaved changes — click Save profile to apply.
                 </span>
               ) : ackSaved ? (
-                <span className="text-[#a8b8c9]">All changes saved to your profile.</span>
+                <span className="text-ink-secondary">All changes saved to your profile.</span>
               ) : (
-                <span className="text-[#64748b]">
+                <span className="text-ink-subtle">
                   No unsaved changes (same as last saved profile).
                 </span>
               )}
@@ -752,19 +733,18 @@ export function ProfileSettingsPage() {
               type="submit"
               form="profile-settings-form"
               disabled={!canSave || saving}
-              className="inline-flex min-h-[44px] w-full shrink-0 items-center justify-center border-0 bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50 sm:ml-auto sm:w-auto"
-              style={{ borderRadius: 8 }}
+              className="focus-ring btn-primary inline-flex min-h-[44px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50 sm:ml-auto sm:w-auto"
             >
               {saving ? 'Saving…' : 'Save profile'}
             </button>
           </div>
         </div>
 
-        <p className="mt-10 font-sans text-[0.85rem] text-[#4b5563]">
+        <p className="mt-10 font-sans text-[0.85rem] text-ink-subtle">
           <Link
             to="/"
             onClick={confirmLeaveInApp}
-            className="text-[#8892a4] underline-offset-4 hover:text-[#c4cdd9] hover:underline"
+            className="focus-ring text-ink-faint underline-offset-4 hover:text-ink-secondary hover:underline"
           >
             Back to home
           </Link>

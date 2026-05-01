@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { useAppNavContext, useIsModerator } from '../../hooks';
 import { NavigationProgress } from './NavigationProgress';
 import { publicShellInnerClass, shellListResetClass } from './publicShell';
@@ -18,7 +19,7 @@ const HEADER_MAIN_ROW = twMerge(
 const deskNavLink = (active: boolean) =>
   twMerge(
     'inline-flex items-center border-b border-transparent pb-px text-[15px] font-medium leading-none tracking-normal transition-colors duration-150',
-    'min-h-[44px] min-w-0 shrink px-0.5 pt-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50',
+    'min-h-[44px] min-w-0 shrink px-0.5 pt-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand/50',
     active
       ? 'border-slate-200/90 text-slate-100'
       : 'text-slate-500 hover:border-slate-500/50 hover:text-slate-300',
@@ -63,7 +64,7 @@ function HeaderContextContent(): ReactNode | null {
       <span className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 gap-y-1 text-[13px] font-medium leading-snug text-slate-500">
         <Link
           to="/ledger"
-          className="shrink-0 text-slate-400 underline-offset-4 transition-colors hover:text-slate-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+          className="shrink-0 text-slate-400 underline-offset-4 transition-colors hover:text-slate-300 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand/50"
         >
           Ledger
         </Link>
@@ -104,7 +105,7 @@ function JourneyStrip() {
         {showOnboardingCta ? (
           <Link
             to={onboardingHref}
-            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
+            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-brand underline-offset-4 hover:underline"
           >
             {onboardingLabel}
           </Link>
@@ -112,7 +113,7 @@ function JourneyStrip() {
         {showResumeCta && resumeHref ? (
           <Link
             to={resumeHref}
-            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-teal-light underline-offset-4 hover:underline"
+            className="inline-flex min-h-[44px] items-center font-sans text-[0.8rem] font-medium text-brand underline-offset-4 hover:underline"
           >
             Resume your room
           </Link>
@@ -388,12 +389,10 @@ function PublicShellHeader() {
         <div className={HEADER_MAIN_ROW}>
           <Link
             to="/"
-            className="flex max-w-[260px] min-w-0 shrink-0 flex-col gap-0.5 no-underline transition-opacity hover:opacity-[0.95] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
+            className="flex max-w-[260px] min-w-0 shrink-0 flex-col gap-1 no-underline transition-opacity hover:opacity-[0.95] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand/50"
             aria-label="SquadRidge home"
           >
-            <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
-              SquadRidge
-            </span>
+            <SquadRidgeWordmark className="h-[17px] w-auto" />
             <span className="hidden sm:block text-[12px] font-normal leading-snug text-slate-500 lg:text-[13px]">
               Verified dialogue infrastructure
             </span>
@@ -406,7 +405,7 @@ function PublicShellHeader() {
               <a
                 href="/#waitlist"
                 className={twMerge(
-                  'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-teal px-[16px] font-heading text-[0.875rem] font-semibold text-white transition-[opacity,background-color] hover:bg-teal-dark',
+                  'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-brand px-[16px] font-heading text-[0.875rem] font-semibold text-navy-dark transition-[opacity,background-color] hover:bg-brand-pressed',
                   'lg:min-h-[44px]',
                   ctaMuted && 'opacity-[0.88]',
                 )}
@@ -418,7 +417,7 @@ function PublicShellHeader() {
               <button
                 ref={menuBtnRef}
                 type="button"
-                className="inline-flex size-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+                className="inline-flex size-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand/50"
                 aria-expanded={mobileOpen}
                 aria-controls={menuId}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -486,12 +485,10 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
         >
           <Link
             to="/"
-            className="flex max-w-[260px] flex-col gap-0.5 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
+            className="flex max-w-[260px] flex-col gap-1 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand/50"
             aria-label="SquadRidge home"
           >
-            <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
-              SquadRidge
-            </span>
+            <SquadRidgeWordmark className="h-[17px] w-auto" />
             <span className="hidden sm:block text-[12px] font-normal text-slate-500 lg:text-[13px]">
               Verified dialogue infrastructure
             </span>

@@ -19,28 +19,25 @@ export function SafetyCenterPage() {
         room header to report a participant or the whole session when something is wrong.
       </p>
 
-      <section
-        className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5"
-        aria-labelledby="safety-status"
-      >
-        <h2 id="safety-status" className="font-heading text-section-title text-slate-100">
+      <section className="glass-card p-5" aria-labelledby="safety-status">
+        <h2 id="safety-status" className="font-heading text-section-title text-ink">
           Your status
         </h2>
         {profileError ? (
-          <p className="mt-3 font-sans text-[0.9rem] text-amber" role="alert">
+          <p className="mt-3 font-sans text-[0.9rem] text-sem-warning" role="alert">
             Could not load profile details. You can still review policies below or try again later.
           </p>
         ) : null}
-        <dl className="mt-3 space-y-2 font-sans text-[0.9rem] text-slate-400">
+        <dl className="mt-3 space-y-2 font-sans text-[0.9rem] text-ink-faint">
           <div className="flex flex-wrap justify-between gap-2">
             <dt>Account</dt>
-            <dd className="text-slate-200">
+            <dd className="text-ink-secondary">
               {session?.user?.email ?? (configured ? 'Signed in' : 'Local / offline')}
             </dd>
           </div>
           <div className="flex flex-wrap justify-between gap-2">
             <dt>Callsign</dt>
-            <dd className="text-slate-200">
+            <dd className="text-ink-secondary">
               {profileError
                 ? '—'
                 : loading
@@ -51,39 +48,42 @@ export function SafetyCenterPage() {
             </dd>
           </div>
         </dl>
-        <p className="mt-3 font-sans text-[0.8rem] text-slate-500">
+        <p className="mt-3 font-sans text-[0.8rem] text-ink-subtle">
           Verification and ZK eligibility are separate from what others see in dialogue — you stay
           anonymous to other participants.
         </p>
         <Link
           to="/verify"
-          className="mt-4 inline-flex min-h-[44px] items-center text-teal-light underline-offset-4 hover:underline"
+          className="focus-ring mt-4 inline-flex min-h-[44px] items-center text-brand underline-offset-4 hover:underline"
         >
           Verification &amp; ZK scope
         </Link>
       </section>
 
-      <section className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5">
-        <h2 className="font-heading text-section-title text-slate-100">Policies &amp; tools</h2>
+      <section className="glass-card p-5">
+        <h2 className="font-heading text-section-title text-ink">Policies &amp; tools</h2>
         <ul className="mt-3 list-none space-y-3 font-sans text-[0.9rem]">
           <li>
-            <Link to="/security" className="text-teal-light underline-offset-4 hover:underline">
+            <Link
+              to="/security"
+              className="focus-ring text-brand underline-offset-4 hover:underline"
+            >
               Security &amp; privacy disclosure
             </Link>
-            <span className="ml-2 text-slate-500">
+            <span className="ml-2 text-ink-subtle">
               — data handling, retention, and who can see what.
             </span>
           </li>
           <li>
-            <span className="text-slate-200">Report participant or room</span>
-            <span className="ml-2 text-slate-500">
+            <span className="text-ink-secondary">Report participant or room</span>
+            <span className="ml-2 text-ink-subtle">
               — in an active session, use Report in the room toolbar (MVP: routes to triage; keep
               the session id if you contact support).
             </span>
           </li>
           <li>
-            <span className="text-slate-200">Block or mute</span>
-            <span className="ml-2 text-slate-500">
+            <span className="text-ink-secondary">Block or mute</span>
+            <span className="ml-2 text-ink-subtle">
               — org-wide controls may apply in future; for now, leave the room and use Report if
               needed.
             </span>

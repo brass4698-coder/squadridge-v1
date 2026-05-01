@@ -29,8 +29,8 @@ function RoleRadios({
             key={role}
             className={`flex cursor-pointer items-center gap-3 rounded border px-4 py-3 transition-colors ${
               roleHint === role
-                ? 'border-teal/50 bg-[#0f1724]'
-                : 'border-[#2d3f55] bg-[#0a1018] hover:border-slate-600'
+                ? 'border-brand/50 bg-brand-soft'
+                : 'border-line-strong bg-surface-elevated hover:border-line'
             }`}
           >
             <input
@@ -42,10 +42,10 @@ function RoleRadios({
               className="peer sr-only"
             />
             <span
-              className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-slate-500 bg-[#070b12] peer-checked:border-teal peer-checked:bg-teal/15 peer-checked:[&_.waitlist-radio-dot]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[#070b12]"
+              className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface-sunken peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:[&_.waitlist-radio-dot]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface-sunken"
               aria-hidden
             >
-              <span className="waitlist-radio-dot h-1.5 w-1.5 rounded-full bg-teal opacity-0 transition-opacity" />
+              <span className="waitlist-radio-dot h-1.5 w-1.5 rounded-full bg-brand opacity-0 transition-opacity" />
             </span>
             <span className="font-sans text-[0.9rem] leading-snug text-landing-body">{role}</span>
           </label>
@@ -72,10 +72,10 @@ export function WaitlistSection() {
     'text-left font-heading text-xl font-semibold leading-snug tracking-tight text-landing-ink md:text-2xl';
 
   const inputClass =
-    'waitlist-email-input w-full min-w-0 flex-1 rounded-none border-0 bg-transparent py-2 px-0 font-sans text-[0.95rem] font-normal text-[#e2e8f0] placeholder:text-landing-muted/60 outline-none disabled:opacity-50';
+    'waitlist-email-input w-full min-w-0 flex-1 rounded-none border-0 bg-transparent py-2 px-0 font-sans text-[0.95rem] font-normal text-ink placeholder:text-landing-muted/60 outline-none disabled:opacity-50';
 
   function Shell({ children }: { children: React.ReactNode }) {
-    return <div className="border border-[#2a3548] bg-[#080d14] p-6 md:p-8">{children}</div>;
+    return <div className="landing-surface-card p-6 md:p-8">{children}</div>;
   }
 
   const introBlocks = (
@@ -86,7 +86,7 @@ export function WaitlistSection() {
       <h2 id="waitlist-heading" className={`mt-3 ${titleClass}`}>
         Request pilot access
       </h2>
-      <div className="mt-6 border border-[#2d3f55] bg-[#0a1018] px-4 py-3">
+      <div className="mt-6 border border-line-strong bg-surface-elevated px-4 py-3">
         <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
           Priority note
         </p>
@@ -143,7 +143,7 @@ export function WaitlistSection() {
             defaultValue=""
           />
           <RoleRadios roleHint={roleHint} onChange={setRoleHint} name="waitlist-role" />
-          <div className="mt-8 border border-[#2d3f55] bg-[#0a1018] p-5 sm:p-6">
+          <div className="mt-8 border border-line-strong bg-surface-elevated p-5 sm:p-6">
             <div className="flex flex-col gap-4">
               <div>
                 <p
@@ -160,7 +160,7 @@ export function WaitlistSection() {
                   Contact email
                 </label>
               </div>
-              <div className="min-w-0 border-b border-[#3d4f63] pb-1 transition-colors focus-within:border-teal/50">
+              <div className="min-w-0 border-b border-line-strong pb-1 transition-colors focus-within:border-brand/50">
                 <input
                   id="waitlist-email"
                   name="email"
@@ -180,7 +180,7 @@ export function WaitlistSection() {
               <button
                 id="waitlist-join-btn"
                 type="submit"
-                className="focus-ring btn-primary w-full min-h-[44px] justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                className="focus-ring btn-primary btn-squircle w-full min-h-[44px] justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={status === 'loading' || !configured}
               >
                 {status === 'loading' ? 'Sending...' : 'Request pilot access'}

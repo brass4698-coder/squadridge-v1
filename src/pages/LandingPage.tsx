@@ -222,10 +222,7 @@ function LandingHeroLedgerPreview() {
  */
 function HeroFlowDiagram() {
   return (
-    <div
-      aria-label="How SquadRidge works at a glance"
-      className="rounded-lg border border-[#1e293b] bg-[#080d14] p-5 sm:p-6"
-    >
+    <div aria-label="How SquadRidge works at a glance" className="landing-surface-card p-5 sm:p-6">
       <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
         How it flows
       </p>
@@ -234,11 +231,11 @@ function HeroFlowDiagram() {
           const isLast = i === HERO_FLOW.length - 1;
           return (
             <Fragment key={step.number}>
-              <li className="flex min-w-0 flex-col gap-2 rounded-md border border-[#1e293b] bg-[#0a121f] p-4">
+              <li className="flex min-w-0 flex-col gap-2 rounded-md border border-line bg-brand-soft p-4">
                 <div className="flex items-center gap-2.5">
                   <span
                     aria-hidden
-                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded border border-teal/40 bg-teal/10 font-mono text-[0.65rem] font-semibold tabular-nums text-teal-light"
+                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded border border-brand/40 bg-brand-soft font-mono text-[0.65rem] font-semibold tabular-nums text-brand"
                   >
                     {step.number}
                   </span>
@@ -285,7 +282,7 @@ function LandingPublicRecordPreview() {
         {['consensus', 'pilot', 'facilitator-led'].map((t) => (
           <span
             key={t}
-            className="rounded border border-[#2d3f55] bg-[#070b12] px-2 py-0.5 font-mono text-[0.62rem] text-slate-500"
+            className="rounded border border-line-strong bg-surface-sunken px-2 py-0.5 font-mono text-[0.62rem] text-ink-subtle"
           >
             {t}
           </span>
@@ -387,7 +384,7 @@ export function LandingPage() {
 
             <div className="mt-12 grid gap-6 md:grid-cols-3 md:gap-8">
               {PROOF_CARDS.map((card) => (
-                <div key={card.title} className="border border-[#1e293b] bg-[#080d14] p-5 md:p-6">
+                <div key={card.title} className="landing-surface-card p-5 md:p-6">
                   <h3 className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
                     {card.title}
                   </h3>
@@ -397,7 +394,7 @@ export function LandingPage() {
                   {'href' in card ? (
                     <Link
                       to={card.href}
-                      className="mt-4 inline-block font-mono text-[0.75rem] font-medium text-teal-light/90 underline-offset-4 hover:underline"
+                      className="focus-ring mt-4 inline-block font-mono text-[0.75rem] font-medium text-brand underline-offset-4 hover:underline"
                     >
                       {card.linkLabel}
                     </Link>
@@ -443,20 +440,20 @@ export function LandingPage() {
               is different, so the structure of the tool is different.
             </p>
 
-            <div className="mt-10 overflow-hidden border border-[#1e293b]">
+            <div className="mt-10 overflow-hidden border border-line">
               {/* Header row */}
-              <div className="hidden grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] border-b border-[#1e293b] md:grid">
-                <div className="border-r border-[#1e293b] p-4">
+              <div className="hidden grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] border-b border-line md:grid">
+                <div className="border-r border-line p-4">
                   <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
                     Axis
                   </p>
                 </div>
-                <div className="border-r border-[#1e293b] p-4">
+                <div className="border-r border-line p-4">
                   <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
                     Standard tools
                   </p>
                 </div>
-                <div className="bg-[#0a121f] p-4">
+                <div className="bg-brand-soft p-4">
                   <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80">
                     SquadRidge
                   </p>
@@ -467,9 +464,9 @@ export function LandingPage() {
               {CONTRAST_ROWS.map((row, i) => (
                 <div
                   key={row.axis}
-                  className={`grid gap-0 md:grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] ${i > 0 ? 'border-t border-[#1e293b]' : ''}`}
+                  className={`grid gap-0 md:grid-cols-[minmax(11rem,0.9fr)_minmax(0,1fr)_minmax(0,1fr)] ${i > 0 ? 'border-t border-line' : ''}`}
                 >
-                  <div className="border-b border-[#1e293b] p-5 md:border-b-0 md:border-r md:p-6">
+                  <div className="border-b border-line p-5 md:border-b-0 md:border-r md:p-6">
                     <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">
                       Axis
                     </p>
@@ -477,7 +474,7 @@ export function LandingPage() {
                       {row.axis}
                     </p>
                   </div>
-                  <div className="border-b border-[#1e293b] p-5 md:border-b-0 md:border-r md:p-6">
+                  <div className="border-b border-line p-5 md:border-b-0 md:border-r md:p-6">
                     <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-slate-500 md:hidden">
                       Standard tools
                     </p>
@@ -485,7 +482,7 @@ export function LandingPage() {
                       {row.standard}
                     </p>
                   </div>
-                  <div className="bg-[#0a121f] p-5 md:p-6">
+                  <div className="bg-brand-soft p-5 md:p-6">
                     <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80 md:hidden">
                       SquadRidge
                     </p>
@@ -518,8 +515,8 @@ export function LandingPage() {
               {AUDIENCES.map((audience) => (
                 <article
                   key={audience.title}
-                  className={`border bg-[#080d14] p-6 md:p-7 ${
-                    audience.primary ? 'border-teal/40 bg-[#0a121f]' : 'border-[#1e293b]'
+                  className={`landing-surface-card p-6 md:p-7 ${
+                    audience.primary ? 'border-brand/40 bg-brand-soft' : ''
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-3">
@@ -527,7 +524,7 @@ export function LandingPage() {
                       {audience.title}
                     </h3>
                     {audience.primary ? (
-                      <span className="rounded border border-teal/40 bg-teal/10 px-2 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal-light">
+                      <span className="rounded border border-brand/40 bg-brand-soft px-2 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-brand">
                         Primary audience
                       </span>
                     ) : null}
@@ -538,7 +535,7 @@ export function LandingPage() {
                 </article>
               ))}
             </div>
-            <p className="mt-8 max-w-copy border-l-2 border-[#2d3f55] pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-500">
+            <p className="mt-8 max-w-copy border-l-2 border-line-strong pl-4 font-sans text-[0.88rem] leading-relaxed text-slate-500">
               <span className="font-medium text-slate-400">Squad definition:</span> A squad is a
               small matched cohort, usually 4 to 8 participants, working through a shared problem
               with facilitator guidance.
@@ -575,7 +572,7 @@ export function LandingPage() {
 
             <Link
               to="/security"
-              className="focus-ring mt-8 inline-flex min-h-[44px] items-center border border-[#3d4f63] bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+              className="focus-ring mt-8 inline-flex min-h-[44px] items-center border border-line-strong bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-ink-secondary transition-colors hover:border-line hover:text-ink"
             >
               Review security model
             </Link>
@@ -606,7 +603,7 @@ export function LandingPage() {
                 <LandingPublicRecordPreview />
                 <Link
                   to={`/ledger/${DEMO_PROPOSAL_ID}`}
-                  className="focus-ring inline-flex min-h-[44px] w-full items-center justify-center border border-[#3d4f63] bg-[#0c121c] px-5 py-2.5 font-heading text-sm font-medium text-slate-200 transition-colors hover:border-slate-500 hover:bg-[#101a28] lg:w-auto"
+                  className="focus-ring inline-flex min-h-[44px] w-full items-center justify-center border border-line-strong bg-surface-elevated px-5 py-2.5 font-heading text-sm font-medium text-ink-secondary transition-colors hover:border-line hover:bg-surface lg:w-auto"
                 >
                   Open sample public record
                 </Link>
@@ -621,8 +618,8 @@ export function LandingPage() {
         <FullBleed alt className="py-14 md:pb-20" innerClassName="bg-transparent">
           <div className="mx-auto max-w-copy">
             <section aria-labelledby="pilot-benefits-heading" className="mb-8">
-              <div className="border border-teal/30 bg-[#0a121f] p-6 md:p-7">
-                <p className="font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-teal-light">
+              <div className="border border-brand/30 bg-brand-soft p-6 md:p-7">
+                <p className="font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-brand">
                   If we are a fit
                 </p>
                 <h2
@@ -642,7 +639,7 @@ export function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-6 border-t border-[#1e293b] pt-5 font-sans text-[0.9rem] leading-relaxed text-slate-300">
+                <p className="mt-6 border-t border-line pt-5 font-sans text-[0.9rem] leading-relaxed text-slate-300">
                   <span className="font-semibold text-landing-ink">No public profile.</span>{' '}
                   <span className="font-semibold text-landing-ink">No open directory.</span> Just
                   direct outreach when the right pilot is ready.

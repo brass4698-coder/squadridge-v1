@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,19 +22,6 @@ import {
 } from '../lib';
 
 const MAX_CHARS = 300;
-
-const headingStyle: CSSProperties = {
-  fontSize: 'clamp(2.2rem, 4vw, 3rem)',
-  fontWeight: 800,
-  letterSpacing: '-0.02em',
-  lineHeight: 1.1,
-  color: '#f1f5f9',
-};
-
-const primaryCtaStyle: CSSProperties = {
-  borderRadius: 12,
-  fontWeight: 600,
-};
 
 /** Display labels for optional intent chips (stored verbatim in session intent). */
 const OPTIONAL_TAGS = [
@@ -157,7 +143,7 @@ export function IntentPage() {
         <h1 id="intent-unconfigured" className="font-heading text-fluid-h2 text-gray-light">
           {demoPath ? 'Try the guided path (offline demo)' : 'Matching unavailable'}
         </h1>
-        <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]">
+        <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-ink-faint">
           {demoPath
             ? 'Live matching isn’t available in this environment, so real queues and rooms are off. You can still walk the product story: a short “finding your squad” step, then a local-only demo session and sample ledger entry.'
             : 'Configure the backend to use the squad room. See the home page for setup steps.'}
@@ -167,26 +153,29 @@ export function IntentPage() {
             <>
               <Link
                 to="/match?demo=1"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+                className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold no-underline"
               >
                 Continue demo — match → session
               </Link>
               <Link
                 to="/?demo=1"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#2d3f55] px-6 py-3 font-sans text-[0.9rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f65] hover:text-[#c4cdd9]"
+                className="focus-ring inline-flex min-h-[44px] items-center justify-center rounded-lg border border-line-strong px-6 py-3 font-sans text-[0.9rem] font-medium text-ink-secondary transition-colors hover:border-line hover:text-ink"
               >
                 Start tour from home
               </Link>
               <Link
                 to="/"
-                className="inline-flex font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+                className="focus-ring inline-flex font-sans text-[0.9rem] text-ink-subtle underline-offset-4 hover:text-ink-secondary hover:underline"
               >
                 Home
               </Link>
             </>
           ) : (
             <>
-              <Link to="/" className="inline-flex text-teal underline-offset-4 hover:underline">
+              <Link
+                to="/"
+                className="focus-ring inline-flex text-brand underline-offset-4 hover:underline"
+              >
                 Back to home
               </Link>
             </>
@@ -202,10 +191,13 @@ export function IntentPage() {
       aria-labelledby="intent-heading"
     >
       <header className="flex flex-col gap-4">
-        <h1 id="intent-heading" className="font-heading" style={headingStyle}>
+        <h1
+          id="intent-heading"
+          className="font-heading text-fluid-h1-inner font-extrabold text-ink"
+        >
           Set your intention
         </h1>
-        <p className="max-w-[520px] font-sans text-[0.95rem] font-normal leading-[1.65] text-[#8892a4]">
+        <p className="max-w-[520px] font-sans text-[0.95rem] font-normal leading-[1.65] text-ink-faint">
           It helps us route you to the right room.
         </p>
       </header>
@@ -214,23 +206,23 @@ export function IntentPage() {
         <div>
           <label
             htmlFor="intent-text"
-            className="mb-2 block font-sans text-[0.95rem] font-medium leading-snug text-[#c4cdd9]"
+            className="mb-2 block font-sans text-[0.95rem] font-medium leading-snug text-ink-secondary"
           >
             I&apos;m here because…
           </label>
           <div
-            className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] leading-snug text-[#8892a4]"
+            className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] leading-snug text-ink-faint"
             id="intent-privacy-row"
           >
             <span
-              className="inline-flex items-center gap-1.5 text-[#94a3b8]"
+              className="inline-flex items-center gap-1.5 text-ink-secondary"
               title="Your intention helps us match you with the right group; facilitators may see it for routing."
             >
-              <Lock className="size-3.5 shrink-0 text-teal/90" aria-hidden />
+              <Lock className="size-3.5 shrink-0 text-brand/90" aria-hidden />
               <span>Used only for routing</span>
             </span>
             <span
-              className="inline-flex items-center rounded border border-teal/35 bg-teal/[0.08] px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-teal-light"
+              className="inline-flex items-center rounded border border-teal/35 bg-teal/[0.08] px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-brand"
               title="Your identity stays private; verification uses zero-knowledge proofs where the stack is live."
             >
               ZK-ready
@@ -248,13 +240,13 @@ export function IntentPage() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 aria-describedby="intent-privacy-row intent-char-count"
-                className="relative z-[2] w-full resize-y border-0 bg-transparent px-4 py-3 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] placeholder:text-[#6b7280] focus-visible:outline-none"
+                className="relative z-[2] w-full resize-y border-0 bg-transparent px-4 py-3 font-sans text-[0.95rem] leading-relaxed text-ink placeholder:text-ink-subtle focus-visible:outline-none"
               />
             </div>
           </div>
           <p
             id="intent-char-count"
-            className="mt-2 text-right font-mono text-[0.8rem] font-medium tabular-nums tracking-[0.08em] text-[#64748b]"
+            className="mt-2 text-right font-mono text-[0.8rem] font-medium tabular-nums tracking-[0.08em] text-ink-subtle"
             aria-live="polite"
           >
             {len} / {MAX_CHARS}
@@ -262,7 +254,7 @@ export function IntentPage() {
         </div>
 
         <fieldset className="min-w-0 border-0 p-0">
-          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
+          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-ink-secondary">
             Optional — tap what fits (you can leave this blank)
           </legend>
           <div className="flex flex-wrap gap-2">
@@ -276,7 +268,7 @@ export function IntentPage() {
                   data-active={on ? 'true' : 'false'}
                   onClick={() => toggleTag(tag)}
                   className={`intent-chip rounded-[8px] px-3 py-2 font-sans text-[0.85rem] font-medium focus-ring ${
-                    on ? 'text-[#e2e8f0]' : 'border border-[#2d3f55] bg-transparent text-[#a8b2c1]'
+                    on ? 'text-ink' : 'border border-line-strong bg-transparent text-ink-secondary'
                   }`}
                 >
                   {tag}
@@ -287,10 +279,10 @@ export function IntentPage() {
         </fieldset>
 
         <fieldset className="min-w-0 border-0 p-0">
-          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-[#a8b2c1]">
+          <legend className="mb-4 font-sans text-[0.85rem] font-medium text-ink-secondary">
             Perspective for matching — pick one
           </legend>
-          <p className="mb-4 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-[#6b7280]">
+          <p className="mb-4 max-w-[520px] font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
             We need people on both sides in the room at once. “A” and “B” are neutral labels — use
             them to self-sort into two groups (not “good vs bad”). E.g., “more regulation” vs “less
             regulation” — both perspectives matter.
@@ -314,8 +306,7 @@ export function IntentPage() {
             data-demo="intent-find-squad"
             disabled={busy || !supabase || perspective === null}
             onClick={() => void handleFindSquad()}
-            className="intent-primary-cta inline-flex min-h-[52px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-bold text-[#0b0f1a] transition-[box-shadow,opacity] duration-150 ease-out hover:opacity-[0.97] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            style={primaryCtaStyle}
+            className="intent-primary-cta inline-flex min-h-[52px] w-full shrink-0 items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-bold text-navy-dark transition-[box-shadow,opacity] duration-150 ease-out hover:opacity-[0.97] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {busy ? 'Finding…' : 'Find my squad'}
           </button>
@@ -330,14 +321,14 @@ export function IntentPage() {
         <button
           type="button"
           onClick={handleSkip}
-          className="self-center font-sans text-[0.9rem] font-medium text-[#6b7280] underline-offset-4 transition-colors hover:text-[#a8b2c1] hover:underline"
+          className="self-center font-sans text-[0.9rem] font-medium text-ink-subtle underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
         >
           Session hub only (skip matching)
         </button>
-        <p className="self-center max-w-[520px] text-center font-sans text-[0.78rem] leading-relaxed text-[#5c6570]">
+        <p className="self-center max-w-[520px] text-center font-sans text-[0.78rem] leading-relaxed text-ink-subtle">
           Account verification helps match you with vetted peers — optional if you want open
           dialogue first. You can verify from the match screen or the{' '}
-          <Link to="/verify" className="text-teal-light/90 underline-offset-2 hover:underline">
+          <Link to="/verify" className="text-brand underline-offset-2 hover:underline">
             Verify
           </Link>{' '}
           page.
@@ -345,17 +336,17 @@ export function IntentPage() {
 
         {error ? (
           <div
-            className="flex flex-col gap-3 rounded-[10px] border border-amber/35 bg-[#1a1408]/80 px-4 py-3"
+            className="flex flex-col gap-3 rounded-[10px] border border-amber/35 bg-amber/[0.06] px-4 py-3"
             role="alert"
           >
-            <p className="font-sans text-[0.875rem] leading-relaxed text-[#f5d7a3]">{error}</p>
+            <p className="font-sans text-[0.875rem] leading-relaxed text-sem-warning">{error}</p>
             {import.meta.env.DEV && errorCode ? (
               <p className="font-mono text-[0.7rem] text-amber/90">Code: {errorCode}</p>
             ) : null}
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-brand px-4 py-2 font-heading text-[0.85rem] font-semibold text-navy-dark transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={busy || perspective === null}
                 onClick={() => void handleFindSquad()}
               >
@@ -363,7 +354,7 @@ export function IntentPage() {
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-ink-secondary transition-colors hover:border-line"
                 onClick={() => navigate('/session', { replace: false })}
               >
                 Session hub

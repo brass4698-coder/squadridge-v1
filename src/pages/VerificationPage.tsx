@@ -80,15 +80,7 @@ export function VerificationPage() {
         <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
           Verification
         </p>
-        <h1
-          className="mb-0 mt-2 font-heading text-ink"
-          style={{
-            fontSize: 'clamp(2rem, 3.5vw, 2.75rem)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.08,
-          }}
-        >
+        <h1 className="mb-0 mt-2 font-heading text-fluid-h1-inner font-extrabold text-ink">
           Prove you belong without exposing identity
         </h1>
         <p className="mb-0 mt-3 max-w-copy font-sans text-[0.88rem] leading-relaxed text-ink-muted">

@@ -13,9 +13,9 @@ export default {
           dark: '#05080f',
         },
         teal: {
-          DEFAULT: '#00c2b2',
-          light: '#33d4c7',
-          dark: '#009e91',
+          DEFAULT: '#2aa39a',
+          light: '#34b8ae',
+          dark: '#1f8a82',
         },
         amber: {
           DEFAULT: '#F5A623', // Amber - Warnings/Interventions
@@ -145,6 +145,10 @@ export default {
       fontSize: {
         // Fluid typography using clamp() for modern scaling
         'fluid-h1': 'clamp(2.75rem, 4vw, 3.75rem)',
+        'fluid-h1-inner': [
+          'clamp(2.2rem, 4vw, 3rem)',
+          { lineHeight: '1.1', letterSpacing: '-0.02em' },
+        ],
         'fluid-h2': [
           'clamp(1.75rem, 3vw, 2.25rem)',
           { lineHeight: '1.25', letterSpacing: '-0.015em' },

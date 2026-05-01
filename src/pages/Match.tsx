@@ -226,9 +226,9 @@ export function Match() {
 
   if (gate === 'loading') {
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16">
         <div
-          className="h-10 w-10 animate-pulse rounded-full border-2 border-teal-500/40"
+          className="h-10 w-10 animate-pulse rounded-full border-2 border-brand/40"
           aria-hidden
         />
         <p className="mt-6 font-sans text-sm text-slate-500">Loading matching…</p>
@@ -240,7 +240,7 @@ export function Match() {
     if (!configured) {
       const canDemo = isDemoSquadShortcutsEnabled();
       return (
-        <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+        <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16">
           <h2 className="font-heading text-xl font-semibold text-slate-100">
             Live matching unavailable
           </h2>
@@ -253,7 +253,7 @@ export function Match() {
             {canDemo ? (
               <Link
                 to="/match?demo=1"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+                className="focus-ring btn-primary btn-squircle inline-flex min-h-[44px] items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold no-underline"
               >
                 Guided demo (match → session)
               </Link>
@@ -263,7 +263,7 @@ export function Match() {
             </Link>
             <Link
               to="/"
-              className="font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+              className="focus-ring font-sans text-[0.9rem] text-ink-subtle underline-offset-4 hover:text-ink-secondary hover:underline"
             >
               Home
             </Link>
@@ -273,7 +273,7 @@ export function Match() {
     }
 
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16">
         <div className="relative flex max-w-lg flex-col items-center text-center">
           <h2 className="font-heading text-xl font-semibold text-slate-100">
             Let’s get you matched
@@ -286,7 +286,7 @@ export function Match() {
             Need a verified role?{' '}
             <Link
               to="/verify"
-              className="font-medium text-teal-light underline-offset-4 hover:underline"
+              className="font-medium text-brand underline-offset-4 hover:underline"
             >
               Verify your account
             </Link>
@@ -294,7 +294,7 @@ export function Match() {
           </p>
           <Link
             to="/find-squad"
-            className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+            className="focus-ring btn-primary btn-squircle inline-flex mt-8 min-h-[52px] items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold no-underline"
           >
             Go to Find squad
           </Link>
@@ -314,8 +314,8 @@ export function Match() {
     const mm = readMatchmakingSession();
     const intent = readSessionIntent();
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-        <div className="w-full max-w-md rounded-xl border border-slate-700/80 bg-slate-900/50 p-5 text-left">
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16">
+        <div className="glass-card w-full max-w-md p-5 text-left">
           <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
             Match ready
           </p>
@@ -329,7 +329,7 @@ export function Match() {
                 ? 'We matched you from your intent. Review how we used your input, then open the room.'
                 : 'You are about to join a live squad. Keep this tab open; rooms expire after a period of inactivity.'}
           </p>
-          <div className="mt-5 space-y-2 rounded-lg border border-white/[0.06] bg-[#0a1018] p-3 font-sans text-[0.8rem] text-slate-300">
+          <div className="mt-5 space-y-2 rounded-lg border border-line bg-surface-sunken p-3 font-sans text-[0.8rem] text-ink-secondary">
             <p>
               <span className="text-slate-500">Squad / session</span>{' '}
               <span className="font-mono text-[0.75rem] text-slate-200">
@@ -360,7 +360,7 @@ export function Match() {
             <button
               type="button"
               onClick={() => navigate('/find-squad', { replace: true })}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-slate-600 px-4 font-sans text-[0.9rem] text-slate-300 hover:bg-slate-800/50"
+              className="focus-ring inline-flex min-h-[48px] items-center justify-center rounded-lg border border-line-strong px-4 font-sans text-[0.9rem] text-ink-secondary hover:bg-surface-elevated/50"
             >
               Not now
             </button>
@@ -376,7 +376,7 @@ export function Match() {
                 toast.success('Opening the room.');
                 navigate(`/session/${id}`, { replace: true });
               }}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-teal px-5 font-heading text-[0.9rem] font-semibold text-[#0b0f1a]"
+              className="focus-ring btn-primary inline-flex min-h-[48px] items-center justify-center px-5 font-heading text-[0.9rem] font-semibold"
             >
               Enter room
             </button>
@@ -390,7 +390,7 @@ export function Match() {
     const isDemo = gate === 'guided_demo';
     return (
       <div
-        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16"
+        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16"
         data-demo="match-guided-root"
       >
         <div className="relative flex max-w-lg flex-col items-center text-center">
@@ -399,10 +399,10 @@ export function Match() {
           </p>
           <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
             <div
-              className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping"
+              className="absolute h-24 w-24 rounded-full border-4 border-brand/30 animate-ping"
               aria-hidden
             />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20" />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft" />
           </div>
           <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-100 md:text-3xl">
             Finding your squad
@@ -416,7 +416,7 @@ export function Match() {
             {['A', 'B', 'C'].map((label, i) =>
               slots[i] ? (
                 <div key={label} className="flex items-center gap-3">
-                  <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
+                  <div className="h-8 w-8 shrink-0 rounded-full border-2 border-brand/40 animate-pulse" />
                   <span className="font-sans text-sm text-slate-500">Participant {label}</span>
                 </div>
               ) : null,
@@ -430,7 +430,7 @@ export function Match() {
   const q = snapshot && snapshot.outcome === 'queued' ? snapshot : null;
 
   return (
-    <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+    <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-surface-sunken px-6 py-16">
       {demoQuery ? (
         <div
           role="status"
@@ -442,10 +442,10 @@ export function Match() {
       <div className="relative flex max-w-lg flex-col items-center text-center">
         <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
           <div
-            className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping"
+            className="absolute h-24 w-24 rounded-full border-4 border-brand/30 animate-ping"
             aria-hidden
           />
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft" />
         </div>
         <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-100 md:text-3xl">
           Finding your squad
@@ -458,10 +458,7 @@ export function Match() {
         </p>
         <p className="mt-4 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
           Need a verified role?{' '}
-          <Link
-            to="/verify"
-            className="font-medium text-teal-light underline-offset-4 hover:underline"
-          >
+          <Link to="/verify" className="font-medium text-brand underline-offset-4 hover:underline">
             Verify your account
           </Link>
           .
@@ -477,7 +474,7 @@ export function Match() {
 
         {q ? (
           <div
-            className="mt-8 w-full rounded-xl border border-slate-700/80 bg-slate-900/50 px-4 py-3 text-left font-sans text-sm text-slate-300"
+            className="glass-card mt-8 w-full px-4 py-3 text-left font-sans text-sm text-ink-secondary"
             aria-live="polite"
           >
             <p className="text-slate-400">
@@ -507,7 +504,7 @@ export function Match() {
           {['A', 'B', 'C'].map((label, i) =>
             slots[i] ? (
               <div key={label} className="flex items-center gap-3">
-                <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
+                <div className="h-8 w-8 shrink-0 rounded-full border-2 border-brand/40 animate-pulse" />
                 <span className="font-sans text-sm text-slate-500">Participant {label}</span>
               </div>
             ) : null,
@@ -539,7 +536,7 @@ export function Match() {
         <button
           type="button"
           onClick={() => void handleLeaveQueue()}
-          className="mt-8 font-sans text-[0.9rem] font-medium text-[#6b7280] underline-offset-4 transition-colors hover:text-[#a8b2c1] hover:underline"
+          className="focus-ring mt-8 font-sans text-[0.9rem] font-medium text-ink-subtle underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
         >
           Leave queue
         </button>
