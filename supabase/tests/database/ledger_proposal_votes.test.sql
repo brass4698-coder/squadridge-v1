@@ -16,7 +16,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(10);
 
 -- 1. Table exists with security on.
 SELECT has_table('public', 'ledger_proposal_votes', 'ledger_proposal_votes table exists');
@@ -77,6 +77,13 @@ SELECT set_config(
     true
 );
 
+SELECT results_eq(
+    $$SELECT id FROM public.ledger_proposals
+      WHERE id = '00000000-0000-0000-0000-0000000a0099'$$,
+    $$VALUES ('00000000-0000-0000-0000-0000000a0099'::uuid)$$,
+    'squad member can read their squad-scoped draft proposal'
+);
+
 SELECT lives_ok(
     $$INSERT INTO public.ledger_proposal_votes (proposal_id, squad_id, user_id, vote)
       VALUES ('00000000-0000-0000-0000-0000000a0099',
@@ -103,6 +110,12 @@ SELECT set_config(
     'request.jwt.claims',
     '{"sub":"00000000-0000-0000-0000-0000000a0003","role":"authenticated"}',
     true
+);
+
+SELECT is_empty(
+    $$SELECT id FROM public.ledger_proposals
+      WHERE id = '00000000-0000-0000-0000-0000000a0099'$$,
+    'non-member cannot read another squad''s draft proposal'
 );
 
 SELECT throws_ok(
