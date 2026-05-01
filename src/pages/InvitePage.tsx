@@ -87,7 +87,7 @@ export function InvitePage() {
       return;
     }
     autoClaimAttempted.current = true;
-    void claimMutation.mutateAsync(trimmed);
+    claimMutation.mutate(trimmed);
   }, [authLoading, claimMutation, session, trimmed]);
 
   const activeClaim = inviteClaimQuery.data;
@@ -151,7 +151,7 @@ export function InvitePage() {
             onClick={() => {
               setError(null);
               autoClaimAttempted.current = true;
-              void claimMutation.mutateAsync(trimmed);
+              claimMutation.mutate(trimmed);
             }}
             className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-teal font-heading text-[0.95rem] font-semibold text-[#0b0f1a] disabled:opacity-50"
           >

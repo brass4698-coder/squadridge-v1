@@ -346,6 +346,11 @@ CREATE OR REPLACE FUNCTION public.set_session_reports_updated_at ()
     AS $$
 BEGIN
     NEW.updated_at := timezone('utc'::TEXT, now());
+    IF NEW.status IN ('resolved', 'dismissed') AND NEW.resolved_at IS NULL THEN
+        NEW.resolved_at := timezone('utc'::TEXT, now());
+    ELSIF NEW.status NOT IN ('resolved', 'dismissed') THEN
+        NEW.resolved_at := NULL;
+    END IF;
     RETURN NEW;
 END;
 $$;

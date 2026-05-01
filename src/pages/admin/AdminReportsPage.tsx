@@ -3,6 +3,15 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
 
+const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+function formatDateTime(value: string): string {
+  return dateTimeFormatter.format(new Date(value));
+}
+
 type ReportRow = {
   id: string;
   squad_id: string;
@@ -162,8 +171,12 @@ export function AdminReportsPage() {
                     ) : null}
                   </div>
                   <div className="text-right text-[0.72rem] text-slate-500">
-                    <div>Created {new Date(r.created_at).toLocaleString()}</div>
-                    <div className="mt-1">Updated {new Date(r.updated_at).toLocaleString()}</div>
+                    <div aria-label={`Created ${r.created_at}`}>
+                      Created {formatDateTime(r.created_at)}
+                    </div>
+                    <div className="mt-1" aria-label={`Updated ${r.updated_at}`}>
+                      Updated {formatDateTime(r.updated_at)}
+                    </div>
                     <div className="mt-1">
                       {r.assigned_moderator_user_id
                         ? `Assigned ${r.assigned_moderator_user_id}`
@@ -238,7 +251,6 @@ export function AdminReportsPage() {
                           assigned_moderator_user_id:
                             r.assigned_moderator_user_id ?? session?.user?.id ?? null,
                           resolution_notes: draft.trim() || r.resolution_notes,
-                          resolved_at: new Date().toISOString(),
                         },
                       })
                     }
@@ -257,7 +269,6 @@ export function AdminReportsPage() {
                           assigned_moderator_user_id:
                             r.assigned_moderator_user_id ?? session?.user?.id ?? null,
                           resolution_notes: draft.trim() || r.resolution_notes,
-                          resolved_at: new Date().toISOString(),
                         },
                       })
                     }

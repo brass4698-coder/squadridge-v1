@@ -93,7 +93,7 @@ function parseInviteClaim(data: unknown): InviteClaim | null {
     invite_id: row.invite_id,
     cohort_key: row.cohort_key,
     cohort_label: row.cohort_label,
-    allow_matchmaking: row.allow_matchmaking !== false,
+    allow_matchmaking: typeof row.allow_matchmaking === 'boolean' ? row.allow_matchmaking : true,
     claimed_at: row.claimed_at,
     invite_expires_at: typeof row.invite_expires_at === 'string' ? row.invite_expires_at : null,
     code_hint: typeof row.code_hint === 'string' ? row.code_hint : null,
