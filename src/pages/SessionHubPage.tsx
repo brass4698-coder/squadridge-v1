@@ -82,10 +82,9 @@ export function SessionHubPage() {
           Squad room
         </h1>
         <p className="mx-auto max-w-[440px] font-sans text-[0.95rem] font-normal leading-[1.65] text-ink-faint">
-          Get matched into a live room from{' '}
-          <strong className="font-medium text-[#text-ink]">Intent</strong> — we pair perspectives
-          and open a squad when the queue has enough people. Complete your profile first so you are
-          ready for the room.
+          Get matched into a live room from <strong className="font-medium text-ink">Intent</strong>{' '}
+          — we pair perspectives and open a squad when the queue has enough people. Complete your
+          profile first so you are ready for the room.
         </p>
       </header>
       <ol className="mt-8 w-full max-w-[420px] list-decimal space-y-2 pl-5 text-left font-sans text-[0.85rem] leading-relaxed text-ink-subtle">
@@ -114,7 +113,7 @@ export function SessionHubPage() {
         </Link>
         <Link
           to="/settings/profile"
-          className="focus-ring inline-flex min-h-[44px] shrink-0 items-center justify-center  border border-line-strong bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-ink-secondary transition-colors duration-150 hover:border-line hover:text-ink"
+          className="focus-ring inline-flex min-h-[44px] shrink-0 items-center justify-center border border-line-strong bg-transparent px-8 py-[0.65rem] font-heading text-[0.95rem] font-medium text-ink-secondary transition-colors duration-150 hover:border-line hover:text-ink"
         >
           Profile settings
         </Link>

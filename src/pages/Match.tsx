@@ -294,7 +294,7 @@ export function Match() {
           </p>
           <Link
             to="/find-squad"
-            className="focus-ring btn-primary btn-squircle inline-flex mt-8 min-h-[52px] items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold no-underline"
+            className="focus-ring btn-primary btn-squircle mt-8 inline-flex min-h-[52px] items-center justify-center px-8 py-3 font-heading text-[0.95rem] font-semibold no-underline"
           >
             Go to Find squad
           </Link>
