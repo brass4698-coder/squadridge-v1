@@ -18,6 +18,10 @@ describe('inviteAccess helpers', () => {
     expect(normalizeInviteCode(' Cohort- Pilot 2026 ')).toBe('cohort-pilot2026');
   });
 
+  it('preserves hyphens while removing stray whitespace', () => {
+    expect(normalizeInviteCode(' cohort-pilot-2026 ')).toBe('cohort-pilot-2026');
+  });
+
   it('builds invite continuation paths for auth callbacks', () => {
     expect(buildInviteContinuationPath('pilot-2026', '/onboarding/verification')).toBe(
       '/invite?code=pilot-2026&continue=%2Fonboarding%2Fverification',
