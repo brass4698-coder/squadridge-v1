@@ -64,7 +64,7 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               type="button"
-              className="inline-flex min-h-[44px] items-center justify-center border-0 bg-teal px-6 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+              className="inline-flex min-h-[44px] items-center justify-center border-0 bg-teal px-6 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-90"
               style={{ borderRadius: 8 }}
               onClick={this.handleRetry}
             >
@@ -72,7 +72,7 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
             </button>
             <button
               type="button"
-              className="inline-flex min-h-[44px] items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-6 font-heading text-[0.95rem] font-medium text-[#a8b2c1] hover:border-[#3d4f63]"
+              className="inline-flex min-h-[44px] items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-6 font-heading text-[0.95rem] font-medium text-ink-secondary hover:border-[#3d4f63]"
               style={{ borderRadius: 8 }}
               onClick={() => window.location.reload()}
             >

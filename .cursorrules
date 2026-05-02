@@ -50,10 +50,18 @@ Optimize for **production-grade** outcomes, not the smallest diff that barely wo
 
 ### Styling and UI (TailwindCSS)
 
-*   Use TailwindCSS for all styling.
-*   **Color Palette**: Rely on the core palette: Deep Navy (`#0A0F1E`) background, Teal (`#0E9AA7`) accents, and Amber (`#F5A623`) warnings.
-*   **Typography**: Use Space Grotesk for headings and DM Sans for body text. Always use fluid typography (e.g. CSS `clamp()`) to ensure text scales perfectly across different screen sizes.
-*   **Buttons**: Always design buttons using neo-skeuomorphism principles to provide tactile feedback and clear affordances.
+*   Use TailwindCSS for all styling. The active token system is in `src/styles/tokens.css` and `tailwind.config.ts` — read those, not the marketing palette.
+*   **Color tokens** (production code MUST use these, not raw hex):
+    *   Surfaces: `bg-surface`, `bg-surface-elevated`, `bg-surface-secondary`, `bg-surface-sunken`, `bg-band-navy`, `bg-band-black`.
+    *   Lines: `border-line`, `border-line-strong`, `border-line-divider`.
+    *   Ink ladder: `text-ink`, `text-ink-secondary`, `text-ink-faint`, `text-ink-muted`, `text-ink-subtle`.
+    *   Brand (single accent — slate-teal `--sr-primary` `#2f8f86`): `bg-brand`, `bg-brand-soft`, `text-brand`, `border-brand`, `focus-visible:outline-brand-ring`. Legacy `bg-teal` / `text-teal-light` still work for marketing surfaces.
+    *   Status: `text-status-live | stale | empty | error`, plus `bg-sem-success-soft`, etc.
+    *   CTA on teal: `text-navy` (DO NOT use `text-[#0b0f1a]`).
+*   **Typography**: IBM Plex Sans body (`font-sans`), IBM Plex Sans for headings (`font-heading` is a legacy alias of `font-sans`), IBM Plex Serif for marketing display only (`font-display`), IBM Plex Mono for ledger / tabular (`font-mono`). Always use fluid utilities (`text-fluid-h1..h4`, `text-fluid-body`, `text-display-hero`) — `clamp()` already in those tokens.
+*   **Easing**: Use `ease-soft` for transitions instead of arbitrary `ease-[cubic-bezier(0.16,1,0.3,1)]` (the token is in `tailwind.config.ts`).
+*   **Loading / empty / error**: Use the system primitives in `src/components/system/` (`RouteSkeleton`, `EmptyState`, `InlineSpinner`) per `docs/design/ux-patterns.md`. Bare `Loading…` text is not acceptable in product surfaces.
+*   **Buttons**: Use the global `btn-primary` / `btn-secondary` / `btn-hero-join` classes in `src/styles/globals.css` whenever possible. Keep neo-skeuomorphism subtle — the post-redesign baseline is flat with `border-line` + soft shadow, not heavy bevels.
 *   **SVGs**: Always ensure SVG designs are of ultra-premium quality and adhere to a military-grade aesthetic.
 *   **Accessibility**: Ensure strict adherence to WCAG AA standards. Maintain high contrast ratios against the Deep Navy background.
 

@@ -41,11 +41,11 @@ import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
 import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
-import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminDemoHubPage } from './pages/admin/AdminDemoHubPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
 import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
 import { DeckViewerRedirectPage } from './pages/admin/DeckViewerRedirectPage';
+import { RouteSkeleton } from './components/system';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -62,14 +62,8 @@ const PitchDeckHubPage = lazy(() =>
 );
 
 const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
+  <div className="flex min-h-dvh flex-col bg-[#0a0f1a]">
+    <RouteSkeleton label="Loading page content." />
   </div>
 );
 
@@ -201,7 +195,8 @@ export default function App() {
                     <Route path="verification" element={<AdminVerificationPage />} />
                     <Route path="rooms" element={<AdminRoomsPage />} />
                     <Route path="logs" element={<AdminLogsPage />} />
-                    <Route path="demo" element={<AdminDemoPage />} />
+                    {/* Legacy `/admin/demo` redirects into the consolidated command center. */}
+                    <Route path="demo" element={<Navigate to="/admin/demo-hub" replace />} />
                     <Route path="demo-hub" element={<AdminDemoHubPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
                     <Route path="csi" element={<AdminCsiPage />} />

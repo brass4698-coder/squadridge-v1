@@ -43,7 +43,10 @@ const EXACT: Record<string, { parent: Crumb; current: string }> = {
   '/admin/rooms': { parent: { to: '/', label: 'Home' }, current: 'Admin rooms' },
   '/admin/logs': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Audit log' },
   '/admin/csi': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'CSI' },
-  '/admin/demo': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Demo' },
+  '/admin/demo-hub': {
+    parent: { to: '/admin/rooms', label: 'Admin' },
+    current: 'Demo command center',
+  },
   '/mod': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Moderation' },
   '/invite': { parent: { to: '/', label: 'Home' }, current: 'Invite' },
   '/sign-in': { parent: { to: '/', label: 'Home' }, current: 'Sign in' },

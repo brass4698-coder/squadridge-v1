@@ -785,7 +785,7 @@ function LedgerIndex({ unknownProposalSlug }: { unknownProposalSlug?: string } =
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
       <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-8 md:py-10">
-        <div className="flex flex-col gap-4 border-b border-[#1a2236]/90 pb-8 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-4 border-b border-line/90 pb-8 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <p className="mb-0 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand">
               Public record layer
@@ -1172,7 +1172,7 @@ function LedgerIndex({ unknownProposalSlug }: { unknownProposalSlug?: string } =
                   type="button"
                   onClick={copyCitation}
                   aria-describedby="ledger-citation-text"
-                  className="inline-flex min-h-[44px] w-full max-w-xs shrink-0 items-center justify-center rounded-md border border-white/[0.14] bg-[#0f1623] px-4 py-2.5 font-sans text-[0.85rem] font-semibold text-teal-light shadow-[0_2px_12px_rgba(0,0,0,0.28)] transition-[border-color,background-color] hover:border-teal/35 hover:bg-white/[0.04] sm:w-auto"
+                  className="inline-flex min-h-[44px] w-full max-w-xs shrink-0 items-center justify-center rounded-md border border-white/[0.14] bg-surface-elevated px-4 py-2.5 font-sans text-[0.85rem] font-semibold text-teal-light shadow-[0_2px_12px_rgba(0,0,0,0.28)] transition-[border-color,background-color] hover:border-teal/35 hover:bg-white/[0.04] sm:w-auto"
                 >
                   {citeCopied ? 'Copied template' : 'Copy citation template'}
                 </button>
@@ -1338,7 +1338,7 @@ function LedgerEntryMetaStrip({
       {tags.map((tag) => (
         <span
           key={tag}
-          className="rounded border border-[#2d3f55]/70 bg-[#0b0f14]/80 px-2 py-0.5 font-mono text-[0.64rem] text-ink-muted"
+          className="rounded border border-line-strong/70 bg-[#0b0f14]/80 px-2 py-0.5 font-mono text-[0.64rem] text-ink-muted"
         >
           {tag}
         </span>

@@ -144,7 +144,17 @@ export function AdminReportsPage() {
         </div>
       </header>
       {isLoading ? (
-        <p className="text-slate-500">Loading…</p>
+        <div
+          className="space-y-2 rounded-lg border border-line/70 bg-surface-elevated/40 p-4"
+          role="status"
+          aria-busy="true"
+          aria-label="Loading reports"
+        >
+          <span className="sr-only">Loading reports…</span>
+          <div className="h-3 w-1/3 animate-pulse rounded bg-line/70" />
+          <div className="h-3 w-1/2 animate-pulse rounded bg-line/55" />
+          <div className="h-3 w-2/3 animate-pulse rounded bg-line/40" />
+        </div>
       ) : isError ? (
         <p className="text-amber" role="alert">
           {error instanceof Error ? error.message : 'Could not load reports.'}

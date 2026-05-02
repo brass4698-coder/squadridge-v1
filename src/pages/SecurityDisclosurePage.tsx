@@ -1471,7 +1471,7 @@ function RevealSection({ children, className = '' }: { children: ReactNode; clas
     <div
       ref={ref}
       className={twMerge(
-        'transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+        'transition-[opacity,transform] duration-700 ease-soft',
         revealed ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
         className,
       )}

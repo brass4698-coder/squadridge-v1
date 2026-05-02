@@ -28,6 +28,29 @@ const VERIFY_EDGE_MAX_ATTEMPTS = 3;
 /** Same credential kind as Semaphore `scope` preimage (must match Edge `credential_type`). */
 export const ZK_SESSION_CREDENTIAL_TYPE = 'session_attribute';
 
+/**
+ * Stages a verification run passes through. Mirrors {@link ProofTimelineStage}
+ * in `src/components/VerificationProofTimeline.tsx` so the UI can advance the
+ * visible timeline when the actual RPC has reached the corresponding step
+ * — instead of running on a fixed animation cadence.
+ */
+export type RunVerificationStage = 'identity' | 'commitment' | 'proof' | 'submit' | 'verified';
+
+export interface RunVerificationOptions {
+  /** Called as the underlying flow advances. Errors thrown by the callback are swallowed. */
+  onStage?: (stage: RunVerificationStage) => void;
+}
+
+function safeStage(opts: RunVerificationOptions | undefined, stage: RunVerificationStage): void {
+  const cb = opts?.onStage;
+  if (!cb) return;
+  try {
+    cb(stage);
+  } catch {
+    // Caller bug — never propagate into the verification path.
+  }
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -68,12 +91,18 @@ export async function runVerification(
   supabase: SupabaseClient<Database>,
   credentialType: CredentialType,
   rawInput: string,
+  options?: RunVerificationOptions,
 ): Promise<ZKProof> {
   if (USE_HASH_STUB) {
     addZkProofBreadcrumb('stub_hash', 'start', { credentialType });
+    safeStage(options, 'identity');
     try {
       const { generateStubProof } = await import('./zkVerifier');
+      safeStage(options, 'commitment');
+      safeStage(options, 'proof');
       const proof = await generateStubProof(credentialType, rawInput);
+      safeStage(options, 'submit');
+      safeStage(options, 'verified');
       addZkProofBreadcrumb('stub_hash', 'success', { credentialType });
       return proof;
     } catch {
@@ -91,15 +120,18 @@ export async function runVerification(
   const issuerEnforced = issuer !== null;
 
   addZkProofBreadcrumb('generate_local', 'start', { credentialType, issuerEnforced });
+  safeStage(options, 'identity');
   const { generateSemaphoreProof } = await import('./zkVerifier');
   const { semaphoreProofToWireFormat } = await import('./zk/serializeSemaphoreProof');
   let semaphoreProof;
   try {
+    safeStage(options, 'commitment');
     const rawProof = await generateSemaphoreProof(
       credentialType,
       rawInput.trim(),
       issuer ? { issuerGroupId: issuer.groupId, issuerManifestFetcher: issuer.fetcher } : undefined,
     );
+    safeStage(options, 'proof');
     semaphoreProof = semaphoreProofToWireFormat(rawProof);
     addZkProofBreadcrumb('generate_local', 'success', { credentialType, issuerEnforced });
   } catch {
@@ -126,6 +158,7 @@ export async function runVerification(
   }
 
   addZkProofBreadcrumb('invoke_verify_edge', 'start', { credentialType, issuerEnforced });
+  safeStage(options, 'submit');
 
   for (let attempt = 0; attempt < VERIFY_EDGE_MAX_ATTEMPTS; attempt++) {
     try {
@@ -135,6 +168,7 @@ export async function runVerification(
         try {
           const proof = parseVerifyZkProofResponse(data);
           addZkProofBreadcrumb('invoke_verify_edge', 'success', { credentialType, issuerEnforced });
+          safeStage(options, 'verified');
           return proof;
         } catch (e) {
           if (e instanceof VerifyZkProofParseError) {

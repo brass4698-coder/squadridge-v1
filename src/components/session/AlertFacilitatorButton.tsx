@@ -99,7 +99,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                   className={`flex min-h-[60px] min-w-0 cursor-pointer items-start gap-3 rounded-lg border px-3.5 py-3 ${
                     pickedReason === r.id
                       ? 'border-amber/60 bg-amber/10'
-                      : 'border-[#1a2236] bg-[#0f1623] hover:border-amber/35'
+                      : 'border-line bg-surface-elevated hover:border-amber/35'
                   }`}
                 >
                   <input
@@ -140,7 +140,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                 type="button"
                 onClick={() => void handleConfirm()}
                 disabled={busy || !pickedReason}
-                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 py-2 font-heading text-[0.85rem] font-semibold text-navy hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? 'Sending…' : 'Send alert'}
               </button>

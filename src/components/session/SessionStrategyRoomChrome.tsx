@@ -46,7 +46,7 @@ export function SessionStrategyRoomChrome({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-[#1a2236] bg-[#0c121c] p-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-line bg-[#0c121c] p-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
             Strategy room
@@ -88,7 +88,7 @@ export function SessionStrategyRoomChrome({
           <button
             key={r}
             type="button"
-            className="rounded-md border border-[#1a2236] bg-[#0f1623] px-2.5 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-teal/35"
+            className="rounded-md border border-line bg-surface-elevated px-2.5 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-teal/35"
             onClick={() => {
               /* local-only signal in MVP; wire Realtime in follow-up */
             }}

@@ -42,6 +42,29 @@ export function SignInPage() {
     );
   }
 
+  if (loading) {
+    /**
+     * Render an early "checking session" gate so a returning visitor on a slow
+     * link doesn't see the full sign-in form flash before being redirected by
+     * the effect above. Keeps the shell visually consistent with the form.
+     */
+    return (
+      <AccountPageShell>
+        <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
+          Account
+        </p>
+        <div className="mt-2 flex flex-col gap-3" aria-busy="true">
+          <span className="sr-only">Checking your session…</span>
+          <div className="h-7 w-40 animate-pulse rounded-md bg-[#1a2236]/80" />
+          <div className="h-3 w-64 animate-pulse rounded bg-[#1a2236]/55" />
+        </div>
+        <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
+          Checking your session…
+        </p>
+      </AccountPageShell>
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);

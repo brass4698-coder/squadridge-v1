@@ -192,15 +192,15 @@ export function DemoSessionPage() {
         Squad session {anonymousId.slice(0, 8)}
       </h1>
 
-      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623]/80 px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-[#a8b2c1]">
-        <p className="font-medium text-[#e2e8f0]">What this demo does and doesn&apos;t do</p>
+      <div className="rounded-lg border border-line bg-surface-elevated/80 px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
+        <p className="font-medium text-ink">What this demo does and doesn&apos;t do</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-[0.82rem]">
           <li>
-            <span className="font-medium text-[#c4cdd9]">Stays in your browser:</span> nothing you
-            type is sent to a server, queue, or another participant.
+            <span className="font-medium text-ink-secondary">Stays in your browser:</span> nothing
+            you type is sent to a server, queue, or another participant.
           </li>
           <li>
-            <span className="font-medium text-[#c4cdd9]">Not encrypted end-to-end</span> in real
+            <span className="font-medium text-ink-secondary">Not encrypted end-to-end</span> in real
             sessions either: live rooms use app-layer encryption, but trained facilitators may
             review messages flagged for safety. See{' '}
             <Link
@@ -212,7 +212,9 @@ export function DemoSessionPage() {
             .
           </li>
           <li>
-            <span className="font-medium text-[#c4cdd9]">Translation and live sync are off</span>{' '}
+            <span className="font-medium text-ink-secondary">
+              Translation and live sync are off
+            </span>{' '}
             here. Real squads route messages through Supabase Realtime and the redaction pipeline.
           </li>
         </ul>
@@ -232,7 +234,7 @@ export function DemoSessionPage() {
             data-demo="session-play-scene"
             onClick={handlePlayScene}
             disabled={scenePlaying}
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-md bg-teal px-3 py-2 font-heading text-[0.82rem] font-semibold text-[#0b0f1a] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-md bg-teal px-3 py-2 font-heading text-[0.82rem] font-semibold text-navy disabled:cursor-not-allowed disabled:opacity-50"
           >
             {scenePlaying ? (
               <>
@@ -255,7 +257,7 @@ export function DemoSessionPage() {
         </div>
       </div>
 
-      <label className="flex items-start gap-3 rounded-lg border border-[#1a2236] bg-[#0b0f14] px-4 py-3">
+      <label className="flex items-start gap-3 rounded-lg border border-line bg-surface-sunken px-4 py-3">
         <input
           type="checkbox"
           checked={consentGiven}
@@ -263,36 +265,32 @@ export function DemoSessionPage() {
           className="mt-1 h-4 w-4 cursor-pointer accent-teal"
           aria-describedby="demo-consent-help"
         />
-        <span className="font-sans text-[0.85rem] leading-relaxed text-[#c4cdd9]">
+        <span className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
           I understand this is a non-private demo and that anything I type stays in this browser
           tab.
-          <span id="demo-consent-help" className="mt-1 block text-[0.78rem] text-[#5c6570]">
+          <span id="demo-consent-help" className="mt-1 block text-[0.78rem] text-ink-subtle">
             Required before sending in this preview. Real sessions show a different consent flow.
           </span>
         </span>
       </label>
 
-      <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
+      <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-line bg-surface-elevated">
         <div className="flex min-h-0 flex-1 flex-col p-4 pt-3 sm:p-6 sm:pt-4">
           <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto" aria-live="polite">
             {messages.map((m) => (
               <li
                 key={m.id}
                 className={`rounded-lg border px-4 py-3 ${
-                  m.isOwn
-                    ? 'border-teal-500/35 bg-[#0b0f14]/90'
-                    : 'border-[#1a2236] bg-[#0b0f14]/80'
+                  m.isOwn ? 'border-brand/45 bg-surface-sunken' : 'border-line bg-surface-sunken/80'
                 }`}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-heading text-[0.7rem] font-semibold uppercase tracking-wide text-[#64748b]">
+                  <span className="font-heading text-[0.7rem] font-semibold uppercase tracking-wide text-ink-subtle">
                     {m.senderLabel}
                   </span>
-                  <span className="font-sans text-[0.7rem] text-[#4b5563]">{m.sentAt}</span>
+                  <span className="font-sans text-[0.7rem] text-ink-subtle">{m.sentAt}</span>
                 </div>
-                <p className="mt-2 font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0]">
-                  {m.body}
-                </p>
+                <p className="mt-2 font-sans text-[0.95rem] leading-relaxed text-ink">{m.body}</p>
               </li>
             ))}
           </ul>
@@ -335,7 +333,7 @@ export function DemoSessionPage() {
           aria-label="Message"
           rows={4}
           disabled={!consentGiven}
-          className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-[100px] w-full resize-y rounded-[8px] border border-line bg-surface-elevated px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-ink placeholder:text-ink-subtle focus-visible:outline-none focus-visible:border-brand/55 focus-visible:shadow-[0_0_0_3px_var(--sr-primary-soft)] disabled:cursor-not-allowed disabled:opacity-50"
           placeholder={
             consentGiven
               ? 'Draft a protocol line… (saved locally)'
@@ -348,7 +346,7 @@ export function DemoSessionPage() {
           <button
             type="submit"
             data-demo="session-send"
-            className="inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal px-6 py-2.5 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:px-7"
+            className="inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal px-6 py-2.5 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-[0.88] disabled:cursor-not-allowed disabled:opacity-50 sm:px-7"
             style={{ borderRadius: 8 }}
             disabled={!consentGiven || !composer.trim()}
           >

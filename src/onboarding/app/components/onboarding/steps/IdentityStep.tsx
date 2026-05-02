@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import { cn } from '../../ui/utils';
 import { upsertProfilePatch } from '../../../../lib/supabase/profile';
 import { PROFILE_ROLE_OTHER_MAX_LEN, PROFILE_ROLE_OTHER_MIN_LEN } from '../../../../../lib';
@@ -38,6 +39,7 @@ const ERAS: { label: string; value: Exclude<EraAffiliation, ''> }[] = [
 
 export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
   const { draft, setDraft } = useOnboarding();
+  const [pending, setPending] = useState(false);
   useCallsignSync(draft.callsign);
 
   const otherTrimmed = draft.roleOtherDetail.trim();
@@ -48,15 +50,26 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
   const valid = draft.callsign.trim().length >= 2 && draft.roleArchetype !== '' && otherDetailValid;
 
   const handleNext = useCallback(async () => {
-    if (!valid) return;
-    await upsertProfilePatch({
-      callsign: draft.callsign.trim(),
-      role_archetype: draft.roleArchetype,
-      role_other_detail: draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
-      era_affiliation: draft.eraAffiliation === '' ? 'contemporary' : draft.eraAffiliation,
-    });
-    onNext?.();
-  }, [draft, onNext, valid]);
+    if (!valid || pending) return;
+    setPending(true);
+    try {
+      await upsertProfilePatch({
+        callsign: draft.callsign.trim(),
+        role_archetype: draft.roleArchetype,
+        role_other_detail: draft.roleArchetype === 'other' ? draft.roleOtherDetail.trim() : null,
+        era_affiliation: draft.eraAffiliation === '' ? 'contemporary' : draft.eraAffiliation,
+      });
+      onNext?.();
+    } catch (e) {
+      toast.error(
+        e instanceof Error && e.message?.trim().length
+          ? e.message
+          : 'Could not save your callsign. Try again.',
+      );
+    } finally {
+      setPending(false);
+    }
+  }, [draft, onNext, pending, valid]);
 
   const eraValue = draft.eraAffiliation || 'contemporary';
 
@@ -66,6 +79,7 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
       onNext={() => void handleNext()}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled || !valid}
+      nextPending={pending}
       trustNote={TRUST_FOOTER.identity}
     >
       <OnboardingCard>

@@ -471,7 +471,17 @@ export function ModDashboardPage() {
           </label>
         </div>
         {squadsQuery.isPending ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
+          <div
+            className="mt-4 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading squads"
+          >
+            <span className="sr-only">Loading squads…</span>
+            <div className="h-3 w-3/4 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/55" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-line/40" />
+          </div>
         ) : squadsQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
             {squadsQuery.error instanceof Error
@@ -627,7 +637,16 @@ export function ModDashboardPage() {
           Moderation audit log
         </h2>
         {auditQuery.isPending ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
+          <div
+            className="mt-4 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading audit log"
+          >
+            <span className="sr-only">Loading audit log…</span>
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-3/4 animate-pulse rounded bg-line/55" />
+          </div>
         ) : auditQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
             {auditQuery.error instanceof Error

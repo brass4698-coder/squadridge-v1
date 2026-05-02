@@ -90,6 +90,18 @@ export function VerificationStep({ onBack, onNext, nextLabel, nextDisabled }: St
             </p>
           </div>
 
+          {sessionPending && configured && (
+            <div className="flex flex-col gap-1" role="status" aria-live="polite" aria-busy="true">
+              <p className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-amber sm:text-[0.6875rem]">
+                Checking sign-in session…
+              </p>
+              <p className="text-[0.6875rem] leading-snug text-ink-muted">
+                Confirming whether you already opened a magic-link in this browser. The Continue
+                button stays disabled until this check finishes.
+              </p>
+            </div>
+          )}
+
           {!sessionPending && configured && (
             <div className="flex flex-col gap-3">
               {hasSession ? (

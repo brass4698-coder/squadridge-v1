@@ -37,7 +37,7 @@ export function SessionSafetyStrip({ squadId }: { squadId: string }) {
         </button>
       </div>
       {showVisibility ? (
-        <div className="rounded border border-[#1a2236] bg-[#0a0e14] p-3 font-sans text-[0.74rem] text-slate-400">
+        <div className="rounded border border-line bg-[#0a0e14] p-3 font-sans text-[0.74rem] text-slate-400">
           <p>
             <span className="font-medium text-slate-300">Participants</span> see pseudonyms and
             in-room text (after encryption/decrypt in-app).

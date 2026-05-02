@@ -11,6 +11,12 @@ interface Props {
   /** Arrow mode: screen-reader label. Text mode: visible label. */
   nextLabel?: string;
   nextDisabled?: boolean;
+  /**
+   * When true, the forward button reads as busy (`aria-busy`) and disables —
+   * use while an async write fired by `onNext` is still in flight, so the
+   * presenter can see immediate feedback and double-clicks are absorbed.
+   */
+  nextPending?: boolean;
   /** Guided tour: brief ring pulse before advancing (Mission → Identity). */
   pulseForwardAdvance?: boolean;
   /** Short trust / safety line (anonymity, verification, data). */
@@ -68,6 +74,7 @@ export function OnboardingLayout({
   forwardControl = 'arrow',
   nextLabel = 'Next',
   nextDisabled = false,
+  nextPending = false,
   pulseForwardAdvance = false,
   trustNote = 'Anonymous in the room. No transcript leaves without your action. Data handling follows your consent.',
 }: Props) {
@@ -76,8 +83,10 @@ export function OnboardingLayout({
   const rootSizeClass =
     heightMode === 'fill' ? 'h-full min-h-0 max-h-full' : 'h-dvh max-h-dvh min-h-0';
 
+  const forwardLocked = nextDisabled || nextPending;
+
   const runForward = () => {
-    if (nextDisabled) return;
+    if (forwardLocked) return;
     if (!pulseForwardAdvance) {
       onNext?.();
       return;
@@ -148,10 +157,17 @@ export function OnboardingLayout({
               type="button"
               data-demo="onboarding-forward"
               onClick={runForward}
-              disabled={nextDisabled}
-              className="relative z-[1] shrink-0 rounded-lg border border-white/[0.06] px-4 py-2.5 text-[0.8125rem] font-medium text-ink transition-colors duration-150 hover:border-teal/35 hover:text-teal disabled:pointer-events-none disabled:opacity-30"
+              disabled={forwardLocked}
+              aria-busy={nextPending || undefined}
+              className="relative z-[1] inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/[0.06] px-4 py-2.5 text-[0.8125rem] font-medium text-ink transition-colors duration-150 hover:border-teal/35 hover:text-teal disabled:pointer-events-none disabled:opacity-30"
             >
-              {nextLabel}
+              {nextPending ? (
+                <span
+                  aria-hidden
+                  className="block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"
+                />
+              ) : null}
+              <span>{nextPending ? 'Saving…' : nextLabel}</span>
             </button>
           </span>
         ) : (
@@ -166,11 +182,19 @@ export function OnboardingLayout({
               type="button"
               data-demo="onboarding-forward"
               onClick={runForward}
-              disabled={nextDisabled}
-              aria-label={nextLabel}
+              disabled={forwardLocked}
+              aria-busy={nextPending || undefined}
+              aria-label={nextPending ? `${nextLabel} — saving` : nextLabel}
               className="relative z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/[0.06] text-ink transition-colors duration-150 hover:border-teal/35 hover:text-teal disabled:pointer-events-none disabled:opacity-30"
             >
-              <ChevronRight />
+              {nextPending ? (
+                <span
+                  aria-hidden
+                  className="block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                />
+              ) : (
+                <ChevronRight />
+              )}
             </button>
           </span>
         )}

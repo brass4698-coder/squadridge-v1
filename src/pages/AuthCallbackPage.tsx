@@ -30,6 +30,7 @@ export function AuthCallbackPage() {
 
   const { supabase, session, loading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [progressStage, setProgressStage] = useState<0 | 1 | 2>(0);
   const navigated = useRef(false);
 
   const attemptNavigation = useCallback(() => {
@@ -55,6 +56,16 @@ export function AuthCallbackPage() {
       if (s) attemptNavigation();
     });
 
+    /**
+     * Staged progress copy: silence for 12 s feels broken on slow links.
+     * 4 s → "verifying token", 8 s → "almost there", 12 s → error fallback.
+     */
+    const t1 = window.setTimeout(() => {
+      if (!navigated.current) setProgressStage(1);
+    }, 4_000);
+    const t2 = window.setTimeout(() => {
+      if (!navigated.current) setProgressStage(2);
+    }, 8_000);
     const timer = window.setTimeout(() => {
       void supabase.auth.getSession().then(({ data: { session: s } }) => {
         if (!navigated.current && !s) {
@@ -67,9 +78,18 @@ export function AuthCallbackPage() {
 
     return () => {
       sub.subscription.unsubscribe();
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       window.clearTimeout(timer);
     };
   }, [supabase, attemptNavigation]);
+
+  const progressLine =
+    progressStage === 0
+      ? 'Securing your session…'
+      : progressStage === 1
+        ? 'Verifying the magic-link token…'
+        : 'Almost there — finalizing your session…';
 
   if (!isSupabaseConfigured()) {
     return (
@@ -112,9 +132,30 @@ export function AuthCallbackPage() {
           </Link>
         </div>
       ) : (
-        <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
-          Securing your session…
-        </p>
+        <div
+          className="mt-6 flex flex-col gap-4 font-sans text-[0.95rem] leading-relaxed text-ink-muted"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <p className="mb-0">{progressLine}</p>
+          <div
+            className="flex items-center gap-2"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={2}
+            aria-valuenow={progressStage}
+            aria-label="Sign-in progress"
+          >
+            {[0, 1, 2].map((i) => (
+              <span
+                key={i}
+                className={`h-1.5 w-10 rounded-full transition-colors duration-500 ${
+                  i <= progressStage ? 'bg-teal/70' : 'bg-[#1a2236]/80'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       )}
     </AccountPageShell>
   );

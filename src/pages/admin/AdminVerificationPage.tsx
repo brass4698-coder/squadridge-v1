@@ -52,7 +52,16 @@ export function AdminVerificationPage() {
           ZK proof submissions
         </h2>
         {proofs.isLoading ? (
-          <p className="mt-2 text-slate-500">Loading…</p>
+          <div
+            className="mt-2 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading ZK proof submissions"
+          >
+            <span className="sr-only">Loading ZK proof submissions…</span>
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-line/55" />
+          </div>
         ) : proofs.isError ? (
           <p className="mt-2 text-amber" role="alert">
             {proofs.error instanceof Error ? proofs.error.message : 'Could not load proofs.'}
@@ -76,7 +85,16 @@ export function AdminVerificationPage() {
           Verified attributes
         </h2>
         {attrs.isLoading ? (
-          <p className="mt-2 text-slate-500">Loading…</p>
+          <div
+            className="mt-2 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading verified attributes"
+          >
+            <span className="sr-only">Loading verified attributes…</span>
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-line/55" />
+          </div>
         ) : attrs.isError ? (
           <p className="mt-2 text-amber" role="alert">
             {attrs.error instanceof Error ? attrs.error.message : 'Could not load attributes.'}

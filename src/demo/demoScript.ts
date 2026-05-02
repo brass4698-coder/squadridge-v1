@@ -6,6 +6,24 @@ export const DEMO_WALKTHROUGH_STORAGE_KEY = 'demoWalkthrough';
 /** `sessionStorage` key — index of the last visible step (used by the presenter hub for resume). */
 export const DEMO_LAST_STEP_INDEX_STORAGE_KEY = 'squadridge_demo_last_step_index';
 
+/**
+ * Read the last-visible step index from session storage. Returns `null` when
+ * unset, malformed, or out of range — caller is responsible for clamping.
+ */
+export function readLastStepIndex(maxIndex: number): number | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(DEMO_LAST_STEP_INDEX_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed)) return null;
+    if (parsed < 0 || parsed > maxIndex) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export type EnvMode = 'local' | 'staging' | 'prod';
 
 /**

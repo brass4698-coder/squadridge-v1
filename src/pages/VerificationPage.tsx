@@ -4,6 +4,7 @@ import { NextStepHint } from '../components/ui/NextStepHint';
 import {
   PROOF_TIMELINE_STAGES,
   VerificationProofTimeline,
+  type ProofTimelineStage,
   type ProofTimelineState,
 } from '../components/VerificationProofTimeline';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,6 +13,7 @@ import {
   isZkTlsLabsEnabled,
   runVerification,
   ZK_SESSION_CREDENTIAL_TYPE,
+  type RunVerificationStage,
 } from '../lib';
 
 const onboardingDoneCtaClass =
@@ -30,63 +32,61 @@ export function VerificationPage() {
   const [done, setDone] = useState(false);
   const [timelineState, setTimelineState] = useState<ProofTimelineState>('idle');
   const [activeStage, setActiveStage] = useState(0);
-  const stageTimersRef = useRef<number[]>([]);
+  const verifyRunIdRef = useRef(0);
 
   useEffect(() => {
     if (!configured || !supabase) return;
     void ensureAnonymousSession();
   }, [configured, supabase, ensureAnonymousSession]);
 
-  useEffect(() => {
-    return () => {
-      stageTimersRef.current.forEach((id) => window.clearTimeout(id));
-      stageTimersRef.current = [];
+  /**
+   * Map adapter stage events onto the visible timeline. Each adapter stage
+   * advances `activeStageIndex` to the *next* slot, so the spinner sits on the
+   * stage currently in flight (the previous one is shown as complete).
+   */
+  function indexForStage(stage: RunVerificationStage | ProofTimelineStage): number {
+    const order: Record<string, number> = {
+      identity: 1,
+      commitment: 2,
+      proof: 3,
+      submit: 4,
+      verified: PROOF_TIMELINE_STAGES.length,
     };
-  }, []);
-
-  function startTimelineCadence() {
-    stageTimersRef.current.forEach((id) => window.clearTimeout(id));
-    stageTimersRef.current = [];
-    setActiveStage(0);
-    setTimelineState('running');
-    const stageDelays = [600, 1200, 1900, 2600];
-    stageDelays.forEach((delay, idx) => {
-      const id = window.setTimeout(() => {
-        setActiveStage(idx + 1);
-      }, delay);
-      stageTimersRef.current.push(id);
-    });
-  }
-
-  function stopTimelineCadence(finalState: ProofTimelineState) {
-    stageTimersRef.current.forEach((id) => window.clearTimeout(id));
-    stageTimersRef.current = [];
-    setTimelineState(finalState);
-    if (finalState === 'success') {
-      setActiveStage(PROOF_TIMELINE_STAGES.length);
-    }
+    return order[stage] ?? 0;
   }
 
   async function handleVerify() {
     if (!supabase || busy) return;
 
+    const runId = ++verifyRunIdRef.current;
     setBusy(true);
     setError(null);
-    startTimelineCadence();
+    setActiveStage(0);
+    setTimelineState('running');
 
     try {
-      await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow');
-      stopTimelineCadence('success');
+      await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow', {
+        onStage: (stage) => {
+          if (verifyRunIdRef.current !== runId) return;
+          setActiveStage((prev) => Math.max(prev, indexForStage(stage)));
+        },
+      });
+      if (verifyRunIdRef.current !== runId) return;
+      setActiveStage(PROOF_TIMELINE_STAGES.length);
+      setTimelineState('success');
       setDone(true);
     } catch (e) {
+      if (verifyRunIdRef.current !== runId) return;
       const message =
         e instanceof Error && e.message?.trim().length
           ? e.message
           : 'Verification could not be completed. Please try again.';
       setError(message);
-      stopTimelineCadence('error');
+      setTimelineState('error');
     } finally {
-      setBusy(false);
+      if (verifyRunIdRef.current === runId) {
+        setBusy(false);
+      }
     }
   }
 

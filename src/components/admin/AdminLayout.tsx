@@ -72,11 +72,6 @@ export function AdminLayout() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/admin/demo" className={itemClass}>
-                Demo controls
-              </NavLink>
-            </li>
-            <li>
               <NavLink to="/pitch-deck-hub" className={itemClass}>
                 Pitch deck hub
               </NavLink>

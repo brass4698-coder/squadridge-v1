@@ -281,6 +281,16 @@ export default {
       transitionDuration: {
         progress: '220ms',
       },
+      transitionTimingFunction: {
+        /**
+         * Project-standard "soft landing" curve (equivalent to easeOutExpo).
+         * Matches the cubic-bezier used by `step-in`, `step-in-body`, and
+         * `landing-fade-up`. Use `ease-soft` instead of an arbitrary
+         * `ease-[cubic-bezier(...)]` value, which is ambiguous against
+         * tailwindcss-animate's `ease-*` namespace.
+         */
+        soft: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
     },
   },
   plugins: [tailwindcssAnimate],

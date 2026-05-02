@@ -11,7 +11,9 @@ import {
 import { useNavigate, useSearchParams, type NavigateFunction } from 'react-router-dom';
 import {
   DEMO_FIRST_WALKTHROUGH_PATH,
+  DEMO_MAIN_STEPS,
   DEMO_WALKTHROUGH_STORAGE_KEY,
+  readLastStepIndex,
   type DemoStep,
 } from './demoScript';
 import {
@@ -45,6 +47,13 @@ export type DemoWalkthroughContextValue = {
   goToStepIndex: (index: number) => void;
   /** Restart from the first step. */
   restartWalkthrough: () => void;
+  /**
+   * Last visible step index persisted in session storage, or `null` if
+   * nothing has been recorded yet. Hub uses this to offer "resume here".
+   */
+  lastStepIndex: number | null;
+  /** Resume the tour at {@link lastStepIndex} when present, else start at step 1. */
+  resumeWalkthrough: () => void;
   exitDemo: () => void;
 };
 
@@ -57,6 +66,11 @@ export function readStorageFlag(): boolean {
 
 function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughContextValue {
   const inactiveScenario = getDemoScenarioById(DEFAULT_DEMO_SCENARIO_ID);
+  const lastStepIndex = readLastStepIndex(DEMO_MAIN_STEPS.length - 1);
+  const startAtFirst = () => {
+    sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+    navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+  };
   return {
     demoActive: false,
     showDemoChrome: false,
@@ -68,16 +82,18 @@ function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughCo
     presenterNotesActive: false,
     scenario: inactiveScenario,
     setScenarioId: () => {},
-    startWalkthrough: () => {
-      sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
-      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
-    },
+    startWalkthrough: startAtFirst,
     goNext: () => {},
     goBack: () => {},
     goToStepIndex: () => {},
-    restartWalkthrough: () => {
+    restartWalkthrough: startAtFirst,
+    lastStepIndex,
+    resumeWalkthrough: () => {
+      const idx = lastStepIndex ?? 0;
+      const target = DEMO_MAIN_STEPS[idx] ?? DEMO_MAIN_STEPS[0];
+      if (!target) return;
       sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
-      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+      navigate(target.path);
     },
     exitDemo: () => {},
   };
@@ -113,6 +129,14 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
       setStorageActive(true);
       navigate(DEMO_FIRST_WALKTHROUGH_PATH);
     };
+    const resume = () => {
+      const idx = base.lastStepIndex ?? 0;
+      const target = DEMO_MAIN_STEPS[idx] ?? DEMO_MAIN_STEPS[0];
+      if (!target) return;
+      sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+      setStorageActive(true);
+      navigate(target.path);
+    };
     return {
       ...base,
       setScenarioId: (id: DemoScenarioId) => {
@@ -120,6 +144,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
       },
       startWalkthrough: start,
       restartWalkthrough: start,
+      resumeWalkthrough: resume,
     };
   }, [navigate]);
 

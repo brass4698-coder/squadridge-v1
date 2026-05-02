@@ -104,7 +104,16 @@ export function AdminCsiPage() {
       <div>
         <h2 className="font-heading text-lg font-semibold text-slate-300">Regional snapshots</h2>
         {snapshotsQ.isLoading ? (
-          <p className="mt-2 text-slate-500">Loading…</p>
+          <div
+            className="mt-2 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading regional snapshots"
+          >
+            <span className="sr-only">Loading regional snapshots…</span>
+            <div className="h-3 w-1/2 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/55" />
+          </div>
         ) : snapshotsQ.isError ? (
           <p className="mt-2 text-amber" role="alert">
             {snapshotsQ.error instanceof Error ? snapshotsQ.error.message : 'Failed to load.'}
@@ -151,7 +160,16 @@ export function AdminCsiPage() {
       <div>
         <h2 className="font-heading text-lg font-semibold text-slate-300">Escalation alerts</h2>
         {alertsQ.isLoading ? (
-          <p className="mt-2 text-slate-500">Loading…</p>
+          <div
+            className="mt-2 space-y-2"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading escalation alerts"
+          >
+            <span className="sr-only">Loading escalation alerts…</span>
+            <div className="h-3 w-1/2 animate-pulse rounded bg-line/70" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-line/55" />
+          </div>
         ) : alertsQ.isError ? (
           <p className="mt-2 text-amber" role="alert">
             {alertsQ.error instanceof Error ? alertsQ.error.message : 'Failed to load.'}

@@ -4,6 +4,7 @@ import { isZkStubDevPathAllowed } from '../env';
 import { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../zkAdapter';
 
 export { runVerification, ZK_SESSION_CREDENTIAL_TYPE } from '../zkAdapter';
+export type { RunVerificationOptions, RunVerificationStage } from '../zkAdapter';
 export type { ZKProof, CredentialType } from '../zkVerifier';
 
 /**

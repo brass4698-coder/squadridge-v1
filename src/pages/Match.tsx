@@ -26,8 +26,14 @@ const POLL_MS_WITH_REALTIME = 10000;
 const SLOT_STAGGER_MS = [800, 1600, 2400] as const;
 /** Brief “finding” beat before opening the room (intent narrative + guided demo). */
 const NARRATIVE_THEATER_MS = 2400;
-/** Surface a "still searching" stalled banner if the queue hasn't matched within this window. */
-const QUEUE_STALLED_HINT_MS = 60_000;
+/**
+ * Surface a "still searching" stalled banner if the queue hasn't matched within
+ * this window. The demo path uses a much shorter window so a presenter who lands
+ * on the live `waiting` gate (e.g. real env, no symmetric counterpart) sees the
+ * "jump to offline match" affordance within ~12s instead of waiting a full minute.
+ */
+const QUEUE_STALLED_HINT_MS = 30_000;
+const QUEUE_STALLED_HINT_MS_DEMO = 12_000;
 
 type Gate =
   | 'loading'
@@ -233,9 +239,10 @@ export function Match() {
       return;
     }
     setStalled(false);
-    const t = window.setTimeout(() => setStalled(true), QUEUE_STALLED_HINT_MS);
+    const ms = demoQuery ? QUEUE_STALLED_HINT_MS_DEMO : QUEUE_STALLED_HINT_MS;
+    const t = window.setTimeout(() => setStalled(true), ms);
     return () => clearTimeout(t);
-  }, [gate]);
+  }, [gate, demoQuery]);
 
   async function handleLeaveQueue() {
     if (!supabase || !poolKeyRef.current) return;
@@ -253,12 +260,17 @@ export function Match() {
 
   if (gate === 'loading') {
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      <div
+        role="status"
+        aria-busy="true"
+        aria-label="Loading matching"
+        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16"
+      >
         <div
-          className="h-10 w-10 animate-pulse rounded-full border-2 border-teal-500/40"
+          className="h-10 w-10 animate-pulse rounded-full border-2 border-brand/40"
           aria-hidden
         />
-        <p className="mt-6 font-sans text-sm text-slate-500">Loading matching…</p>
+        <p className="mt-6 font-sans text-sm text-ink-muted">Loading matching…</p>
       </div>
     );
   }
@@ -267,11 +279,9 @@ export function Match() {
     if (!configured) {
       const canDemo = isDemoSquadShortcutsEnabled();
       return (
-        <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-          <h2 className="font-heading text-xl font-semibold text-slate-100">
-            Live matching unavailable
-          </h2>
-          <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-slate-400">
+        <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16">
+          <h2 className="font-heading text-xl font-semibold text-ink">Live matching unavailable</h2>
+          <p className="mt-3 max-w-md text-center font-sans text-sm leading-relaxed text-ink-secondary">
             {canDemo
               ? 'This environment doesn’t have live matching wired up, so queues and real rooms are off. You can still use the short offline walkthrough: match → sample session → ledger.'
               : 'Live matching needs backend configuration. Enable demo shortcuts on staging if you need the offline story (see .env.example).'}
@@ -280,7 +290,7 @@ export function Match() {
             {canDemo ? (
               <Link
                 to="/match?demo=1"
-                className="inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-navy"
               >
                 Guided demo (match → session)
               </Link>
@@ -290,7 +300,7 @@ export function Match() {
             </Link>
             <Link
               to="/"
-              className="font-sans text-[0.9rem] text-[#6b7280] underline-offset-4 hover:text-[#a8b2c1] hover:underline"
+              className="font-sans text-[0.9rem] text-ink-muted underline-offset-4 hover:text-ink-secondary hover:underline"
             >
               Home
             </Link>
@@ -300,16 +310,14 @@ export function Match() {
     }
 
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16">
         <div className="relative flex max-w-lg flex-col items-center text-center">
-          <h2 className="font-heading text-xl font-semibold text-slate-100">
-            Let’s get you matched
-          </h2>
-          <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400">
+          <h2 className="font-heading text-xl font-semibold text-ink">Let’s get you matched</h2>
+          <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-ink-secondary">
             First, tell us your perspective and any relevant context. This helps us match you with
             people on the other side and keep the room balanced.
           </p>
-          <p className="mt-6 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-slate-500">
+          <p className="mt-6 max-w-md text-center font-sans text-[0.85rem] leading-relaxed text-ink-muted">
             Need a verified role?{' '}
             <Link
               to="/verify"
@@ -321,11 +329,11 @@ export function Match() {
           </p>
           <Link
             to="/find-squad"
-            className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-[#0b0f1a]"
+            className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-[1.75rem] bg-teal px-8 py-3 font-heading text-[0.95rem] font-semibold text-navy"
           >
             Go to Find squad
           </Link>
-          <p className="mt-6 max-w-md text-center font-sans text-[0.8rem] text-slate-500">
+          <p className="mt-6 max-w-md text-center font-sans text-[0.8rem] text-ink-muted">
             Already set your intent?{' '}
             <Link to="/" className="text-teal underline-offset-4 hover:underline">
               Return home
@@ -341,8 +349,8 @@ export function Match() {
     const mm = readMatchmakingSession();
     const intent = readSessionIntent();
     return (
-      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
-        <div className="w-full max-w-md rounded-xl border border-slate-700/80 bg-slate-900/50 p-5 text-left">
+      <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16">
+        <div className="w-full max-w-md rounded-xl border border-line bg-surface-elevated p-5 text-left">
           <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
             Match ready
           </p>
@@ -356,7 +364,7 @@ export function Match() {
                 ? 'We matched you from your intent. Review how we used your input, then open the room.'
                 : 'You are about to join a live squad. Keep this tab open; rooms expire after a period of inactivity.'}
           </p>
-          <div className="mt-5 space-y-2 rounded-lg border border-white/[0.06] bg-[#0a1018] p-3 font-sans text-[0.8rem] text-slate-300">
+          <div className="mt-5 space-y-2 rounded-lg border border-line/70 bg-surface-sunken p-3 font-sans text-[0.8rem] text-ink-secondary">
             <p>
               <span className="text-slate-500">Squad / session</span>{' '}
               <span className="font-mono text-[0.75rem] text-slate-200">
@@ -387,7 +395,7 @@ export function Match() {
             <button
               type="button"
               onClick={() => navigate('/find-squad', { replace: true })}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-slate-600 px-4 font-sans text-[0.9rem] text-slate-300 hover:bg-slate-800/50"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-lg border border-line-strong px-4 font-sans text-[0.9rem] text-ink-secondary hover:bg-surface-elevated"
             >
               Not now
             </button>
@@ -403,7 +411,7 @@ export function Match() {
                 toast.success('Opening the room.');
                 navigate(`/session/${id}`, { replace: true });
               }}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-teal px-5 font-heading text-[0.9rem] font-semibold text-[#0b0f1a]"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-lg bg-teal px-5 font-heading text-[0.9rem] font-semibold text-navy"
             >
               Enter room
             </button>
@@ -419,7 +427,7 @@ export function Match() {
     const allFilled = filledCount === slots.length;
     return (
       <div
-        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16"
+        className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16"
         data-demo="match-guided-root"
       >
         <div className="relative flex max-w-lg flex-col items-center text-center">
@@ -501,7 +509,7 @@ export function Match() {
   const q = snapshot && snapshot.outcome === 'queued' ? snapshot : null;
 
   return (
-    <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16">
+    <div className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-band-black px-6 py-16">
       {demoQuery ? (
         <div
           role="status"
@@ -548,7 +556,7 @@ export function Match() {
 
         {q ? (
           <div
-            className="mt-8 w-full rounded-xl border border-slate-700/80 bg-slate-900/50 px-4 py-3 text-left font-sans text-sm text-slate-300"
+            className="mt-8 w-full rounded-xl border border-line bg-surface-elevated px-4 py-3 text-left font-sans text-sm text-ink-secondary"
             aria-live="polite"
           >
             <p className="text-slate-400">
@@ -599,6 +607,20 @@ export function Match() {
               perspective yet. You can keep this tab open or step away — we'll hold your spot until
               you leave the queue.
             </p>
+            {demoQuery && isDemoSquadShortcutsEnabled() ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Link
+                  to="/match?demo=1"
+                  className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-teal px-4 font-heading text-[0.8rem] font-semibold text-navy"
+                  data-demo="match-jump-offline"
+                >
+                  Jump to confirmed match (offline)
+                </Link>
+                <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-amber/80">
+                  presenter shortcut
+                </p>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

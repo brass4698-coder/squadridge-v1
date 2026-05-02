@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { OnboardingLayout } from '../OnboardingLayout';
 import { OnboardingCard } from '../OnboardingCard';
 import { COPY } from '../copy';
@@ -10,24 +12,45 @@ import type { StepProps } from '../types';
 
 export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepProps) {
   const { draft, setDraft } = useOnboarding();
+  const [pending, setPending] = useState(false);
+
+  const handleError = (e: unknown, fallback: string) => {
+    toast.error(e instanceof Error && e.message?.trim().length ? e.message : fallback);
+  };
 
   const skip = async () => {
-    setDraft({ language: '', regionHint: '', timezoneWindow: '' });
-    await upsertProfilePatch({
-      language: null,
-      region_hint: null,
-      timezone_window: null,
-    });
-    onNext?.();
+    if (pending) return;
+    setPending(true);
+    try {
+      setDraft({ language: '', regionHint: '', timezoneWindow: '' });
+      await upsertProfilePatch({
+        language: null,
+        region_hint: null,
+        timezone_window: null,
+      });
+      onNext?.();
+    } catch (e) {
+      handleError(e, 'Could not save placement. Try again.');
+    } finally {
+      setPending(false);
+    }
   };
 
   const handleContinue = async () => {
-    await upsertProfilePatch({
-      language: draft.language.trim() || null,
-      region_hint: draft.regionHint.trim() || null,
-      timezone_window: draft.timezoneWindow.trim() || null,
-    });
-    onNext?.();
+    if (pending) return;
+    setPending(true);
+    try {
+      await upsertProfilePatch({
+        language: draft.language.trim() || null,
+        region_hint: draft.regionHint.trim() || null,
+        timezone_window: draft.timezoneWindow.trim() || null,
+      });
+      onNext?.();
+    } catch (e) {
+      handleError(e, 'Could not save placement. Try again.');
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -36,6 +59,7 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
       onNext={() => void handleContinue()}
       nextLabel={nextLabel}
       nextDisabled={nextDisabled}
+      nextPending={pending}
       trustNote={TRUST_FOOTER.placement}
     >
       <OnboardingCard>
@@ -94,9 +118,10 @@ export function PlacementStep({ onBack, onNext, nextLabel, nextDisabled }: StepP
               <button
                 type="button"
                 onClick={() => void skip()}
-                className="text-[0.8125rem] text-ink-muted transition-colors duration-150 hover:text-ink"
+                disabled={pending}
+                className="text-[0.8125rem] text-ink-muted transition-colors duration-150 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {COPY.placement.skip}
+                {pending ? 'Saving…' : COPY.placement.skip}
               </button>
             </div>
           </div>

@@ -8,6 +8,7 @@ export {
   demoSteps,
   locationMatchesStep,
   pathsEqual,
+  readLastStepIndex,
   resolveStepActions,
   type DemoAction,
   type DemoOverlayStep,
@@ -36,3 +37,9 @@ export {
 export type { DemoWalkthroughContextValue } from './DemoWalkthroughContext';
 export { DemoLayout } from './DemoLayout';
 export { runDemoActions, runDemoAutoActions } from './demoAutoActions';
+export {
+  PRESENTER_MODE_STORAGE_KEY,
+  isDemoBypassAllowed,
+  readPresenterMode,
+  setPresenterMode,
+} from './presenterMode';

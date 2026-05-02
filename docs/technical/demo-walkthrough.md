@@ -8,14 +8,30 @@ Implementation lives in **`src/demo/`** (script, provider, layout, telemetry hel
 
 | Surface | Route | Notes |
 | ------- | ----- | ----- |
-| Offline squad mock | `/session/demo-session-001` | [`DemoSessionPage`](../../src/pages/DemoSessionPage.tsx): no Supabase Realtime; copy links to `/security`. **Not** gated on `VITE_ENABLE_DEMO_SQUAD`. |
-| ZK verification (standalone) | `/verify` | Real Semaphore + Edge path when configured; the tour adds **`/verify?demo=1`** as a step with overlay copy aligned to the threat model. |
+| Demo command center | `/admin/demo-hub` | Single moderator-gated launcher: scenario picker, **Pre-flight pills** (env / sessionStorage cleanliness / scenarios), step list with **Copy URL**, **Resume at step N**, restart, and presenter notes toggle. The legacy `/admin/demo` route 301s into the hub. |
+| Offline squad mock | `/session/demo-session-001` | [`DemoSessionPage`](../../src/pages/DemoSessionPage.tsx): no Supabase Realtime; copy links to `/security`. **Gated** on [`isDemoSquadShortcutsEnabled()`](../../src/lib/env.ts) (`DEV` build OR `VITE_ENABLE_DEMO_SQUAD=true`). When the flag is off, the route redirects home so a stray link cannot land users in the no-privacy mock. |
+| ZK verification (standalone) | `/verify` | Real Semaphore + Edge path when configured; the tour adds **`/verify?demo=1`** as a step with overlay copy aligned to the threat model. The visible proof timeline now advances on real RPC stages from [`runVerification`](../../src/lib/zkAdapter.ts) instead of fixed animation delays. |
 | Profile in tour | `/settings/profile?demo=1` | [`ProfileSettingsPage`](../../src/pages/ProfileSettingsPage.tsx) calls `ensureAnonymousSession()` when `demo=1` so the step works without visiting Match first. |
+
+## URL parameters
+
+- `?demo=1` — activates the tour (sets `sessionStorage.demoWalkthrough = '1'`).
+- `?notes=1` — shows the presenter notes sidebar (desktop only) when the tour is active.
+- `?scenario=<id>` — selects the scripted scenario at load time. Valid ids: `cross-border-corridor`, `workplace-mediation`, `veterans-dialogue`. Persisted into `sessionStorage` so subsequent steps stay consistent.
 
 ## Investor-facing behavior
 
 - **Pitch / diligence:** The offline session is explicitly a **mock**; live squad rooms use [`SessionPage`](../../src/pages/SessionPage.tsx) with Realtime and app-layer encryption (see [`threat-model.md`](../security/threat-model.md)).
-- **`VITE_ENABLE_DEMO_SQUAD`:** Optional. Only enables **developer** shortcuts (e.g. creating a test squad from the session hub), not the public `/session/demo-session-001` route.
+- **`VITE_ENABLE_DEMO_SQUAD`:** Optional. In dev (`import.meta.env.DEV`) shortcuts are always on; in staging set this flag to `true` to expose `/session/demo-session-001` and the dev-only "Create demo squad" affordance on the session hub.
+
+## Presenter bypasses
+
+Several screens have **strict** demo bypasses gated on `?demo=1` AND ([`isDemoBypassAllowed()`](../../src/demo/presenterMode.ts) — i.e. `DEV` or the session-scoped presenter flag):
+
+- [`IntentPage`](../../src/pages/IntentPage.tsx) — skips the pilot-invite gate and routes directly to `/match?demo=1`.
+- [`Match`](../../src/pages/Match.tsx) — surfaces a "still searching — jump to confirmed match (offline)" affordance after 12 s when `?demo=1`.
+
+The bypasses **never** activate in a production build outside DEV unless a presenter has explicitly set the session flag from the hub.
 
 ## Removing the tour completely
 
