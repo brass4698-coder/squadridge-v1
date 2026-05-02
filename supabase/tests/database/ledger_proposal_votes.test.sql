@@ -16,7 +16,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(9);
 
 -- 1. Table exists with security on.
 SELECT has_table('public', 'ledger_proposal_votes', 'ledger_proposal_votes table exists');
@@ -38,9 +38,11 @@ SELECT has_view(
 DO $$
 DECLARE
     v_squad uuid := '00000000-0000-0000-0000-0000000a0001';
+    v_other_squad uuid := '00000000-0000-0000-0000-0000000b0001';
     v_member uuid := '00000000-0000-0000-0000-0000000a0002';
     v_other  uuid := '00000000-0000-0000-0000-0000000a0003';
     v_proposal uuid := '00000000-0000-0000-0000-0000000a0099';
+    v_other_proposal uuid := '00000000-0000-0000-0000-0000000b0099';
 BEGIN
     INSERT INTO auth.users (id, email)
     VALUES (v_member, 'member@test.local'),
@@ -50,7 +52,8 @@ BEGIN
     INSERT INTO public.users (id) VALUES (v_member), (v_other) ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.squads (id, status)
-    VALUES (v_squad, 'active')
+    VALUES (v_squad, 'active'),
+           (v_other_squad, 'active')
     ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.squad_members (squad_id, user_id)
@@ -64,6 +67,14 @@ BEGIN
         'Test draft',
         'A draft used by the pgTAP test.',
         v_squad,
+        'draft'
+    ),
+    (
+        v_other_proposal,
+        'test-draft-002',
+        'Other squad draft',
+        'A draft in a squad the member does not belong to.',
+        v_other_squad,
         'draft'
     )
     ON CONFLICT (id) DO NOTHING;
@@ -98,7 +109,18 @@ SELECT throws_ok(
     'unique (proposal_id, user_id) prevents double-voting'
 );
 
--- 6. A different authenticated user (not in the squad) cannot vote.
+-- 6. The member cannot rebind their authorized vote row to another squad's draft.
+SELECT throws_ok(
+    $$UPDATE public.ledger_proposal_votes
+        SET proposal_id = '00000000-0000-0000-0000-0000000b0099'
+      WHERE proposal_id = '00000000-0000-0000-0000-0000000a0099'
+        AND user_id = '00000000-0000-0000-0000-0000000a0002'$$,
+    '42501',
+    NULL,
+    'member cannot rebind their vote to a proposal in another squad'
+);
+
+-- 7. A different authenticated user (not in the squad) cannot vote.
 SELECT set_config(
     'request.jwt.claims',
     '{"sub":"00000000-0000-0000-0000-0000000a0003","role":"authenticated"}',
@@ -116,7 +138,7 @@ SELECT throws_ok(
     'non-member cannot vote on a squad''s proposal'
 );
 
--- 7. As the squad member: drafting a new proposal scoped to their squad must succeed.
+-- 8. As the squad member: drafting a new proposal scoped to their squad must succeed.
 SELECT set_config(
     'request.jwt.claims',
     '{"sub":"00000000-0000-0000-0000-0000000a0002","role":"authenticated"}',
@@ -133,7 +155,7 @@ SELECT lives_ok(
     'squad member can insert a draft proposal scoped to their own squad'
 );
 
--- 8. A non-member cannot draft a proposal scoped to someone else''s squad.
+-- 9. A non-member cannot draft a proposal scoped to someone else''s squad.
 SELECT set_config(
     'request.jwt.claims',
     '{"sub":"00000000-0000-0000-0000-0000000a0003","role":"authenticated"}',
