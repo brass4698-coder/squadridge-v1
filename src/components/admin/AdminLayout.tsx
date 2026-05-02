@@ -51,13 +51,29 @@ export function AdminLayout() {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/admin/metrics" className={itemClass}>
+                Metrics
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/logs" className={itemClass}>
                 Audit log
               </NavLink>
             </li>
+          </ul>
+          {/* Internal tools — not a product surface; kept off the public IA on purpose. */}
+          <p className="mb-2 mt-6 font-heading text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">
+            Internal tools
+          </p>
+          <ul className="space-y-0.5">
             <li>
-              <NavLink to="/admin/demo" className={itemClass}>
-                Demo
+              <NavLink to="/admin/demo-hub" className={itemClass}>
+                Demo command center
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/pitch-deck-hub" className={itemClass}>
+                Pitch deck hub
               </NavLink>
             </li>
             <li>

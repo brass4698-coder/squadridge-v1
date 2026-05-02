@@ -4,8 +4,8 @@
  * Dedicated worker: imports the squad AES key once, then decrypts message payloads off the main thread.
  * Bundler output must include deps from `@/lib` (Vite resolves `import.meta.url`).
  */
-import { importAes256GcmKeyFromBase64Url } from '../lib/messageCrypto';
-import { decodeMessagePayloadAdaptive } from '../lib/messagePayload';
+import { importAes256GcmKeyFromBase64Url } from '../lib/crypto/messageCrypto';
+import { decodeMessagePayloadAdaptive } from '../lib/crypto/messagePayload';
 
 export type WorkerInMsg =
   | { type: 'init'; keyBase64: string }

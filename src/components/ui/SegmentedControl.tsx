@@ -31,7 +31,7 @@ interface SegmentedControlProps<T extends string> {
   options: ReadonlyArray<SegmentedControlOption<T>>;
   value: T | null;
   onChange: (value: T) => void;
-  /** Visual size — `sm` ≈ 36px, `md` ≈ 44px (default). */
+  /** Visual size hint. Both sizes preserve the 44px minimum touch target. */
   size?: 'sm' | 'md';
   className?: string;
   /** Render as a 2-column grid (good for binary perspectives). */
@@ -43,12 +43,12 @@ export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
-  size = 'md',
+  size: _size = 'md',
   className,
   fill = false,
 }: SegmentedControlProps<T>) {
   const groupId = useId();
-  const heightClass = size === 'sm' ? 'min-h-[36px]' : 'min-h-[44px]';
+  const heightClass = 'min-h-[44px]';
 
   return (
     <div
@@ -56,7 +56,7 @@ export function SegmentedControl<T extends string>({
       aria-label={ariaLabel}
       id={groupId}
       className={twMerge(
-        'inline-flex items-center gap-1 rounded-[8px] border border-line bg-surface-elevated p-1',
+        'inline-flex max-w-full min-w-0 flex-wrap items-center gap-1 rounded-[8px] border border-line bg-surface-elevated p-1',
         fill ? 'grid w-full grid-cols-[repeat(var(--seg-cols),minmax(0,1fr))]' : '',
         className,
       )}
@@ -77,7 +77,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(opt.value)}
             className={twMerge(
               heightClass,
-              'inline-flex shrink-0 items-center justify-center rounded-[6px] px-3 font-sans text-[0.85rem] font-medium leading-none transition-colors duration-150',
+              'inline-flex min-w-0 items-center justify-center rounded-[6px] px-3 text-center font-sans text-[0.85rem] font-medium leading-snug transition-colors duration-150',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
               active
                 ? 'bg-brand-soft text-ink shadow-[inset_0_0_0_1px_var(--sr-primary)]'

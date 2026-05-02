@@ -37,14 +37,14 @@ export function AuthIssueBanner() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] hover:opacity-90"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] hover:opacity-90"
             onClick={() => window.location.reload()}
           >
             Reload
           </button>
           <Link
             to="/sign-in"
-            className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] px-4 py-2 font-heading text-[0.85rem] font-medium text-[#a8b2c1] hover:border-[#3d4f63]"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] px-4 py-2 font-heading text-[0.85rem] font-medium text-ink-secondary hover:border-[#3d4f63]"
           >
             Sign in
           </Link>

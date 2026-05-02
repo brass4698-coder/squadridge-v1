@@ -89,3 +89,16 @@ Recommended cadence for early pilots:
 - after each session: operational summary
 - weekly during pilot: health and incident summary
 - end of pilot: concise results memo with caveats
+
+## Pre-Registration And Survey Instrument
+
+Per-pilot success thresholds, denominators, and abort criteria for the metrics above are pre-registered before the cohort's first session. Use the block at [`../operations/pilot-preregistration-template.md`](../operations/pilot-preregistration-template.md). The thresholds reference question codes (`P1`–`P7`, `F1`–`F6`) defined by the post-session survey instrument at [`../operations/post-session-survey-instrument.md`](../operations/post-session-survey-instrument.md).
+
+Specifically, where a metric above lists "post-session participant survey" or "post-session facilitator survey" as the source, the canonical instrument is the corresponding `P` or `F` item:
+
+- *Participant Usefulness Score* → `P1` (1–5 Likert)
+- *Repeat Participation Rate* survey side → `P2` (yes / maybe / no), paired with `squad_members` data
+- *Facilitator Satisfaction* → `F1` (1–5 Likert)
+- *Incident Rate* facilitator side → `F2` (free text incidents and near-misses)
+
+The survey instrument is paper / external-tool portable today (CSV column spec defined in the instrument doc); a future `session_feedback` table is named there as out of scope.

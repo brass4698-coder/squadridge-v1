@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 
-const LOGO_PNG = '/assets/logo.png';
+const LOGO_SVG = '/assets/squadridge-logo.svg';
 const FALLBACK_SVG = '/logo-bridge.svg';
 
 export interface LogoProps {
@@ -11,11 +11,11 @@ export interface LogoProps {
   'aria-hidden'?: boolean | 'true' | 'false';
 }
 
-/** Raster bridge mark (`public/assets/logo.png`), with SVG fallback if the PNG is missing. */
+/** Shield/ridge brand mark (`public/assets/squadridge-logo.svg`), with a minimal bridge SVG fallback. */
 export function SquadLogo({ size = 34, className, style, 'aria-hidden': ariaHidden }: LogoProps) {
   return (
     <img
-      src={LOGO_PNG}
+      src={LOGO_SVG}
       alt=""
       role="presentation"
       width={size}

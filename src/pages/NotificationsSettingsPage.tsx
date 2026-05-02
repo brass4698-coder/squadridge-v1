@@ -167,7 +167,7 @@ export function NotificationsSettingsPage() {
           type="button"
           onClick={() => save.mutate(draft)}
           disabled={!touched || save.isPending}
-          className="inline-flex min-h-[40px] items-center justify-center rounded-md border border-teal/45 bg-teal/15 px-4 font-heading text-[0.85rem] font-semibold text-teal-light transition-colors hover:border-teal/65 hover:bg-teal/25 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[44px] items-center justify-center rounded-md border border-teal/45 bg-teal/15 px-4 py-2 font-heading text-[0.85rem] font-semibold text-teal-light transition-colors hover:border-teal/65 hover:bg-teal/25 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {save.isPending ? 'Saving…' : 'Save preferences'}
         </button>

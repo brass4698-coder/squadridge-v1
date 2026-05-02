@@ -18,6 +18,23 @@ export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
 export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
 
 export type LedgerProposalVote = 'approve' | 'reject' | 'abstain';
+export type ParticipantReportType = 'room' | 'participant' | 'message';
+export type ParticipantReportReason =
+  | 'harassment'
+  | 'threat'
+  | 'doxxing'
+  | 'spam'
+  | 'facilitator_help'
+  | 'other';
+export type ParticipantReportStatus = 'open' | 'reviewing' | 'resolved' | 'dismissed';
+export type CrisisAlertReasonCode = 'immediate_danger' | 'request_pause' | 'request_facilitator';
+export type ParticipantBlockReason =
+  | 'self_protection'
+  | 'harassment'
+  | 'threat'
+  | 'doxxing'
+  | 'spam'
+  | 'other';
 export interface Database {
   public: {
     Tables: {
@@ -74,6 +91,7 @@ export interface Database {
           proof_commitment: string;
           nullifier_hash: string;
           attribute_scope: string;
+          issuer_group_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -82,6 +100,7 @@ export interface Database {
           proof_commitment: string;
           nullifier_hash: string;
           attribute_scope: string;
+          issuer_group_id?: string | null;
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['zk_proof_submissions']['Insert']>;
@@ -112,9 +131,11 @@ export interface Database {
           status: SquadStatus;
           created_at: string;
           expires_at: string;
+          /** DEPRECATED: denormalised mirror of squads.current_epoch_id's key. */
           message_encryption_key: string | null;
           archived_at: string | null;
           archived_encryption_key_snapshot: string | null;
+          current_epoch_id: string | null;
         };
         Insert: {
           id?: string;
@@ -125,9 +146,42 @@ export interface Database {
           message_encryption_key?: string | null;
           archived_at?: string | null;
           archived_encryption_key_snapshot?: string | null;
+          current_epoch_id?: string | null;
         };
         Update: Partial<Database['public']['Tables']['squads']['Insert']>;
         Relationships: [];
+      };
+      squad_key_epochs: {
+        Row: {
+          id: string;
+          squad_id: string;
+          epoch_number: number;
+          encryption_key: string | null;
+          encryption_key_purged_at: string | null;
+          created_at: string;
+          retired_at: string | null;
+          retired_reason: string | null;
+        };
+        Insert: {
+          id?: string;
+          squad_id: string;
+          epoch_number: number;
+          encryption_key?: string | null;
+          encryption_key_purged_at?: string | null;
+          created_at?: string;
+          retired_at?: string | null;
+          retired_reason?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['squad_key_epochs']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'squad_key_epochs_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       squad_members: {
         Row: {
@@ -153,6 +207,8 @@ export interface Database {
           status: MessageStatus;
           /** Normalized 7d TTL; see ttl_cleanup migration. */
           expires_at: string | null;
+          /** Stamps which squad_key_epochs row encrypted this message; NULL for legacy. */
+          key_epoch_id: string | null;
         };
         Insert: {
           id?: string;
@@ -162,6 +218,7 @@ export interface Database {
           sent_at?: string;
           status?: MessageStatus;
           expires_at?: string | null;
+          key_epoch_id?: string | null;
         };
         Update: Partial<Database['public']['Tables']['messages']['Insert']>;
         Relationships: [];
@@ -196,6 +253,28 @@ export interface Database {
           triggered_at?: string;
         };
         Update: Partial<Database['public']['Tables']['interventions']['Insert']>;
+        Relationships: [];
+      };
+      crisis_alerts: {
+        Row: {
+          id: string;
+          actor_user_id: string;
+          squad_id: string;
+          reason_code: CrisisAlertReasonCode;
+          created_at: string;
+          acknowledged_at: string | null;
+          acknowledged_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id: string;
+          squad_id: string;
+          reason_code: CrisisAlertReasonCode;
+          created_at?: string;
+          acknowledged_at?: string | null;
+          acknowledged_by?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['crisis_alerts']['Insert']>;
         Relationships: [];
       };
       waitlist_signups: {
@@ -367,6 +446,80 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['conflict_severity_snapshots']['Insert']>;
         Relationships: [];
       };
+      facilitator_signal_codes: {
+        Row: {
+          id: string;
+          squad_id: string | null;
+          region_key: string;
+          coded_at: string;
+          code:
+            | 'grievance_repeat'
+            | 'ingroup_outgroup'
+            | 'violence_justifying'
+            | 'resource_scarcity'
+            | 'sentiment_negative';
+          intensity: number;
+          notes: string | null;
+          coder_id: string;
+        };
+        Insert: {
+          id?: string;
+          squad_id?: string | null;
+          region_key: string;
+          coded_at?: string;
+          code:
+            | 'grievance_repeat'
+            | 'ingroup_outgroup'
+            | 'violence_justifying'
+            | 'resource_scarcity'
+            | 'sentiment_negative';
+          intensity: number;
+          notes?: string | null;
+          coder_id?: string;
+        };
+        Update: Partial<Database['public']['Tables']['facilitator_signal_codes']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'facilitator_signal_codes_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      csi_band_thresholds: {
+        Row: {
+          region_key: string;
+          green_max: number;
+          yellow_max: number;
+          sentiment_negative_ref: number;
+          grievance_ref: number;
+          resource_ref_per_1k: number;
+          ingroup_ref: number;
+          sentiment_delta_ref: number;
+          violence_ref_per_session: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          region_key: string;
+          green_max?: number;
+          yellow_max?: number;
+          sentiment_negative_ref?: number;
+          grievance_ref?: number;
+          resource_ref_per_1k?: number;
+          ingroup_ref?: number;
+          sentiment_delta_ref?: number;
+          violence_ref_per_session?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['csi_band_thresholds']['Insert']>;
+        Relationships: [];
+      };
       escalation_alerts: {
         Row: {
           id: string;
@@ -481,6 +634,160 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
         Relationships: [];
       };
+      issuer_groups: {
+        Row: {
+          group_id: string;
+          manifest_url: string;
+          signing_key_ed25519: string;
+          current_root: string;
+          current_root_expires_at: string;
+          tree_depth: number;
+          enrolled_at: string;
+          last_refreshed_at: string;
+        };
+        Insert: {
+          group_id: string;
+          manifest_url: string;
+          signing_key_ed25519: string;
+          current_root: string;
+          current_root_expires_at: string;
+          tree_depth: number;
+          enrolled_at?: string;
+          last_refreshed_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['issuer_groups']['Insert']>;
+        Relationships: [];
+      };
+      retention_cleanup_runs: {
+        Row: {
+          id: number;
+          ran_at: string;
+          messages_deleted: number;
+          match_queue_deleted: number;
+          squads_deleted: number;
+          duration_ms: number;
+        };
+        Insert: {
+          id?: number;
+          ran_at?: string;
+          messages_deleted?: number;
+          match_queue_deleted?: number;
+          squads_deleted?: number;
+          duration_ms?: number;
+        };
+        Update: Partial<Database['public']['Tables']['retention_cleanup_runs']['Insert']>;
+        Relationships: [];
+      };
+      invite_codes: {
+        Row: {
+          id: string;
+          code_hash: string;
+          label: string;
+          cohort_key: string | null;
+          max_redemptions: number;
+          redeemed_count: number;
+          expires_at: string | null;
+          disabled_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          code_hash: string;
+          label: string;
+          cohort_key?: string | null;
+          max_redemptions?: number;
+          redeemed_count?: number;
+          expires_at?: string | null;
+          disabled_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          metadata?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['invite_codes']['Insert']>;
+        Relationships: [];
+      };
+      invite_redemptions: {
+        Row: {
+          id: string;
+          invite_id: string;
+          user_id: string;
+          redeemed_at: string;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          invite_id: string;
+          user_id: string;
+          redeemed_at?: string;
+          metadata?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['invite_redemptions']['Insert']>;
+        Relationships: [];
+      };
+      participant_reports: {
+        Row: {
+          id: string;
+          reporter_user_id: string;
+          squad_id: string;
+          target_user_id: string | null;
+          target_message_id: string | null;
+          report_type: ParticipantReportType;
+          reason_code: ParticipantReportReason;
+          context_note: string | null;
+          status: ParticipantReportStatus;
+          created_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          moderator_note: string | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          reporter_user_id: string;
+          squad_id: string;
+          target_user_id?: string | null;
+          target_message_id?: string | null;
+          report_type: ParticipantReportType;
+          reason_code: ParticipantReportReason;
+          context_note?: string | null;
+          status?: ParticipantReportStatus;
+          created_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          moderator_note?: string | null;
+          metadata?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['participant_reports']['Insert']>;
+        Relationships: [];
+      };
+      participant_blocks: {
+        Row: {
+          id: string;
+          blocker_user_id: string;
+          blocked_user_id: string;
+          squad_id: string;
+          reason_code: ParticipantBlockReason;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          blocker_user_id: string;
+          blocked_user_id: string;
+          squad_id: string;
+          reason_code?: ParticipantBlockReason;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+          metadata?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['participant_blocks']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       ledger_proposal_vote_summary: {
@@ -500,6 +807,18 @@ export interface Database {
       waitlist_signup_count: {
         Args: Record<string, never>;
         Returns: number;
+      };
+      redeem_invite_code: {
+        Args: { p_code: string };
+        Returns: Json;
+      };
+      get_my_active_invite: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      moderator_update_participant_report: {
+        Args: { p_report_id: string; p_status: string; p_moderator_note?: string | null };
+        Returns: Database['public']['Tables']['participant_reports']['Row'];
       };
       matchmaking_enqueue_and_try: {
         Args: { p_pool_key: string; p_side: string };
@@ -544,6 +863,18 @@ export interface Database {
       get_or_create_squad_message_key: {
         Args: { p_squad_id: string };
         Returns: string;
+      };
+      rotate_squad_key: {
+        Args: { p_squad_id: string; p_reason: string };
+        Returns: string;
+      };
+      csi_aggregate_signals: {
+        Args: { p_region_key: string; p_period_start: string; p_period_end: string };
+        Returns: Json;
+      };
+      purge_retired_squad_key_material: {
+        Args: { p_purge_after_days?: number };
+        Returns: number;
       };
       create_demo_session_claim: {
         Args: Record<string, never>;

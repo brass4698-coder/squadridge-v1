@@ -28,6 +28,7 @@ jobs:
       ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
       UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
       UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      DECK_SHARE_SIGNING_SECRET: ${{ secrets.DECK_SHARE_SIGNING_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +130,17 @@ jobs:
             ALLOWED_ORIGINS="$ALLOWED_ORIGINS" \
             UPSTASH_REDIS_REST_URL="$UPSTASH_REDIS_REST_URL" \
             UPSTASH_REDIS_REST_TOKEN="$UPSTASH_REDIS_REST_TOKEN"
+
+      # The pitch-deck signing secret is independent of the CORS / rate-limit
+      # bundle: it gates `mint-deck-share` and `serve-pitch-deck` only. Skip
+      # silently when missing so existing projects without the secret keep
+      # deploying — the Edge Functions will return SERVER_CONFIG until set.
+      - name: Sync pitch-deck signing secret
+        if: ${{ env.DECK_SHARE_SIGNING_SECRET != '' }}
+        run: |
+          set -euo pipefail
+          supabase secrets set \
+            DECK_SHARE_SIGNING_SECRET="$DECK_SHARE_SIGNING_SECRET"
 
       - name: Deploy Edge Functions
         if: steps.edge_secrets.outputs.ready == 'true'

@@ -46,7 +46,7 @@ export function SessionStrategyRoomChrome({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-[#1a2236] bg-[#0c121c] p-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-line bg-[#0c121c] p-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
             Strategy room
@@ -88,7 +88,7 @@ export function SessionStrategyRoomChrome({
           <button
             key={r}
             type="button"
-            className="rounded-md border border-[#1a2236] bg-[#0f1623] px-2.5 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-teal/35"
+            className="rounded-md border border-line bg-surface-elevated px-2.5 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-teal/35"
             onClick={() => {
               /* local-only signal in MVP; wire Realtime in follow-up */
             }}
@@ -112,21 +112,21 @@ export function SessionStrategyRoomChrome({
         <div className="flex flex-wrap gap-2">
           <Link
             to="/session"
-            className="inline-flex min-h-[40px] items-center rounded-md border border-[#2d3f55] px-3 font-sans text-[0.8rem] text-slate-300 hover:border-teal/35"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-[#2d3f55] px-3 py-2 font-sans text-[0.8rem] text-slate-300 hover:border-teal/35"
           >
             Exit to hub
           </Link>
           <button
             type="button"
             onClick={onReportRoom}
-            className="inline-flex min-h-[40px] items-center rounded-md border border-amber/25 px-3 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-amber/25 px-3 py-2 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
           >
             Report room
           </button>
           <button
             type="button"
             onClick={onReportParticipant}
-            className="inline-flex min-h-[40px] items-center rounded-md border border-amber/25 px-3 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
+            className="inline-flex min-h-[44px] items-center rounded-md border border-amber/25 px-3 py-2 font-sans text-[0.8rem] text-amber-200/90 hover:border-amber/45"
           >
             Report participant
           </button>

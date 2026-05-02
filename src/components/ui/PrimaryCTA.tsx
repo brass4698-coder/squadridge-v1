@@ -19,9 +19,9 @@ export interface PrimaryCTAProps {
 }
 
 const sizeClass: Record<NonNullable<PrimaryCTAProps['size']>, string> = {
-  sm: 'min-h-[40px] px-5 py-2 text-[0.875rem]',
-  md: 'min-h-[44px] px-8 py-[0.65rem] text-[0.95rem]',
-  lg: 'min-h-[48px] px-10 py-3 text-[1rem]',
+  sm: 'min-h-[44px] px-4 py-2 text-[0.875rem]',
+  md: 'min-h-[44px] px-5 py-[0.65rem] text-[0.95rem] sm:px-8',
+  lg: 'min-h-[48px] px-6 py-3 text-[1rem] sm:px-10',
 };
 
 export function PrimaryCTA({
@@ -40,7 +40,7 @@ export function PrimaryCTA({
   const isHttp = href && /^https?:\/\//i.test(href);
   const isMail = href?.startsWith('mailto:');
   const base = twMerge(
-    'inline-flex min-w-0 max-w-max shrink-0 items-center justify-center gap-2 font-heading font-semibold transition-opacity focus-ring disabled:cursor-not-allowed disabled:opacity-50',
+    'inline-flex min-w-0 max-w-full items-center justify-center gap-2 text-center font-heading font-semibold leading-snug transition-opacity focus-ring disabled:cursor-not-allowed disabled:opacity-50',
     shape === 'squircle' && '!rounded-[1.75rem]',
     variant === 'hero'
       ? 'btn-hero-join landing-hero-cta-link w-fit overflow-hidden'
@@ -51,7 +51,7 @@ export function PrimaryCTA({
 
   const content = (
     <>
-      <span className="relative z-[1]">{label}</span>
+      <span className="relative z-[1] min-w-0">{label}</span>
       {icon ? (
         <span className="relative z-[1] inline-flex shrink-0 transition-transform duration-300 group-hover:translate-x-1 group-focus-visible:translate-x-1">
           {icon}

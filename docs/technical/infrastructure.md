@@ -14,7 +14,7 @@ Real-time features use **Supabase Realtime** (WebSockets) over Postgres change f
 
 ### 2. State and queues
 
-**Queues and session state** for matching live in **PostgreSQL** (with RLS). Optional **Redis** in `docker-compose.yml` is for **local experiments** (e.g. future workers) and is **not** part of the documented production path. **Edge rate limiting** for sensitive actions can use **Upstash Redis** via the `rate-limit` Edge Function when `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` are set.
+**Queues and session state** for matching live in **PostgreSQL** (with RLS). **Edge rate limiting** for sensitive actions uses **Upstash Redis REST** via the `rate-limit` Edge Function when `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` are set on the Supabase project. There is no local Redis container in the repository; matchmaking/queues are Postgres-native.
 
 ### 3. Data Separation and Ephemerality
 

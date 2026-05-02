@@ -10,12 +10,15 @@ import {
   FileStack,
   Filter,
   Layers,
+  Link2,
+  Lock,
   MoreHorizontal,
   ShieldCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { runConsistencyCheck } from '../pitch-deck-hub/consistencyChecker';
+import { getDeckAccessTier, isDeckAlwaysModeratorOnly } from '../pitch-deck-hub/deckAccessTiers';
 import { buildFinancialModel, formatUsd } from '../pitch-deck-hub/financialEngine';
 import type {
   DeckAudience,
@@ -27,7 +30,7 @@ import type {
   MessagingLayer,
   PitchDeck,
 } from '../pitch-deck-hub/types';
-import { pitchDeckHubHtmlFileNameForDeck } from '../pitch-deck-hub/deckHtmlRoutes';
+import { pitchDeckViewerRoute } from '../pitch-deck-hub/deckHtmlRoutes';
 import {
   labelForConfidence,
   labelForStatus,
@@ -35,6 +38,8 @@ import {
 } from '../pitch-deck-hub/usePitchDeckHubStore';
 import { SquadLogo } from '../components/SquadLogo';
 import { SquadRidgeWordmark } from '../components/SquadRidgeWordmark';
+import { useAuth } from '../contexts/AuthContext';
+import { mintDeckShare } from '../lib/pitchDeck/mintDeckShare';
 import { cn } from '../lib/cn';
 
 const AUDIENCE_LABEL: Record<DeckAudience, string> = {
@@ -54,10 +59,16 @@ const HUB_NAV = [
   { id: 'hub-consistency', label: 'Consistency' },
 ] as const;
 
-const pitchDeckHubBase = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}pitch-deck-hub/`;
-
+/**
+ * The "View deck" button now routes through `/admin/decks/view/:deckId`
+ * (an authenticated React page that mints a 30s self-token via the
+ * `mint-deck-share` Edge Function and redirects to the gated
+ * `serve-pitch-deck` URL). Public static URLs were retired because the
+ * deck HTML and the embedded financial model both leak the raise size and
+ * runway numbers — see [docs/security/pitch-deck-access.md].
+ */
 function viewDeckHrefForId(deckId: string): string {
-  return `${pitchDeckHubBase}${pitchDeckHubHtmlFileNameForDeck(deckId)}`;
+  return pitchDeckViewerRoute(deckId);
 }
 
 const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
@@ -94,14 +105,14 @@ function Badge({
     teal: 'border-teal/30 bg-teal/10 text-teal-light',
     amber: 'border-amber/35 bg-amber/10 text-amber-light',
     danger: 'border-red-500/35 bg-red-500/10 text-red-300',
-    muted: 'border-white/[0.06] bg-[#0c1219] text-[#94a3b8]',
+    muted: 'border-white/[0.06] bg-[#0c1219] text-ink-faint',
   } as const;
   return (
     <span
       className={cn(
         'inline-flex items-center rounded-full border px-2.5 py-0.5 font-sans text-[0.65rem] font-medium',
         subtle
-          ? 'normal-case tracking-normal text-[#94a3b8]'
+          ? 'normal-case tracking-normal text-ink-faint'
           : 'font-semibold uppercase tracking-[0.1em]',
         styles[variant],
       )}
@@ -135,9 +146,9 @@ function SectionShell({
   return (
     <section id={id} className="scroll-mt-[7.5rem] border-t border-white/[0.06] pt-12 sm:pt-14">
       <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal/85">{eyebrow}</p>
-      <h2 className="mt-2 font-heading text-fluid-h2 font-extrabold text-[#f1f5f9]">{title}</h2>
+      <h2 className="mt-2 font-heading text-fluid-h2 font-extrabold text-ink">{title}</h2>
       {description ? (
-        <p className="mt-3 max-w-copy font-sans text-[0.92rem] leading-relaxed text-[#94a3b8]">
+        <p className="mt-3 max-w-copy font-sans text-[0.92rem] leading-relaxed text-ink-faint">
           {description}
         </p>
       ) : null}
@@ -179,19 +190,34 @@ function DeckCard({
   onMarkReady,
   onExportOutline,
   onOpenFinancial,
+  onMintShareLink,
   readiness,
   viewDeckHref,
+  shareLinkPending,
 }: {
   deck: PitchDeck;
   onDuplicate: (id: string) => void;
   onMarkReady: (id: string) => void;
   onExportOutline: () => void;
   onOpenFinancial: () => void;
+  onMintShareLink: (deck: PitchDeck) => void;
   readiness: DeckReadiness | undefined;
   viewDeckHref?: string;
+  shareLinkPending: boolean;
 }) {
   const rDone = readiness?.items.filter((i) => i.done).length ?? 0;
   const rTotal = readiness?.items.length ?? 0;
+
+  // Tier reflects what `mint-deck-share` will allow. The Lock badge tells
+  // the moderator at a glance that this deck cannot be shared externally
+  // without first marking it `external_ready` (or never, if it sits on the
+  // always-moderator-only list, e.g. financial-appendix).
+  const tier = getDeckAccessTier(deck.id, deck.status);
+  const lockedReason = isDeckAlwaysModeratorOnly(deck.id)
+    ? 'Always moderator-only — financial / pricing details cannot be share-linked.'
+    : tier === 'shareable'
+      ? null
+      : 'Mark external-ready before minting a share link.';
 
   const primaryCta =
     'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-teal/35 bg-teal/12 px-4 py-2.5 font-sans text-[0.8rem] font-semibold text-[#ecfeff] shadow-[0_0_0_1px_rgba(0,194,178,0.12)] transition-[background,border] hover:border-teal/50 hover:bg-teal/18';
@@ -213,10 +239,27 @@ function DeckCard({
             <Badge variant="amber" subtle>
               {labelForConfidence(deck.confidence)}
             </Badge>
+            {tier === 'shareable' ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-teal/30 bg-teal/[0.06] px-2 py-0.5 font-sans text-[0.65rem] font-medium text-teal-light"
+                title="Eligible for shareable links (still requires moderator to mint)."
+              >
+                <Link2 className="size-3" aria-hidden />
+                Shareable
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-sans text-[0.65rem] font-medium text-ink-faint"
+                title={lockedReason ?? 'Moderator-only.'}
+              >
+                <Lock className="size-3" aria-hidden />
+                Moderator-only
+              </span>
+            )}
           </div>
           <details className="group/deck-menu relative shrink-0">
             <summary
-              className="flex list-none cursor-pointer items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] p-2 text-[#94a3b8] transition-colors hover:border-teal/30 hover:text-[#e2e8f0] [&::-webkit-details-marker]:hidden"
+              className="flex list-none cursor-pointer items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] p-2 text-ink-faint transition-colors hover:border-teal/30 hover:text-ink [&::-webkit-details-marker]:hidden"
               aria-label={`More actions for ${deck.name}`}
             >
               <MoreHorizontal className="size-4" aria-hidden />
@@ -225,6 +268,16 @@ function DeckCard({
               className="absolute right-0 z-40 mt-1 min-w-[14rem] rounded-lg border border-white/[0.1] bg-[#0c1219] py-1 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
+              <button
+                type="button"
+                className={cn(menuBtn, tier !== 'shareable' && 'opacity-50')}
+                onClick={() => onMintShareLink(deck)}
+                disabled={tier !== 'shareable' || shareLinkPending}
+                title={lockedReason ?? 'Mint a 7-day signed link (copied to clipboard).'}
+              >
+                <Link2 className="size-3.5 opacity-70" aria-hidden />
+                {shareLinkPending ? 'Minting…' : 'Copy share link (7d)'}
+              </button>
               <button type="button" className={menuBtn} onClick={() => onDuplicate(deck.id)}>
                 <Copy className="size-3.5 opacity-70" aria-hidden />
                 Duplicate variant
@@ -264,7 +317,7 @@ function DeckCard({
         </div>
       </div>
 
-      <p className="w-full font-sans text-[0.84rem] leading-relaxed text-[#94a3b8]">
+      <p className="w-full font-sans text-[0.84rem] leading-relaxed text-ink-faint">
         {deck.purpose}
       </p>
       {deck.narrativeEmphasis ? (
@@ -272,7 +325,7 @@ function DeckCard({
           <span className="block text-[0.65rem] font-medium uppercase tracking-[0.08em] text-[#64748b]">
             Story weight
           </span>
-          <span className="mt-0.5 block text-[#94a3b8]">{deck.narrativeEmphasis}</span>
+          <span className="mt-0.5 block text-ink-faint">{deck.narrativeEmphasis}</span>
         </p>
       ) : null}
 
@@ -298,20 +351,23 @@ function DeckCard({
       {rTotal > 0 ? <ReadinessBar done={rDone} total={rTotal} /> : null}
 
       <div className="pt-0.5">
-        <button
-          type="button"
-          className={primaryCta}
-          onClick={() => {
-            if (viewDeckHref) {
-              window.open(viewDeckHref, '_blank', 'noopener,noreferrer');
-              return;
+        {viewDeckHref ? (
+          <Link to={viewDeckHref} target="_blank" rel="noopener noreferrer" className={primaryCta}>
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={primaryCta}
+            onClick={() =>
+              toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.')
             }
-            toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.');
-          }}
-        >
-          <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
-          View deck
-        </button>
+          >
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </button>
+        )}
       </div>
     </article>
   );
@@ -329,13 +385,13 @@ function ReadinessBlock({
   if (!readiness) return null;
   return (
     <div className="rounded-lg border border-white/[0.06] bg-[#0a0f16]/90 p-4">
-      <p className="font-sans text-[0.78rem] font-medium text-[#94a3b8]">
+      <p className="font-sans text-[0.78rem] font-medium text-ink-faint">
         External readiness · <span className="text-[#cbd5e1]">{deckName}</span>
       </p>
       <ul className="mt-3 space-y-2">
         {readiness.items.map((it) => (
           <li key={it.id}>
-            <label className="flex cursor-pointer items-start gap-2 font-sans text-[0.82rem] text-[#a8b2c1]">
+            <label className="flex cursor-pointer items-start gap-2 font-sans text-[0.82rem] text-ink-secondary">
               <input
                 type="checkbox"
                 checked={it.done}
@@ -376,6 +432,42 @@ export function PitchDeckHubPage() {
   const [activeMessagingKey, setActiveMessagingKey] =
     useState<keyof MessagingLayer>('masterPositioning');
   const [activeNavId, setActiveNavId] = useState<string>(HUB_NAV[0].id);
+  const [pendingShareDeckId, setPendingShareDeckId] = useState<string | null>(null);
+
+  const { supabase } = useAuth();
+
+  const handleMintShareLink = async (deck: PitchDeck) => {
+    if (!supabase) {
+      toast.error('Supabase client unavailable.');
+      return;
+    }
+    const tier = getDeckAccessTier(deck.id, deck.status);
+    if (tier !== 'shareable') {
+      toast.message('This deck is moderator-only — mark it external-ready first.');
+      return;
+    }
+    setPendingShareDeckId(deck.id);
+    try {
+      const result = await mintDeckShare(supabase, {
+        deckId: deck.id,
+        audience: 'share',
+        status: deck.status,
+      });
+      if (!result.ok) {
+        toast.error(`Could not mint share link: ${result.message}`);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(result.absoluteUrl);
+        const expires = new Date(result.expiresAt).toLocaleString();
+        toast.success(`Share link copied. Expires ${expires}.`);
+      } catch {
+        toast.message(`Share link ready (clipboard blocked): ${result.absoluteUrl}`);
+      }
+    } finally {
+      setPendingShareDeckId(null);
+    }
+  };
 
   const model = buildFinancialModel(state.assumptions, state.activeScenario);
   const issues = runConsistencyCheck(state);
@@ -436,15 +528,15 @@ export function PitchDeckHubPage() {
           <SquadRidgeWordmark className="h-8 w-auto opacity-95 sm:h-9" alt="SquadRidge" />
         </div>
         <p className="mt-8 font-sans text-[0.8rem] font-medium text-teal/85">Internal materials</p>
-        <h1 className="mt-3 max-w-[20ch] font-heading text-display-hero font-extrabold leading-[1.08] text-[#f1f5f9]">
+        <h1 className="mt-3 max-w-[20ch] font-heading text-display-hero font-extrabold leading-[1.08] text-ink">
           Pitch Deck Hub
         </h1>
-        <p className="mt-5 max-w-copy font-sans text-body-lg text-[#94a3b8]">
+        <p className="mt-5 max-w-copy font-sans text-body-lg text-ink-faint">
           Conflict prevention and early-warning narrative—grounded in verified squads,
           facilitator-led de-escalation, and honest security boundaries. When a figure is unknown,
           label it. Separate shipped product from pilot and roadmap, and never upgrade a claim
           beyond what sources and CURRENT_STATUS support.{' '}
-          <span className="text-[#a8b2c1]">
+          <span className="text-ink-secondary">
             Every deck variant shares the same design system — colors, typography, spacing,
             components, and brand lockup — while content density, narrative angle, and slide
             emphasis shift by audience.
@@ -454,7 +546,7 @@ export function PitchDeckHubPage() {
         <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-xl border border-white/[0.07] bg-[#0c1219]/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
             <p className="font-sans text-[0.72rem] text-[#64748b]">Last content touch</p>
-            <p className="mt-1 font-heading text-lg font-semibold tabular-nums text-[#f1f5f9]">
+            <p className="mt-1 font-heading text-lg font-semibold tabular-nums text-ink">
               {meta.lastReview
                 ? new Date(meta.lastReview).toLocaleDateString(undefined, { dateStyle: 'medium' })
                 : '—'}
@@ -496,7 +588,7 @@ export function PitchDeckHubPage() {
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 to="/security"
-                className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-[0.72rem] text-[#e2e8f0] hover:border-teal/30 hover:text-white"
+                className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-[0.72rem] text-ink hover:border-teal/30 hover:text-white"
               >
                 Security disclosure
                 <ArrowRight className="size-3" aria-hidden />
@@ -506,7 +598,7 @@ export function PitchDeckHubPage() {
                 onClick={() =>
                   document.getElementById('hub-evidence')?.scrollIntoView({ behavior: 'smooth' })
                 }
-                className="rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-[#94a3b8] hover:border-teal/30 hover:text-[#e2e8f0]"
+                className="rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-ink-faint hover:border-teal/30 hover:text-ink"
               >
                 Evidence locker
               </button>
@@ -526,7 +618,7 @@ export function PitchDeckHubPage() {
                 'rounded-t-md border-b-2 px-3 py-2 font-medium transition-colors',
                 activeNavId === id
                   ? 'border-teal text-teal-light'
-                  : 'border-transparent text-[#8b95a8] hover:border-white/[0.12] hover:bg-white/[0.04] hover:text-[#e2e8f0]',
+                  : 'border-transparent text-[#8b95a8] hover:border-white/[0.12] hover:bg-white/[0.04] hover:text-ink',
               )}
             >
               {label}
@@ -542,13 +634,13 @@ export function PitchDeckHubPage() {
         description="One visual language across variants; each row below calls out how story weight differs for that audience. Filter by audience and readiness. CTAs orchestrate workflow; link source decks in your storage layer."
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-wrap items-center gap-2 text-[#94a3b8]">
+          <div className="flex flex-wrap items-center gap-2 text-ink-faint">
             <Filter className="size-3.5 shrink-0 opacity-60" aria-hidden />
             <span className="font-sans text-[0.78rem] text-[#64748b]">Audience</span>
             <select
               value={audienceFilter}
               onChange={(e) => setAudienceFilter(e.target.value as DeckAudience | 'all')}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               <option value="all">All</option>
               {(Object.keys(AUDIENCE_LABEL) as DeckAudience[]).map((k) => (
@@ -561,7 +653,7 @@ export function PitchDeckHubPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as DeckStatus | 'all')}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               <option value="all">All</option>
               <option value="draft">Draft</option>
@@ -574,14 +666,14 @@ export function PitchDeckHubPage() {
             <button
               type="button"
               onClick={exportOutline}
-              className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 font-sans text-[0.8rem] font-medium text-[#e2e8f0] hover:border-teal/35"
+              className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 font-sans text-[0.8rem] font-medium text-ink hover:border-teal/35"
             >
               Export all outlines
             </button>
             <button
               type="button"
               onClick={exportFullJson}
-              className="rounded-lg border border-white/[0.08] bg-transparent px-4 py-2 font-sans text-[0.8rem] text-[#94a3b8] hover:border-teal/35 hover:text-[#e2e8f0]"
+              className="rounded-lg border border-white/[0.08] bg-transparent px-4 py-2 font-sans text-[0.8rem] text-ink-faint hover:border-teal/35 hover:text-ink"
             >
               Export hub JSON
             </button>
@@ -606,8 +698,10 @@ export function PitchDeckHubPage() {
               onOpenFinancial={() =>
                 document.getElementById('hub-financial')?.scrollIntoView({ behavior: 'smooth' })
               }
+              onMintShareLink={(d) => void handleMintShareLink(d)}
               readiness={state.readiness.find((r) => r.deckId === deck.id)}
               viewDeckHref={viewDeckHrefForId(deck.id)}
+              shareLinkPending={pendingShareDeckId === deck.id}
             />
           ))}
         </div>
@@ -619,18 +713,18 @@ export function PitchDeckHubPage() {
         ) : null}
 
         <div className="mt-12 max-w-2xl">
-          <p className="font-sans text-[0.8rem] font-medium text-[#94a3b8]">
+          <p className="font-sans text-[0.8rem] font-medium text-ink-faint">
             External-readiness checklist
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <label htmlFor="readiness-deck" className="font-sans text-[0.78rem] text-[#94a3b8]">
+            <label htmlFor="readiness-deck" className="font-sans text-[0.78rem] text-ink-faint">
               Deck
             </label>
             <select
               id="readiness-deck"
               value={readinessDeckId}
               onChange={(e) => setReadinessDeckId(e.target.value)}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               {state.decks.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -671,8 +765,8 @@ export function PitchDeckHubPage() {
                 className={cn(
                   'border-l-2 px-4 py-3 text-left font-sans text-[0.82rem] transition-colors',
                   activeMessagingKey === key
-                    ? 'border-teal bg-teal/[0.06] font-medium text-[#f1f5f9]'
-                    : 'border-transparent text-[#94a3b8] hover:bg-white/[0.03] hover:text-[#e2e8f0]',
+                    ? 'border-teal bg-teal/[0.06] font-medium text-ink'
+                    : 'border-transparent text-ink-faint hover:bg-white/[0.03] hover:text-ink',
                 )}
               >
                 {MESSAGING_FIELD_LABELS[key]}
@@ -688,7 +782,7 @@ export function PitchDeckHubPage() {
               value={state.messaging[activeMessagingKey]}
               onChange={(e) => updateMessaging({ [activeMessagingKey]: e.target.value })}
               rows={14}
-              className="mt-3 min-h-[16rem] w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-4 py-3 font-sans text-[0.9rem] leading-relaxed text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/40 focus:outline-none focus:ring-1 focus:ring-teal/30"
+              className="mt-3 min-h-[16rem] w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-4 py-3 font-sans text-[0.9rem] leading-relaxed text-ink placeholder:text-[#475569] focus:border-teal/40 focus:outline-none focus:ring-1 focus:ring-teal/30"
             />
           </div>
         </div>
@@ -718,7 +812,7 @@ export function PitchDeckHubPage() {
                 'rounded-lg border px-4 py-2 font-sans text-[0.8rem] font-medium capitalize transition-colors',
                 state.activeScenario === sc
                   ? 'border-teal/45 bg-teal/10 text-teal-light'
-                  : 'border-white/[0.06] bg-transparent text-[#94a3b8] hover:border-white/[0.12]',
+                  : 'border-white/[0.06] bg-transparent text-ink-faint hover:border-white/[0.12]',
               )}
             >
               {sc}
@@ -736,7 +830,7 @@ export function PitchDeckHubPage() {
           <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
               <p className="font-sans text-[0.72rem] text-[#64748b]">Runway</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.runwayMonthsFromStart != null ? `${model.runwayMonthsFromStart} mo` : '—'}
               </p>
               <p className="mt-1 font-sans text-[0.72rem] text-[#64748b]">
@@ -745,21 +839,21 @@ export function PitchDeckHubPage() {
             </div>
             <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
               <p className="font-sans text-[0.72rem] text-[#64748b]">Break-even (operating)</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.breakEvenMonthIndex != null
                   ? `M${model.breakEvenMonthIndex}`
                   : 'Not in horizon'}
               </p>
             </div>
             <div className="rounded-xl border border-teal/25 bg-teal/[0.06] p-5 ring-1 ring-teal/15">
-              <p className="font-sans text-[0.72rem] text-[#94a3b8]">Fundraising ask (input)</p>
+              <p className="font-sans text-[0.72rem] text-ink-faint">Fundraising ask (input)</p>
               <p className="mt-1 font-heading text-2xl font-semibold text-teal-light/95">
                 {formatUsd(state.assumptions.fundraisingAskUsd)}
               </p>
             </div>
             <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
               <p className="font-sans text-[0.72rem] text-[#64748b]">Ending cash (last month)</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.monthly.length
                   ? formatUsd(model.monthly[model.monthly.length - 1].cashEndUsd)
                   : '—'}
@@ -769,7 +863,7 @@ export function PitchDeckHubPage() {
         </div>
 
         <details className="group/fin-inputs mt-10 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
             <span className="mr-2 text-[#64748b]">▸</span>
             Model inputs
             <span className="ml-2 font-normal text-[#64748b]">
@@ -788,7 +882,7 @@ export function PitchDeckHubPage() {
                         type="date"
                         value={typeof v === 'string' ? v.slice(0, 10) : ''}
                         onChange={(e) => updateAssumptions({ modelStartISO: e.target.value })}
-                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-ink focus:border-teal/40 focus:outline-none"
                       />
                     </div>
                   );
@@ -801,7 +895,7 @@ export function PitchDeckHubPage() {
                         value={v}
                         onChange={(e) => updateAssumptions({ [k]: e.target.value })}
                         rows={2}
-                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-sans text-[0.85rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-sans text-[0.85rem] text-ink focus:border-teal/40 focus:outline-none"
                       />
                     </div>
                   );
@@ -813,7 +907,7 @@ export function PitchDeckHubPage() {
                       type="number"
                       value={typeof v === 'number' ? v : 0}
                       onChange={(e) => updateAssumptions({ [k]: parseFloat(e.target.value) || 0 })}
-                      className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                      className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-ink focus:border-teal/40 focus:outline-none"
                     />
                   </div>
                 );
@@ -823,7 +917,7 @@ export function PitchDeckHubPage() {
         </details>
 
         <details className="group/fin-monthly mt-4 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
             <span className="mr-2 text-[#64748b]">▸</span>
             Monthly cash model
             <span className="ml-2 font-normal text-[#64748b]">Month-by-month diligence detail</span>
@@ -849,14 +943,12 @@ export function PitchDeckHubPage() {
                     className="border-b border-white/[0.04] hover:bg-white/[0.02]"
                   >
                     <td className="px-3 py-2 text-[#cbd5e1]">{row.label}</td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">{row.payingSeats}</td>
-                    <td className="px-3 py-2 font-mono text-[#e2e8f0]">
-                      {formatUsd(row.revenueUsd)}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">
+                    <td className="px-3 py-2 font-mono text-ink-faint">{row.payingSeats}</td>
+                    <td className="px-3 py-2 font-mono text-ink">{formatUsd(row.revenueUsd)}</td>
+                    <td className="px-3 py-2 font-mono text-ink-faint">
                       {formatUsd(row.payrollUsd)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">
+                    <td className="px-3 py-2 font-mono text-ink-faint">
                       {formatUsd(row.nonPayrollOpexUsd)}
                     </td>
                     <td className="px-3 py-2 font-mono text-[#64748b]">
@@ -870,9 +962,7 @@ export function PitchDeckHubPage() {
                     >
                       {formatUsd(row.operatingIncomeUsd)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-[#f1f5f9]">
-                      {formatUsd(row.cashEndUsd)}
-                    </td>
+                    <td className="px-3 py-2 font-mono text-ink">{formatUsd(row.cashEndUsd)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -885,7 +975,7 @@ export function PitchDeckHubPage() {
         </details>
 
         <details className="group/fin-annual mt-4 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
             <span className="mr-2 text-[#64748b]">▸</span>
             Annual rollup
           </summary>
@@ -905,7 +995,7 @@ export function PitchDeckHubPage() {
                     <td className="px-3 py-2 text-[#cbd5e1]">{y.year}</td>
                     <td className="px-3 py-2 font-mono">{formatUsd(y.revenueUsd)}</td>
                     <td className="px-3 py-2 font-mono">{formatUsd(y.totalOpexUsd)}</td>
-                    <td className="px-3 py-2 font-mono text-[#e2e8f0]">
+                    <td className="px-3 py-2 font-mono text-ink">
                       {formatUsd(y.operatingIncomeUsd)}
                     </td>
                   </tr>
@@ -936,10 +1026,10 @@ export function PitchDeckHubPage() {
                   <p className="font-sans text-[0.72rem] font-medium text-[#64748b]">
                     Document record
                   </p>
-                  <h4 className="mt-1 font-heading text-[1.02rem] font-semibold text-[#f1f5f9]">
+                  <h4 className="mt-1 font-heading text-[1.02rem] font-semibold text-ink">
                     {ev.title}
                   </h4>
-                  <p className="mt-2 max-w-prose font-sans text-[0.84rem] leading-relaxed text-[#94a3b8]">
+                  <p className="mt-2 max-w-prose font-sans text-[0.84rem] leading-relaxed text-ink-faint">
                     {ev.summary}
                   </p>
                   {ev.sourceUrl ? (
@@ -975,7 +1065,7 @@ export function PitchDeckHubPage() {
                       {ev.approvedForExternal ? 'External OK' : 'Internal only'}
                     </Badge>
                   </div>
-                  <p className="rounded-md border border-white/[0.05] bg-[#070b10]/80 px-2.5 py-2 font-sans text-[0.72rem] leading-snug text-[#94a3b8]">
+                  <p className="rounded-md border border-white/[0.05] bg-[#070b10]/80 px-2.5 py-2 font-sans text-[0.72rem] leading-snug text-ink-faint">
                     <span className="text-[#64748b]">Data state ·</span>{' '}
                     <span
                       className={
@@ -1020,7 +1110,7 @@ export function PitchDeckHubPage() {
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-light/90" aria-hidden />
               )}
               <span>
-                <span className="font-semibold text-[#e2e8f0]">{issue.message}</span>
+                <span className="font-semibold text-ink">{issue.message}</span>
                 {issue.hint ? (
                   <span className="mt-1 block text-[#64748b]">{issue.hint}</span>
                 ) : null}
@@ -1029,8 +1119,8 @@ export function PitchDeckHubPage() {
           ))}
         </ul>
 
-        <div className="mt-8 rounded-lg border border-dashed border-white/[0.08] bg-[#0c1219]/40 p-5 font-sans text-[0.82rem] text-[#94a3b8]">
-          <p className="font-medium text-[#e2e8f0]">Deck field quick-edit</p>
+        <div className="mt-8 rounded-lg border border-dashed border-white/[0.08] bg-[#0c1219]/40 p-5 font-sans text-[0.82rem] text-ink-faint">
+          <p className="font-medium text-ink">Deck field quick-edit</p>
           <p className="mt-2">Adjust status when outline changes — keeps filters honest.</p>
           <div className="mt-4 flex flex-col gap-3">
             {state.decks.map((d) => (
@@ -1039,7 +1129,7 @@ export function PitchDeckHubPage() {
                 <select
                   value={d.status}
                   onChange={(e) => updateDeck(d.id, { status: e.target.value as DeckStatus })}
-                  className="rounded-lg border border-white/[0.1] bg-[#0a0f16] px-2 py-1.5 font-sans text-[0.78rem] text-[#e2e8f0]"
+                  className="rounded-lg border border-white/[0.1] bg-[#0a0f16] px-2 py-1.5 font-sans text-[0.78rem] text-ink"
                 >
                   <option value="draft">Draft</option>
                   <option value="internal">Internal</option>

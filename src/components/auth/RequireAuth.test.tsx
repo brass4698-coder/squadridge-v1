@@ -65,7 +65,8 @@ describe('RequireAuth', () => {
       profileComplete: false,
     });
     renderProtectedRoute();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    // Session-bound RequireAuth renders SessionPageAuthSkeleton (aria-busy region).
+    expect(screen.getByLabelText('Loading session')).toBeInTheDocument();
   });
 
   it('redirects to sign-in when there is no session', () => {
@@ -120,7 +121,7 @@ describe('RequireAuth', () => {
       profileComplete: false,
     });
     renderProtectedRoute();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByLabelText('Loading session')).toBeInTheDocument();
   });
 
   it('renders children when session exists and profile is complete', () => {

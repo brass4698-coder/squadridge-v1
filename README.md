@@ -1,14 +1,14 @@
 # SquadRidge
 
-**Stop conflicts before they start.**
+**Pilot-stage verified dialogue infrastructure.**
 
-SquadRidge is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
+SquadRidge is a pilot-stage web product for structured, facilitator-led cross-border dialogue. It combines verified access, pseudonymous small-squad matching, encrypted-at-rest session chat, moderator-aware safety workflows, and public ledger-style outcome records. The repo supports serious bounded pilots; it does **not** yet prove global conflict-prevention impact, operator-blind messaging, or public early-warning infrastructure.
 
 **Built on React + Vite + TypeScript + Tailwind + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).**
 
-**How it works (at a glance):** (1) **Detect** — program-scoped signals and (where enabled) a Conflict Severity Index methodology for triage, not a public omniscient feed. (2) **Intervene** — facilitator-led, verified small squads with structured session UX. (3) **Measure** — pre-registered metrics and partner-aligned evaluation. See [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md) and [`CURRENT_STATUS.md`](CURRENT_STATUS.md) for what is shipped today vs pilot/roadmap.
+**How it works today:** (1) **Verify** — pilot-scoped access and Semaphore-style attribute verification. (2) **Convene** — small squads enter a structured session room with facilitator and moderator affordances. (3) **Record outcomes** — consensus records can be published to an anonymous, timestamped ledger surface. CSI / early-signal work is roadmap and internal triage scaffolding unless [`CURRENT_STATUS.md`](CURRENT_STATUS.md) explicitly says otherwise.
 
-Optional Redis in `docker-compose.yml` is for local worker experiments only—not required for the app.
+The shipped backend is **pure BaaS** — Supabase (Postgres + Realtime + Edge Functions). There is no Node tier and no local Redis dependency; Edge rate limiting uses **Upstash Redis REST** from `supabase/functions/rate-limit/` when configured. Older docs that mention a `docker-compose.yml` Redis stub pre-date this simplification; ignore them.
 
 ## Prerequisites
 
@@ -51,12 +51,16 @@ Never commit `.env*` files with secrets. If `node_modules` shows as tracked, run
 
 ## Scripts
 
-| Command             | Description                                                       |
-| ------------------- | ----------------------------------------------------------------- |
-| `npm run dev`       | Start Vite dev server                                             |
-| `npm run build`     | Typecheck + production build                                      |
-| `npm run build:e2e` | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke) |
-| `npm run preview`   | Preview production build                                          |
+| Command                       | Description                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run dev`                 | Start Vite dev server                                                                        |
+| `npm run build`               | Typecheck + production build (also writes `dist/partner-one-pager.html`)                     |
+| `npm run build:e2e`           | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke)                            |
+| `npm run preview`             | Preview production build                                                                     |
+| `npm run e2e`                 | Hermetic Playwright suite (`default` project)                                                |
+| `npm run e2e:staging`         | Staging-only specs (`*-staging.spec.ts`)                                                     |
+| `npm run demo:capture`        | Walks the scripted tour and saves full-page screenshots to `test-results/demo-capture/`      |
+| `npm run gen:partner-one-pager` | Re-generate the printable partner one-pager from `docs/business/pilot-partner-one-pager.md` |
 
 ## After linking Supabase + GitHub
 
@@ -78,7 +82,10 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 
 ### Demos (investors and staging)
 
-- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
+- **Public investor mini-page:** `/investors` is a sanitized, link-safe summary backed by the same content sources as the moderator-only [`/pitch-deck-hub`](./src/pages/PitchDeckHubPage.tsx) — financial scenarios and gated decks are intentionally absent. Send a partner that link without granting moderator access.
+- **Demo command center:** `/demo` (redirects to `/admin/demo-hub`, moderator-only) is the presenter hub: scenario picker (cross-border corridor / workplace / veterans), step jump, restart, presenter notes toggle. The same scenario state threads through onboarding, intent, profile, and the offline session.
+- **Presenter notes overlay:** Add `?notes=1` to any tour URL to show a sidebar with the talk-track for the current step (desktop only). The notes are sourced from `presenterNotes` on each step in [`src/demo/demoScript.ts`](./src/demo/demoScript.ts).
+- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. The **Play scene** button streams scripted incoming messages, fires a Slow-down intervention, and reveals translation. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
 - **Guided tour:** From the home page, **Start guided tour** runs the scripted steps in [`src/demo/demoScript.ts`](src/demo/demoScript.ts), including onboarding, **ZK verification** (`/verify?demo=1`), intent, match, the offline session, ledger, security, and profile (`/settings/profile?demo=1` creates an anonymous session for the profile step).
 - **Developer shortcuts:** Set `VITE_ENABLE_DEMO_SQUAD=true` to show extra affordances (e.g. **Create demo squad** on the session hub) — see [`.env.example`](.env.example).
 

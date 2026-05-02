@@ -1,8 +1,28 @@
-import { DEMO_PROPOSAL_ID } from '../lib';
-import { DEMO_PERSONA } from './demoPersona';
+import { DEFAULT_DEMO_SCENARIO_ID, getDemoScenarioById, type DemoScenario } from './demoScenarios';
 
 /** `sessionStorage` key — tour active when set to `"1"` (with optional `?demo=1` in URL). */
 export const DEMO_WALKTHROUGH_STORAGE_KEY = 'demoWalkthrough';
+
+/** `sessionStorage` key — index of the last visible step (used by the presenter hub for resume). */
+export const DEMO_LAST_STEP_INDEX_STORAGE_KEY = 'squadridge_demo_last_step_index';
+
+/**
+ * Read the last-visible step index from session storage. Returns `null` when
+ * unset, malformed, or out of range — caller is responsible for clamping.
+ */
+export function readLastStepIndex(maxIndex: number): number | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.sessionStorage.getItem(DEMO_LAST_STEP_INDEX_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isFinite(parsed)) return null;
+    if (parsed < 0 || parsed > maxIndex) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
 
 export type EnvMode = 'local' | 'staging' | 'prod';
 
@@ -32,9 +52,14 @@ export type DemoStep = {
   title: string;
   description?: string;
   envModes: Partial<Record<EnvMode, 'live' | 'mock'>>;
-  /** Per-step automation: each field is more entries in this array; often ends with `click` on the real Next control. */
-  actions?: DemoAction[];
+  /**
+   * Per-step automation. Resolved at execution time so scenario switches
+   * change the typed text without forcing a new step list.
+   */
+  buildActions?: (scenario: DemoScenario) => DemoAction[];
   overlaySteps?: DemoOverlayStep[];
+  /** Talk-track shown by the presenter notes overlay (`?notes=1`). */
+  presenterNotes?: string;
   inMainScript?: boolean;
 };
 
@@ -57,6 +82,8 @@ export const demoSteps: DemoStep[] = [
     path: '/?demo=1',
     title: 'Welcome',
     description: 'Product story — onboarding, verification, intent, match, session, ledger.',
+    presenterNotes:
+      'Frame the wedge: structured, facilitator-led cohorts where verification + safety + record-keeping matter more than mass-market growth. Press Next to begin onboarding.',
     inMainScript: true,
     envModes: mockAll,
   },
@@ -65,6 +92,8 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/mission?demo=1&owt=0',
     title: 'Mission brief',
     description: 'Onboarding — read the brief, then use Next in the card to continue.',
+    presenterNotes:
+      'Onboarding is a wizard. The mission step sets the operating posture: this is a private room, not a public square.',
     inMainScript: true,
     envModes: mockAll,
   },
@@ -73,23 +102,29 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/identity?demo=1&owt=1',
     title: 'Identity',
     description: 'Callsign, lane, and operational context.',
+    presenterNotes:
+      'Identity here is a participant pseudonym, not an identity attestation. Verification (later step) is what proves eligibility.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: (scenario) => [
       { kind: 'focus', selector: '[data-demo="onboarding-callsign"]', delayMs: 400 },
       {
         kind: 'type',
         selector: '[data-demo="onboarding-callsign"]',
-        text: 'Falcon-23',
+        text: scenario.persona.callsign,
         charDelayMs: HUMAN_CHAR_MS,
       },
       { kind: 'wait', ms: 2000 },
-      { kind: 'click', selector: '[data-demo="onboarding-role-analyst"]', delayMs: 200 },
+      {
+        kind: 'click',
+        selector: `[data-demo="onboarding-role-${scenario.persona.role}"]`,
+        delayMs: 200,
+      },
       { kind: 'wait', ms: 1000 },
       {
         kind: 'select',
         selector: '[data-demo="onboarding-era-trigger"]',
-        value: 'contemporary',
+        value: scenario.persona.eraAffiliation,
         delayMs: 200,
       },
     ],
@@ -99,14 +134,16 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/placement?demo=1&owt=2',
     title: 'Placement',
     description: 'Language, region, and time window.',
+    presenterNotes:
+      'Placement narrows matchmaking pools. Region is coarse-grained on purpose — see the threat model for what is and is not stored.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: (scenario) => [
       { kind: 'focus', selector: '[data-demo="onboarding-language"]', delayMs: 400 },
       {
         kind: 'type',
         selector: '[data-demo="onboarding-language"]',
-        text: 'English',
+        text: scenario.persona.language,
         charDelayMs: HUMAN_CHAR_MS,
       },
       { kind: 'wait', ms: 1000 },
@@ -114,7 +151,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="onboarding-region"]',
-        text: 'Pacific North West',
+        text: scenario.persona.region,
         charDelayMs: HUMAN_CHAR_MS,
       },
       { kind: 'wait', ms: 1000 },
@@ -122,7 +159,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="onboarding-timezone"]',
-        text: 'Weekday Evenings PT',
+        text: scenario.persona.timezoneWindow,
         charDelayMs: HUMAN_CHAR_MS,
       },
     ],
@@ -132,9 +169,11 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/rules?demo=1&owt=3',
     title: 'Rules & safety',
     description: 'Accept the rules to continue.',
+    presenterNotes:
+      'Explicit consent on the rules — no silent opt-in. Pilot partners can replace this copy without a release.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: () => [
       { kind: 'wait', ms: 2000 },
       { kind: 'click', selector: '[data-demo="onboarding-rules-accept"]', delayMs: 200 },
     ],
@@ -144,6 +183,8 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/verification?demo=1&owt=4',
     title: 'Verification',
     description: 'Verification step in onboarding.',
+    presenterNotes:
+      'Eligibility is proved with a Semaphore-style proof. The full proof generation animation is on the next standalone verify step.',
     inMainScript: true,
     envModes: mockAll,
   },
@@ -152,6 +193,8 @@ export const demoSteps: DemoStep[] = [
     path: '/onboarding/dryrun?demo=1&owt=5',
     title: 'Dry run',
     description: 'Finish onboarding to enter the guided flow.',
+    presenterNotes:
+      'A safe rehearsal before the participant ever joins a live cohort. This is where the de-escalation UX pattern shows up first.',
     inMainScript: true,
     envModes: mockAll,
   },
@@ -160,6 +203,8 @@ export const demoSteps: DemoStep[] = [
     path: '/verify?demo=1',
     title: 'ZK verification',
     description: 'Semaphore proof in-browser; server verifies via Edge Function.',
+    presenterNotes:
+      'Walk through the proof timeline: identity is local-only; the server only sees a proof + nullifier. Zero-knowledge in practice, not in slides.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
@@ -176,14 +221,16 @@ export const demoSteps: DemoStep[] = [
     path: '/find-squad?demo=1',
     title: 'Intent',
     description: 'Slow intent text — choose perspective in the app.',
+    presenterNotes:
+      'Intent text is what powers matchmaking pools. Slow typing is intentional — investors should see the effort the participant is asked to put in.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: (scenario) => [
       { kind: 'focus', selector: '[data-demo="intent-input"]', delayMs: 1200 },
       {
         kind: 'type',
         selector: '[data-demo="intent-input"]',
-        text: DEMO_PERSONA.intent,
+        text: scenario.intentText,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1200,
       },
@@ -201,6 +248,8 @@ export const demoSteps: DemoStep[] = [
     path: '/match?demo=1',
     title: 'Matchmaking',
     description: 'Guided beat — Next advances when you are ready.',
+    presenterNotes:
+      'The narrative beat reads as a real match — the production path uses the same screen with live queue snapshots.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
@@ -216,14 +265,16 @@ export const demoSteps: DemoStep[] = [
     path: '/session/demo-session-001?demo=1',
     title: 'Squad session (demo)',
     description: 'Offline mock messages (browser only).',
+    presenterNotes:
+      'Press Play scene to stream scripted messages, fire the Slow down intervention, and reveal translation. Nothing leaves the tab.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: (scenario) => [
       { kind: 'focus', selector: '[data-demo="session-composer"]', delayMs: 1200 },
       {
         kind: 'type',
         selector: '[data-demo="session-composer"]',
-        text: DEMO_PERSONA.sessionLine,
+        text: scenario.sessionLine,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1200,
       },
@@ -238,9 +289,11 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'ledger',
-    path: `/ledger/${DEMO_PROPOSAL_ID}?demo=1`,
+    path: `/ledger/${getDemoScenarioById(DEFAULT_DEMO_SCENARIO_ID).proposalId}?demo=1`,
     title: 'Ledger',
     description: 'Seeded proposal drill-down.',
+    presenterNotes:
+      'The ledger is the only artifact of a session that leaves the room — anonymous, timestamped, citable. Press Play publish to dramatize the consensus → publish flow.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
@@ -253,8 +306,10 @@ export const demoSteps: DemoStep[] = [
   {
     id: 'security',
     path: '/security?demo=1',
-    title: 'Security & privacy',
+    title: 'Security Disclosure',
     description: 'Zero-knowledge posture and verification.',
+    presenterNotes:
+      'Tie the live demo back to the threat model: what holds today vs. what is roadmap. Investors and partners both read this page before signing.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
@@ -269,30 +324,31 @@ export const demoSteps: DemoStep[] = [
     id: 'profile',
     path: '/settings/profile?demo=1',
     title: 'Profile',
-    description:
-      'Same persona as the guided tour — Northstar-7, strategist, matching routing hints.',
+    description: 'Same persona as the guided tour — scenario-driven.',
+    presenterNotes:
+      'Profile fields are scenario-driven so the persona stays consistent across onboarding, intent, and the post-session settings page.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
+    buildActions: (scenario) => [
       { kind: 'focus', selector: '[data-demo="profile-callsign"]', delayMs: 1200 },
       {
         kind: 'type',
         selector: '[data-demo="profile-callsign"]',
-        text: DEMO_PERSONA.callsign,
+        text: scenario.persona.callsign,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1200,
       },
       {
         kind: 'select',
         selector: '[data-demo="profile-role"]',
-        value: DEMO_PERSONA.role,
+        value: scenario.persona.role,
         delayMs: 1200,
       },
       { kind: 'focus', selector: '[data-demo="profile-tags"]', delayMs: 1000 },
       {
         kind: 'type',
         selector: '[data-demo="profile-tags"]',
-        text: DEMO_PERSONA.tags,
+        text: scenario.persona.tags,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1200,
       },
@@ -300,7 +356,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="profile-era"]',
-        text: DEMO_PERSONA.eraLens,
+        text: scenario.persona.eraLens,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1000,
       },
@@ -308,7 +364,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="profile-lang"]',
-        text: DEMO_PERSONA.language,
+        text: scenario.persona.language,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1000,
       },
@@ -316,7 +372,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="profile-region"]',
-        text: DEMO_PERSONA.region,
+        text: scenario.persona.region,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1000,
       },
@@ -324,7 +380,7 @@ export const demoSteps: DemoStep[] = [
       {
         kind: 'type',
         selector: '[data-demo="profile-timewindow"]',
-        text: DEMO_PERSONA.timezoneWindow,
+        text: scenario.persona.timezoneWindow,
         charDelayMs: HUMAN_CHAR_MS,
         delayMs: 1000,
       },
@@ -363,3 +419,26 @@ export function pathsEqual(a: string, b: string): boolean {
 export function locationMatchesStep(pathname: string, search: string, stepPath: string): boolean {
   return pathsEqual(stepPath, `${pathname}${search}`);
 }
+
+/**
+ * Resolve the current step's actions for a scenario. Falls back to an empty
+ * list if the step is purely navigational.
+ */
+export function resolveStepActions(step: DemoStep, scenario: DemoScenario): DemoAction[] {
+  return step.buildActions ? step.buildActions(scenario) : [];
+}
+
+/* ----------------------------------------------------------------------------
+ * Re-exports for callers that historically imported from `demoScript`
+ * --------------------------------------------------------------------------*/
+
+export {
+  DEMO_SCENARIOS,
+  DEFAULT_DEMO_SCENARIO_ID,
+  DEMO_SCENARIO_STORAGE_KEY,
+  getDemoScenarioById,
+  persistDemoScenarioId,
+  readStoredDemoScenarioId,
+  type DemoScenario,
+  type DemoScenarioId,
+} from './demoScenarios';

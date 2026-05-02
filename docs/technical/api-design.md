@@ -23,7 +23,7 @@ Ephemeral behavior is implemented through **schema, retention rules, and client 
 
 ### 3. Scalability and Performance
 
-Scale-out is **Supabase-managed Postgres + Realtime**, with domain logic in SQL/RPCs. **Redis is not** part of the production API path documented here; optional Redis appears only as a **future/local** option (see [`tech-stack.md`](tech-stack.md), `docker-compose.yml`).
+Scale-out is **Supabase-managed Postgres + Realtime**, with domain logic in SQL/RPCs. Self-hosted Redis is **not** part of the production API path; the only Redis in the product path is **Upstash Redis REST** called from `supabase/functions/rate-limit/` (see [`tech-stack.md`](tech-stack.md)).
 
 ## Core API Domains (concept → implementation)
 

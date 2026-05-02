@@ -12,7 +12,7 @@ import { OfflineBanner } from '../OfflineBanner';
 
 import { ZkStubBanner } from '../ZkStubBanner';
 
-import { getPublicContactEmail, mainContentPaddingClass } from '../../lib';
+import { footerLinkGroups, mainContentPaddingClass } from '../../lib';
 
 import { useIsModerator } from '../../hooks';
 
@@ -21,6 +21,8 @@ import { AppHeaderNav } from './AppHeaderNav';
 import { Breadcrumbs } from './Breadcrumbs';
 
 import { MobileHomeFab } from './MobileHomeFab';
+
+import { SystemStatusStrip } from './SystemStatusStrip';
 
 import { DemoLayout } from '../../demo/DemoLayout';
 
@@ -31,17 +33,36 @@ import { publicShellInnerClass, shellListResetClass } from './publicShell';
 import { twMerge } from 'tailwind-merge';
 
 const footerLinkClass =
-  'font-sans text-[0.875rem] font-medium text-slate-500 no-underline transition-colors hover:text-slate-400 hover:underline';
+  'sr-footer-link font-sans text-[0.875rem] font-medium text-ink-faint no-underline hover:underline';
+
+const footerTrustSignals = [
+  'Pilot access is human reviewed',
+  'No transcript is treated as the public record',
+  'Trust & Safety covers the operating model; Security Disclosure covers technical scope',
+] as const;
+
+function usesAppChrome(pathname: string): boolean {
+  return (
+    pathname.startsWith('/find-squad') ||
+    pathname.startsWith('/intent') ||
+    pathname.startsWith('/match') ||
+    pathname.startsWith('/session') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/mod') ||
+    pathname.startsWith('/verify') ||
+    pathname.startsWith('/insights/dashboard')
+  );
+}
 
 export function AppLayout() {
-  const contactEmail = getPublicContactEmail();
-
   const { pathname } = useLocation();
 
-  const { data: isMod } = useIsModerator();
+  const appChrome = usesAppChrome(pathname);
 
   const showDevFooterLinks =
     import.meta.env.DEV &&
+    appChrome &&
     pathname !== '/' &&
     !pathname.startsWith('/ledger') &&
     !pathname.startsWith('/security') &&
@@ -52,28 +73,32 @@ export function AppLayout() {
   const mainPad = mainContentPaddingClass(pathname);
 
   const demoMainPad = showDemoChrome ? 'pb-24' : '';
+  const mainShellClass = appChrome
+    ? twMerge(publicShellInnerClass, 'flex flex-1 flex-col', mainPad, demoMainPad)
+    : twMerge('flex w-full flex-1 flex-col', demoMainPad);
 
   const year = new Date().getFullYear();
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-navy text-white">
+    <div className="flex min-h-dvh flex-col overflow-x-hidden bg-surface text-ink">
+      <a
+        href="#main-content"
+        className="sr-only z-[200] rounded bg-record-paper px-3 py-2 font-sans text-sm font-semibold text-record-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Skip to main content
+      </a>
       <DemoLayout>
-        {pathname === '/' ||
-        pathname.startsWith('/ledger') ||
-        pathname.startsWith('/security') ||
-        pathname.startsWith('/settings/profile') ? null : (
-          <ZkStubBanner />
-        )}
+        {appChrome ? <ZkStubBanner /> : null}
 
         <OfflineBanner />
 
-        <AuthIssueBanner />
+        {appChrome ? <AuthIssueBanner /> : null}
 
-        <AppHeaderNav variant="full" />
+        <AppHeaderNav variant={appChrome ? 'app' : 'public'} />
 
-        <main
-          className={twMerge(publicShellInnerClass, 'flex flex-1 flex-col', mainPad, demoMainPad)}
-        >
+        {appChrome ? <SystemStatusStrip /> : null}
+
+        <main id="main-content" className={mainShellClass}>
           <Breadcrumbs />
 
           <QueryErrorResetBoundary>
@@ -87,83 +112,64 @@ export function AppLayout() {
 
         <MobileHomeFab />
 
-        <footer className="border-t border-navy-light/50 bg-[rgba(6,9,15,0.35)]">
+        <footer className="relative border-t border-line-divider bg-surface-sunken">
+          <span aria-hidden className="sr-footer-accent absolute inset-x-0 top-0" />
           <div className={twMerge(publicShellInnerClass, 'pt-8 pb-6 md:pt-12 md:pb-8')}>
-            <p className="mb-4 max-w-3xl font-sans text-[0.875rem] leading-relaxed text-slate-500 md:mb-5">
-              Public records expose outcomes, not room-level discussion.
+            <p className="border-b border-line-divider pb-5 font-sans text-[0.875rem] leading-relaxed text-ink-faint md:pb-6">
+              The room is private. The record is deliberate. The two are never the same artifact.
             </p>
 
-            <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-              <div className="min-w-0">
+            <div className="grid gap-8 pt-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.55fr)] lg:gap-14">
+              <div className="min-w-0 rounded-md border border-line bg-surface-elevated/70 p-5 md:p-6">
                 <Link
                   to="/"
-                  className="inline-block font-heading text-[17px] font-semibold tracking-tight text-slate-100 no-underline transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+                  className="inline-block font-display text-[18px] font-semibold tracking-tight text-ink no-underline transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   SquadRidge
                 </Link>
 
-                <p className="mt-2.5 max-w-[48ch] font-sans text-[0.875rem] font-normal leading-relaxed text-slate-600 md:mt-3 md:text-[0.9375rem]">
-                  Verified dialogue infrastructure for facilitator-led pilots, sensitive
-                  conversations, and citable public outcomes.
+                <p className="mt-2.5 max-w-[50ch] font-sans text-[0.875rem] font-normal leading-relaxed text-ink-faint md:mt-3 md:text-[0.9375rem]">
+                  Verified dialogue infrastructure for sealed facilitator-led rooms and durable
+                  public records.
                 </p>
+
+                <p className="mt-5 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
+                  Institutional review
+                </p>
+
+                <ul className={twMerge(shellListResetClass, 'mt-3 grid gap-2')}>
+                  {footerTrustSignals.map((signal) => (
+                    <li
+                      key={signal}
+                      className="flex gap-2.5 font-sans text-[0.82rem] leading-relaxed text-ink-secondary"
+                    >
+                      <span aria-hidden className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand" />
+                      <span>{signal}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <div className="flex min-w-0 flex-col gap-8 sm:flex-row sm:flex-wrap sm:gap-x-10 lg:gap-x-12">
-                <div className="min-w-[140px]">
-                  <p className="mb-2.5 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.07em] text-slate-600">
-                    Platform
-                  </p>
+              <div className="grid min-w-0 grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 lg:gap-x-8">
+                {footerLinkGroups.map((group) => (
+                  <div key={group.title} className="min-w-0">
+                    <p className="mb-2.5 font-mono text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle">
+                      {group.title}
+                    </p>
 
-                  <ul className={twMerge(shellListResetClass, 'flex flex-col gap-2')}>
-                    <li className="list-none">
-                      <a href="/#how-it-works" className={footerLinkClass}>
-                        How it works
-                      </a>
-                    </li>
+                    <ul className={twMerge(shellListResetClass, 'flex flex-col gap-2.5')}>
+                      {group.links.map((link) => (
+                        <li key={link.label} className="list-none">
+                          <Link to={link.href} className={footerLinkClass}>
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
 
-                    <li className="list-none">
-                      <Link to="/ledger" className={footerLinkClass}>
-                        Ledger
-                      </Link>
-                    </li>
-
-                    <li className="list-none">
-                      <Link to="/security" className={footerLinkClass}>
-                        Security
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="min-w-[140px]">
-                  <p className="mb-2.5 font-heading text-[0.75rem] font-semibold uppercase tracking-[0.07em] text-slate-600">
-                    Access
-                  </p>
-
-                  <ul className={twMerge(shellListResetClass, 'flex flex-col gap-2')}>
-                    <li className="list-none">
-                      <a href="/#waitlist" className={footerLinkClass}>
-                        Pilot access
-                      </a>
-                    </li>
-
-                    {contactEmail ? (
-                      <li className="list-none">
-                        <a href={`mailto:${contactEmail}`} className={footerLinkClass}>
-                          Contact
-                        </a>
-                      </li>
-                    ) : null}
-
-                    {isMod && pathname !== '/' ? (
-                      <li className="list-none">
-                        <Link to="/mod" className={footerLinkClass}>
-                          Moderation
-                        </Link>
-                      </li>
-                    ) : null}
-                  </ul>
-                </div>
+                      {group.title === 'Resources' && appChrome ? <ModeratorFooterLink /> : null}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -192,29 +198,40 @@ export function AppLayout() {
               </div>
             ) : null}
 
-            {pathname !== '/' &&
-            !pathname.startsWith('/ledger') &&
-            !pathname.startsWith('/security') ? (
+            {appChrome ? (
               <div className="mt-8 flex max-w-md flex-col items-center gap-3 sm:max-w-none sm:flex-row sm:items-center sm:gap-4 lg:mx-auto">
-                <Link
-                  to="/"
-                  className="inline-flex min-h-[44px] min-w-[140px] items-center justify-center rounded-lg border border-[#2d3f55] bg-[#141c2e] px-5 py-2.5 font-heading text-[0.85rem] font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[color,background-color,border-color] hover:border-teal/45 hover:bg-[#1a2436] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/60"
-                >
+                <Link to="/" className="btn-secondary min-w-[140px] text-[0.85rem] no-underline">
                   Start over
                 </Link>
 
-                <p className="text-center font-sans text-[0.8rem] leading-snug text-slate-500 sm:text-left">
-                  Return to the landing page and begin again from the top.
+                <p className="text-center font-sans text-[0.8rem] leading-snug text-ink-faint sm:text-left">
+                  Return to the platform overview and re-enter the controlled path.
                 </p>
               </div>
             ) : null}
 
-            <p className="mt-5 border-t border-navy-light/35 pt-5 text-center font-sans text-[0.8125rem] leading-normal text-slate-600 sm:text-left md:whitespace-nowrap">
-              © {year} SquadRidge. All rights reserved.
-            </p>
+            <div className="mt-7 flex flex-col gap-2 border-t border-line-divider pt-5 font-sans text-[0.8125rem] leading-normal text-ink-subtle sm:flex-row sm:items-center sm:justify-between">
+              <p>© {year} SquadRidge. All rights reserved.</p>
+              <p className="max-w-[44rem] sm:text-right">
+                Pilot-stage operations: access, retention, and release scope are confirmed per
+                partner agreement.
+              </p>
+            </div>
           </div>
         </footer>
       </DemoLayout>
     </div>
+  );
+}
+
+function ModeratorFooterLink() {
+  const { data: isMod } = useIsModerator();
+  if (!isMod) return null;
+  return (
+    <li className="list-none">
+      <Link to="/mod" className={footerLinkClass}>
+        Moderation
+      </Link>
+    </li>
   );
 }

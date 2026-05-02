@@ -1,6 +1,6 @@
 # Conflict Severity Index (CSI) — draft specification
 
-**Status:** Draft spec for methodology and governance. **Partially in product today:** regional snapshot and escalation **tables** with **RLS**, a **reference calculator** in TypeScript, and a **moderator-only** read UI at `/admin/csi` (rostered in `public.moderators`) — see [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and [`conflict-severity-index.md`](conflict-severity-index.md). **Not** a public API, partner export, or automated ingestion pipeline until explicitly listed in `CURRENT_STATUS` and covered here.
+**Status:** Draft spec for methodology and governance. **Shipped today:** regional snapshot + escalation **tables** with **RLS**, a **reference calculator** in TypeScript, **moderator-only** read UI at `/admin/csi` (rostered in `public.moderators`), **automated ingestion** via the `csi-ingest-snapshot` Edge Function on hourly pg_cron with `csi_aggregate_signals` reading `facilitator_signal_codes` + `sentiment_metrics`, per-region band calibration in `csi_band_thresholds`, and a **scoped partner export** Edge Function (`csi-partner-export`) gated by hashed API keys + per-(partner, region, dimension) grants + audit log + rate limit. **Public maps and broad self-serve CSI feeds remain out of scope.** See [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and [`conflict-severity-index.md`](conflict-severity-index.md).
 
 Do not treat this file as a contract for a full partner dashboard or public CSI feed. Align any future build with [`../security/threat-model.md`](../security/threat-model.md).
 
@@ -30,10 +30,11 @@ A Conflict Severity Index would give **vetted program partners** a structured vi
 
 ## Product surfaces
 
-- **In repo today (moderator / ops):** read-only view of `conflict_severity_snapshots` and `escalation_alerts` at `/admin/csi` for users in the moderators roster; data written by **service role** (batch/cron) only.  
-- **Future:** Partner-facing dashboard (authenticated, RLS-scoped to partner orgs if added).  
-- **Future:** Alerting to designated roles only; audit log of who saw what.  
-- **Future:** Optional export API for partner systems — **no commitment** until documented in [`../technical/api-design.md`](../technical/api-design.md) or Edge Function specs.
+- **In repo today (moderator / ops):** read-only view of `conflict_severity_snapshots` and `escalation_alerts` at `/admin/csi` for users in the moderators roster; data written by **service role** via the `csi-ingest-snapshot` Edge Function on hourly pg_cron.
+- **In repo today (partner export, scoped):** `csi-partner-export` Edge Function. Authenticated via `X-CSI-Partner-Key` (SHA-256 hashed against `csi_partners.api_key_hash`); returns snapshots filtered to the partner's region grants and projected to allowed signal dimensions only. Every call writes a `csi_export_audit_log` row.
+- **Future:** Partner-facing dashboard UI (today's API is service-to-service; partners build their own dashboards or we ship a thin one with the same scope rules).
+- **Future:** Alerting to designated roles via push/email; today alerts surface only in the moderator-only `/admin/csi` table.
+- **Out of scope (governance gate):** Public CSI maps or feeds. See [`../business/strategic-positioning-early-warning.md`](../business/strategic-positioning-early-warning.md) — the honest end state is vetted-partner read access, not a public dashboard.
 
 ## Engineering touchpoints (when scoped)
 

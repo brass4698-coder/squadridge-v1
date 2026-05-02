@@ -63,7 +63,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-[40px] items-center rounded-md border border-amber/35 bg-amber/10 px-3 font-sans text-[0.8rem] font-medium text-amber hover:border-amber/60 hover:bg-amber/15"
+        className="inline-flex min-h-[44px] items-center rounded-md border border-amber/35 bg-amber/10 px-3 py-2 font-sans text-[0.8rem] font-medium text-amber hover:border-amber/60 hover:bg-amber/15"
         aria-haspopup="dialog"
       >
         Alert facilitator
@@ -96,10 +96,10 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
               {REASONS.map((r) => (
                 <label
                   key={r.id}
-                  className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 ${
+                  className={`flex min-h-[60px] min-w-0 cursor-pointer items-start gap-3 rounded-lg border px-3.5 py-3 ${
                     pickedReason === r.id
                       ? 'border-amber/60 bg-amber/10'
-                      : 'border-[#1a2236] bg-[#0f1623] hover:border-amber/35'
+                      : 'border-line bg-surface-elevated hover:border-amber/35'
                   }`}
                 >
                   <input
@@ -110,9 +110,13 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                     onChange={() => setPickedReason(r.id)}
                     className="mt-1 h-4 w-4 cursor-pointer accent-amber"
                   />
-                  <span className="font-sans text-[0.85rem] leading-relaxed text-[#c4cdd9]">
-                    <span className="block font-medium text-[#e2e8f0]">{r.label}</span>
-                    <span className="block text-[0.78rem] text-[#94a3b8]">{r.hint}</span>
+                  <span className="min-w-0 whitespace-normal break-words font-sans text-[0.85rem] leading-[1.4] text-[#c4cdd9]">
+                    <span className="block font-medium leading-[1.35] text-[#e2e8f0]">
+                      {r.label}
+                    </span>
+                    <span className="mt-1 block text-[0.78rem] leading-[1.4] text-[#94a3b8]">
+                      {r.hint}
+                    </span>
                   </span>
                 </label>
               ))}
@@ -128,7 +132,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                 type="button"
                 onClick={close}
                 disabled={busy}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-5 font-sans text-[0.85rem] text-[#c4cdd9] hover:border-amber/40 hover:text-[#e2e8f0] disabled:opacity-60"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-5 py-2 font-sans text-[0.85rem] text-[#c4cdd9] hover:border-amber/40 hover:text-[#e2e8f0] disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -136,7 +140,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                 type="button"
                 onClick={() => void handleConfirm()}
                 disabled={busy || !pickedReason}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 py-2 font-heading text-[0.85rem] font-semibold text-navy hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? 'Sending…' : 'Send alert'}
               </button>

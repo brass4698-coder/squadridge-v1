@@ -37,6 +37,11 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 - Data retention guidance: [`../operations/data-retention-operators.md`](../operations/data-retention-operators.md)
 - Internal app: moderator CSI view at `/admin/csi` (rostered users only; not a public product surface)
 
+## Partner-facing artifacts
+
+- Pilot disclosure pack (institutional, countersigned before pilot start): [`../partners/pilot-disclosure-pack.md`](../partners/pilot-disclosure-pack.md)
+- Participant consent language (copy spec for in-app + email): [`../partners/participant-consent-language.md`](../partners/participant-consent-language.md)
+
 ## Business And Partnerships
 
 - Partner integration (aspirational): [`./partner-integration-guide.md`](./partner-integration-guide.md)

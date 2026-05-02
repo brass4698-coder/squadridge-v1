@@ -6,7 +6,7 @@ We care about safety and we take security reports seriously. This doc explains h
 
 ## Reporting a vulnerability
 
-- If you find a security issue, please email security@squadridge.example (replace with the actual contact before publishing).
+- If you find a security issue during a private pilot, contact the technical owner listed in the active pilot owner roster. Do not publish external security materials until a real dedicated security mailbox is configured.
 - In your message include:
   - A short, plain-English summary of the issue
   - Steps to reproduce (commands, sample requests, test accounts)
@@ -30,7 +30,7 @@ We care about safety and we take security reports seriously. This doc explains h
 
 ## If you find secrets (API keys, private keys, etc.)
 
-- Do not publish the secret. Send it directly to security@squadridge.example and include the file path and a minimal reproduction.
+- Do not publish the secret. Send it directly to the active technical owner and include the file path and a minimal reproduction.
 - We will:
   - Confirm receipt within 24–48 hours
   - Rotate the exposed secret(s) immediately (we may ask you to verify rotation)
@@ -49,8 +49,8 @@ We care about safety and we take security reports seriously. This doc explains h
 
 ## Contact & escalation
 
-- security@squadridge.example — primary contact (replace before publishing).
-- If the security team does not respond within 72 hours, please escalate to legal@squadridge.example with a reference to your original report.
+- Active pilot technical owner — primary contact; see `docs/operations/pilot-owners.md`.
+- If the primary contact does not respond within 72 hours, escalate to the incident lead listed for the same pilot window.
 
 ## Notes and limitations (important)
 

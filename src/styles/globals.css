@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply bg-navy font-sans font-normal text-gray-light antialiased;
+    @apply bg-surface font-sans font-normal text-ink antialiased;
     font-size: theme('fontSize.fluid-body');
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
@@ -22,7 +22,7 @@
   h4,
   h5,
   h6 {
-    @apply font-heading font-bold text-gray-light;
+    @apply font-sans font-bold text-ink;
   }
 
   h1 {
@@ -93,6 +93,245 @@
 
 .landing-section-reveal {
   animation: landing-fade-up 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* --- Investor-redesign utilities (Phase 1) ---------------------------------
+ * Disciplined product chrome: one accent, neutral surfaces, compact type,
+ * visible state. The previous gloss layer (auroras, sheen, halos, blooms)
+ * has been removed; only the genuinely useful primitives remain, all flat.
+ * --------------------------------------------------------------------------*/
+
+/* Single subtle entrance — used sparingly, no stagger ladder. */
+.sr-reveal {
+  opacity: 0;
+  animation: landing-fade-up 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Section divider — flat 1px hairline, no glow. */
+.sr-divider-mark {
+  display: block;
+  height: 1px;
+  background: var(--sr-divider);
+}
+
+.sr-divider-mark__dot {
+  display: none;
+}
+
+/* Trust chip — flat outlined chip, no gradient/glow/hover lift. */
+.sr-pill-trust {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--sr-line-strong);
+  border-radius: 4px;
+  background: var(--sr-bg-elevated);
+  padding: 0.3rem 0.7rem;
+  color: var(--sr-ink-secondary);
+  font-family: theme('fontFamily.mono');
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sr-pill-trust::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--sr-primary);
+}
+
+/* Generic surface card — flat institutional panel, no halo/lift. */
+.sr-card {
+  position: relative;
+  border: 1px solid var(--sr-line);
+  background: var(--sr-bg-elevated);
+  border-radius: 6px;
+  transition: border-color 160ms ease;
+}
+
+.sr-card:hover {
+  border-color: var(--sr-line-strong);
+}
+
+.sr-card--primary {
+  border-color: var(--sr-primary);
+  border-left-width: 3px;
+  background: var(--sr-bg-elevated);
+}
+
+/* Audience example callout — small left rule, no italic gradient. */
+.sr-callout-quote {
+  border-left: 2px solid var(--sr-line-strong);
+  padding-left: 0.85rem;
+  color: var(--sr-ink-faint);
+}
+
+/* Primary chip — flat outlined badge, no pulse. */
+.sr-chip-primary {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  background: var(--sr-primary-soft);
+  border: 1px solid var(--sr-primary);
+  padding: 0.18rem 0.55rem;
+  color: var(--sr-primary-hover);
+  font-family: theme('fontFamily.mono');
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* "How it works" step circle — flat slate-teal disk, no glow. */
+.sr-step-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: var(--sr-primary);
+  color: var(--sr-on-primary);
+  font-family: theme('fontFamily.mono');
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+/* Compare table row — flat hover, no gloss. */
+.sr-compare-row {
+  transition: background-color 160ms ease;
+}
+
+.sr-compare-row:hover {
+  background-color: var(--sr-bg-secondary);
+}
+
+/* Sample-record card — flat document panel, no rule overlay. */
+.sr-record-card {
+  position: relative;
+  background: var(--sr-bg-elevated);
+  border: 1px solid var(--sr-line);
+  border-radius: 6px;
+  transition: border-color 160ms ease;
+}
+
+.sr-record-card:hover {
+  border-color: var(--sr-line-strong);
+}
+
+/* Removed: header-stripe, ::before ruling. */
+.sr-record-card__header-stripe {
+  display: none;
+}
+
+/* Tag pill — flat outline. */
+.sr-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid var(--sr-line-strong);
+  background: var(--sr-bg-secondary);
+  color: var(--sr-ink-faint);
+  padding: 0.15rem 0.55rem;
+  font-family: theme('fontFamily.mono');
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+}
+
+/* Security cards — flat panel. Motif overlays removed in markup. */
+.sr-security-card {
+  position: relative;
+  border: 1px solid var(--sr-line);
+  background: var(--sr-bg-elevated);
+  border-radius: 6px;
+  transition: border-color 160ms ease;
+}
+
+.sr-security-card:hover {
+  border-color: var(--sr-line-strong);
+}
+
+/* Removed glossy overlays; markup may still reference these — keep no-op. */
+.sr-security-card__motif {
+  display: none;
+}
+
+.sr-cta-bloom {
+  /* Intentionally empty — no bloom in disciplined system. */
+}
+
+.sr-header-cta {
+  /* Intentionally empty — header CTA uses .btn-primary defaults only. */
+}
+
+/* Footer link — neutral institutional default with subtle accent on hover. */
+.sr-footer-link {
+  display: inline-flex;
+  min-height: 44px;
+  max-width: 100%;
+  align-items: center;
+  line-height: 1.25;
+  transition: color 140ms ease;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.sr-footer-link:hover {
+  color: var(--sr-ink);
+}
+
+/* Footer top accent — flat hairline, no gradient. */
+.sr-footer-accent {
+  height: 1px;
+  background: var(--sr-divider);
+}
+
+/* Removed: page-wide tinted glow. Kept as no-op so older markup degrades. */
+.sr-page-glow {
+  display: none;
+}
+
+/* StatusDot — labeled state indicator used across KPIs and rows. */
+.sr-status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: theme('fontFamily.mono');
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--sr-ink-faint);
+  text-transform: uppercase;
+}
+
+.sr-status-dot__mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  background: var(--sr-status-empty);
+}
+
+.sr-status-dot[data-state='live'] .sr-status-dot__mark {
+  background: var(--sr-status-live);
+}
+
+.sr-status-dot[data-state='stale'] .sr-status-dot__mark {
+  background: var(--sr-status-stale);
+}
+
+.sr-status-dot[data-state='error'] .sr-status-dot__mark {
+  background: var(--sr-status-error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sr-reveal {
+    animation: none !important;
+    opacity: 1;
+  }
 }
 
 .landing-hero-aurora {
@@ -306,19 +545,36 @@
   }
 
   .focus-ring {
-    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal;
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+
+  :where(button, a)[class*='inline-flex'] {
+    min-width: 0;
+    max-width: 100%;
+    text-align: center;
+    line-height: 1.25;
+  }
+
+  :where(button, a)[class*='inline-flex'] > :where(svg, .icon, [aria-hidden='true']) {
+    flex-shrink: 0;
+  }
+
+  :where(button, a)[class*='inline-flex'] > span:not([aria-hidden='true']) {
+    min-width: 0;
   }
 
   .btn-primary {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] px-5 py-2.5 font-heading text-base font-semibold text-white bg-teal transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] max-w-full items-center justify-center gap-2 rounded-[8px] bg-brand px-4 py-2.5 text-center font-sans text-[0.95rem] font-semibold leading-snug text-brand-on transition-colors duration-150 sm:px-5 sm:text-base;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .btn-primary:hover:not(:disabled) {
-    @apply bg-teal-light;
+    @apply bg-brand-hover;
   }
 
   .btn-primary:active:not(:disabled) {
-    @apply bg-teal-dark;
+    @apply bg-brand-pressed;
   }
 
   .btn-primary:disabled {
@@ -326,7 +582,9 @@
   }
 
   .btn-secondary {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-gray-600 bg-transparent px-5 py-2.5 font-heading text-base font-medium text-gray-light transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] max-w-full items-center justify-center gap-2 rounded-[8px] border border-line-strong bg-transparent px-4 py-2.5 text-center font-sans text-[0.95rem] font-medium leading-snug text-ink-secondary transition-colors duration-150 sm:px-5 sm:text-base;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .btn-secondary:hover {
@@ -335,7 +593,9 @@
 
   /** Landing / paired-primary secondary — teal tint so it matches filled CTAs */
   .btn-secondary-accent {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-teal/40 bg-teal/[0.08] px-5 py-2.5 font-heading text-base font-semibold text-teal-light shadow-[inset_0_1px_0_rgba(0,194,178,0.12),0_0_0_1px_rgba(0,194,178,0.12)] transition-[color,background-color,border-color,box-shadow] duration-150;
+    @apply focus-ring inline-flex min-h-[44px] max-w-full items-center justify-center gap-2 rounded-[8px] border border-teal/40 bg-teal/[0.08] px-4 py-2.5 text-center font-heading text-[0.95rem] font-semibold leading-snug text-teal-light shadow-[inset_0_1px_0_rgba(0,194,178,0.12),0_0_0_1px_rgba(0,194,178,0.12)] transition-[color,background-color,border-color,box-shadow] duration-150 sm:px-5 sm:text-base;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .btn-secondary-accent:hover {
@@ -348,7 +608,9 @@
    * (no stacked glow), no transform on hover. Matches institutional tone.
    */
   .btn-hero-join {
-    @apply focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-[8px] bg-teal px-5 py-3 font-sans text-base font-semibold text-white transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] max-w-full items-center justify-center gap-2 rounded-[8px] bg-teal px-4 py-3 text-center font-sans text-[0.95rem] font-semibold leading-snug text-white transition-colors duration-150 sm:px-5 sm:text-base;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .btn-hero-join:hover {
@@ -356,7 +618,9 @@
   }
 
   .btn-ghost {
-    @apply focus-ring inline-flex min-h-[44px] items-center justify-center gap-2 rounded-[8px] border border-gray-600 bg-transparent px-5 py-2.5 font-heading text-sm font-medium text-gray-light transition-colors duration-150;
+    @apply focus-ring inline-flex min-h-[44px] max-w-full items-center justify-center gap-2 rounded-[8px] border border-gray-600 bg-transparent px-4 py-2.5 text-center font-heading text-sm font-medium leading-snug text-gray-light transition-colors duration-150 sm:px-5;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   .btn-ghost:hover {
@@ -442,25 +706,33 @@
 
   /** Form fields — use with `className="sr-input"` (or extend shadcn Input). */
   .sr-input {
-    @apply w-full min-h-[44px] rounded-lg border border-slate-600 bg-navy-light px-4 py-2.5 font-sans text-sm text-gray-light placeholder:text-slate-600 transition-[border-color,box-shadow] duration-200;
+    @apply min-h-[44px] w-full rounded-lg border border-line bg-surface-elevated px-4 py-2.5 font-sans text-sm text-ink placeholder:text-ink-subtle transition-[border-color,box-shadow] duration-200;
   }
 
   .sr-input:hover:not(:disabled):not(:focus) {
-    border-color: rgba(0, 194, 178, 0.28);
+    border-color: var(--sr-line-strong);
   }
 
   .sr-input:focus {
-    border-color: #00c2b2;
+    border-color: var(--sr-primary);
     outline: none;
     box-shadow:
-      0 0 0 2px rgba(0, 194, 178, 0.12),
-      0 0 0 1px #00c2b2;
+      0 0 0 2px var(--sr-primary-soft),
+      0 0 0 1px var(--sr-primary);
   }
 
   .sr-input[aria-invalid='true'] {
-    border-color: #f5a623;
-    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.12);
+    border-color: var(--sr-warning);
+    box-shadow: 0 0 0 2px var(--sr-warning-soft);
   }
+}
+
+.sr-record-sheet {
+  color: var(--sr-record-ink);
+  background:
+    linear-gradient(90deg, rgba(20, 24, 31, 0.035) 1px, transparent 1px), var(--sr-record-paper);
+  background-size: 28px 28px;
+  border: 1px solid var(--sr-record-line);
 }
 
 /* Early access Join — squircle comfort CTA */

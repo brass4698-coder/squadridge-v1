@@ -1,16 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
+import {
+  PROOF_TIMELINE_STAGES,
+  VerificationProofTimeline,
+  type ProofTimelineStage,
+  type ProofTimelineState,
+} from '../components/VerificationProofTimeline';
 import { useAuth } from '../contexts/AuthContext';
 import {
   isSupabaseConfigured,
   isZkTlsLabsEnabled,
   runVerification,
   ZK_SESSION_CREDENTIAL_TYPE,
+  type RunVerificationStage,
 } from '../lib';
 
 const onboardingDoneCtaClass =
-  'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-max flex-none items-center justify-center px-[2.5rem] py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal';
+  'btn-primary onboarding-nav-primary inline-flex h-auto min-h-[44px] max-w-full items-center justify-center px-6 py-[0.65rem] font-heading text-[0.95rem] font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal sm:px-[2.5rem]';
 
 /**
  * Verification entry: no PII forms. Uses {@link runVerification} (Semaphore + `verify-zk-proof`, or hash stub if `VITE_ZK_STUB=true`).
@@ -23,29 +30,63 @@ export function VerificationPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [timelineState, setTimelineState] = useState<ProofTimelineState>('idle');
+  const [activeStage, setActiveStage] = useState(0);
+  const verifyRunIdRef = useRef(0);
 
   useEffect(() => {
     if (!configured || !supabase) return;
     void ensureAnonymousSession();
   }, [configured, supabase, ensureAnonymousSession]);
 
+  /**
+   * Map adapter stage events onto the visible timeline. Each adapter stage
+   * advances `activeStageIndex` to the *next* slot, so the spinner sits on the
+   * stage currently in flight (the previous one is shown as complete).
+   */
+  function indexForStage(stage: RunVerificationStage | ProofTimelineStage): number {
+    const order: Record<string, number> = {
+      identity: 1,
+      commitment: 2,
+      proof: 3,
+      submit: 4,
+      verified: PROOF_TIMELINE_STAGES.length,
+    };
+    return order[stage] ?? 0;
+  }
+
   async function handleVerify() {
     if (!supabase || busy) return;
 
+    const runId = ++verifyRunIdRef.current;
     setBusy(true);
     setError(null);
+    setActiveStage(0);
+    setTimelineState('running');
 
     try {
-      await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow');
+      await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow', {
+        onStage: (stage) => {
+          if (verifyRunIdRef.current !== runId) return;
+          setActiveStage((prev) => Math.max(prev, indexForStage(stage)));
+        },
+      });
+      if (verifyRunIdRef.current !== runId) return;
+      setActiveStage(PROOF_TIMELINE_STAGES.length);
+      setTimelineState('success');
       setDone(true);
     } catch (e) {
+      if (verifyRunIdRef.current !== runId) return;
       const message =
         e instanceof Error && e.message?.trim().length
           ? e.message
           : 'Verification could not be completed. Please try again.';
       setError(message);
+      setTimelineState('error');
     } finally {
-      setBusy(false);
+      if (verifyRunIdRef.current === runId) {
+        setBusy(false);
+      }
     }
   }
 
@@ -140,6 +181,19 @@ export function VerificationPage() {
         <section className="mt-10 rounded-2xl border border-[#1e2a3a] bg-gradient-to-b from-[#101722] via-[#0d121c] to-[#0a0f16] px-7 py-9 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_32px_64px_-28px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.04] md:px-11 md:py-11">
           {done ? (
             <div className="space-y-6">
+              <div
+                role="status"
+                className="rounded-xl border border-teal-500/45 bg-teal-500/[0.07] px-4 py-3 font-sans text-[0.88rem] leading-relaxed text-teal-light"
+              >
+                <p className="font-heading text-[0.85rem] font-semibold tracking-tight text-teal-light">
+                  Verified — proof accepted
+                </p>
+                <p className="mt-1 text-slate-200">
+                  Your nullifier is on file for this session. Identity stayed local; only the proof
+                  artifact reached the server.
+                </p>
+              </div>
+              <VerificationProofTimeline state="success" />
               <p className="mb-0 font-sans text-onboarding-body text-ink-secondary">
                 Your verification is recorded for this session. Next, you&apos;ll set your intent so
                 we can match you into the right room.
@@ -176,6 +230,10 @@ export function VerificationPage() {
                 <code className="text-ink-secondary/90">VITE_ZK_STUB=true</code> only for a
                 lightweight hash demo without ZK cryptography.
               </p>
+
+              {timelineState !== 'idle' ? (
+                <VerificationProofTimeline state={timelineState} activeStageIndex={activeStage} />
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-4">
                 <button

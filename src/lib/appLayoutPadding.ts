@@ -13,6 +13,10 @@ export function mainContentPaddingClass(pathname: string): string {
     '/verify',
     '/security',
     '/pitch-deck-hub',
+    '/dialogues',
+    '/trust',
+    '/insights',
+    '/partners',
   ] as const;
 
   for (const p of tightPrefixes) {

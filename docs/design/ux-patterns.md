@@ -42,6 +42,34 @@ Users need constant reassurance that their identity is protected, especially tho
 
 These UX patterns are supported by the SquadRidge design system, which relies on a dark, calm "global civic" aesthetic [1]. The deep navy background (`#0A0F1E`) and teal (`#0E9AA7`) accents signal stability and warmth, while typography utilizes Space Grotesk or DM Sans to ensure clarity and neutrality [1].
 
+> Implementation note: the **active** code tokens live in [`src/styles/tokens.css`](../../src/styles/tokens.css) and [`tailwind.config.ts`](../../tailwind.config.ts). The narrative palette above (`#0A0F1E` / `#0E9AA7` / Space Grotesk / DM Sans) is the marketing description; new code should use the slate-teal `--sr-primary` (`#2f8f86`), the IBM Plex stack, and the `bg-surface*` / `border-line` / `text-ink*` / `bg-brand*` Tailwind classes instead of inline hex.
+
+## Loading, empty, and error state convention
+
+Every flow should ship complete loading / empty / success / error states (per [`.cursorrules`](../../.cursorrules)). Three primitives in [`src/components/system/`](../../src/components/system) capture the canonical shapes:
+
+| Primitive | When to use |
+| --- | --- |
+| [`RouteSkeleton`](../../src/components/system/RouteSkeleton.tsx) | Suspense fallbacks, auth gates, and any route-level "the page is mounting" state. Replaces bare `Loading…` text. |
+| [`SessionPageAuthSkeleton`](../../src/components/session/SessionPageSkeleton.tsx) | Specifically for routes that destination-render `SessionPage` (the visual continuity matters). |
+| [`EmptyState`](../../src/components/ui/EmptyState.tsx) | Final, terminal "no data yet" surfaces (Match `no_pool`, Session hub when not in a squad, dialogues with no history, mod dashboard with no rows). Always include a CTA. |
+| [`InlineSpinner`](../../src/components/system/InlineSpinner.tsx) | In-button pending state for async submits; pair with `aria-busy` on the button and a textual label like "Saving…". |
+
+### Errors
+
+- **Blocking errors** (the user must do something to recover): inline panel with `role="alert"`. Examples: invite-required gate, profile incomplete, RLS-denied write.
+- **Transient / background errors** (we kept going, but the user should know): toast via the project Sonner instance. Examples: report submission retry, connection blip.
+- **Page-level catastrophic errors**: route error boundary. Never replace these with a plain spinner.
+
+### Skeletons vs spinners
+
+- Prefer **skeletons** when the layout is known and the load is expected to be > ~300 ms. Skeletons preserve layout, don't induce CLS, and feel calmer than a spinner at the page level.
+- Prefer **spinners** only when the load fits inside a small surface where a skeleton would be visually noisy (in-button submits, micro-cards).
+
+### Implementation contract
+
+Every screen in the demo path (onboarding → verify → intent → match → session) MUST render visible feedback within 250 ms of any async action — either a primitive above or a screen-specific skeleton. Bare "Loading…" text is not acceptable in a polished walkthrough.
+
 ## References
 
 [1] SquadRidge Core Research Compilation.

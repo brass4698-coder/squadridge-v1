@@ -21,7 +21,7 @@ The **shipped** application backend is **Supabase**: PostgreSQL with Row Level S
 
 *   **Database & API**: PostgreSQL via Supabase; RLS for client-scoped access; migrations under `supabase/migrations/` [1]
 *   **Edge Functions**: e.g. `verify-zk-proof` — see [`zk-implementation.md`](zk-implementation.md)
-*   **Future / optional**: Redis or dedicated workers for rate limiting and matchmaking at scale appear in product docs but are **not** required for the current Vite + Supabase layout [1]
+*   **Future / optional**: dedicated workers or self-hosted Redis for rate limiting and matchmaking at scale appear in older product docs but are **not** required for the current Vite + Supabase layout; Edge rate limits use Upstash Redis REST from `supabase/functions/rate-limit/` [1]
 
 ## Zero-Knowledge Privacy Stack
 

@@ -94,10 +94,10 @@ export function SessionMessageItem({
       : (translated ?? originalBody);
 
   return (
-    <li className="rounded-lg border border-[#1a2236] bg-[#0b0f14]/80 px-4 py-3">
+    <li className="rounded-lg border border-line bg-[#0b0f14]/80 px-4 py-3">
       <div className="flex flex-wrap items-start justify-between gap-sm">
         <p
-          className={`min-w-0 max-w-full break-words font-sans text-[0.95rem] leading-relaxed text-[#e2e8f0] ${
+          className={`min-w-0 max-w-full break-words font-sans text-[0.95rem] leading-relaxed text-ink ${
             retracted ? 'line-through opacity-70' : ''
           } ${!retracted && pending && shouldTranslate ? 'session-translation-pending border-b-2 border-[#148C86]/50 pb-0.5' : ''} ${
             deliveryStatus === 'pending' ? 'opacity-60' : ''

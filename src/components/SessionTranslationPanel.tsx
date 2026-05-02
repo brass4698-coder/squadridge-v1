@@ -68,7 +68,7 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
     <div className="space-y-4">
       {showBanner && modelLoading ? (
         <p
-          className="rounded-lg border border-[#148C86]/35 bg-[#0f1623] px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-[#a8b2c1]"
+          className="rounded-lg border border-[#148C86]/35 bg-surface-elevated px-4 py-3 font-sans text-[0.85rem] leading-relaxed text-ink-secondary"
           role="status"
         >
           Translation is loading for your language — messages will appear in {bannerLang} shortly.
@@ -81,7 +81,7 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
         </p>
       ) : null}
 
-      <div className="rounded-lg border border-[#1a2236] bg-[#0f1623] p-4">
+      <div className="rounded-lg border border-line bg-surface-elevated p-4">
         <p className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#6b7280]">
           Translation
         </p>
@@ -92,7 +92,7 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
             checked={translationEnabled}
             onChange={(e) => setTranslationEnabled(e.target.checked)}
           />
-          <span className="font-sans text-[0.9rem] text-[#e2e8f0]">
+          <span className="font-sans text-[0.9rem] text-ink">
             Translate messages to your language
           </span>
         </label>
@@ -103,7 +103,7 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
           </label>
           <select
             id="session-lang-select"
-            className="w-full max-w-xs rounded-lg border border-[#1a2236] bg-[#0b0f14] px-3 py-2 font-sans text-[0.9rem] text-[#e2e8f0] focus-visible:outline focus-visible:ring-2 focus-visible:ring-[#148C86]/40"
+            className="w-full max-w-xs rounded-lg border border-line bg-[#0b0f14] px-3 py-2 font-sans text-[0.9rem] text-ink focus-visible:outline focus-visible:ring-2 focus-visible:ring-[#148C86]/40"
             value={
               COMMON_LANGUAGES.some((l) => l.code === preferredLanguage) ? preferredLanguage : 'en'
             }
@@ -124,7 +124,7 @@ export function SessionTranslationPanel({ modelLoading }: Props) {
           </p>
         ) : null}
 
-        <p className="mt-4 border-t border-[#1a2236] pt-3 font-sans text-[0.75rem] leading-relaxed text-[#6b7280]">
+        <p className="mt-4 border-t border-line pt-3 font-sans text-[0.75rem] leading-relaxed text-[#6b7280]">
           Translation runs on your device. Your messages are never sent to a translation server.
         </p>
       </div>

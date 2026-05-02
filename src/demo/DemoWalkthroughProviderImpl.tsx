@@ -7,12 +7,33 @@ import {
 } from './DemoWalkthroughContext';
 import { runDemoActions } from './demoAutoActions';
 import {
+  DEMO_LAST_STEP_INDEX_STORAGE_KEY,
   DEMO_MAIN_STEPS,
   DEMO_WALKTHROUGH_STORAGE_KEY,
   locationMatchesStep,
+  readLastStepIndex,
+  resolveStepActions,
   type DemoStep,
 } from './demoScript';
+import {
+  DEFAULT_DEMO_SCENARIO_ID,
+  getDemoScenarioById,
+  persistDemoScenarioId,
+  readStoredDemoScenarioId,
+  type DemoScenario,
+  type DemoScenarioId,
+} from './demoScenarios';
 import { emitDemoPageView, emitDemoStepNav } from './demoTelemetry';
+
+function persistLastStepIndex(index: number): void {
+  if (typeof window === 'undefined') return;
+  if (index < 0) return;
+  try {
+    window.sessionStorage.setItem(DEMO_LAST_STEP_INDEX_STORAGE_KEY, String(index));
+  } catch {
+    /* ignore */
+  }
+}
 
 /**
  * Full demo walkthrough: scripted steps, auto-actions, telemetry.
@@ -23,8 +44,29 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [storageActive, setStorageActive] = useState(readStorageFlag);
+  const [scenarioId, setScenarioIdState] = useState<DemoScenarioId>(() =>
+    readStoredDemoScenarioId(),
+  );
+  const [lastStepIndex, setLastStepIndex] = useState<number | null>(() =>
+    readLastStepIndex(DEMO_MAIN_STEPS.length - 1),
+  );
 
   const demoQuery = searchParams.get('demo') === '1';
+  const presenterNotesActive = searchParams.get('notes') === '1';
+  const urlScenarioId = searchParams.get('scenario');
+
+  /**
+   * If the URL carries `?scenario=<id>` (set via the hub's "Copy URL"), adopt
+   * it and persist to session storage so the rest of the tour stays consistent.
+   */
+  useEffect(() => {
+    if (!urlScenarioId) return;
+    const known = ['cross-border-corridor', 'workplace-mediation', 'veterans-dialogue'] as const;
+    if (!known.includes(urlScenarioId as DemoScenarioId)) return;
+    if (urlScenarioId === scenarioId) return;
+    setScenarioIdState(urlScenarioId as DemoScenarioId);
+    persistDemoScenarioId(urlScenarioId as DemoScenarioId);
+  }, [urlScenarioId, scenarioId]);
 
   useEffect(() => {
     if (!demoQuery) return;
@@ -34,11 +76,24 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   const demoActive = demoQuery || storageActive;
 
+  const scenario: DemoScenario = useMemo(() => getDemoScenarioById(scenarioId), [scenarioId]);
+
+  const setScenarioId = useCallback((id: DemoScenarioId) => {
+    setScenarioIdState(id);
+    persistDemoScenarioId(id);
+  }, []);
+
   const currentStepIndex = useMemo(() => {
     return DEMO_MAIN_STEPS.findIndex((s) =>
       locationMatchesStep(location.pathname, location.search, s.path),
     );
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (currentStepIndex < 0) return;
+    persistLastStepIndex(currentStepIndex);
+    setLastStepIndex(currentStepIndex);
+  }, [currentStepIndex]);
 
   const currentStep: DemoStep | null =
     currentStepIndex >= 0 && currentStepIndex < DEMO_MAIN_STEPS.length
@@ -88,6 +143,24 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     if (first) navigate(first.path);
   }, [navigate]);
 
+  const restartWalkthrough = useCallback(() => {
+    sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+    setStorageActive(true);
+    persistLastStepIndex(0);
+    setLastStepIndex(0);
+    const first = DEMO_MAIN_STEPS[0];
+    if (first) navigate(first.path);
+  }, [navigate]);
+
+  const resumeWalkthrough = useCallback(() => {
+    const idx = lastStepIndex ?? 0;
+    const target = DEMO_MAIN_STEPS[idx] ?? DEMO_MAIN_STEPS[0];
+    if (!target) return;
+    sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+    setStorageActive(true);
+    navigate(target.path);
+  }, [lastStepIndex, navigate]);
+
   const goNext = useCallback(() => {
     if (!demoActive || currentStepIndex < 0) return;
     if (onboardingDemoTour) return;
@@ -105,6 +178,19 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     if (prev) navigate(prev.path);
   }, [demoActive, currentStepIndex, currentStep, navigate]);
 
+  const goToStepIndex = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= DEMO_MAIN_STEPS.length) return;
+      const target = DEMO_MAIN_STEPS[index];
+      if (!target) return;
+      sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+      setStorageActive(true);
+      persistLastStepIndex(index);
+      navigate(target.path);
+    },
+    [navigate],
+  );
+
   const exitDemo = useCallback(() => {
     cancelAutoActions();
     sessionStorage.removeItem(DEMO_WALKTHROUGH_STORAGE_KEY);
@@ -119,8 +205,11 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   useEffect(() => {
     cancelAutoActions();
-    if (!showDemoChrome || !currentStep?.actions?.length) return;
+    if (!showDemoChrome || !currentStep) return;
     if (!locationMatchesStep(location.pathname, location.search, currentStep.path)) return;
+
+    const actions = resolveStepActions(currentStep, scenario);
+    if (actions.length === 0) return;
 
     const ac = new AbortController();
     autoAbortRef.current = ac;
@@ -146,7 +235,6 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     document.addEventListener('change', onUserInput, true);
     document.addEventListener('click', onTrustedClick, true);
 
-    const actions = currentStep.actions;
     void (async () => {
       try {
         await runDemoActions(actions, () => ac.signal.aborted);
@@ -162,7 +250,14 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       document.removeEventListener('change', onUserInput, true);
       document.removeEventListener('click', onTrustedClick, true);
     };
-  }, [showDemoChrome, currentStep, location.pathname, location.search, cancelAutoActions]);
+  }, [
+    showDemoChrome,
+    currentStep,
+    scenario,
+    location.pathname,
+    location.search,
+    cancelAutoActions,
+  ]);
 
   const value = useMemo<DemoWalkthroughContextValue>(
     () => ({
@@ -173,9 +268,16 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       currentStepTitle,
       canGoNext,
       canGoBack,
+      presenterNotesActive,
+      scenario,
+      setScenarioId,
       startWalkthrough,
       goNext,
       goBack,
+      goToStepIndex,
+      restartWalkthrough,
+      lastStepIndex,
+      resumeWalkthrough,
       exitDemo,
     }),
     [
@@ -186,9 +288,16 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       currentStepTitle,
       canGoNext,
       canGoBack,
+      presenterNotesActive,
+      scenario,
+      setScenarioId,
       startWalkthrough,
       goNext,
       goBack,
+      goToStepIndex,
+      restartWalkthrough,
+      lastStepIndex,
+      resumeWalkthrough,
       exitDemo,
     ],
   );
@@ -197,3 +306,5 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     <DemoWalkthroughContext.Provider value={value}>{children}</DemoWalkthroughContext.Provider>
   );
 }
+
+export { DEFAULT_DEMO_SCENARIO_ID };

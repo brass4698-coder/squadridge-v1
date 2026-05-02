@@ -38,6 +38,11 @@ jobs:
       - name: Ensure no bundled Semaphore demo decoys for production bundle
         run: npm run check:no-demo-decoys-prod
 
+      - name: Verify pilot owners populated for active or planned cohort
+        env:
+          PILOT_OWNERS_REQUIRED: 'true'
+        run: npm run check:pilot-owners
+
       - name: Production build
         run: npm run build
         env:

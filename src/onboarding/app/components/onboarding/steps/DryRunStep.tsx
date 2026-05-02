@@ -17,9 +17,16 @@ function looksOperationalDetail(text: string): boolean {
   return false;
 }
 
+/**
+ * Dry-run countdown — kept short (30 s) so a presenter or new participant
+ * doesn't have to wait a full minute on the natural cadence; the visible
+ * `Enter squad room` footer ends the phase early on first click.
+ */
+const DRY_RUN_SECONDS = 30;
+
 export function DryRunStep({ onBack, onNext, nextDisabled }: StepProps) {
   const [phase, setPhase] = useState<'running' | 'complete'>('running');
-  const [seconds, setSeconds] = useState(60);
+  const [seconds, setSeconds] = useState(DRY_RUN_SECONDS);
   const [draft, setDraft] = useState('');
   const flagged = looksOperationalDetail(draft);
   const room = COPY.room;
@@ -82,8 +89,18 @@ export function DryRunStep({ onBack, onNext, nextDisabled }: StepProps) {
               <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-amber sm:text-[0.6875rem]">
                 {room.sessionBarLeft}
               </span>
-              <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-amber tabular-nums sm:text-[0.6875rem]">
-                {room.timerPrefix} {mm}:{ss}
+              <span className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPhase('complete')}
+                  className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-teal-light underline-offset-4 transition-colors hover:text-teal hover:underline sm:text-[0.6875rem]"
+                  data-demo="dry-run-skip"
+                >
+                  Skip ahead →
+                </button>
+                <span className="text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-amber tabular-nums sm:text-[0.6875rem]">
+                  {room.timerPrefix} {mm}:{ss}
+                </span>
               </span>
             </div>
 

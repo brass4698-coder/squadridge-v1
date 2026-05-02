@@ -31,10 +31,10 @@ For an in-flight emergency reference, see [`pilot-quickstart.md`](./pilot-quicks
 1. Confirm the exact cohort and purpose.
 2. Confirm the version being used and staging/production environment.
 3. Verify the release checklist in [`production-checklist.md`](./production-checklist.md).
-4. Review current security boundaries with the partner.
+4. Review current security boundaries with the partner. Walk through [`../partners/pilot-disclosure-pack.md`](../partners/pilot-disclosure-pack.md) and obtain the partner countersignature in §9 before the first session.
 5. Confirm incident roles using [`incidents.md`](./incidents.md).
-6. Confirm what metrics will be collected.
-7. Prepare participant-facing materials:
+6. Confirm what metrics will be collected. **Pre-register success thresholds, denominators, and abort criteria for this cohort using [`pilot-preregistration-template.md`](./pilot-preregistration-template.md).** Confirm both the participant and facilitator survey instruments from [`post-session-survey-instrument.md`](./post-session-survey-instrument.md) are staged in the chosen tool with `cohort_key` pre-filled and the privacy guardrails applied.
+7. Prepare participant-facing materials. Reuse the canonical copy blocks in [`../partners/participant-consent-language.md`](../partners/participant-consent-language.md):
    - onboarding instructions
    - consent and safety language
    - support contact
@@ -53,6 +53,10 @@ For an in-flight emergency reference, see [`pilot-quickstart.md`](./pilot-quicks
 ## Security pre-flight checklist (Phase 3.4)
 
 Run this before every pilot. Each item is a **stop the pilot** condition until resolved. Add the date and signoff name beside each item in the pilot kickoff doc.
+
+### Pilot owners
+
+- [ ] `PILOT_OWNERS_REQUIRED=true npm run check:pilot-owners` returns **PASS**. The same check runs in [`.github/workflows/deploy-frontend.yml`](../../.github/workflows/deploy-frontend.yml) and blocks production deploys when no `planned` or `active` cohort block in [`pilot-owners.md`](./pilot-owners.md) has all required roles populated (real name, email containing `@`, phone or chat handle, plus backup contact for the five non-incident roles).
 
 ### Bundle integrity
 

@@ -28,6 +28,7 @@ Use before tagging a release or pointing a production domain at the app.
 
 ## Ops
 
+- [ ] `PILOT_OWNERS_REQUIRED=true npm run check:pilot-owners` returns **PASS**. At least one `planned` or `active` cohort block in [`pilot-owners.md`](./pilot-owners.md) has every required role populated (real name, email containing `@`, phone or chat handle, plus backup contact for the five non-incident roles). The same check runs in [`.github/workflows/deploy-frontend.yml`](../../.github/workflows/deploy-frontend.yml) and blocks production builds.
 - [ ] Moderator `user_id` rows inserted in `moderators` for staff accounts (see moderation migration).
 - [ ] Backup and retention expectations documented for your jurisdiction ([`data-retention-operators.md`](data-retention-operators.md)).
 - [ ] Retention cleanup is running. Confirm `SELECT * FROM public.pilot_retention_cleanup_24h ORDER BY hour_bucket DESC LIMIT 1;` returns a row newer than 90 minutes (migration `20260429140000_retention_cleanup_metrics.sql` wires the metrics; the underlying TTL cron lives in `20260418090000_ttl_cleanup.sql`).

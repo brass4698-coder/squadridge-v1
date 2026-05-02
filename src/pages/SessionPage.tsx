@@ -17,10 +17,14 @@ import { SessionStrategyRoomChrome } from '../components/session/SessionStrategy
 import { TypingIndicator } from '../components/session/TypingIndicator';
 import { useAuth } from '../contexts/AuthContext';
 import {
+  useInfiniteScrollSentinel,
   useMessagePlaintexts,
   useOnlineStatus,
+  useOwnMessageReviewStatus,
   useRealtimeMessages,
+  useSendCooldown,
   useSquad,
+  useSquadEncryptionKey,
   useSquadInterventions,
   useSquadPeerProfiles,
   useSquadPresence,
@@ -30,16 +34,21 @@ import {
 } from '../hooks';
 import {
   addSessionLifecycleBreadcrumb,
+  blockParticipant,
   captureAppError,
   encodeSecureMessagePayload,
   ensureSquadMessageKey,
-  fetchOwnMessageReviewStatus,
+  fetchActiveParticipantBlocks,
   isAiPipelineEnabled,
   isSupabaseConfigured,
   logIntervention,
   recordLocalToneAndMaybePersist,
   enqueuePendingSend,
+  describeParticipantReportResult,
+  forgetPendingPlaintext,
   listPendingSendsForSquad,
+  readPendingPlaintext,
+  rememberPendingPlaintext,
   removePendingSend,
   SEND_RETRY_ATTEMPTS,
   SEND_QUEUE_BROADCAST_CHANNEL,
@@ -48,7 +57,10 @@ import {
   sleep,
   assertEdgeRateLimit,
   MATCHED_SQUAD_TTL_HOURS,
+  submitParticipantReport,
+  unblockParticipant,
   type Database,
+  type ParticipantReportReason,
 } from '../lib';
 import { redactOutgoingLiveMessage } from '../lib/liveMessageRedaction';
 
@@ -66,11 +78,25 @@ type OptimisticMessage = {
   squad_id: string;
   sender_id: string;
   payload_ciphertext: string;
-  /** Shown immediately while ciphertext is stored for the insert. */
-  plainBody: string;
+  /**
+   * Tab-local plaintext for live preview / retry re-edit. Always non-null for
+   * sends originated in the current tab; null after a reload restores the row
+   * from IndexedDB (the on-disk record is ciphertext-only by design — see
+   * {@link sendQueue.ts}).
+   */
+  plainBody: string | null;
   sent_at: string;
   status: string;
   deliveryStatus: DeliveryStatus;
+};
+
+/** Shown in place of plaintext for messages restored from IDB after a reload. */
+const PENDING_BODY_PLACEHOLDER = '(unsent message — preview unavailable after reload)';
+
+type ReportDraft = {
+  reportType: 'room' | 'participant';
+  reasonCode: ParticipantReportReason;
+  contextNote: string;
 };
 
 export function SessionPage({ squadId }: { squadId: string }) {
@@ -101,20 +127,18 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const presentUserIds = useSquadPresence(squadId);
   const { typing: typingUserIds, notifyTyping } = useSquadTyping(squadId);
-  const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
-  const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
+  const { messageKey, messageKeyMaterial } = useSquadEncryptionKey(
+    supabase,
+    squadId,
+    squad,
+    refetchSquad,
+  );
+  const [reportDraft, setReportDraft] = useState<ReportDraft | null>(null);
+  const [reportSubmitting, setReportSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
-  /**
-   * `message_id → reviewed_at` for the *caller's own* messages that a moderator
-   * has decrypted via `moderator_record_decrypt_audit`. Powers the small
-   * "Reviewed by moderator" pill in `SessionMessageItem` (Phase 2.2). The
-   * `get_my_messages_review_status` RPC enforces `sender_id = auth.uid()`,
-   * never returning moderator identity or justification.
-   */
-  const [reviewStatusByMessage, setReviewStatusByMessage] = useState<Map<string, string>>(
-    () => new Map(),
-  );
+  const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(() => new Set());
+  const [blockingUserId, setBlockingUserId] = useState<string | null>(null);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
   const loadOlderSentinelRef = useRef<HTMLLIElement | null>(null);
   const prefs = useUserPreferences();
@@ -122,6 +146,32 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const online = useOnlineStatus();
   const receivedEpochById = useRef(new Map<string, number>());
   const translationWarmupDone = useRef(false);
+  const userId = session?.user?.id ?? null;
+
+  const submitRoomReport = useCallback(
+    async (draft: ReportDraft) => {
+      if (!supabase || !userId) {
+        toast.error('Sign in again before submitting a report.');
+        return;
+      }
+
+      setReportSubmitting(true);
+      const result = await submitParticipantReport(supabase, {
+        squadId,
+        reporterUserId: userId,
+        reportType: draft.reportType,
+        reasonCode: draft.reasonCode,
+        contextNote: draft.contextNote.trim() || null,
+      });
+
+      const message = describeParticipantReportResult(result);
+      if (result.ok) toast.success(message);
+      else toast.error(message);
+      setReportSubmitting(false);
+      if (result.ok) setReportDraft(null);
+    },
+    [squadId, supabase, userId],
+  );
 
   useEffect(() => {
     setSentrySquadContext(squadId);
@@ -132,87 +182,16 @@ export function SessionPage({ squadId }: { squadId: string }) {
     return () => addSessionLifecycleBreadcrumb('leave', { squadId });
   }, [squadId]);
 
-  useEffect(() => {
-    if (!supabase || !squadId || !squad) {
-      setMessageKey(null);
-      setMessageKeyMaterial(null);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { key, keyBase64 } = await ensureSquadMessageKey(supabase, squadId, squad);
-        if (!cancelled) {
-          setMessageKey(key);
-          setMessageKeyMaterial(keyBase64);
-        }
-        if (!squad.message_encryption_key) {
-          await refetchSquad();
-        }
-      } catch (e) {
-        captureAppError(e, { feature: 'session_message_key', extra: { squadId } });
-        if (!cancelled) {
-          setMessageKey(null);
-          setMessageKeyMaterial(null);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase, squadId, squad, refetchSquad]);
+  useInfiniteScrollSentinel({
+    rootRef: scrollRootRef,
+    sentinelRef: loadOlderSentinelRef,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    watch: messages.length,
+  });
 
-  useEffect(() => {
-    const root = scrollRootRef.current;
-    const target = loadOlderSentinelRef.current;
-    if (!root || !target || !hasNextPage) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const hit = entries.some((e) => e.isIntersecting);
-        if (hit && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { root, rootMargin: '80px 0px 0px 0px', threshold: 0 },
-    );
-    io.observe(target);
-    return () => io.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
-
-  const userId = session?.user?.id ?? null;
-
-  useEffect(() => {
-    if (!supabase || !userId) return;
-    const ownIds = messages
-      .filter((m) => m.sender_id === userId && m.status !== 'retracted')
-      .map((m) => m.id);
-    if (ownIds.length === 0) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const map = await fetchOwnMessageReviewStatus(supabase, ownIds);
-        if (cancelled || map.size === 0) return;
-        // Merge so we never lose a previously-seen review timestamp when older
-        // pages drop out of the visible window.
-        setReviewStatusByMessage((prev) => {
-          let changed = false;
-          const next = new Map(prev);
-          for (const [id, ts] of map) {
-            if (next.get(id) !== ts) {
-              next.set(id, ts);
-              changed = true;
-            }
-          }
-          return changed ? next : prev;
-        });
-      } catch (e) {
-        captureAppError(e, { feature: 'session_review_status', extra: { squadId } });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase, userId, messages, squadId]);
+  const reviewStatusByMessage = useOwnMessageReviewStatus(supabase, userId, messages, squadId);
 
   function epochForMessage(messageId: string): number {
     const map = receivedEpochById.current;
@@ -232,27 +211,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([]);
   /** Power of Pause: brief breathing message over the composer */
   const [slowDownBreathing, setSlowDownBreathing] = useState(false);
-  /** After breathing, Send is cooled down until this timestamp (epoch ms) */
-  const [sendCooldownUntil, setSendCooldownUntil] = useState<number | null>(null);
-  const [, setCooldownTick] = useState(0);
+  const {
+    paused: sendPaused,
+    secondsRemaining: sendCooldownSecondsRemaining,
+    engage: engageSendCooldown,
+  } = useSendCooldown();
 
   const configured = isSupabaseConfigured();
-
-  const sendPaused = sendCooldownUntil !== null && Date.now() < sendCooldownUntil;
-  const sendCooldownSecondsRemaining = sendCooldownUntil
-    ? Math.max(0, Math.ceil((sendCooldownUntil - Date.now()) / 1000))
-    : 0;
-
-  useEffect(() => {
-    if (!sendCooldownUntil || Date.now() >= sendCooldownUntil) return;
-    const id = window.setInterval(() => {
-      setCooldownTick((n) => n + 1);
-      if (Date.now() >= sendCooldownUntil) {
-        setSendCooldownUntil(null);
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [sendCooldownUntil]);
 
   const [httpDegraded, setHttpDegraded] = useState(false);
   const flushLockRef = useRef(false);
@@ -268,12 +233,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   const mergePendingFromIndexedDb = useCallback(() => {
     return listPendingSendsForSquad(squadId).then((rows) => {
-      const fromDb = rows.map((r) => ({
+      const fromDb: OptimisticMessage[] = rows.map((r) => ({
         optimisticId: r.localId,
         squad_id: r.squadId,
         sender_id: r.senderId,
         payload_ciphertext: r.payload_ciphertext,
-        plainBody: r.plainBody,
+        plainBody: readPendingPlaintext(r.localId) ?? null,
         sent_at: r.createdAt,
         status: 'active',
         deliveryStatus: 'pending' as const,
@@ -287,6 +252,66 @@ export function SessionPage({ squadId }: { squadId: string }) {
   }, [squadId]);
 
   const plaintextById = useMessagePlaintexts(messages, messageKey, messageKeyMaterial);
+  const visibleMessages = messages.filter(
+    (m) => !m.sender_id || m.sender_id === userId || !blockedUserIds.has(m.sender_id),
+  );
+
+  const refreshParticipantBlocks = useCallback(async () => {
+    if (!supabase || !userId) {
+      setBlockedUserIds(new Set());
+      return;
+    }
+    const rows = await fetchActiveParticipantBlocks(supabase, squadId);
+    setBlockedUserIds(new Set(rows.map((r) => r.blocked_user_id)));
+  }, [squadId, supabase, userId]);
+
+  useEffect(() => {
+    void refreshParticipantBlocks().catch((e) => {
+      captureAppError(e, { feature: 'participant_blocks_load' });
+    });
+  }, [refreshParticipantBlocks]);
+
+  const handleBlockParticipant = useCallback(
+    async (blockedUserId: string) => {
+      if (!supabase || !userId) return;
+      setBlockingUserId(blockedUserId);
+      try {
+        await blockParticipant(supabase, {
+          squadId,
+          blockerUserId: userId,
+          blockedUserId,
+        });
+        await refreshParticipantBlocks();
+        toast.success('Participant blocked for this room.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Could not block participant.');
+      } finally {
+        setBlockingUserId(null);
+      }
+    },
+    [refreshParticipantBlocks, squadId, supabase, userId],
+  );
+
+  const handleUnblockParticipant = useCallback(
+    async (blockedUserId: string) => {
+      if (!supabase || !userId) return;
+      setBlockingUserId(blockedUserId);
+      try {
+        await unblockParticipant(supabase, {
+          squadId,
+          blockerUserId: userId,
+          blockedUserId,
+        });
+        await refreshParticipantBlocks();
+        toast.success('Participant unblocked.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Could not unblock participant.');
+      } finally {
+        setBlockingUserId(null);
+      }
+    },
+    [refreshParticipantBlocks, squadId, supabase, userId],
+  );
 
   const tryInsertMessage = useCallback(
     async (m: OptimisticMessage): Promise<{ ok: boolean }> => {
@@ -327,6 +352,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
         return { ok: false };
       }
       await removePendingSend(m.optimisticId);
+      forgetPendingPlaintext(m.optimisticId);
       setOptimisticMessages((prev) => prev.filter((x) => x.optimisticId !== m.optimisticId));
       applyLocalMessage(insertedRow);
       return { ok: true };
@@ -463,7 +489,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
       ),
     );
     if (toRemove.length === 0) return;
-    for (const o of toRemove) void removePendingSend(o.optimisticId);
+    for (const o of toRemove) {
+      void removePendingSend(o.optimisticId);
+      forgetPendingPlaintext(o.optimisticId);
+    }
     setOptimisticMessages((prev) =>
       prev.filter((x) => !toRemove.some((r) => r.optimisticId === x.optimisticId)),
     );
@@ -516,7 +545,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
       setOptimisticMessages((prev) =>
         prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
       );
-      setComposer(m.plainBody);
+      // Only re-populate the composer when the plaintext is still in tab memory.
+      // After a reload the on-disk record is ciphertext-only by design, so the
+      // user must compose afresh or retry as-is.
+      if (m.plainBody !== null) {
+        setComposer(m.plainBody);
+      }
       toast.error(
         'Message could not be sent. Check your connection and tap Retry on the message below.',
       );
@@ -594,9 +628,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
         squadId,
         senderId: user.id,
         payload_ciphertext: enc,
-        plainBody: bodyForSend,
         createdAt: sentAt,
       });
+      // Mirror plaintext in tab-local memory ONLY (security: never persisted).
+      // Used by the composer-restore path on retry-failure within the same tab.
+      rememberPendingPlaintext(optimisticId, bodyForSend);
       sendQueueBcRef.current?.postMessage({
         type: 'pending-enqueued',
         squadId,
@@ -709,7 +745,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     window.setTimeout(() => {
       setComposer('');
       setSlowDownBreathing(false);
-      setSendCooldownUntil(Date.now() + SEND_COOLDOWN_MS);
+      engageSendCooldown(SEND_COOLDOWN_MS);
     }, PAUSE_MESSAGE_MS);
   }
 
@@ -796,6 +832,78 @@ export function SessionPage({ squadId }: { squadId: string }) {
   return (
     <SessionFeatureErrorBoundary squadId={squadId} key={squadId}>
       <SessionRoomEntryTransition key={squadId} squadId={squadId} />
+      {reportDraft ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="session-report-title"
+          className="fixed inset-0 z-[200] flex items-end bg-black/65 p-4 backdrop-blur-sm sm:items-center sm:justify-center"
+        >
+          <form
+            className="w-full max-w-lg border border-line bg-surface-elevated p-5 shadow-2xl"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submitRoomReport(reportDraft);
+            }}
+          >
+            <p className="mb-2 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-brand">
+              Protected report
+            </p>
+            <h2 id="session-report-title" className="mb-0 font-sans text-lg font-semibold text-ink">
+              Ask for facilitator review
+            </h2>
+            <p className="mt-3 font-sans text-[0.88rem] leading-relaxed text-ink-secondary">
+              Reports create a moderator-visible safety record. Do not include private contact
+              details, doxxing details, or information that is not needed for review.
+            </p>
+            <label className="mt-5 block font-sans text-[0.82rem] font-medium text-ink-secondary">
+              Reason
+              <select
+                value={reportDraft.reasonCode}
+                onChange={(e) =>
+                  setReportDraft((d) =>
+                    d ? { ...d, reasonCode: e.target.value as ParticipantReportReason } : d,
+                  )
+                }
+                className="sr-input mt-2"
+              >
+                <option value="facilitator_help">Facilitator help</option>
+                <option value="harassment">Harassment</option>
+                <option value="threat">Threat</option>
+                <option value="doxxing">Doxxing</option>
+                <option value="spam">Spam</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label className="mt-4 block font-sans text-[0.82rem] font-medium text-ink-secondary">
+              Context note
+              <textarea
+                value={reportDraft.contextNote}
+                maxLength={1200}
+                rows={5}
+                onChange={(e) =>
+                  setReportDraft((d) => (d ? { ...d, contextNote: e.target.value } : d))
+                }
+                className="sr-input mt-2 resize-y"
+                placeholder="Optional. Describe what needs review."
+              />
+            </label>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setReportDraft(null)}
+                disabled={reportSubmitting}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="btn-primary" disabled={reportSubmitting}>
+                {reportSubmitting ? 'Submitting…' : 'Submit report'}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
       <section
         key={sessionPathKey}
         className="session-chat-page mx-auto flex w-full min-w-0 max-w-[680px] flex-1 flex-col gap-6 px-4 pb-16 pt-[72px] sm:px-6 sm:pt-[80px]"
@@ -811,14 +919,18 @@ export function SessionPage({ squadId }: { squadId: string }) {
               : null
           }
           onReportRoom={() => {
-            toast.message(
-              `Room report reference: ${squadId.slice(0, 8)}… — MVP triage is manual; keep this tab if you need to share with support.`,
-            );
+            setReportDraft({
+              reportType: 'room',
+              reasonCode: 'facilitator_help',
+              contextNote: '',
+            });
           }}
           onReportParticipant={() => {
-            toast.message(
-              'Report participant: describe what happened without doxxing. MVP reviews use moderator tools.',
-            );
+            setReportDraft({
+              reportType: 'participant',
+              reasonCode: 'other',
+              contextNote: '',
+            });
           }}
           squadId={squadId}
         />
@@ -827,7 +939,14 @@ export function SessionPage({ squadId }: { squadId: string }) {
           Squad session — {squad?.topic ?? squadId}
         </h1>
 
-        <SquadPeerStrip peers={squadPeers} currentUserId={session?.user?.id} />
+        <SquadPeerStrip
+          peers={squadPeers}
+          currentUserId={session?.user?.id}
+          blockedUserIds={blockedUserIds}
+          onBlockParticipant={(blockedUserId) => void handleBlockParticipant(blockedUserId)}
+          onUnblockParticipant={(blockedUserId) => void handleUnblockParticipant(blockedUserId)}
+          blockingUserId={blockingUserId}
+        />
 
         <SessionPresenceList
           peers={squadPeers}
@@ -868,7 +987,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               {realtimeError ? (
                 <button
                   type="button"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-navy transition-opacity hover:opacity-90"
                   onClick={() => retryRealtimeConnection()}
                 >
                   Retry live connection
@@ -876,7 +995,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               ) : null}
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0] disabled:opacity-60"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-ink-secondary transition-colors hover:border-line hover:text-ink disabled:opacity-60"
                 aria-busy={refreshingMessages}
                 disabled={refreshingMessages}
                 onClick={() => void handleRefreshMessages()}
@@ -886,7 +1005,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               {realtimeError ? (
                 <button
                   type="button"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-ink-secondary transition-colors hover:border-line hover:text-ink"
                   onClick={() => window.location.reload()}
                 >
                   Refresh now
@@ -898,7 +1017,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
         {httpDegraded && online && !queryError && !realtimeError ? (
           <div
-            className="rounded-[8px] border border-amber/30 bg-[#121a24] px-4 py-2.5 font-sans text-[0.8125rem] text-[#a8b2c1]"
+            className="rounded-[8px] border border-amber/30 bg-amber/[0.05] px-4 py-2.5 font-sans text-[0.8125rem] text-ink-secondary"
             role="status"
           >
             Having trouble reaching the server. Failed messages stay in this room with a Retry
@@ -908,25 +1027,25 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
         {realtimeStatus === 'offline' && !queryError ? (
           <div
-            className="rounded-[8px] border border-amber/35 bg-[#1a1408] px-4 py-3 font-sans text-[0.8125rem] text-[#f5d7a3]"
+            className="rounded-[8px] border border-amber/35 bg-amber/[0.08] px-4 py-3 font-sans text-[0.8125rem] text-amber-light"
             role="status"
           >
-            <p className="font-medium text-[#f5d7a3]">Offline – waiting to reconnect</p>
-            <p className="mt-2 text-[#c4a574]">
+            <p className="font-medium text-amber-light">Offline – waiting to reconnect</p>
+            <p className="mt-2 text-amber/80">
               Queued messages send when you are back online. Live updates resume automatically, or
               retry below.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border-0 bg-teal px-4 py-2 font-heading text-[0.85rem] font-semibold text-navy transition-opacity hover:opacity-90"
                 onClick={() => retryRealtimeConnection()}
               >
                 Retry live connection
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63] hover:text-[#e2e8f0]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-4 py-2 font-sans text-[0.85rem] font-medium text-ink-secondary transition-colors hover:border-line hover:text-ink"
                 onClick={() => window.location.reload()}
               >
                 Refresh now
@@ -937,7 +1056,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
         {(realtimeStatus === 'connecting' || realtimeStatus === 'reconnecting') && (
           <div
-            className="flex items-center gap-2 rounded-[8px] border border-[#1a2236] bg-[#0a1018] px-4 py-2.5 font-sans text-[0.8125rem] text-[#a8b2c1]"
+            className="flex items-center gap-2 rounded-[8px] border border-line bg-surface-sunken px-4 py-2.5 font-sans text-[0.8125rem] text-ink-secondary"
             role="status"
             aria-live="polite"
           >
@@ -949,11 +1068,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
           </div>
         )}
 
-        <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-[#1a2236] bg-[#0f1623]">
+        <div className="flex min-h-[280px] flex-col overflow-hidden rounded-[10px] border border-line bg-surface-elevated">
           <div
             role="toolbar"
             aria-label="Squad session actions"
-            className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-b border-[#1a2236] px-4 py-2 sm:gap-3"
+            className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-b border-line px-4 py-2 sm:gap-3"
           >
             {!squad?.archived_at ? (
               <button
@@ -1007,13 +1126,33 @@ export function SessionPage({ squadId }: { squadId: string }) {
                 </li>
               ) : null}
               {loading ? <SessionPageMessagesSkeleton count={5} /> : null}
-              {messages.length === 0 && optimisticMessages.length === 0 && !loading ? (
-                <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
-                  No messages yet. Say hello calmly.
+              {visibleMessages.length === 0 && optimisticMessages.length === 0 && !loading ? (
+                <li className="flex min-h-[220px] flex-1 flex-col items-center justify-center gap-3 px-4 py-8 text-center">
+                  {messages.length > 0 ? (
+                    <p className="font-sans text-[0.88rem] italic text-[#5b6b80]">
+                      Messages from blocked participants are hidden.
+                    </p>
+                  ) : (
+                    <>
+                      <span
+                        aria-hidden
+                        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/30 bg-teal-500/[0.08]"
+                      >
+                        <span className="block h-2 w-2 rounded-full bg-teal-light" />
+                      </span>
+                      <p className="font-heading text-[0.95rem] font-semibold text-[#cbd5e1]">
+                        Squad opened. No messages yet.
+                      </p>
+                      <p className="max-w-[28rem] font-sans text-[0.82rem] leading-relaxed text-[#5b6b80]">
+                        Say hello calmly. Take turns when you can — the room follows your squad's
+                        agreed phase, not the clock.
+                      </p>
+                    </>
+                  )}
                 </li>
               ) : null}
               {!loading
-                ? messages.map((m) => {
+                ? visibleMessages.map((m) => {
                     const body = plaintextById[m.id] ?? '';
                     const retracted = m.status === 'retracted';
                     const isOwn = Boolean(userId && m.sender_id && m.sender_id === userId);
@@ -1039,7 +1178,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
                 ? optimisticMessages.map((m) => (
                     <SessionMessageItem
                       key={m.optimisticId}
-                      originalBody={m.plainBody}
+                      originalBody={m.plainBody ?? PENDING_BODY_PLACEHOLDER}
                       sentAtLabel={new Date(m.sent_at).toLocaleString()}
                       retracted={false}
                       isOwn={true}
@@ -1082,7 +1221,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
               name="composer"
               aria-label="Message"
               rows={4}
-              className="min-h-[100px] w-full resize-y rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-[#e2e8f0] placeholder:text-[#3d4f63] focus-visible:outline-none focus-visible:border-[rgba(0,194,178,0.4)] focus-visible:shadow-[0_0_0_3px_rgba(0,194,178,0.12)] disabled:opacity-60"
+              className="min-h-[100px] w-full resize-y rounded-[8px] border border-line bg-surface-elevated px-4 py-4 font-sans text-[0.95rem] leading-[1.65] text-ink placeholder:text-ink-subtle focus-visible:outline-none focus-visible:border-brand/55 focus-visible:shadow-[0_0_0_3px_var(--sr-primary-soft)] disabled:opacity-60"
               placeholder="Write with intention…"
               value={composer}
               onChange={(e) => {
@@ -1093,7 +1232,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
             />
             {slowDownBreathing ? (
               <div
-                className="absolute inset-0 flex items-center justify-center rounded-[8px] bg-[#0f1623]/95 px-6"
+                className="absolute inset-0 flex items-center justify-center rounded-[8px] bg-surface-elevated/95 px-6"
                 aria-live="polite"
               >
                 <p className="max-w-[28ch] text-center font-sans text-[0.95rem] italic leading-relaxed text-[#4b5563]">
@@ -1105,7 +1244,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <button
               type="submit"
-              className={`inline-flex shrink-0 items-center justify-center border-0 bg-teal font-heading text-[0.95rem] text-[#0b0f1a] transition-opacity duration-150 hover:opacity-[0.88] disabled:cursor-not-allowed ${
+              className={`inline-flex min-h-[44px] min-w-0 items-center justify-center border-0 bg-teal font-heading text-[0.95rem] text-navy transition-opacity duration-150 hover:opacity-[0.88] disabled:cursor-not-allowed ${
                 sendPaused ? 'pointer-events-none opacity-40' : 'disabled:opacity-50'
               }`}
               style={{
@@ -1126,7 +1265,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
             ) : null}
             <button
               type="button"
-              className="inline-flex shrink-0 items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-[#a8b2c1] transition-colors duration-150 hover:border-[rgba(0,194,178,0.4)] hover:text-[#e2e8f0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(0,194,178,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-[44px] min-w-0 items-center justify-center border border-solid border-line-strong bg-transparent px-5 py-2.5 font-sans text-[0.95rem] text-ink-secondary transition-colors duration-150 hover:border-brand/55 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ring disabled:cursor-not-allowed disabled:opacity-40"
               style={{
                 borderRadius: 8,
                 fontWeight: 500,

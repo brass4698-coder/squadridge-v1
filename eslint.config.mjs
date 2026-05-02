@@ -47,6 +47,24 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+      /**
+       * Sunset legacy Supabase re-export paths. The canonical client lives at
+       * `src/lib/supabase.ts` and is reachable via `import { supabase } from '../lib'`.
+       * The two files below were 5-line stubs kept around for backwards
+       * compatibility; they were removed in the May 2026 cleanup.
+       */
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/supabaseClient', '**/utils/supabase'],
+              message:
+                'Import { supabase } from "src/lib" instead. The legacy re-export files were removed; see docs/tech-debt.md #13.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

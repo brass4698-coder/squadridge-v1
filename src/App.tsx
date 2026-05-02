@@ -15,12 +15,20 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
 import { LandingPage } from './pages/LandingPage';
+import { DialoguesPage } from './pages/DialoguesPage';
+import { TrustSafetyPage } from './pages/TrustSafetyPage';
+import { InsightsDashboardPage, InsightsPage } from './pages/InsightsPage';
+import { InvestorsPage } from './pages/InvestorsPage';
+import { PartnersPage } from './pages/PartnersPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { SecurityDisclosurePage } from './pages/SecurityDisclosurePage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { AcceptableUsePage, PrivacyPolicyPage, TermsOfUsePage } from './pages/LegalPages';
+import { ContactPage } from './pages/ContactPage';
 import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
@@ -33,8 +41,11 @@ import { AdminReportsPage } from './pages/admin/AdminReportsPage';
 import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
 import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
-import { AdminDemoPage } from './pages/admin/AdminDemoPage';
+import { AdminDemoHubPage } from './pages/admin/AdminDemoHubPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
+import { DeckViewerRedirectPage } from './pages/admin/DeckViewerRedirectPage';
+import { RouteSkeleton } from './components/system';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -51,14 +62,8 @@ const PitchDeckHubPage = lazy(() =>
 );
 
 const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
+  <div className="flex min-h-dvh flex-col bg-[#0a0f1a]">
+    <RouteSkeleton label="Loading page content." />
   </div>
 );
 
@@ -84,6 +89,26 @@ export default function App() {
                 />
                 <Route element={<AppLayout />}>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/dialogues" element={<DialoguesPage />} />
+                  <Route path="/trust" element={<TrustSafetyPage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  <Route path="/terms" element={<TermsOfUsePage />} />
+                  <Route path="/acceptable-use" element={<AcceptableUsePage />} />
+                  <Route path="/insights" element={<InsightsPage />} />
+                  <Route
+                    path="/insights/dashboard"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <InsightsDashboardPage />
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
+                  <Route path="/partners" element={<PartnersPage />} />
+                  <Route path="/investors" element={<InvestorsPage />} />
+                  <Route path="/pitch" element={<Navigate to="/investors" replace />} />
+                  <Route path="/contact" element={<ContactPage />} />
                   <Route path="/login" element={<Navigate to="/sign-in" replace />} />
                   <Route path="/invite" element={<InvitePage />} />
                   <Route path="/verify" element={<VerificationPage />} />
@@ -98,20 +123,47 @@ export default function App() {
                     }
                   />
                   <Route
-                    path="/ledger/:proposalId"
+                    path="/ledger/:proposalSlug"
                     element={
                       <Suspense fallback={routeChunkFallback}>
                         <LedgerPage />
                       </Suspense>
                     }
                   />
+                  {/* Trust & Safety is the top-level public IA; Security Disclosure remains a technical subpage. */}
                   <Route path="/security" element={<SecurityDisclosurePage />} />
+                  {/*
+                    Pitch deck hub is internal pitch-prep tooling, not a product surface.
+                    Gated behind moderator role and accessed via the /admin sidebar so it
+                    stays out of public discovery and the main demo path.
+                  */}
                   <Route
                     path="/pitch-deck-hub"
                     element={
-                      <Suspense fallback={routeChunkFallback}>
-                        <PitchDeckHubPage />
-                      </Suspense>
+                      <RequireAuth>
+                        <RequireModerator>
+                          <Suspense fallback={routeChunkFallback}>
+                            <PitchDeckHubPage />
+                          </Suspense>
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
+                  {/*
+                    Transparent moderator-side viewer for gated decks: mints
+                    a 30s self-token via the `mint-deck-share` Edge Function
+                    then redirects to the gated `serve-pitch-deck` URL. Stays
+                    behind the same RequireAuth+RequireModerator gate; the
+                    Edge Function is the actual security boundary.
+                  */}
+                  <Route
+                    path="/admin/decks/view/:deckId"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <DeckViewerRedirectPage />
+                        </RequireModerator>
+                      </RequireAuth>
                     }
                   />
                   <Route path="/match" element={<Match />} />
@@ -143,11 +195,15 @@ export default function App() {
                     <Route path="verification" element={<AdminVerificationPage />} />
                     <Route path="rooms" element={<AdminRoomsPage />} />
                     <Route path="logs" element={<AdminLogsPage />} />
-                    <Route path="demo" element={<AdminDemoPage />} />
+                    {/* Legacy `/admin/demo` redirects into the consolidated command center. */}
+                    <Route path="demo" element={<Navigate to="/admin/demo-hub" replace />} />
+                    <Route path="demo-hub" element={<AdminDemoHubPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
                     <Route path="csi" element={<AdminCsiPage />} />
+                    <Route path="metrics" element={<AdminMetricsPage />} />
                     <Route index element={<Navigate to="rooms" replace />} />
                   </Route>
+                  <Route path="/demo" element={<Navigate to="/admin/demo-hub" replace />} />
                   <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
                   <Route path="/sign-in" element={<SignInPage />} />
                   <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
@@ -180,7 +236,7 @@ export default function App() {
                     </>
                   )}
                   <Route path="/session/:squadId?" element={<SessionAccess />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Routes>
             </AuthProvider>

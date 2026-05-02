@@ -83,7 +83,16 @@ export function ModLedgerDraftsSection() {
         </p>
       </header>
       {draftsQ.isLoading ? (
-        <p className="mt-3 font-sans text-[0.85rem] text-slate-500">Loading…</p>
+        <div
+          className="mt-3 space-y-2"
+          role="status"
+          aria-busy="true"
+          aria-label="Loading ledger drafts"
+        >
+          <span className="sr-only">Loading ledger drafts…</span>
+          <div className="h-3 w-2/3 animate-pulse rounded bg-line/70" />
+          <div className="h-3 w-1/2 animate-pulse rounded bg-line/55" />
+        </div>
       ) : draftsQ.isError ? (
         <p className="mt-3 font-sans text-[0.85rem] text-amber" role="alert">
           {draftsQ.error instanceof Error ? draftsQ.error.message : 'Could not load drafts.'}

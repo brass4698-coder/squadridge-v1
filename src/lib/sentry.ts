@@ -1,7 +1,30 @@
 import * as Sentry from '@sentry/react';
 import type { ErrorEvent as SentryErrorEvent } from '@sentry/react';
 import type { ErrorInfo } from 'react';
-import { hashUserIdForSentry, isSentryUserHash } from './sentryUserHash';
+import { hashUserIdForSentry, isSentryUserHash } from './crypto/sentryUserHash';
+import { safeErrorMessage } from './log';
+
+/**
+ * True when we should also echo telemetry to the developer console because
+ * Sentry isn't initialised. Production no-ops stay silent (see
+ * `captureAppError` etc.); dev / pilot builds get a structured trace.
+ */
+function shouldEmitDevFallback(): boolean {
+  return !sentryInitialized && import.meta.env.DEV;
+}
+
+/**
+ * Whitelist-based serializer for the dev fallback. We never include arbitrary
+ * `extra` payloads here — operators get the bucket and a non-PII descriptor of
+ * the error message; full payloads remain a Sentry-only concern. Routed
+ * through `console.warn` (the only project-wide allowed level) so it shows up
+ * prominently in dev consoles without tripping the `no-console` lint rule.
+ */
+function emitDevFallback(category: string, fields: Record<string, unknown>): void {
+  if (!shouldEmitDevFallback()) return;
+  // eslint-disable-next-line no-restricted-syntax -- dev-only telemetry fallback when Sentry isn't configured; gated by `shouldEmitDevFallback`.
+  console.warn(`[telemetry-fallback] ${category}`, fields);
+}
 
 let sentryInitialized = false;
 
@@ -204,7 +227,13 @@ export function captureAppError(
   error: unknown,
   context: { feature: string; extra?: Record<string, unknown> },
 ): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized) {
+    emitDevFallback('error', {
+      feature: context.feature,
+      message: safeErrorMessage(error),
+    });
+    return;
+  }
   const err =
     error instanceof Error ? error : new Error(typeof error === 'string' ? error : 'Unknown error');
   Sentry.captureException(err, {
@@ -215,7 +244,10 @@ export function captureAppError(
 
 /** Breadcrumb for realtime / connectivity (no message bodies). */
 export function addConnectionBreadcrumb(message: string, data?: Record<string, unknown>): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized) {
+    emitDevFallback('connection', { message, data });
+    return;
+  }
   Sentry.addBreadcrumb({
     category: 'connection',
     level: 'info',
@@ -229,7 +261,10 @@ export function addSessionLifecycleBreadcrumb(
   phase: 'enter' | 'leave' | 'archive' | 'pause' | 'resume',
   data?: { squadId?: string },
 ): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized) {
+    emitDevFallback('session', { phase, squadId: data?.squadId });
+    return;
+  }
   Sentry.addBreadcrumb({
     category: 'session',
     level: 'info',
@@ -243,7 +278,12 @@ export function addAuthTransitionBreadcrumb(
   event: string,
   data?: { userId?: string | null },
 ): void {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized) {
+    // Note: `userId` is the raw Supabase user id here, but in dev fallback we
+    // only log whether it's set — never the value — so it can't leak.
+    emitDevFallback('auth', { event, userIdPresent: !!data?.userId });
+    return;
+  }
   Sentry.addBreadcrumb({
     category: 'auth',
     level: 'info',
@@ -271,11 +311,14 @@ export function addZkProofBreadcrumb(
     issuerEnforced?: boolean;
   },
 ): void {
-  if (!sentryInitialized) return;
   const sanitized: Record<string, unknown> = {};
   if (data?.credentialType !== undefined) sanitized.credentialType = data.credentialType;
   if (data?.errorCode !== undefined) sanitized.errorCode = data.errorCode;
   if (data?.issuerEnforced !== undefined) sanitized.issuerEnforced = data.issuerEnforced;
+  if (!sentryInitialized) {
+    emitDevFallback('zk', { step, status, ...sanitized });
+    return;
+  }
   Sentry.addBreadcrumb({
     category: 'zk',
     level: status === 'error' ? 'warning' : 'info',

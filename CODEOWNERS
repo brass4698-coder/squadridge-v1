@@ -1,3 +1,70 @@
-# Default owners for review (update handles for your org).
+# Code owners for SquadRidge.
 # Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
-* @brass4698-coder
+#
+# Security-touching paths require explicit sign-off. Update the handle list when
+# the roster changes; the PR template's "Security-touching change?" section
+# depends on these patterns matching what CI and branch protection enforce.
+
+# Default owner: everything not matched by a more specific rule below.
+*                                          @brass4698-coder
+
+# Supabase: migrations, Edge Functions, pgTAP tests. Any change here
+# alters the database contract or a service-role code path.
+/supabase/migrations/                      @brass4698-coder
+/supabase/functions/                       @brass4698-coder
+/supabase/tests/                           @brass4698-coder
+/supabase/config.toml                      @brass4698-coder
+/supabase/seed.sql                         @brass4698-coder
+
+# Cryptography, message payload handling, moderator decrypt path.
+/src/lib/messageCrypto.ts                  @brass4698-coder
+/src/lib/messagePayload.ts                 @brass4698-coder
+/src/lib/squadMessageKey.ts                @brass4698-coder
+/src/lib/liveMessageRedaction.ts           @brass4698-coder
+/src/lib/moderation/                       @brass4698-coder
+/src/lib/redaction-engine/                 @brass4698-coder
+
+# Zero-knowledge + anonymity set.
+/src/lib/zk/                               @brass4698-coder
+/src/lib/zkAdapter.ts                      @brass4698-coder
+/src/lib/zkVerifier.ts                     @brass4698-coder
+/src/lib/verifyZkProofResponse.ts          @brass4698-coder
+
+# Auth and session boundaries.
+/src/contexts/AuthContext.tsx              @brass4698-coder
+/src/components/auth/                      @brass4698-coder
+/src/lib/authUrls.ts                       @brass4698-coder
+/src/lib/sessionClaim.ts                   @brass4698-coder
+
+# Observability + env validation (PII / build-time gates).
+/src/lib/env.ts                            @brass4698-coder
+/src/lib/env-bootstrap.ts                  @brass4698-coder
+/src/lib/sentry.ts                         @brass4698-coder
+/src/lib/sentryUserHash.ts                 @brass4698-coder
+
+# Hosting headers (CSP / HSTS live here).
+/vercel.json                               @brass4698-coder
+/netlify.toml                              @brass4698-coder
+
+# CI and deployment automation.
+/.github/workflows/                        @brass4698-coder
+/.github/dependabot.yml                    @brass4698-coder
+
+# Build-time guardrails (stub/decoy/banned-copy/no-raw-console).
+/scripts/ensure-no-zk-stub-prod.mjs        @brass4698-coder
+/scripts/ensure-no-demo-decoys-prod.mjs    @brass4698-coder
+/scripts/check-banned-public-copy.mjs      @brass4698-coder
+/scripts/check-no-raw-console.mjs          @brass4698-coder
+/scripts/check-prod-readiness.mjs          @brass4698-coder
+/scripts/bundle-ingest-message.mjs         @brass4698-coder
+
+# Public trust and partner-facing documents.
+/SECURITY.md                               @brass4698-coder
+/PRIVACY_POLICY.md                         @brass4698-coder
+/DATA_RETENTION.md                         @brass4698-coder
+/CURRENT_STATUS.md                         @brass4698-coder
+/DILIGENCE_OVERVIEW.md                     @brass4698-coder
+/CHANGELOG.md                              @brass4698-coder
+/docs/security/                            @brass4698-coder
+/docs/operations/                          @brass4698-coder
+/docs/adr/                                 @brass4698-coder
