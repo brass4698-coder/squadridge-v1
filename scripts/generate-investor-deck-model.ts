@@ -3,7 +3,14 @@
  * Pitch Deck Hub defaults (single source of truth).
  *
  * Run: npx tsx scripts/generate-investor-deck-model.ts
- * (Committed outputs: public/pitch-deck-hub/investor-deck-model.json + .embed.js)
+ *
+ * Outputs are committed under the gated Edge Function bundle so they ship
+ * with `serve-pitch-deck` and are never publicly fetchable. The model
+ * leaks `fundraisingAskUsd` and monthly cash positions, which is why it
+ * lives behind the gate alongside the financial-appendix deck.
+ * (Committed outputs:
+ *   supabase/functions/serve-pitch-deck/decks/investor-deck-model.json
+ *   supabase/functions/serve-pitch-deck/decks/investor-deck-model.embed.js)
  */
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -13,7 +20,7 @@ import { DEFAULT_ASSUMPTIONS } from '../src/pitch-deck-hub/initialState';
 import type { FinancialScenario } from '../src/pitch-deck-hub/types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = join(__dirname, '../public/pitch-deck-hub');
+const OUT_DIR = join(__dirname, '../supabase/functions/serve-pitch-deck/decks');
 
 const scenarios: FinancialScenario[] = ['base', 'conservative', 'aggressive'];
 

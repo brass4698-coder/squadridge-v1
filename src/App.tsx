@@ -42,6 +42,8 @@ import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
+import { DeckViewerRedirectPage } from './pages/admin/DeckViewerRedirectPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -132,12 +134,38 @@ export default function App() {
                   />
                   {/* Trust & Safety is the top-level public IA; Security Disclosure remains a technical subpage. */}
                   <Route path="/security" element={<SecurityDisclosurePage />} />
+                  {/*
+                    Pitch deck hub is internal pitch-prep tooling, not a product surface.
+                    Gated behind moderator role and accessed via the /admin sidebar so it
+                    stays out of public discovery and the main demo path.
+                  */}
                   <Route
                     path="/pitch-deck-hub"
                     element={
-                      <Suspense fallback={routeChunkFallback}>
-                        <PitchDeckHubPage />
-                      </Suspense>
+                      <RequireAuth>
+                        <RequireModerator>
+                          <Suspense fallback={routeChunkFallback}>
+                            <PitchDeckHubPage />
+                          </Suspense>
+                        </RequireModerator>
+                      </RequireAuth>
+                    }
+                  />
+                  {/*
+                    Transparent moderator-side viewer for gated decks: mints
+                    a 30s self-token via the `mint-deck-share` Edge Function
+                    then redirects to the gated `serve-pitch-deck` URL. Stays
+                    behind the same RequireAuth+RequireModerator gate; the
+                    Edge Function is the actual security boundary.
+                  */}
+                  <Route
+                    path="/admin/decks/view/:deckId"
+                    element={
+                      <RequireAuth>
+                        <RequireModerator>
+                          <DeckViewerRedirectPage />
+                        </RequireModerator>
+                      </RequireAuth>
                     }
                   />
                   <Route path="/match" element={<Match />} />
@@ -172,6 +200,7 @@ export default function App() {
                     <Route path="demo" element={<AdminDemoPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
                     <Route path="csi" element={<AdminCsiPage />} />
+                    <Route path="metrics" element={<AdminMetricsPage />} />
                     <Route index element={<Navigate to="rooms" replace />} />
                   </Route>
                   <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />

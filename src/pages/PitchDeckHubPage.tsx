@@ -10,12 +10,15 @@ import {
   FileStack,
   Filter,
   Layers,
+  Link2,
+  Lock,
   MoreHorizontal,
   ShieldCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { runConsistencyCheck } from '../pitch-deck-hub/consistencyChecker';
+import { getDeckAccessTier, isDeckAlwaysModeratorOnly } from '../pitch-deck-hub/deckAccessTiers';
 import { buildFinancialModel, formatUsd } from '../pitch-deck-hub/financialEngine';
 import type {
   DeckAudience,
@@ -27,7 +30,7 @@ import type {
   MessagingLayer,
   PitchDeck,
 } from '../pitch-deck-hub/types';
-import { pitchDeckHubHtmlFileNameForDeck } from '../pitch-deck-hub/deckHtmlRoutes';
+import { pitchDeckViewerRoute } from '../pitch-deck-hub/deckHtmlRoutes';
 import {
   labelForConfidence,
   labelForStatus,
@@ -35,6 +38,8 @@ import {
 } from '../pitch-deck-hub/usePitchDeckHubStore';
 import { SquadLogo } from '../components/SquadLogo';
 import { SquadRidgeWordmark } from '../components/SquadRidgeWordmark';
+import { useAuth } from '../contexts/AuthContext';
+import { mintDeckShare } from '../lib/pitchDeck/mintDeckShare';
 import { cn } from '../lib/cn';
 
 const AUDIENCE_LABEL: Record<DeckAudience, string> = {
@@ -54,10 +59,16 @@ const HUB_NAV = [
   { id: 'hub-consistency', label: 'Consistency' },
 ] as const;
 
-const pitchDeckHubBase = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}pitch-deck-hub/`;
-
+/**
+ * The "View deck" button now routes through `/admin/decks/view/:deckId`
+ * (an authenticated React page that mints a 30s self-token via the
+ * `mint-deck-share` Edge Function and redirects to the gated
+ * `serve-pitch-deck` URL). Public static URLs were retired because the
+ * deck HTML and the embedded financial model both leak the raise size and
+ * runway numbers — see [docs/security/pitch-deck-access.md].
+ */
 function viewDeckHrefForId(deckId: string): string {
-  return `${pitchDeckHubBase}${pitchDeckHubHtmlFileNameForDeck(deckId)}`;
+  return pitchDeckViewerRoute(deckId);
 }
 
 const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
@@ -179,19 +190,34 @@ function DeckCard({
   onMarkReady,
   onExportOutline,
   onOpenFinancial,
+  onMintShareLink,
   readiness,
   viewDeckHref,
+  shareLinkPending,
 }: {
   deck: PitchDeck;
   onDuplicate: (id: string) => void;
   onMarkReady: (id: string) => void;
   onExportOutline: () => void;
   onOpenFinancial: () => void;
+  onMintShareLink: (deck: PitchDeck) => void;
   readiness: DeckReadiness | undefined;
   viewDeckHref?: string;
+  shareLinkPending: boolean;
 }) {
   const rDone = readiness?.items.filter((i) => i.done).length ?? 0;
   const rTotal = readiness?.items.length ?? 0;
+
+  // Tier reflects what `mint-deck-share` will allow. The Lock badge tells
+  // the moderator at a glance that this deck cannot be shared externally
+  // without first marking it `external_ready` (or never, if it sits on the
+  // always-moderator-only list, e.g. financial-appendix).
+  const tier = getDeckAccessTier(deck.id, deck.status);
+  const lockedReason = isDeckAlwaysModeratorOnly(deck.id)
+    ? 'Always moderator-only — financial / pricing details cannot be share-linked.'
+    : tier === 'shareable'
+      ? null
+      : 'Mark external-ready before minting a share link.';
 
   const primaryCta =
     'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-teal/35 bg-teal/12 px-4 py-2.5 font-sans text-[0.8rem] font-semibold text-[#ecfeff] shadow-[0_0_0_1px_rgba(0,194,178,0.12)] transition-[background,border] hover:border-teal/50 hover:bg-teal/18';
@@ -213,6 +239,23 @@ function DeckCard({
             <Badge variant="amber" subtle>
               {labelForConfidence(deck.confidence)}
             </Badge>
+            {tier === 'shareable' ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-teal/30 bg-teal/[0.06] px-2 py-0.5 font-sans text-[0.65rem] font-medium text-teal-light"
+                title="Eligible for shareable links (still requires moderator to mint)."
+              >
+                <Link2 className="size-3" aria-hidden />
+                Shareable
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-sans text-[0.65rem] font-medium text-[#94a3b8]"
+                title={lockedReason ?? 'Moderator-only.'}
+              >
+                <Lock className="size-3" aria-hidden />
+                Moderator-only
+              </span>
+            )}
           </div>
           <details className="group/deck-menu relative shrink-0">
             <summary
@@ -225,6 +268,16 @@ function DeckCard({
               className="absolute right-0 z-40 mt-1 min-w-[14rem] rounded-lg border border-white/[0.1] bg-[#0c1219] py-1 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
+              <button
+                type="button"
+                className={cn(menuBtn, tier !== 'shareable' && 'opacity-50')}
+                onClick={() => onMintShareLink(deck)}
+                disabled={tier !== 'shareable' || shareLinkPending}
+                title={lockedReason ?? 'Mint a 7-day signed link (copied to clipboard).'}
+              >
+                <Link2 className="size-3.5 opacity-70" aria-hidden />
+                {shareLinkPending ? 'Minting…' : 'Copy share link (7d)'}
+              </button>
               <button type="button" className={menuBtn} onClick={() => onDuplicate(deck.id)}>
                 <Copy className="size-3.5 opacity-70" aria-hidden />
                 Duplicate variant
@@ -298,20 +351,23 @@ function DeckCard({
       {rTotal > 0 ? <ReadinessBar done={rDone} total={rTotal} /> : null}
 
       <div className="pt-0.5">
-        <button
-          type="button"
-          className={primaryCta}
-          onClick={() => {
-            if (viewDeckHref) {
-              window.open(viewDeckHref, '_blank', 'noopener,noreferrer');
-              return;
+        {viewDeckHref ? (
+          <Link to={viewDeckHref} target="_blank" rel="noopener noreferrer" className={primaryCta}>
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </Link>
+        ) : (
+          <button
+            type="button"
+            className={primaryCta}
+            onClick={() =>
+              toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.')
             }
-            toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.');
-          }}
-        >
-          <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
-          View deck
-        </button>
+          >
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </button>
+        )}
       </div>
     </article>
   );
@@ -376,6 +432,42 @@ export function PitchDeckHubPage() {
   const [activeMessagingKey, setActiveMessagingKey] =
     useState<keyof MessagingLayer>('masterPositioning');
   const [activeNavId, setActiveNavId] = useState<string>(HUB_NAV[0].id);
+  const [pendingShareDeckId, setPendingShareDeckId] = useState<string | null>(null);
+
+  const { supabase } = useAuth();
+
+  const handleMintShareLink = async (deck: PitchDeck) => {
+    if (!supabase) {
+      toast.error('Supabase client unavailable.');
+      return;
+    }
+    const tier = getDeckAccessTier(deck.id, deck.status);
+    if (tier !== 'shareable') {
+      toast.message('This deck is moderator-only — mark it external-ready first.');
+      return;
+    }
+    setPendingShareDeckId(deck.id);
+    try {
+      const result = await mintDeckShare(supabase, {
+        deckId: deck.id,
+        audience: 'share',
+        status: deck.status,
+      });
+      if (!result.ok) {
+        toast.error(`Could not mint share link: ${result.message}`);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(result.absoluteUrl);
+        const expires = new Date(result.expiresAt).toLocaleString();
+        toast.success(`Share link copied. Expires ${expires}.`);
+      } catch {
+        toast.message(`Share link ready (clipboard blocked): ${result.absoluteUrl}`);
+      }
+    } finally {
+      setPendingShareDeckId(null);
+    }
+  };
 
   const model = buildFinancialModel(state.assumptions, state.activeScenario);
   const issues = runConsistencyCheck(state);
@@ -606,8 +698,10 @@ export function PitchDeckHubPage() {
               onOpenFinancial={() =>
                 document.getElementById('hub-financial')?.scrollIntoView({ behavior: 'smooth' })
               }
+              onMintShareLink={(d) => void handleMintShareLink(d)}
               readiness={state.readiness.find((r) => r.deckId === deck.id)}
               viewDeckHref={viewDeckHrefForId(deck.id)}
+              shareLinkPending={pendingShareDeckId === deck.id}
             />
           ))}
         </div>

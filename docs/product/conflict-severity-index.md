@@ -1,6 +1,6 @@
 # Conflict Severity Index (CSI) — methodology and data design
 
-**Status:** Design / pilot path — **Postgres + RLS** and the **moderator-only** app route `/admin/csi` are in-repo; a public or partner-facing CSI product surface is not shipped until listed in [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md). Aligns with [`csi-spec.md`](csi-spec.md) and [`../security/threat-model.md`](../security/threat-model.md).
+**Status:** Pilot path — **Postgres + RLS** + the **moderator-only** app route `/admin/csi` + automated **hourly ingestion** (`csi-ingest-snapshot` Edge Function) + per-region calibration (`csi_band_thresholds`) + **scoped partner export** (`csi-partner-export`, API-key + grant + audit + rate-limit) are all in-repo. **Public** CSI surfaces (open API, public maps) are still out of scope by governance choice. See [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md), [`csi-spec.md`](csi-spec.md), and [`../security/threat-model.md`](../security/threat-model.md).
 
 ## Definition
 

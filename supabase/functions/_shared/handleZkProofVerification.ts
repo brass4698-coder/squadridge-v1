@@ -6,6 +6,7 @@ import { corsHeadersFor } from './cors.ts';
 import { logError, safeErrorMessage } from './log.ts';
 import { semaphoreFieldFromLabel } from './semaphoreFieldEncoding.ts';
 import { verifySemaphoreProof } from './verifySemaphoreProof.ts';
+import { assertNoStubFlags } from './zkRequestGuards.ts';
 
 export type SemaphoreProofBody = {
   merkleTreeDepth: number;
@@ -85,6 +86,7 @@ function zkErrorCodeForMessage(msg: string): string {
     case 'Invalid credential_type':
     case 'Invalid semaphore_proof':
     case 'Invalid issuer_group_id':
+    case 'is_stub flag is not accepted':
       return 'INVALID_REQUEST';
     case 'Issuer group not enrolled':
       return 'ISSUER_NOT_ENROLLED';
@@ -309,6 +311,15 @@ export async function handleZkProofPost(req: Request): Promise<Response> {
     body = (await req.json()) as ZkVerifyRequestBody;
   } catch {
     return jsonResponse(zkFailBody('Invalid JSON', 'INVALID_JSON'), 400, req);
+  }
+
+  // Defense in depth: refuse any payload smuggling a stub flag, even though
+  // `ZkVerifyRequestBody` does not declare one. See `assertNoStubFlags`.
+  try {
+    assertNoStubFlags(body);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'is_stub flag is not accepted';
+    return jsonResponse(zkFailBody(msg, zkErrorCodeForMessage(msg)), 400, req);
   }
 
   try {

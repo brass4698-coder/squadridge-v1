@@ -23,6 +23,7 @@ type MessageRow = {
   sender_id: string | null;
   status: string;
   payload_ciphertext: string;
+  key_epoch_id: string | null;
 };
 
 function previewCipher(enc: string): string {
@@ -85,7 +86,7 @@ export function ModDashboardPage() {
       if (!supabase || !expandedId) return [];
       const { data, error } = await supabase
         .from('messages')
-        .select('id, sent_at, sender_id, status, payload_ciphertext')
+        .select('id, sent_at, sender_id, status, payload_ciphertext, key_epoch_id')
         .eq('squad_id', expandedId)
         .order('sent_at', { ascending: false })
         .limit(40);
@@ -97,15 +98,21 @@ export function ModDashboardPage() {
 
   const squadKeyQuery = useQuery({
     queryKey: ['mod', 'squad-key', expandedId],
-    queryFn: async (): Promise<string | null> => {
+    queryFn: async (): Promise<{
+      live: string | null;
+      archived: string | null;
+    } | null> => {
       if (!supabase || !expandedId) return null;
       const { data, error } = await supabase
         .from('squads')
-        .select('message_encryption_key')
+        .select('message_encryption_key, archived_encryption_key_snapshot')
         .eq('id', expandedId)
         .maybeSingle();
       if (error) throw error;
-      return data?.message_encryption_key ?? null;
+      return {
+        live: data?.message_encryption_key ?? null,
+        archived: data?.archived_encryption_key_snapshot ?? null,
+      };
     },
     enabled: !!supabase && !!expandedId,
   });
@@ -165,13 +172,15 @@ export function ModDashboardPage() {
     mutationFn: async () => {
       if (!supabase || !expandedId || !decryptTarget) throw new Error('Missing context');
       await assertEdgeRateLimit(supabase, 'moderator_decrypt_review');
-      const squadKey = squadKeyQuery.data ?? null;
+      const squadKey = squadKeyQuery.data;
       if (!squadKey) throw new Error('No squad encryption key — cannot decrypt.');
       return moderatorDecryptMessageForReview(supabase, {
         messageId: decryptTarget.id,
         squadId: expandedId,
         payloadCiphertext: decryptTarget.payload_ciphertext,
-        squadMessageKeyBase64Url: squadKey,
+        squadMessageKeyBase64Url: squadKey.live ?? '',
+        keyEpochId: decryptTarget.key_epoch_id,
+        archivedKeySnapshotBase64Url: squadKey.archived,
         justification: decryptJustification.trim(),
       });
     },
@@ -338,7 +347,7 @@ export function ModDashboardPage() {
                     type="button"
                     disabled={
                       decryptMutation.isPending ||
-                      !squadKeyQuery.data ||
+                      !(squadKeyQuery.data?.live || squadKeyQuery.data?.archived) ||
                       squadKeyQuery.isLoading ||
                       decryptJustification.trim().length < 8
                     }
@@ -348,7 +357,8 @@ export function ModDashboardPage() {
                     {decryptMutation.isPending ? 'Auditing…' : 'Decrypt (audited)'}
                   </button>
                 </div>
-                {!squadKeyQuery.data && !squadKeyQuery.isLoading ? (
+                {!(squadKeyQuery.data?.live || squadKeyQuery.data?.archived) &&
+                !squadKeyQuery.isLoading ? (
                   <p className="mt-2 font-sans text-[0.75rem] text-amber" role="alert">
                     No squad encryption key available for this squad.
                   </p>

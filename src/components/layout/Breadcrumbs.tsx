@@ -47,7 +47,9 @@ const EXACT: Record<string, { parent: Crumb; current: string }> = {
   '/mod': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Moderation' },
   '/invite': { parent: { to: '/', label: 'Home' }, current: 'Invite' },
   '/sign-in': { parent: { to: '/', label: 'Home' }, current: 'Sign in' },
-  '/pitch-deck-hub': { parent: { to: '/', label: 'Home' }, current: 'Pitch materials' },
+  /* Internal tooling — surfaced only inside Admin; crumb anchors back there
+   * so it never reads as a public marketing surface. */
+  '/pitch-deck-hub': { parent: { to: '/admin/rooms', label: 'Admin' }, current: 'Pitch deck hub' },
   '/auth/callback': { parent: { to: '/', label: 'Home' }, current: 'Account' },
 };
 

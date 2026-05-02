@@ -17,10 +17,14 @@ import { SessionStrategyRoomChrome } from '../components/session/SessionStrategy
 import { TypingIndicator } from '../components/session/TypingIndicator';
 import { useAuth } from '../contexts/AuthContext';
 import {
+  useInfiniteScrollSentinel,
   useMessagePlaintexts,
   useOnlineStatus,
+  useOwnMessageReviewStatus,
   useRealtimeMessages,
+  useSendCooldown,
   useSquad,
+  useSquadEncryptionKey,
   useSquadInterventions,
   useSquadPeerProfiles,
   useSquadPresence,
@@ -35,14 +39,16 @@ import {
   encodeSecureMessagePayload,
   ensureSquadMessageKey,
   fetchActiveParticipantBlocks,
-  fetchOwnMessageReviewStatus,
   isAiPipelineEnabled,
   isSupabaseConfigured,
   logIntervention,
   recordLocalToneAndMaybePersist,
   enqueuePendingSend,
   describeParticipantReportResult,
+  forgetPendingPlaintext,
   listPendingSendsForSquad,
+  readPendingPlaintext,
+  rememberPendingPlaintext,
   removePendingSend,
   SEND_RETRY_ATTEMPTS,
   SEND_QUEUE_BROADCAST_CHANNEL,
@@ -72,12 +78,20 @@ type OptimisticMessage = {
   squad_id: string;
   sender_id: string;
   payload_ciphertext: string;
-  /** Shown immediately while ciphertext is stored for the insert. */
-  plainBody: string;
+  /**
+   * Tab-local plaintext for live preview / retry re-edit. Always non-null for
+   * sends originated in the current tab; null after a reload restores the row
+   * from IndexedDB (the on-disk record is ciphertext-only by design — see
+   * {@link sendQueue.ts}).
+   */
+  plainBody: string | null;
   sent_at: string;
   status: string;
   deliveryStatus: DeliveryStatus;
 };
+
+/** Shown in place of plaintext for messages restored from IDB after a reload. */
+const PENDING_BODY_PLACEHOLDER = '(unsent message — preview unavailable after reload)';
 
 type ReportDraft = {
   reportType: 'room' | 'participant';
@@ -113,22 +127,16 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const { data: squadPeers = [] } = useSquadPeerProfiles(squadId);
   const presentUserIds = useSquadPresence(squadId);
   const { typing: typingUserIds, notifyTyping } = useSquadTyping(squadId);
-  const [messageKey, setMessageKey] = useState<CryptoKey | null>(null);
-  const [messageKeyMaterial, setMessageKeyMaterial] = useState<string | null>(null);
+  const { messageKey, messageKeyMaterial } = useSquadEncryptionKey(
+    supabase,
+    squadId,
+    squad,
+    refetchSquad,
+  );
   const [reportDraft, setReportDraft] = useState<ReportDraft | null>(null);
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [refreshingMessages, setRefreshingMessages] = useState(false);
-  /**
-   * `message_id → reviewed_at` for the *caller's own* messages that a moderator
-   * has decrypted via `moderator_record_decrypt_audit`. Powers the small
-   * "Reviewed by moderator" pill in `SessionMessageItem` (Phase 2.2). The
-   * `get_my_messages_review_status` RPC enforces `sender_id = auth.uid()`,
-   * never returning moderator identity or justification.
-   */
-  const [reviewStatusByMessage, setReviewStatusByMessage] = useState<Map<string, string>>(
-    () => new Map(),
-  );
   const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(() => new Set());
   const [blockingUserId, setBlockingUserId] = useState<string | null>(null);
   const scrollRootRef = useRef<HTMLUListElement | null>(null);
@@ -174,85 +182,16 @@ export function SessionPage({ squadId }: { squadId: string }) {
     return () => addSessionLifecycleBreadcrumb('leave', { squadId });
   }, [squadId]);
 
-  useEffect(() => {
-    if (!supabase || !squadId || !squad) {
-      setMessageKey(null);
-      setMessageKeyMaterial(null);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { key, keyBase64 } = await ensureSquadMessageKey(supabase, squadId, squad);
-        if (!cancelled) {
-          setMessageKey(key);
-          setMessageKeyMaterial(keyBase64);
-        }
-        if (!squad.message_encryption_key) {
-          await refetchSquad();
-        }
-      } catch (e) {
-        captureAppError(e, { feature: 'session_message_key', extra: { squadId } });
-        if (!cancelled) {
-          setMessageKey(null);
-          setMessageKeyMaterial(null);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase, squadId, squad, refetchSquad]);
+  useInfiniteScrollSentinel({
+    rootRef: scrollRootRef,
+    sentinelRef: loadOlderSentinelRef,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    watch: messages.length,
+  });
 
-  useEffect(() => {
-    const root = scrollRootRef.current;
-    const target = loadOlderSentinelRef.current;
-    if (!root || !target || !hasNextPage) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const hit = entries.some((e) => e.isIntersecting);
-        if (hit && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { root, rootMargin: '80px 0px 0px 0px', threshold: 0 },
-    );
-    io.observe(target);
-    return () => io.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messages.length]);
-
-  useEffect(() => {
-    if (!supabase || !userId) return;
-    const ownIds = messages
-      .filter((m) => m.sender_id === userId && m.status !== 'retracted')
-      .map((m) => m.id);
-    if (ownIds.length === 0) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const map = await fetchOwnMessageReviewStatus(supabase, ownIds);
-        if (cancelled || map.size === 0) return;
-        // Merge so we never lose a previously-seen review timestamp when older
-        // pages drop out of the visible window.
-        setReviewStatusByMessage((prev) => {
-          let changed = false;
-          const next = new Map(prev);
-          for (const [id, ts] of map) {
-            if (next.get(id) !== ts) {
-              next.set(id, ts);
-              changed = true;
-            }
-          }
-          return changed ? next : prev;
-        });
-      } catch (e) {
-        captureAppError(e, { feature: 'session_review_status', extra: { squadId } });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [supabase, userId, messages, squadId]);
+  const reviewStatusByMessage = useOwnMessageReviewStatus(supabase, userId, messages, squadId);
 
   function epochForMessage(messageId: string): number {
     const map = receivedEpochById.current;
@@ -272,27 +211,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([]);
   /** Power of Pause: brief breathing message over the composer */
   const [slowDownBreathing, setSlowDownBreathing] = useState(false);
-  /** After breathing, Send is cooled down until this timestamp (epoch ms) */
-  const [sendCooldownUntil, setSendCooldownUntil] = useState<number | null>(null);
-  const [, setCooldownTick] = useState(0);
+  const {
+    paused: sendPaused,
+    secondsRemaining: sendCooldownSecondsRemaining,
+    engage: engageSendCooldown,
+  } = useSendCooldown();
 
   const configured = isSupabaseConfigured();
-
-  const sendPaused = sendCooldownUntil !== null && Date.now() < sendCooldownUntil;
-  const sendCooldownSecondsRemaining = sendCooldownUntil
-    ? Math.max(0, Math.ceil((sendCooldownUntil - Date.now()) / 1000))
-    : 0;
-
-  useEffect(() => {
-    if (!sendCooldownUntil || Date.now() >= sendCooldownUntil) return;
-    const id = window.setInterval(() => {
-      setCooldownTick((n) => n + 1);
-      if (Date.now() >= sendCooldownUntil) {
-        setSendCooldownUntil(null);
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [sendCooldownUntil]);
 
   const [httpDegraded, setHttpDegraded] = useState(false);
   const flushLockRef = useRef(false);
@@ -308,12 +233,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
   const mergePendingFromIndexedDb = useCallback(() => {
     return listPendingSendsForSquad(squadId).then((rows) => {
-      const fromDb = rows.map((r) => ({
+      const fromDb: OptimisticMessage[] = rows.map((r) => ({
         optimisticId: r.localId,
         squad_id: r.squadId,
         sender_id: r.senderId,
         payload_ciphertext: r.payload_ciphertext,
-        plainBody: r.plainBody,
+        plainBody: readPendingPlaintext(r.localId) ?? null,
         sent_at: r.createdAt,
         status: 'active',
         deliveryStatus: 'pending' as const,
@@ -427,6 +352,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
         return { ok: false };
       }
       await removePendingSend(m.optimisticId);
+      forgetPendingPlaintext(m.optimisticId);
       setOptimisticMessages((prev) => prev.filter((x) => x.optimisticId !== m.optimisticId));
       applyLocalMessage(insertedRow);
       return { ok: true };
@@ -563,7 +489,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
       ),
     );
     if (toRemove.length === 0) return;
-    for (const o of toRemove) void removePendingSend(o.optimisticId);
+    for (const o of toRemove) {
+      void removePendingSend(o.optimisticId);
+      forgetPendingPlaintext(o.optimisticId);
+    }
     setOptimisticMessages((prev) =>
       prev.filter((x) => !toRemove.some((r) => r.optimisticId === x.optimisticId)),
     );
@@ -616,7 +545,12 @@ export function SessionPage({ squadId }: { squadId: string }) {
       setOptimisticMessages((prev) =>
         prev.map((x) => (x.optimisticId === optimisticId ? { ...x, deliveryStatus: 'failed' } : x)),
       );
-      setComposer(m.plainBody);
+      // Only re-populate the composer when the plaintext is still in tab memory.
+      // After a reload the on-disk record is ciphertext-only by design, so the
+      // user must compose afresh or retry as-is.
+      if (m.plainBody !== null) {
+        setComposer(m.plainBody);
+      }
       toast.error(
         'Message could not be sent. Check your connection and tap Retry on the message below.',
       );
@@ -694,9 +628,11 @@ export function SessionPage({ squadId }: { squadId: string }) {
         squadId,
         senderId: user.id,
         payload_ciphertext: enc,
-        plainBody: bodyForSend,
         createdAt: sentAt,
       });
+      // Mirror plaintext in tab-local memory ONLY (security: never persisted).
+      // Used by the composer-restore path on retry-failure within the same tab.
+      rememberPendingPlaintext(optimisticId, bodyForSend);
       sendQueueBcRef.current?.postMessage({
         type: 'pending-enqueued',
         squadId,
@@ -809,7 +745,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
     window.setTimeout(() => {
       setComposer('');
       setSlowDownBreathing(false);
-      setSendCooldownUntil(Date.now() + SEND_COOLDOWN_MS);
+      engageSendCooldown(SEND_COOLDOWN_MS);
     }, PAUSE_MESSAGE_MS);
   }
 
@@ -1224,7 +1160,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
                 ? optimisticMessages.map((m) => (
                     <SessionMessageItem
                       key={m.optimisticId}
-                      originalBody={m.plainBody}
+                      originalBody={m.plainBody ?? PENDING_BODY_PLACEHOLDER}
                       sentAtLabel={new Date(m.sent_at).toLocaleString()}
                       retracted={false}
                       isOwn={true}

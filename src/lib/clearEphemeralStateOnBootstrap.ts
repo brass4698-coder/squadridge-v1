@@ -1,6 +1,6 @@
 import { ONBOARDING_DRAFT_STORAGE_KEY } from '../onboarding/app/components/onboarding/onboardingStorageKeys';
 import { clearSessionIntent } from './intentStorage';
-import { clearMatchmakingSession, clearPendingMatchReveal } from './matchmakingSession';
+import { clearMatchmakingSession, clearPendingMatchReveal } from './matchmaking/matchmakingSession';
 
 /**
  * Runs once per full document load (before React). Clears tab session flows and any legacy

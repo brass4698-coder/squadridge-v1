@@ -8,8 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 import {
   decodeMessagePayloadAdaptive,
   encodeSecureMessagePayload,
-} from '../../../src/lib/messagePayload';
-import { importAes256GcmKeyFromBase64Url } from '../../../src/lib/messageCrypto';
+} from '../../../src/lib/crypto/messagePayload';
+import { importAes256GcmKeyFromBase64Url } from '../../../src/lib/crypto/messageCrypto';
 import { redactOutgoingLiveMessage } from '../../../src/lib/liveMessageRedaction';
 import { corsHeadersFor } from '../_shared/cors.ts';
 import { processIngestRequest } from './processIngestMessage';

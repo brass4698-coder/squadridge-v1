@@ -1,0 +1,12 @@
+# Pitch-deck assets are gated by the `serve-pitch-deck` Edge Function.
+# Only chrome (CSS / JS / fonts) lives under /pitch-deck-hub/ now, but
+# we disallow the prefix anyway so a future regression that moves a deck
+# back into public/ does not get indexed before review. The gated
+# function URL also returns `X-Robots-Tag: noindex, nofollow`.
+User-agent: *
+Disallow: /pitch-deck-hub/
+
+# Health and admin surfaces should never be indexed; they require auth
+# but we belt-and-suspenders the listing here too.
+Disallow: /admin/
+Disallow: /admin

@@ -69,6 +69,7 @@ Pushes to **`main`** run [`.github/workflows/deploy-supabase-production.yml`](..
 | `ALLOWED_ORIGINS` | Comma-separated origins for Edge CORS (must include each deployed frontend URL, e.g. `https://your-app.netlify.app,http://localhost:5173`) |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL for the `rate-limit` function |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token (pair with URL above) |
+| `DECK_SHARE_SIGNING_SECRET` | HMAC secret used by `mint-deck-share` and `serve-pitch-deck` to sign / verify pitch-deck access tokens. Generate fresh per environment, **64+ random characters** (e.g. `openssl rand -base64 64`). Rotating invalidates every outstanding share link — coordinate with anyone you've sent unsigned URLs to. Never reuse the Supabase JWT secret. |
 
 Do **not** commit secrets; only add them under **GitHub → Settings → Secrets and variables → Actions**.
 

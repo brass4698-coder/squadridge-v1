@@ -13,4 +13,28 @@ describe('generateStubProof (ZK stub path)', () => {
     expect(proof.verifiedAt).toMatch(/^\d{4}-/);
     vi.restoreAllMocks();
   });
+
+  it('derives commitment and nullifierHash deterministically from (credentialType, rawInput)', async () => {
+    // Determinism is the security-relevant property: the previous implementation
+    // mixed Date.now() into commitData, which broke nullifier-style dedup even
+    // on the stub path (same input -> different commitment every call).
+    const a = await generateStubProof('session_attribute', 'fixed-input');
+    const b = await generateStubProof('session_attribute', 'fixed-input');
+    expect(a.commitment).toBe(b.commitment);
+    expect(a.nullifierHash).toBe(b.nullifierHash);
+  });
+
+  it('produces different commitments when rawInput differs', async () => {
+    const a = await generateStubProof('session_attribute', 'input-a');
+    const b = await generateStubProof('session_attribute', 'input-b');
+    expect(a.commitment).not.toBe(b.commitment);
+    expect(a.nullifierHash).not.toBe(b.nullifierHash);
+  });
+
+  it('produces different commitments when credentialType differs', async () => {
+    const a = await generateStubProof('citizenship', 'fixed-input');
+    const b = await generateStubProof('press_credential', 'fixed-input');
+    expect(a.commitment).not.toBe(b.commitment);
+    expect(a.nullifierHash).not.toBe(b.nullifierHash);
+  });
 });

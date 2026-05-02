@@ -76,7 +76,7 @@ export async function processIngestRequest(req: Request, deps: IngestDeps): Prom
 
   const { data: squadRow, error: squadErr } = await deps.userSupabase
     .from('squads')
-    .select('message_encryption_key, archived_at')
+    .select('message_encryption_key, archived_at, current_epoch_id')
     .eq('id', squadId)
     .single();
   if (squadErr || !squadRow?.message_encryption_key) {
@@ -108,9 +108,23 @@ export async function processIngestRequest(req: Request, deps: IngestDeps): Prom
     return jsonResponse(500, { error: 'Could not encrypt message' }, ch);
   }
 
+  // Stamp the message with the live epoch so a future rotation cleanly bounds
+  // which historical rows decrypt under which key. Older rows from before this
+  // column existed surface as NULL; consumers treat NULL as "current epoch on
+  // the squad row" via the squads.message_encryption_key fallback.
+  const insertRow: {
+    squad_id: string;
+    sender_id: string;
+    payload_ciphertext: string;
+    key_epoch_id?: string;
+  } = { squad_id: squadId, sender_id: user.id, payload_ciphertext: ciphertextOut };
+  if (squadRow.current_epoch_id) {
+    insertRow.key_epoch_id = squadRow.current_epoch_id;
+  }
+
   const { data: inserted, error: insErr } = await deps.adminSupabase
     .from('messages')
-    .insert({ squad_id: squadId, sender_id: user.id, payload_ciphertext: ciphertextOut })
+    .insert(insertRow)
     .select('*')
     .single();
 

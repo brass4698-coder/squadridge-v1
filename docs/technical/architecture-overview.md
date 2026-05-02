@@ -51,9 +51,10 @@ The data pipeline separates ephemeral messaging streams from aggregated analytic
 
 The architecture incorporates best practices for digital safety in conflict zones [3].
 
-*   **Encryption**: **Target:** end-to-end encryption for sensitive exchanges [3]. **Current:** MVP message payloads are structured JSON at rest (`src/lib/messagePayload.ts`); see [`docs/technical/security-privacy.md`](security-privacy.md) and the [threat model](../security/threat-model.md) before claiming E2E to users or partners.
+*   **Encryption**: **Target:** end-to-end encryption for sensitive exchanges [3]. **Current:** AES-256-GCM at the application layer with **per-squad key epochs** (`squad_key_epochs`, `messages.key_epoch_id`); audited rotation via `rotate_squad_key` (`20260502120100_rotate_squad_key_rpc.sql`); daily pg_cron purge of retired-epoch keys for live squads after 30 days plus immediate purge on archive (`20260503120000` / `20260503120100`). Operator-readable; not Signal-grade E2E — see [`docs/technical/security-privacy.md`](security-privacy.md), the [threat model](../security/threat-model.md) §5, and [ADR 004](../adr/004-defer-operator-blind-e2e.md) before claiming E2E to users or partners.
 *   **Data Minimization**: Ephemeral messaging and retraction reduce exposure; retention policies should align with [`docs/technical/data-retention-zk.md`](data-retention-zk.md) and the threat model [3].
-*   **Resilience**: Uptime and scale depend on Supabase’s managed infrastructure, Postgres tuning, and careful use of Realtime and Edge Functions—not on a separate Node/Redis stack in this repository. Crisis-time spikes still warrant capacity planning with the provider and monitoring (see deployment and operations docs).
+*   **Resilience**: Uptime and scale depend on Supabase's managed infrastructure, Postgres tuning, and careful use of Realtime and Edge Functions—not on a separate Node/Redis stack in this repository. Crisis-time spikes still warrant capacity planning with the provider and monitoring (see deployment and operations docs).
+*   **CSI ingestion + partner export (Track C/D):** `csi-ingest-snapshot` Edge Function on hourly pg_cron writes regional snapshots from facilitator codes + sentiment_metrics; `csi-partner-export` Edge Function provides scoped, audited, rate-limited reads for vetted partners. Public CSI feeds remain out of scope by governance choice (see [`docs/business/strategic-positioning-early-warning.md`](../business/strategic-positioning-early-warning.md)).
 
 ## References
 

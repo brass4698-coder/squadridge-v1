@@ -6,41 +6,13 @@ import { publicShellInnerClass, shellListResetClass } from './publicShell';
 import { twMerge } from 'tailwind-merge';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { IdentityModeChip } from './IdentityModeChip';
+import { AccountMenu } from './AccountMenu';
 import { useStrings } from '../../lib/i18n/strings';
+import { SquadLogo } from '../SquadLogo';
+import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 
 const HEADER_SHELL =
   'sticky top-0 z-[100] border-b border-line-divider bg-surface backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(11,13,16,0.92)]';
-
-/** Brand mark — flat institutional shield, single accent fill. */
-function BrandMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden
-      className={twMerge('size-[20px] shrink-0 text-brand lg:size-[22px]', className)}
-    >
-      <path
-        d="M12 2.5l7.6 3.2v6.1c0 4.4-3 8.4-7.6 9.7-4.6-1.3-7.6-5.3-7.6-9.7V5.7L12 2.5z"
-        fill="currentColor"
-        opacity="0.12"
-      />
-      <path
-        d="M12 2.5l7.6 3.2v6.1c0 4.4-3 8.4-7.6 9.7-4.6-1.3-7.6-5.3-7.6-9.7V5.7L12 2.5z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-      <path
-        d="M8.4 12.2l2.6 2.6 4.6-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 /** Single primary row: 64px mobile, 72px desktop — context bar is always separate below. */
 const HEADER_MAIN_ROW = twMerge(
@@ -80,7 +52,6 @@ function usePublicNavActive() {
       pathname.startsWith('/session/'),
     trust:
       pathname === '/trust' || pathname.startsWith('/trust/') || pathname.startsWith('/security'),
-    insights: pathname === '/insights' || pathname.startsWith('/insights/'),
     partners: pathname === '/partners' || pathname.startsWith('/partners/'),
     ledger: pathname === '/ledger' || pathname === '/ledger/' || pathname.startsWith('/ledger/'),
   };
@@ -130,12 +101,13 @@ function DesktopPrimaryNav({
   onNavigate?: () => void;
 }) {
   const { t } = useStrings();
+  /* Primary nav surfaces only the essential walkthrough/marketing pillars.
+   * Insights is fixture-backed prototype reporting and lives in the footer. */
   const items = [
     { key: 'mission', to: '/', label: t('nav.mission'), isActive: active.mission },
     { key: 'dialogues', to: '/dialogues', label: t('nav.dialogues'), isActive: active.dialogues },
     { key: 'ledger', to: '/ledger', label: t('nav.ledger'), isActive: active.ledger },
     { key: 'trust', to: '/trust', label: t('nav.trust'), isActive: active.trust },
-    { key: 'insights', to: '/insights', label: t('nav.insights'), isActive: active.insights },
     { key: 'partners', to: '/partners', label: t('nav.partners'), isActive: active.partners },
   ] as const;
 
@@ -267,7 +239,6 @@ function MobileNavPanel({
     { to: '/dialogues', label: t('nav.dialogues'), active: active.dialogues, hash: false },
     { to: '/ledger', label: t('nav.ledger'), active: active.ledger, hash: false },
     { to: '/trust', label: t('nav.trust'), active: active.trust, hash: false },
-    { to: '/insights', label: t('nav.insights'), active: active.insights, hash: false },
     { to: '/partners', label: t('nav.partners'), active: active.partners, hash: false },
   ] as const;
 
@@ -317,8 +288,13 @@ function MobileNavPanel({
             <div className="flex flex-wrap items-center gap-2">
               <LanguageSwitcher compact />
               <IdentityModeChip />
+              <AccountMenu triggerVariant="public-shell" />
             </div>
-          ) : null}
+          ) : (
+            <div className="flex">
+              <AccountMenu triggerVariant="public-shell" />
+            </div>
+          )}
           <a
             href="/#waitlist"
             className={twMerge(
@@ -412,15 +388,16 @@ function PublicShellHeader({ mode }: { mode: 'public' | 'app' }) {
             className="flex max-w-[260px] min-w-0 shrink-0 items-center gap-2.5 no-underline transition-opacity hover:opacity-[0.92] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
             aria-label="SquadRidge home"
           >
-            <BrandMark />
-            <span className="flex flex-col gap-0.5">
-              <span className="font-sans text-[16px] font-semibold tracking-tight text-ink lg:text-[17px]">
-                SquadRidge
-              </span>
-              <span className="hidden sm:block text-[12px] font-normal leading-snug text-ink-faint lg:text-[12.5px]">
-                Sealed rooms. Public records.
-              </span>
-            </span>
+            <SquadLogo
+              size={28}
+              className="block h-[28px] w-[28px] shrink-0 lg:h-[32px] lg:w-[32px]"
+              aria-hidden
+            />
+            <SquadRidgeWordmark
+              alt=""
+              aria-hidden
+              className="h-[1.25rem] w-auto max-w-[min(180px,34vw)] translate-y-px lg:h-[1.4rem]"
+            />
           </Link>
 
           <DesktopPrimaryNav active={active} onNavigate={closeMobile} />
@@ -433,6 +410,9 @@ function PublicShellHeader({ mode }: { mode: 'public' | 'app' }) {
                   <IdentityModeChip />
                 </>
               ) : null}
+              {/* Account menu is the only signed-in affordance in the header.
+               * On the marketing/public shell it self-renders as a muted "Sign in" link. */}
+              <AccountMenu triggerVariant="public-shell" />
               <a
                 href="/#waitlist"
                 className={twMerge(
@@ -505,15 +485,16 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
             className="flex max-w-[260px] items-center gap-2.5 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
             aria-label="SquadRidge home"
           >
-            <BrandMark className="size-[20px] lg:size-[22px]" />
-            <span className="flex flex-col gap-0.5">
-              <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
-                SquadRidge
-              </span>
-              <span className="hidden sm:block text-[12px] font-normal text-slate-500 lg:text-[13px]">
-                Verified dialogue infrastructure
-              </span>
-            </span>
+            <SquadLogo
+              size={28}
+              className="block h-[28px] w-[28px] shrink-0 lg:h-[32px] lg:w-[32px]"
+              aria-hidden
+            />
+            <SquadRidgeWordmark
+              alt=""
+              aria-hidden
+              className="h-[1.25rem] w-auto max-w-[min(180px,34vw)] translate-y-px lg:h-[1.4rem]"
+            />
           </Link>
           <span className="flex-1" aria-hidden />
           <Link

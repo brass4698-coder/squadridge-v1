@@ -30,6 +30,12 @@ const BASE_DELAY_MS = 1_000;
 const MAX_DELAY_MS = 30_000;
 export const MESSAGES_PAGE_SIZE = 40;
 
+/**
+ * Reconnect-only merge: rebuilds + sorts the page after a backfill. Per-event
+ * INSERT/UPDATE handlers below use `appendMessageRowSorted` instead, which
+ * avoids the full sort on the hot path. Do not call this from the realtime
+ * subscription callback.
+ */
 function mergeRowsById(prev: MessageRow[], incoming: MessageRow[]): MessageRow[] {
   const byId = new Map<string, MessageRow>();
   for (const m of prev) {
@@ -39,6 +45,25 @@ function mergeRowsById(prev: MessageRow[], incoming: MessageRow[]): MessageRow[]
     byId.set(row.id, row);
   }
   return Array.from(byId.values()).sort(
+    (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
+  );
+}
+
+/**
+ * Hot path: realtime INSERT for a single new row. The common case is monotonic
+ * (`row.sent_at >= last.sent_at`) so we append in O(1); only the rare
+ * out-of-order case (multi-tab races, clock skew) falls back to a full sort.
+ * Returns `prev` unchanged when the row id is already present.
+ */
+function appendMessageRowSorted(prev: MessageRow[], row: MessageRow): MessageRow[] {
+  if (prev.some((m) => m.id === row.id)) return prev;
+  if (prev.length === 0) return [row];
+  const lastSentAt = new Date(prev[prev.length - 1]!.sent_at).getTime();
+  const incomingSentAt = new Date(row.sent_at).getTime();
+  if (incomingSentAt >= lastSentAt) {
+    return [...prev, row];
+  }
+  return [...prev, row].sort(
     (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
   );
 }
@@ -174,10 +199,9 @@ export function useRealtimeMessages(squadId: string | undefined) {
         const pages = [...old.pages];
         const li = pages.length - 1;
         const last = pages[li] ?? [];
-        if (last.some((m) => m.id === row.id)) return old;
-        pages[li] = [...last, row].sort(
-          (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
-        );
+        const next = appendMessageRowSorted(last, row);
+        if (next === last) return old;
+        pages[li] = next;
         return { ...old, pages };
       });
     },
@@ -345,10 +369,9 @@ export function useRealtimeMessages(squadId: string | undefined) {
                 const pages = [...old.pages];
                 const li = pages.length - 1;
                 const last = pages[li] ?? [];
-                if (last.some((m) => m.id === row.id)) return old;
-                pages[li] = [...last, row].sort(
-                  (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime(),
-                );
+                const next = appendMessageRowSorted(last, row);
+                if (next === last) return old;
+                pages[li] = next;
                 return { ...old, pages };
               },
             );

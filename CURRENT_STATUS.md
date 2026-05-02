@@ -20,7 +20,9 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - CI workflows for lint, test, build, frontend deploy artifact creation, and Supabase deploys
 - Threat model and security/architecture documentation that explicitly describe current limits
 - Demo and walkthrough flows for investor and partner conversations
-- **Conflict Severity Index (CSI):** database tables and RLS (`conflict_severity_snapshots`, `escalation_alerts`); mediator-facing read UI at `/admin/csi` for authenticated users in the `moderators` roster. Automated ingestion, calibration, and any public or partner API surfaces are still roadmap work—see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md) and [`docs/product/csi-spec.md`](./docs/product/csi-spec.md).
+- **Conflict Severity Index (CSI):** database tables + RLS (`conflict_severity_snapshots`, `escalation_alerts`), mediator read UI at `/admin/csi`, **automated ingestion** via `supabase/functions/csi-ingest-snapshot` (hourly pg_cron + `csi_aggregate_signals` SQL aggregator over `facilitator_signal_codes` + `sentiment_metrics`), per-region band calibration in `csi_band_thresholds`, and a **scoped partner export** Edge Function (`supabase/functions/csi-partner-export`) gated by hashed API keys, region/dimension allow-lists, audit log (`csi_export_audit_log`), and Upstash rate limiting. Public maps and broad self-serve CSI feeds remain explicitly out of scope — see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md) and [`docs/product/csi-spec.md`](./docs/product/csi-spec.md).
+- **Squad message key rotation + interim forward secrecy:** `squad_key_epochs` table, audited `rotate_squad_key` RPC, and a daily pg_cron purge of retired-epoch keys (Tracks A and B, migrations `20260502120000`–`20260503120100`). Replaces the previous "no key rotation" posture in the threat model. Operator-blind E2E remains deferred per [ADR 004](./docs/adr/004-defer-operator-blind-e2e.md).
+- **Pilot metrics surface:** `/admin/metrics` (moderator-only) reads from a set of read-only views — verification rate, return rate, intervention usage, report rate, moderator hours per squad, match latency. Definitions in [`docs/business/impact-metrics.md`](./docs/business/impact-metrics.md).
 
 ## Pilot-Ready With Care
 
@@ -54,7 +56,7 @@ Long-term **prevention / early-signal** positioning and partner archetypes live 
 
 ## Known Risks
 
-- Current message confidentiality is not true operator-proof E2E; see [`docs/security/threat-model.md`](./docs/security/threat-model.md)
+- Current message confidentiality is not true operator-proof E2E; see [`docs/security/threat-model.md`](./docs/security/threat-model.md). Productized key rotation + retired-epoch purge bound the future-DB-snapshot attack window but do not change the operator-readable trust posture.
 - Metadata and privileged-access risks remain material for higher-risk deployments
 - Demo and roadmap narratives are stronger than current pilot evidence
 - Operational maturity for live pilots still depends on written process and disciplined environment management

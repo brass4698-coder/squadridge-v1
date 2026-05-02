@@ -16,10 +16,19 @@ type SentimentRow = { label?: string; score?: number };
 
 /**
  * DistilBERT sentiment (Transformers.js) when available; falls back to {@link analyzeToneLocal}.
+ *
+ * Bundle hygiene: `@xenova/transformers` is intentionally NOT imported at
+ * module top-level. Vite splits the dynamic `import()` below into a separate
+ * async chunk (`ai-tone`) which is fetched lazily — and only when callers have
+ * already opted in via `isAiPipelineEnabled()` (see
+ * `recordLocalToneAndMaybePersist`). The library also pulls multi-hundred-MB
+ * ONNX model files from HuggingFace at first call; that network cost is
+ * therefore deferred to first use. The regression guard for this lives in
+ * `src/lib/ai/pipeline.bundle.test.ts`.
  */
 export async function analyzeToneWithModel(text: string): Promise<ToneInsight> {
   try {
-    const { pipeline } = await import('@xenova/transformers');
+    const { pipeline } = await import(/* webpackChunkName: "ai-tone" */ '@xenova/transformers');
     const classifier = await pipeline(
       'sentiment-analysis',
       'Xenova/distilbert-base-uncased-finetuned-sst-2-english',

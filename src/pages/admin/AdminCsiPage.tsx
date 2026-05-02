@@ -2,8 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../../contexts/AuthContext';
-import { fetchCsiSnapshots, fetchEscalationAlerts } from '../../lib/csiQueries';
-import type { CsiSnapshotRow, EscalationAlertRow } from '../../lib/csiQueries';
+import { fetchCsiSnapshots, fetchEscalationAlerts } from '../../lib/csi/csiQueries';
+import type { CsiSnapshotRow, EscalationAlertRow } from '../../lib/csi/csiQueries';
 
 function bandClass(band: string): string {
   switch (band) {

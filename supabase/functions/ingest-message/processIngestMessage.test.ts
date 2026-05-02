@@ -9,7 +9,11 @@ interface MakeDepsOptions {
   userErr?: { message: string } | null;
   membership?: { user_id: string } | null;
   membErr?: { message: string } | null;
-  squad?: { message_encryption_key: string | null; archived_at: string | null } | null;
+  squad?: {
+    message_encryption_key: string | null;
+    archived_at: string | null;
+    current_epoch_id?: string | null;
+  } | null;
   squadErr?: { message: string } | null;
   insertResult?: { row?: unknown; err?: { message: string; code?: string } | null };
   redactImpl?: (body: string, squadId: string, userId: string) => Promise<string>;
@@ -24,7 +28,11 @@ function makeDeps(opts: MakeDepsOptions = {}): IngestDeps {
   const membErr = opts.membErr ?? null;
   const squad =
     opts.squad === undefined
-      ? { message_encryption_key: 'aes-key-base64url', archived_at: null }
+      ? {
+          message_encryption_key: 'aes-key-base64url',
+          archived_at: null,
+          current_epoch_id: 'epoch-1',
+        }
       : opts.squad;
   const squadErr = opts.squadErr ?? null;
   const insertResult = opts.insertResult ?? {
@@ -138,12 +146,7 @@ describe('processIngestRequest', () => {
               select: () => ({
                 single: () =>
                   Promise.resolve({
-                    data: {
-                      id: 'msg-1',
-                      squad_id: 'squad-1',
-                      sender_id: 'user-1',
-                      payload_ciphertext: row.payload_ciphertext,
-                    },
+                    data: { id: 'msg-1', ...row },
                     error: null,
                   }),
               }),
@@ -157,11 +160,13 @@ describe('processIngestRequest', () => {
     expect(res.status).toBe(200);
 
     // The handler must write the ciphertext output of `encode(redact(decode(input)))`
-    // and only the three structural columns (squad_id, sender_id, payload_ciphertext).
-    // Real Postgres has no `plaintext` / `redacted_body` columns; this asserts the
-    // handler keeps that contract even if a future change adds rows to the insert.
+    // and only the structural columns. Real Postgres has no `plaintext` /
+    // `redacted_body` columns; this asserts the handler keeps that contract
+    // even if a future change adds rows to the insert. `key_epoch_id` is the
+    // post-rotation epoch stamp added in 20260502120000.
     expect(capturedInsert).not.toBeNull();
     expect(Object.keys(capturedInsert!).sort()).toEqual([
+      'key_epoch_id',
       'payload_ciphertext',
       'sender_id',
       'squad_id',
@@ -169,16 +174,49 @@ describe('processIngestRequest', () => {
     expect(capturedInsert).not.toHaveProperty('plaintext');
     expect(capturedInsert).not.toHaveProperty('redacted_body');
     expect(capturedInsert).not.toHaveProperty('content');
+    expect(capturedInsert!.key_epoch_id).toBe('epoch-1');
 
     // Response body mirrors the inserted row (the test mock returns it verbatim) and
     // must not include any plaintext-bearing field either.
     const responseJson = (await res.clone().json()) as { message: Record<string, unknown> };
     expect(Object.keys(responseJson.message).sort()).toEqual([
       'id',
+      'key_epoch_id',
       'payload_ciphertext',
       'sender_id',
       'squad_id',
     ]);
+  });
+
+  it('omits key_epoch_id from the insert when the squad has no current epoch (legacy fallback)', async () => {
+    let capturedInsert: Record<string, unknown> | null = null;
+    const deps = makeDeps({
+      squad: {
+        message_encryption_key: 'aes-key-base64url',
+        archived_at: null,
+        current_epoch_id: null,
+      },
+    });
+    deps.adminSupabase = {
+      from: vi.fn((table: string) => {
+        if (table !== 'messages') throw new Error(`unexpected admin table ${table}`);
+        return {
+          insert: (row: Record<string, unknown>) => {
+            capturedInsert = row;
+            return {
+              select: () => ({
+                single: () => Promise.resolve({ data: { id: 'msg-x', ...row }, error: null }),
+              }),
+            };
+          },
+        };
+      }),
+    } as unknown as IngestDeps['adminSupabase'];
+
+    const res = await processIngestRequest(postJson(validBody, authHeader), deps);
+    expect(res.status).toBe(200);
+    expect(capturedInsert).not.toBeNull();
+    expect(capturedInsert).not.toHaveProperty('key_epoch_id');
   });
 
   it('responds to OPTIONS preflight with 200 and CORS headers', async () => {

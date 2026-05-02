@@ -24,6 +24,11 @@ test.describe('critical path smoke', () => {
     await expect(page).toHaveURL(/\/sign-in/);
   });
 
+  test('/pitch-deck-hub is internal-only and requires sign-in', async ({ page }) => {
+    await page.goto('/pitch-deck-hub');
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
   test('/dev/supabase is not a public route', async ({ page }) => {
     await page.goto('/dev/supabase');
     await expect(page).toHaveURL((url) => url.pathname === '/');

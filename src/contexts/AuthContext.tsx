@@ -123,8 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     addAuthTransitionBreadcrumb('signOut_requested', { userId: null });
     await supabase.auth.signOut();
     queryClient.setQueryData(queryKeys.auth.session, null);
-    queryClient.removeQueries({ queryKey: ['profile'] });
-    queryClient.removeQueries({ queryKey: ['messages'] });
+    // Use centralized prefix arrays so renames in `queryKeys` propagate here.
+    queryClient.removeQueries({ queryKey: queryKeys.profile.all });
+    queryClient.removeQueries({ queryKey: queryKeys.messages.all });
   }, [supabase, queryClient]);
 
   const value = useMemo<AuthContextValue>(

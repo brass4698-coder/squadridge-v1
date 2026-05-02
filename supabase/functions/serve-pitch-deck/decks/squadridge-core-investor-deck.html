@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="slides-format" content="viewport" />
+  <title>SquadRidge Core Investor Deck</title>
+  <link rel="stylesheet" href="deck-hub-chrome.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: #0f1115;
+      --color-bg-deep: #08090c;
+      --color-surface: #171a21;
+      --color-text: #f3efe7;
+      --color-text-secondary: #d5cfc2;
+      --color-text-muted: #9e9789;
+      --color-accent-1: #c8a45d;
+      --color-accent-2: #f2dfb4;
+      --color-accent-3: #5f8f84;
+      --color-glass-bg: rgba(255,255,255,0.05);
+      --color-glass-border: rgba(255,255,255,0.1);
+      --color-vignette: rgba(0,0,0,0.42);
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+  </style>
+  <style>
+    :root { --color-bg: #0f1115; --color-text: #f3efe7; --glow-color-rgb: 200,164,93; }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{background:var(--color-bg);margin:0}
+    body{font-family:var(--font-body);color:var(--color-text);overflow:hidden;height:100vh;width:100vw}
+    .deck{width:100vw;height:100vh;position:relative}
+    .slide{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.95);transition:opacity .7s ease,transform .7s ease;pointer-events:none;overflow:hidden}
+    .slide.active{opacity:1;transform:scale(1);pointer-events:all}
+    .slide>.content{position:relative;z-index:2;width:100%;max-width:1180px;padding:clamp(1.5rem,4vw,4rem)}
+    .nav-controls{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;z-index:100;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);padding:10px 24px;border-radius:40px;border:1px solid rgba(255,255,255,.1)}
+    .nav-btn{width:40px;height:40px;border:none;background:rgba(255,255,255,.06);color:#c8a45d;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s}
+    .nav-btn:hover{background:rgba(255,255,255,.12)}
+    .slide-dots{display:flex;gap:8px}.slide-dots .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:background .3s,transform .3s}.slide-dots .dot.active{background:#c8a45d;transform:scale(1.3)}
+    .slide-counter{font-size:.8rem;color:#9e9789;min-width:48px;text-align:center}
+    .reveal{opacity:0;transform:translateY(20px)}
+    .gradient-mesh{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+    .blob{position:absolute;border-radius:50%;filter:blur(88px);animation:float-slow 12s ease-in-out infinite}
+    .blob:nth-child(2){animation:float-drift 16s ease-in-out infinite}.blob:nth-child(3){animation:float-slow 18s ease-in-out infinite reverse}
+    @keyframes float-slow{0%{transform:translate(0,0) scale(1)}25%{transform:translate(60px,-50px) scale(1.12)}50%{transform:translate(-40px,40px) scale(.9)}75%{transform:translate(50px,20px) scale(1.08)}100%{transform:translate(0,0) scale(1)}}
+    @keyframes float-drift{0%{transform:translate(0,0) scale(1) rotate(0deg)}33%{transform:translate(-50px,-60px) scale(1.15) rotate(3deg)}66%{transform:translate(40px,30px) scale(.88) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.03;mix-blend-mode:overlay}
+    .slide::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,var(--color-vignette) 100%)}
+    .text-glow{text-shadow:0 0 20px rgba(var(--glow-color-rgb),.35),0 0 40px rgba(var(--glow-color-rgb),.15)}
+    .stat-glow{text-shadow:0 0 28px rgba(var(--glow-color-rgb),.45),0 0 60px rgba(var(--glow-color-rgb),.18)}
+    .bar-chart{display:flex;align-items:flex-end;gap:.75rem;height:180px}.bar-col{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:1}.bar{border-radius:6px 6px 0 0;width:100%}
+    .line-path{stroke-dasharray:1000;stroke-dashoffset:1000}.line-area,.line-dots{opacity:0}
+    .mouse-spotlight{position:fixed;inset:0;z-index:99;pointer-events:none}
+    .metric-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+    .gold-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,93,.85),transparent)}
+    .inv-cash-svg{width:100%;max-width:52rem;height:220px;display:block;margin:0 auto}
+    .inv-chart-sub{font-size:.7rem;color:#9e9789;text-align:center;margin-top:.5rem;letter-spacing:.04em}
+    .inv-sens-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1rem;font-size:.78rem;color:#9e9789}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}}
+  </style>
+  <link rel="stylesheet" href="deck-layout-global.css" />
+</head>
+<body>
+<script src="investor-deck-model.embed.js"></script>
+<a href="/pitch-deck-hub" class="deck-exit-hub">← Pitch Deck Hub</a>
+<button type="button" class="deck-side-arrow deck-side-arrow--prev" data-investor-deck-prev aria-label="Previous slide" onclick="changeSlide(-1)">&#8249;</button>
+<button type="button" class="deck-side-arrow deck-side-arrow--next" data-investor-deck-next aria-label="Next slide" onclick="changeSlide(1)">&#8250;</button>
+<div class="mouse-spotlight"></div>
+<div class="deck">
+  <div class="slide active" data-slide="1">
+    <div class="gradient-mesh">
+      <div class="blob" style="width:520px;height:520px;top:-120px;right:-120px;background:var(--color-accent-1);opacity:.14"></div>
+      <div class="blob" style="width:320px;height:320px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:.10"></div>
+      <div class="blob" style="width:220px;height:220px;top:42%;left:12%;background:var(--color-accent-3);opacity:.10"></div>
+    </div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content text-center">
+      <div class="reveal mx-auto mb-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_0_40px_rgba(200,164,93,0.14)] animate-[float_3s_ease-in-out_infinite]">
+        <img src="/assets/squadridge-logo.svg" alt="" width="96" height="96" class="h-full w-full object-contain" />
+      </div>
+      <p class="reveal mb-3 text-sm uppercase tracking-[0.45em] text-text-muted">Core investor deck</p>
+      <div class="reveal flex justify-center px-4">
+        <img src="/assets/squadridge.svg" alt="SquadRidge" class="h-[clamp(2.5rem,5vw,4rem)] w-auto max-w-[min(90vw,520px)]" />
+      </div>
+      <p class="reveal mx-auto mt-5 max-w-4xl text-[clamp(1.1rem,2vw,1.6rem)] leading-relaxed text-text-secondary">Conflict-prevention infrastructure: verified-anonymous strategy rooms for facilitator-led cohorts—bounded trust, structured dialogue, ledger-grade outputs where enabled, and a roadmap toward escalation-aware analytics (label pilots vs shipped product in diligence).</p>
+      <p class="reveal mt-6 text-sm uppercase tracking-[0.35em] text-text-muted">April 2026 · Internal draft · Assumption-labeled</p>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="2">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:240px;height:240px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.07"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What the company is</p>
+      <h2 class="reveal font-display text-[clamp(2.2rem,4vw,3.6rem)] font-bold">The platform is purpose-built for sensitive coordination, not generic chat.</h2>
+      <div class="reveal mt-8 grid grid-cols-3 gap-6">
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Problem</div><p class="mt-3 text-lg leading-8 text-text-secondary">Sensitive coordination often fails when identity is either fully public and unsafe or fully unverified and not credible.</p></div>
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Solution</div><p class="mt-3 text-lg leading-8 text-text-secondary">SquadRidge combines verified pseudonymous access, facilitator-led rooms, match routing, and durable outputs stakeholders can cite.</p></div>
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Mission</div><p class="mt-3 text-lg leading-8 text-text-secondary">Reduce escalatory misunderstanding in constrained dialogue settings by combining verification discipline, anonymity boundaries, and durable records where appropriate.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="3">
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:10%;left:-80px;background:var(--color-accent-2);opacity:.07"></div><div class="blob" style="width:280px;height:280px;bottom:-80px;right:-40px;background:var(--color-accent-3);opacity:.08"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Market gap</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The failure mode is not messaging volume. It is trust structure.</h2>
+      <div class="mt-8 grid grid-cols-2 gap-6">
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Why existing modes break</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Public-identity rooms can deter candid participation when stakes are political, institutional, or safety-sensitive.</li>
+            <li>Anonymous channels increase candor but often weaken credibility, moderation leverage, and downstream usability.</li>
+            <li>Unstructured exchanges create drift, escalation, and poor traceability for decision-makers who need briefing-grade outputs.</li>
+          </ul>
+        </div>
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Who feels the pain</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Facilitators running high-friction conversations where trust is fragile and safety constraints matter.</li>
+            <li>Pilot sponsors that need process discipline, boundaries, and evidence of what was actually said or proposed.</li>
+            <li>Organizations exploring conflict-prevention, dialogue, and de-escalation workflows without overexposing participants.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="4">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-60px;right:12%;background:var(--color-accent-3);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:8%;background:var(--color-accent-1);opacity:.07"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product system</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Four layers turn sensitive rooms into citable operational outputs.</h2>
+      <div class="mt-8 grid grid-cols-2 gap-6">
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">1 · Verified pseudonymity</div><p class="mt-3 text-lg leading-8 text-text-secondary">Accounts are verified enough to anchor trust while keeping public real-name identity out of the room.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">2 · Facilitator-led cohorts</div><p class="mt-3 text-lg leading-8 text-text-secondary">Small structured groups create bounded dialogue instead of open-ended thread chaos.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">3 · Match routing</div><p class="mt-3 text-lg leading-8 text-text-secondary">Routing logic supports who should be in the room and how cohorts are assembled under explicit constraints.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">4 · Ledger outputs</div><p class="mt-3 text-lg leading-8 text-text-secondary">Important proposals and room outputs can be preserved in durable records suitable for briefings and follow-up.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="5">
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-60px;left:10%;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:10%;background:var(--color-accent-2);opacity:.06"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Why now</p>
+      <h2 class="reveal font-display text-[clamp(2.2rem,4vw,3.5rem)] font-bold">Institutional demand is rising for safer coordination with explicit security boundaries.</h2>
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Trust pressure</div><p class="mt-3 text-lg leading-8 text-text-secondary">Teams increasingly need mechanisms that are more credible than open anonymity and safer than full public identity.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Operational pressure</div><p class="mt-3 text-lg leading-8 text-text-secondary">Sponsors want facilitated rooms and process evidence, not just transcripts or chat logs that create more ambiguity.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Governance pressure</div><p class="mt-3 text-lg leading-8 text-text-secondary">The current release already frames scope honestly, which is increasingly important in security-sensitive software procurement.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="6">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-60px;right:-70px;background:var(--color-accent-1);opacity:.09"></div><div class="blob" style="width:250px;height:250px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.07"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Early use model</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The initial go-to-market is high-touch and pilot-led.</h2>
+      <div class="mt-8 grid grid-cols-2 gap-8 items-start">
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Near-term motion</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Start with facilitator-led pilots where trust boundaries and structured operations are central to success.</li>
+            <li>Sell implementation discipline, room format, and output quality before broad self-serve product expansion.</li>
+            <li>Use the demo, security disclosure, and sample ledger artifacts to support diligence and sponsor conversations.</li>
+          </ul>
+        </div>
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Revenue planning assumptions</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Current internal model uses pilot seat pricing at $1,200 per seat per month as a scenario input, not market fact.</li>
+            <li>Target modeled scale reaches 12 paying seats by month 12 in the current aggressive planning view.</li>
+            <li>Financial appendix is explicitly assumption-driven and should be treated as diligence support, not audited reporting.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="7">
+    <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.08"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;right:-40px;background:var(--color-accent-1);opacity:.07"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Modeled economics (base scenario)</p>
+      <h2 id="inv-kpi-headline" class="reveal font-display text-[clamp(2rem,4vw,3.2rem)] font-bold">Hub-linked model: $750k starting cash ties to modeled runway and month-18 cash on the assumption set below.</h2>
+      <div class="mt-8 grid grid-cols-4 gap-5">
+        <div class="reveal metric-card p-6 text-center"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Fundraising ask</div><div class="mt-4 text-4xl font-extrabold stat-glow" data-count="750000" data-prefix="$"></div><div class="mt-3 text-sm text-text-muted">Planning input · hub default</div></div>
+        <div class="reveal metric-card p-6 text-center"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Runway (base)</div><div id="inv-kpi-runway" class="mt-4 text-4xl font-extrabold stat-glow">~9 mo</div><div class="mt-3 text-sm text-text-muted">To first month-end cash &lt; 0</div></div>
+        <div class="reveal metric-card p-6 text-center"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Month-18 cash end (base)</div><div id="inv-kpi-m18" class="mt-4 text-3xl font-extrabold stat-glow">−$915k</div><div class="mt-3 text-sm text-text-muted">Scenario model</div></div>
+        <div class="reveal metric-card p-6 text-center"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Operating break-even</div><div id="inv-kpi-be" class="mt-4 text-2xl font-extrabold stat-glow leading-tight">Not in 24-mo horizon</div><div class="mt-3 text-sm text-text-muted">As modeled</div></div>
+      </div>
+      <div class="reveal mt-8 rounded-[22px] border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.04)] px-7 py-5 text-base leading-7 text-text-secondary"><span class="font-medium text-text">Assumption set (Pitch Deck Hub defaults, Mar 2026 start):</span> FTE path <strong class="font-semibold text-text">2 → 5 (M12) → 9 (M24)</strong> via linear interpolation; <strong class="font-semibold text-text">$185k</strong> fully-loaded FTE/year; seat ramp to <strong class="font-semibold text-text">12</strong> paying seats at <strong class="font-semibold text-text">$1,200</strong>/seat/mo; contingency <strong class="font-semibold text-text">8%</strong>; non-payroll opex from infrastructure, legal, S&amp;M, contractors as in hub. All figures are <strong class="font-semibold text-text">scenario models, not audited actuals</strong>.</div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="8">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-40px;background:var(--color-accent-3);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-80px;left:-50px;background:var(--color-accent-1);opacity:.08"></div></div>
+    <div class="content max-w-[1100px]">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Graphical · traceable</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Cash end (base) and seat revenue checkpoints (aggressive scenario multiplier).</h2>
+      <div id="inv-charts-root" class="mt-6 space-y-8">
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-accent-1 mb-2">Modeled cash end</p>
+          <div id="inv-cash-chart" class="reveal rounded-[20px] border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] p-4"></div>
+          <p id="inv-cash-footer" class="inv-chart-sub">Scenario model · not audited actuals</p>
+        </div>
+        <div class="grid grid-cols-[1.2fr_0.85fr] gap-8 items-end">
+          <div class="reveal">
+            <p class="text-sm uppercase tracking-[0.2em] text-accent-1 mb-2">Seat revenue (aggressive)</p>
+            <div class="bar-chart" id="inv-rev-bar-chart">
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="0"></div><div class="text-sm text-text-muted">M1</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="42"></div><div class="text-sm text-text-muted">M6</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="92"></div><div class="text-sm text-text-muted">M12</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#c8a45d,#7b6438)]" data-height="100"></div><div class="text-sm text-text-muted">M18</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+            </div>
+          </div>
+          <div class="reveal metric-card p-6">
+            <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Seat price sensitivity (base)</div>
+            <div id="inv-sensitivity" class="inv-sens-row flex-col items-stretch text-left gap-2 mt-3 text-[0.85rem] leading-relaxed text-text-secondary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="9">
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;left:-30px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:-30px;background:var(--color-accent-2);opacity:.06"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What is already defensible</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The diligence story is strongest where the product is explicit about boundaries.</h2>
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Security disclosure</div><p class="mt-3 text-lg leading-8 text-text-secondary">There is authoritative public copy on encryption scope, squad keys, and operator visibility in the current release.</p><div class="mt-5 text-sm text-text-muted">Evidence state: pending validation</div></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Sample ledger output</div><p class="mt-3 text-lg leading-8 text-text-secondary">A demo ledger artifact exists and is useful for illustrating output format, while explicitly not being evidence of adoption.</p><div class="mt-5 text-sm text-text-muted">Evidence state: illustrative only</div></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Open evidence gaps</div><p class="mt-3 text-lg leading-8 text-text-secondary">Pilot success criteria and market sizing still require source attachment before the deck should be marked external-ready.</p><div class="mt-5 text-sm text-text-muted">2 items still needing evidence</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="10">
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;right:8%;background:var(--color-accent-3);opacity:.07"></div><div class="blob" style="width:260px;height:260px;bottom:-50px;left:-20px;background:var(--color-accent-1);opacity:.08"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product &amp; GTM roadmap</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Milestones with explicit shipped vs planned posture.</h2>
+      <div class="mt-8 grid grid-cols-3 gap-5 text-left">
+        <div class="reveal metric-card p-6">
+          <div class="text-sm uppercase tracking-[0.2em] text-text-muted mb-3">Now · shipping today</div>
+          <ul class="space-y-3 text-lg leading-relaxed text-text-secondary">
+            <li><strong class="text-text">Security disclosure</strong> — public scope for encryption, squad keys, operator visibility.</li>
+            <li><strong class="text-text">Demo paths</strong> — match / session / ledger surfaces as documented for pilots.</li>
+          </ul>
+        </div>
+        <div class="reveal metric-card p-6">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1 mb-3">Next 2–3 quarters</div>
+          <ul class="space-y-3 text-lg leading-relaxed text-text-secondary">
+            <li><strong class="text-text">Facilitator playbook + paid pilot contract</strong> — owner: GTM · signal: executed charter + references.</li>
+            <li><strong class="text-text">Evidence attachment</strong> — pilot success criteria sourced; no external deck without it.</li>
+          </ul>
+        </div>
+        <div class="reveal metric-card p-6">
+          <div class="text-sm uppercase tracking-[0.2em] text-text-muted mb-3">Later · engineering truth</div>
+          <ul class="space-y-3 text-lg leading-relaxed text-text-secondary">
+            <li><strong class="text-text">Hardening options</strong> — only as labeled in materials; tie to /security roadmap language.</li>
+            <li><strong class="text-text">Scale motion</strong> — contingent on repeatable pilot economics from the model.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="reveal mt-8 text-sm text-text-muted max-w-3xl">Success signals are intentionally concrete (disclosure alignment, pilot artifacts, model assumptions in hub). Dependencies: partner governance and security review on customer side.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="11">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-50px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:220px;height:220px;bottom:-60px;left:-30px;background:var(--color-accent-3);opacity:.08"></div></div>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Defensibility rules</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Investors should hear a disciplined story, not a maximal one.</h2>
+      <div class="mt-8 grid grid-cols-2 gap-8">
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Say clearly</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Verified-anonymous strategy rooms for facilitator-led cohorts.</li>
+            <li>Security boundaries are explicit in the current release.</li>
+            <li>Financials are modeled assumptions, not audited actuals.</li>
+          </ul>
+        </div>
+        <div class="reveal metric-card p-8">
+          <div class="text-sm uppercase tracking-[0.2em] text-accent-1">Do not imply</div>
+          <ul class="mt-4 space-y-4 text-lg leading-8 text-text-secondary">
+            <li>Market-size figures as fact without source attachment.</li>
+            <li>Adoption, certification, or outcome claims not anchored to evidence.</li>
+            <li>Roadmap capabilities as if they are already live in the current release.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="12">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;right:-40px;background:var(--color-accent-1);opacity:.07"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Use of funds</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The current model supports a build-and-pilot phase, not broad-scale expansion.</h2>
+      <div class="mt-8 grid grid-cols-3 gap-6">
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Team buildout</div><p class="mt-3 text-lg leading-8 text-text-secondary">Hub default interpolates <strong class="text-text">2 → 5 → 9</strong> FTE over 24 months on stated fully-loaded cost — same path as Pitch Deck Hub financial engine.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Compliance & operations</div><p class="mt-3 text-lg leading-8 text-text-secondary">Non-payroll baseline ~$21.5k/mo: $8k legal/compliance, $3.5k infrastructure, $4k sales/marketing (↓ from $6k), $6k contractors (↓ from $12k), before contingency.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Milestone framing</div><p class="mt-3 text-lg leading-8 text-text-secondary">The first tranche milestone is currently framed as shipping a facilitator playbook and first paid pilot contract structure.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" data-slide="13">
+    <div class="gradient-mesh"><div class="blob" style="width:520px;height:520px;top:-100px;right:-100px;background:var(--color-accent-1);opacity:.14"></div><div class="blob" style="width:300px;height:300px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:.10"></div><div class="blob" style="width:200px;height:200px;top:40%;left:15%;background:var(--color-accent-3);opacity:.1"></div></div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
+    <div class="content text-center">
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.4em] text-text-muted">The ask</p>
+      <h2 class="reveal font-display text-[clamp(2.6rem,5vw,4.4rem)] font-bold bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent">Fund the next proof layer with disciplined claims.</h2>
+      <div class="reveal mx-auto mt-8 max-w-4xl rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] px-9 py-8 text-left text-xl leading-9 text-text-secondary">
+        SquadRidge is building verified-anonymous infrastructure for facilitator-led strategy rooms where ordinary chat products fail. The current investor story is strongest when it stays rigorous: explicit trust boundaries, pilot-first deployment, and assumption-labeled financials tied to concrete milestones.
+      </div>
+      <div class="reveal mt-8 text-sm uppercase tracking-[0.3em] text-text-muted">Next step: investor diligence conversation + linked financial appendix</div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-controls deck-bottom-bar">
+  <button type="button" class="nav-btn deck-nav-btn" data-investor-deck-prev aria-label="Previous slide" onclick="changeSlide(-1)">&#8249;</button>
+  <div class="slide-dots" id="dots"></div>
+  <button type="button" class="nav-btn deck-nav-btn" data-investor-deck-next aria-label="Next slide" onclick="changeSlide(1)">&#8250;</button>
+  <span class="slide-counter deck-slide-counter" id="counter">1 / 13</span>
+</div>
+
+<script>
+(function hydrateInvestorDeckModel(){
+  const m=typeof window.__INVESTOR_DECK_MODEL==='object'?window.__INVESTOR_DECK_MODEL:null;
+  if(!m||!m.kpi)return;
+  const k=m.kpi,b=k.base,be=b.breakEvenMonthLabel;
+  const h=document.getElementById('inv-kpi-headline');
+  if(h)h.textContent='Base scenario — '+k.fundraisingAskLabel+' starting cash · '+b.runwayCopy;
+  const rw=document.getElementById('inv-kpi-runway');
+  if(rw&&b.runwayMonthsToCashRisk!=null)rw.textContent='~'+b.runwayMonthsToCashRisk+' mo';
+  const m18=document.getElementById('inv-kpi-m18');
+  if(m18)m18.textContent=b.cashEndMonth18Label;
+  const beEl=document.getElementById('inv-kpi-be');
+  if(beEl)beEl.textContent=be;
+  const cashFoot=document.getElementById('inv-cash-footer');
+  if(cashFoot&&m.chartFooter)cashFoot.textContent=m.chartFooter;
+  const cc=document.getElementById('inv-cash-chart');
+  if(cc&&m.monthly&&m.monthly.length){
+    const vals=m.monthly.map(function(r){return r.cashEndUsd});
+    let minV=Math.min.apply(null,vals.concat([0]));
+    let maxV=Math.max.apply(null,vals.concat([m.assumptions.startingCashUsd]));
+    const pad=1e-6;
+    minV-=pad;maxV+=pad;
+    const W=900,H=200,pl=52,pb=32,pr=16,pt=12;
+    const iw=W-pl-pr,ihH=H-pt-pb;
+    const n=vals.length;
+    const xs=function(i){return pl+(i/(n-1))*iw};
+    const ys=function(v){return pt+ihH*(1-(v-minV)/(maxV-minV))};
+    const pts=vals.map(function(v,i){return xs(i)+','+ys(v)}).join(' ');
+    const zeroY=ys(0);
+    const poly=pl+','+zeroY+' '+pts.split(' ').slice(-1)[0]+' '+xs(n-1)+','+zeroY;
+    cc.innerHTML='<svg class="inv-cash-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" aria-label="Cash end by month, base scenario"><line x1="'+pl+'" y1="'+zeroY+'" x2="'+(W-pr)+'" y2="'+zeroY+'" stroke="rgba(158,151,137,0.35)" stroke-width="1"/><polyline fill="none" stroke="#5f8f84" stroke-width="2.5" points="'+pts+'"/><text x="'+pl+'" y="'+(H-6)+'" font-size="11" fill="#9e9789">'+m.monthly[0].label+'</text><text x="'+(W/2-22)+'" y="'+(H-6)+'" font-size="11" fill="#9e9789" text-anchor="middle">Month</text><text x="'+(W-pr-72)+'" y="'+(H-6)+'" font-size="11" fill="#9e9789">'+m.monthly[n-1].label+'</text></svg>';
+  }
+  const rev=k.aggressive&&k.aggressive.revenueAtMonths;
+  if(rev&&rev.length){
+    var mx=0;for(var i=0;i<rev.length;i++)if(rev[i].revenueUsd>mx)mx=rev[i].revenueUsd;
+    var chart=document.getElementById('inv-rev-bar-chart');
+    if(chart){
+      var cols=chart.querySelectorAll('.bar-col');
+      for(var j=0;j<cols.length&&j<rev.length;j++){
+        var bar=cols[j].querySelector('.bar');
+        var pct=mx<=0?2:Math.max(2,Math.round((rev[j].revenueUsd/mx)*100));
+        if(bar)bar.setAttribute('data-height',String(pct));
+        var lbl=cols[j].querySelector('.inv-rev-lbl');
+        if(lbl)lbl.textContent=rev[j].revenueUsd<=0?'$0':'$'+(rev[j].revenueUsd/1000).toFixed(1).replace(/\.0$/,'')+'k';
+      }
+    }
+  }
+  var sens=document.getElementById('inv-sensitivity');
+  if(sens&&m.sensitivity){
+    sens.innerHTML='<div><strong class="text-text">'+m.sensitivity.label+'</strong></div><div>Seat −10%: first cash-out month index (base) ≈ '+String(m.sensitivity.seatMinus10Runway)+'</div><div>Seat +10%: ≈ '+String(m.sensitivity.seatPlus10Runway)+'</div>';
+  }
+})();
+let current=1;const total=document.querySelectorAll('.slide').length;const dotsContainer=document.getElementById('dots');const counter=document.getElementById('counter');for(let i=1;i<=total;i++){const dot=document.createElement('div');dot.className='dot'+(i===1?' active':'');dot.onclick=()=>goToSlide(i);dotsContainer.appendChild(dot)}
+function goToSlide(n){const prev=document.querySelector('.slide.active');const next=document.querySelector(`.slide[data-slide="${n}"]`);if(prev)prev.classList.remove('active');if(next){next.classList.add('active');animateSlide(next)}current=n;updateNav()}
+function changeSlide(dir){const next=current+dir;if(next<1||next>total)return;goToSlide(next)}
+function updateNav(){document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i+1===current));counter.textContent=current+' / '+total;document.querySelectorAll('[data-investor-deck-prev]').forEach(el=>{el.disabled=current<=1});document.querySelectorAll('[data-investor-deck-next]').forEach(el=>{el.disabled=current>=total})}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();changeSlide(1)}if(e.key==='ArrowLeft'){e.preventDefault();changeSlide(-1)}});let touchStartX=0;document.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX});document.addEventListener('touchend',e=>{const diff=touchStartX-e.changedTouches[0].clientX;if(Math.abs(diff)>50)changeSlide(diff>0?1:-1)});
+function animateSlide(slide){slide.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transition='none';el.style.opacity='0';el.style.transform='translateY(20px)';el.offsetHeight;const delay=i*.08;el.style.transition=`opacity .35s ease ${delay}s, transform .35s ease ${delay}s`;el.style.opacity='1';el.style.transform='translateY(0px)'});animateSlideEffects(slide)}
+function animateSlideEffects(slide){slide.querySelectorAll('[data-count]:not(.counted)').forEach(el=>{el.classList.add('counted');const target=parseInt(el.dataset.count);const suffix=el.dataset.suffix||'',prefix=el.dataset.prefix||'';let cur=0;const step=target/40;const timer=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(timer)}el.textContent=prefix+Math.round(cur).toLocaleString()+suffix},30)});slide.querySelectorAll('.bar-chart:not(.bar-init)').forEach(chart=>{chart.classList.add('bar-init');chart.querySelectorAll('.bar').forEach((bar,i)=>{bar.style.height='0%';bar.style.transition=`height .5s ease ${i*.06}s`;bar.offsetHeight;bar.style.height=bar.dataset.height+'%'})})}
+document.addEventListener('mousemove',e=>{const spotlight=document.querySelector('.mouse-spotlight');if(spotlight){const rgb=getComputedStyle(document.documentElement).getPropertyValue('--glow-color-rgb').trim()||'200,164,93';spotlight.style.background=`radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(${rgb}, 0.06), transparent 40%)`}});
+window.initParticles=function(canvas,options){if(!canvas)return;const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;const interactive=options.interactive!==false;const count=options.count||(interactive?55:18);let mx=-1000,my=-1000;const rgb=getComputedStyle(document.documentElement).getPropertyValue('--glow-color-rgb').trim()||'200,164,93';const[r,g,b]=rgb.split(',').map(Number);const particles=Array.from({length:count},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,size:Math.random()*2.5+.8,alpha:Math.random()*.35+.1}));if(interactive){canvas.addEventListener('mousemove',e=>{const rect=canvas.getBoundingClientRect();mx=e.clientX-rect.left;my=e.clientY-rect.top});canvas.addEventListener('mouseleave',()=>{mx=-1000;my=-1000})}(function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{if(interactive){const dx=p.x-mx,dy=p.y-my,dist=Math.sqrt(dx*dx+dy*dy);if(dist<120){const force=(120-dist)/120*2;p.vx+=(dx/dist)*force*.1;p.vy+=(dy/dist)*force*.1}}p.vx*=.98;p.vy*=.98;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=`rgba(${r},${g},${b},${p.alpha})`;ctx.fill()});requestAnimationFrame(animate)})()};
+document.querySelectorAll('.particle-canvas').forEach(c=>window.initParticles(c,{interactive:true,count:55}));document.querySelectorAll('.particle-canvas-ambient').forEach(c=>window.initParticles(c,{interactive:false,count:18}));try{animateSlide(document.querySelector('.slide.active'))}catch(e){console.warn('Initial animation error:',e)}updateNav()
+</script>
+</body>
+</html>

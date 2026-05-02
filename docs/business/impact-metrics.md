@@ -6,16 +6,19 @@ Measuring the impact of SquadRidge is critical to our mission as a social enterp
 
 ## Current measurement (MVP)
 
-These are the **small diligence-safe set** aligned with [squadridge-pitch.md](../pitch/squadridge-pitch.md) §6—what you can plausibly cite *today* using Supabase and light process, without inventing productized analytics dashboards.
+These are the **small diligence-safe set** aligned with [squadridge-pitch.md](../pitch/squadridge-pitch.md) §6—what you can plausibly cite *today* using Supabase and light process. As of `20260506120000_pilot_metrics_views.sql` they are computable from documented SQL views and surfaced at `/admin/metrics` (moderator-only).
 
 | Metric | Why it matters | How to measure today |
 | ------ | -------------- | --------------------- |
-| **Time to match** | Queue latency and dropout before match | SQL on `match_queue` / squad creation: time from enqueue to `squads` row for `user_id` (or manual export from Table Editor for pilots). |
-| **Verification success rate** | Semaphore + Edge path vs errors or abandonment | Count rows in `zk_proof_submissions` (or your verification outcome table) vs attempts logged in Edge logs / client errors for a cohort window. |
+| **Time to match** | Queue latency and dropout before match | View `pilot_match_latency_24h` (`20260428270000`) — avg/max match seconds per pool over the last 24h. |
+| **Verification success rate** | Semaphore + Edge path vs errors or abandonment | View `pilot_verification_success_rate_30d` — successful verifications and distinct verified users in 30d, derived from `zk_proof_submissions` (production builds reject `VITE_ZK_STUB`). |
 | **Active squads / messages (volume)** | Baseline usage signal | `SELECT` counts on `squads`, `messages` for a date range; restrict to non-demo data if you exclude demo squads by convention. |
-| **Return rate** | Second session or squad | Join `squad_members` or sessions per `user_id` over time; simplest MVP is “users with ≥2 squad memberships” in SQL. |
+| **Return rate** | Second session or squad | View `pilot_user_return_rate_30d` — active vs returning users (joined ≥2 squads in 30d). |
+| **Power-of-Pause / Pull-back utilization** | UX intervention engagement | View `pilot_intervention_usage_30d` — counts per `interventions.intervention_type`. Surfaces zero rows until the client telemetry hooks publish into the `interventions` table. |
+| **Participant report rate** | Safety signal | View `pilot_participant_report_rate_30d` — counts per `reason_code` with open vs closed breakdown. |
+| **Moderator hours per squad** | Operator load | View `pilot_moderator_hours_per_squad_30d` — heuristic (distinct hour buckets in which a moderator wrote an audit row about the squad). The heuristic over-counts low-touch squads with frequent short audits and under-counts work that does not write audit rows; treat it as a starting point. |
 
-**Not claimed as instrumented in-app yet:** moderator hours per squad, automated incident severity, AI sentiment—those remain roadmap unless you add tooling. Refresh this section when you ship analytics or change schema.
+**Still not claimed as instrumented in-app:** validated AI sentiment shift in user-visible analytics (the CSI ingestion in `csi-ingest-snapshot` consumes facilitator-coded signals and `sentiment_metrics` if populated, but a calibrated user-visible "sentiment shift" KPI requires governance + bias review per [csi-spec.md](../product/csi-spec.md)). Refresh this section when more lands.
 
 ## Key Performance Indicators (KPIs)
 

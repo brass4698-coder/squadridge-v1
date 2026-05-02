@@ -131,9 +131,11 @@ export interface Database {
           status: SquadStatus;
           created_at: string;
           expires_at: string;
+          /** DEPRECATED: denormalised mirror of squads.current_epoch_id's key. */
           message_encryption_key: string | null;
           archived_at: string | null;
           archived_encryption_key_snapshot: string | null;
+          current_epoch_id: string | null;
         };
         Insert: {
           id?: string;
@@ -144,9 +146,42 @@ export interface Database {
           message_encryption_key?: string | null;
           archived_at?: string | null;
           archived_encryption_key_snapshot?: string | null;
+          current_epoch_id?: string | null;
         };
         Update: Partial<Database['public']['Tables']['squads']['Insert']>;
         Relationships: [];
+      };
+      squad_key_epochs: {
+        Row: {
+          id: string;
+          squad_id: string;
+          epoch_number: number;
+          encryption_key: string | null;
+          encryption_key_purged_at: string | null;
+          created_at: string;
+          retired_at: string | null;
+          retired_reason: string | null;
+        };
+        Insert: {
+          id?: string;
+          squad_id: string;
+          epoch_number: number;
+          encryption_key?: string | null;
+          encryption_key_purged_at?: string | null;
+          created_at?: string;
+          retired_at?: string | null;
+          retired_reason?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['squad_key_epochs']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'squad_key_epochs_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       squad_members: {
         Row: {
@@ -172,6 +207,8 @@ export interface Database {
           status: MessageStatus;
           /** Normalized 7d TTL; see ttl_cleanup migration. */
           expires_at: string | null;
+          /** Stamps which squad_key_epochs row encrypted this message; NULL for legacy. */
+          key_epoch_id: string | null;
         };
         Insert: {
           id?: string;
@@ -181,6 +218,7 @@ export interface Database {
           sent_at?: string;
           status?: MessageStatus;
           expires_at?: string | null;
+          key_epoch_id?: string | null;
         };
         Update: Partial<Database['public']['Tables']['messages']['Insert']>;
         Relationships: [];
@@ -406,6 +444,80 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['conflict_severity_snapshots']['Insert']>;
+        Relationships: [];
+      };
+      facilitator_signal_codes: {
+        Row: {
+          id: string;
+          squad_id: string | null;
+          region_key: string;
+          coded_at: string;
+          code:
+            | 'grievance_repeat'
+            | 'ingroup_outgroup'
+            | 'violence_justifying'
+            | 'resource_scarcity'
+            | 'sentiment_negative';
+          intensity: number;
+          notes: string | null;
+          coder_id: string;
+        };
+        Insert: {
+          id?: string;
+          squad_id?: string | null;
+          region_key: string;
+          coded_at?: string;
+          code:
+            | 'grievance_repeat'
+            | 'ingroup_outgroup'
+            | 'violence_justifying'
+            | 'resource_scarcity'
+            | 'sentiment_negative';
+          intensity: number;
+          notes?: string | null;
+          coder_id?: string;
+        };
+        Update: Partial<Database['public']['Tables']['facilitator_signal_codes']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'facilitator_signal_codes_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      csi_band_thresholds: {
+        Row: {
+          region_key: string;
+          green_max: number;
+          yellow_max: number;
+          sentiment_negative_ref: number;
+          grievance_ref: number;
+          resource_ref_per_1k: number;
+          ingroup_ref: number;
+          sentiment_delta_ref: number;
+          violence_ref_per_session: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          region_key: string;
+          green_max?: number;
+          yellow_max?: number;
+          sentiment_negative_ref?: number;
+          grievance_ref?: number;
+          resource_ref_per_1k?: number;
+          ingroup_ref?: number;
+          sentiment_delta_ref?: number;
+          violence_ref_per_session?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['csi_band_thresholds']['Insert']>;
         Relationships: [];
       };
       escalation_alerts: {
@@ -751,6 +863,18 @@ export interface Database {
       get_or_create_squad_message_key: {
         Args: { p_squad_id: string };
         Returns: string;
+      };
+      rotate_squad_key: {
+        Args: { p_squad_id: string; p_reason: string };
+        Returns: string;
+      };
+      csi_aggregate_signals: {
+        Args: { p_region_key: string; p_period_start: string; p_period_end: string };
+        Returns: Json;
+      };
+      purge_retired_squad_key_material: {
+        Args: { p_purge_after_days?: number };
+        Returns: number;
       };
       create_demo_session_claim: {
         Args: Record<string, never>;
