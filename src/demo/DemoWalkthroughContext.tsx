@@ -14,6 +14,14 @@ import {
   DEMO_WALKTHROUGH_STORAGE_KEY,
   type DemoStep,
 } from './demoScript';
+import {
+  DEFAULT_DEMO_SCENARIO_ID,
+  getDemoScenarioById,
+  persistDemoScenarioId,
+  readStoredDemoScenarioId,
+  type DemoScenario,
+  type DemoScenarioId,
+} from './demoScenarios';
 
 export type DemoWalkthroughContextValue = {
   demoActive: boolean;
@@ -24,9 +32,19 @@ export type DemoWalkthroughContextValue = {
   currentStepTitle: string | null;
   canGoNext: boolean;
   canGoBack: boolean;
+  /** True when `?notes=1` is in the URL — DemoLayout shows the talk-track sidebar. */
+  presenterNotesActive: boolean;
+  /** Active scenario (default `cross-border-corridor`). */
+  scenario: DemoScenario;
+  /** Switch the active scenario; resets last-step pointer on change. */
+  setScenarioId: (id: DemoScenarioId) => void;
   startWalkthrough: () => void;
   goNext: () => void;
   goBack: () => void;
+  /** Jump to a specific step (used by the presenter hub step picker). */
+  goToStepIndex: (index: number) => void;
+  /** Restart from the first step. */
+  restartWalkthrough: () => void;
   exitDemo: () => void;
 };
 
@@ -38,6 +56,7 @@ export function readStorageFlag(): boolean {
 }
 
 function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughContextValue {
+  const inactiveScenario = getDemoScenarioById(DEFAULT_DEMO_SCENARIO_ID);
   return {
     demoActive: false,
     showDemoChrome: false,
@@ -46,12 +65,20 @@ function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughCo
     currentStepTitle: null,
     canGoNext: false,
     canGoBack: false,
+    presenterNotesActive: false,
+    scenario: inactiveScenario,
+    setScenarioId: () => {},
     startWalkthrough: () => {
       sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
       navigate(DEMO_FIRST_WALKTHROUGH_PATH);
     },
     goNext: () => {},
     goBack: () => {},
+    goToStepIndex: () => {},
+    restartWalkthrough: () => {
+      sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+    },
     exitDemo: () => {},
   };
 }
@@ -81,13 +108,18 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
 
   const inactiveValue = useMemo(() => {
     const base = inactiveWalkthroughValue(navigate);
+    const start = () => {
+      sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
+      setStorageActive(true);
+      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+    };
     return {
       ...base,
-      startWalkthrough: () => {
-        sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
-        setStorageActive(true);
-        navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+      setScenarioId: (id: DemoScenarioId) => {
+        persistDemoScenarioId(id);
       },
+      startWalkthrough: start,
+      restartWalkthrough: start,
     };
   }, [navigate]);
 
@@ -119,3 +151,5 @@ export function useDemoWalkthrough(): DemoWalkthroughContextValue {
   }
   return ctx;
 }
+
+export { readStoredDemoScenarioId };

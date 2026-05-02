@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Check, Copy, List, Shield } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { LedgerPageSkeletonCards, LedgerPageSkeletonRows, PrimaryCTA } from '../components';
+import {
+  LedgerPageSkeletonCards,
+  LedgerPageSkeletonRows,
+  LedgerPublishDramatization,
+  PrimaryCTA,
+} from '../components';
 import {
   useLedgerProposalBySlug,
   useLedgerPublishedList,
@@ -674,6 +679,8 @@ function LedgerDemoProposalDetail() {
         />
 
         <LedgerDemoNotice />
+
+        <LedgerPublishDramatization />
 
         <LedgerMissionPublicationBlock missionLine={missionLine} />
 

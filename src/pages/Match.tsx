@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
 import {
   formatMatchWaitHint,
   isDemoSquadShortcutsEnabled,
@@ -25,6 +26,8 @@ const POLL_MS_WITH_REALTIME = 10000;
 const SLOT_STAGGER_MS = [800, 1600, 2400] as const;
 /** Brief “finding” beat before opening the room (intent narrative + guided demo). */
 const NARRATIVE_THEATER_MS = 2400;
+/** Surface a "still searching" stalled banner if the queue hasn't matched within this window. */
+const QUEUE_STALLED_HINT_MS = 60_000;
 
 type Gate =
   | 'loading'
@@ -45,12 +48,26 @@ export function Match() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { supabase, session, ensureAnonymousSession } = useAuth();
+  const { scenario } = useDemoWalkthrough();
   const configured = isSupabaseConfigured();
   const demoQuery = searchParams.get('demo') === '1';
   const guidedDemo = demoQuery && isDemoSquadShortcutsEnabled();
 
   const [gate, setGate] = useState<Gate>('loading');
   const [slots, setSlots] = useState([false, false, false]);
+  const [stalled, setStalled] = useState(false);
+
+  /**
+   * Demo peer handles surface as "X · perspective Y" pairs once each slot
+   * fills. The labels come from the active scenario so the corridor / workplace
+   * / veterans presets each read like a real match for that audience without
+   * editing this file.
+   */
+  const demoPeerLabels = useMemo(() => {
+    const sources = scenario.seedMessages.slice(0, 3).map((m) => m.senderLabel);
+    const fallback = ['Participant B', 'Participant C', 'Participant D'];
+    return [0, 1, 2].map((i) => sources[i] ?? fallback[i]);
+  }, [scenario]);
   const [snapshot, setSnapshot] = useState<MatchmakingSnapshot | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [pendingSquadId, setPendingSquadId] = useState<string | null>(null);
@@ -208,6 +225,16 @@ export function Match() {
       }, delay),
     );
     return () => timers.forEach((id) => clearTimeout(id));
+  }, [gate]);
+
+  useEffect(() => {
+    if (gate !== 'waiting') {
+      setStalled(false);
+      return;
+    }
+    setStalled(false);
+    const t = window.setTimeout(() => setStalled(true), QUEUE_STALLED_HINT_MS);
+    return () => clearTimeout(t);
   }, [gate]);
 
   async function handleLeaveQueue() {
@@ -388,6 +415,8 @@ export function Match() {
 
   if (gate === 'guided_demo' || gate === 'instant_reveal') {
     const isDemo = gate === 'guided_demo';
+    const filledCount = slots.filter(Boolean).length;
+    const allFilled = filledCount === slots.length;
     return (
       <div
         className="relative flex min-h-[calc(100dvh-120px)] flex-col items-center justify-center bg-[#070b12] px-6 py-16"
@@ -395,29 +424,71 @@ export function Match() {
       >
         <div className="relative flex max-w-lg flex-col items-center text-center">
           <p className="mb-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-amber/90">
-            {isDemo ? 'Guided demo' : 'Opening your room'}
+            {isDemo
+              ? allFilled
+                ? `Matched · ${scenario.shortLabel}`
+                : 'Guided demo'
+              : 'Opening your room'}
           </p>
           <div className="relative mb-10 flex h-24 w-24 items-center justify-center">
             <div
-              className="absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping"
+              className={
+                allFilled
+                  ? 'absolute h-24 w-24 rounded-full border-4 border-teal-500/55'
+                  : 'absolute h-24 w-24 rounded-full border-4 border-teal-500/30 animate-ping'
+              }
               aria-hidden
             />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20" />
+            <div
+              className={
+                allFilled
+                  ? 'relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/30'
+                  : 'relative flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20'
+              }
+            />
           </div>
           <h2 className="font-heading text-2xl font-bold tracking-tight text-slate-100 md:text-3xl">
-            Finding your squad
+            {allFilled ? 'Squad ready' : 'Finding your squad'}
           </h2>
           <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-slate-400 md:text-base">
             {isDemo
-              ? 'This step simulates matchmaking for walkthroughs. Next: a local-only sample session (no live sync).'
+              ? allFilled
+                ? `${scenario.label}: ${MATCHMAKING_SIDE_SIZE} on each side, balanced. Confirming the room next.`
+                : `Routing on the ${scenario.shortLabel} pool. ${MATCHMAKING_SIDE_SIZE} on each perspective; we open the room as the third slot fills.`
               : 'Your match is ready. We pause here so the story matches the full journey: intent → match → session.'}
           </p>
-          <div className="mt-10 flex w-full max-w-sm flex-col gap-4 text-left" aria-live="polite">
-            {['A', 'B', 'C'].map((label, i) =>
+          <p
+            className="mt-4 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-slate-500"
+            aria-live="polite"
+          >
+            {filledCount} of {slots.length} ready
+          </p>
+          <div className="mt-8 flex w-full max-w-sm flex-col gap-4 text-left" aria-live="polite">
+            {demoPeerLabels.map((label, i) =>
               slots[i] ? (
-                <div key={label} className="flex items-center gap-3">
-                  <div className="h-8 w-8 shrink-0 rounded-full border-2 border-teal-500/40 animate-pulse" />
-                  <span className="font-sans text-sm text-slate-500">Participant {label}</span>
+                <div
+                  key={label}
+                  className={`flex items-center gap-3 rounded-lg border px-3 py-2 transition-colors ${
+                    allFilled
+                      ? 'border-teal-500/40 bg-teal-500/[0.06]'
+                      : 'border-slate-800/80 bg-white/[0.02]'
+                  }`}
+                >
+                  <div
+                    className={`h-8 w-8 shrink-0 rounded-full border-2 ${
+                      allFilled
+                        ? 'border-teal-500/55 bg-teal-500/15'
+                        : 'border-teal-500/40 animate-pulse'
+                    }`}
+                  />
+                  <div className="min-w-0">
+                    <p className="font-heading text-[0.85rem] font-semibold text-slate-100">
+                      {label}
+                    </p>
+                    <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-slate-500">
+                      Perspective {i === 0 ? 'A' : 'B'} · joined
+                    </p>
+                  </div>
                 </div>
               ) : null,
             )}
@@ -514,9 +585,26 @@ export function Match() {
           )}
         </div>
 
+        {stalled ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-8 w-full rounded-xl border border-amber/35 bg-amber/[0.06] px-4 py-3 text-left font-sans text-sm text-amber-light"
+          >
+            <p className="font-heading text-[0.78rem] font-semibold text-amber">
+              Still searching — no fault on your side
+            </p>
+            <p className="mt-1 leading-relaxed text-slate-300">
+              No symmetric counterpart has joined the {MATCHMAKING_SIDE_SIZE}-on-each-side
+              perspective yet. You can keep this tab open or step away — we'll hold your spot until
+              you leave the queue.
+            </p>
+          </div>
+        ) : null}
+
         <p className="mt-10 max-w-md text-left font-sans text-[0.8rem] leading-relaxed text-slate-500">
           Cold start tip: orgs and cohorts often run fixed windows (e.g. top of the hour) so people
-          arrive together. Until then, we’ll hold your spot in the queue while this tab stays open.
+          arrive together. Until then, we'll hold your spot in the queue while this tab stays open.
           {import.meta.env.DEV ? (
             <> {MATCH_QUEUE_NO_SERVER_TIMEOUT}</>
           ) : (

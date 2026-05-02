@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Download, Lock } from 'lucide-react';
+import { ArrowRight, BarChart3, Download, Lock } from 'lucide-react';
 import {
   CardEyebrow,
+  EmptyState,
   InlineAction,
   PageHero,
   SectionBand,
@@ -332,15 +333,27 @@ export function InsightsPage() {
       <SectionBand tone="black">
         <div className="flex min-w-0 flex-col gap-10">
           {!enabled ? (
-            <section className="rounded-md border border-amber/30 bg-amber/[0.06] p-5">
-              <p className="font-sans text-[0.9rem] leading-relaxed text-amber-light">
-                Insights data is not visible in this build. Enable{' '}
-                <code className="rounded bg-surface-sunken px-1.5 py-0.5 text-amber">
-                  VITE_ENABLE_INVESTOR_FIXTURES
-                </code>{' '}
-                to view the representative reporting prototype.
-              </p>
-            </section>
+            <EmptyState
+              icon={BarChart3}
+              tone="warn"
+              title="Reporting prototype is gated in this build"
+              description={
+                <p>
+                  Insights data is not visible without the investor-fixture flag. Enable{' '}
+                  <code className="rounded bg-surface-sunken px-1.5 py-0.5 text-amber-light">
+                    VITE_ENABLE_INVESTOR_FIXTURES=true
+                  </code>{' '}
+                  in your build environment to render the representative reporting layer with sample
+                  data — no live partner records are exposed either way.
+                </p>
+              }
+              actions={
+                <Link to="/trust" className="btn-secondary no-underline">
+                  Read the trust architecture
+                  <ArrowRight aria-hidden className="size-3.5" />
+                </Link>
+              }
+            />
           ) : (
             <>
               <SurfaceCard

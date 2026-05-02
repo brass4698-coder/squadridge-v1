@@ -3,6 +3,19 @@ import { defineConfig } from '@playwright/test';
 const previewPort = 4173;
 const previewOrigin = `http://127.0.0.1:${previewPort}`;
 
+/**
+ * Playwright projects:
+ *
+ *   - `default`   — hermetic e2e suite (`smoke`, `onboarding`, `matchmaking`,
+ *                   `ledger`, `pitch-deck-gating`, `session-messaging`).
+ *                   `npm run e2e` defaults to this project.
+ *   - `staging`   — opt-in staging-only specs (`*-staging.spec.ts`). Run with
+ *                   `npx playwright test --project=staging`.
+ *   - `demo-capture` — full-page screenshot capture of the scripted tour.
+ *                   Run with `npm run demo:capture`. Skipped by default so a
+ *                   fast `npm run e2e` doesn't pay the per-step settle window.
+ */
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -19,4 +32,23 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? previewOrigin,
     trace: 'on-first-retry',
   },
+  projects: [
+    {
+      name: 'default',
+      testIgnore: [/.*-staging\.spec\.ts$/, /demo-capture\.spec\.ts$/],
+    },
+    {
+      name: 'staging',
+      testMatch: /.*-staging\.spec\.ts$/,
+    },
+    {
+      name: 'demo-capture',
+      testMatch: /demo-capture\.spec\.ts$/,
+      retries: 0,
+      use: {
+        viewport: { width: 1440, height: 900 },
+        video: 'on',
+      },
+    },
+  ],
 });

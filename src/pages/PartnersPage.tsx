@@ -1,6 +1,6 @@
 import { useId, useState, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Minus } from 'lucide-react';
+import { ArrowRight, Check, Loader2, Minus, Send } from 'lucide-react';
 import {
   CardEyebrow,
   CTAGroup,
@@ -390,21 +390,47 @@ function RequestTemplateForm() {
     }, 400);
   }
 
+  function handleReset() {
+    setName('');
+    setOrganization('');
+    setEmail('');
+    setNotes('');
+    setTemplateId(DEPLOYMENT_TEMPLATES[0]?.id ?? '');
+    setState({ kind: 'idle' });
+  }
+
   if (state.kind === 'submitted') {
     const template = DEPLOYMENT_TEMPLATES.find((t) => t.id === state.templateId);
     return (
       <SurfaceCard role="status" aria-live="polite" className="border-brand bg-brand-soft">
-        <CardEyebrow tone="brand">Request received</CardEyebrow>
-        <p className="mt-2 font-sans text-[0.94rem] leading-relaxed text-ink">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-brand bg-brand text-brand-on"
+          >
+            <Check className="size-4" />
+          </span>
+          <CardEyebrow tone="brand">Request received</CardEyebrow>
+        </div>
+        <p className="mt-3 font-sans text-[0.94rem] leading-relaxed text-ink">
           Thanks — we'll reach out to <span className="font-semibold">{name}</span> at{' '}
           <span className="font-semibold">{organization}</span> within five business days with the{' '}
           <span className="font-semibold">{template?.label ?? 'requested template'}</span> and a
           private walkthrough.
         </p>
-        <InlineAction as={Link} to="/#waitlist" className="mt-4">
-          Continue to pilot application
-          <ArrowRight aria-hidden className="size-3.5" />
-        </InlineAction>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <InlineAction as={Link} to="/#waitlist">
+            Continue to pilot application
+            <ArrowRight aria-hidden className="size-3.5" />
+          </InlineAction>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="font-sans text-[0.85rem] text-ink-secondary underline-offset-4 hover:text-ink hover:underline"
+          >
+            Send another request
+          </button>
+        </div>
       </SurfaceCard>
     );
   }
@@ -513,9 +539,17 @@ function RequestTemplateForm() {
         <button
           type="submit"
           disabled={state.kind === 'submitting'}
-          className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-5 py-2.5 font-sans text-[0.9rem] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center gap-2 px-5 py-2.5 font-sans text-[0.9rem] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {state.kind === 'submitting' ? 'Sending…' : 'Request template'}
+          {state.kind === 'submitting' ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden /> Sending…
+            </>
+          ) : (
+            <>
+              <Send className="size-4" aria-hidden /> Request template
+            </>
+          )}
         </button>
         <span className="font-sans text-[0.82rem] text-ink-faint">
           We respond within five business days.
@@ -547,6 +581,14 @@ export function PartnersPage() {
                 Request a deployment template
                 <ArrowRight aria-hidden className="size-3.5" />
               </Link>
+              <a
+                href="/partner-one-pager.html"
+                target="_blank"
+                rel="noopener"
+                className="btn-secondary no-underline"
+              >
+                One-pager (printable)
+              </a>
             </CTAGroup>
           }
         >

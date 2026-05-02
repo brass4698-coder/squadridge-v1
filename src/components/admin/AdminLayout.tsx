@@ -67,6 +67,11 @@ export function AdminLayout() {
           </p>
           <ul className="space-y-0.5">
             <li>
+              <NavLink to="/admin/demo-hub" className={itemClass}>
+                Demo command center
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/demo" className={itemClass}>
                 Demo controls
               </NavLink>

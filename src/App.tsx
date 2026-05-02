@@ -18,6 +18,7 @@ import { LandingPage } from './pages/LandingPage';
 import { DialoguesPage } from './pages/DialoguesPage';
 import { TrustSafetyPage } from './pages/TrustSafetyPage';
 import { InsightsDashboardPage, InsightsPage } from './pages/InsightsPage';
+import { InvestorsPage } from './pages/InvestorsPage';
 import { PartnersPage } from './pages/PartnersPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
@@ -41,6 +42,7 @@ import { AdminVerificationPage } from './pages/admin/AdminVerificationPage';
 import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
+import { AdminDemoHubPage } from './pages/admin/AdminDemoHubPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
 import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
 import { DeckViewerRedirectPage } from './pages/admin/DeckViewerRedirectPage';
@@ -110,6 +112,8 @@ export default function App() {
                     }
                   />
                   <Route path="/partners" element={<PartnersPage />} />
+                  <Route path="/investors" element={<InvestorsPage />} />
+                  <Route path="/pitch" element={<Navigate to="/investors" replace />} />
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/login" element={<Navigate to="/sign-in" replace />} />
                   <Route path="/invite" element={<InvitePage />} />
@@ -198,11 +202,13 @@ export default function App() {
                     <Route path="rooms" element={<AdminRoomsPage />} />
                     <Route path="logs" element={<AdminLogsPage />} />
                     <Route path="demo" element={<AdminDemoPage />} />
+                    <Route path="demo-hub" element={<AdminDemoHubPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
                     <Route path="csi" element={<AdminCsiPage />} />
                     <Route path="metrics" element={<AdminMetricsPage />} />
                     <Route index element={<Navigate to="rooms" replace />} />
                   </Route>
+                  <Route path="/demo" element={<Navigate to="/admin/demo-hub" replace />} />
                   <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
                   <Route path="/sign-in" element={<SignInPage />} />
                   <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />

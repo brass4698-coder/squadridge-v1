@@ -1,0 +1,59 @@
+# Demo capture: walks the scripted product tour and uploads full-page
+# screenshots (and per-step videos) for presenter parity review. Triggered
+# manually because each run pays a Playwright + Vite preview start cost; the
+# default `npm run e2e` job in `ci.yml` skips this project intentionally.
+
+name: Demo capture
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly Monday 09:00 UTC so a fresh capture exists for the week's demos
+    # without anyone remembering to run it.
+    - cron: '0 9 * * 1'
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+      VITE_ZK_STUB: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture scripted tour screenshots
+        run: npm run demo:capture
+        env:
+          CI: true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-capture-screenshots
+          path: test-results/demo-capture/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-capture-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1127,10 +1127,28 @@ export function SessionPage({ squadId }: { squadId: string }) {
               ) : null}
               {loading ? <SessionPageMessagesSkeleton count={5} /> : null}
               {visibleMessages.length === 0 && optimisticMessages.length === 0 && !loading ? (
-                <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
-                  {messages.length > 0
-                    ? 'Messages from blocked participants are hidden.'
-                    : 'No messages yet. Say hello calmly.'}
+                <li className="flex min-h-[220px] flex-1 flex-col items-center justify-center gap-3 px-4 py-8 text-center">
+                  {messages.length > 0 ? (
+                    <p className="font-sans text-[0.88rem] italic text-[#5b6b80]">
+                      Messages from blocked participants are hidden.
+                    </p>
+                  ) : (
+                    <>
+                      <span
+                        aria-hidden
+                        className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/30 bg-teal-500/[0.08]"
+                      >
+                        <span className="block h-2 w-2 rounded-full bg-teal-light" />
+                      </span>
+                      <p className="font-heading text-[0.95rem] font-semibold text-[#cbd5e1]">
+                        Squad opened. No messages yet.
+                      </p>
+                      <p className="max-w-[28rem] font-sans text-[0.82rem] leading-relaxed text-[#5b6b80]">
+                        Say hello calmly. Take turns when you can — the room follows your squad's
+                        agreed phase, not the clock.
+                      </p>
+                    </>
+                  )}
                 </li>
               ) : null}
               {!loading

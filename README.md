@@ -51,12 +51,16 @@ Never commit `.env*` files with secrets. If `node_modules` shows as tracked, run
 
 ## Scripts
 
-| Command             | Description                                                       |
-| ------------------- | ----------------------------------------------------------------- |
-| `npm run dev`       | Start Vite dev server                                             |
-| `npm run build`     | Typecheck + production build                                      |
-| `npm run build:e2e` | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke) |
-| `npm run preview`   | Preview production build                                          |
+| Command                       | Description                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| `npm run dev`                 | Start Vite dev server                                                                        |
+| `npm run build`               | Typecheck + production build (also writes `dist/partner-one-pager.html`)                     |
+| `npm run build:e2e`           | Typecheck + Vite build using `.env.e2e` (Playwright / demo smoke)                            |
+| `npm run preview`             | Preview production build                                                                     |
+| `npm run e2e`                 | Hermetic Playwright suite (`default` project)                                                |
+| `npm run e2e:staging`         | Staging-only specs (`*-staging.spec.ts`)                                                     |
+| `npm run demo:capture`        | Walks the scripted tour and saves full-page screenshots to `test-results/demo-capture/`      |
+| `npm run gen:partner-one-pager` | Re-generate the printable partner one-pager from `docs/business/pilot-partner-one-pager.md` |
 
 ## After linking Supabase + GitHub
 
@@ -78,7 +82,10 @@ The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.
 
 ### Demos (investors and staging)
 
-- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
+- **Public investor mini-page:** `/investors` is a sanitized, link-safe summary backed by the same content sources as the moderator-only [`/pitch-deck-hub`](./src/pages/PitchDeckHubPage.tsx) — financial scenarios and gated decks are intentionally absent. Send a partner that link without granting moderator access.
+- **Demo command center:** `/demo` (redirects to `/admin/demo-hub`, moderator-only) is the presenter hub: scenario picker (cross-border corridor / workplace / veterans), step jump, restart, presenter notes toggle. The same scenario state threads through onboarding, intent, profile, and the offline session.
+- **Presenter notes overlay:** Add `?notes=1` to any tour URL to show a sidebar with the talk-track for the current step (desktop only). The notes are sourced from `presenterNotes` on each step in [`src/demo/demoScript.ts`](./src/demo/demoScript.ts).
+- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. The **Play scene** button streams scripted incoming messages, fires a Slow-down intervention, and reveals translation. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
 - **Guided tour:** From the home page, **Start guided tour** runs the scripted steps in [`src/demo/demoScript.ts`](src/demo/demoScript.ts), including onboarding, **ZK verification** (`/verify?demo=1`), intent, match, the offline session, ledger, security, and profile (`/settings/profile?demo=1` creates an anonymous session for the profile step).
 - **Developer shortcuts:** Set `VITE_ENABLE_DEMO_SQUAD=true` to show extra affordances (e.g. **Create demo squad** on the session hub) — see [`.env.example`](.env.example).
 

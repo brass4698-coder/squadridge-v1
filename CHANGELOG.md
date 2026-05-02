@@ -6,6 +6,60 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Demo polish — month plan, all five phases.**
+  - **Phase 1 — presenter command center:** New `/admin/demo-hub` page (alias
+    `/demo`) gated to moderators with a scenario picker, numbered step list,
+    restart, and presenter notes toggle. Backed by a new `DemoScenario` type
+    (`src/demo/demoScenarios.ts`) with three presets — _cross-border corridor_,
+    _workplace mediation_, _veterans dialogue_ — that thread persona, intent
+    text, and seed messages through onboarding, intent, profile, match, and the
+    offline session in one switch. Step actions in `demoScript.ts` are now
+    scenario-driven via `buildActions(scenario)`. Every step has
+    `presenterNotes`; sidebar appears with `?notes=1`. The bottom chrome
+    surfaces a step picker, restart, and exit. (`DEMO_LAST_STEP_INDEX_STORAGE_KEY`
+    persists the last visible step for resume.)
+  - **Phase 2 — investor-grade live moments:**
+    - Verification page now renders a five-stage proof timeline
+      (`VerificationProofTimeline`) with paced cadence and a "Verified — proof
+      accepted" celebration card; works for both `VITE_ZK_STUB` and live
+      Semaphore paths.
+    - `/match?demo=1` reveals scenario peer handles, shows a "Matched · {scenario}"
+      celebration when all three slots fill, and a "still searching" stalled
+      banner appears after 60 seconds in the live waiting state.
+    - `DemoSessionPage` adds a **Play scene** button that streams the active
+      scenario's scripted incoming messages, fires a single _Slow down_
+      intervention banner mid-scene, and reveals a translation pair (source +
+      target language). Everything stays in-tab.
+    - `LedgerDemoProposalDetail` ships a **Play publish** dramatization
+      (`LedgerPublishDramatization`) that paces the four production beats —
+      Drafting → Consent collected → Quorum reached → Published — without
+      touching the live Edge Function.
+  - **Phase 3 — empty / loading / recovery states:** Promoted shared `Skeleton`
+    + `EmptyState` primitives in `src/components/ui/`. `InsightsPage` now uses
+    the new EmptyState for the gated-fixture path. `PartnersPage` request form
+    grew a Loader2 spinner, structured success card with reset action, and
+    Send icon. `SessionPage` empty chat surface gained a calm welcome state for
+    fresh squads.
+  - **Phase 4 — public collateral parity & copy polish:**
+    - New public `/investors` page (sanitized, no financial scenarios, links
+      to gated decks via `mint-deck-share`).
+    - Punctuation / encoding sweep added to `scripts/check-banned-public-copy.mjs`
+      — scans `src/**/*.{ts,tsx}` and `docs/**/*.md` for replacement-character
+      and Windows-1252 mojibake drift.
+    - Auto-generated printable `dist/partner-one-pager.html` from
+      `docs/business/pilot-partner-one-pager.md` via
+      `scripts/generate-partner-one-pager.mjs`; runs as `postbuild`. Linked
+      from `/partners` hero.
+  - **Phase 5 — capture & verify:** New Playwright `demo-capture` project
+    (`e2e/demo-capture.spec.ts`) walks the 14-step scripted tour and writes
+    full-page screenshots to `test-results/demo-capture/`. Runs via
+    `npm run demo:capture`. Hermetic `npm run e2e` and staging-only specs are
+    now separate Playwright projects. New
+    `.github/workflows/demo-capture.yml` runs the capture on a weekly schedule
+    and on demand, uploading screenshots + Playwright report as artifacts.
+
 ### Changed
 
 - CSP tightened: `script-src` no longer allows `'unsafe-inline'` or `'unsafe-eval'`

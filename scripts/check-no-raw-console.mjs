@@ -46,6 +46,12 @@ const ALLOWLIST = new Set([
   join(root, 'scripts', 'generate-investor-deck-model.ts').replace(/\\/g, '/'),
   // Build-time helper (no Supabase / production data); writes a static asset.
   join(root, 'scripts', 'generate-noise-png.mjs').replace(/\\/g, '/'),
+  // Build-time helper that converts the partner one-pager markdown into a
+  // printable HTML artifact. No Supabase / production data.
+  join(root, 'scripts', 'generate-partner-one-pager.mjs').replace(/\\/g, '/'),
+  // Pilot-owners completeness check; like other check-* scripts, emits
+  // pass/fail to stdout and never touches Supabase.
+  join(root, 'scripts', 'check-pilot-owners.mjs').replace(/\\/g, '/'),
 ]);
 
 const EXTS = new Set(['.ts', '.tsx', '.mjs', '.js']);

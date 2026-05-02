@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { NextStepHint } from '../components/ui/NextStepHint';
+import {
+  PROOF_TIMELINE_STAGES,
+  VerificationProofTimeline,
+  type ProofTimelineState,
+} from '../components/VerificationProofTimeline';
 import { useAuth } from '../contexts/AuthContext';
 import {
   isSupabaseConfigured,
@@ -23,20 +28,55 @@ export function VerificationPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [timelineState, setTimelineState] = useState<ProofTimelineState>('idle');
+  const [activeStage, setActiveStage] = useState(0);
+  const stageTimersRef = useRef<number[]>([]);
 
   useEffect(() => {
     if (!configured || !supabase) return;
     void ensureAnonymousSession();
   }, [configured, supabase, ensureAnonymousSession]);
 
+  useEffect(() => {
+    return () => {
+      stageTimersRef.current.forEach((id) => window.clearTimeout(id));
+      stageTimersRef.current = [];
+    };
+  }, []);
+
+  function startTimelineCadence() {
+    stageTimersRef.current.forEach((id) => window.clearTimeout(id));
+    stageTimersRef.current = [];
+    setActiveStage(0);
+    setTimelineState('running');
+    const stageDelays = [600, 1200, 1900, 2600];
+    stageDelays.forEach((delay, idx) => {
+      const id = window.setTimeout(() => {
+        setActiveStage(idx + 1);
+      }, delay);
+      stageTimersRef.current.push(id);
+    });
+  }
+
+  function stopTimelineCadence(finalState: ProofTimelineState) {
+    stageTimersRef.current.forEach((id) => window.clearTimeout(id));
+    stageTimersRef.current = [];
+    setTimelineState(finalState);
+    if (finalState === 'success') {
+      setActiveStage(PROOF_TIMELINE_STAGES.length);
+    }
+  }
+
   async function handleVerify() {
     if (!supabase || busy) return;
 
     setBusy(true);
     setError(null);
+    startTimelineCadence();
 
     try {
       await runVerification(supabase, ZK_SESSION_CREDENTIAL_TYPE, 'verification_flow');
+      stopTimelineCadence('success');
       setDone(true);
     } catch (e) {
       const message =
@@ -44,6 +84,7 @@ export function VerificationPage() {
           ? e.message
           : 'Verification could not be completed. Please try again.';
       setError(message);
+      stopTimelineCadence('error');
     } finally {
       setBusy(false);
     }
@@ -140,6 +181,19 @@ export function VerificationPage() {
         <section className="mt-10 rounded-2xl border border-[#1e2a3a] bg-gradient-to-b from-[#101722] via-[#0d121c] to-[#0a0f16] px-7 py-9 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_32px_64px_-28px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.04] md:px-11 md:py-11">
           {done ? (
             <div className="space-y-6">
+              <div
+                role="status"
+                className="rounded-xl border border-teal-500/45 bg-teal-500/[0.07] px-4 py-3 font-sans text-[0.88rem] leading-relaxed text-teal-light"
+              >
+                <p className="font-heading text-[0.85rem] font-semibold tracking-tight text-teal-light">
+                  Verified — proof accepted
+                </p>
+                <p className="mt-1 text-slate-200">
+                  Your nullifier is on file for this session. Identity stayed local; only the proof
+                  artifact reached the server.
+                </p>
+              </div>
+              <VerificationProofTimeline state="success" />
               <p className="mb-0 font-sans text-onboarding-body text-ink-secondary">
                 Your verification is recorded for this session. Next, you&apos;ll set your intent so
                 we can match you into the right room.
@@ -176,6 +230,10 @@ export function VerificationPage() {
                 <code className="text-ink-secondary/90">VITE_ZK_STUB=true</code> only for a
                 lightweight hash demo without ZK cryptography.
               </p>
+
+              {timelineState !== 'idle' ? (
+                <VerificationProofTimeline state={timelineState} activeStageIndex={activeStage} />
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-4">
                 <button
