@@ -42,6 +42,8 @@ SquadRidge is a serious pilot foundation, not yet a finished institution-grade p
 - messaging should not be described as Signal-style end-to-end encryption against the platform
 - impact claims should stay grounded in the metrics actually collected during the pilot
 
+For a partner-facing summary that consolidates the boundaries above and the verification, encryption, IP, account, and incident-response posture into a single countersignable document, see [`../partners/pilot-disclosure-pack.md`](../partners/pilot-disclosure-pack.md). Participant-facing consent copy lives in [`../partners/participant-consent-language.md`](../partners/participant-consent-language.md).
+
 ## What The Partner Provides
 
 - participant cohort definition

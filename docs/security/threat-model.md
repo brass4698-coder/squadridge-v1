@@ -131,6 +131,23 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 
 **Tracking:** File GitHub issues from the templates in [`docs/operations/threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) instead of checking boxes here without implementation work.
 
+### Tracking — open gates as filed issues
+
+Replace each `_(file issue)_` cell with the GitHub issue URL once the corresponding stub from [`docs/operations/threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) has been filed. Do not tick the checkbox above the table for that gate until the issue is closed.
+
+| Stub ID | Gate | Issue |
+| ------- | ---- | ----- |
+| ZK-1 | External or internal security review of Semaphore parameters and `verify-zk-proof` Edge handler | _(file issue)_ |
+| ZK-2 | Continuous CI guard that production never ships `VITE_ZK_STUB=true` | _(file issue)_ |
+| DM-1 | Column-level review of `profiles` and `match_queue`; document TTL for queue rows after match/cancel | _(file issue)_ |
+| DM-2 | Operationalize waitlist-export governance | _(file issue)_ |
+| MSG-1 | Maintain operator-readable disclosure across all surfaces; track ADR 004 reopening triggers | _(file issue)_ |
+| OPS-1 | RLS audit pass on all exposed tables; views use `security_invoker` (Postgres 15+) | _(file issue)_ |
+| OPS-2 | Authorization decisions never read user-editable `user_metadata` | _(file issue)_ |
+| OPS-3 | Service role and dashboard access: MFA, minimal headcount, break-glass procedure | _(file issue)_ |
+| OPS-4 | Edge logging audit: no full proof bodies / PII in production logs | _(file issue)_ |
+| INC-1 | `SEV-0` definition for suspected mass correlation or export; runbook covers key rotation and partner comms | _(file issue)_ |
+
 ---
 
 ## 7. Revision history
