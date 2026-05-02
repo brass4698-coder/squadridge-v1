@@ -244,7 +244,6 @@ body.ds-pitch-deck {
 .ds-pitch-deck .ds-brand-lock img.mark {
   width: 20px;
   height: 20px;
-  border-radius: 6px;
   object-fit: contain;
 }
 
@@ -578,17 +577,22 @@ body.ds-pitch-deck {
   margin: 0 auto;
 }
 
+/**
+ * Logo lockup on the title slide. Renders the brand mark naked — no rounded
+ * plate, no border, no glow. The mark itself carries the visual weight; the
+ * decorative wrapper used to add a "border around the logo" that conflicted
+ * with the rest of the deck system.
+ */
 .ds-pitch-deck .ds-title-lockup .ds-mark-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 88px;
   height: 88px;
-  border-radius: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 12px;
-  box-shadow: 0 0 36px rgba(200, 164, 93, 0.12);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .ds-pitch-deck .ds-title-lockup .ds-mark-wrap img {
