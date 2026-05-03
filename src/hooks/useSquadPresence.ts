@@ -27,7 +27,7 @@ export function useSquadPresence(squadId: string | undefined): Set<string> {
     if (!supabase || !squadId || !userId) return;
     let cancelled = false;
     const channel: RealtimeChannel = supabase.channel(`squad-presence:${squadId}`, {
-      config: { presence: { key: userId } },
+      config: { presence: { key: userId }, private: true },
     });
 
     channel.on('presence', { event: 'sync' }, () => {

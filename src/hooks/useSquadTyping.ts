@@ -37,7 +37,7 @@ export function useSquadTyping(squadId: string | undefined): TypingState {
     let cancelled = false;
     const seen = peerLastSeenRef.current;
     const channel = supabase.channel(`squad-typing:${squadId}`, {
-      config: { broadcast: { self: false } },
+      config: { broadcast: { self: false }, private: true },
     });
 
     channel.on('broadcast', { event: 'typing' }, (payload) => {
