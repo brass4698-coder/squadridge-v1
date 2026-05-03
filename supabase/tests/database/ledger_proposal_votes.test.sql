@@ -16,7 +16,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(12);
 
 -- 1. Table exists with security on.
 SELECT has_table('public', 'ledger_proposal_votes', 'ledger_proposal_votes table exists');
@@ -32,6 +32,34 @@ SELECT has_view(
     'public',
     'ledger_proposal_vote_summary',
     'ledger_proposal_vote_summary view exists'
+);
+
+-- Realtime room topics must be private-RLS gated so non-members cannot spy on
+-- presence or typing for a known squad UUID.
+SELECT ok(
+    EXISTS (
+        SELECT
+            1
+        FROM
+            pg_policies
+        WHERE
+            schemaname = 'realtime'
+            AND tablename = 'messages'
+            AND policyname = 'Squad realtime read member'),
+    'private squad realtime read policy is installed'
+);
+
+SELECT ok(
+    EXISTS (
+        SELECT
+            1
+        FROM
+            pg_policies
+        WHERE
+            schemaname = 'realtime'
+            AND tablename = 'messages'
+            AND policyname = 'Squad realtime write member'),
+    'private squad realtime write policy is installed'
 );
 
 -- 3. Seed: a squad with two members + a draft proposal owned by squad.
@@ -150,6 +178,32 @@ SELECT throws_ok(
     '42501',
     NULL,
     'non-member cannot draft a proposal scoped to a squad they do not belong to'
+);
+
+-- 9. The helper used by realtime.messages policies grants only squad members.
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+    'request.jwt.claims',
+    '{"sub":"00000000-0000-0000-0000-0000000a0002","role":"authenticated"}',
+    true
+);
+
+SELECT ok(
+    public.auth_user_can_access_squad_realtime('squad-presence:00000000-0000-0000-0000-0000000a0001'),
+    'squad member can join private presence topic for their squad'
+);
+
+SELECT set_config(
+    'request.jwt.claims',
+    '{"sub":"00000000-0000-0000-0000-0000000a0003","role":"authenticated"}',
+    true
+);
+
+SELECT is(
+    public.auth_user_can_access_squad_realtime('squad-typing:00000000-0000-0000-0000-0000000a0001'),
+    FALSE,
+    'non-member cannot join private typing topic for another squad'
 );
 
 SELECT * FROM finish();

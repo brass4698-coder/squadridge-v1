@@ -67,6 +67,7 @@ Run this before every pilot. Each item is a **stop the pilot** condition until r
 - [ ] pgTAP suite (`supabase test db`) is green: `messages_insert_edge_only`, `create_demo_squad_atomic`, `demo_claim_consent_flow`.
 - [ ] `select tgname, tgenabled from pg_trigger where tgname in ('squads_message_encryption_key_default', 'moderation_audit_log_block_review_mutations')` — both rows must show `tgenabled = 'O'` (enabled).
 - [ ] If using issuer-managed anonymity groups (Phase 2.1), at least one row in `public.issuer_groups` and its `current_root_expires_at` is in the future.
+- [ ] Supabase Realtime **Allow public access** is disabled so private `squad-presence:*` / `squad-typing:*` channels enforce `realtime.messages` RLS.
 
 ### Edge functions
 
