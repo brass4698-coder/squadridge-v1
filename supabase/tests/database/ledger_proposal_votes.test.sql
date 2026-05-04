@@ -16,7 +16,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(11);
 
 -- 1. Table exists with security on.
 SELECT has_table('public', 'ledger_proposal_votes', 'ledger_proposal_votes table exists');
@@ -40,22 +40,31 @@ DECLARE
     v_squad uuid := '00000000-0000-0000-0000-0000000a0001';
     v_member uuid := '00000000-0000-0000-0000-0000000a0002';
     v_other  uuid := '00000000-0000-0000-0000-0000000a0003';
+    v_mod    uuid := '00000000-0000-0000-0000-0000000a0004';
+    v_second_squad uuid := '00000000-0000-0000-0000-0000000a0005';
     v_proposal uuid := '00000000-0000-0000-0000-0000000a0099';
 BEGIN
     INSERT INTO auth.users (id, email)
     VALUES (v_member, 'member@test.local'),
-           (v_other, 'other@test.local')
+           (v_other, 'other@test.local'),
+           (v_mod, 'moderator@test.local')
     ON CONFLICT (id) DO NOTHING;
 
-    INSERT INTO public.users (id) VALUES (v_member), (v_other) ON CONFLICT (id) DO NOTHING;
+    INSERT INTO public.users (id) VALUES (v_member), (v_other), (v_mod) ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.squads (id, status)
-    VALUES (v_squad, 'active')
+    VALUES (v_squad, 'active'),
+           (v_second_squad, 'active')
     ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.squad_members (squad_id, user_id)
-    VALUES (v_squad, v_member)
+    VALUES (v_squad, v_member),
+           (v_second_squad, v_member)
     ON CONFLICT DO NOTHING;
+
+    INSERT INTO public.moderators (user_id)
+    VALUES (v_mod)
+    ON CONFLICT (user_id) DO NOTHING;
 
     INSERT INTO public.ledger_proposals (id, slug, title, summary, squad_id, status)
     VALUES (
@@ -150,6 +159,48 @@ SELECT throws_ok(
     '42501',
     NULL,
     'non-member cannot draft a proposal scoped to a squad they do not belong to'
+);
+
+-- 9. A member can update their own vote while it remains tied to the proposal's squad.
+SELECT set_config(
+    'request.jwt.claims',
+    '{"sub":"00000000-0000-0000-0000-0000000a0002","role":"authenticated"}',
+    true
+);
+
+SELECT lives_ok(
+    $$UPDATE public.ledger_proposal_votes
+      SET vote = 'abstain'
+      WHERE proposal_id = '00000000-0000-0000-0000-0000000a0099'
+        AND user_id = '00000000-0000-0000-0000-0000000a0002'$$,
+    'squad member can change their own vote on a draft'
+);
+
+-- 10. Vote updates cannot rewrite squad_id away from the proposal's squad.
+SELECT throws_ok(
+    $$UPDATE public.ledger_proposal_votes
+      SET squad_id = '00000000-0000-0000-0000-0000000a0005'
+      WHERE proposal_id = '00000000-0000-0000-0000-0000000a0099'
+        AND user_id = '00000000-0000-0000-0000-0000000a0002'$$,
+    '42501',
+    NULL,
+    'vote update cannot move a ballot to a different squad'
+);
+
+-- 11. Moderators cannot bypass publish-ledger-proposal threshold checks with a raw UPDATE.
+SELECT set_config(
+    'request.jwt.claims',
+    '{"sub":"00000000-0000-0000-0000-0000000a0004","role":"authenticated"}',
+    true
+);
+
+SELECT throws_ok(
+    $$UPDATE public.ledger_proposals
+      SET status = 'published', published_at = timezone('utc'::text, now())
+      WHERE id = '00000000-0000-0000-0000-0000000a0099'$$,
+    '42501',
+    NULL,
+    'moderator cannot publish a draft with raw UPDATE'
 );
 
 SELECT * FROM finish();
