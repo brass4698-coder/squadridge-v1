@@ -50,6 +50,15 @@ describe('buildFinancialModel', () => {
   });
 
   it('$750k raise: modeled cash, runway, revenue, and payroll match static investor deck + model export', () => {
+    // These pinned values depend on DEFAULT_ASSUMPTIONS:
+    //   startingCashUsd: 750_000, pricePerPilotSeatMonthUsd: 1_200,
+    //   targetPayingSeatsMonth12: 12, seatRampMonths: 12,
+    //   headcountFteMonth0: 2, headcountFteMonth12: 5, headcountFteMonth24: 9,
+    //   fullyLoadedCostPerFteAnnualUsd: 185_000,
+    //   monthlyInfrastructureUsd: 3_500, monthlyLegalComplianceUsd: 8_000,
+    //   monthlySalesMarketingUsd: 6_000, monthlyContractorsUsd: 12_000,
+    //   contingencyRate: 0.08, monthlyHorizonMonths: 24.
+    // If any of these assumption values change, update the expected figures below to match.
     const a = {
       ...DEFAULT_ASSUMPTIONS,
       modelStartISO: '2026-03-01',

@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ClipboardList,
   Copy,
-  Download,
   Eye,
   FileStack,
   Filter,
@@ -23,6 +22,7 @@ import type {
   DeckStatus,
   DataIntegrityLabel,
   EvidenceItem,
+  FinancialAssumptions,
   FinancialScenario,
   MessagingLayer,
   PitchDeck,
@@ -77,6 +77,26 @@ const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
   proofPoints: 'Proof points',
   toneRules: 'Tone rules',
   bannedPhrases: 'Banned phrases',
+};
+
+const ASSUMPTION_LABELS: Record<keyof FinancialAssumptions, string> = {
+  modelStartISO: 'Model start date',
+  monthlyHorizonMonths: 'Horizon (months)',
+  startingCashUsd: 'Starting cash (USD)',
+  pricePerPilotSeatMonthUsd: 'Price per pilot seat / month (USD)',
+  targetPayingSeatsMonth12: 'Paying seats target at month 12',
+  seatRampMonths: 'Seat ramp period (months)',
+  headcountFteMonth0: 'Headcount at month 0 (FTE)',
+  headcountFteMonth12: 'Headcount at month 12 (FTE)',
+  headcountFteMonth24: 'Headcount at month 24 (FTE)',
+  fullyLoadedCostPerFteAnnualUsd: 'Fully-loaded FTE cost / year (USD)',
+  monthlyInfrastructureUsd: 'Monthly infrastructure (USD)',
+  monthlyLegalComplianceUsd: 'Monthly legal & compliance (USD)',
+  monthlySalesMarketingUsd: 'Monthly sales & marketing (USD)',
+  monthlyContractorsUsd: 'Monthly contractors (USD)',
+  contingencyRate: 'Contingency rate (e.g. 0.08 = 8%)',
+  fundraisingAskUsd: 'Fundraising ask (USD)',
+  milestoneFirstTranche: 'First tranche milestone',
 };
 
 function Badge({
@@ -233,14 +253,6 @@ function DeckCard({
                 <FileStack className="size-3.5 opacity-70" aria-hidden />
                 Export outline
               </button>
-              <button
-                type="button"
-                className={menuBtn}
-                onClick={() => toast.message('Export stitched deck from source files.')}
-              >
-                <Download className="size-3.5 opacity-70" aria-hidden />
-                Export full deck
-              </button>
               <button type="button" className={menuBtn} onClick={onOpenFinancial}>
                 <Layers className="size-3.5 opacity-70" aria-hidden />
                 Financial appendix
@@ -298,20 +310,23 @@ function DeckCard({
       {rTotal > 0 ? <ReadinessBar done={rDone} total={rTotal} /> : null}
 
       <div className="pt-0.5">
-        <button
-          type="button"
-          className={primaryCta}
-          onClick={() => {
-            if (viewDeckHref) {
-              window.open(viewDeckHref, '_blank', 'noopener,noreferrer');
-              return;
+        {viewDeckHref ? (
+          <a href={viewDeckHref} target="_blank" rel="noopener noreferrer" className={primaryCta}>
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </a>
+        ) : (
+          <button
+            type="button"
+            className={primaryCta}
+            onClick={() =>
+              toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.')
             }
-            toast.message('Attach your .pptx asset in DAM or Drive — hub tracks metadata only.');
-          }}
-        >
-          <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
-          View deck
-        </button>
+          >
+            <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
+            View deck
+          </button>
+        )}
       </div>
     </article>
   );
@@ -587,7 +602,15 @@ export function PitchDeckHubPage() {
             </button>
             <button
               type="button"
-              onClick={resetHub}
+              onClick={() => {
+                if (
+                  window.confirm(
+                    'Reset will replace all hub edits with seed data. This cannot be undone. Continue?',
+                  )
+                ) {
+                  resetHub();
+                }
+              }}
               className="rounded-lg border border-red-500/20 bg-transparent px-4 py-2 font-sans text-[0.8rem] text-red-300/90 hover:border-red-500/40"
             >
               Reset hub
@@ -666,7 +689,9 @@ export function PitchDeckHubPage() {
                 key={key}
                 type="button"
                 role="tab"
+                id={`hub-msg-tab-${key}`}
                 aria-selected={activeMessagingKey === key}
+                aria-controls={`hub-msg-panel-${key}`}
                 onClick={() => setActiveMessagingKey(key)}
                 className={cn(
                   'border-l-2 px-4 py-3 text-left font-sans text-[0.82rem] transition-colors',
@@ -679,7 +704,12 @@ export function PitchDeckHubPage() {
               </button>
             ))}
           </div>
-          <div className="min-h-[18rem] flex-1 p-4 sm:p-6">
+          <div
+            id={`hub-msg-panel-${activeMessagingKey}`}
+            role="tabpanel"
+            aria-labelledby={`hub-msg-tab-${activeMessagingKey}`}
+            className="min-h-[18rem] flex-1 p-4 sm:p-6"
+          >
             <label htmlFor="hub-msg-editor" className="font-sans text-[0.78rem] text-[#64748b]">
               {MESSAGING_FIELD_LABELS[activeMessagingKey]}
             </label>
@@ -780,10 +810,11 @@ export function PitchDeckHubPage() {
             <div className="grid gap-4 md:grid-cols-2">
               {(Object.keys(state.assumptions) as (keyof typeof state.assumptions)[]).map((k) => {
                 const v = state.assumptions[k];
+                const label = ASSUMPTION_LABELS[k] ?? k;
                 if (k === 'modelStartISO') {
                   return (
                     <div key={k}>
-                      <label className="font-sans text-[0.75rem] text-[#64748b]">{k}</label>
+                      <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
                       <input
                         type="date"
                         value={typeof v === 'string' ? v.slice(0, 10) : ''}
@@ -796,7 +827,7 @@ export function PitchDeckHubPage() {
                 if (typeof v === 'string') {
                   return (
                     <div key={k} className="md:col-span-2">
-                      <label className="font-sans text-[0.75rem] text-[#64748b]">{k}</label>
+                      <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
                       <textarea
                         value={v}
                         onChange={(e) => updateAssumptions({ [k]: e.target.value })}
@@ -808,7 +839,7 @@ export function PitchDeckHubPage() {
                 }
                 return (
                   <div key={k}>
-                    <label className="font-sans text-[0.75rem] text-[#64748b]">{k}</label>
+                    <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
                     <input
                       type="number"
                       value={typeof v === 'number' ? v : 0}
