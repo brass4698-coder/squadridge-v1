@@ -79,6 +79,8 @@ const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
   bannedPhrases: 'Banned phrases',
 };
 
+// Typed as Record<keyof FinancialAssumptions, string> so TypeScript will error
+// at compile time if a new FinancialAssumptions field is added without a label here.
 const ASSUMPTION_LABELS: Record<keyof FinancialAssumptions, string> = {
   modelStartISO: 'Model start date',
   monthlyHorizonMonths: 'Horizon (months)',

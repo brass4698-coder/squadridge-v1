@@ -26,8 +26,12 @@ function loadState(): PitchDeckHubState {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `squadridge-pitch-deck-hub-backup-v${parsed.version ?? 'unknown'}.json`;
+        // Sanitize version from localStorage — only allow safe filename characters.
+        const safeVersion = String(parsed.version ?? 'unknown').replace(/[^a-zA-Z0-9.-]/g, '_');
+        a.download = `squadridge-pitch-deck-hub-backup-v${safeVersion}.json`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         URL.revokeObjectURL(url);
       } catch {
         /* best-effort — carry on with reset */
