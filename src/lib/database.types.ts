@@ -481,6 +481,28 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
         Relationships: [];
       };
+      crisis_alerts: {
+        Row: {
+          id: string;
+          actor_user_id: string;
+          squad_id: string;
+          reason_code: 'immediate_danger' | 'request_pause' | 'request_facilitator';
+          created_at: string;
+          acknowledged_at: string | null;
+          acknowledged_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          actor_user_id: string;
+          squad_id: string;
+          reason_code: 'immediate_danger' | 'request_pause' | 'request_facilitator';
+          created_at?: string;
+          acknowledged_at?: string | null;
+          acknowledged_by?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['crisis_alerts']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {
       ledger_proposal_vote_summary: {
@@ -492,6 +514,60 @@ export interface Database {
           reject_count: number;
           abstain_count: number;
           total_eligible: number;
+        };
+        Relationships: [];
+      };
+      pilot_match_queue_depth: {
+        Row: {
+          pool_key: string;
+          side: string;
+          status: string;
+          row_count: number;
+          oldest_enqueued_at: string | null;
+          newest_enqueued_at: string | null;
+        };
+        Relationships: [];
+      };
+      pilot_match_latency_24h: {
+        Row: {
+          pool_key: string;
+          matched_count: number;
+          avg_match_seconds: number | null;
+          max_match_seconds: number | null;
+        };
+        Relationships: [];
+      };
+      pilot_decrypt_audit_24h: {
+        Row: {
+          hour_bucket: string;
+          decrypt_count: number;
+          distinct_moderators: number;
+          distinct_squads: number;
+        };
+        Relationships: [];
+      };
+      pilot_claim_finalize_24h: {
+        Row: {
+          finalized_count: number;
+          pending_count: number;
+          finalized_without_verified_user: number;
+        };
+        Relationships: [];
+      };
+      pilot_key_creation_events_24h: {
+        Row: {
+          hour_bucket: string;
+          squads_created: number;
+        };
+        Relationships: [];
+      };
+      pilot_crisis_alerts_open: {
+        Row: {
+          id: string;
+          squad_id: string;
+          reason_code: 'immediate_danger' | 'request_pause' | 'request_facilitator';
+          created_at: string;
+          open_seconds: number;
         };
         Relationships: [];
       };

@@ -31,6 +31,16 @@ export function AdminLayout() {
           </p>
           <ul className="space-y-0.5">
             <li>
+              <NavLink to="/admin/incidents" className={itemClass}>
+                Incidents
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/metrics" className={itemClass}>
+                Pilot metrics
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/reports" className={itemClass}>
                 Reports
               </NavLink>
