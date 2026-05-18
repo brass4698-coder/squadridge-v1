@@ -55,7 +55,7 @@ export function SessionDebriefPanel({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  const canSubmit = form.keyLearning.trim().length >= 10 && form.confidence != null && !busy;
+  const canSubmit = form.keyLearning.trim().length >= 10 && !busy;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

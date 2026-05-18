@@ -15,12 +15,12 @@ const PHASE_PROMPTS: Record<PhaseId, string[]> = {
   Intro: [
     'Set the ground rules: one person speaks at a time, no interruptions.',
     'Invite each participant to share one sentence about why they joined.',
-    'Clarify the session goal -- agree on what "done" looks like.',
+    'Clarify the session goal \u2014 agree on what "done" looks like.',
   ],
   'Round 1': [
     'Ask each side: "What matters most to your community right now?"',
     'Reflect back what you heard before moving to the next speaker.',
-    'If tension rises, name it: "I notice we\'re getting heated -- let\'s pause 30 seconds."',
+    'If tension rises, name it: "I notice we\'re getting heated \u2014 let\'s pause 30 seconds."',
   ],
   Synthesis: [
     'Identify at least one point of genuine agreement, however small.',

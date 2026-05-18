@@ -47,6 +47,16 @@ function formatAge(createdAt: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+const OPEN_CARD_CLASSES: Record<'red' | 'amber' | 'teal', string> = {
+  red: 'border-red-500/35 bg-red-500/5',
+  amber: 'border-amber/35 bg-amber/5',
+  teal: 'border-teal/35 bg-teal/5',
+};
+
+function openCardClass(sev: 'red' | 'amber' | 'teal'): string {
+  return OPEN_CARD_CLASSES[sev];
+}
+
 function buildExportText(rows: CrisisAlertRow[]): string {
   const lines = [
     'SquadRidge Incident Summary Export',
@@ -252,7 +262,7 @@ export function AdminIncidentsPage() {
             return (
               <li
                 key={r.id}
-                className={`rounded-lg border p-4 ${open ? `border-${sev === 'red' ? 'red-500' : sev === 'amber' ? 'amber' : 'teal'}/35 bg-${sev === 'red' ? 'red-500' : sev === 'amber' ? 'amber' : 'teal'}/5` : 'border-navy-light bg-[#0c1219]'}`}
+                className={`rounded-lg border p-4 ${open ? openCardClass(sev) : 'border-navy-light bg-[#0c1219]'}`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 space-y-1">
