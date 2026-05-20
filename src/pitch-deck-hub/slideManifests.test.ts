@@ -10,4 +10,17 @@ describe('slideManifests', () => {
       expect(manifestSlideCount(deck.id)).toBe(deck.slideCount);
     }
   });
+
+  it('sectionsOutline length matches slideCount within a tolerance of 3', () => {
+    // Title slides and footnote slides may not have outline entries,
+    // but a larger gap indicates a missing outline section.
+    const TOLERANCE = 3;
+    for (const deck of INITIAL_DECKS) {
+      const diff = Math.abs(deck.sectionsOutline.length - deck.slideCount);
+      expect(
+        diff,
+        `deck "${deck.id}": sectionsOutline has ${deck.sectionsOutline.length} items but slideCount is ${deck.slideCount} (diff ${diff} > tolerance ${TOLERANCE})`,
+      ).toBeLessThanOrEqual(TOLERANCE);
+    }
+  });
 });

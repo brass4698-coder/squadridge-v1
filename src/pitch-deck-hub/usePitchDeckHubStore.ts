@@ -19,7 +19,25 @@ function loadState(): PitchDeckHubState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return INITIAL_STATE;
     const parsed = JSON.parse(raw) as Partial<PitchDeckHubState>;
-    if (parsed.version !== INITIAL_STATE.version) return INITIAL_STATE;
+    if (parsed.version !== INITIAL_STATE.version) {
+      // Auto-export the stale state so no edits are silently lost before reset.
+      try {
+        const blob = new Blob([raw], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Sanitize version from localStorage — only allow safe filename characters.
+        const safeVersion = String(parsed.version ?? 'unknown').replace(/[^a-zA-Z0-9.-]/g, '_');
+        a.download = `squadridge-pitch-deck-hub-backup-v${safeVersion}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch {
+        /* best-effort — carry on with reset */
+      }
+      return INITIAL_STATE;
+    }
     const deckDefaults = new Map(INITIAL_STATE.decks.map((d) => [d.id, d]));
     const decksRaw = parsed.decks?.length ? parsed.decks : INITIAL_STATE.decks;
     const decks = decksRaw.map((d) => {
@@ -119,13 +137,22 @@ export function usePitchDeckHubStore() {
     }));
   }, []);
 
-  const markExternalReady = useCallback(
-    (id: string) => {
-      updateDeck(id, { status: 'external_ready', confidence: 'mixed' });
-      toast.message('Marked external-ready — run checklist and consistency review first.');
-    },
-    [updateDeck],
-  );
+  const markExternalReady = useCallback((id: string) => {
+    setState((s) => ({
+      ...s,
+      decks: s.decks.map((d) => {
+        if (d.id !== id) return d;
+        return {
+          ...d,
+          status: 'external_ready' as DeckStatus,
+          // Only downgrade assumption_based → mixed; leave 'verified' and 'mixed' unchanged.
+          confidence: d.confidence === 'assumption_based' ? 'mixed' : d.confidence,
+          lastUpdatedISO: new Date().toISOString(),
+        };
+      }),
+    }));
+    toast.message('Marked external-ready — run checklist and consistency review first.');
+  }, []);
 
   const resetHub = useCallback(() => {
     setState(INITIAL_STATE);

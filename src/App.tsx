@@ -109,9 +109,11 @@ export default function App() {
                   <Route
                     path="/pitch-deck-hub"
                     element={
-                      <Suspense fallback={routeChunkFallback}>
-                        <PitchDeckHubPage />
-                      </Suspense>
+                      <RequireAuth>
+                        <Suspense fallback={routeChunkFallback}>
+                          <PitchDeckHubPage />
+                        </Suspense>
+                      </RequireAuth>
                     }
                   />
                   <Route path="/match" element={<Match />} />

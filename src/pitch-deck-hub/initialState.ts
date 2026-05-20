@@ -106,6 +106,10 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'Pilot cadence & success criteria (to define with partner)',
       'Sample outputs',
       'Implementation checklist',
+      'Security language alignment',
+      'Readiness comparison',
+      'Messaging principle',
+      'Contact & next step',
     ],
   },
   {
@@ -170,6 +174,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     slideCount: 11,
     owner: 'Founder',
     sectionsOutline: [
+      'Title & positioning',
       'Problem framing (conflict prevention)',
       'Structured dialogue model',
       'Records, ledgers, and transparency boundaries',
@@ -177,6 +182,9 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'Ethics & facilitation',
       'Evidence & evaluation (input required)',
       'Deployment constraints',
+      'Governance posture',
+      'Risk & escalation',
+      'Next steps',
     ],
   },
   {
