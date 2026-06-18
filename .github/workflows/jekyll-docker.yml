@@ -1,20 +1,11 @@
-name: Jekyll site CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+# This workflow was a GitHub template placeholder and has been removed.
+# SquadRidge is a Vite/React SPA — not a Jekyll site.
+# All CI is handled in ci.yml.
+# This file is kept as a stub so the filename does not reappear via GitHub template suggestions.
+name: _removed-jekyll-placeholder
+on: workflow_dispatch
 jobs:
-  build:
-
+  noop:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the site in the jekyll/builder container
-      run: |
-        docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
+      - run: echo 'This workflow is intentionally disabled. See ci.yml.'
