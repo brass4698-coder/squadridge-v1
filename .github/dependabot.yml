@@ -1,59 +1,69 @@
-# Automated dependency updates.
-#
-# Grouped minor/patch PRs reduce noise; security updates remain separate.
-# Residual npm audit findings for heavy transitive chains are documented in
-# docs/security/dependency-advisories.md.
-
 version: 2
 updates:
+  # npm — frontend + dev dependencies
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
       day: monday
-      time: '08:00'
-      timezone: Etc/UTC
+      time: '09:00'
+      timezone: America/Los_Angeles
     open-pull-requests-limit: 5
-    labels:
-      - dependencies
-    commit-message:
-      prefix: chore(deps)
-      prefix-development: chore(deps-dev)
-      include: scope
     groups:
-      runtime-minor-and-patch:
-        applies-to: version-updates
-        dependency-type: production
-        update-types:
-          - minor
-          - patch
-      dev-minor-and-patch:
-        applies-to: version-updates
-        dependency-type: development
-        update-types:
-          - minor
-          - patch
-      security:
-        applies-to: security-updates
+      radix-ui:
         patterns:
-          - '*'
+          - '@radix-ui/*'
+      semaphore:
+        patterns:
+          - '@semaphore-protocol/*'
+      testing:
+        patterns:
+          - '@playwright/test'
+          - '@testing-library/*'
+          - '@vitest/*'
+          - 'vitest'
+          - 'jsdom'
+      vite-ecosystem:
+        patterns:
+          - 'vite'
+          - '@vitejs/*'
+          - 'esbuild'
+          - 'rollup-plugin-visualizer'
+      linting:
+        patterns:
+          - 'eslint*'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'prettier'
+          - 'lint-staged'
+          - 'husky'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - 'react-router-dom'
+          - '@types/react'
+          - '@types/react-dom'
+    ignore:
+      # Semaphore major bumps require ZK circuit validation — update manually
+      - dependency-name: '@semaphore-protocol/*'
+        update-types:
+          - version-update:semver-major
 
+  # GitHub Actions — keep action versions current
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
-      time: '08:00'
-      timezone: Etc/UTC
-    open-pull-requests-limit: 3
-    labels:
-      - dependencies
-      - github-actions
-    commit-message:
-      prefix: chore(actions)
-      include: scope
+      time: '09:00'
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5
     groups:
-      actions-minor-and-patch:
-        update-types:
-          - minor
-          - patch
+      actions-core:
+        patterns:
+          - 'actions/*'
+      github-security:
+        patterns:
+          - 'github/codeql-action'
+          - 'actions/dependency-review-action'

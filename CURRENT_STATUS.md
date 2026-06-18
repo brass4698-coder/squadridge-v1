@@ -1,25 +1,30 @@
 # Current Status
 
+> Last updated: June 2026
+
 This document is the fastest honest summary of what SquadRidge is today. It is intended for teammates, pilot partners, security reviewers, and funders who need a current-state snapshot before reading deeper docs.
 
 ## Snapshot
 
-- Stage: advanced MVP / pilot foundation
-- Primary use case: verified-anonymous, facilitator-guided cross-border dialogue in small squads
-- Recommended initial wedge: institution-led pilots with peacebuilding organizations, academic labs, or Track II facilitators
-- Stack: React, Vite, TypeScript, Tailwind, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions)
+- **Stage:** Advanced MVP / pilot foundation
+- **Primary use case:** Verified-anonymous, facilitator-guided cross-border dialogue in small squads
+- **Recommended initial wedge:** Institution-led pilots with peacebuilding organizations, academic labs, or Track II facilitators
+- **Stack:** React 19, Vite 6, TypeScript, Tailwind CSS 3, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions), Semaphore ZK v4
+- **CI:** GitHub Actions — lint, typecheck, Vitest, Playwright e2e, CodeQL static analysis, dependency-review, pgTAP DB tests
 
 ## Shipped Now
 
 - Web application with landing, onboarding, verification, intent selection, matching, session, ledger, profile, and moderator/admin routes
-- Supabase-backed schema, migrations, and Edge Functions in [`supabase/`](./supabase/)
-- Semaphore-style ZK verification path with production guardrails around `VITE_ZK_STUB`
+- Supabase-backed schema (42 applied migrations), RLS on all 23 tables, and Edge Functions in [`supabase/`](./supabase/)
+- Semaphore ZK v4 verification path with production guardrails around `VITE_ZK_STUB`
 - Anonymous and passwordless sign-in flows
 - Matchmaking, squad, message, moderation, and ledger data model
-- CI workflows for lint, test, build, frontend deploy artifact creation, and Supabase deploys
+- CI workflows: lint, typecheck, test, build, Playwright e2e, CodeQL static analysis, dependency review, Supabase deploys
 - Threat model and security/architecture documentation that explicitly describe current limits
 - Demo and walkthrough flows for investor and partner conversations
-- **Conflict Severity Index (CSI):** database tables and RLS (`conflict_severity_snapshots`, `escalation_alerts`); mediator-facing read UI at `/admin/csi` for authenticated users in the `moderators` roster. Automated ingestion, calibration, and any public or partner API surfaces are still roadmap work—see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md) and [`docs/product/csi-spec.md`](./docs/product/csi-spec.md).
+- **Design token system v2** (`src/styles/tokens.css`): OKLCH-based surfaces, semantic ink levels, motion timing constants (`--sr-ease-*`, `--sr-duration-*`), layered elevation shadows, focus-ring token, radius scale — fully bridged to Tailwind utilities in `tailwind.config.ts`
+- **AI agent context** (`AGENTS.md`): stack summary, directory map, and hard coding rules for Cursor / Copilot / Claude
+- **Conflict Severity Index (CSI):** database tables and RLS (`conflict_severity_snapshots`, `escalation_alerts`); mediator-facing read UI at `/admin/csi`. Automated ingestion and partner API are still roadmap — see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md).
 
 ## Pilot-Ready With Care
 
@@ -36,11 +41,11 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Claims that AI de-escalation effectiveness or peace impact have already been validated in the field
 - Any high-risk deployment that has not passed a dedicated security review and operational readiness check
 
-## Strategic narrative (roadmap)
+## Strategic Narrative (Roadmap)
 
 Long-term **prevention / early-signal** positioning and partner archetypes live in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not a product spec.
 
-**Not shipped** as a full product line until explicitly called out here: **automated** CSI ingestion at scale, public CSI maps or feeds, and quantitative “lives saved” claims. Mediator read surfaces and **draft** methodology remain scoped to pilot operations. Specs: [`docs/product/csi-spec.md`](docs/product/csi-spec.md), [`docs/product/conflict-severity-index.md`](docs/product/conflict-severity-index.md).
+**Not shipped** as a full product line until explicitly called out here: **automated** CSI ingestion at scale, public CSI maps or feeds, and quantitative "lives saved" claims. Mediator read surfaces and **draft** methodology remain scoped to pilot operations.
 
 ## Roadmap Priorities
 
@@ -60,7 +65,7 @@ Long-term **prevention / early-signal** positioning and partner archetypes live 
 
 ## Recommended Near-Term Positioning
 
-Use this product story in the next 30-90 days:
+Use this product story in the next 30–90 days:
 
 > SquadRidge is a pilot-stage trust and dialogue platform for structured, facilitator-led cross-border cohorts. It combines verified access, small-group matching, and safety-conscious workflows for institutions running sensitive dialogue programs.
 
@@ -75,7 +80,7 @@ Avoid these stronger claims unless and until they are separately demonstrated:
 
 Before any real pilot, confirm:
 
-- release checklist passes
+- release checklist passes (`npm run check:all`)
 - threat model claims are reflected in partner-facing materials
 - incident owner and moderator owner are assigned
 - pilot runbook exists for the exact cohort format being used
@@ -84,6 +89,8 @@ Before any real pilot, confirm:
 ## Key Documents
 
 - Repo setup and shipping notes: [`README.md`](./README.md)
+- AI agent context and coding rules: [`AGENTS.md`](./AGENTS.md)
+- Changelog: [`CHANGELOG.md`](./CHANGELOG.md)
 - Strategic positioning (roadmap narrative): [`docs/business/strategic-positioning-early-warning.md`](./docs/business/strategic-positioning-early-warning.md)
 - Security source of truth: [`docs/security/threat-model.md`](./docs/security/threat-model.md)
 - Architecture summary: [`docs/technical/architecture-overview.md`](./docs/technical/architecture-overview.md)
