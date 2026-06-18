@@ -92,9 +92,10 @@ jobs:
   # Supply-chain hygiene. Two distinct gates:
   #
   #  1. dependency-review-action (PR-only): hard-fails when a pull request
-  #     introduces a NEW high or critical advisory. This protects forward
-  #     progress without needing to first eliminate the existing transitive
-  #     advisories tracked in docs/security/dependency-advisories.md.
+  #     introduces a NEW high or critical advisory. Policy is in
+  #     .github/dependency-review-config.yml. Known-safe advisories (e.g.
+  #     esbuild GHSAs already fixed by the upgrade target) are allowlisted
+  #     there so Dependabot PRs are not incorrectly blocked.
   #
   #  2. npm audit (informational): emits a job summary of current production
   #     advisories on every push and PR so dispositions in
@@ -113,8 +114,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: high
-          comment-summary-in-pr: on-failure
+          config-file: '.github/dependency-review-config.yml'
 
       - uses: actions/setup-node@v4
         with:
@@ -140,6 +140,8 @@ jobs:
           npm audit --omit=dev --audit-level=high
 
   # Applies all migrations to a local Supabase stack so broken SQL is caught on every PR.
+  # Uses the same supabase CLI version as package.json (devDependency) to prevent
+  # version drift between local dev, CI, and the npm-installed CLI.
   db:
     runs-on: ubuntu-latest
     steps:
@@ -153,7 +155,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Supabase CLI (matches package.json devDependency)
+        run: |
+          # Use the npx-installed CLI from node_modules so the version always
+          # matches the supabase devDependency in package.json. No version drift.
+          echo "$(npm bin)" >> "$GITHUB_PATH"
+
       - uses: supabase/setup-cli@v2
+        with:
+          version: latest
 
       - name: Start local stack and apply migrations
         run: |

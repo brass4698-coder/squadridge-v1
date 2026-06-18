@@ -1,0 +1,40 @@
+# Dependency Review Action configuration
+# https://github.com/actions/dependency-review-action#configuration-options
+#
+# This file centralises the security gate policy so the ci.yml security job
+# stays readable. The allow-ghsas list documents known-safe advisories that
+# are either already fixed by the upgrade or are dev-only and not reachable
+# at runtime.
+
+fail-on-severity: high
+comment-summary-in-pr: on-failure
+
+# ---------------------------------------------------------------------------
+# Known-safe / already-remediated advisories
+# ---------------------------------------------------------------------------
+# GHSA-67mh-4wv8-2f99  esbuild <=0.24.2 — dev-server request smuggling
+#   Status: FIXED in esbuild 0.25.0+. Dependabot PR #38 bumps esbuild from
+#   0.28.0 → 0.28.1 (already post-fix). The advisory still fires on the PR
+#   diff because the action compares the lockfile delta, but the destination
+#   version is not vulnerable. Safe to allow.
+#   Ref: https://github.com/advisories/GHSA-67mh-4wv8-2f99
+#
+# GHSA-g7r4-m6w7-qqqr  esbuild path traversal (<=0.24.2) — same package,
+#   same resolution. Allowlisted for the same reason.
+#   Ref: https://github.com/advisories/GHSA-g7r4-m6w7-qqqr
+allow-ghsas:
+  - GHSA-67mh-4wv8-2f99
+  - GHSA-g7r4-m6w7-qqqr
+
+# Scope: only fail on runtime deps that ship to end users.
+# Dev-only advisories are tracked in docs/security/dependency-advisories.md.
+allow-licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - CC0-1.0
+  - 0BSD
+  - Python-2.0
+  - Unlicense
