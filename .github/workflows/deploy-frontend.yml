@@ -23,14 +23,22 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'  # was '20' — all workflows now use Node 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test
+        env:
+          # Vitest imports src/utils/supabase.ts at collection time and throws
+          # without these vars — same pattern as ci.yml.
+          VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
 
       - name: Ensure no ZK hash stub for production bundle
         run: npm run check:no-zk-stub-prod

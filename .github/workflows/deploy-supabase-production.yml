@@ -46,7 +46,7 @@ jobs:
       - name: Bundle ingest-message Edge function
         run: npm run bundle:ingest-message
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2  # was @v1 — v1 is deprecated; v2 is current stable
         with:
           version: latest
 

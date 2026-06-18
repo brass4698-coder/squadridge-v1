@@ -10,8 +10,14 @@ jobs:
     env:
       # Production build requires Sentry DSN (see src/lib/sentry.ts). Fallbacks keep fork CI green without secrets.
       VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN || 'https://examplePublicKey@o0.ingest.sentry.io/4500000000000000' }}
+      # VITE_SENTRY_USER_HASH_SALT is required when VITE_SENTRY_DSN is set (src/lib/env.ts enforces this).
+      # Use a stable placeholder so staging builds pass without the real secret configured.
+      VITE_SENTRY_USER_HASH_SALT: ${{ secrets.VITE_SENTRY_USER_HASH_SALT || 'staging-ci-placeholder-salt-32chars!!' }}
+      VITE_SENTRY_ENVIRONMENT: ${{ vars.VITE_SENTRY_ENVIRONMENT || 'staging' }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
       VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_placeholder_for_ci_only' }}
+      # vite.config.ts enforces VITE_ZK_STUB=false for production-mode builds.
+      VITE_ZK_STUB: 'false'
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +30,12 @@ jobs:
 
       - run: npm run check:prod-readiness
 
-      - run: npm run test
+      - name: Test
+        run: npm run test
+        env:
+          # Vitest imports src/utils/supabase.ts at collection time — needs these vars.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_placeholder_for_ci_only' }}
 
       - run: npm run build
 
