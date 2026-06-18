@@ -1,14 +1,15 @@
-# SquadRidge — AI Agent Context
+# SquadRidge — Developer Context
 
-This file provides architectural context for AI coding agents (Cursor, GitHub Copilot,
-Claude, Perplexity, etc.) working in this repository.
+This file is the fastest way to get oriented in the codebase. It covers the stack,
+where things live, how the design system works, and the rules that keep the codebase
+consistent. Read it before making significant changes.
 
 ## What is SquadRidge?
 
-A peace-tech platform that enables **verified anonymous dialogue** across conflict lines.
-Users join verified groups ("squads"), are matched with counterparts, and hold structured
-conversations recorded in a tamper-evident ledger. Zero-knowledge proofs (Semaphore)
-preserve anonymity while proving group membership.
+A peace-tech platform for **verified anonymous dialogue** across conflict lines.
+Users join verified groups (called squads), get matched with counterparts, and hold
+structured conversations recorded in a tamper-evident ledger. Zero-knowledge proofs
+(Semaphore) prove group membership without revealing identity.
 
 ## Stack
 
@@ -31,19 +32,19 @@ preserve anonymity while proving group membership.
 
 - **Token source of truth**: `src/styles/tokens.css` — CSS custom properties with `--sr-` prefix
 - **Tailwind bridge**: `tailwind.config.ts` maps `--sr-*` vars to utility classes (`bg-surface`, `text-brand`, etc.)
-- **Default theme**: dark (graphite #0c0e12 base), `.theme-light` for marketing/ledger surfaces
-- **Accent**: single slate-teal `--sr-primary: #2aa39a` — never add a second accent color
+- **Default theme**: dark (graphite `#0c0e12` base), `.theme-light` for marketing/ledger surfaces
+- **Accent**: single slate-teal `--sr-primary: #2aa39a` — one accent, full stop
 - **Fonts**: IBM Plex Sans (UI), IBM Plex Serif (display/marketing), IBM Plex Mono (ledger/code)
 - **Motion**: use `motion` (Framer) + `animate-step-in` / `animate-step-in-body` Tailwind utilities
 
-## Key Directories
+## Directory Map
 
 ```
 src/
   App.tsx              # Root router — all page routes defined here
   components/          # Shared UI primitives and layout shells
   pages/               # Route-level page components
-  onboarding/          # Lazy-loaded onboarding flow (shadcn-heavy)
+  onboarding/          # Lazy-loaded onboarding flow
   hooks/               # Custom React hooks
   contexts/            # React Context providers (Auth, Demo)
   lib/                 # Supabase client, feature flags, ZK utilities
@@ -73,7 +74,7 @@ All flags are `VITE_*` env vars resolved at build time:
 
 | Flag | Purpose |
 |---|---|
-| `VITE_ZK_STUB` | `true` = use stub ZK proofs in dev (never in production) |
+| `VITE_ZK_STUB` | `true` = stub ZK proofs in dev. Never ship this as true. |
 | `VITE_ENABLE_DEMO_SQUAD` | `true` = mount `/session/demo-session-001` route |
 | `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon key |
@@ -92,19 +93,22 @@ All flags are `VITE_*` env vars resolved at build time:
 10. **security** — dependency-review + npm audit
 11. **db** — local Supabase migrations + pgTAP + type drift check
 
-## Rules for AI Agents
+## Coding Rules
 
-- **Never add a second accent color** — `--sr-primary` is the only hue in UI chrome.
-  Charts may use semantic palette (`--sr-success`, `--sr-warning`, `--sr-danger`, `--sr-info`).
-- **Never use raw hex** in component JSX/CSS — always reference a `--sr-*` token or Tailwind
-  alias (`bg-surface`, `text-brand`, `border-line`, etc.).
-- **Never set `VITE_ZK_STUB=true` in production paths** — the CI gate `check:no-zk-stub-prod` will fail.
-- **Migrations are append-only** — never modify an existing file in `supabase/migrations/`.
-  Add a new timestamped file.
-- **RLS is mandatory** — every new table must have `alter table ... enable row level security`
-  in its migration and at least one policy.
-- **Fonts are IBM Plex only** — do not introduce a new font family without updating
+These exist because past PRs broke things in predictable ways. Please follow them.
+
+- **One accent only** — `--sr-primary` is the only hue in UI chrome. Charts can use
+  the semantic palette (`--sr-success`, `--sr-warning`, `--sr-danger`, `--sr-info`).
+- **No raw hex in components** — always use a `--sr-*` token or a Tailwind alias
+  (`bg-surface`, `text-brand`, `border-line`, etc.). Raw hex in JSX/CSS will be flagged in review.
+- **Never set `VITE_ZK_STUB=true` in production paths** — `check:no-zk-stub-prod` will catch it,
+  but don't rely on CI to enforce something this important.
+- **Migrations are append-only** — never edit an existing file in `supabase/migrations/`.
+  Always add a new timestamped file.
+- **RLS is mandatory** — every new table needs `alter table ... enable row level security`
+  and at least one policy in the same migration.
+- **IBM Plex fonts only** — don't introduce a new font family without also updating
   `tailwind.config.ts` and `tokens.css`.
-- **TypeScript strict** — no `any`, no `@ts-ignore` without a comment explaining why.
+- **TypeScript strict** — no `any`, no `@ts-ignore` without an explanatory comment.
 - **Test new utilities** — any new file in `src/utils/` or `src/lib/` needs a corresponding
   test in `src/test/`.
