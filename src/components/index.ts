@@ -29,6 +29,8 @@ export * from './session/SessionRoomEntryTransition';
 export * from './session/SessionSafetyStrip';
 export * from './session/SessionPageSkeleton';
 export * from './session/SquadPeerStrip';
+export * from './ui/ConfirmModal';
+export * from './ui/EmptyState';
 export * from './ui/HowItWorksStep';
 export * from './ui/NextStepHint';
 export * from './ui/PrimaryCTA';
