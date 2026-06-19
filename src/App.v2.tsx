@@ -1,9 +1,12 @@
 /**
  * App.v2.tsx — Redesign router (redesign/v2 branch)
  *
- * This file wires up all Phase-1 redesign routes while preserving the
- * existing App.tsx intact so the diff is reviewable and merge is clean.
- * To activate the redesign, swap the import in main.tsx from App to AppV2.
+ * Phase 1: Public shell, marketing pages, error pages.
+ * Phase 2: Authenticated shell, facilitator dashboard, session setup,
+ *          participant invite, live room, outcome drafting, sessions list.
+ *
+ * To activate the redesign, swap the import in main.tsx:
+ *   import App from './App.v2';
  */
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -20,6 +23,7 @@ import {
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { PageShell } from './components/layout/PageShell';
+import { AuthenticatedShell } from './components/layout/AuthenticatedShell';
 
 // ── Existing pages (preserved) ───────────────────────────────────────────────
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
@@ -41,12 +45,20 @@ import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 
-// ── New v2 pages (redesign) ───────────────────────────────────────────────────
+// ── New v2 pages — Phase 1 (public) ──────────────────────────────────────────
 import { LandingPage } from './pages/v2/LandingPage';
 import { HowItWorksPage } from './pages/v2/HowItWorksPage';
 import { RequestAccessPage } from './pages/v2/RequestAccessPage';
 import { NotFoundPage } from './pages/v2/NotFoundPage';
 import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
+
+// ── New v2 pages — Phase 2 (authenticated) ───────────────────────────────────
+import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
+import { SessionSetupPage } from './pages/v2/SessionSetupPage';
+import { SessionsListPage } from './pages/v2/SessionsListPage';
+import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
+import { LiveRoomPage } from './pages/v2/LiveRoomPage';
+import { OutcomeDraftingPage } from './pages/v2/OutcomeDraftingPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -92,7 +104,29 @@ export default function AppV2() {
               }
             />
 
-            {/* ── V2 Public Shell ─────────────────────────────────────────── */}
+            {/* ── V2 Authenticated Shell (Phase 2) ─────────────────────── */}
+            <Route
+              element={
+                <RequireAuth>
+                  <AuthenticatedShell />
+                </RequireAuth>
+              }
+            >
+              {/* Facilitator Dashboard */}
+              <Route path="/dashboard" element={<FacilitatorDashboardPage />} />
+
+              {/* Sessions */}
+              <Route path="/sessions" element={<SessionsListPage />} />
+              <Route path="/sessions/new" element={<SessionSetupPage />} />
+              <Route path="/sessions/:sessionId/invite" element={<ParticipantInvitePage />} />
+              <Route path="/sessions/:sessionId/room" element={<LiveRoomPage />} />
+
+              {/* Outcomes */}
+              <Route path="/outcomes/new" element={<OutcomeDraftingPage />} />
+              <Route path="/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
+            </Route>
+
+            {/* ── V2 Public Shell (Phase 1) ────────────────────────────── */}
             <Route element={<PageShell />}>
 
               {/* Public marketing */}
