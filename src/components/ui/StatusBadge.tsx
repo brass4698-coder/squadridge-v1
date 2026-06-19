@@ -1,39 +1,37 @@
-import { type ReactNode } from 'react';
+import { ReactNode } from 'react';
 
-type BadgeVariant =
+type Variant =
   | 'released'
   | 'pending'
-  | 'live'
-  | 'archived'
   | 'draft'
-  | 'approved'
-  | 'declined'
-  | 'warning'
-  | 'neutral';
+  | 'closed'
+  | 'live'
+  | 'verified'
+  | 'denied'
+  | 'default';
 
-const variantStyles: Record<BadgeVariant, { bg: string; color: string }> = {
-  released: { bg: '#DCEDE3', color: '#2A5438' },
-  pending:  { bg: '#FEF3E2', color: '#8A5C1A' },
-  live:     { bg: '#DCEDE3', color: '#2A5438' },
-  archived: { bg: '#ECEAE6', color: '#6B6560' },
-  draft:    { bg: '#E8EEF5', color: '#2B4D6F' },
-  approved: { bg: '#DCEDE3', color: '#2A5438' },
-  declined: { bg: '#F5DCDC', color: '#7A2020' },
-  warning:  { bg: '#FEF3E2', color: '#8A5C1A' },
-  neutral:  { bg: '#ECEAE6', color: '#6B6560' },
+const variantStyles: Record<Variant, { bg: string; color: string }> = {
+  released: { bg: 'var(--color-accent-light)', color: 'var(--color-accent)' },
+  pending:  { bg: 'var(--color-pending-strip)', color: '#92710a' },
+  draft:    { bg: 'var(--color-border)', color: 'var(--color-text-secondary)' },
+  closed:   { bg: 'var(--color-border)', color: 'var(--color-text-secondary)' },
+  live:     { bg: '#d1fae5', color: '#065f46' },
+  verified: { bg: '#d1fae5', color: '#065f46' },
+  denied:   { bg: '#fee2e2', color: '#991b1b' },
+  default:  { bg: 'var(--color-border)', color: 'var(--color-text-secondary)' },
 };
 
 interface StatusBadgeProps {
-  variant: BadgeVariant;
+  variant?: Variant;
   children: ReactNode;
 }
 
-export function StatusBadge({ variant, children }: StatusBadgeProps) {
-  const styles = variantStyles[variant];
+export function StatusBadge({ variant = 'default', children }: StatusBadgeProps) {
+  const { bg, color } = variantStyles[variant] ?? variantStyles.default;
   return (
     <span
-      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-      style={{ backgroundColor: styles.bg, color: styles.color }}
+      className="inline-block rounded px-2.5 py-1 text-xs font-semibold"
+      style={{ backgroundColor: bg, color }}
     >
       {children}
     </span>
