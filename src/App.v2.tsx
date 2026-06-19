@@ -1,6 +1,16 @@
 /**
  * App.v2.tsx — Redesign router (redesign/v2 branch)
- * Phases 1-6 complete. Phase 7 (Supabase) wires real data.
+ *
+ * Phase 1: Public shell, marketing pages, error pages.
+ * Phase 2: Authenticated shell, facilitator dashboard, session setup,
+ *          participant invite, live room, outcome drafting, sessions list.
+ * Phase 3: Extended public pages (about, faq, privacy, terms, security,
+ *          use-cases, ledger index + record), facilitator sub-pages,
+ *          participant flow pages.
+ * Phases 5-8: All routes wired; barrel exports added; app is runnable.
+ *
+ * To activate the redesign, swap the import in main.tsx:
+ *   import App from './App.v2';
  */
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -18,10 +28,8 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthenticatedShell } from './components/layout/AuthenticatedShell';
-import { isDemoSquadShortcutsEnabled } from './lib';
-import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 
-// ── Existing pages ──────────────────────────────────────────────────
+// ── Existing pages (preserved) ───────────────────────────────────────────────
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
@@ -37,21 +45,41 @@ import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { isDemoSquadShortcutsEnabled } from './lib';
+import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 
-// ── V2 Phase 1 ──────────────────────────────────────────────────────────
+// ── New v2 pages — Phase 1 (public marketing) ────────────────────────────────
 import { LandingPage } from './pages/v2/LandingPage';
 import { HowItWorksPage } from './pages/v2/HowItWorksPage';
 import { RequestAccessPage } from './pages/v2/RequestAccessPage';
+import { AboutPage } from './pages/v2/AboutPage';
+import { FaqPage } from './pages/v2/FaqPage';
+import { PrivacyPage } from './pages/v2/PrivacyPage';
+import { TermsPage } from './pages/v2/TermsPage';
+import { SecurityPage } from './pages/v2/SecurityPage';
+import { UseCasesPage } from './pages/v2/UseCasesPage';
+import { LedgerIndexPage } from './pages/v2/LedgerIndexPage';
+import { LedgerRecordPage } from './pages/v2/LedgerRecordPage';
+import { NotFoundPage } from './pages/v2/NotFoundPage';
+import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
 
-// ── V2 Phase 2 ──────────────────────────────────────────────────────────
+// ── New v2 pages — Phase 2 (authenticated facilitator core) ──────────────────
 import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
+import { SessionSetupPage } from './pages/v2/SessionSetupPage';
 import { SessionsListPage } from './pages/v2/SessionsListPage';
 import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
 import { LiveRoomPage } from './pages/v2/LiveRoomPage';
 import { OutcomeDraftingPage } from './pages/v2/OutcomeDraftingPage';
 
-// ── V2 Phase 3 — participant flow ────────────────────────────────────────
+// ── New v2 pages — Phase 3 (facilitator sub-pages) ───────────────────────────
+import { SessionNewPage } from './pages/v2/facilitator/SessionNewPage';
+import { ParticipantsReviewPage } from './pages/v2/facilitator/ParticipantsReviewPage';
+import { SessionControlPage } from './pages/v2/facilitator/SessionControlPage';
+import { OutcomeWorkspacePage } from './pages/v2/facilitator/OutcomeWorkspacePage';
+import { OutcomeReleasePage } from './pages/v2/facilitator/OutcomeReleasePage';
+
+// ── New v2 pages — Phase 4 (participant flow) ────────────────────────────────
 import { InviteAcceptancePage } from './pages/v2/participant/InviteAcceptancePage';
 import { VerificationStepPage } from './pages/v2/participant/VerificationStepPage';
 import { ConsentPage } from './pages/v2/participant/ConsentPage';
@@ -60,33 +88,14 @@ import { WaitingRoomPage } from './pages/v2/participant/WaitingRoomPage';
 import { ParticipantRoomPage } from './pages/v2/participant/ParticipantRoomPage';
 import { SessionEndPage } from './pages/v2/participant/SessionEndPage';
 
-// ── V2 Phase 3 — ledger v2 ──────────────────────────────────────────────
-import { LedgerIndexPage } from './pages/v2/LedgerIndexPage';
-import { LedgerRecordPage } from './pages/v2/LedgerRecordPage';
-
-// ── V2 Phase 3 — public site pages ─────────────────────────────────────────
-import { UseCasesPage } from './pages/v2/UseCasesPage';
-import { SecurityPage } from './pages/v2/SecurityPage';
-import { AboutPage } from './pages/v2/AboutPage';
-import { FaqPage } from './pages/v2/FaqPage';
-import { PrivacyPage } from './pages/v2/PrivacyPage';
-import { TermsPage } from './pages/v2/TermsPage';
-
-// ── V2 Phase 4 — error pages ───────────────────────────────────────────────
-import { NotFoundPage } from './pages/v2/NotFoundPage';
-import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
-
-// ── V2 Phase 6 — facilitator session control ───────────────────────────────────
-import { SessionNewPage } from './pages/v2/facilitator/SessionNewPage';
-import { ParticipantsReviewPage } from './pages/v2/facilitator/ParticipantsReviewPage';
-import { SessionControlPage } from './pages/v2/facilitator/SessionControlPage';
-import { OutcomeWorkspacePage } from './pages/v2/facilitator/OutcomeWorkspacePage';
-import { OutcomeReleasePage } from './pages/v2/facilitator/OutcomeReleasePage';
-
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
     default: m.Onboarding,
   })),
+);
+
+const LedgerPage = lazy(() =>
+  import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
 );
 
 const routeChunkFallback = (
@@ -105,7 +114,6 @@ const routeChunkFallback = (
 export default function AppV2() {
   return (
     <BrowserRouter>
-      <GrainOverlay />
       <SentryNavigationListener />
       <ScrollToTop />
       <DemoWalkthroughProvider>
@@ -113,7 +121,7 @@ export default function AppV2() {
           <Toaster position="top-center" richColors closeButton className="font-sans" />
           <Routes>
 
-            {/* ── Onboarding ────────────────────────────────────────── */}
+            {/* Onboarding (unchanged) */}
             <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />
             <Route
               path="/onboarding/:stepId"
@@ -124,16 +132,18 @@ export default function AppV2() {
               }
             />
 
-            {/* ── Participant flow (token-gated, no auth required) ──────── */}
-            <Route path="/p/invite" element={<InviteAcceptancePage />} />
-            <Route path="/p/verify" element={<VerificationStepPage />} />
-            <Route path="/p/consent" element={<ConsentPage />} />
-            <Route path="/p/briefing" element={<SessionBriefingPage />} />
-            <Route path="/p/waiting" element={<WaitingRoomPage />} />
-            <Route path="/p/room" element={<ParticipantRoomPage />} />
-            <Route path="/p/session-end" element={<SessionEndPage />} />
+            {/* ── Participant flow (unauthenticated token-gated) ─────────── */}
+            {/* These sit outside AuthenticatedShell — participants use        */}
+            {/* magic-link tokens, not full auth sessions.                    */}
+            <Route path="/p/invite/:token" element={<InviteAcceptancePage />} />
+            <Route path="/p/verify/:token" element={<VerificationStepPage />} />
+            <Route path="/p/consent/:token" element={<ConsentPage />} />
+            <Route path="/p/briefing/:token" element={<SessionBriefingPage />} />
+            <Route path="/p/waiting/:token" element={<WaitingRoomPage />} />
+            <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
+            <Route path="/p/done/:token" element={<SessionEndPage />} />
 
-            {/* ── Authenticated Shell (facilitator) ────────────────────── */}
+            {/* ── V2 Authenticated Shell ────────────────────────────────── */}
             <Route
               element={
                 <RequireAuth>
@@ -141,86 +151,118 @@ export default function AppV2() {
                 </RequireAuth>
               }
             >
-              {/* Dashboard */}
-              <Route path="/f/dashboard" element={<FacilitatorDashboardPage />} />
-              <Route path="/dashboard" element={<Navigate to="/f/dashboard" replace />} />
+              {/* Facilitator Dashboard */}
+              <Route path="/dashboard" element={<FacilitatorDashboardPage />} />
 
-              {/* Sessions list */}
-              <Route path="/f/sessions" element={<SessionsListPage />} />
-              <Route path="/sessions" element={<Navigate to="/f/sessions" replace />} />
+              {/* Sessions (legacy + v2 setup pages) */}
+              <Route path="/sessions" element={<SessionsListPage />} />
+              <Route path="/sessions/new" element={<SessionSetupPage />} />
+              <Route path="/sessions/:sessionId/invite" element={<ParticipantInvitePage />} />
+              <Route path="/sessions/:sessionId/room" element={<LiveRoomPage />} />
 
-              {/* Session lifecycle */}
-              <Route path="/f/sessions/new" element={<SessionNewPage />} />
-              <Route path="/sessions/new" element={<Navigate to="/f/sessions/new" replace />} />
-              <Route path="/f/sessions/:sessionId/participants" element={<ParticipantsReviewPage />} />
-              <Route path="/f/sessions/:sessionId/invite" element={<ParticipantInvitePage />} />
-              <Route path="/f/sessions/:sessionId/control" element={<SessionControlPage />} />
-              <Route path="/f/sessions/:sessionId/room" element={<LiveRoomPage />} />
-              <Route path="/f/sessions/:sessionId/outcome" element={<OutcomeWorkspacePage />} />
-              <Route path="/f/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
+              {/* Facilitator sub-pages */}
+              <Route path="/sessions/:sessionId/participants" element={<ParticipantsReviewPage />} />
+              <Route path="/sessions/:sessionId/control" element={<SessionControlPage />} />
+              <Route path="/sessions/:sessionId/outcome" element={<OutcomeWorkspacePage />} />
+              <Route path="/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
+              <Route path="/sessions/new/setup" element={<SessionNewPage />} />
 
-              {/* Outcomes (legacy paths) */}
-              <Route path="/f/outcomes/new" element={<OutcomeDraftingPage />} />
-              <Route path="/f/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
-              <Route path="/outcomes/new" element={<Navigate to="/f/outcomes/new" replace />} />
-
-              {/* Settings */}
-              <Route path="/f/settings" element={<SettingsLayout />}>
-                <Route index element={<SettingsIndexPage />} />
-                <Route path="profile" element={<ProfileSettingsPage />} />
-                <Route path="safety" element={<SafetyCenterPage />} />
-                <Route path="notifications" element={<NotificationsSettingsPage />} />
-              </Route>
-              <Route path="/settings" element={<Navigate to="/f/settings" replace />} />
+              {/* Outcomes */}
+              <Route path="/outcomes/new" element={<OutcomeDraftingPage />} />
+              <Route path="/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
             </Route>
 
-            {/* ── Admin ─────────────────────────────────────────────── */}
-            <Route
-              path="/admin"
-              element={
-                <RequireAuth>
-                  <RequireModerator>
-                    <AdminLayout />
-                  </RequireModerator>
-                </RequireAuth>
-              }
-            >
-              <Route path="reports" element={<AdminReportsPage />} />
-              <Route path="verification" element={<AdminVerificationPage />} />
-              <Route path="rooms" element={<AdminRoomsPage />} />
-              <Route path="logs" element={<AdminLogsPage />} />
-              <Route path="demo" element={<AdminDemoPage />} />
-              <Route path="health" element={<SupabaseHealthPage />} />
-              <Route path="csi" element={<AdminCsiPage />} />
-              <Route index element={<Navigate to="rooms" replace />} />
-            </Route>
-
-            {/* ── Public Shell ──────────────────────────────────────────── */}
+            {/* ── V2 Public Shell ──────────────────────────────────────── */}
             <Route element={<PublicShell />}>
+
+              {/* Public marketing */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/use-cases" element={<UseCasesPage />} />
-              <Route path="/security" element={<SecurityPage />} />
+              <Route path="/request-access" element={<RequestAccessPage />} />
+              <Route path="/request-access/confirmed" element={<Navigate to="/request-access" replace />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
-              <Route path="/request-access" element={<RequestAccessPage />} />
-              <Route path="/request-access/confirmed" element={<Navigate to="/request-access" replace />} />
+              <Route path="/security" element={<SecurityPage />} />
 
+              {/* Ledger (public outcome records) */}
               <Route path="/ledger" element={<LedgerIndexPage />} />
-              <Route path="/ledger/:proposalId" element={<LedgerRecordPage />} />
+              <Route path="/ledger/:recordId" element={<LedgerRecordPage />} />
 
+              {/* Legacy ledger routes → v2 ledger */}
+              <Route path="/ledger/:proposalId/legacy" element={<Navigate to="/ledger" replace />} />
+
+              {/* Redirects for legacy paths */}
+              <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+              <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
+              <Route path="/forgot-password" element={<Navigate to="/sign-in?reason=link" replace />} />
+              <Route path="/intent" element={<Navigate to="/find-squad" replace />} />
+              <Route path="/match-setup" element={<Navigate to="/find-squad" replace />} />
+              <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
+
+              {/* Auth (existing pages, new shell) */}
               <Route path="/sign-in" element={<SignInPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/verify" element={<VerificationPage />} />
               <Route path="/invite" element={<InvitePage />} />
 
-              {/* Legacy redirects */}
-              <Route path="/login" element={<Navigate to="/sign-in" replace />} />
-              <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
-              <Route path="/forgot-password" element={<Navigate to="/sign-in?reason=link" replace />} />
+              {/* Legacy ledger (existing page, new shell) */}
+              <Route
+                path="/ledger-legacy"
+                element={
+                  <Suspense fallback={routeChunkFallback}>
+                    <LedgerPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/ledger-legacy/:proposalId"
+                element={
+                  <Suspense fallback={routeChunkFallback}>
+                    <LedgerPage />
+                  </Suspense>
+                }
+              />
 
+              {/* Settings (existing pages, new shell) */}
+              <Route
+                path="/settings"
+                element={
+                  <RequireAuth>
+                    <SettingsLayout />
+                  </RequireAuth>
+                }
+              >
+                <Route index element={<SettingsIndexPage />} />
+                <Route path="profile" element={<ProfileSettingsPage />} />
+                <Route path="safety" element={<SafetyCenterPage />} />
+                <Route path="notifications" element={<NotificationsSettingsPage />} />
+              </Route>
+
+              {/* Admin (existing pages, new shell) */}
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth>
+                    <RequireModerator>
+                      <AdminLayout />
+                    </RequireModerator>
+                  </RequireAuth>
+                }
+              >
+                <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="verification" element={<AdminVerificationPage />} />
+                <Route path="rooms" element={<AdminRoomsPage />} />
+                <Route path="logs" element={<AdminLogsPage />} />
+                <Route path="demo" element={<AdminDemoPage />} />
+                <Route path="health" element={<SupabaseHealthPage />} />
+                <Route path="csi" element={<AdminCsiPage />} />
+                <Route index element={<Navigate to="rooms" replace />} />
+              </Route>
+
+              {/* Demo session */}
               {isDemoSquadShortcutsEnabled() ? (
                 <>
                   <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
@@ -234,6 +276,8 @@ export default function AppV2() {
               )}
 
               <Route path="/session/:squadId?" element={<SessionAccess />} />
+
+              {/* Error pages */}
               <Route path="/access-denied" element={<AccessDeniedPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
