@@ -1,233 +1,135 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
-type FormData = {
-  name: string;
-  org: string;
-  role: string;
-  useCase: string;
-  region: string;
-  email: string;
-};
-
-const initialData: FormData = { name: '', org: '', role: '', useCase: '', region: '', email: '' };
+const USE_CASE_OPTIONS = [
+  'Mediator / dispute resolution professional',
+  'Government or public institution',
+  'NGO / civil society organisation',
+  'Peace-tech or conflict-tech researcher',
+  'Academic institution',
+  'Legal professional',
+  'Journalist / documentarian',
+  'Other',
+];
 
 export function RequestAccessPage() {
-  const [formState, setFormState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = useState<FormData>(initialData);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [form, setForm] = useState({
+    name: '',
+    organisation: '',
+    email: '',
+    useCase: '',
+    description: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  function validate(): Partial<FormData> {
-    const e: Partial<FormData> = {};
-    if (!formData.name.trim()) e.name = 'Your name is required.';
-    if (!formData.org.trim()) e.org = 'Organisation name is required.';
-    if (!formData.role.trim()) e.role = 'Your role is required.';
-    if (!formData.useCase.trim()) e.useCase = 'Please describe your use case.';
-    if (!formData.email.trim()) e.email = 'Email address is required.';
-    else if (!/^[^@]+@[^@]+\.[^@]+$/.test(formData.email)) e.email = 'Enter a valid email address.';
-    return e;
+  function set(key: string, value: string) {
+    setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function handleChange(key: keyof FormData, value: string) {
-    setFormData((d) => ({ ...d, [key]: value }));
-    if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
-  }
-
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
-    setFormState('submitting');
-    // Replace with real API call
-    setTimeout(() => setFormState('success'), 1400);
+    setSaving(true);
+    // TODO: Supabase insert in Phase 7
+    await new Promise((r) => setTimeout(r, 700));
+    setSubmitted(true);
   }
+
+  if (submitted) {
+    return (
+      <div
+        className="flex min-h-screen flex-col items-center justify-center px-6 py-16 text-center"
+        style={{ backgroundColor: 'var(--color-bg)' }}
+      >
+        <div
+          className="mb-5 flex h-12 w-12 items-center justify-center rounded-full"
+          style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
+          aria-hidden
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h1 className="mb-2 text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request received</h1>
+        <p className="max-w-sm text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+          We review all pilot applications manually. You will hear from us within 5–7 business days.
+        </p>
+      </div>
+    );
+  }
+
+  const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
+  const inputStyle = {
+    backgroundColor: 'var(--color-surface)',
+    borderColor: 'var(--color-border)',
+    color: 'var(--color-text-primary)',
+  };
+  const labelClass = 'mb-1.5 block text-xs font-medium';
+  const labelStyle = { color: 'var(--color-text-secondary)' };
 
   return (
-    <div style={{ backgroundColor: 'var(--color-bg)' }}>
-      <section className="mx-auto max-w-xl px-6 py-20">
-
-        {/* Hero */}
-        <p
-          className="mb-3 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          Pilot programme
+    <div
+      className="mx-auto max-w-xl px-6 py-16"
+      style={{ backgroundColor: 'var(--color-bg)' }}
+    >
+      <div className="mb-10 text-center">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Pilot access</p>
+        <h1 className="mb-2 text-2xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request access</h1>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+          SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in touch.
         </p>
-        <h1
-          className="mb-4 text-4xl font-medium tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Request pilot access.
-        </h1>
-        <p
-          className="mb-12 text-base leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          SquadRidge is in structured pilot. We review every application individually
-          and work with facilitators and organisations whose use cases match our
-          current capacity. No automated approvals.
-        </p>
+      </div>
 
-        {formState === 'success' ? (
-          <div
-            role="alert"
-            aria-live="polite"
-            className="rounded-lg border p-10 text-center"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-            }}
-          >
-            <p
-              className="mb-3 text-xl font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Your application has been received.
-            </p>
-            <p
-              className="mb-8 text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              We review every application individually. If your use case is a match,
-              we'll reach out to arrange a briefing call. Thank you for your interest.
-            </p>
-            <Link
-              to="/"
-              className="text-sm underline"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              Return to home →
-            </Link>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} style={labelStyle}>Full name <span aria-hidden>*</span></label>
+            <input required className={inputClass} style={inputStyle} placeholder="Jane Smith" value={form.name} onChange={(e) => set('name', e.target.value)} />
           </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            noValidate
-            className="flex flex-col gap-6"
-            aria-label="Pilot access application form"
-          >
-            {/* Text fields */}
-            {([
-              { id: 'name',  label: 'Your full name',          type: 'text',  key: 'name'  as const },
-              { id: 'org',   label: 'Organisation',            type: 'text',  key: 'org'   as const },
-              { id: 'role',  label: 'Your role or title',      type: 'text',  key: 'role'  as const },
-              { id: 'region',label: 'Region or country',       type: 'text',  key: 'region'as const },
-              { id: 'email', label: 'Work email address',      type: 'email', key: 'email' as const },
-            ] as const).map((field) => (
-              <div key={field.id}>
-                <label
-                  htmlFor={field.id}
-                  className="mb-1.5 block text-sm font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {field.label}
-                </label>
-                <input
-                  id={field.id}
-                  type={field.type}
-                  autoComplete={field.id}
-                  value={formData[field.key]}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  aria-invalid={!!errors[field.key]}
-                  aria-describedby={errors[field.key] ? `${field.id}-error` : undefined}
-                  className="w-full rounded border px-4 py-3 text-sm outline-none transition-colors"
-                  style={{
-                    borderColor: errors[field.key] ? 'var(--color-danger)' : 'var(--color-border)',
-                    backgroundColor: 'var(--color-surface)',
-                    color: 'var(--color-text-primary)',
-                  }}
-                />
-                {errors[field.key] && (
-                  <p
-                    id={`${field.id}-error`}
-                    role="alert"
-                    className="mt-1.5 text-xs"
-                    style={{ color: 'var(--color-danger)' }}
-                  >
-                    {errors[field.key]}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div>
+            <label className={labelClass} style={labelStyle}>Organisation</label>
+            <input className={inputClass} style={inputStyle} placeholder="Optional" value={form.organisation} onChange={(e) => set('organisation', e.target.value)} />
+          </div>
+        </div>
 
-            {/* Use case textarea */}
-            <div>
-              <label
-                htmlFor="useCase"
-                className="mb-1.5 block text-sm font-medium"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                Describe your use case
-              </label>
-              <p
-                id="useCase-hint"
-                className="mb-2 text-xs"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                What kind of sessions do you facilitate? What problem are you solving?
-              </p>
-              <textarea
-                id="useCase"
-                rows={5}
-                value={formData.useCase}
-                onChange={(e) => handleChange('useCase', e.target.value)}
-                aria-describedby={errors.useCase ? 'useCase-error' : 'useCase-hint'}
-                aria-invalid={!!errors.useCase}
-                className="w-full rounded border px-4 py-3 text-sm outline-none transition-colors"
-                style={{
-                  borderColor: errors.useCase ? 'var(--color-danger)' : 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface)',
-                  color: 'var(--color-text-primary)',
-                  resize: 'vertical',
-                }}
-              />
-              {errors.useCase && (
-                <p
-                  id="useCase-error"
-                  role="alert"
-                  className="mt-1.5 text-xs"
-                  style={{ color: 'var(--color-danger)' }}
-                >
-                  {errors.useCase}
-                </p>
-              )}
-            </div>
+        <div>
+          <label className={labelClass} style={labelStyle}>Work email <span aria-hidden>*</span></label>
+          <input required type="email" className={inputClass} style={inputStyle} placeholder="jane@organisation.org" value={form.email} onChange={(e) => set('email', e.target.value)} />
+        </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={formState === 'submitting'}
-              className="w-full rounded py-3.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: 'var(--color-accent)' }}
-            >
-              {formState === 'submitting' ? 'Submitting…' : 'Submit Application'}
-            </button>
+        <div>
+          <label className={labelClass} style={labelStyle}>Primary use case <span aria-hidden>*</span></label>
+          <select required className={inputClass} style={inputStyle} value={form.useCase} onChange={(e) => set('useCase', e.target.value)}>
+            <option value="">Select…</option>
+            {USE_CASE_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+          </select>
+        </div>
 
-            {formState === 'error' && (
-              <p
-                role="alert"
-                className="text-center text-xs"
-                style={{ color: 'var(--color-danger)' }}
-              >
-                We couldn't submit your application. Please try again or contact us directly.
-              </p>
-            )}
+        <div>
+          <label className={labelClass} style={labelStyle}>Brief description <span aria-hidden>*</span></label>
+          <textarea
+            required
+            rows={4}
+            className={inputClass}
+            style={inputStyle}
+            placeholder="Describe the conflict context you work in and how you would use SquadRidge…"
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+          />
+        </div>
 
-            <p
-              className="text-center text-xs"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              By submitting, you agree to our{' '}
-              <Link to="/privacy" className="underline">Privacy Policy</Link>
-              {' '}and{' '}
-              <Link to="/terms" className="underline">Terms of Use</Link>.
-            </p>
-          </form>
-        )}
-      </section>
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          style={{ backgroundColor: 'var(--color-accent)' }}
+        >
+          {saving ? 'Submitting…' : 'Submit request'}
+        </button>
+
+        <p className="text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+          We review all applications manually. Your information is kept confidential.
+        </p>
+      </form>
     </div>
   );
 }
