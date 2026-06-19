@@ -1,48 +1,40 @@
-import type { ReactNode } from 'react';
-import { twMerge } from 'tailwind-merge';
+import { type ReactNode } from 'react';
 
-/**
- * StatusBadge — discrete textual status marker.
- *
- * Always renders as a label (no color-only meaning). Reserved colors:
- *   - `default`  : neutral metadata
- *   - `info`     : process / scope context
- *   - `success`  : verified / published / locked-OK
- *   - `warning`  : attention required, non-blocking
- *   - `danger`   : blocked / escalation
- *   - `brand`    : pilot-facing primary state (use sparingly)
- *
- * Use icon + text for warning/danger surfaces (color is reinforcement, not
- * the only signal).
- */
-export type StatusTone = 'default' | 'info' | 'success' | 'warning' | 'danger' | 'brand';
+type BadgeVariant =
+  | 'released'
+  | 'pending'
+  | 'live'
+  | 'archived'
+  | 'draft'
+  | 'approved'
+  | 'declined'
+  | 'warning'
+  | 'neutral';
 
-interface StatusBadgeProps {
-  tone?: StatusTone;
-  icon?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}
-
-const TONE_STYLES: Record<StatusTone, string> = {
-  default: 'border-line text-ink-secondary',
-  info: 'border-sem-info bg-sem-info-soft text-sem-info',
-  success: 'border-sem-success bg-sem-success-soft text-sem-success',
-  warning: 'border-sem-warning bg-sem-warning-soft text-sem-warning',
-  danger: 'border-sem-danger bg-sem-danger-soft text-sem-danger',
-  brand: 'border-brand bg-brand-soft text-brand',
+const variantStyles: Record<BadgeVariant, { bg: string; color: string }> = {
+  released: { bg: '#DCEDE3', color: '#2A5438' },
+  pending:  { bg: '#FEF3E2', color: '#8A5C1A' },
+  live:     { bg: '#DCEDE3', color: '#2A5438' },
+  archived: { bg: '#ECEAE6', color: '#6B6560' },
+  draft:    { bg: '#E8EEF5', color: '#2B4D6F' },
+  approved: { bg: '#DCEDE3', color: '#2A5438' },
+  declined: { bg: '#F5DCDC', color: '#7A2020' },
+  warning:  { bg: '#FEF3E2', color: '#8A5C1A' },
+  neutral:  { bg: '#ECEAE6', color: '#6B6560' },
 };
 
-export function StatusBadge({ tone = 'default', icon, children, className }: StatusBadgeProps) {
+interface StatusBadgeProps {
+  variant: BadgeVariant;
+  children: ReactNode;
+}
+
+export function StatusBadge({ variant, children }: StatusBadgeProps) {
+  const styles = variantStyles[variant];
   return (
     <span
-      className={twMerge(
-        'inline-flex items-center gap-1.5 rounded-[6px] border px-2 py-0.5 font-sans text-[0.7rem] font-medium leading-none',
-        TONE_STYLES[tone],
-        className,
-      )}
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+      style={{ backgroundColor: styles.bg, color: styles.color }}
     >
-      {icon ? <span aria-hidden>{icon}</span> : null}
       {children}
     </span>
   );
