@@ -1,0 +1,535 @@
+# SquadRidge redesign prompt pack
+
+This document contains the full prompt series for revising and redesigning SquadRidge into a more impactful, modern, and serious platform for facilitator-led conflict resolution, protected dialogue, and public outcome publication.
+
+The prompts are designed to be pasted into an AI agent one at a time, in order. The current product context includes a public outcome record flow where the session remains private and only the approved outcome is released publicly. [localhost](http://localhost:5173/ledger/demo-proposal-001)
+
+## Prompt 1 — Product reset
+
+```text
+You are a world-class product strategist, UX architect, brand designer, and front-end systems thinker.
+
+I need you to completely revise and redesign my platform, SquadRidge, so it feels dramatically more impactful, modern, credible, and mission-critical.
+
+This is not a generic SaaS app. It is a platform for facilitator-led, high-stakes, conflict-resolution dialogue. It is built for extremely important conversations involving risk, mistrust, identity sensitivity, and the need to create a public outcome without exposing private room-level discussion.
+
+Core platform idea:
+- Private, facilitator-led dialogue rooms
+- Verified participant eligibility and trust gating
+- Identity protection and anonymity-preserving participation
+- Release of public outcome records only
+- Ledger-based verification and citation of approved outcomes
+- Built for mediators, facilitators, civic leaders, peace-tech operators, researchers, institutions, and partners handling sensitive conversations
+
+The redesign goal:
+- Make the platform feel like essential infrastructure for de-escalation, mediation, and serious dialogue
+- Remove any feeling of “startup landing page,” “chat app,” “forum,” or “generic community tool”
+- Make it feel calm, modern, institutional-grade, ethically serious, and operationally trustworthy
+- Design for high-trust, high-consequence use cases
+- Emphasize conflict resolution, civilian protection, mediation, dialogue under pressure, and publishable outcomes
+- The emotional tone should be: sober, precise, humane, credible, protected, modern
+
+What I want from you in this step:
+1. Reframe the product positioning
+2. Rewrite the brand strategy
+3. Define the core user groups
+4. Define the UX principles
+5. Define what the platform should feel like visually and emotionally
+6. List what must be removed from the current product if it feels too generic, too verbose, too startup-like, too academic, or too weak
+7. Output a concise “platform north star”
+8. Output 5 alternative positioning statements
+9. Output 3 homepage direction options:
+   - Institutional / diplomatic
+   - Civic / human-centered
+   - High-assurance / trust-infrastructure
+
+Important constraints:
+- This platform is for sensitive and serious dialogue
+- Privacy is operational, not cosmetic
+- Public records must feel citable and credible
+- Participants should feel protected
+- Facilitators should feel in control
+- External observers should understand that only approved outcomes are public, never raw room discussion
+- Avoid hype language, vague tech clichés, AI clichés, and generic peace platitudes
+
+Write with precision and authority.
+```
+
+## Prompt 2 — Full information architecture
+
+```text
+Now create the complete information architecture and page map for the entire SquadRidge platform.
+
+I want a full-platform blueprint that includes every page needed across:
+1. Public marketing website
+2. Application / pilot access flow
+3. Auth and onboarding
+4. Facilitator workspace
+5. Participant experience
+6. Session lifecycle
+7. Verification / trust / eligibility pages
+8. Public ledger and public outcome records
+9. Security and policy pages
+10. Partner / institution / funder pages
+11. Admin / operations pages
+12. Empty states, errors, and edge cases
+
+For each page, provide:
+- Page name
+- URL slug
+- Page purpose
+- Primary audience
+- Primary CTA
+- Secondary CTA
+- Key modules on the page
+- Notes about trust, tone, and content hierarchy
+
+Do not give me only top-level pages. I want the complete platform map, including:
+- Homepage
+- How it works
+- Use cases
+- Security
+- Request pilot access
+- Ledger index
+- Individual public outcome record page
+- Sign in
+- Create account
+- Facilitator onboarding
+- Participant onboarding
+- Eligibility verification flow
+- Session dashboard
+- Pre-session briefing
+- Live session room
+- Outcome drafting
+- Release approval
+- Published record confirmation
+- Organization / partner pages
+- About
+- Contact
+- FAQ
+- Privacy
+- Terms
+- Not found
+- Access denied
+- Empty states
+- Waitlist confirmation
+- Demo / sample public record
+- Admin review / moderation / pilot screening
+
+Then group pages into navigation systems:
+- Public nav
+- Logged-in facilitator nav
+- Participant nav
+- Admin nav
+- Footer nav
+
+Finally, identify:
+- Which pages should exist now for MVP
+- Which pages should exist in V2
+- Which pages are nice-to-have later
+```
+
+## Prompt 3 — Exact copy architecture
+
+```text
+Using the full platform map, create the complete copy architecture for every page.
+
+For every single page in the platform, give me:
+- Final page title
+- Eyebrow
+- Hero heading
+- Hero subheading
+- Primary CTA label
+- Secondary CTA label
+- Section-by-section headings
+- Section body copy
+- Card labels
+- Form labels
+- Empty state copy
+- Success state copy
+- Error state copy
+- Footer copy
+- Trust-reinforcing microcopy
+- Any compliance / disclosure language needed
+
+Requirements:
+- The copy must feel modern, clear, and serious
+- It must sound like high-trust conflict-resolution infrastructure
+- It must avoid startup clichés, buzzwords, and generic “community” language
+- It must distinguish private dialogue from public outcome records
+- It must make facilitators feel capable and supported
+- It must make participants feel protected
+- It must make institutions feel this is safe, credible, and usable
+- It must make the public ledger feel formal, citable, and verification-ready
+
+Organize the answer page-by-page. Do not skip pages. Include every page in full.
+```
+
+## Prompt 4 — Homepage rewrite with exact final copy
+
+```text
+Now write the exact final homepage copy for SquadRidge.
+
+The homepage must immediately communicate:
+- This is for facilitator-led conflict resolution and high-stakes dialogue
+- The room stays private
+- The approved outcome can become a public, citable record
+- This is not social media, not a forum, and not a generic collaboration tool
+- This is built for serious conversations where exposure risk, mistrust, and harm are real concerns
+
+Audience priority:
+1. Facilitators and mediators
+2. Institutional partners and pilot operators
+3. Funders / researchers / evaluators
+4. Serious participants trying to understand the model
+
+Required homepage sections:
+- Hero
+- Proof of what the platform is
+- Why ordinary tools fail in high-stakes dialogue
+- How SquadRidge works
+- Who it is for
+- What gets published vs what stays private
+- Trust / security / verification
+- Sample public record preview
+- Pilot access section
+- Footer
+
+For each section, provide exact polished copy, including:
+- Headlines
+- Subheads
+- Body copy
+- Bullet points
+- CTA labels
+- Small labels / badges
+- Reassurance microcopy
+
+Tone:
+calm, authoritative, humane, precise, operationally credible, modern.
+```
+
+## Prompt 5 — Exact copy for every public-facing page
+
+```text
+Write the exact final copy for every public-facing page in the platform.
+
+Pages to include:
+- Homepage
+- How it works
+- Use cases
+- For facilitators
+- For institutions
+- For partners / funders
+- Security
+- Ledger index
+- Sample public outcome record explainer
+- Request pilot access
+- About
+- Contact
+- FAQ
+- Privacy
+- Terms
+- 404 page
+- Access denied page
+
+For each page, include:
+- Full above-the-fold copy
+- All sections in order
+- CTA copy
+- Form copy where relevant
+- Trust / disclosure copy
+- Footer copy
+
+Important:
+- Keep the product identity cohesive across every page
+- The public-facing pages should feel like a serious trust platform, not a casual product site
+- Avoid fluff
+- Make every sentence useful
+```
+
+## Prompt 6 — Exact copy for logged-in facilitator pages
+
+```text
+Write the exact final UX copy for the full facilitator-side product.
+
+Pages and views to include:
+- Facilitator dashboard
+- New pilot / new session setup
+- Eligibility configuration
+- Participant intake review
+- Verification overview
+- Session preparation workspace
+- Ground rules setup
+- Private room control panel
+- Live session monitoring view
+- Intervention tools panel
+- Outcome drafting workspace
+- Review and release page
+- Published record handoff page
+- Session archive
+- Organization settings
+- Security settings
+- Team roles and permissions
+- Notifications
+- Billing / pilot plan (if applicable)
+- Support / contact operations
+
+For every page/view/state include:
+- Page title
+- Supporting description
+- Section headings
+- Button labels
+- Table labels
+- Status labels
+- Empty states
+- Success states
+- Warning language
+- Sensitive-action confirmation copy
+- Tooltips / helper text
+
+The facilitator UX should feel:
+- calm under pressure
+- operationally competent
+- respectful of risk
+- highly legible
+- not overdesigned
+- built for serious intervention work
+```
+
+## Prompt 7 — Exact copy for participant pages
+
+```text
+Write the exact final UX copy for the participant-side product.
+
+Pages and views to include:
+- Invitation landing page
+- Eligibility / identity assurance step
+- Participant onboarding
+- Consent and disclosure step
+- Privacy explanation page
+- Session briefing page
+- Enter room page
+- In-session waiting state
+- Dialogue participation interface
+- Pause / safety / support state
+- Post-session review screen
+- Outcome release explanation
+- Session closed screen
+- Access error / ineligible / expired invitation states
+
+For each page/state, provide:
+- Exact copy
+- Headlines
+- Support text
+- Buttons
+- Labels
+- Warnings
+- Reassurance microcopy
+
+The participant experience must:
+- reduce fear
+- build confidence
+- be transparent without overwhelming
+- clearly distinguish what is private from what may become public
+- communicate respect, protection, and seriousness
+```
+
+## Prompt 8 — Exact copy for the public ledger and record system
+
+```text
+Write the exact final copy for the public ledger system and every ledger-related page.
+
+Include:
+- Ledger index page
+- Search / browse records page
+- Filter states
+- Empty state
+- Record verification explainer
+- Individual public outcome record page
+- Citation block
+- Disclosure constraints block
+- Machine-readable summary block
+- Verification metadata block
+- Related records / next steps
+- Error / unavailable record page
+
+The individual public outcome record page must feel:
+- formal
+- citable
+- restrained
+- credible to outsiders
+- explicit that the room remains private
+- easy to verify
+- readable by journalists, researchers, institutions, and partners
+
+For each ledger page, provide exact final copy for every visible text element.
+
+Also provide 3 alternative naming systems for:
+- Ledger
+- Public outcome record
+- Verification anchor
+- Release status
+- Citation module
+```
+
+## Prompt 9 — UX writing system and tone rules
+
+```text
+Create the complete UX writing system for SquadRidge.
+
+I want:
+- Brand voice principles
+- Tone by context
+- Terminology glossary
+- Words to use
+- Words to avoid
+- Naming conventions for records, sessions, outcomes, participants, facilitators, verification, and release
+- Rules for warnings, confirmations, privacy disclosures, and serious-state messaging
+- Rules for empty states
+- Rules for error states
+- Rules for buttons and CTAs
+- Rules for labels and dashboards
+- Rules for participant reassurance copy
+- Rules for institution-facing copy
+- Rules for public record copy
+
+The writing system should support a product that handles conflict resolution, mediation, sensitive dialogue, and high-stakes communication.
+
+It must sound:
+- sober
+- humane
+- contemporary
+- high-trust
+- not robotic
+- not bureaucratic
+- not startup-y
+- not activist-slogan-heavy
+```
+
+## Prompt 10 — Visual direction and design system
+
+```text
+Now define the full visual redesign system for SquadRidge.
+
+This is a web platform for serious dialogue and conflict resolution, so the interface must feel:
+- modern
+- highly trustworthy
+- calm
+- emotionally intelligent
+- minimal but not sterile
+- strong enough for institutional settings
+- humane enough for vulnerable users
+
+Deliver:
+1. Art direction statement
+2. Color system
+3. Typography system
+4. Spacing and density rules
+5. Component style principles
+6. Navigation style
+7. Motion rules
+8. Iconography rules
+9. Data / ledger styling rules
+10. Accessibility rules
+11. Dark mode guidance
+12. Mobile behavior guidance
+
+Important visual constraints:
+- No generic SaaS gradients
+- No crypto aesthetics
+- No futuristic neon
+- No chat-app look
+- No social-feed patterns
+- No over-rounding or bubbly startup visuals
+- No vague “peace app” symbolism
+- No childish or activist-poster styling
+
+Instead, think:
+- institutional but contemporary
+- editorial restraint
+- modern civic infrastructure
+- high-assurance interface
+- serious but humane
+
+Also define page-specific visual direction for:
+- Homepage
+- Facilitator dashboard
+- Participant flow
+- Public outcome record
+- Security page
+- Request access page
+```
+
+## Prompt 11 — Rewrite the current page set into a complete product spec
+
+```text
+Now turn everything into a complete product specification document.
+
+For every page in the platform, provide:
+- Purpose
+- User
+- Key decisions user makes on the page
+- Required UI modules
+- Exact copy
+- Visual direction
+- Interaction notes
+- Trust notes
+- Edge states
+- Accessibility notes
+
+The document must be structured so a designer and engineer can implement it directly.
+
+Do not omit any page.
+Do not leave copy as placeholders.
+Do not say “insert relevant text here.”
+Write all final content.
+```
+
+## Prompt 12 — Build-ready handoff prompt
+
+```text
+You are now the lead product designer and implementation planner for SquadRidge.
+
+Using all prior outputs, create the final build-ready handoff for engineering.
+
+I need:
+- Final route list
+- Final navigation model
+- Final page inventory
+- Final copy deck
+- Final component inventory
+- Final design token recommendations
+- Final state inventory
+- Final implementation priority list
+- MVP build order
+- Suggested React component structure
+- Suggested Supabase data model areas
+- Suggested permissions model
+- Suggested analytics / audit events
+- Suggested QA checklist for each page
+
+Important:
+- Preserve the serious conflict-resolution focus
+- Preserve the line between private room content and public released outcomes
+- Make facilitator control explicit
+- Make participant protection explicit
+- Make public verification explicit
+- Keep the app modern and minimal, but emotionally weighty and credible
+```
+
+## Recommended page inventory
+
+The prompt set should require the agent to cover at least these page groups so the platform blueprint is complete. [localhost](http://localhost:5173/ledger/demo-proposal-001)
+
+| Area | Pages to require |
+|---|---|
+| Public site | Home, How It Works, Use Cases, For Facilitators, For Institutions, For Partners/Funders, Security, Ledger Index, Sample Record, Request Pilot Access, About, Contact, FAQ, Privacy, Terms, 404, Access Denied |
+| Auth | Sign In, Create Account, Check Email, Invite Accepted, Expired Invite, Reset Password |
+| Facilitator | Dashboard, Create Session, Session Setup, Eligibility Rules, Participant Review, Verification Status, Ground Rules, Briefing, Live Room Control, Intervention Panel, Outcome Drafting, Approval Flow, Publish Confirmation, Archive, Settings, Team Roles, Notifications |
+| Participant | Invitation Landing, Verification Step, Consent, Privacy Explanation, Briefing, Waiting Room, In-Session Interface, Pause/Support, Session End, Outcome Explanation, Error States |
+| Ledger | Ledger Index, Browse/Search, Record Detail, Verification Explainer, Citation View, Record Unavailable |
+| Ops/Admin | Pilot Screening, Organization Review, Session Oversight, Risk Review, Admin Settings, Support Queue |
+
+## Strong copy principles
+
+The strongest outputs will preserve the platform’s core distinction: the room is private, the outcome is public only if approved, and verification should communicate release credibility rather than participant exposure. [localhost](http://localhost:5173/ledger/demo-proposal-001)

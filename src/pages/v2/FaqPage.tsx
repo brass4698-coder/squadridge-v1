@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: 'What is the public ledger?',
-    a: 'The public ledger is a read-only index of approved outcome records from completed sessions. Each record was produced and approved through SquadRidge's release process. The ledger is browseable and citable. It does not contain any session room content.',
+    a: "The public ledger is a read-only index of approved outcome records from completed sessions. Each record was produced and approved through SquadRidge's release process. The ledger is browseable and citable. It does not contain any session room content.",
   },
   {
     q: 'Can a facilitator release an outcome without participant approval?',
@@ -61,11 +61,7 @@ export function FaqPage() {
 
       <dl className="flex flex-col">
         {faqs.map((faq, i) => (
-          <div
-            key={faq.q}
-            className="border-b"
-            style={{ borderColor: 'var(--color-border)' }}
-          >
+          <div key={faq.q} className="border-b" style={{ borderColor: 'var(--color-border)' }}>
             <dt>
               <button
                 onClick={() => toggle(i)}

@@ -34,8 +34,8 @@ const faqs = [
     a: 'Only verified participants and the facilitator. Session content is never published. The only public output is the approved outcome document.',
   },
   {
-    q: 'What if participants don't agree on the outcome text?',
-    a: 'The facilitator controls the drafting process. Approval is required before release. If consensus isn't reached, no record is published.',
+    q: "What if participants don't agree on the outcome text?",
+    a: "The facilitator controls the drafting process. Approval is required before release. If consensus isn't reached, no record is published.",
   },
   {
     q: 'Can a released record be withdrawn?',
@@ -50,7 +50,6 @@ const faqs = [
 export function HowItWorksPage() {
   return (
     <div style={{ backgroundColor: 'var(--color-bg)' }}>
-
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-20">
         <p
@@ -65,12 +64,9 @@ export function HowItWorksPage() {
         >
           Four stages. One protected process.
         </h1>
-        <p
-          className="text-lg leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          Every session follows a structured lifecycle — from configuration
-          to verified public record.
+        <p className="text-lg leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+          Every session follows a structured lifecycle — from configuration to verified public
+          record.
         </p>
       </section>
 
@@ -146,10 +142,7 @@ export function HowItWorksPage() {
       </section>
 
       {/* CTA footer */}
-      <section
-        className="border-t py-20"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
+      <section className="border-t py-20" style={{ borderColor: 'var(--color-border)' }}>
         <div className="mx-auto max-w-2xl px-6 text-center">
           <h2
             className="mb-5 text-3xl font-medium tracking-tight"
@@ -175,7 +168,6 @@ export function HowItWorksPage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
