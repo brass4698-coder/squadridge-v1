@@ -2,7 +2,7 @@ import './lib/env-bootstrap';
 import { StrictMode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App from './App.v2'; // redesign/v2 active
 import { ErrorBoundary } from './components';
 import { clearDemoPersistedStateOnReload } from './demo/clearDemoPersistedStateOnReload';
 import { clearEphemeralStateOnBootstrap } from './lib/clearEphemeralStateOnBootstrap';
