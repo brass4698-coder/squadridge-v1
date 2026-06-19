@@ -10,9 +10,15 @@
 import { env, pipeline } from '@xenova/transformers';
 import type { WorkerRequest, WorkerResponse } from './translationWorkerTypes';
 
-env.allowRemoteModels = true;
-env.useBrowserCache = true;
-
+// Configure transformers.js environment for web worker
+try {
+  Object.assign(env, {
+    allowRemoteModels: true,
+    useBrowserCache: true,
+  });
+} catch {
+  // If env is immutable, continue with defaults
+}
 /** Hub model for LID (Transformers.js–compatible ONNX). */
 const LANGUAGE_DETECTION_MODEL = 'Xenova/facebook-fasttext-language-identification';
 
@@ -71,7 +77,7 @@ async function getClassifier(): Promise<
     classifierPromise = pipeline('text-classification', LANGUAGE_DETECTION_MODEL);
   }
   return (await classifierPromise) as (
-    text: string
+    text: string,
   ) => Promise<TextClassificationOutput | TextClassificationOutput[]>;
 }
 
