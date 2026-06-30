@@ -1,13 +1,11 @@
 /**
  * FinancialProjectionsPage
  *
- * A standalone investor-facing financial projections view that reuses
- * `buildFinancialModel` / `formatUsd` from the pitch-deck-hub engine and
- * the store's `financialAssumptions` + `financialScenario`.  The page is
- * gated behind RequireAuth (wired in App.tsx) and lives at /financial-projections.
+ * Investor-facing financial projections view.  Reuses `buildFinancialModel` /
+ * `formatUsd` from the pitch-deck-hub engine and the store's `assumptions` +
+ * `activeScenario`.  Gated behind RequireAuth; lives at /financial-projections.
  *
- * Design: mirrors PitchDeckHubPage's dark aesthetic — #0a0f1a bg, teal accent,
- * slate text hierarchy, Tailwind utility classes.
+ * Design: mirrors PitchDeckHubPage dark aesthetic — #0a0f1a bg, teal accent.
  */
 
 import { useMemo, useState } from 'react';
@@ -17,6 +15,7 @@ import {
   ChevronDown,
   CircleDollarSign,
   Flame,
+  Info,
   Layers,
   TrendingUp,
   Users,
@@ -24,11 +23,11 @@ import {
 import { Link } from 'react-router-dom';
 import { buildFinancialModel, formatUsd } from '../pitch-deck-hub/financialEngine';
 import { usePitchDeckHubStore } from '../pitch-deck-hub/usePitchDeckHubStore';
-import type { FinancialScenario } from '../pitch-deck-hub/types';
+import type { FinancialScenario, MonthlyFinancialRow } from '../pitch-deck-hub/types';
 import { cn } from '../lib/cn';
 
 // ---------------------------------------------------------------------------
-// Small shared primitives (self-contained — no imports from PitchDeckHubPage)
+// Small shared primitives
 // ---------------------------------------------------------------------------
 
 function Badge({
@@ -103,7 +102,7 @@ function KpiCard({
 }
 
 // ---------------------------------------------------------------------------
-// Inline SVG sparkline — no external charting lib required
+// Inline SVG sparkline
 // ---------------------------------------------------------------------------
 
 function Sparkline({
@@ -159,7 +158,7 @@ function Sparkline({
 }
 
 // ---------------------------------------------------------------------------
-// Bar chart — monthly cash / revenue / burn side-by-side
+// Bar chart
 // ---------------------------------------------------------------------------
 
 type BarSeries = { label: string; color: string; values: number[] };
@@ -184,12 +183,11 @@ function BarChart({
   return (
     <div className="relative w-full" style={{ height }}>
       <svg
-        viewBox={`0 0 100 100`}
+        viewBox="0 0 100 100"
         preserveAspectRatio="none"
         className="absolute inset-0 h-full w-full"
         aria-hidden
       >
-        {/* Grid lines */}
         {[0.25, 0.5, 0.75, 1].map((t) => (
           <line
             key={t}
@@ -222,7 +220,6 @@ function BarChart({
           });
         })}
       </svg>
-      {/* X-axis labels */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-around translate-y-5">
         {labels.map((l) => (
           <span key={l} className="font-sans text-[0.6rem] text-[#475569] tabular-nums">
@@ -235,19 +232,10 @@ function BarChart({
 }
 
 // ---------------------------------------------------------------------------
-// Monthly table (truncated at 24 rows, expandable)
+// Monthly table — uses real MonthlyFinancialRow field names
 // ---------------------------------------------------------------------------
 
-type MonthRow = {
-  label: string;
-  revenue: number;
-  burn: number;
-  netCash: number;
-  cashBalance: number;
-  seats: number;
-};
-
-function MonthlyTable({ rows }: { rows: MonthRow[] }) {
+function MonthlyTable({ rows }: { rows: MonthlyFinancialRow[] }) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? rows : rows.slice(0, 12);
   const th =
@@ -257,14 +245,16 @@ function MonthlyTable({ rows }: { rows: MonthRow[] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-white/[0.07]">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px] border-collapse">
+        <table className="w-full min-w-[700px] border-collapse">
           <thead>
             <tr className="border-b border-white/[0.06] bg-[#060b13]">
               <th className={th}>Month</th>
               <th className={cn(th, 'text-right')}>Revenue</th>
-              <th className={cn(th, 'text-right')}>Burn</th>
+              <th className={cn(th, 'text-right')}>Payroll</th>
+              <th className={cn(th, 'text-right')}>Non-Payroll Opex</th>
+              <th className={cn(th, 'text-right')}>Total Opex</th>
               <th className={cn(th, 'text-right')}>Net</th>
-              <th className={cn(th, 'text-right')}>Cash Balance</th>
+              <th className={cn(th, 'text-right')}>Cash End</th>
               <th className={cn(th, 'text-right')}>Seats</th>
             </tr>
           </thead>
@@ -275,31 +265,35 @@ function MonthlyTable({ rows }: { rows: MonthRow[] }) {
                 className={cn(
                   'border-b border-white/[0.04] transition-colors',
                   i % 2 === 0 ? 'bg-[#07090f]' : 'bg-[#060b13]',
-                  r.netCash < 0 ? 'text-red-400' : 'text-[#cbd5e1]',
+                  r.operatingIncomeUsd < 0 ? 'text-red-400' : 'text-[#cbd5e1]',
                 )}
               >
                 <td className={cn(td, 'text-[#94a3b8]')}>{r.label}</td>
-                <td className={cn(td, 'text-right text-teal-400')}>{formatUsd(r.revenue)}</td>
-                <td className={cn(td, 'text-right text-red-400')}>{formatUsd(r.burn)}</td>
+                <td className={cn(td, 'text-right text-teal-400')}>{formatUsd(r.revenueUsd)}</td>
+                <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.payrollUsd)}</td>
+                <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.nonPayrollOpexUsd)}</td>
+                <td className={cn(td, 'text-right text-red-400')}>{formatUsd(r.totalOpexUsd)}</td>
                 <td
                   className={cn(
                     td,
                     'text-right font-semibold',
-                    r.netCash >= 0 ? 'text-teal-300' : 'text-red-400',
+                    r.operatingIncomeUsd >= 0 ? 'text-teal-300' : 'text-red-400',
                   )}
                 >
-                  {r.netCash >= 0 ? '+' : ''}{formatUsd(r.netCash)}
+                  {r.operatingIncomeUsd >= 0 ? '+' : ''}{formatUsd(r.operatingIncomeUsd)}
                 </td>
                 <td
                   className={cn(
                     td,
                     'text-right',
-                    r.cashBalance < 0 ? 'text-red-400' : 'text-[#e2e8f0]',
+                    r.cashEndUsd < 0 ? 'text-red-400' : 'text-[#e2e8f0]',
                   )}
                 >
-                  {formatUsd(r.cashBalance)}
+                  {formatUsd(r.cashEndUsd)}
                 </td>
-                <td className={cn(td, 'text-right text-[#94a3b8]')}>{r.seats.toLocaleString()}</td>
+                <td className={cn(td, 'text-right text-[#94a3b8]')}>
+                  {r.payingSeats.toLocaleString()}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -323,25 +317,19 @@ function MonthlyTable({ rows }: { rows: MonthRow[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Scenario selector
+// Scenario config — matches FinancialScenario union exactly
 // ---------------------------------------------------------------------------
 
 const SCENARIO_LABELS: Record<FinancialScenario, string> = {
   conservative: 'Conservative',
   base: 'Base case',
-  optimistic: 'Optimistic',
-};
-
-const SCENARIO_MULTIPLIERS: Record<FinancialScenario, number> = {
-  conservative: 0.65,
-  base: 1.0,
-  optimistic: 1.45,
+  aggressive: 'Aggressive',
 };
 
 const SCENARIO_BADGE: Record<FinancialScenario, 'amber' | 'teal' | 'neutral'> = {
   conservative: 'amber',
   base: 'teal',
-  optimistic: 'neutral',
+  aggressive: 'neutral',
 };
 
 // ---------------------------------------------------------------------------
@@ -349,57 +337,57 @@ const SCENARIO_BADGE: Record<FinancialScenario, 'amber' | 'teal' | 'neutral'> = 
 // ---------------------------------------------------------------------------
 
 export function FinancialProjectionsPage() {
-  const { financialAssumptions } = usePitchDeckHubStore();
-  const [scenario, setScenario] = useState<FinancialScenario>('base');
+  // Correct store destructure: state.assumptions + state.activeScenario
+  const { state, setActiveScenario } = usePitchDeckHubStore();
+  const { assumptions, activeScenario } = state;
 
-  // Apply scenario multiplier to seat ramp (revenue side only)
-  const assumptions = useMemo(() => {
-    const mult = SCENARIO_MULTIPLIERS[scenario];
-    return {
-      ...financialAssumptions,
-      targetPayingSeatsMonth12: Math.round(
-        financialAssumptions.targetPayingSeatsMonth12 * mult,
-      ),
-    };
-  }, [financialAssumptions, scenario]);
+  // Local override so the toggle is instant; also persists to store
+  const [scenario, setScenarioLocal] = useState<FinancialScenario>(activeScenario);
 
-  const model = useMemo(() => buildFinancialModel(assumptions), [assumptions]);
+  function handleScenario(s: FinancialScenario) {
+    setScenarioLocal(s);
+    setActiveScenario(s);
+  }
 
-  // Derived monthly rows
-  const monthRows = useMemo<MonthRow[]>(() => {
-    return model.monthly.map((m) => ({
-      label: m.label,
-      revenue: m.revenue,
-      burn: m.totalBurn,
-      netCash: m.revenue - m.totalBurn,
-      cashBalance: m.cashBalance,
-      seats: m.payingSeats,
-    }));
-  }, [model]);
+  // Engine called with both required args: buildFinancialModel(assumptions, scenario)
+  const model = useMemo(
+    () => buildFinancialModel(assumptions, scenario),
+    [assumptions, scenario],
+  );
 
-  // Sparkline / chart data (monthly)
-  const revenueData = monthRows.map((r) => r.revenue);
-  const burnData = monthRows.map((r) => r.burn);
-  const cashData = monthRows.map((r) => r.cashBalance);
+  const monthRows = model.monthly;
 
-  // Sample every 2nd month for bar chart labels to reduce clutter
+  // Chart data — use correct field names
+  const revenueData = monthRows.map((r) => r.revenueUsd);
+  const burnData = monthRows.map((r) => r.totalOpexUsd);
+  const cashData = monthRows.map((r) => r.cashEndUsd);
+
+  // Bar chart (every 2nd month)
   const barLabels = monthRows
     .filter((_, i) => i % 2 === 0)
     .map((r) => r.label.replace(/^.* /, ''));
-  const barRevenue = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.revenue);
-  const barBurn = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.burn);
+  const barRevenue = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.revenueUsd);
+  const barBurn = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.totalOpexUsd);
 
-  // Headline KPIs
+  // Headline KPIs — use engine-computed fields directly
   const finalMonth = monthRows[monthRows.length - 1];
-  const runwayMonths = monthRows.findIndex((r) => r.cashBalance <= 0);
+  const arr = (finalMonth?.revenueUsd ?? 0) * 12;
+
   const runwayLabel =
-    runwayMonths === -1
-      ? `${monthRows.length}+ mo`
-      : runwayMonths === 0
-        ? '< 1 mo'
-        : `${runwayMonths} mo`;
-  const peakBurn = Math.max(...burnData);
-  const arr = (finalMonth?.revenue ?? 0) * 12;
+    model.runwayMonthsFromStart === null
+      ? '—'
+      : model.runwayMonthsFromStart >= assumptions.monthlyHorizonMonths
+        ? `${assumptions.monthlyHorizonMonths}+ mo`
+        : model.runwayMonthsFromStart === 0
+          ? '< 1 mo'
+          : `${model.runwayMonthsFromStart} mo`;
+
+  const breakEvenLabel =
+    model.breakEvenMonthIndex === null
+      ? 'Not in horizon'
+      : monthRows[model.breakEvenMonthIndex]?.label ?? `Month ${model.breakEvenMonthIndex}`;
+
+  const peakBurn = Math.max(...burnData, 0);
 
   return (
     <div className="min-h-dvh bg-[#0a0f1a] pb-24 font-sans">
@@ -422,17 +410,17 @@ export function FinancialProjectionsPage() {
             </h1>
           </div>
 
-          {/* Scenario toggle */}
+          {/* Scenario toggle — only valid FinancialScenario values */}
           <div
             className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#060b13] p-1"
             role="group"
             aria-label="Projection scenario"
           >
-            {(['conservative', 'base', 'optimistic'] as FinancialScenario[]).map((s) => (
+            {(['conservative', 'base', 'aggressive'] as FinancialScenario[]).map((s) => (
               <button
                 key={s}
                 type="button"
-                onClick={() => setScenario(s)}
+                onClick={() => handleScenario(s)}
                 className={cn(
                   'rounded-md px-3 py-1.5 font-sans text-[0.72rem] font-medium transition-colors',
                   scenario === s
@@ -450,7 +438,18 @@ export function FinancialProjectionsPage() {
 
       {/* ── Body ── */}
       <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-8">
-        {/* Scenario badge */}
+
+        {/* DataIntegrityLabel disclaimer */}
+        <div className="mb-8 flex items-start gap-2.5 rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-4 py-3">
+          <Info className="mt-0.5 size-3.5 shrink-0 text-amber-400/70" aria-hidden />
+          <p className="font-sans text-[0.75rem] leading-relaxed text-amber-300/80">
+            <span className="font-semibold">Scenario model</span> — these figures are illustrative
+            projections generated from the assumptions below. They are not audited financials,
+            historical actuals, or guarantees of future performance.
+          </p>
+        </div>
+
+        {/* Scenario badge + meta */}
         <div className="mb-8 flex items-center gap-3">
           <Badge variant={SCENARIO_BADGE[scenario]}>{SCENARIO_LABELS[scenario]}</Badge>
           <p className="font-sans text-[0.78rem] text-[#475569]">
@@ -465,19 +464,27 @@ export function FinancialProjectionsPage() {
           <h2 id="kpi-heading" className="sr-only">
             Key financial indicators
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <KpiCard
-              label="ARR (end of model)"
-              value={formatUsd(arr)}
-              sub={`${finalMonth?.seats.toLocaleString() ?? 0} paying seats`}
-              icon={TrendingUp}
-              accent
-            />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+            <div className="col-span-2 sm:col-span-2">
+              <KpiCard
+                label="ARR (end of model)"
+                value={formatUsd(arr)}
+                sub={`${(finalMonth?.payingSeats ?? 0).toLocaleString()} paying seats`}
+                icon={TrendingUp}
+                accent
+              />
+            </div>
             <KpiCard
               label="Cash runway"
               value={runwayLabel}
               sub="from model start"
               icon={Flame}
+            />
+            <KpiCard
+              label="Break-even month"
+              value={breakEvenLabel}
+              sub="first month net ≥ 0"
+              icon={TrendingUp}
             />
             <KpiCard
               label="Peak monthly burn"
@@ -515,7 +522,6 @@ export function FinancialProjectionsPage() {
               </div>
               <BarChart3 className="size-4 text-[#334155]" aria-hidden />
             </div>
-            {/* Legend */}
             <div className="mb-4 flex items-center gap-4">
               <span className="flex items-center gap-1.5 font-sans text-[0.68rem] text-[#94a3b8]">
                 <span className="inline-block size-2 rounded-full bg-teal-500/70" />
@@ -523,7 +529,7 @@ export function FinancialProjectionsPage() {
               </span>
               <span className="flex items-center gap-1.5 font-sans text-[0.68rem] text-[#94a3b8]">
                 <span className="inline-block size-2 rounded-full bg-red-500/60" />
-                Burn
+                Total Opex
               </span>
             </div>
             <div className="pb-8">
@@ -531,7 +537,7 @@ export function FinancialProjectionsPage() {
                 labels={barLabels}
                 series={[
                   { label: 'Revenue', color: 'rgba(45,212,191,0.7)', values: barRevenue },
-                  { label: 'Burn', color: 'rgba(239,68,68,0.6)', values: barBurn },
+                  { label: 'Total Opex', color: 'rgba(239,68,68,0.6)', values: barBurn },
                 ]}
                 height={180}
               />
@@ -567,16 +573,16 @@ export function FinancialProjectionsPage() {
               <span
                 className={cn(
                   'font-sans text-[0.68rem] font-semibold tabular-nums',
-                  (finalMonth?.cashBalance ?? 0) >= 0 ? 'text-teal-400' : 'text-red-400',
+                  (finalMonth?.cashEndUsd ?? 0) >= 0 ? 'text-teal-400' : 'text-red-400',
                 )}
               >
-                End · {formatUsd(finalMonth?.cashBalance ?? 0)}
+                End · {formatUsd(finalMonth?.cashEndUsd ?? 0)}
               </span>
             </div>
           </section>
         </div>
 
-        {/* ── Seat ramp sparkline ── */}
+        {/* ── Seat ramp sparkline — uses payingSeats ── */}
         <section
           aria-labelledby="seats-heading"
           className="mt-6 rounded-xl border border-white/[0.07] bg-[linear-gradient(165deg,rgba(18,26,46,0.9),rgba(8,12,20,0.96))] p-6"
@@ -601,15 +607,15 @@ export function FinancialProjectionsPage() {
             </div>
           </div>
           <Sparkline
-            data={monthRows.map((r) => r.seats)}
+            data={monthRows.map((r) => r.payingSeats)}
             height={80}
             color="#818cf8"
             fill={false}
           />
         </section>
 
-        {/* ── Annual rollup ── */}
-        {model.annual && model.annual.length > 0 && (
+        {/* ── Annual rollup — uses correct AnnualFinancialRow fields ── */}
+        {model.annual.length > 0 && (
           <section aria-labelledby="annual-heading" className="mt-10">
             <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal-500/85">
               Annual summary
@@ -627,30 +633,27 @@ export function FinancialProjectionsPage() {
                   className="rounded-xl border border-white/[0.07] bg-[#07090f] p-5"
                 >
                   <p className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#475569]">
-                    Year {y.year}
+                    {y.year}
                   </p>
                   <p className="mt-2 font-heading text-[1.4rem] font-extrabold tabular-nums text-[#f1f5f9]">
-                    {formatUsd(y.revenue)}
+                    {formatUsd(y.revenueUsd)}
                   </p>
-                  <div className="mt-3 space-y-1.5 text-[#94a3b8]">
+                  <div className="mt-3 space-y-1.5">
                     <div className="flex justify-between font-sans text-[0.72rem]">
-                      <span className="text-[#475569]">Burn</span>
-                      <span className="tabular-nums text-red-400">{formatUsd(y.totalBurn)}</span>
+                      <span className="text-[#475569]">Total opex</span>
+                      <span className="tabular-nums text-red-400">{formatUsd(y.totalOpexUsd)}</span>
                     </div>
                     <div className="flex justify-between font-sans text-[0.72rem]">
-                      <span className="text-[#475569]">End cash</span>
+                      <span className="text-[#475569]">Operating income</span>
                       <span
                         className={cn(
                           'tabular-nums',
-                          y.endCash >= 0 ? 'text-teal-400' : 'text-red-400',
+                          y.operatingIncomeUsd >= 0 ? 'text-teal-400' : 'text-red-400',
                         )}
                       >
-                        {formatUsd(y.endCash)}
+                        {y.operatingIncomeUsd >= 0 ? '+' : ''}
+                        {formatUsd(y.operatingIncomeUsd)}
                       </span>
-                    </div>
-                    <div className="flex justify-between font-sans text-[0.72rem]">
-                      <span className="text-[#475569]">End seats</span>
-                      <span className="tabular-nums">{y.endSeats.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -731,7 +734,7 @@ export function FinancialProjectionsPage() {
           </div>
         </section>
 
-        {/* Disclaimer */}
+        {/* Footer disclaimer */}
         <p className="mt-12 max-w-2xl font-sans text-[0.72rem] leading-relaxed text-[#334155]">
           These projections are illustrative financial models based on the assumptions above.
           They are not audited financials, guarantees of future performance, or investment
