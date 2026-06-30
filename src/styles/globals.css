@@ -1,136 +1,124 @@
 /**
- * SquadRidge — Global Base Styles
+ * globals.css — base stylesheet
  *
- * Imports tokens, then applies base resets and element defaults.
- * All design values reference --sr-* tokens from tokens.css.
- * Do NOT hardcode hex, px sizes, or arbitrary values here.
+ * Imports tokens first, then Tailwind layers, then semantic resets.
+ * All design values come from tokens.css — no hardcoded hex/px here.
  */
 
+/* 1. Design tokens (surfaces, ink, accent, motion, radius, type scale) */
 @import './tokens.css';
 
+/* 2. Tailwind layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Reset ───────────────────────────────────────────────────────────── */
-*,
-*::before,
-*::after {
+/* ── Resets ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ── Document ────────────────────────────────────────────────────────── */
 html {
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  text-size-adjust: none;
-  -webkit-text-size-adjust: none;
   scroll-behavior: smooth;
-  scroll-padding-top: var(--space-16);
   hanging-punctuation: first last;
-  /* Prevent iOS zoom on input focus */
+  scroll-padding-top: var(--space-16);
   font-size: 16px;
 }
 
-/* ── Body ────────────────────────────────────────────────────────────── */
 body {
   min-height: 100dvh;
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: var(--leading-body);
+  line-height: var(--leading-body, 1.6);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--sr-text-base);
   color: var(--sr-ink);
   background-color: var(--sr-bg);
   transition: background-color var(--sr-duration-normal) var(--sr-ease-standard),
               color var(--sr-duration-normal) var(--sr-ease-standard);
 }
 
-/* ── Media defaults ─────────────────────────────────────────────────── */
-img,
-picture,
-video,
-canvas,
-svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-
-/* ── Typography ─────────────────────────────────────────────────────── */
+/* ── Typography ─────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  line-height: var(--leading-heading);
-  font-weight: 400; /* Instrument Serif reads well at regular weight */
+  line-height: var(--leading-heading, 1.15);
+  font-weight: 400; /* Instrument Serif looks best at regular weight */
   letter-spacing: -0.01em;
   text-wrap: balance;
+  color: var(--sr-ink);
 }
 
-p, li, figcaption, blockquote {
+/* Web app: headings capped at --sr-text-xl (36px) */
+h1 { font-size: var(--sr-text-xl); }
+h2 { font-size: var(--sr-text-lg); font-family: var(--font-body); font-weight: 600; }
+h3 { font-size: var(--sr-text-base); font-family: var(--font-body); font-weight: 600; }
+h4, h5, h6 { font-size: var(--sr-text-sm); font-family: var(--font-body); font-weight: 500; }
+
+p, li, figcaption {
   text-wrap: pretty;
   max-width: 72ch;
+  color: var(--sr-ink-secondary);
 }
 
+/* ── Interactive elements ───────────────────────────────────────────────── */
 a {
   color: inherit;
   text-decoration: none;
-}
-
-/* ── Interactive elements ────────────────────────────────────────────── */
-input,
-button,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
+  transition: var(--sr-transition);
 }
 
 button {
   cursor: pointer;
   background: none;
   border: none;
+  font: inherit;
+  color: inherit;
+  transition: var(--sr-transition);
 }
 
-ul[role="list"],
-ol[role="list"] {
-  list-style: none;
+input, textarea, select {
+  font: inherit;
+  color: inherit;
 }
 
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-/* ── Focus visible ───────────────────────────────────────────────────── */
-:focus-visible {
+/* ── Focus visible ──────────────────────────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
   outline: none;
   box-shadow: var(--sr-focus-ring);
   border-radius: var(--sr-radius-sm);
 }
 
-/* ── Selection ───────────────────────────────────────────────────────── */
+/* ── Media ──────────────────────────────────────────────────────────────── */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+ul[role="list"], ol[role="list"] { list-style: none; }
+
+table { border-collapse: collapse; width: 100%; }
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
 ::selection {
-  background: oklch(from var(--sr-primary) l c h / 0.25);
+  background: var(--sr-primary-soft);
   color: var(--sr-ink);
 }
 
-/* ── Transitions on interactive elements ────────────────────────────── */
-a,
-button,
-[role="button"],
-[role="link"],
-input,
-textarea,
-select {
-  transition: var(--sr-transition);
-}
-
-/* ── Reduced motion ─────────────────────────────────────────────────── */
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -138,7 +126,7 @@ select {
   }
 }
 
-/* ── Accessibility utility ───────────────────────────────────────────── */
+/* ── Utilities ──────────────────────────────────────────────────────────── */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -151,36 +139,38 @@ select {
   border-width: 0;
 }
 
-/* ── Skeleton shimmer keyframe (used by Skeleton component) ─────────── */
-@keyframes sr-shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
+.tabular-nums { font-variant-numeric: tabular-nums; }
+.text-balance  { text-wrap: balance; }
+.text-pretty   { text-wrap: pretty; }
 
-/* ── Scroll region ───────────────────────────────────────────────────── */
-/* One scroll region per view: the <main> element.                        */
-/* Nested scroll containers must be explicit and intentional.             */
-.scroll-region {
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ── Number display ─────────────────────────────────────────────────── */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum';
-}
-
-/* ── Grain overlay (preserved from existing GrainOverlay component) ─── */
-.grain-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
   z-index: 9999;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 128px 128px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--sr-primary);
+  color: var(--sr-on-primary);
+  border-radius: var(--sr-radius-sm);
+  font-size: var(--sr-text-sm);
+  font-weight: 500;
+  transform: translateY(-200%);
+  transition: transform var(--sr-duration-fast) var(--sr-ease-spring);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: none;
+  box-shadow: var(--sr-focus-ring);
+}
+
+/* ── Scrollbar styling (Webkit) ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--sr-line-strong);
+  border-radius: var(--sr-radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sr-ink-subtle);
 }
