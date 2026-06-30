@@ -50,6 +50,12 @@ const PitchDeckHubPage = lazy(() =>
   import('./pages/PitchDeckHubPage').then((m) => ({ default: m.PitchDeckHubPage })),
 );
 
+const FinancialProjectionsPage = lazy(() =>
+  import('./pages/FinancialProjectionsPage').then((m) => ({
+    default: m.FinancialProjectionsPage,
+  })),
+);
+
 const routeChunkFallback = (
   <div
     role="status"
@@ -112,6 +118,16 @@ export default function App() {
                       <RequireAuth>
                         <Suspense fallback={routeChunkFallback}>
                           <PitchDeckHubPage />
+                        </Suspense>
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/financial-projections"
+                    element={
+                      <RequireAuth>
+                        <Suspense fallback={routeChunkFallback}>
+                          <FinancialProjectionsPage />
                         </Suspense>
                       </RequireAuth>
                     }
