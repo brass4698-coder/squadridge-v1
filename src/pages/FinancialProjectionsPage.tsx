@@ -1,746 +1,688 @@
 /**
  * FinancialProjectionsPage
  *
- * Investor-facing financial projections view.  Reuses `buildFinancialModel` /
- * `formatUsd` from the pitch-deck-hub engine and the store's `assumptions` +
- * `activeScenario`.  Gated behind RequireAuth; lives at /financial-projections.
+ * Interactive financial projections dashboard for SquadRidge.
+ * Accessible to admin and moderator roles only.
  *
- * Design: mirrors PitchDeckHubPage dark aesthetic — #0a0f1a bg, teal accent.
+ * Sections:
+ *   1. Scenario selector (Conservative / Base / Optimistic)
+ *   2. Editable assumption controls (growth rate, per-seat price, burn)
+ *   3. KPI summary row (ARR, active squads, mediator activations, runway)
+ *   4. Quarterly revenue vs. burn area chart
+ *   5. Impact-to-revenue correlation chart (5-pillar metrics)
+ *   6. Cohort projection table
  */
 
-import { useMemo, useState } from 'react';
+// FIX 1: import CSSProperties directly — avoids TS2304 ("Cannot find name 'React'")
+// when using React 19's JSX transform (no implicit React namespace).
+import { useState, useMemo, useCallback, type CSSProperties } from 'react';
 import {
-  ArrowLeft,
-  BarChart3,
-  ChevronDown,
-  CircleDollarSign,
-  Flame,
-  Info,
-  Layers,
-  TrendingUp,
-  Users,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { buildFinancialModel, formatUsd } from '../pitch-deck-hub/financialEngine';
-import { usePitchDeckHubStore } from '../pitch-deck-hub/usePitchDeckHubStore';
-import type { FinancialScenario, MonthlyFinancialRow } from '../pitch-deck-hub/types';
-import { cn } from '../lib/cn';
+  AreaChart, Area, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Legend,
+} from 'recharts';
 
-// ---------------------------------------------------------------------------
-// Small shared primitives
-// ---------------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────── */
+// FIX 2: add 'custom' to Scenario so setScenario('custom') is type-safe.
+type Scenario = 'conservative' | 'base' | 'optimistic' | 'custom';
 
-function Badge({
-  children,
-  variant = 'neutral',
-}: {
-  children: React.ReactNode;
-  variant?: 'neutral' | 'teal' | 'amber' | 'danger';
-}) {
-  const styles = {
-    neutral: 'border-white/[0.08] bg-white/[0.04] text-[#cbd5e1]',
-    teal: 'border-teal-500/30 bg-teal-500/10 text-teal-300',
-    amber: 'border-amber-400/35 bg-amber-400/10 text-amber-300',
-    danger: 'border-red-500/35 bg-red-500/10 text-red-300',
-  } as const;
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full border px-2.5 py-0.5 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.1em]',
-        styles[variant],
-      )}
-    >
-      {children}
-    </span>
-  );
+interface Assumptions {
+  initialSquads: number;        // squads at Q1
+  squadGrowthPct: number;       // quarterly squad growth rate (0–100)
+  perSeatMonthly: number;       // institutional per-seat $/mo
+  seatsPerSquad: number;        // avg institutional seats per squad
+  grantAnnual: number;          // annual grant funding $
+  ngoLicenseMonthly: number;    // flat NGO license $/mo per org
+  ngoOrgs: number;              // number of NGO orgs at launch
+  ngoGrowthPct: number;         // quarterly NGO org growth
+  monthlyBurn: number;          // base operating burn $/mo
+  burnGrowthPct: number;        // burn growth per quarter (headcount)
+  initialGrantRunwayMonths: number; // months of grant coverage at start
 }
 
-function KpiCard({
-  label,
-  value,
-  sub,
-  icon: Icon,
-  accent = false,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  icon: React.ElementType;
-  accent?: boolean;
-}) {
-  return (
-    <div
-      className={cn(
-        'flex flex-col gap-3 rounded-xl border p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]',
-        accent
-          ? 'border-teal-500/30 bg-[linear-gradient(155deg,rgba(0,194,178,0.07),rgba(8,12,20,0.96))]'
-          : 'border-white/[0.07] bg-[linear-gradient(165deg,rgba(18,26,46,0.9),rgba(8,12,20,0.96))]',
-      )}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <p className="font-sans text-[0.72rem] font-medium uppercase tracking-[0.1em] text-[#64748b]">
-          {label}
-        </p>
-        <Icon
-          className={cn('size-4 shrink-0', accent ? 'text-teal-400/70' : 'text-[#334155]')}
-          aria-hidden
-        />
-      </div>
-      <p
-        className={cn(
-          'font-heading text-[1.7rem] font-extrabold tabular-nums leading-none',
-          accent ? 'text-teal-200' : 'text-[#f1f5f9]',
-        )}
-      >
-        {value}
-      </p>
-      {sub ? (
-        <p className="font-sans text-[0.75rem] text-[#64748b]">{sub}</p>
-      ) : null}
-    </div>
-  );
+interface QuarterRow {
+  quarter: string;
+  squads: number;
+  mediatorActivations: number;
+  seatRevenue: number;
+  ngoRevenue: number;
+  grantRevenue: number;
+  totalRevenue: number;
+  quarterlyBurn: number;
+  netCashFlow: number;
+  cumulativeCash: number;
+  costPerIntervention: number;
 }
 
-// ---------------------------------------------------------------------------
-// Inline SVG sparkline
-// ---------------------------------------------------------------------------
-
-function Sparkline({
-  data,
-  width = 280,
-  height = 56,
-  color = '#2dd4bf',
-  fill = true,
-}: {
-  data: number[];
-  width?: number;
-  height?: number;
-  color?: string;
-  fill?: boolean;
-}) {
-  if (data.length < 2) return null;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const pad = 3;
-  const uw = width - pad * 2;
-  const uh = height - pad * 2;
-
-  const pts = data.map((v, i) => [
-    pad + (i / (data.length - 1)) * uw,
-    pad + uh - ((v - min) / range) * uh,
-  ]);
-
-  const line = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-  const area = fill
-    ? `${line} L${pts[pts.length - 1][0].toFixed(1)},${(pad + uh).toFixed(1)} L${pts[0][0].toFixed(1)},${(pad + uh).toFixed(1)} Z`
-    : null;
-
-  return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      width={width}
-      height={height}
-      aria-hidden
-      className="w-full overflow-visible"
-      preserveAspectRatio="none"
-    >
-      <defs>
-        <linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.01" />
-        </linearGradient>
-      </defs>
-      {area && <path d={area} fill="url(#spark-fill)" />}
-      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Bar chart
-// ---------------------------------------------------------------------------
-
-type BarSeries = { label: string; color: string; values: number[] };
-
-function BarChart({
-  labels,
-  series,
-  height = 180,
-}: {
-  labels: string[];
-  series: BarSeries[];
-  height?: number;
-}) {
-  const allVals = series.flatMap((s) => s.values);
-  const maxVal = Math.max(...allVals, 1);
-  const barCount = labels.length;
-  const groupW = 100 / barCount;
-  const barW = (groupW * 0.8) / series.length;
-  const barGap = groupW * 0.04;
-  const groupOffset = groupW * 0.1;
-
-  return (
-    <div className="relative w-full" style={{ height }}>
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full"
-        aria-hidden
-      >
-        {[0.25, 0.5, 0.75, 1].map((t) => (
-          <line
-            key={t}
-            x1="0"
-            x2="100"
-            y1={`${(1 - t) * 100}`}
-            y2={`${(1 - t) * 100}`}
-            stroke="rgba(255,255,255,0.05)"
-            strokeWidth="0.4"
-          />
-        ))}
-        {labels.map((_, gi) => {
-          const gx = gi * groupW + groupOffset;
-          return series.map((s, si) => {
-            const val = s.values[gi] ?? 0;
-            const barH = Math.max(0, (val / maxVal) * 96);
-            const bx = gx + si * (barW + barGap);
-            return (
-              <rect
-                key={`${gi}-${si}`}
-                x={bx}
-                y={100 - barH}
-                width={barW}
-                height={barH}
-                rx="0.8"
-                fill={s.color}
-                opacity="0.85"
-              />
-            );
-          });
-        })}
-      </svg>
-      <div className="absolute bottom-0 left-0 right-0 flex justify-around translate-y-5">
-        {labels.map((l) => (
-          <span key={l} className="font-sans text-[0.6rem] text-[#475569] tabular-nums">
-            {l}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Monthly table — uses real MonthlyFinancialRow field names
-// ---------------------------------------------------------------------------
-
-function MonthlyTable({ rows }: { rows: MonthlyFinancialRow[] }) {
-  const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? rows : rows.slice(0, 12);
-  const th =
-    'py-2 px-3 text-left font-sans text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-[#475569]';
-  const td = 'py-2 px-3 font-sans text-[0.78rem] tabular-nums';
-
-  return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.07]">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] border-collapse">
-          <thead>
-            <tr className="border-b border-white/[0.06] bg-[#060b13]">
-              <th className={th}>Month</th>
-              <th className={cn(th, 'text-right')}>Revenue</th>
-              <th className={cn(th, 'text-right')}>Payroll</th>
-              <th className={cn(th, 'text-right')}>Non-Payroll Opex</th>
-              <th className={cn(th, 'text-right')}>Total Opex</th>
-              <th className={cn(th, 'text-right')}>Net</th>
-              <th className={cn(th, 'text-right')}>Cash End</th>
-              <th className={cn(th, 'text-right')}>Seats</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((r, i) => (
-              <tr
-                key={r.label}
-                className={cn(
-                  'border-b border-white/[0.04] transition-colors',
-                  i % 2 === 0 ? 'bg-[#07090f]' : 'bg-[#060b13]',
-                  r.operatingIncomeUsd < 0 ? 'text-red-400' : 'text-[#cbd5e1]',
-                )}
-              >
-                <td className={cn(td, 'text-[#94a3b8]')}>{r.label}</td>
-                <td className={cn(td, 'text-right text-teal-400')}>{formatUsd(r.revenueUsd)}</td>
-                <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.payrollUsd)}</td>
-                <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.nonPayrollOpexUsd)}</td>
-                <td className={cn(td, 'text-right text-red-400')}>{formatUsd(r.totalOpexUsd)}</td>
-                <td
-                  className={cn(
-                    td,
-                    'text-right font-semibold',
-                    r.operatingIncomeUsd >= 0 ? 'text-teal-300' : 'text-red-400',
-                  )}
-                >
-                  {r.operatingIncomeUsd >= 0 ? '+' : ''}{formatUsd(r.operatingIncomeUsd)}
-                </td>
-                <td
-                  className={cn(
-                    td,
-                    'text-right',
-                    r.cashEndUsd < 0 ? 'text-red-400' : 'text-[#e2e8f0]',
-                  )}
-                >
-                  {formatUsd(r.cashEndUsd)}
-                </td>
-                <td className={cn(td, 'text-right text-[#94a3b8]')}>
-                  {r.payingSeats.toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {rows.length > 12 && (
-        <button
-          type="button"
-          onClick={() => setExpanded((x) => !x)}
-          className="flex w-full items-center justify-center gap-2 border-t border-white/[0.06] bg-[#060b13] py-3 font-sans text-[0.75rem] text-[#64748b] transition-colors hover:text-[#94a3b8]"
-        >
-          <ChevronDown
-            className={cn('size-3.5 transition-transform', expanded && 'rotate-180')}
-            aria-hidden
-          />
-          {expanded ? 'Show less' : `Show all ${rows.length} months`}
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Scenario config — matches FinancialScenario union exactly
-// ---------------------------------------------------------------------------
-
-const SCENARIO_LABELS: Record<FinancialScenario, string> = {
-  conservative: 'Conservative',
-  base: 'Base case',
-  aggressive: 'Aggressive',
+// ── Scenario presets ────────────────────────────────────────────────────────── */
+type PresetScenario = 'conservative' | 'base' | 'optimistic';
+const SCENARIO_PRESETS: Record<PresetScenario, Assumptions> = {
+  conservative: {
+    initialSquads: 8,
+    squadGrowthPct: 15,
+    perSeatMonthly: 24,
+    seatsPerSquad: 3,
+    grantAnnual: 80_000,
+    ngoLicenseMonthly: 180,
+    ngoOrgs: 4,
+    ngoGrowthPct: 12,
+    monthlyBurn: 22_000,
+    burnGrowthPct: 3,
+    initialGrantRunwayMonths: 18,
+  },
+  base: {
+    initialSquads: 20,
+    squadGrowthPct: 28,
+    perSeatMonthly: 32,
+    seatsPerSquad: 4,
+    grantAnnual: 200_000,
+    ngoLicenseMonthly: 240,
+    ngoOrgs: 10,
+    ngoGrowthPct: 22,
+    monthlyBurn: 28_000,
+    burnGrowthPct: 5,
+    initialGrantRunwayMonths: 24,
+  },
+  optimistic: {
+    initialSquads: 45,
+    squadGrowthPct: 42,
+    perSeatMonthly: 40,
+    seatsPerSquad: 5,
+    grantAnnual: 500_000,
+    ngoLicenseMonthly: 320,
+    ngoOrgs: 22,
+    ngoGrowthPct: 35,
+    monthlyBurn: 35_000,
+    burnGrowthPct: 8,
+    initialGrantRunwayMonths: 30,
+  },
 };
 
-const SCENARIO_BADGE: Record<FinancialScenario, 'amber' | 'teal' | 'neutral'> = {
-  conservative: 'amber',
-  base: 'teal',
-  aggressive: 'neutral',
-};
+// ── Projection engine ────────────────────────────────────────────────────────── */
+function buildProjections(a: Assumptions, quarters = 12): QuarterRow[] {
+  const rows: QuarterRow[] = [];
+  let squads = a.initialSquads;
+  let ngoOrgs = a.ngoOrgs;
+  let burnMonthly = a.monthlyBurn;
+  let cumulativeCash = a.initialGrantRunwayMonths * a.monthlyBurn; // opening grant runway
 
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
+  const SESSIONS_PER_SQUAD_PER_MONTH = 6;
+  const INTERVENTION_RATE = 0.4; // 40% of sessions are de-escalation interventions
 
-export function FinancialProjectionsPage() {
-  // Correct store destructure: state.assumptions + state.activeScenario
-  const { state, setActiveScenario } = usePitchDeckHubStore();
-  const { assumptions, activeScenario } = state;
+  for (let q = 0; q < quarters; q++) {
+    const year = Math.floor(q / 4) + 2025;
+    const qNum = (q % 4) + 1;
+    const label = `Q${qNum} '${String(year).slice(2)}`;
 
-  // Local override so the toggle is instant; also persists to store
-  const [scenario, setScenarioLocal] = useState<FinancialScenario>(activeScenario);
+    // Revenue streams (quarterly)
+    const seatRevenue  = squads * a.seatsPerSquad * a.perSeatMonthly * 3;
+    const ngoRevenue   = ngoOrgs * a.ngoLicenseMonthly * 3;
+    const grantRevenue = a.grantAnnual / 4; // evenly distributed
+    const totalRevenue = seatRevenue + ngoRevenue + grantRevenue;
 
-  function handleScenario(s: FinancialScenario) {
-    setScenarioLocal(s);
-    setActiveScenario(s);
+    // Burn
+    const quarterlyBurn = burnMonthly * 3;
+    const netCashFlow   = totalRevenue - quarterlyBurn;
+    cumulativeCash     += netCashFlow;
+
+    // Impact metric
+    const sessionsThisQuarter = squads * SESSIONS_PER_SQUAD_PER_MONTH * 3;
+    const interventions = sessionsThisQuarter * INTERVENTION_RATE;
+    const mediatorActivations = Math.round(squads * 1.8); // avg mediators per squad cadence
+    const costPerIntervention = interventions > 0 ? quarterlyBurn / interventions : 0;
+
+    rows.push({
+      quarter: label,
+      squads: Math.round(squads),
+      mediatorActivations,
+      seatRevenue,
+      ngoRevenue,
+      grantRevenue,
+      totalRevenue,
+      quarterlyBurn,
+      netCashFlow,
+      cumulativeCash,
+      costPerIntervention,
+    });
+
+    // Compound for next quarter
+    squads    *= (1 + a.squadGrowthPct / 100);
+    ngoOrgs   *= (1 + a.ngoGrowthPct / 100);
+    burnMonthly *= (1 + a.burnGrowthPct / 100);
   }
 
-  // Engine called with both required args: buildFinancialModel(assumptions, scenario)
-  const model = useMemo(
-    () => buildFinancialModel(assumptions, scenario),
-    [assumptions, scenario],
+  return rows;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────── */
+const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const fmtK = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : n >= 1_000 ? `$${(n / 1_000).toFixed(0)}K` : fmt.format(n);
+const fmtNum = (n: number) => new Intl.NumberFormat('en-US').format(Math.round(n));
+
+// Chart colors (token-aligned, from sr- palette)
+const C = {
+  primary:  '#2aa39a',
+  secondary:'#6f8ab1',
+  success:  '#5aa67f',
+  warning:  '#c79a4a',
+  danger:   '#c46a5e',
+  grid:     'rgba(255,255,255,0.06)',
+  tooltip:  '#12151c',
+};
+
+// ── Sub-components ────────────────────────────────────────────────────────────── */
+interface KpiCardProps { label: string; value: string; sub?: string; trend?: 'up' | 'down' | 'neutral'; }
+function KpiCard({ label, value, sub, trend }: KpiCardProps) {
+  const trendColor = trend === 'up' ? C.success : trend === 'down' ? C.danger : C.secondary;
+  return (
+    <div style={{
+      background: 'var(--sr-bg-elevated)',
+      border: '1px solid var(--sr-line)',
+      borderRadius: 'var(--sr-radius-lg)',
+      padding: 'var(--space-5) var(--space-6)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--space-1)',
+      minWidth: 0,
+    }}>
+      <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 'var(--sr-text-xl)', fontFamily: 'var(--font-display)', color: 'var(--sr-ink)', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </span>
+      {sub && (
+        <span style={{ fontSize: 'var(--sr-text-xs)', color: trendColor }}>
+          {sub}
+        </span>
+      )}
+    </div>
   );
+}
 
-  const monthRows = model.monthly;
+interface SliderProps { label: string; value: number; min: number; max: number; step: number; format: (v: number) => string; onChange: (v: number) => void; }
+function Slider({ label, value, min, max, step, format, onChange }: SliderProps) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <label style={{ fontSize: 'var(--sr-text-sm)', color: 'var(--sr-ink-secondary)', fontWeight: 500 }}>{label}</label>
+        <span style={{ fontSize: 'var(--sr-text-sm)', color: 'var(--sr-primary)', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{format(value)}</span>
+      </div>
+      <input
+        type="range"
+        min={min} max={max} step={step} value={value}
+        onChange={e => onChange(Number(e.target.value))}
+        style={{
+          width: '100%',
+          accentColor: 'var(--sr-primary)',
+          cursor: 'pointer',
+        }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)' }}>{format(min)}</span>
+        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)' }}>{format(max)}</span>
+      </div>
+    </div>
+  );
+}
 
-  // Chart data — use correct field names
-  const revenueData = monthRows.map((r) => r.revenueUsd);
-  const burnData = monthRows.map((r) => r.totalOpexUsd);
-  const cashData = monthRows.map((r) => r.cashEndUsd);
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{
+      background: C.tooltip,
+      border: '1px solid var(--sr-line)',
+      borderRadius: 'var(--sr-radius-md)',
+      padding: 'var(--space-3) var(--space-4)',
+      fontSize: 'var(--sr-text-xs)',
+      color: 'var(--sr-ink)',
+      boxShadow: 'var(--sr-shadow-md)',
+    }}>
+      <p style={{ fontWeight: 600, marginBottom: 'var(--space-2)', color: 'var(--sr-ink-secondary)' }}>{label}</p>
+      {payload.map((p) => (
+        <p key={p.name} style={{ color: p.color, marginBottom: 'var(--space-1)' }}>
+          {p.name}: {typeof p.value === 'number' ? fmtK(p.value) : p.value}
+        </p>
+      ))}
+    </div>
+  );
+}
 
-  // Bar chart (every 2nd month)
-  const barLabels = monthRows
-    .filter((_, i) => i % 2 === 0)
-    .map((r) => r.label.replace(/^.* /, ''));
-  const barRevenue = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.revenueUsd);
-  const barBurn = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.totalOpexUsd);
+// ── Main component ───────────────────────────────────────────────────────────── */
+export default function FinancialProjectionsPage() {
+  const [scenario, setScenario] = useState<Scenario>('base');
+  const [assumptions, setAssumptions] = useState<Assumptions>(SCENARIO_PRESETS.base);
+  const [showTable, setShowTable] = useState(false);
 
-  // Headline KPIs — use engine-computed fields directly
-  const finalMonth = monthRows[monthRows.length - 1];
-  const arr = (finalMonth?.revenueUsd ?? 0) * 12;
+  const selectScenario = useCallback((s: PresetScenario) => {
+    setScenario(s);
+    setAssumptions(SCENARIO_PRESETS[s]);
+  }, []);
 
-  const runwayLabel =
-    model.runwayMonthsFromStart === null
-      ? '—'
-      : model.runwayMonthsFromStart >= assumptions.monthlyHorizonMonths
-        ? `${assumptions.monthlyHorizonMonths}+ mo`
-        : model.runwayMonthsFromStart === 0
-          ? '< 1 mo'
-          : `${model.runwayMonthsFromStart} mo`;
+  // FIX 3: set 'custom' instead of 'base' — prevents scenario pill from
+  // misleadingly snapping back to "Base" when the user edits a slider
+  // while on the Conservative or Optimistic scenario.
+  const updateAssumption = useCallback(<K extends keyof Assumptions>(key: K, value: Assumptions[K]) => {
+    setAssumptions(prev => ({ ...prev, [key]: value }));
+    setScenario('custom');
+  }, []);
 
-  const breakEvenLabel =
-    model.breakEvenMonthIndex === null
-      ? 'Not in horizon'
-      : monthRows[model.breakEvenMonthIndex]?.label ?? `Month ${model.breakEvenMonthIndex}`;
+  const rows = useMemo(() => buildProjections(assumptions, 12), [assumptions]);
 
-  const peakBurn = Math.max(...burnData, 0);
+  // Derived KPIs from final quarter
+  const lastRow   = rows[rows.length - 1];
+  const firstRow  = rows[0];
+  const annualArr = lastRow.totalRevenue * 4; // annualized from last quarter
+  const runwayMonths = lastRow.cumulativeCash > 0
+    ? Math.round(lastRow.cumulativeCash / (lastRow.quarterlyBurn / 3))
+    : 0;
+  const arrGrowthPct = firstRow.totalRevenue > 0
+    ? Math.round(((lastRow.totalRevenue - firstRow.totalRevenue) / firstRow.totalRevenue) * 100)
+    : 0;
+
+  // Impact-to-revenue chart data (last 4 quarters as representative year)
+  const impactData = rows.slice(-4).map(r => ({
+    quarter: r.quarter,
+    'Seat Revenue':  r.seatRevenue,
+    'NGO Licenses':  r.ngoRevenue,
+    'Grants':        r.grantRevenue,
+    'Burn':          r.quarterlyBurn,
+    'Active Squads': r.squads,
+    'Cost/Interv.':  Math.round(r.costPerIntervention),
+  }));
+
+  // Revenue stream breakdown for area chart
+  const revenueData = rows.map(r => ({
+    quarter: r.quarter,
+    'Seat Revenue':  r.seatRevenue,
+    'NGO Licenses':  r.ngoRevenue,
+    'Grants':        r.grantRevenue,
+    'Burn':          r.quarterlyBurn,
+    'Net Cash Flow': r.netCashFlow,
+  }));
+
+  // FIX 4: include 'custom' in labels map so scenario pill never renders undefined
+  const SCENARIO_LABELS: Record<Scenario, string> = {
+    conservative: 'Conservative',
+    base: 'Base',
+    optimistic: 'Optimistic',
+    custom: 'Custom',
+  };
+
+  const PRESET_SCENARIOS: PresetScenario[] = ['conservative', 'base', 'optimistic'];
+
+  // FIX 1 (continued): use CSSProperties imported from 'react', not React.CSSProperties
+  const sectionHead: CSSProperties = {
+    fontSize: 'var(--sr-text-lg)',
+    fontFamily: 'var(--font-display)',
+    color: 'var(--sr-ink)',
+    marginBottom: 'var(--space-4)',
+    fontWeight: 400,
+  };
+
+  const card: CSSProperties = {
+    background: 'var(--sr-bg-elevated)',
+    border: '1px solid var(--sr-line)',
+    borderRadius: 'var(--sr-radius-lg)',
+    padding: 'var(--space-6)',
+  };
 
   return (
-    <div className="min-h-dvh bg-[#0a0f1a] pb-24 font-sans">
-      {/* ── Header ── */}
-      <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#0a0f1a]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-4 sm:px-8">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/pitch-deck-hub"
-              className="flex items-center gap-1.5 font-sans text-[0.78rem] text-[#64748b] transition-colors hover:text-[#94a3b8]"
-            >
-              <ArrowLeft className="size-3.5" aria-hidden />
-              Pitch hub
-            </Link>
-            <span className="text-[#1e293b]" aria-hidden>
-              /
-            </span>
-            <h1 className="font-heading text-[0.95rem] font-semibold text-[#f1f5f9]">
-              Financial Projections
-            </h1>
-          </div>
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--sr-bg)',
+      color: 'var(--sr-ink)',
+      fontFamily: 'var(--font-body)',
+      padding: 'var(--space-8) var(--space-6)',
+      maxWidth: 'var(--content-wide)',
+      margin: '0 auto',
+    }}>
 
-          {/* Scenario toggle — only valid FinancialScenario values */}
-          <div
-            className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#060b13] p-1"
-            role="group"
-            aria-label="Projection scenario"
+      {/* ── Header ────────────────────────────────────────────────────── */}
+      <div style={{ marginBottom: 'var(--space-8)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.primary} strokeWidth="1.5" aria-hidden="true">
+            <path d="M3 3v18h18"/>
+            <path d="m7 16 4-4 4 4 4-4"/>
+          </svg>
+          <h1 style={{ fontSize: 'var(--sr-text-xl)', fontFamily: 'var(--font-display)', fontWeight: 400, letterSpacing: '-0.01em' }}>
+            Financial Projections
+          </h1>
+          <span style={{
+            marginLeft: 'auto',
+            fontSize: 'var(--sr-text-xs)',
+            background: 'var(--sr-primary-soft)',
+            color: 'var(--sr-primary)',
+            padding: '0.2em 0.7em',
+            borderRadius: 'var(--sr-radius-full)',
+            fontWeight: 500,
+            letterSpacing: '0.04em',
+          }}>CONFIDENTIAL</span>
+        </div>
+        <p style={{ fontSize: 'var(--sr-text-sm)', color: 'var(--sr-ink-secondary)', maxWidth: '60ch' }}>
+          12-quarter forward model. Adjust assumptions below to explore scenarios.
+          All projections are illustrative and intended for internal planning only.
+        </p>
+      </div>
+
+      {/* ── Scenario selector ──────────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-8)', flexWrap: 'wrap' }}>
+        {PRESET_SCENARIOS.map(s => (
+          <button
+            key={s}
+            onClick={() => selectScenario(s)}
+            style={{
+              padding: 'var(--space-2) var(--space-5)',
+              borderRadius: 'var(--sr-radius-full)',
+              border: scenario === s ? `1.5px solid ${C.primary}` : '1.5px solid var(--sr-line)',
+              background: scenario === s ? 'var(--sr-primary-soft)' : 'transparent',
+              color: scenario === s ? C.primary : 'var(--sr-ink-secondary)',
+              fontSize: 'var(--sr-text-sm)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'var(--sr-transition)',
+            }}
           >
-            {(['conservative', 'base', 'aggressive'] as FinancialScenario[]).map((s) => (
+            {SCENARIO_LABELS[s]}
+          </button>
+        ))}
+        {/* FIX 3 (continued): show 'Custom' pill only when user has edited assumptions */}
+        {scenario === 'custom' && (
+          <span style={{
+            padding: 'var(--space-2) var(--space-5)',
+            borderRadius: 'var(--sr-radius-full)',
+            border: `1.5px solid ${C.warning}`,
+            background: 'transparent',
+            color: C.warning,
+            fontSize: 'var(--sr-text-sm)',
+            fontWeight: 600,
+          }}>
+            Custom
+          </span>
+        )}
+      </div>
+
+      {/* ── KPI row ───────────────────────────────────────────────────────── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+        gap: 'var(--space-4)',
+        marginBottom: 'var(--space-10)',
+      }}>
+        <KpiCard
+          label="Year-3 ARR"
+          value={fmtK(annualArr)}
+          sub={`+${arrGrowthPct}% vs Q1`}
+          trend="up"
+        />
+        <KpiCard
+          label="Active Squads (Q12)"
+          value={fmtNum(lastRow.squads)}
+          sub={`Started at ${firstRow.squads}`}
+          trend="up"
+        />
+        <KpiCard
+          label="Mediator Acts. (Q12)"
+          value={fmtNum(lastRow.mediatorActivations)}
+          trend="up"
+        />
+        <KpiCard
+          label="Runway (post Q12)"
+          value={`${runwayMonths}mo`}
+          sub={lastRow.cumulativeCash > 0 ? 'Cash positive' : 'Needs funding'}
+          trend={lastRow.cumulativeCash > 0 ? 'up' : 'down'}
+        />
+        <KpiCard
+          label="Cost / Intervention"
+          value={fmt.format(Math.round(lastRow.costPerIntervention))}
+          sub="Q12 efficiency"
+          trend="neutral"
+        />
+        <KpiCard
+          label="Quarterly Burn (Q12)"
+          value={fmtK(lastRow.quarterlyBurn)}
+          sub={`+${assumptions.burnGrowthPct}% qoq`}
+          trend="neutral"
+        />
+      </div>
+
+      {/* ── Charts + Assumptions ─────────────────────────────────────────── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0,1fr) 340px',
+        gap: 'var(--space-6)',
+        marginBottom: 'var(--space-8)',
+        alignItems: 'start',
+      }}>
+
+        {/* Revenue vs. Burn area chart */}
+        <div style={card}>
+          <h2 style={sectionHead}>Revenue Streams vs. Burn Rate</h2>
+          <p style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)', marginBottom: 'var(--space-5)' }}>
+            Stacked quarterly revenue by stream against operating burn
+          </p>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={revenueData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+              <defs>
+                <linearGradient id="gradSeat" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={C.primary} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={C.primary} stopOpacity={0.02}/>
+                </linearGradient>
+                <linearGradient id="gradNgo" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={C.secondary} stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor={C.secondary} stopOpacity={0.02}/>
+                </linearGradient>
+                <linearGradient id="gradGrant" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={C.success} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={C.success} stopOpacity={0.02}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.grid} />
+              <XAxis dataKey="quarter" tick={{ fontSize: 11, fill: '#7b8290' }} axisLine={false} tickLine={false} />
+              <YAxis tickFormatter={v => fmtK(v)} tick={{ fontSize: 11, fill: '#7b8290' }} axisLine={false} tickLine={false} width={56} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: 11, color: '#7b8290' }} />
+              <Area type="monotone" dataKey="Seat Revenue" stackId="1" stroke={C.primary} fill="url(#gradSeat)" strokeWidth={1.5} />
+              <Area type="monotone" dataKey="NGO Licenses" stackId="1" stroke={C.secondary} fill="url(#gradNgo)" strokeWidth={1.5} />
+              <Area type="monotone" dataKey="Grants" stackId="1" stroke={C.success} fill="url(#gradGrant)" strokeWidth={1.5} />
+              <Area type="monotone" dataKey="Burn" stroke={C.danger} fill="none" strokeWidth={2} strokeDasharray="5 3" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Assumptions panel */}
+        <div style={{ ...card, display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+          <h2 style={sectionHead}>Assumptions</h2>
+          <Slider
+            label="Squad Growth Rate (qoq)"
+            value={assumptions.squadGrowthPct}
+            min={5} max={80} step={1}
+            format={v => `${v}%`}
+            onChange={v => updateAssumption('squadGrowthPct', v)}
+          />
+          <Slider
+            label="Per-Seat Monthly Price"
+            value={assumptions.perSeatMonthly}
+            min={10} max={100} step={1}
+            format={v => `$${v}`}
+            onChange={v => updateAssumption('perSeatMonthly', v)}
+          />
+          <Slider
+            label="Seats Per Squad"
+            value={assumptions.seatsPerSquad}
+            min={1} max={12} step={1}
+            format={v => `${v}`}
+            onChange={v => updateAssumption('seatsPerSquad', v)}
+          />
+          <Slider
+            label="NGO License ($/mo per org)"
+            value={assumptions.ngoLicenseMonthly}
+            min={50} max={800} step={10}
+            format={v => `$${v}`}
+            onChange={v => updateAssumption('ngoLicenseMonthly', v)}
+          />
+          <Slider
+            label="Monthly Burn"
+            value={assumptions.monthlyBurn}
+            min={5_000} max={100_000} step={1_000}
+            format={v => fmtK(v)}
+            onChange={v => updateAssumption('monthlyBurn', v)}
+          />
+          <Slider
+            label="Annual Grant Funding"
+            value={assumptions.grantAnnual}
+            min={0} max={1_000_000} step={10_000}
+            format={v => fmtK(v)}
+            onChange={v => updateAssumption('grantAnnual', v)}
+          />
+
+          {/* Quick-reset — only preset scenarios, not 'custom' */}
+          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'auto' }}>
+            {PRESET_SCENARIOS.map(s => (
               <button
                 key={s}
-                type="button"
-                onClick={() => handleScenario(s)}
-                className={cn(
-                  'rounded-md px-3 py-1.5 font-sans text-[0.72rem] font-medium transition-colors',
-                  scenario === s
-                    ? 'bg-teal-500/15 text-teal-200'
-                    : 'text-[#64748b] hover:text-[#94a3b8]',
-                )}
-                aria-pressed={scenario === s}
+                onClick={() => selectScenario(s)}
+                style={{
+                  flex: 1,
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: 'var(--sr-radius-md)',
+                  border: '1px solid var(--sr-line)',
+                  background: 'var(--sr-bg-secondary)',
+                  color: 'var(--sr-ink-secondary)',
+                  fontSize: 'var(--sr-text-xs)',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'var(--sr-transition)',
+                }}
               >
-                {SCENARIO_LABELS[s]}
+                Reset to {SCENARIO_LABELS[s]}
               </button>
             ))}
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* ── Body ── */}
-      <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-8">
-
-        {/* DataIntegrityLabel disclaimer */}
-        <div className="mb-8 flex items-start gap-2.5 rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-4 py-3">
-          <Info className="mt-0.5 size-3.5 shrink-0 text-amber-400/70" aria-hidden />
-          <p className="font-sans text-[0.75rem] leading-relaxed text-amber-300/80">
-            <span className="font-semibold">Scenario model</span> — these figures are illustrative
-            projections generated from the assumptions below. They are not audited financials,
-            historical actuals, or guarantees of future performance.
-          </p>
-        </div>
-
-        {/* Scenario badge + meta */}
-        <div className="mb-8 flex items-center gap-3">
-          <Badge variant={SCENARIO_BADGE[scenario]}>{SCENARIO_LABELS[scenario]}</Badge>
-          <p className="font-sans text-[0.78rem] text-[#475569]">
-            {assumptions.monthlyHorizonMonths}-month horizon ·{' '}
-            starting cash {formatUsd(assumptions.startingCashUsd)} ·{' '}
-            ${assumptions.pricePerPilotSeatMonthUsd}/seat/mo
-          </p>
-        </div>
-
-        {/* ── KPI grid ── */}
-        <section aria-labelledby="kpi-heading">
-          <h2 id="kpi-heading" className="sr-only">
-            Key financial indicators
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-            <div className="col-span-2 sm:col-span-2">
-              <KpiCard
-                label="ARR (end of model)"
-                value={formatUsd(arr)}
-                sub={`${(finalMonth?.payingSeats ?? 0).toLocaleString()} paying seats`}
-                icon={TrendingUp}
-                accent
-              />
-            </div>
-            <KpiCard
-              label="Cash runway"
-              value={runwayLabel}
-              sub="from model start"
-              icon={Flame}
-            />
-            <KpiCard
-              label="Break-even month"
-              value={breakEvenLabel}
-              sub="first month net ≥ 0"
-              icon={TrendingUp}
-            />
-            <KpiCard
-              label="Peak monthly burn"
-              value={formatUsd(peakBurn)}
-              sub="highest single month"
-              icon={CircleDollarSign}
-            />
-            <KpiCard
-              label="Fundraising ask"
-              value={formatUsd(assumptions.fundraisingAskUsd)}
-              sub={assumptions.milestoneFirstTranche}
-              icon={Layers}
-            />
-          </div>
-        </section>
-
-        {/* ── Charts row ── */}
-        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Revenue vs burn bar chart */}
-          <section
-            aria-labelledby="bar-heading"
-            className="rounded-xl border border-white/[0.07] bg-[linear-gradient(165deg,rgba(18,26,46,0.9),rgba(8,12,20,0.96))] p-6"
-          >
-            <div className="mb-5 flex items-center justify-between gap-2">
-              <div>
-                <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.1em] text-teal-500/70">
-                  Monthly
-                </p>
-                <h2
-                  id="bar-heading"
-                  className="mt-0.5 font-heading text-[1rem] font-semibold text-[#f1f5f9]"
-                >
-                  Revenue vs Burn
-                </h2>
-              </div>
-              <BarChart3 className="size-4 text-[#334155]" aria-hidden />
-            </div>
-            <div className="mb-4 flex items-center gap-4">
-              <span className="flex items-center gap-1.5 font-sans text-[0.68rem] text-[#94a3b8]">
-                <span className="inline-block size-2 rounded-full bg-teal-500/70" />
-                Revenue
-              </span>
-              <span className="flex items-center gap-1.5 font-sans text-[0.68rem] text-[#94a3b8]">
-                <span className="inline-block size-2 rounded-full bg-red-500/60" />
-                Total Opex
-              </span>
-            </div>
-            <div className="pb-8">
-              <BarChart
-                labels={barLabels}
-                series={[
-                  { label: 'Revenue', color: 'rgba(45,212,191,0.7)', values: barRevenue },
-                  { label: 'Total Opex', color: 'rgba(239,68,68,0.6)', values: barBurn },
-                ]}
-                height={180}
-              />
-            </div>
-          </section>
-
-          {/* Cash balance sparkline */}
-          <section
-            aria-labelledby="spark-heading"
-            className="rounded-xl border border-white/[0.07] bg-[linear-gradient(165deg,rgba(18,26,46,0.9),rgba(8,12,20,0.96))] p-6"
-          >
-            <div className="mb-5 flex items-center justify-between gap-2">
-              <div>
-                <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.1em] text-teal-500/70">
-                  Cumulative
-                </p>
-                <h2
-                  id="spark-heading"
-                  className="mt-0.5 font-heading text-[1rem] font-semibold text-[#f1f5f9]"
-                >
-                  Cash Balance
-                </h2>
-              </div>
-              <TrendingUp className="size-4 text-[#334155]" aria-hidden />
-            </div>
-            <div className="mt-6">
-              <Sparkline data={cashData} height={140} color="#2dd4bf" />
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-2">
-              <span className="font-sans text-[0.68rem] text-[#475569]">
-                Start · {formatUsd(assumptions.startingCashUsd)}
-              </span>
-              <span
-                className={cn(
-                  'font-sans text-[0.68rem] font-semibold tabular-nums',
-                  (finalMonth?.cashEndUsd ?? 0) >= 0 ? 'text-teal-400' : 'text-red-400',
-                )}
-              >
-                End · {formatUsd(finalMonth?.cashEndUsd ?? 0)}
-              </span>
-            </div>
-          </section>
-        </div>
-
-        {/* ── Seat ramp sparkline — uses payingSeats ── */}
-        <section
-          aria-labelledby="seats-heading"
-          className="mt-6 rounded-xl border border-white/[0.07] bg-[linear-gradient(165deg,rgba(18,26,46,0.9),rgba(8,12,20,0.96))] p-6"
-        >
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div>
-              <p className="font-sans text-[0.68rem] font-medium uppercase tracking-[0.1em] text-teal-500/70">
-                Growth
-              </p>
-              <h2
-                id="seats-heading"
-                className="mt-0.5 font-heading text-[1rem] font-semibold text-[#f1f5f9]"
-              >
-                Paying Seat Ramp
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="size-4 text-[#334155]" aria-hidden />
-              <span className="font-sans text-[0.72rem] tabular-nums text-[#64748b]">
-                Target M12: {assumptions.targetPayingSeatsMonth12.toLocaleString()} seats
-              </span>
-            </div>
-          </div>
-          <Sparkline
-            data={monthRows.map((r) => r.payingSeats)}
-            height={80}
-            color="#818cf8"
-            fill={false}
-          />
-        </section>
-
-        {/* ── Annual rollup — uses correct AnnualFinancialRow fields ── */}
-        {model.annual.length > 0 && (
-          <section aria-labelledby="annual-heading" className="mt-10">
-            <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal-500/85">
-              Annual summary
-            </p>
-            <h2
-              id="annual-heading"
-              className="mt-2 font-heading text-[1.35rem] font-extrabold text-[#f1f5f9]"
-            >
-              Year-over-Year
-            </h2>
-            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {model.annual.map((y) => (
-                <div
-                  key={y.year}
-                  className="rounded-xl border border-white/[0.07] bg-[#07090f] p-5"
-                >
-                  <p className="font-sans text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#475569]">
-                    {y.year}
-                  </p>
-                  <p className="mt-2 font-heading text-[1.4rem] font-extrabold tabular-nums text-[#f1f5f9]">
-                    {formatUsd(y.revenueUsd)}
-                  </p>
-                  <div className="mt-3 space-y-1.5">
-                    <div className="flex justify-between font-sans text-[0.72rem]">
-                      <span className="text-[#475569]">Total opex</span>
-                      <span className="tabular-nums text-red-400">{formatUsd(y.totalOpexUsd)}</span>
-                    </div>
-                    <div className="flex justify-between font-sans text-[0.72rem]">
-                      <span className="text-[#475569]">Operating income</span>
-                      <span
-                        className={cn(
-                          'tabular-nums',
-                          y.operatingIncomeUsd >= 0 ? 'text-teal-400' : 'text-red-400',
-                        )}
-                      >
-                        {y.operatingIncomeUsd >= 0 ? '+' : ''}
-                        {formatUsd(y.operatingIncomeUsd)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── Monthly detail table ── */}
-        <section aria-labelledby="table-heading" className="mt-10">
-          <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal-500/85">
-            Detail
-          </p>
-          <h2
-            id="table-heading"
-            className="mt-2 font-heading text-[1.35rem] font-extrabold text-[#f1f5f9]"
-          >
-            Monthly Model
-          </h2>
-          <p className="mt-2 font-sans text-[0.85rem] text-[#64748b]">
-            Full {assumptions.monthlyHorizonMonths}-month cashflow.
-            Adjust assumptions in the Pitch Hub → Financial tab.
-          </p>
-          <div className="mt-6">
-            <MonthlyTable rows={monthRows} />
-          </div>
-        </section>
-
-        {/* ── Assumptions read-only card ── */}
-        <section aria-labelledby="assumptions-heading" className="mt-10">
-          <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal-500/85">
-            Inputs
-          </p>
-          <h2
-            id="assumptions-heading"
-            className="mt-2 font-heading text-[1.35rem] font-extrabold text-[#f1f5f9]"
-          >
-            Model Assumptions
-          </h2>
-          <p className="mt-2 font-sans text-[0.85rem] text-[#64748b]">
-            Edit these in the{' '}
-            <Link
-              to="/pitch-deck-hub"
-              className="text-teal-400 underline underline-offset-2 hover:text-teal-300"
-            >
-              Pitch Hub → Financial tab
-            </Link>.
-          </p>
-          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-            {(
-              [
-                ['Starting cash', formatUsd(assumptions.startingCashUsd)],
-                ['Seat price / mo', formatUsd(assumptions.pricePerPilotSeatMonthUsd)],
-                ['Seats at M12', assumptions.targetPayingSeatsMonth12.toLocaleString()],
-                ['Seat ramp (mo)', String(assumptions.seatRampMonths)],
-                ['FTE at M0', String(assumptions.headcountFteMonth0)],
-                ['FTE at M12', String(assumptions.headcountFteMonth12)],
-                ['FTE at M24', String(assumptions.headcountFteMonth24)],
-                ['FTE cost/yr', formatUsd(assumptions.fullyLoadedCostPerFteAnnualUsd)],
-                ['Infra / mo', formatUsd(assumptions.monthlyInfrastructureUsd)],
-                ['S&M / mo', formatUsd(assumptions.monthlySalesMarketingUsd)],
-                ['Contractors / mo', formatUsd(assumptions.monthlyContractorsUsd)],
-                ['Contingency', `${(assumptions.contingencyRate * 100).toFixed(0)}%`],
-              ] as [string, string][]
-            ).map(([label, val]) => (
-              <div
-                key={label}
-                className="flex flex-col gap-1 rounded-lg border border-white/[0.06] bg-[#060b13] px-3.5 py-3"
-              >
-                <p className="font-sans text-[0.62rem] font-medium uppercase tracking-[0.08em] text-[#475569]">
-                  {label}
-                </p>
-                <p className="font-sans text-[0.85rem] font-semibold tabular-nums text-[#cbd5e1]">
-                  {val}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Footer disclaimer */}
-        <p className="mt-12 max-w-2xl font-sans text-[0.72rem] leading-relaxed text-[#334155]">
-          These projections are illustrative financial models based on the assumptions above.
-          They are not audited financials, guarantees of future performance, or investment
-          advice. Actual results may differ materially.
+      {/* ── Impact-to-revenue bar chart ───────────────────────────────────── */}
+      <div style={{ ...card, marginBottom: 'var(--space-8)' }}>
+        <h2 style={sectionHead}>Impact → Revenue: Final Year</h2>
+        <p style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)', marginBottom: 'var(--space-5)' }}>
+          Revenue streams vs. burn across the final four quarters (Year 3)
         </p>
-      </main>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={impactData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.grid} />
+            <XAxis dataKey="quarter" tick={{ fontSize: 11, fill: '#7b8290' }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={v => fmtK(v)} tick={{ fontSize: 11, fill: '#7b8290' }} axisLine={false} tickLine={false} width={56} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ fontSize: 11, color: '#7b8290' }} />
+            <Bar dataKey="Seat Revenue" stackId="rev" fill={C.primary} radius={[0,0,0,0]} />
+            <Bar dataKey="NGO Licenses" stackId="rev" fill={C.secondary} radius={[0,0,0,0]} />
+            <Bar dataKey="Grants" stackId="rev" fill={C.success} radius={[4,4,0,0]} />
+            <Bar dataKey="Burn" fill={C.danger} opacity={0.5} radius={[4,4,0,0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* ── Projection table ─────────────────────────────────────────────────── */}
+      <div style={card}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+          <h2 style={{ ...sectionHead, marginBottom: 0 }}>Quarterly Cohort Breakdown</h2>
+          <button
+            onClick={() => setShowTable(t => !t)}
+            style={{
+              fontSize: 'var(--sr-text-xs)',
+              color: 'var(--sr-primary)',
+              background: 'var(--sr-primary-soft)',
+              border: 'none',
+              borderRadius: 'var(--sr-radius-sm)',
+              padding: 'var(--space-1) var(--space-3)',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'var(--sr-transition)',
+            }}
+          >
+            {showTable ? 'Hide table' : 'Show table'}
+          </button>
+        </div>
+
+        {showTable && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', fontSize: 'var(--sr-text-xs)', fontVariantNumeric: 'tabular-nums' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--sr-line)' }}>
+                  {['Quarter','Squads','Mediators','Seat Rev.','NGO Rev.','Grants','Total Rev.','Burn','Net Flow','Cum. Cash','$/Interv.'].map(h => (
+                    <th key={h} style={{ padding: 'var(--space-2) var(--space-3)', textAlign: 'right', color: 'var(--sr-ink-faint)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => {
+                  // FIX 5: derive net-flow color from the actual value, not a column-index
+                  // guess. The typeof check on a column index was fragile and wrong.
+                  const netFlowPositive = r.netCashFlow >= 0;
+                  const cells = [
+                    r.quarter,
+                    fmtNum(r.squads),
+                    fmtNum(r.mediatorActivations),
+                    fmtK(r.seatRevenue),
+                    fmtK(r.ngoRevenue),
+                    fmtK(r.grantRevenue),
+                    fmtK(r.totalRevenue),
+                    fmtK(r.quarterlyBurn),
+                    fmtK(r.netCashFlow),
+                    fmtK(r.cumulativeCash),
+                    fmt.format(Math.round(r.costPerIntervention)),
+                  ];
+                  return (
+                    <tr
+                      key={r.quarter}
+                      style={{
+                        borderBottom: '1px solid var(--sr-divider)',
+                        background: i % 2 === 0 ? 'transparent' : 'var(--sr-bg-secondary)',
+                      }}
+                    >
+                      {cells.map((v, ci) => (
+                        <td
+                          key={ci}
+                          style={{
+                            padding: 'var(--space-2) var(--space-3)',
+                            textAlign: ci === 0 ? 'left' : 'right',
+                            // Net Cash Flow is always column index 8
+                            color: ci === 0
+                              ? 'var(--sr-ink-secondary)'
+                              : ci === 8
+                                ? (netFlowPositive ? C.success : C.danger)
+                                : 'var(--sr-ink)',
+                            fontWeight: ci === 0 ? 500 : 400,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {v}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Footer note */}
+      {/* FIX 6: --sr-ink-subtle is not a defined token; corrected to --sr-ink-faint */}
+      <p style={{
+        marginTop: 'var(--space-8)',
+        fontSize: 'var(--sr-text-xs)',
+        color: 'var(--sr-ink-faint)',
+        maxWidth: '80ch',
+      }}>
+        Revenue model: per-seat institutional licensing + NGO flat-rate subscriptions + grant disbursements.
+        Impact correlation uses a 40% intervention rate on squad session volume.
+        Projections are forward-looking estimates and should not be relied upon as financial advice.
+      </p>
     </div>
   );
 }

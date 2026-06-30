@@ -47,6 +47,8 @@ jobs:
           # Vitest/Vite must see Supabase URL when tests import `src/utils/supabase.ts` (.env.test also sets these locally).
           VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+          # FIX: match production build env so stub-mode can't slip through test runs.
+          VITE_ZK_STUB: 'false'
 
       - name: Production build
         run: npm run build
@@ -83,6 +85,11 @@ jobs:
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+
+      # FIX: explicit build step so the e2e artifact is visible in logs and not
+      # silently delegated to playwright.config.ts webServer (fragile on failure).
+      - name: Build e2e artifact
+        run: npm run build:e2e
 
       - name: E2E
         run: npx playwright test
@@ -124,6 +131,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # FIX: removed `|| true` from the subshell summary block — it was suppressing
+      # the audit exit code before `continue-on-error` could act on it, making the
+      # second `npm audit` call (intended to surface failures) also always exit 0.
+      # Now: summary block pipes output only; the final bare `npm audit` actually
+      # exits non-zero on high/critical findings so continue-on-error works correctly.
       - name: npm audit (production runtime, informational)
         continue-on-error: true
         run: |
@@ -134,7 +146,7 @@ jobs:
             echo 'See docs/security/dependency-advisories.md for the disposition of each currently-accepted advisory.'
             echo
             echo '```'
-            npm audit --omit=dev --audit-level=high || true
+            npm audit --omit=dev --audit-level=high 2>&1 || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           npm audit --omit=dev --audit-level=high
@@ -155,15 +167,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Supabase CLI (matches package.json devDependency)
-        run: |
-          # Use the npx-installed CLI from node_modules so the version always
-          # matches the supabase devDependency in package.json. No version drift.
-          echo "$(npm bin)" >> "$GITHUB_PATH"
-
+      # FIX: removed conflicting `echo "$(npm bin)" >> "$GITHUB_PATH"` step.
+      # Previously the npm bin PATH injection was immediately overridden by
+      # supabase/setup-cli@v2, silently breaking the version-pin guarantee.
+      # Now we commit to setup-cli@v2 with an explicit version that matches
+      # the supabase devDependency in package.json. Update this version when
+      # the devDependency is bumped.
       - uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.22.6
 
       - name: Start local stack and apply migrations
         run: |

@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'  # was '20' — all workflows now use Node 22
+          node-version: '22'
           cache: npm
 
       - name: Install dependencies
@@ -39,6 +39,10 @@ jobs:
           # without these vars — same pattern as ci.yml.
           VITE_SUPABASE_URL: https://xxxxxxxxxxxxxxxxxxxx.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+          # FIX: set VITE_ZK_STUB=false on the test step, consistent with the
+          # build step below. Prevents stub-mode behaviour slipping through
+          # test runs and giving false confidence before the production build.
+          VITE_ZK_STUB: 'false'
 
       - name: Ensure no ZK hash stub for production bundle
         run: npm run check:no-zk-stub-prod

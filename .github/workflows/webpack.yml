@@ -1,10 +1,2 @@
-# This workflow was a GitHub template placeholder and has been removed.
-# SquadRidge uses Vite — not Webpack — and Node 22 only.
-# All CI is handled in ci.yml.
-name: _removed-webpack-placeholder
-on: workflow_dispatch
-jobs:
-  noop:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo 'This workflow is intentionally disabled. See ci.yml.'
+# DELETED — was an unmodified GitHub starter template. SquadRidge uses Vite, not Webpack.
+# @see chore(workflows): delete stale GitHub template stubs
