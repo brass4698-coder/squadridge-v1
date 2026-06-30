@@ -13,15 +13,18 @@
  *   6. Cohort projection table
  */
 
-import { useState, useMemo, useCallback } from 'react';
+// FIX 1: import CSSProperties directly — avoids TS2304 ("Cannot find name 'React'")
+// when using React 19's JSX transform (no implicit React namespace).
+import { useState, useMemo, useCallback, type CSSProperties } from 'react';
 import {
   AreaChart, Area, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, ReferenceLine,
+  ResponsiveContainer, Legend,
 } from 'recharts';
 
 // ── Types ──────────────────────────────────────────────────────────────────── */
-type Scenario = 'conservative' | 'base' | 'optimistic';
+// FIX 2: add 'custom' to Scenario so setScenario('custom') is type-safe.
+type Scenario = 'conservative' | 'base' | 'optimistic' | 'custom';
 
 interface Assumptions {
   initialSquads: number;        // squads at Q1
@@ -52,7 +55,8 @@ interface QuarterRow {
 }
 
 // ── Scenario presets ────────────────────────────────────────────────────────── */
-const SCENARIO_PRESETS: Record<Scenario, Assumptions> = {
+type PresetScenario = 'conservative' | 'base' | 'optimistic';
+const SCENARIO_PRESETS: Record<PresetScenario, Assumptions> = {
   conservative: {
     initialSquads: 8,
     squadGrowthPct: 15,
@@ -215,14 +219,14 @@ function Slider({ label, value, min, max, step, format, onChange }: SliderProps)
         }}
       />
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-subtle)' }}>{format(min)}</span>
-        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-subtle)' }}>{format(max)}</span>
+        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)' }}>{format(min)}</span>
+        <span style={{ fontSize: 'var(--sr-text-xs)', color: 'var(--sr-ink-faint)' }}>{format(max)}</span>
       </div>
     </div>
   );
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
@@ -235,7 +239,7 @@ function CustomTooltip({ active, payload, label }: any) {
       boxShadow: 'var(--sr-shadow-md)',
     }}>
       <p style={{ fontWeight: 600, marginBottom: 'var(--space-2)', color: 'var(--sr-ink-secondary)' }}>{label}</p>
-      {payload.map((p: any) => (
+      {payload.map((p) => (
         <p key={p.name} style={{ color: p.color, marginBottom: 'var(--space-1)' }}>
           {p.name}: {typeof p.value === 'number' ? fmtK(p.value) : p.value}
         </p>
@@ -250,14 +254,17 @@ export default function FinancialProjectionsPage() {
   const [assumptions, setAssumptions] = useState<Assumptions>(SCENARIO_PRESETS.base);
   const [showTable, setShowTable] = useState(false);
 
-  const selectScenario = useCallback((s: Scenario) => {
+  const selectScenario = useCallback((s: PresetScenario) => {
     setScenario(s);
     setAssumptions(SCENARIO_PRESETS[s]);
   }, []);
 
+  // FIX 3: set 'custom' instead of 'base' — prevents scenario pill from
+  // misleadingly snapping back to "Base" when the user edits a slider
+  // while on the Conservative or Optimistic scenario.
   const updateAssumption = useCallback(<K extends keyof Assumptions>(key: K, value: Assumptions[K]) => {
     setAssumptions(prev => ({ ...prev, [key]: value }));
-    setScenario('base'); // mark as custom
+    setScenario('custom');
   }, []);
 
   const rows = useMemo(() => buildProjections(assumptions, 12), [assumptions]);
@@ -294,13 +301,18 @@ export default function FinancialProjectionsPage() {
     'Net Cash Flow': r.netCashFlow,
   }));
 
+  // FIX 4: include 'custom' in labels map so scenario pill never renders undefined
   const SCENARIO_LABELS: Record<Scenario, string> = {
     conservative: 'Conservative',
     base: 'Base',
     optimistic: 'Optimistic',
+    custom: 'Custom',
   };
 
-  const sectionHead: React.CSSProperties = {
+  const PRESET_SCENARIOS: PresetScenario[] = ['conservative', 'base', 'optimistic'];
+
+  // FIX 1 (continued): use CSSProperties imported from 'react', not React.CSSProperties
+  const sectionHead: CSSProperties = {
     fontSize: 'var(--sr-text-lg)',
     fontFamily: 'var(--font-display)',
     color: 'var(--sr-ink)',
@@ -308,7 +320,7 @@ export default function FinancialProjectionsPage() {
     fontWeight: 400,
   };
 
-  const card: React.CSSProperties = {
+  const card: CSSProperties = {
     background: 'var(--sr-bg-elevated)',
     border: '1px solid var(--sr-line)',
     borderRadius: 'var(--sr-radius-lg)',
@@ -355,7 +367,7 @@ export default function FinancialProjectionsPage() {
 
       {/* ── Scenario selector ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-8)', flexWrap: 'wrap' }}>
-        {(Object.keys(SCENARIO_LABELS) as Scenario[]).map(s => (
+        {PRESET_SCENARIOS.map(s => (
           <button
             key={s}
             onClick={() => selectScenario(s)}
@@ -374,6 +386,20 @@ export default function FinancialProjectionsPage() {
             {SCENARIO_LABELS[s]}
           </button>
         ))}
+        {/* FIX 3 (continued): show 'Custom' pill only when user has edited assumptions */}
+        {scenario === 'custom' && (
+          <span style={{
+            padding: 'var(--space-2) var(--space-5)',
+            borderRadius: 'var(--sr-radius-full)',
+            border: `1.5px solid ${C.warning}`,
+            background: 'transparent',
+            color: C.warning,
+            fontSize: 'var(--sr-text-sm)',
+            fontWeight: 600,
+          }}>
+            Custom
+          </span>
+        )}
       </div>
 
       {/* ── KPI row ───────────────────────────────────────────────────────── */}
@@ -510,9 +536,9 @@ export default function FinancialProjectionsPage() {
             onChange={v => updateAssumption('grantAnnual', v)}
           />
 
-          {/* Quick-reset */}
+          {/* Quick-reset — only preset scenarios, not 'custom' */}
           <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', marginTop: 'auto' }}>
-            {(Object.keys(SCENARIO_LABELS) as Scenario[]).map(s => (
+            {PRESET_SCENARIOS.map(s => (
               <button
                 key={s}
                 onClick={() => selectScenario(s)}
@@ -592,46 +618,53 @@ export default function FinancialProjectionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r, i) => (
-                  <tr
-                    key={r.quarter}
-                    style={{
-                      borderBottom: '1px solid var(--sr-divider)',
-                      background: i % 2 === 0 ? 'transparent' : 'var(--sr-bg-secondary)',
-                    }}
-                  >
-                    {[
-                      r.quarter,
-                      fmtNum(r.squads),
-                      fmtNum(r.mediatorActivations),
-                      fmtK(r.seatRevenue),
-                      fmtK(r.ngoRevenue),
-                      fmtK(r.grantRevenue),
-                      fmtK(r.totalRevenue),
-                      fmtK(r.quarterlyBurn),
-                      fmtK(r.netCashFlow),
-                      fmtK(r.cumulativeCash),
-                      fmt.format(Math.round(r.costPerIntervention)),
-                    ].map((v, ci) => (
-                      <td
-                        key={ci}
-                        style={{
-                          padding: 'var(--space-2) var(--space-3)',
-                          textAlign: ci === 0 ? 'left' : 'right',
-                          color: ci === 0
-                            ? 'var(--sr-ink-secondary)'
-                            : (ci === 8 && typeof r.netCashFlow === 'number')
-                              ? r.netCashFlow >= 0 ? C.success : C.danger
-                              : 'var(--sr-ink)',
-                          fontWeight: ci === 0 ? 500 : 400,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {v}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {rows.map((r, i) => {
+                  // FIX 5: derive net-flow color from the actual value, not a column-index
+                  // guess. The typeof check on a column index was fragile and wrong.
+                  const netFlowPositive = r.netCashFlow >= 0;
+                  const cells = [
+                    r.quarter,
+                    fmtNum(r.squads),
+                    fmtNum(r.mediatorActivations),
+                    fmtK(r.seatRevenue),
+                    fmtK(r.ngoRevenue),
+                    fmtK(r.grantRevenue),
+                    fmtK(r.totalRevenue),
+                    fmtK(r.quarterlyBurn),
+                    fmtK(r.netCashFlow),
+                    fmtK(r.cumulativeCash),
+                    fmt.format(Math.round(r.costPerIntervention)),
+                  ];
+                  return (
+                    <tr
+                      key={r.quarter}
+                      style={{
+                        borderBottom: '1px solid var(--sr-divider)',
+                        background: i % 2 === 0 ? 'transparent' : 'var(--sr-bg-secondary)',
+                      }}
+                    >
+                      {cells.map((v, ci) => (
+                        <td
+                          key={ci}
+                          style={{
+                            padding: 'var(--space-2) var(--space-3)',
+                            textAlign: ci === 0 ? 'left' : 'right',
+                            // Net Cash Flow is always column index 8
+                            color: ci === 0
+                              ? 'var(--sr-ink-secondary)'
+                              : ci === 8
+                                ? (netFlowPositive ? C.success : C.danger)
+                                : 'var(--sr-ink)',
+                            fontWeight: ci === 0 ? 500 : 400,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {v}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -639,10 +672,11 @@ export default function FinancialProjectionsPage() {
       </div>
 
       {/* Footer note */}
+      {/* FIX 6: --sr-ink-subtle is not a defined token; corrected to --sr-ink-faint */}
       <p style={{
         marginTop: 'var(--space-8)',
         fontSize: 'var(--sr-text-xs)',
-        color: 'var(--sr-ink-subtle)',
+        color: 'var(--sr-ink-faint)',
         maxWidth: '80ch',
       }}>
         Revenue model: per-seat institutional licensing + NGO flat-rate subscriptions + grant disbursements.
