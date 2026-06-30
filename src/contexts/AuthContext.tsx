@@ -14,8 +14,14 @@ import { fetchProfile } from '../lib/auth';
 import { fetchUserRoles } from '../lib/roles';
 import type { AuthState, Profile, AuthUser } from '../types/auth';
 import type { UserRole } from '../types/roles';
+import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 interface AuthContextValue extends AuthState {
+  /** The Supabase client — forwarded so pages like AuthCallbackPage can
+   *  subscribe to auth events without importing the singleton directly. */
+  supabase: SupabaseClient;
+  /** The current Supabase session, or null when signed out. */
+  session: Session | null;
   refreshProfile: () => Promise<void>;
   refreshRoles: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -25,6 +31,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfileAndRoles = useCallback(async (userId: string) => {
     const [p, r] = await Promise.all([
       fetchProfile(userId),
-      fetchUserRoles(),
+      fetchUserRoles(userId),
     ]);
     setProfile(p);
     setRoles(r);
@@ -42,11 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Hydrate session on mount.
     supabase.auth.getSession().then(({ data }) => {
-      const session = data.session;
+      const s = data.session;
       if (!mounted) return;
-      if (session?.user) {
-        const u = { id: session.user.id, email: session.user.email ?? '' };
+      setSession(s);
+      if (s?.user) {
+        const u = { id: s.user.id, email: s.user.email ?? '' };
         setUser(u);
         loadProfileAndRoles(u.id).finally(() => {
           if (mounted) {
@@ -60,19 +69,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    // Keep session/profile/roles in sync on every auth state change
+    // (magic-link exchange, token refresh, sign-out, etc.).
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (_event, s) => {
         if (!mounted) return;
-        if (session?.user) {
-          const u = { id: session.user.id, email: session.user.email ?? '' };
+        setSession(s);
+        if (s?.user) {
+          const u = { id: s.user.id, email: s.user.email ?? '' };
           setUser(u);
-          loadProfileAndRoles(u.id);
+          // Re-enter loading so guards don't flash the wrong state while we
+          // fetch a fresh profile and role set.
+          setLoading(true);
+          loadProfileAndRoles(u.id).finally(() => {
+            if (mounted) setLoading(false);
+          });
         } else {
           setUser(null);
           setProfile(null);
           setRoles([]);
+          setLoading(false);
         }
-      }
+      },
     );
 
     return () => {
@@ -88,12 +106,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const refreshRoles = useCallback(async () => {
-    const r = await fetchUserRoles();
+    if (!user) return;
+    const r = await fetchUserRoles(user.id);
     setRoles(r);
-  }, []);
+  }, [user]);
 
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut();
+    setSession(null);
     setUser(null);
     setProfile(null);
     setRoles([]);
@@ -102,6 +122,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        supabase,
+        session,
         user,
         profile,
         roles,
@@ -124,3 +146,6 @@ export function useAuthContext(): AuthContextValue {
   }
   return ctx;
 }
+
+/** Convenience alias — matches the import used across pages. */
+export const useAuth = useAuthContext;
