@@ -1,3 +1,15 @@
-# Default owners for review (update handles for your org).
+# Code owners — required reviewers by path.
 # Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below
 * @brass4698-coder
+
+# Security-touching paths — require explicit sign-off on every PR
+# (aligns with docs/operations/branch-protection.md § 4 Optional)
+supabase/migrations/            @brass4698-coder
+supabase/functions/             @brass4698-coder
+src/lib/messageCrypto.ts        @brass4698-coder
+src/lib/zk/                     @brass4698-coder
+src/lib/moderation/             @brass4698-coder
+docs/security/                  @brass4698-coder
+.github/workflows/              @brass4698-coder

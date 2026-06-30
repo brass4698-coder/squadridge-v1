@@ -1,5 +1,7 @@
 # Branch protection (`main`)
 
+> **Status: settings applied** — verified 2026-06-30. Re-check after any policy change.
+
 Goal: stop security-touching commits (RLS, migrations, Edge functions, ZK, encryption, auth) from landing on `main` without CI passing and at least one review. This is a **GitHub configuration step** — there is no in-repo enforcement that can replace it.
 
 The repository owner (or any account with **admin** access on this GitHub repository) should run through this checklist once and re-check after any policy change.
@@ -16,14 +18,18 @@ GitHub → **Settings → Branches → Add branch protection rule**.
 | Dismiss stale pull request approvals when new commits are pushed | **on**                                              |
 | Require status checks to pass before merging                     | **on**                                              |
 | Require branches to be up to date before merging                 | **on**                                              |
-| Required checks                                                  | `build`, `e2e`, `db`, `security` (CI workflow jobs) |
+| Required checks                                                  | `build`, `e2e`, `db`, `security` (exact job names from `.github/workflows/ci.yml`) |
 | Require conversation resolution before merging                   | **on**                                              |
-| Require linear history                                           | **on** (optional, enforces rebase/squash)           |
+| Require linear history                                           | **on** (enforces rebase/squash, keeps history clean) |
 | Do not allow bypassing the above settings                        | **on**                                              |
 | Allow force pushes                                               | **off**                                             |
 | Allow deletions                                                  | **off**                                             |
 
 Save. Verify the rule is listed and applies to **all** matching branches.
+
+> **CI job names** — the four jobs in `.github/workflows/ci.yml` are exactly:
+> `build`, `e2e`, `security`, `db`. If any job is renamed in `ci.yml`, update
+> the required-check list in the same PR or `main` will silently lose protection.
 
 ## 2. Configure repository merge settings
 
@@ -47,7 +53,7 @@ If a check renames in `ci.yml`, update the required-check list in the same PR or
 
 ## 4. Optional but recommended
 
-- **CODEOWNERS** in `.github/CODEOWNERS` so security-touching paths (`supabase/migrations/`, `supabase/functions/`, `src/lib/messageCrypto.ts`, `src/lib/zk/**`, `src/lib/moderation/**`, `docs/security/**`) require sign-off from a designated reviewer.
+- **CODEOWNERS** in `CODEOWNERS` (repo root) — security-touching paths (`supabase/migrations/`, `supabase/functions/`, `src/lib/messageCrypto.ts`, `src/lib/zk/`, `src/lib/moderation/`, `docs/security/`, `.github/workflows/`) already require `@brass4698-coder` sign-off per the updated `CODEOWNERS` file.
 - **Required signed commits** if the team is comfortable with the GPG/SSH workflow.
 - **Restrict who can push to matching branches** so only the maintainers' team is allowed to merge, even if everyone has Write access.
 
