@@ -1,10 +1,21 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from './database.types';
-import { supabase } from '../utils/supabase';
+// ============================================================
+// SquadRidge Supabase client (anon key only — no service role)
+// ============================================================
+import { createClient } from '@supabase/supabase-js';
 
-/**
- * Same client as {@link supabase} in `utils/supabase.ts` (typed singleton for the app).
- */
-export function getSupabase(): SupabaseClient<Database> {
-  return supabase;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variable.'
+  );
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
