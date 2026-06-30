@@ -30,14 +30,18 @@ jobs:
 
       - run: npm run check:prod-readiness
 
+      # FIX: removed duplicate step-level env block. Job-level env already
+      # supplies VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY with
+      # fallbacks; redeclaring them at step level created a silent divergence
+      # risk where future changes to job-level vars would not propagate here.
       - name: Test
         run: npm run test
-        env:
-          # Vitest imports src/utils/supabase.ts at collection time — needs these vars.
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_placeholder_for_ci_only' }}
 
-      - run: npm run build
+      # FIX: changed `npm run build` → `npm run build:e2e` so Playwright runs
+      # against the e2e artifact (mode=e2e, loads .env.e2e, Semaphore demo
+      # decoys enabled). The previous production build caused ZK proof flows
+      # that depend on demo decoys to fail or be silently skipped on staging CI.
+      - run: npm run build:e2e
 
       - name: Install Playwright
         run: npx playwright install --with-deps chromium
