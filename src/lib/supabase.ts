@@ -19,3 +19,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+
+/**
+ * Getter function for accessing the Supabase client.
+ * Enables compatibility with code patterns that use getSupabase().
+ */
+export function getSupabase() {
+  return supabase;
+}
