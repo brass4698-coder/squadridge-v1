@@ -124,3 +124,6 @@ export function useAuthContext(): AuthContextValue {
   }
   return ctx;
 }
+
+// Export as 'useAuth' for widespread compatibility
+export const useAuth = useAuthContext;
