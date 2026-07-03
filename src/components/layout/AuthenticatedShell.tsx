@@ -1,8 +1,10 @@
 import { type ReactNode, useCallback, useMemo, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
 import { hasAnyRole } from '../../lib/roles';
+import { DemoBanner } from '../demo/DemoBanner';
+import { UserAvatarMenu } from './UserAvatarMenu';
 
 interface NavItem {
   label: string;
@@ -273,15 +275,30 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
 
       {/* Main content */}
       <main className="flex flex-1 flex-col overflow-y-auto">
-        {/* Top bar */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b px-6 border-line bg-surface">
-          <div />
-          <span className="rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wider bg-brand-soft text-brand">
+        {/* Phase 5: DemoBanner above the top bar (only renders for demo user); */}
+        {/* UserAvatarMenu replaces the old text-only role badge with a real   */}
+        {/* account dropdown (Dashboard, Decks, Settings, Sign out).            */}
+        <DemoBanner />
+        <div
+          className="flex h-14 shrink-0 items-center justify-between border-b px-6"
+          style={{
+            borderColor: 'var(--sr-line)',
+            backgroundColor: 'var(--sr-bg-elevated)',
+          }}
+        >
+          <span
+            className="rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider"
+            style={{
+              background: 'var(--sr-primary-soft)',
+              color: 'var(--sr-primary)',
+            }}
+          >
             {role === 'admin' ? 'Admin' : 'Facilitator'}
           </span>
+          <UserAvatarMenu />
         </div>
 
-        <div className="flex-1 p-6">{children}</div>
+        <div className="flex-1 p-6">{children ?? <Outlet />}</div>
       </main>
     </div>
   );

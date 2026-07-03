@@ -15,44 +15,50 @@
  */
 
 :root {
-  /* ── Surfaces — graphite ladder ─────────────────────────────────── */
-  --sr-bg: #0c0e12;
-  --sr-bg-elevated: #12151c;
-  --sr-bg-secondary: #0f1116;
-  --sr-bg-sunken: #08090d;
+  /* ── Surfaces — modernized deep-neutral (Phase 5) ─────────────────
+     Palette from the "enterprise-grade legal-tech" spec:
+       #0F1117 near-black bg · #1C1F2E blue-gray surface · #2A2D3E line.
+     Values chosen to hit WCAG AA on ink pairings and to give the
+     radial-teal-glow overlay (see globals.css body::before) enough
+     contrast headroom to feel spatial without overpowering text.
+     ──────────────────────────────────────────────────────────────── */
+  --sr-bg: #0f1117;
+  --sr-bg-elevated: #1c1f2e;
+  --sr-bg-secondary: #161923;
+  --sr-bg-sunken: #0a0c11;
   /* Surface tinted with accent — for selected cards, active sidebar items */
-  --sr-bg-accent: color-mix(in oklch, #2aa39a 6%, #12151c);
+  --sr-bg-accent: color-mix(in oklch, #14b8a6 8%, #1c1f2e);
 
   /* ── Lines ──────────────────────────────────────────────────────── */
-  --sr-line: #232831;
-  --sr-line-strong: #2f3640;
-  --sr-divider: #1a1e26;
+  --sr-line: #2a2d3e;
+  --sr-line-strong: #3a3d4e;
+  --sr-divider: #1e2130;
   /* Alpha-blended border — adapts to surrounding surface automatically */
-  --sr-border-alpha: oklch(from #e8eaef l c h / 0.09);
+  --sr-border-alpha: oklch(from #f9fafb l c h / 0.09);
 
-  /* ── Ink — four levels ──────────────────────────────────────────── */
-  --sr-ink: #e8eaef;
-  --sr-ink-secondary: #aab1bd;
-  --sr-ink-faint: #7b8290;
-  --sr-ink-subtle: #555c69;
+  /* ── Ink — four levels (gray-50 → gray-500) ─────────────────────── */
+  --sr-ink: #f9fafb;
+  --sr-ink-secondary: #9ca3af;
+  --sr-ink-faint: #6b7280;
+  --sr-ink-subtle: #4b5563;
 
-  /* ── Single accent — slate-teal ─────────────────────────────────── */
-  --sr-primary: #2aa39a;
-  --sr-primary-hover: #34b8ae;
-  --sr-primary-pressed: #1f8a82;
-  --sr-primary-soft: oklch(from #2aa39a l c h / 0.12);
-  --sr-primary-ring: oklch(from #2aa39a l c h / 0.45);
-  --sr-on-primary: #06121a;
+  /* ── Single accent — vivid teal for CTAs (teal-500) ─────────────── */
+  --sr-primary: #14b8a6;
+  --sr-primary-hover: #2dd4bf;
+  --sr-primary-pressed: #0d9488;
+  --sr-primary-soft: oklch(from #14b8a6 l c h / 0.14);
+  --sr-primary-ring: oklch(from #14b8a6 l c h / 0.5);
+  --sr-on-primary: #04120f;
 
-  /* ── Semantic — status only, never decoration ───────────────────── */
-  --sr-success: #5aa67f;
-  --sr-success-soft: oklch(from #5aa67f l c h / 0.1);
-  --sr-warning: #c79a4a;
-  --sr-warning-soft: oklch(from #c79a4a l c h / 0.12);
-  --sr-danger: #c46a5e;
-  --sr-danger-soft: oklch(from #c46a5e l c h / 0.12);
-  --sr-info: #6f8ab1;
-  --sr-info-soft: oklch(from #6f8ab1 l c h / 0.1);
+  /* ── Semantic — Tailwind-500 values for consistency ─────────────── */
+  --sr-success: #22c55e;
+  --sr-success-soft: oklch(from #22c55e l c h / 0.12);
+  --sr-warning: #f59e0b;
+  --sr-warning-soft: oklch(from #f59e0b l c h / 0.14);
+  --sr-danger: #ef4444;
+  --sr-danger-soft: oklch(from #ef4444 l c h / 0.14);
+  --sr-info: #3b82f6;
+  --sr-info-soft: oklch(from #3b82f6 l c h / 0.12);
 
   /* ── Focus ──────────────────────────────────────────────────────── */
   --sr-focus: var(--sr-primary);
@@ -85,13 +91,23 @@
     box-shadow var(--sr-duration-normal) var(--sr-ease-spring),
     opacity var(--sr-duration-normal) var(--sr-ease-spring);
 
-  /* ── Radius ─────────────────────────────────────────────────────── */
+  /* ── Radius (Phase 5: bumped card default to 16px per spec) ────── */
   --sr-radius-xs: 0.25rem; /*  4px — chips, badges */
-  --sr-radius-sm: 0.375rem; /*  6px — inputs, buttons */
-  --sr-radius-md: 0.5rem; /*  8px — cards, modals */
-  --sr-radius-lg: 0.75rem; /* 12px — panels */
-  --sr-radius-xl: 1rem; /* 16px — sheets, drawers */
-  --sr-radius-full: 9999px; /* pill */
+  --sr-radius-sm: 0.5rem; /*  8px — inputs, small buttons */
+  --sr-radius-md: 0.75rem; /* 12px — small panels */
+  --sr-radius-lg: 1rem; /* 16px — cards, modals, sheets (default) */
+  --sr-radius-xl: 1.25rem; /* 20px — hero cards, dialogs */
+  --sr-radius-full: 9999px; /* pill — buttons, avatars, badges */
+
+  /* ── 8pt spacing grid — canonical values (Phase 5) ──────────────── */
+  --sr-space-1: 4px;
+  --sr-space-2: 8px;
+  --sr-space-3: 16px;
+  --sr-space-4: 24px;
+  --sr-space-5: 32px;
+  --sr-space-6: 48px;
+  --sr-space-7: 64px;
+  --sr-space-8: 96px;
 
   /* ── Glass surfaces ─────────────────────────────────────────────── */
   --sr-glass-bg: oklch(from var(--sr-bg-elevated) l c h / 0.72);
@@ -105,6 +121,16 @@
   --sr-text-body: 0.875rem;
   --sr-text-meta: 0.75rem;
   --sr-text-button: 0.8125rem;
+
+  /* ── Modern display scale (Phase 5) ──────────────────────────────────
+     Used sparingly for landing / marketing / auth surfaces where the
+     compact web-app scale above would look thin. Sized in rem so it
+     scales with root font-size (16px default → 48/36/28/20/16/13). */
+  --sr-text-display: 3rem; /* 48px — hero headlines */
+  --sr-text-h1: 2.25rem; /* 36px */
+  --sr-text-h2: 1.75rem; /* 28px */
+  --sr-text-h3: 1.25rem; /* 20px */
+  --sr-text-caption: 0.8125rem; /* 13px */
 }
 
 /* ── Light theme (marketing / ledger surfaces) ──────────────────────── */

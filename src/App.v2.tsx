@@ -56,6 +56,9 @@ import { AnalystDashboardPage } from './pages/dashboards/AnalystDashboardPage';
 import { ParticipantDashboardPage } from './pages/dashboards/ParticipantDashboardPage';
 import { ObserverDashboardPage } from './pages/dashboards/ObserverDashboardPage';
 import { AccessPendingPage } from './pages/v2/AccessPendingPage';
+// Phase 5 — decks gallery + dedicated dark top-nav shell
+import { DecksPage, DeckViewerPage } from './pages/v2/DecksPage';
+import { AppTopShell } from './components/layout/AppTopShell';
 import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { DemoSessionPage } from './pages/DemoSessionPage';
@@ -178,6 +181,24 @@ export default function AppV2() {
               <Route path="/p/waiting/:token" element={<WaitingRoomPage />} />
               <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
               <Route path="/p/done/:token" element={<SessionEndPage />} />
+
+              {/* ── Phase 5: /decks — dark frosted top-nav shell ──────────── */}
+              {/* Auth-only, dedicated shell (neither the light PublicShell    */}
+              {/* nor the facilitator sidebar). Renders the pitch-materials    */}
+              {/* gallery + placeholder /decks/:deckId viewer. DemoBanner is   */}
+              {/* mounted inside AppTopShell so it follows the user here.      */}
+              <Route
+                element={
+                  <RequireAuth>
+                    <AppTopShell>
+                      <Outlet />
+                    </AppTopShell>
+                  </RequireAuth>
+                }
+              >
+                <Route path="/decks" element={<DecksPage />} />
+                <Route path="/decks/:deckId" element={<DeckViewerPage />} />
+              </Route>
 
               {/* ── V2 Authenticated Shell ────────────────────────────────── */}
               {/* /app/* is facilitator-scoped — participants land on /app/participant */}

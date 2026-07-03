@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Shield } from 'lucide-react';
+import { Play, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthLayout } from '../components/layout/AuthLayout';
 import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
 import { Input } from '../components/ui/Input';
@@ -9,17 +8,23 @@ import { useAuth } from '../contexts/AuthContext';
 import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 import { useDashboardRoute } from '../hooks/useDashboardRoute';
+import { signInWithDemo, DEMO_EMAIL } from '../lib/demoLogin';
 
+/**
+ * Sign in — Phase 5 redesign.
+ *
+ * Full-viewport centering, glowing teal border on the card, wordmark above
+ * the form, cleaned-up label hierarchy (no shouty ACCOUNT eyebrow), and a
+ * Demo Access button that goes straight to `signInWithPassword` against the
+ * seeded demo user. Error visibility is gated on actual error state so the
+ * "Failed to fetch" message no longer flashes on idle load.
+ */
 export function SignInPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
-  // Phase 4: role-aware default. `useDashboardRoute` returns the URL matching
-  // the user's highest-priority role (or /access-pending when profile is
-  // pending, or /sign-in when profile is null). `?next=…` still wins over
-  // this so session deep-links keep working.
   const roleDashboard = useDashboardRoute();
   const nextPath =
     nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
@@ -29,6 +34,7 @@ export function SignInPage() {
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
@@ -52,8 +58,6 @@ export function SignInPage() {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    // Pass the concrete next-path when the user explicitly deep-linked (?next);
-    // otherwise let the callback resolve the role-aware dashboard on arrival.
     const shouldForwardNext = Boolean(nextRaw) && nextPath !== appRoutes.dashboard;
     const { error: err } = await signIn(email, {
       nextPath: shouldForwardNext ? nextPath : undefined,
@@ -66,18 +70,32 @@ export function SignInPage() {
     setSent(true);
   }
 
+  async function handleDemo() {
+    setError(null);
+    setDemoBusy(true);
+    const result = await signInWithDemo();
+    if (!result.ok) {
+      setDemoBusy(false);
+      setError(result.error);
+      return;
+    }
+    // The useEffect above will handle navigation once session resolves.
+  }
+
   if (!configured) {
     return (
-      <div className="relative mx-auto w-full max-w-copy px-gutter py-12">
-        <p className="font-sans text-body-lg text-ink-muted">
+      <div className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 py-12 text-center">
+        <p className="text-sm text-ink-secondary">
           Supabase is not configured. Add{' '}
-          <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a publishable or anon
-          key to use sign-in.
+          <code
+            className="rounded px-1 font-mono text-[0.8rem]"
+            style={{ backgroundColor: 'var(--sr-line)', color: 'var(--sr-ink)' }}
+          >
+            VITE_SUPABASE_URL
+          </code>{' '}
+          and a publishable or anon key to use sign-in.
         </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block text-sm font-medium text-brand underline-offset-4 hover:underline"
-        >
+        <Link to="/" className="mt-6 text-sm font-medium" style={{ color: 'var(--sr-primary)' }}>
           Back to home
         </Link>
       </div>
@@ -85,100 +103,180 @@ export function SignInPage() {
   }
 
   return (
-    <AuthLayout>
-      <p className="text-app-meta font-semibold uppercase tracking-wider text-brand">Account</p>
-      <h1 className="mt-2 text-page-title text-ink">
-        {isSignup ? 'Create your account' : 'Sign in'}
-      </h1>
-      <p className="mt-3 text-app-body text-ink-secondary">
-        {isSignup
-          ? 'Enter your work email. We send a one-time link—no password stored on our side.'
-          : 'Enter your email and we send a one-time sign-in link. First visit creates your account automatically.'}
-      </p>
-
-      {showLinkHelpBanner ? (
-        <div
-          className="mt-6 rounded-lg border border-sem-warning/30 bg-sem-warning-soft px-4 py-3 text-app-meta text-ink"
-          role="status"
-        >
-          No password to reset—enter your email below and we&apos;ll send a fresh magic link.
-        </div>
-      ) : null}
-
-      {showExpiredBanner ? (
-        <div
-          className="mt-6 rounded-lg border border-sem-warning/30 bg-sem-warning-soft px-4 py-3 text-app-meta text-ink"
-          role="status"
-        >
-          This sign-in link has expired. Request a new link below.
-        </div>
-      ) : null}
-
-      {showSignedOutBanner ? (
-        <div
-          className="mt-6 rounded-lg border border-line bg-surface-secondary px-4 py-3 text-app-meta text-ink-secondary"
-          role="status"
-        >
-          You signed out successfully.
-        </div>
-      ) : null}
-
-      {sent ? (
-        <div className="mt-8 rounded-lg border border-line bg-surface-secondary p-5">
-          <p className="text-app-body text-ink-secondary">
-            Check your inbox for the sign-in link. After you open it, we&apos;ll route you
-            {nextPath !== appRoutes.dashboard
-              ? ' to your session workspace.'
-              : ' to your dashboard.'}
-          </p>
-        </div>
-      ) : (
-        <form className="mt-8 space-y-5" onSubmit={(e) => void handleSubmit(e)} noValidate>
-          {error ? (
-            <p className="text-app-meta text-sem-danger" role="alert">
-              {error}
-            </p>
-          ) : null}
-          <FormField id="signin-email" label="Email">
-            <Input
-              id="signin-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@organization.org"
-            />
-          </FormField>
-          <Button type="submit" className="w-full" size="lg" loading={busy}>
-            Email me a link
-          </Button>
-        </form>
-      )}
-
-      {!sent ? (
-        <p className="mt-6 text-app-meta text-ink-faint">
-          Link expired? Enter your email again—we&apos;ll send a fresh link. There is no separate
-          password to recover.
-        </p>
-      ) : null}
-
-      <nav
-        className="mt-10 flex flex-col gap-3 border-t border-line pt-8 text-app-meta text-ink-secondary"
-        aria-label="Account help"
+    <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+      <div
+        className="animate-fade-in-up sr-glass-strong w-full max-w-[480px] rounded-[16px] p-8 md:p-10"
+        style={{
+          borderColor: 'color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line))',
+          boxShadow:
+            '0 0 0 1px color-mix(in oklch, var(--sr-primary) 18%, transparent), 0 20px 60px oklch(0 0 0 / 0.35), 0 0 80px color-mix(in oklch, var(--sr-primary) 8%, transparent)',
+        }}
       >
-        <Link
-          to="/security"
-          className="inline-flex items-center gap-2 underline-offset-4 hover:text-ink hover:underline"
+        {/* Wordmark — sits above the form as the visual anchor */}
+        <div className="mb-8 flex items-center gap-2.5">
+          <span
+            aria-hidden
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
+            style={{
+              background: 'linear-gradient(135deg, var(--sr-primary), var(--sr-primary-pressed))',
+              color: 'var(--sr-on-primary)',
+            }}
+          >
+            SR
+          </span>
+          <span className="text-lg font-semibold tracking-tight" style={{ color: 'var(--sr-ink)' }}>
+            SquadRidge
+          </span>
+        </div>
+
+        <h1 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
+          {isSignup ? 'Create your account' : 'Welcome back'}
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
+          {isSignup
+            ? 'Enter your work email. We send a one-time link — no password stored on our side.'
+            : 'Enter your email and we send a one-time sign-in link. First visit creates your account automatically.'}
+        </p>
+
+        {showLinkHelpBanner ? (
+          <div
+            className="mt-5 rounded-lg border px-4 py-3 text-sm"
+            style={{
+              borderColor: 'color-mix(in oklch, var(--sr-warning) 30%, transparent)',
+              background: 'var(--sr-warning-soft)',
+              color: 'var(--sr-ink)',
+            }}
+            role="status"
+          >
+            No password to reset — enter your email below and we'll send a fresh magic link.
+          </div>
+        ) : null}
+
+        {showExpiredBanner ? (
+          <div
+            className="mt-5 rounded-lg border px-4 py-3 text-sm"
+            style={{
+              borderColor: 'color-mix(in oklch, var(--sr-warning) 30%, transparent)',
+              background: 'var(--sr-warning-soft)',
+              color: 'var(--sr-ink)',
+            }}
+            role="status"
+          >
+            This sign-in link has expired. Request a new link below.
+          </div>
+        ) : null}
+
+        {showSignedOutBanner ? (
+          <div
+            className="mt-5 rounded-lg border px-4 py-3 text-sm"
+            style={{
+              borderColor: 'var(--sr-line)',
+              background: 'var(--sr-bg-secondary)',
+              color: 'var(--sr-ink-secondary)',
+            }}
+            role="status"
+          >
+            You signed out successfully.
+          </div>
+        ) : null}
+
+        {sent ? (
+          <div
+            className="mt-6 rounded-lg border p-5"
+            style={{
+              borderColor: 'var(--sr-line)',
+              background: 'var(--sr-bg-secondary)',
+            }}
+          >
+            <p className="text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
+              Check your inbox for the sign-in link. After you open it, we'll route you
+              {nextPath !== appRoutes.dashboard
+                ? ' to your session workspace.'
+                : ' to your dashboard.'}
+            </p>
+          </div>
+        ) : (
+          <form className="mt-6 space-y-4" onSubmit={(e) => void handleSubmit(e)} noValidate>
+            {/* Only render when there IS an error — no idle flash. */}
+            {error ? (
+              <p
+                className="rounded-lg border px-3 py-2 text-sm"
+                role="alert"
+                style={{
+                  borderColor: 'color-mix(in oklch, var(--sr-danger) 30%, transparent)',
+                  background: 'var(--sr-danger-soft)',
+                  color: 'var(--sr-ink)',
+                }}
+              >
+                {error}
+              </p>
+            ) : null}
+            <FormField id="signin-email" label="Work email">
+              <Input
+                id="signin-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@organization.org"
+              />
+            </FormField>
+            <Button type="submit" className="w-full" size="lg" loading={busy}>
+              Email me a magic link
+            </Button>
+
+            {/* Demo access — visually distinct ghost style with play icon */}
+            <div className="relative py-2">
+              <div
+                className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t"
+                style={{ borderColor: 'var(--sr-divider)' }}
+              />
+              <p
+                className="relative mx-auto w-fit px-3 text-[0.7rem] font-medium uppercase tracking-wider"
+                style={{
+                  backgroundColor: 'var(--sr-bg-elevated)',
+                  color: 'var(--sr-ink-faint)',
+                }}
+              >
+                or
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void handleDemo()}
+              disabled={demoBusy}
+              className="btn-pill btn-pill--ghost w-full"
+              aria-label={`Try the SquadRidge demo (${DEMO_EMAIL})`}
+            >
+              <Play className="size-4" aria-hidden />
+              {demoBusy ? 'Signing in…' : 'Try the Demo'}
+            </button>
+            <p className="text-center text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
+              Instant read-only access to seeded example sessions. No email required.
+            </p>
+          </form>
+        )}
+
+        <nav
+          className="mt-8 flex items-center justify-between border-t pt-6 text-xs"
+          style={{
+            borderColor: 'var(--sr-divider)',
+            color: 'var(--sr-ink-secondary)',
+          }}
+          aria-label="Account help"
         >
-          <Shield className="size-3 shrink-0 opacity-50" aria-hidden />
-          Security &amp; privacy
-        </Link>
-        <Link to="/" className="w-fit underline-offset-4 hover:text-ink hover:underline">
-          Back to home
-        </Link>
-      </nav>
-    </AuthLayout>
+          <Link to="/security" className="inline-flex items-center gap-1.5 hover:opacity-70">
+            <Shield className="size-3 shrink-0 opacity-60" aria-hidden />
+            Security & privacy
+          </Link>
+          <Link to="/" className="hover:opacity-70">
+            Back to home
+          </Link>
+        </nav>
+      </div>
+    </div>
   );
 }
