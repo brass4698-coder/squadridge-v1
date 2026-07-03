@@ -4,6 +4,7 @@
 import { supabase } from './supabase';
 import type { UserRole, RoleKey } from '../types/roles';
 import { ROLE_PRIORITY, ROLE_DASHBOARD_MAP } from '../types/roles';
+import { logError, safeErrorMessage } from './log';
 
 export async function fetchUserRoles(userId?: string): Promise<UserRole[]> {
   const { data, error } = await supabase.rpc('get_effective_user_roles', {
@@ -11,7 +12,10 @@ export async function fetchUserRoles(userId?: string): Promise<UserRole[]> {
   });
 
   if (error) {
-    console.error('[roles] fetchUserRoles error', error);
+    logError('roles.fetch_failed', {
+      feature: 'roles',
+      error_message: safeErrorMessage(error),
+    });
     return [];
   }
   return (data ?? []) as UserRole[];

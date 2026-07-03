@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '../lib/supabaseClient';
+// TODO(supabase-types): see useAccessRequest.
+import { supabase } from '../lib/supabase';
 import type { SessionMessage } from '../lib/supabaseTypes';
 
 export function useSessionMessages(sessionId: string | undefined) {
@@ -18,7 +19,9 @@ export function useSessionMessages(sessionId: string | undefined) {
     setLoading(false);
   }, [sessionId]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
   // Real-time new messages
   useEffect(() => {
@@ -27,17 +30,28 @@ export function useSessionMessages(sessionId: string | undefined) {
       .channel(`messages:${sessionId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'session_messages', filter: `session_id=eq.${sessionId}` },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'session_messages',
+          filter: `session_id=eq.${sessionId}`,
+        },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as SessionMessage]);
           setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [sessionId, fetch]);
 
-  async function sendMessage(body: string, senderLabel: string, senderRole: 'facilitator' | 'participant') {
+  async function sendMessage(
+    body: string,
+    senderLabel: string,
+    senderRole: 'facilitator' | 'participant',
+  ) {
     if (!sessionId || !body.trim()) return;
     await supabase.from('session_messages').insert({
       session_id: sessionId,

@@ -1,7 +1,7 @@
 // ============================================================
 // AuthGate — shows SessionLoader while auth initializes
 // ============================================================
-import React, { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SessionLoader } from './SessionLoader';
 

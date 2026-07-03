@@ -1,5 +1,5 @@
-import { ReactNode, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, type ReactNode } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 interface NavItem {
   label: string;
@@ -112,7 +112,9 @@ const facilitatorNav: NavItem[] = [
 ];
 
 interface AuthenticatedShellProps {
-  children: ReactNode;
+  /** Optional page content. When omitted the shell renders `<Outlet />` so it
+   * can be used as a React Router v6 layout route (e.g. in `App.v2.tsx`). */
+  children?: ReactNode;
   role?: 'facilitator' | 'admin';
 }
 
@@ -251,7 +253,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
           </span>
         </div>
 
-        <div className="flex-1 p-6">{children}</div>
+        <div className="flex-1 p-6">{children ?? <Outlet />}</div>
       </main>
     </div>
   );

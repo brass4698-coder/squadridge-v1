@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+// TODO(supabase-types): switch back to `../lib/supabaseClient` once
+// `supabaseTypes.ts` is regenerated to match supabase-js 2.103's typed
+// Database contract. See RFC follow-up.
+import { supabase } from '../lib/supabase';
 
 interface AccessRequestPayload {
   full_name: string;

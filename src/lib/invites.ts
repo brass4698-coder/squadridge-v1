@@ -2,20 +2,18 @@
 // SquadRidge Invite helpers
 // ============================================================
 import { supabase } from './supabase';
-import type {
-  InviteValidationResult,
-  CreateInviteParams,
-  Invite,
-} from '../types/invites';
+import type { InviteValidationResult, CreateInviteParams, Invite } from '../types/invites';
+import { logError, safeErrorMessage } from './log';
 
-export async function validateInviteToken(
-  token: string
-): Promise<InviteValidationResult> {
+export async function validateInviteToken(token: string): Promise<InviteValidationResult> {
   const { data, error } = await supabase.rpc('validate_invite_token', {
     p_token: token,
   });
   if (error) {
-    console.error('[invites] validate error', error);
+    logError('invites.validate_failed', {
+      feature: 'invites',
+      error_message: safeErrorMessage(error),
+    });
     return { valid: false, reason: 'not_found' };
   }
   return data as InviteValidationResult;
@@ -24,7 +22,7 @@ export async function validateInviteToken(
 export async function acceptInvite(
   token: string,
   userId: string,
-  displayName: string
+  displayName: string,
 ): Promise<{ success: boolean; dashboard?: string; error?: string }> {
   const { data, error } = await supabase.rpc('accept_invite', {
     p_token: token,
@@ -36,7 +34,7 @@ export async function acceptInvite(
 }
 
 export async function createInvite(
-  params: CreateInviteParams
+  params: CreateInviteParams,
 ): Promise<{ success: boolean; token?: string; invite_id?: string; error?: string }> {
   const { data, error } = await supabase.rpc('create_invite', {
     p_email: params.email,
@@ -52,7 +50,7 @@ export async function createInvite(
 }
 
 export async function revokeInvite(
-  inviteId: string
+  inviteId: string,
 ): Promise<{ success: boolean; error?: string }> {
   const { data, error } = await supabase.rpc('revoke_invite', {
     p_invite_id: inviteId,
@@ -67,7 +65,10 @@ export async function listInvites(): Promise<Invite[]> {
     .select('*')
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('[invites] listInvites error', error);
+    logError('invites.list_failed', {
+      feature: 'invites',
+      error_message: safeErrorMessage(error),
+    });
     return [];
   }
   return (data ?? []) as Invite[];

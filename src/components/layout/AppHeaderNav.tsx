@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Link, useLocation } from 'react-router-dom';
 import { useAppNavContext, useIsModerator } from '../../hooks';
 import { NavigationProgress } from './NavigationProgress';
-import { publicShellInnerClass, shellListResetClass } from './publicShell';
+import { publicShellInnerClass, shellListResetClass } from './publicShellTokens';
 import { twMerge } from 'tailwind-merge';
 
 const HEADER_SHELL =

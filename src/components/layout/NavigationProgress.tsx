@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
-import { publicShellInnerClass } from './publicShell';
+import { publicShellInnerClass } from './publicShellTokens';
 
 const FLOW_STEPS = [
   { id: 'intent', label: 'Find squad', number: 1 },

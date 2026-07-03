@@ -1,7 +1,6 @@
 // ============================================================
 // InviteStatusCard — shows invalid invite state
 // ============================================================
-import React from 'react';
 import { Link } from 'react-router-dom';
 import type { InviteValidationResult } from '../../types/invites';
 
@@ -29,7 +28,9 @@ export function InviteStatusCard({ result }: { result: InviteValidationResult })
 
   return (
     <div className="rounded-lg border border-sq-border bg-sq-surface p-6 text-center max-w-md mx-auto space-y-4">
-      <div className="text-3xl" aria-hidden>&#9888;&#65039;</div>
+      <div className="text-3xl" aria-hidden>
+        &#9888;&#65039;
+      </div>
       <h2 className="text-lg font-semibold text-sq-text">{msg.title}</h2>
       <p className="text-sq-muted text-sm">{msg.body}</p>
       <div className="flex gap-3 justify-center">

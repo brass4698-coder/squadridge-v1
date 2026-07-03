@@ -2,7 +2,7 @@
 // RoleProtectedRoute — enforces role-based access client-side
 // NOTE: server-side RLS is the authoritative guard; this is UX only
 // ============================================================
-import React, { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { canAccessRoute } from '../../lib/guards';

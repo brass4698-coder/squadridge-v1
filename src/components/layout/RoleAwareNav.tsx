@@ -1,7 +1,6 @@
 // ============================================================
 // RoleAwareNav — shows only routes the user can access
 // ============================================================
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useUserRoles } from '../../hooks/useUserRoles';
 import type { RoleKey } from '../../types/roles';
@@ -13,19 +12,25 @@ interface NavItem {
 }
 
 const ALL_ROLES: RoleKey[] = [
-  'super_admin','institution_admin','facilitator','mediator','analyst','participant','observer',
+  'super_admin',
+  'institution_admin',
+  'facilitator',
+  'mediator',
+  'analyst',
+  'participant',
+  'observer',
 ];
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Admin',         path: '/app/admin',       roles: ['super_admin'] },
-  { label: 'Institution',   path: '/app/institution',  roles: ['institution_admin', 'super_admin'] },
-  { label: 'Facilitator',   path: '/app/facilitator',  roles: ['facilitator', 'super_admin'] },
-  { label: 'Mediator',      path: '/app/mediator',     roles: ['mediator', 'super_admin'] },
-  { label: 'Analyst',       path: '/app/analyst',      roles: ['analyst', 'super_admin'] },
-  { label: 'Participant',   path: '/app/participant',   roles: ['participant', 'super_admin'] },
-  { label: 'Observer',      path: '/app/observer',     roles: ['observer', 'super_admin'] },
-  { label: 'Settings',      path: '/app/settings',     roles: ALL_ROLES },
-  { label: 'Profile',       path: '/app/profile',      roles: ALL_ROLES },
+  { label: 'Admin', path: '/app/admin', roles: ['super_admin'] },
+  { label: 'Institution', path: '/app/institution', roles: ['institution_admin', 'super_admin'] },
+  { label: 'Facilitator', path: '/app/facilitator', roles: ['facilitator', 'super_admin'] },
+  { label: 'Mediator', path: '/app/mediator', roles: ['mediator', 'super_admin'] },
+  { label: 'Analyst', path: '/app/analyst', roles: ['analyst', 'super_admin'] },
+  { label: 'Participant', path: '/app/participant', roles: ['participant', 'super_admin'] },
+  { label: 'Observer', path: '/app/observer', roles: ['observer', 'super_admin'] },
+  { label: 'Settings', path: '/app/settings', roles: ALL_ROLES },
+  { label: 'Profile', path: '/app/profile', roles: ALL_ROLES },
 ];
 
 export function RoleAwareNav() {

@@ -1,7 +1,7 @@
 // ============================================================
 // AccessRequestAdminTable — admin review of access requests
 // ============================================================
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { listAccessRequests, approveAccessRequest } from '../../lib/accessRequests';
 import type { AccessRequest } from '../../types/invites';
 
@@ -17,7 +17,9 @@ export function AccessRequestAdminTable() {
     setLoading(false);
   };
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void load();
+  }, []);
 
   async function handleApprove(req: AccessRequest) {
     const roleKey = req.role_requested ?? 'participant';
@@ -69,9 +71,7 @@ export function AccessRequestAdminTable() {
             ))}
           </tbody>
         </table>
-        {requests.length === 0 && (
-          <p className="text-sq-muted text-sm py-4">No access requests.</p>
-        )}
+        {requests.length === 0 && <p className="text-sq-muted text-sm py-4">No access requests.</p>}
       </div>
     </div>
   );

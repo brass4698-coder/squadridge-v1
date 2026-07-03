@@ -1,7 +1,6 @@
 // ============================================================
 // SessionLoader — full-page loading state
 // ============================================================
-import React from 'react';
 
 export function SessionLoader() {
   return (

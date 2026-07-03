@@ -26,7 +26,7 @@ import { DemoLayout } from '../../demo/DemoLayout';
 
 import { useDemoWalkthrough } from '../../demo';
 
-import { publicShellInnerClass, shellListResetClass } from './publicShell';
+import { publicShellInnerClass, shellListResetClass } from './publicShellTokens';
 
 import { twMerge } from 'tailwind-merge';
 

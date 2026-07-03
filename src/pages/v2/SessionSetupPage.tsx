@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 type Step = 'basics' | 'eligibility' | 'verification' | 'review';
 
 const steps: { id: Step; label: string }[] = [
-  { id: 'basics',       label: 'Basics' },
-  { id: 'eligibility',  label: 'Eligibility' },
+  { id: 'basics', label: 'Basics' },
+  { id: 'eligibility', label: 'Eligibility' },
   { id: 'verification', label: 'Verification' },
-  { id: 'review',       label: 'Review & Launch' },
+  { id: 'review', label: 'Review & Launch' },
 ];
 
 type FormData = {
@@ -100,20 +100,25 @@ export function SessionSetupPage() {
         {label}
       </label>
       {hint && (
-        <p id={`${id}-hint`} className="mb-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+        <p
+          id={`${id}-hint`}
+          className="mb-2 text-xs"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           {hint}
         </p>
       )}
       {children}
-      {(errors as any)[id] && (
+      {(errors as Record<string, string | undefined>)[id] && (
         <p role="alert" className="mt-1.5 text-xs" style={{ color: 'var(--color-danger)' }}>
-          {(errors as any)[id]}
+          {(errors as Record<string, string | undefined>)[id]}
         </p>
       )}
     </div>
   );
 
-  const inputCls = 'w-full rounded border px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-accent)]';
+  const inputCls =
+    'w-full rounded border px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-accent)]';
   const inputStyle = (hasErr: boolean) => ({
     borderColor: hasErr ? 'var(--color-danger)' : 'var(--color-border)',
     backgroundColor: 'var(--color-surface)',
@@ -157,9 +162,13 @@ export function SessionSetupPage() {
                       backgroundColor: active
                         ? 'var(--color-accent)'
                         : done
-                        ? 'var(--color-accent-light)'
-                        : 'var(--color-border)',
-                      color: active ? '#fff' : done ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+                          ? 'var(--color-accent-light)'
+                          : 'var(--color-border)',
+                      color: active
+                        ? '#fff'
+                        : done
+                          ? 'var(--color-accent)'
+                          : 'var(--color-text-secondary)',
                     }}
                   >
                     {done ? '✓' : i + 1}
@@ -177,7 +186,10 @@ export function SessionSetupPage() {
                 {i < steps.length - 1 && (
                   <div
                     className="mx-2 h-px flex-1"
-                    style={{ backgroundColor: done ? 'var(--color-accent-light)' : 'var(--color-border)', minWidth: '2rem' }}
+                    style={{
+                      backgroundColor: done ? 'var(--color-accent-light)' : 'var(--color-border)',
+                      minWidth: '2rem',
+                    }}
                   />
                 )}
               </li>
@@ -209,7 +221,11 @@ export function SessionSetupPage() {
               />
             </Field>
 
-            <Field id="description" label="Description" hint="Optional internal note. Not shown to participants.">
+            <Field
+              id="description"
+              label="Description"
+              hint="Optional internal note. Not shown to participants."
+            >
               <textarea
                 id="description"
                 rows={3}
@@ -318,17 +334,33 @@ export function SessionSetupPage() {
             <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Select the verification steps each participant must complete before gaining access.
             </p>
-            {([
-              { key: 'requireOrgEmail' as const, label: 'Organisational email confirmation', description: 'Participant must verify an email at an approved domain.' },
-              { key: 'requireIdDoc' as const, label: 'Identity document review', description: 'Participant must upload a government-issued ID for facilitator review.' },
-              { key: 'requireManualApproval' as const, label: 'Facilitator manual approval', description: 'Each participant application is reviewed and approved by you before access is granted.' },
-            ]).map((opt) => (
+            {[
+              {
+                key: 'requireOrgEmail' as const,
+                label: 'Organisational email confirmation',
+                description: 'Participant must verify an email at an approved domain.',
+              },
+              {
+                key: 'requireIdDoc' as const,
+                label: 'Identity document review',
+                description:
+                  'Participant must upload a government-issued ID for facilitator review.',
+              },
+              {
+                key: 'requireManualApproval' as const,
+                label: 'Facilitator manual approval',
+                description:
+                  'Each participant application is reviewed and approved by you before access is granted.',
+              },
+            ].map((opt) => (
               <label
                 key={opt.key}
                 className="flex cursor-pointer items-start gap-4 rounded-lg border p-5 transition-colors"
                 style={{
                   borderColor: form[opt.key] ? 'var(--color-accent)' : 'var(--color-border)',
-                  backgroundColor: form[opt.key] ? 'var(--color-accent-light)' : 'var(--color-surface)',
+                  backgroundColor: form[opt.key]
+                    ? 'var(--color-accent-light)'
+                    : 'var(--color-surface)',
                 }}
               >
                 <input
@@ -356,21 +388,40 @@ export function SessionSetupPage() {
             <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               Review your session configuration before launching.
             </p>
-            {([
+            {[
               { label: 'Title', value: form.title || '—' },
-              { label: 'Date & time', value: form.sessionDate && form.sessionTime ? `${form.sessionDate} at ${form.sessionTime}` : '—' },
+              {
+                label: 'Date & time',
+                value:
+                  form.sessionDate && form.sessionTime
+                    ? `${form.sessionDate} at ${form.sessionTime}`
+                    : '—',
+              },
               { label: 'Max participants', value: form.maxParticipants },
               { label: 'Outcome format', value: form.outcomeType },
               { label: 'Eligibility criteria', value: form.eligibilityNotes || 'None specified' },
               { label: 'Ground rules', value: form.groundRules || 'None specified' },
-              { label: 'Verification', value: [
-                  form.requireOrgEmail ? 'Org email' : null,
-                  form.requireIdDoc ? 'ID document' : null,
-                  form.requireManualApproval ? 'Manual approval' : null,
-                ].filter(Boolean).join(', ') || 'None' },
-            ]).map((row) => (
-              <div key={row.label} className="border-b pb-4" style={{ borderColor: 'var(--color-border)' }}>
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
+              {
+                label: 'Verification',
+                value:
+                  [
+                    form.requireOrgEmail ? 'Org email' : null,
+                    form.requireIdDoc ? 'ID document' : null,
+                    form.requireManualApproval ? 'Manual approval' : null,
+                  ]
+                    .filter(Boolean)
+                    .join(', ') || 'None',
+              },
+            ].map((row) => (
+              <div
+                key={row.label}
+                className="border-b pb-4"
+                style={{ borderColor: 'var(--color-border)' }}
+              >
+                <p
+                  className="mb-1 text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
                   {row.label}
                 </p>
                 <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>

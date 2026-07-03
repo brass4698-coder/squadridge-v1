@@ -1,7 +1,6 @@
 // ============================================================
 // InviteOnlyNotice — shown on sign-in page
 // ============================================================
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export function InviteOnlyNotice() {

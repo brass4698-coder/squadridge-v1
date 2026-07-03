@@ -21,7 +21,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['sessions']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['sessions']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['sessions']['Insert']>;
       };
       participants: {
@@ -56,7 +59,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['outcome_records']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<
+          Database['public']['Tables']['outcome_records']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >;
         Update: Partial<Database['public']['Tables']['outcome_records']['Insert']>;
       };
       outcome_approvals: {
@@ -82,7 +88,10 @@ export interface Database {
           status: 'pending' | 'approved' | 'rejected';
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['access_requests']['Row'], 'id' | 'created_at' | 'status'>;
+        Insert: Omit<
+          Database['public']['Tables']['access_requests']['Row'],
+          'id' | 'created_at' | 'status'
+        >;
         Update: Partial<Database['public']['Tables']['access_requests']['Insert']>;
       };
       session_messages: {
@@ -98,9 +107,9 @@ export interface Database {
         Update: never;
       };
     };
-    Views: {};
-    Functions: {};
-    Enums: {};
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
   };
 }
 

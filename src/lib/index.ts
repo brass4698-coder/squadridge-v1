@@ -36,7 +36,11 @@ export * from './sessionClaim';
 export * from './sentry';
 export * from './squad';
 export * from './squadMessageKey';
-export * from './supabase';
+// Barrel: prefer the typed client (`./supabaseClient`) for `supabase`. The
+// untyped client in `./supabase` still exists for consumers that import it
+// directly (AuthContext, incoming auth wave) — only its `getSupabase` helper
+// is re-exported here to avoid a duplicate `supabase` symbol.
+export { getSupabase } from './supabase';
 export * from './supabaseClient';
 export * from './verifyZkProofResponse';
 export * from './zk';

@@ -3,9 +3,9 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 
 // ── Mock data (replace with real hooks) ──────────────────────────────────────
 const stats = [
-  { label: 'Active sessions',    value: '3' },
-  { label: 'Pending approvals',  value: '7' },
-  { label: 'Released records',   value: '14' },
+  { label: 'Active sessions', value: '3' },
+  { label: 'Pending approvals', value: '7' },
+  { label: 'Released records', value: '14' },
   { label: 'Verified participants', value: '62' },
 ];
 
@@ -41,8 +41,18 @@ const recentSessions = [
 ];
 
 const pendingApprovals = [
-  { id: 'appr-001', title: 'Urban Housing Policy — Outcome Draft', requestedBy: 'M. Osei', due: 'Today' },
-  { id: 'appr-002', title: 'Trade Framework — Amendment Clause B', requestedBy: 'K. Lindqvist', due: 'Tomorrow' },
+  {
+    id: 'appr-001',
+    title: 'Urban Housing Policy — Outcome Draft',
+    requestedBy: 'M. Osei',
+    due: 'Today',
+  },
+  {
+    id: 'appr-002',
+    title: 'Trade Framework — Amendment Clause B',
+    requestedBy: 'K. Lindqvist',
+    due: 'Tomorrow',
+  },
 ];
 
 export function FacilitatorDashboardPage() {
@@ -124,10 +134,7 @@ export function FacilitatorDashboardPage() {
           >
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr
-                  className="border-b"
-                  style={{ borderColor: 'var(--color-border)' }}
-                >
+                <tr className="border-b" style={{ borderColor: 'var(--color-border)' }}>
                   {['Session', 'Status', 'Participants', 'Updated'].map((h) => (
                     <th
                       key={h}
@@ -141,7 +148,7 @@ export function FacilitatorDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentSessions.map((s, i) => (
+                {recentSessions.map((s, _i) => (
                   <tr
                     key={s.id}
                     className="border-b transition-colors last:border-0 hover:bg-slate-50"
@@ -169,10 +176,7 @@ export function FacilitatorDashboardPage() {
                     >
                       {s.participants}
                     </td>
-                    <td
-                      className="px-5 py-3.5"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
+                    <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
                       {s.updated}
                     </td>
                   </tr>

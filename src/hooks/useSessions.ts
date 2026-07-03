@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../lib/supabaseClient';
+// TODO(supabase-types): see useAccessRequest.
+import { supabase } from '../lib/supabase';
 import type { Session } from '../lib/supabaseTypes';
 
 export function useSessions() {
@@ -18,10 +19,16 @@ export function useSessions() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchSessions(); }, [fetchSessions]);
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
 
-  async function createSession(payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'>) {
-    const { data: { user } } = await supabase.auth.getUser();
+  async function createSession(
+    payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'>,
+  ) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
     const { data, error: err } = await supabase
       .from('sessions')
@@ -39,7 +46,7 @@ export function useSessions() {
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id);
     if (err) throw err;
-    setSessions((prev) => prev.map((s) => s.id === id ? { ...s, status } : s));
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
   }
 
   return { sessions, loading, error, createSession, updateSessionStatus, refetch: fetchSessions };

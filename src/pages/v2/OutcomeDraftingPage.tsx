@@ -16,10 +16,22 @@ type Approver = {
 type Version = { version: number; savedAt: string; preview: string };
 
 const mockApprovers: Approver[] = [
-  { id: 'a1', name: 'Amara Nwosu',    role: 'Lead Participant',    status: 'approved', respondedAt: 'Jun 18, 10:42 AM' },
-  { id: 'a2', name: 'Jonas Berglund', role: 'Participant',         status: 'pending' },
-  { id: 'a3', name: 'Priya Chandran', role: 'Observer — Inst.',    status: 'pending' },
-  { id: 'a4', name: 'Leila Ahmadi',   role: 'Participant',         status: 'declined', respondedAt: 'Jun 18, 11:04 AM' },
+  {
+    id: 'a1',
+    name: 'Amara Nwosu',
+    role: 'Lead Participant',
+    status: 'approved',
+    respondedAt: 'Jun 18, 10:42 AM',
+  },
+  { id: 'a2', name: 'Jonas Berglund', role: 'Participant', status: 'pending' },
+  { id: 'a3', name: 'Priya Chandran', role: 'Observer — Inst.', status: 'pending' },
+  {
+    id: 'a4',
+    name: 'Leila Ahmadi',
+    role: 'Participant',
+    status: 'declined',
+    respondedAt: 'Jun 18, 11:04 AM',
+  },
 ];
 
 const initialDraft = `JOINT STATEMENT OF PRINCIPLES
@@ -44,10 +56,14 @@ export function OutcomeDraftingPage() {
   const [savedText, setSavedText] = useState(initialDraft);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [approvers, setApprovers] = useState<Approver[]>(mockApprovers);
+  const [approvers, _setApprovers] = useState<Approver[]>(mockApprovers);
   const [versions] = useState<Version[]>([
-    { version: 1, savedAt: 'Jun 18, 9:15 AM',  preview: 'Initial draft from session notes.' },
-    { version: 2, savedAt: 'Jun 18, 10:30 AM', preview: 'Revised principle #2 after facilitator note.' },
+    { version: 1, savedAt: 'Jun 18, 9:15 AM', preview: 'Initial draft from session notes.' },
+    {
+      version: 2,
+      savedAt: 'Jun 18, 10:30 AM',
+      preview: 'Revised principle #2 after facilitator note.',
+    },
   ]);
   const [confirmRelease, setConfirmRelease] = useState(false);
   const [released, setReleased] = useState(false);
@@ -81,10 +97,10 @@ export function OutcomeDraftingPage() {
   const approvedCount = approvers.filter((a) => a.status === 'approved').length;
 
   const statusBadgeVariant: Record<DraftStatus, 'draft' | 'pending' | 'approved' | 'released'> = {
-    drafting:   'draft',
+    drafting: 'draft',
     'in-review': 'pending',
-    approved:   'approved',
-    released:   'released',
+    approved: 'approved',
+    released: 'released',
   };
 
   const tabStyles = (active: boolean) => ({
@@ -102,10 +118,7 @@ export function OutcomeDraftingPage() {
       >
         <div className="flex items-center gap-4">
           <div>
-            <h1
-              className="text-base font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+            <h1 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
               Outcome Drafting
             </h1>
             <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
@@ -113,10 +126,13 @@ export function OutcomeDraftingPage() {
             </p>
           </div>
           <StatusBadge variant={statusBadgeVariant[draftStatus]}>
-            {draftStatus === 'drafting' ? 'Drafting'
-              : draftStatus === 'in-review' ? 'In Review'
-              : draftStatus === 'approved' ? 'Approved'
-              : 'Released'}
+            {draftStatus === 'drafting'
+              ? 'Drafting'
+              : draftStatus === 'in-review'
+                ? 'In Review'
+                : draftStatus === 'approved'
+                  ? 'Approved'
+                  : 'Released'}
           </StatusBadge>
         </div>
 
@@ -176,14 +192,15 @@ export function OutcomeDraftingPage() {
             className="px-6 py-3 text-sm capitalize transition-colors"
             style={tabStyles(activeTab === tab)}
           >
-            {tab === 'approvals' ? `Approvals (${approvedCount}/${approvers.length})` : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab === 'approvals'
+              ? `Approvals (${approvedCount}/${approvers.length})`
+              : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>
 
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
-
         {/* Draft tab */}
         {activeTab === 'draft' && (
           <div className="flex h-full flex-col px-6 py-6">
@@ -230,8 +247,12 @@ export function OutcomeDraftingPage() {
                   }}
                   aria-label="Outcome document draft"
                 />
-                <p className="mt-2 text-right text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                  {draftText.length} characters &middot; {draftText.split('\n').filter(Boolean).length} lines
+                <p
+                  className="mt-2 text-right text-xs"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {draftText.length} characters &middot;{' '}
+                  {draftText.split('\n').filter(Boolean).length} lines
                 </p>
               </>
             )}
@@ -248,7 +269,10 @@ export function OutcomeDraftingPage() {
             </p>
             <div
               className="overflow-hidden rounded-lg border"
-              style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'var(--color-surface)',
+              }}
             >
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -267,11 +291,30 @@ export function OutcomeDraftingPage() {
                 </thead>
                 <tbody>
                   {approvers.map((a) => (
-                    <tr key={a.id} className="border-b last:border-0" style={{ borderColor: 'var(--color-border)' }}>
-                      <td className="px-5 py-3.5 font-medium" style={{ color: 'var(--color-text-primary)' }}>{a.name}</td>
-                      <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>{a.role}</td>
+                    <tr
+                      key={a.id}
+                      className="border-b last:border-0"
+                      style={{ borderColor: 'var(--color-border)' }}
+                    >
+                      <td
+                        className="px-5 py-3.5 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {a.name}
+                      </td>
+                      <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
+                        {a.role}
+                      </td>
                       <td className="px-5 py-3.5">
-                        <StatusBadge variant={a.status === 'approved' ? 'approved' : a.status === 'declined' ? 'declined' : 'pending'}>
+                        <StatusBadge
+                          variant={
+                            a.status === 'approved'
+                              ? 'approved'
+                              : a.status === 'declined'
+                                ? 'declined'
+                                : 'pending'
+                          }
+                        >
                           {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
                         </StatusBadge>
                       </td>
@@ -286,7 +329,9 @@ export function OutcomeDraftingPage() {
 
             {draftStatus === 'in-review' && !allApproved && (
               <p className="mt-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Waiting for {approvers.filter((a) => a.status === 'pending').length} more approval{approvers.filter((a) => a.status === 'pending').length !== 1 ? 's' : ''} before release is available.
+                Waiting for {approvers.filter((a) => a.status === 'pending').length} more approval
+                {approvers.filter((a) => a.status === 'pending').length !== 1 ? 's' : ''} before
+                release is available.
               </p>
             )}
           </div>
