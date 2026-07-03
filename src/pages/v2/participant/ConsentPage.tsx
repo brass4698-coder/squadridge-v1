@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { TokenShell } from '../../../components/layout/TokenShell';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { participantRoute } from '../../../lib/participantRoutes';
 
 const disclosures = [
   {
@@ -30,101 +33,104 @@ const disclosures = [
 ];
 
 export function ConsentPage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') ?? 'demo-token';
+  const token = useParticipantToken();
   const [accepted, setAccepted] = useState(false);
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
 
   function proceed() {
-    if (!checked) return;
+    if (!checked || !token) return;
     setAccepted(true);
-    setTimeout(() => navigate(`/p/briefing?token=${token}`), 500);
+    setTimeout(() => navigate(participantRoute('briefing', token)), 500);
   }
 
+  if (!token) return null;
+
   return (
-    <div
-      className="flex min-h-screen flex-col items-center justify-center px-6 py-16"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
-      <div className="w-full max-w-xl">
-        <p
-          className="mb-4 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          Before you proceed
-        </p>
-        <h1
-          className="mb-3 text-2xl font-semibold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Participation disclosure
-        </h1>
-        <p
-          className="mb-8 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          Please read the following carefully. These are the conditions under which your participation in this session takes place. They are not legal boilerplate — they describe what is actually happening.
-        </p>
+    <TokenShell>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+        <div className="w-full max-w-xl">
+          <p
+            className="mb-4 text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'var(--color-accent)' }}
+          >
+            Before you proceed
+          </p>
+          <h1
+            className="mb-3 text-2xl font-semibold tracking-tight"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Participation disclosure
+          </h1>
+          <p
+            className="mb-8 text-sm leading-relaxed"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Please read the following carefully. These are the conditions under which your
+            participation in this session takes place. They are not legal boilerplate — they
+            describe what is actually happening.
+          </p>
 
-        <dl className="mb-8 flex flex-col gap-5">
-          {disclosures.map((d) => (
-            <div
-              key={d.id}
-              className="rounded-lg border p-6"
-              style={{
-                borderColor: 'var(--color-border)',
-                backgroundColor: 'var(--color-surface)',
-              }}
-            >
-              <dt
-                className="mb-2 text-sm font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
+          <dl className="mb-8 flex flex-col gap-5">
+            {disclosures.map((d) => (
+              <div
+                key={d.id}
+                className="rounded-lg border p-6"
+                style={{
+                  borderColor: 'var(--color-border)',
+                  backgroundColor: 'var(--color-surface)',
+                }}
               >
-                {d.heading}
-              </dt>
-              <dd
-                className="text-sm leading-relaxed"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {d.body}
-              </dd>
-            </div>
-          ))}
-        </dl>
+                <dt
+                  className="mb-2 text-sm font-semibold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  {d.heading}
+                </dt>
+                <dd
+                  className="text-sm leading-relaxed"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {d.body}
+                </dd>
+              </div>
+            ))}
+          </dl>
 
-        <label
-          className="mb-6 flex cursor-pointer items-start gap-4 rounded-lg border p-5"
-          style={{
-            borderColor: checked ? 'var(--color-accent)' : 'var(--color-border)',
-            backgroundColor: checked ? 'var(--color-accent-light)' : 'var(--color-surface)',
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={(e) => setChecked(e.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0"
-            style={{ accentColor: 'var(--color-accent)' }}
-          />
-          <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-            I have read and understood the above. I agree to participate under these conditions.
-          </span>
-        </label>
+          <label
+            className="mb-6 flex cursor-pointer items-start gap-4 rounded-lg border p-5"
+            style={{
+              borderColor: checked ? 'var(--color-accent)' : 'var(--color-border)',
+              backgroundColor: checked ? 'var(--color-accent-light)' : 'var(--color-surface)',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => setChecked(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0"
+              style={{ accentColor: 'var(--color-accent)' }}
+            />
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
+              I have read and understood the above. I agree to participate under these conditions.
+            </span>
+          </label>
 
-        <button
-          onClick={proceed}
-          disabled={!checked || accepted}
-          className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-        >
-          {accepted ? 'Confirmed — loading briefing…' : 'Confirm & Continue to Briefing'}
-        </button>
+          <button
+            onClick={proceed}
+            disabled={!checked || accepted}
+            className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+            style={{ backgroundColor: 'var(--color-accent)' }}
+          >
+            {accepted ? 'Confirmed — loading briefing…' : 'Confirm & Continue to Briefing'}
+          </button>
 
-        <p className="mt-4 text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          Your confirmation is recorded. You may review these terms again from the session briefing page.
-        </p>
+          <p className="mt-4 text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            Your confirmation is recorded. You may review these terms again from the session
+            briefing page.
+          </p>
+        </div>
       </div>
-    </div>
+    </TokenShell>
   );
 }

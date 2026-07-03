@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { UserRound } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks';
 import { isSupabaseConfigured } from '../../lib';
@@ -17,6 +17,7 @@ export type AccountMenuProps = {
 export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: AccountMenuProps) {
   const { pathname } = useLocation();
   const { session, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const { profile } = useProfile();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -119,7 +120,9 @@ export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: Ac
             className="w-full px-4 py-2.5 text-left font-sans text-[0.85rem] text-[#c4cdd9] transition-colors hover:bg-[#141c2e] hover:text-[#f1f5f9]"
             onClick={() => {
               setOpen(false);
-              void signOut();
+              void signOut().then(() => {
+                navigate('/sign-in?reason=signed-out', { replace: true });
+              });
             }}
           >
             Sign out

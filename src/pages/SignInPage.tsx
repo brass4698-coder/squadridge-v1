@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AccountPageShell, AccountPanel } from '../components';
-import { NextStepHint } from '../components/ui/NextStepHint';
+import { AuthLayout } from '../components/layout/AuthLayout';
+import { Button } from '../components/ui/Button';
+import { FormField } from '../components/ui/FormField';
+import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
+import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 
 export function SignInPage() {
@@ -11,13 +14,11 @@ export function SignInPage() {
   const [searchParams] = useSearchParams();
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
-  const nextPath = useMemo(
-    () =>
-      nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
-        ? decodeURIComponent(nextRaw)
-        : '/',
-    [nextRaw],
-  );
+  const intent = searchParams.get('intent');
+  const nextPath =
+    nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
+      ? decodeURIComponent(nextRaw)
+      : appRoutes.dashboard;
 
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
@@ -26,7 +27,10 @@ export function SignInPage() {
   const [sent, setSent] = useState(false);
 
   const configured = isSupabaseConfigured();
+  const isSignup = intent === 'signup';
   const showLinkHelpBanner = reason === 'link';
+  const showExpiredBanner = reason === 'expired';
+  const showSignedOutBanner = reason === 'signed-out';
 
   useEffect(() => {
     if (!loading && session) {
@@ -35,11 +39,7 @@ export function SignInPage() {
   }, [loading, session, navigate, nextPath]);
 
   if (!loading && session) {
-    return (
-      <AccountPageShell>
-        <p className="font-sans text-[0.95rem] text-ink-muted">Continuing…</p>
-      </AccountPageShell>
-    );
+    return null;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -47,7 +47,7 @@ export function SignInPage() {
     setError(null);
     setBusy(true);
     const { error: err } = await signIn(email, {
-      nextPath: nextPath !== '/' ? nextPath : undefined,
+      nextPath: nextPath !== appRoutes.dashboard ? nextPath : undefined,
     });
     setBusy(false);
     if (err) {
@@ -67,7 +67,7 @@ export function SignInPage() {
         </p>
         <Link
           to="/"
-          className="mt-6 inline-block text-sm font-medium text-teal-light underline-offset-4 hover:underline"
+          className="mt-6 inline-block text-sm font-medium text-brand underline-offset-4 hover:underline"
         >
           Back to home
         </Link>
@@ -76,120 +76,100 @@ export function SignInPage() {
   }
 
   return (
-    <AccountPageShell>
-      <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-        Account
-      </p>
-      <h1
-        className="mt-2 font-heading font-extrabold text-ink"
-        style={{
-          fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
-        }}
-      >
-        Sign in
+    <AuthLayout>
+      <p className="text-app-meta font-semibold uppercase tracking-wider text-brand">Account</p>
+      <h1 className="mt-2 text-page-title text-ink">
+        {isSignup ? 'Create your account' : 'Sign in'}
       </h1>
-      <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
-        New here? Use the same email—we send a one-time link. First time signs you in. No password
-        stored on our side.
+      <p className="mt-3 text-app-body text-ink-secondary">
+        {isSignup
+          ? 'Enter your work email. We send a one-time link—no password stored on our side.'
+          : 'Enter your email and we send a one-time sign-in link. First visit creates your account automatically.'}
       </p>
 
       {showLinkHelpBanner ? (
         <div
-          className="mt-6 rounded-lg border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-[#fcd9a8]"
+          className="mt-6 rounded-lg border border-sem-warning/30 bg-sem-warning-soft px-4 py-3 text-app-meta text-ink"
           role="status"
         >
           No password to reset—enter your email below and we&apos;ll send a fresh magic link.
         </div>
       ) : null}
 
+      {showExpiredBanner ? (
+        <div
+          className="mt-6 rounded-lg border border-sem-warning/30 bg-sem-warning-soft px-4 py-3 text-app-meta text-ink"
+          role="status"
+        >
+          This sign-in link has expired. Request a new link below.
+        </div>
+      ) : null}
+
+      {showSignedOutBanner ? (
+        <div
+          className="mt-6 rounded-lg border border-line bg-surface-secondary px-4 py-3 text-app-meta text-ink-secondary"
+          role="status"
+        >
+          You signed out successfully.
+        </div>
+      ) : null}
+
       {sent ? (
-        <AccountPanel className="mt-10">
-          <p className="mb-0 font-sans text-[0.95rem] text-ink-secondary">
-            Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
-            we&apos;ll route you
-            {nextPath !== '/' ? ' to your squad room.' : '.'}
+        <div className="mt-8 rounded-lg border border-line bg-surface-secondary p-5">
+          <p className="text-app-body text-ink-secondary">
+            Check your inbox for the sign-in link. After you open it, we&apos;ll route you
+            {nextPath !== appRoutes.dashboard
+              ? ' to your session workspace.'
+              : ' to your dashboard.'}
           </p>
-        </AccountPanel>
+        </div>
       ) : (
-        <form className="mt-10" onSubmit={(e) => void handleSubmit(e)} noValidate>
-          <AccountPanel className="space-y-5">
-            {error ? (
-              <p className="font-sans text-[0.875rem] text-amber" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <div className="space-y-2">
-              <label
-                htmlFor="signin-email"
-                className="block font-sans text-[0.8rem] font-medium text-ink-secondary"
-              >
-                Email
-              </label>
-              <input
-                id="signin-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-ink-secondary placeholder:text-ink-subtle focus-visible:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/20"
-                placeholder="you@organization.org"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={busy}
-              className="inline-flex min-h-[44px] w-full items-center justify-center border-0 bg-teal px-6 py-3 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderRadius: 8 }}
-            >
-              {busy ? 'Sending link…' : 'Email me a link'}
-            </button>
-          </AccountPanel>
+        <form className="mt-8 space-y-5" onSubmit={(e) => void handleSubmit(e)} noValidate>
+          {error ? (
+            <p className="text-app-meta text-sem-danger" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <FormField id="signin-email" label="Email">
+            <Input
+              id="signin-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@organization.org"
+            />
+          </FormField>
+          <Button type="submit" className="w-full" size="lg" loading={busy}>
+            Email me a link
+          </Button>
         </form>
       )}
 
       {!sent ? (
-        <p className="mt-6 font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
+        <p className="mt-6 text-app-meta text-ink-faint">
           Link expired? Enter your email again—we&apos;ll send a fresh link. There is no separate
           password to recover.
         </p>
       ) : null}
 
-      {sent ? (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> Open the email link on this
-          device. We&apos;ll finish sign-in and route you
-          {nextPath !== '/' ? ' to your destination' : ' home'}.
-        </NextStepHint>
-      ) : (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> After the magic link signs you
-          in, we&apos;ll send you to the page you were trying to reach, or home if nothing is
-          queued.
-        </NextStepHint>
-      )}
-
       <nav
-        className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-8 font-sans text-[0.85rem] text-ink-subtle"
+        className="mt-10 flex flex-col gap-3 border-t border-line pt-8 text-app-meta text-ink-secondary"
         aria-label="Account help"
       >
         <Link
           to="/security"
-          className="inline-flex items-center gap-2 text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
+          className="inline-flex items-center gap-2 underline-offset-4 hover:text-ink hover:underline"
         >
           <Shield className="size-3 shrink-0 opacity-50" aria-hidden />
           Security &amp; privacy
         </Link>
-        <Link
-          to="/"
-          className="w-fit text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
-        >
+        <Link to="/" className="w-fit underline-offset-4 hover:text-ink hover:underline">
           Back to home
         </Link>
       </nav>
-    </AccountPageShell>
+    </AuthLayout>
   );
 }

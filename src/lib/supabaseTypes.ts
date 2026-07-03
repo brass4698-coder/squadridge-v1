@@ -21,11 +21,21 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<
-          Database['public']['Tables']['sessions']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['sessions']['Insert']>;
+        Insert: {
+          facilitator_id: string;
+          title: string;
+          conflict_type: string;
+          language: string;
+          max_participants: number;
+          eligibility_notes: string | null;
+          identity_verification_required: boolean;
+          outcome_public: boolean;
+          status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+        };
+        Update: {
+          status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          updated_at?: string;
+        };
       };
       participants: {
         Row: {
@@ -42,8 +52,24 @@ export interface Database {
           left_at: string | null;
           created_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['participants']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['participants']['Insert']>;
+        Insert: {
+          session_id: string;
+          codename: string;
+          invite_token: string;
+          invite_used?: boolean;
+          email_hash?: string | null;
+          verification_status?: 'pending' | 'verified' | 'denied';
+          document_submitted?: boolean;
+          consented_at?: string | null;
+          admitted_at?: string | null;
+          left_at?: string | null;
+        };
+        Update: {
+          verification_status?: 'pending' | 'verified' | 'denied';
+          invite_used?: boolean;
+          admitted_at?: string | null;
+          left_at?: string | null;
+        };
       };
       outcome_records: {
         Row: {
@@ -59,11 +85,26 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<
-          Database['public']['Tables']['outcome_records']['Row'],
-          'id' | 'created_at' | 'updated_at'
-        >;
-        Update: Partial<Database['public']['Tables']['outcome_records']['Insert']>;
+        Insert: {
+          session_id: string;
+          summary: string;
+          agreed_terms?: string | null;
+          pending_items?: string | null;
+          facilitator_notes?: string | null;
+          status: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at?: string | null;
+          ledger_sha?: string | null;
+        };
+        Update: {
+          summary?: string;
+          agreed_terms?: string | null;
+          pending_items?: string | null;
+          facilitator_notes?: string | null;
+          status?: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at?: string | null;
+          ledger_sha?: string | null;
+          updated_at?: string;
+        };
       };
       outcome_approvals: {
         Row: {
@@ -88,10 +129,13 @@ export interface Database {
           status: 'pending' | 'approved' | 'rejected';
           created_at: string;
         };
-        Insert: Omit<
-          Database['public']['Tables']['access_requests']['Row'],
-          'id' | 'created_at' | 'status'
-        >;
+        Insert: {
+          full_name: string;
+          organisation?: string | null;
+          email: string;
+          use_case: string;
+          description: string;
+        };
         Update: Partial<Database['public']['Tables']['access_requests']['Insert']>;
       };
       session_messages: {
@@ -103,7 +147,12 @@ export interface Database {
           body: string;
           sent_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['session_messages']['Row'], 'id' | 'sent_at'>;
+        Insert: {
+          session_id: string;
+          sender_label: string;
+          sender_role: 'facilitator' | 'participant';
+          body: string;
+        };
         Update: never;
       };
     };

@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 
 const record = {
-  id: 'rec-001',
+  id: 'rec-003',
   title: 'Community Land Use — Joint Statement',
   org: 'Regional Mediation Centre',
   region: 'Sub-Saharan Africa',
@@ -10,7 +10,7 @@ const record = {
   outcomeType: 'Joint Statement',
   facilitators: ['Regional Mediation Centre — Lead Facilitator'],
   participants: 12,
-  verificationAnchor: 'SHA-256: a3f9c1e8b2d47f0e56ac12309de1f783c8ab4521d7e63f901234bcde5678ef90',
+  verificationAnchor: 'a3f9c1e8b2d47f0e56ac12309de1f783c8ab4521d7e63f901234bcde5678ef90',
   body: `JOINT STATEMENT OF PRINCIPLES
 Community Land Use Consultation — March 14, 2024
 
@@ -34,8 +34,15 @@ export function LedgerRecordPage() {
     <div className="mx-auto max-w-3xl px-6 py-16">
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-8">
-        <ol className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          <li><Link to="/ledger" className="hover:underline">Ledger</Link></li>
+        <ol
+          className="flex items-center gap-2 text-xs"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          <li>
+            <Link to="/ledger" className="hover:underline">
+              Ledger
+            </Link>
+          </li>
           <li aria-hidden="true">›</li>
           <li style={{ color: 'var(--color-text-primary)' }}>{record.title}</li>
         </ol>
@@ -50,29 +57,38 @@ export function LedgerRecordPage() {
           ✓ Released Outcome Record
         </p>
         <h1
-          className="mb-3 text-2xl font-semibold tracking-tight"
+          className="mb-2 text-2xl font-semibold tracking-tight"
           style={{ color: 'var(--color-text-primary)' }}
         >
           {record.title}
         </h1>
-        <div className="flex flex-wrap gap-4 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="mb-6 text-sm italic" style={{ color: 'var(--color-text-secondary)' }}>
+          Outcome record from a facilitated dialogue convened under the SquadRidge platform.
+        </p>
+        <div
+          className="flex flex-wrap items-center gap-x-2 rounded border px-3 py-2 text-xs"
+          style={{
+            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--color-bg)',
+            color: 'var(--color-text-secondary)',
+          }}
+        >
+          <span className="font-semibold uppercase tracking-wider opacity-70">Context:</span>
           <span>{record.org}</span>
-          <span>·</span>
+          <span className="opacity-40">·</span>
           <span>{record.region}</span>
-          <span>·</span>
+          <span className="opacity-40">·</span>
           <span>Session: {record.sessionDate}</span>
-          <span>·</span>
+          <span className="opacity-40">·</span>
           <span>Released: {record.releasedDate}</span>
         </div>
       </div>
 
       {/* Metadata strip */}
-      <div
-        className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4"
-      >
+      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           { label: 'Outcome type', value: record.outcomeType },
-          { label: 'Participants', value: String(record.participants) },
+          { label: 'Participants (verified)', value: String(record.participants) },
           { label: 'Facilitated by', value: record.org },
           { label: 'Release status', value: 'Released' },
         ].map((item) => (
@@ -90,9 +106,20 @@ export function LedgerRecordPage() {
             >
               {item.label}
             </p>
-            <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {item.value}
-            </p>
+            <div className="flex items-center gap-2">
+              {item.label === 'Release status' && (
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{
+                    backgroundColor:
+                      item.value === 'Released' ? 'var(--color-success)' : 'var(--color-warning)',
+                  }}
+                />
+              )}
+              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {item.value}
+              </p>
+            </div>
           </div>
         ))}
       </div>
@@ -105,8 +132,14 @@ export function LedgerRecordPage() {
           backgroundColor: 'var(--color-surface)',
         }}
       >
+        <h2
+          className="mb-6 text-xs font-bold uppercase tracking-widest opacity-60"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Agreed principles
+        </h2>
         <pre
-          className="whitespace-pre-wrap text-sm leading-loose"
+          className="whitespace-pre-wrap text-sm leading-relaxed"
           style={{
             color: 'var(--color-text-primary)',
             fontFamily: 'var(--font-mono)',
@@ -133,22 +166,35 @@ export function LedgerRecordPage() {
           Verification
         </h2>
         <p
-          className="mb-4 text-sm leading-relaxed"
+          className="mb-2 text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          This record was released through SquadRidge's controlled release process. A cryptographic anchor is generated at the moment of approval and cannot be retroactively modified.
+          This record was released through SquadRidge's controlled release process. A cryptographic
+          anchor is generated at the moment of approval and cannot be retroactively modified.
         </p>
-        <code
-          className="block break-all rounded border px-4 py-3 text-xs"
-          style={{
-            borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-bg)',
-            color: 'var(--color-text-secondary)',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          {record.verificationAnchor}
-        </code>
+        <p className="mb-4 text-xs italic" style={{ color: 'var(--color-text-secondary)' }}>
+          This hash allows third parties to verify that this record has not been altered after
+          release.
+        </p>
+        <div className="relative">
+          <code
+            className="block break-all rounded border px-4 py-3 font-mono text-xs pr-20"
+            style={{
+              borderColor: 'var(--color-border)',
+              backgroundColor: 'var(--color-bg)',
+              color: 'var(--color-text-secondary)',
+            }}
+          >
+            {record.verificationAnchor}
+          </code>
+          <button
+            onClick={() => navigator.clipboard.writeText(record.verificationAnchor)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded bg-surface px-2 py-1 text-[10px] font-medium border transition-colors hover:bg-bg"
+            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+          >
+            Copy Hash
+          </button>
+        </div>
       </section>
 
       {/* Disclosure */}
@@ -169,12 +215,16 @@ export function LedgerRecordPage() {
         </h2>
         <ul className="flex flex-col gap-2">
           {[
-            'The session room dialogue remains permanently private to participants.',
+            'The session room dialogue remains permanently private to participants and is never published.',
             'This record does not identify individual participants.',
             'This record was approved by all designated parties before release.',
             'The substantive content of this record is the responsibility of the facilitating organisation.',
           ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            <li
+              key={item}
+              className="flex items-start gap-3 text-sm"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               <span className="mt-0.5 shrink-0">·</span>
               {item}
             </li>
@@ -200,7 +250,7 @@ export function LedgerRecordPage() {
             fontFamily: 'var(--font-mono)',
           }}
         >
-          {`Regional Mediation Centre. (2024). Community Land Use — Joint Statement. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${proposalId ?? record.id}`}
+          {`Regional Mediation Centre. (2024). Community Land Use — Joint Statement. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${proposalId ?? record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`}
         </code>
       </section>
     </div>

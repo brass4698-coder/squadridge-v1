@@ -3,16 +3,17 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AccountPageShell, AccountPanel } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
+import { appRoutes } from '../lib/appRoutes';
 
 function safeNextPath(raw: string | null): string {
-  if (!raw) return '/';
+  if (!raw) return appRoutes.dashboard;
   try {
     const decoded = decodeURIComponent(raw);
     if (decoded.startsWith('/') && !decoded.startsWith('//')) return decoded;
   } catch {
     /* ignore */
   }
-  return '/';
+  return appRoutes.dashboard;
 }
 
 function signInHref(nextPath: string): string {

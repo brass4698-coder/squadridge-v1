@@ -56,7 +56,7 @@ export function OutcomeDraftingPage() {
   const [savedText, setSavedText] = useState(initialDraft);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [approvers, _setApprovers] = useState<Approver[]>(mockApprovers);
+  const [approvers] = useState<Approver[]>(mockApprovers);
   const [versions] = useState<Version[]>([
     { version: 1, savedAt: 'Jun 18, 9:15 AM', preview: 'Initial draft from session notes.' },
     {

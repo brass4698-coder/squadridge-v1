@@ -133,7 +133,7 @@ function DesktopPrimaryNav({
     { key: 'how', to: '/#how-it-works', label: 'How it works', isActive: active.howItWorks },
     { key: 'sec', to: '/security', label: 'Security', isActive: active.security },
     { key: 'led', to: '/ledger', label: 'Ledger', isActive: active.ledger },
-    { key: 'pilot', to: '/#waitlist', label: 'Pilot access', isActive: active.pilotAccess },
+    { key: 'pilot', to: '/#waitlist', label: 'Request pilot access', isActive: active.pilotAccess },
   ] as const;
 
   return (
@@ -259,7 +259,7 @@ function MobileNavPanel({
     { to: '/#how-it-works', label: 'How it works', active: active.howItWorks, hash: true },
     { to: '/security', label: 'Security', active: active.security, hash: false },
     { to: '/ledger', label: 'Ledger', active: active.ledger, hash: false },
-    { to: '/#waitlist', label: 'Pilot access', active: active.pilotAccess, hash: true },
+    { to: '/#waitlist', label: 'Request pilot access', active: active.pilotAccess, hash: true },
   ] as const;
 
   return (

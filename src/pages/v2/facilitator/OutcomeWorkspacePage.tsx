@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
+import { appRoutes } from '../../../lib/appRoutes';
 
 export function OutcomeWorkspacePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -26,7 +27,7 @@ export function OutcomeWorkspacePage() {
   async function handleSubmitForRelease() {
     setSaving(true);
     await new Promise((r) => setTimeout(r, 600));
-    navigate(`/f/sessions/${sessionId}/release`);
+    navigate(appRoutes.sessionRelease(sessionId ?? ''));
   }
 
   const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
@@ -43,9 +44,22 @@ export function OutcomeWorkspacePage() {
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Session {sessionId}</p>
-          <h1 className="text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Outcome workspace</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>Draft the outcome document. Once submitted for release, all parties will be notified to review and approve.</p>
+          <p
+            className="mb-1 text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Session {sessionId}
+          </p>
+          <h1
+            className="text-xl font-semibold tracking-tight"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Outcome workspace
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            Draft the outcome document. Once submitted for release, all parties will be notified to
+            review and approve.
+          </p>
         </div>
 
         {/* Confidentiality notice */}
@@ -57,12 +71,15 @@ export function OutcomeWorkspacePage() {
             color: 'var(--color-accent)',
           }}
         >
-          This document is private until all parties approve release. Session room content will never be published.
+          This document is private until all parties approve release. Session room content will
+          never be published.
         </div>
 
         <div className="flex flex-col gap-6">
           <div>
-            <label className={labelClass} style={labelStyle}>Outcome summary <span aria-hidden>*</span></label>
+            <label className={labelClass} style={labelStyle}>
+              Outcome summary <span aria-hidden>*</span>
+            </label>
             <textarea
               required
               rows={4}
@@ -75,7 +92,9 @@ export function OutcomeWorkspacePage() {
           </div>
 
           <div>
-            <label className={labelClass} style={labelStyle}>Agreed terms</label>
+            <label className={labelClass} style={labelStyle}>
+              Agreed terms
+            </label>
             <textarea
               rows={5}
               className={inputClass}
@@ -87,7 +106,9 @@ export function OutcomeWorkspacePage() {
           </div>
 
           <div>
-            <label className={labelClass} style={labelStyle}>Pending or unresolved items</label>
+            <label className={labelClass} style={labelStyle}>
+              Pending or unresolved items
+            </label>
             <textarea
               rows={3}
               className={inputClass}
@@ -99,7 +120,9 @@ export function OutcomeWorkspacePage() {
           </div>
 
           <div>
-            <label className={labelClass} style={labelStyle}>Facilitator notes (internal only)</label>
+            <label className={labelClass} style={labelStyle}>
+              Facilitator notes (internal only)
+            </label>
             <textarea
               rows={3}
               className={inputClass}
@@ -116,7 +139,11 @@ export function OutcomeWorkspacePage() {
               onClick={handleSaveDraft}
               disabled={saving}
               className="flex-1 rounded border py-3 text-sm font-medium transition-opacity hover:opacity-70 disabled:opacity-50"
-              style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)', backgroundColor: 'transparent' }}
+              style={{
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)',
+                backgroundColor: 'transparent',
+              }}
             >
               {saving ? 'Saving…' : 'Save draft'}
             </button>

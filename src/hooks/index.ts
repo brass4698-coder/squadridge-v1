@@ -1,4 +1,6 @@
 export * from './useAppNavContext';
+export * from './useFacilitatorSessions';
+export * from './useAccessRequest';
 export * from './useIsModerator';
 export * from './useLedgerProposals';
 export * from './useLedgerProposalVotes';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { appRoutes } from '../../lib/appRoutes';
 
 type Step = 'basics' | 'eligibility' | 'verification' | 'review';
 
@@ -75,7 +76,7 @@ export function SessionSetupPage() {
   function launch() {
     setLaunching(true);
     // Replace with real API call
-    setTimeout(() => navigate('/sessions/sess-new-001'), 1200);
+    setTimeout(() => navigate(appRoutes.session('sess-new-001')), 1200);
   }
 
   const currentIdx = steps.findIndex((s) => s.id === currentStep);
@@ -109,9 +110,9 @@ export function SessionSetupPage() {
         </p>
       )}
       {children}
-      {(errors as Record<string, string | undefined>)[id] && (
+      {errors[id as keyof typeof errors] && (
         <p role="alert" className="mt-1.5 text-xs" style={{ color: 'var(--color-danger)' }}>
-          {(errors as Record<string, string | undefined>)[id]}
+          {errors[id as keyof typeof errors]}
         </p>
       )}
     </div>

@@ -1,9 +1,14 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '../../components/ui/Button';
+import { FormField } from '../../components/ui/FormField';
+import { Input } from '../../components/ui/Input';
+import { useAccessRequest } from '../../hooks/useAccessRequest';
 
 const USE_CASE_OPTIONS = [
   'Mediator / dispute resolution professional',
   'Government or public institution',
-  'NGO / civil society organisation',
+  'NGO / civil society organization',
   'Peace-tech or conflict-tech researcher',
   'Academic institution',
   'Legal professional',
@@ -12,6 +17,7 @@ const USE_CASE_OPTIONS = [
 ];
 
 export function RequestAccessPage() {
+  const { submit, loading, error, submitted } = useAccessRequest();
   const [form, setForm] = useState({
     name: '',
     organisation: '',
@@ -19,8 +25,6 @@ export function RequestAccessPage() {
     useCase: '',
     description: '',
   });
-  const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -28,105 +32,131 @@ export function RequestAccessPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    // TODO: Supabase insert in Phase 7
-    await new Promise((r) => setTimeout(r, 700));
-    setSubmitted(true);
+    await submit({
+      full_name: form.name,
+      organisation: form.organisation || undefined,
+      email: form.email,
+      use_case: form.useCase,
+      description: form.description,
+    });
   }
 
   if (submitted) {
     return (
-      <div
-        className="flex min-h-screen flex-col items-center justify-center px-6 py-16 text-center"
-        style={{ backgroundColor: 'var(--color-bg)' }}
-      >
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-16 text-center">
         <div
-          className="mb-5 flex h-12 w-12 items-center justify-center rounded-full"
-          style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
+          className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-brand-soft text-brand"
           aria-hidden
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h1 className="mb-2 text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request received</h1>
-        <p className="max-w-sm text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <h1 className="mb-2 text-page-title text-ink">Request received</h1>
+        <p className="max-w-sm text-app-body leading-relaxed text-ink-secondary">
           We review all pilot applications manually. You will hear from us within 5–7 business days.
         </p>
+        <Button asChild variant="link" className="mt-6">
+          <Link to="/">Return to home</Link>
+        </Button>
       </div>
     );
   }
 
-  const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
-  const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    borderColor: 'var(--color-border)',
-    color: 'var(--color-text-primary)',
-  };
-  const labelClass = 'mb-1.5 block text-xs font-medium';
-  const labelStyle = { color: 'var(--color-text-secondary)' };
-
   return (
-    <div
-      className="mx-auto max-w-xl px-6 py-16"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
+    <div className="mx-auto max-w-xl px-6 py-16">
       <div className="mb-10 text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Pilot access</p>
-        <h1 className="mb-2 text-2xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request access</h1>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in touch.
+        <p className="mb-2 text-app-meta font-semibold uppercase tracking-widest text-ink-secondary">
+          Pilot access
+        </p>
+        <h1 className="mb-2 text-page-title text-ink">Request access</h1>
+        <p className="text-app-body leading-relaxed text-ink-secondary">
+          SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in
+          touch.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className={labelClass} style={labelStyle}>Full name <span aria-hidden>*</span></label>
-            <input required className={inputClass} style={inputStyle} placeholder="Jane Smith" value={form.name} onChange={(e) => set('name', e.target.value)} />
-          </div>
-          <div>
-            <label className={labelClass} style={labelStyle}>Organisation</label>
-            <input className={inputClass} style={inputStyle} placeholder="Optional" value={form.organisation} onChange={(e) => set('organisation', e.target.value)} />
-          </div>
+          <FormField id="access-name" label="Full name">
+            <Input
+              id="access-name"
+              required
+              placeholder="Jane Smith"
+              value={form.name}
+              onChange={(e) => set('name', e.target.value)}
+            />
+          </FormField>
+          <FormField id="access-org" label="Organization">
+            <Input
+              id="access-org"
+              placeholder="Optional"
+              value={form.organisation}
+              onChange={(e) => set('organisation', e.target.value)}
+            />
+          </FormField>
         </div>
 
-        <div>
-          <label className={labelClass} style={labelStyle}>Work email <span aria-hidden>*</span></label>
-          <input required type="email" className={inputClass} style={inputStyle} placeholder="jane@organisation.org" value={form.email} onChange={(e) => set('email', e.target.value)} />
-        </div>
+        <FormField id="access-email" label="Work email">
+          <Input
+            id="access-email"
+            required
+            type="email"
+            placeholder="jane@organization.org"
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
+          />
+        </FormField>
 
-        <div>
-          <label className={labelClass} style={labelStyle}>Primary use case <span aria-hidden>*</span></label>
-          <select required className={inputClass} style={inputStyle} value={form.useCase} onChange={(e) => set('useCase', e.target.value)}>
+        <FormField id="access-use-case" label="Primary use case">
+          <select
+            id="access-use-case"
+            required
+            className="focus-ring w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+            value={form.useCase}
+            onChange={(e) => set('useCase', e.target.value)}
+          >
             <option value="">Select…</option>
-            {USE_CASE_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+            {USE_CASE_OPTIONS.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
           </select>
-        </div>
+        </FormField>
 
-        <div>
-          <label className={labelClass} style={labelStyle}>Brief description <span aria-hidden>*</span></label>
+        <FormField id="access-description" label="Brief description">
           <textarea
+            id="access-description"
             required
             rows={4}
-            className={inputClass}
-            style={inputStyle}
+            className="focus-ring w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink"
             placeholder="Describe the conflict context you work in and how you would use SquadRidge…"
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
           />
-        </div>
+        </FormField>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-        >
-          {saving ? 'Submitting…' : 'Submit request'}
-        </button>
+        {error ? (
+          <p className="text-app-meta text-sem-danger" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-        <p className="text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+        <Button type="submit" className="w-full" size="lg" loading={loading}>
+          Submit request
+        </Button>
+
+        <p className="text-center text-app-meta text-ink-secondary">
           We review all applications manually. Your information is kept confidential.
         </p>
       </form>

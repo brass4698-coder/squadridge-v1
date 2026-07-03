@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { buildParticipantInviteUrl, DEV_PARTICIPANT_DEMO_TOKEN } from '../../lib/participantRoutes';
 
 type InviteMethod = 'email' | 'link';
 
@@ -14,10 +15,34 @@ type Participant = {
 
 // Mock data
 const mockParticipants: Participant[] = [
-  { id: 'p1', name: 'Amara Nwosu',    email: 'amara@ngo-partners.org',  status: 'approved', submittedAt: 'Jun 17' },
-  { id: 'p2', name: 'Jonas Berglund', email: 'j.berglund@mediation.se', status: 'pending',  submittedAt: 'Jun 18' },
-  { id: 'p3', name: 'Priya Chandran', email: 'p.chandran@institute.in', status: 'pending',  submittedAt: 'Jun 18' },
-  { id: 'p4', name: 'Kwame Asante',   email: 'kwame@civilsociety.gh',   status: 'declined', submittedAt: 'Jun 16' },
+  {
+    id: 'p1',
+    name: 'Amara Nwosu',
+    email: 'amara@ngo-partners.org',
+    status: 'approved',
+    submittedAt: 'Jun 17',
+  },
+  {
+    id: 'p2',
+    name: 'Jonas Berglund',
+    email: 'j.berglund@mediation.se',
+    status: 'pending',
+    submittedAt: 'Jun 18',
+  },
+  {
+    id: 'p3',
+    name: 'Priya Chandran',
+    email: 'p.chandran@institute.in',
+    status: 'pending',
+    submittedAt: 'Jun 18',
+  },
+  {
+    id: 'p4',
+    name: 'Kwame Asante',
+    email: 'kwame@civilsociety.gh',
+    status: 'declined',
+    submittedAt: 'Jun 16',
+  },
 ];
 
 export function ParticipantInvitePage() {
@@ -29,7 +54,11 @@ export function ParticipantInvitePage() {
   const [participants, setParticipants] = useState<Participant[]>(mockParticipants);
   const [copied, setCopied] = useState(false);
 
-  const inviteLink = `https://squadridge.app/invite/${sessionId ?? 'sess-001'}?token=demo-token-abc123`;
+  const inviteToken = `${sessionId ?? 'sess-001'}-${DEV_PARTICIPANT_DEMO_TOKEN}`;
+  const inviteLink =
+    typeof window !== 'undefined'
+      ? buildParticipantInviteUrl(inviteToken)
+      : buildParticipantInviteUrl(inviteToken, 'https://squadridge.app');
 
   function addEmail() {
     const raw = emailInput.trim();
@@ -78,7 +107,10 @@ export function ParticipantInvitePage() {
           Invite Participants
         </h1>
         <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Session: <span style={{ color: 'var(--color-text-primary)' }}>Northern Watershed Consultation</span>
+          Session:{' '}
+          <span style={{ color: 'var(--color-text-primary)' }}>
+            Northern Watershed Consultation
+          </span>
         </p>
       </div>
 
@@ -115,13 +147,23 @@ export function ParticipantInvitePage() {
         >
           <div className="flex gap-3">
             <div className="flex-1">
-              <label htmlFor="email-input" className="sr-only">Email address</label>
+              <label htmlFor="email-input" className="sr-only">
+                Email address
+              </label>
               <input
                 id="email-input"
                 type="email"
                 value={emailInput}
-                onChange={(e) => { setEmailInput(e.target.value); setEmailError(''); }}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addEmail(); } }}
+                onChange={(e) => {
+                  setEmailInput(e.target.value);
+                  setEmailError('');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addEmail();
+                  }
+                }}
                 placeholder="colleague@organisation.org"
                 className="w-full rounded border px-4 py-2.5 text-sm outline-none transition-colors"
                 style={{
@@ -133,7 +175,12 @@ export function ParticipantInvitePage() {
                 aria-describedby={emailError ? 'email-error' : undefined}
               />
               {emailError && (
-                <p id="email-error" role="alert" className="mt-1 text-xs" style={{ color: 'var(--color-danger)' }}>
+                <p
+                  id="email-error"
+                  role="alert"
+                  className="mt-1 text-xs"
+                  style={{ color: 'var(--color-danger)' }}
+                >
                   {emailError}
                 </p>
               )}
@@ -157,7 +204,10 @@ export function ParticipantInvitePage() {
                   <li
                     key={email}
                     className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
-                    style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                    style={{
+                      borderColor: 'var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
                   >
                     {email}
                     <button
@@ -190,7 +240,8 @@ export function ParticipantInvitePage() {
           style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
         >
           <p className="mb-4 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Share this link with anyone you want to invite. They will still need to complete verification before gaining access.
+            Share this link with anyone you want to invite. They will still need to complete
+            verification before gaining access.
           </p>
           <div className="flex gap-3">
             <input
@@ -250,14 +301,23 @@ export function ParticipantInvitePage() {
                   className="border-b last:border-0"
                   style={{ borderColor: 'var(--color-border)' }}
                 >
-                  <td className="px-5 py-3.5 font-medium" style={{ color: 'var(--color-text-primary)' }}>{p.name}</td>
-                  <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>{p.email}</td>
+                  <td
+                    className="px-5 py-3.5 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {p.name}
+                  </td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
+                    {p.email}
+                  </td>
                   <td className="px-5 py-3.5">
                     <StatusBadge variant={p.status}>
                       {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
                     </StatusBadge>
                   </td>
-                  <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>{p.submittedAt}</td>
+                  <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
+                    {p.submittedAt}
+                  </td>
                   <td className="px-5 py-3.5">
                     {p.status === 'pending' && (
                       <div className="flex gap-3">

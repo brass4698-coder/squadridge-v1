@@ -1,16 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { participantRoute } from '../../../lib/participantRoutes';
 
 type Message = { id: string; from: string; role: string; body: string; time: string };
 
 const seedMessages: Message[] = [
-  { id: 'm1', from: 'Facilitator', role: 'Facilitator', body: 'Welcome, everyone. We will begin shortly. Please confirm you can read this message.', time: '10:01 AM' },
-  { id: 'm2', from: 'Amara N.', role: 'Participant', body: 'Confirmed — I can read this.', time: '10:02 AM' },
+  {
+    id: 'm1',
+    from: 'Facilitator',
+    role: 'Facilitator',
+    body: 'Welcome, everyone. We will begin shortly. Please confirm you can read this message.',
+    time: '10:01 AM',
+  },
+  {
+    id: 'm2',
+    from: 'Amara N.',
+    role: 'Participant',
+    body: 'Confirmed — I can read this.',
+    time: '10:02 AM',
+  },
   { id: 'm3', from: 'Jonas B.', role: 'Participant', body: 'Ready here.', time: '10:03 AM' },
 ];
 
 export function ParticipantRoomPage() {
+  const token = useParticipantToken();
   const [messages, setMessages] = useState<Message[]>(seedMessages);
   const [input, setInput] = useState('');
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -30,14 +45,14 @@ export function ParticipantRoomPage() {
   }
 
   function leave() {
-    navigate('/p/session-end');
+    if (!token) return;
+    navigate(participantRoute('done', token));
   }
 
+  if (!token) return null;
+
   return (
-    <div
-      className="flex h-screen flex-col"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
+    <div className="flex h-screen flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Header */}
       <div
         className="flex items-center justify-between border-b px-6 py-4"
@@ -50,10 +65,7 @@ export function ParticipantRoomPage() {
           >
             Protected Session · Live
           </p>
-          <h1
-            className="text-base font-semibold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h1 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             Northern Watershed Consultation
           </h1>
         </div>
@@ -75,7 +87,8 @@ export function ParticipantRoomPage() {
           color: 'var(--color-accent)',
         }}
       >
-        This dialogue is private. Nothing said here will be shared publicly without explicit approval.
+        This dialogue is private. Nothing said here will be shared publicly without explicit
+        approval.
       </div>
 
       {/* Messages */}
@@ -90,17 +103,12 @@ export function ParticipantRoomPage() {
             const isYou = msg.from === 'You';
             const isFacilitator = msg.role === 'Facilitator';
             return (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${ isYou ? 'items-end' : 'items-start' }`}
-              >
+              <div key={msg.id} className={`flex flex-col ${isYou ? 'items-end' : 'items-start'}`}>
                 <div className="mb-1 flex items-center gap-2">
                   <span
                     className="text-xs font-medium"
                     style={{
-                      color: isFacilitator
-                        ? 'var(--color-accent)'
-                        : 'var(--color-text-secondary)',
+                      color: isFacilitator ? 'var(--color-accent)' : 'var(--color-text-secondary)',
                     }}
                   >
                     {msg.from} {isFacilitator ? '· Facilitator' : ''}
@@ -115,8 +123,8 @@ export function ParticipantRoomPage() {
                     backgroundColor: isYou
                       ? 'var(--color-accent)'
                       : isFacilitator
-                      ? 'var(--color-accent-light)'
-                      : 'var(--color-surface)',
+                        ? 'var(--color-accent-light)'
+                        : 'var(--color-surface)',
                     color: isYou ? '#fff' : 'var(--color-text-primary)',
                     border: isYou ? 'none' : `1px solid var(--color-border)`,
                   }}
@@ -135,14 +143,19 @@ export function ParticipantRoomPage() {
         style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
       >
         <div className="mx-auto flex max-w-2xl gap-3">
-          <label htmlFor="participant-input" className="sr-only">Your message</label>
+          <label htmlFor="participant-input" className="sr-only">
+            Your message
+          </label>
           <textarea
             id="participant-input"
             rows={2}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
             }}
             placeholder="Write your contribution… (Enter to send, Shift+Enter for new line)"
             className="flex-1 resize-none rounded border px-4 py-2.5 text-sm outline-none transition-colors"

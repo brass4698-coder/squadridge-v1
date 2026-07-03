@@ -1,6 +1,9 @@
 /**
  * Shared horizontal bounds for the public marketing shell (header, context bar, footer).
  * Align with max-width 1200px and padding 16px / 24px / 32px at mobile / tablet / desktop.
+ *
+ * Renamed from `publicShell.ts` to avoid a case-only collision with `PublicShell.tsx`
+ * (Windows/macOS default filesystems treat them as the same file, which broke `tsc -b`).
  */
 export const PUBLIC_SHELL_MAX_CLASS = 'max-w-[1200px]';
 

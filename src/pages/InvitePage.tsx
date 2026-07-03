@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AccountPageShell, AccountPanel } from '../components/auth/AccountPageShell';
+import { appRoutes } from '../lib/appRoutes';
 
 /**
  * Access gate for invite-based entry: code in URL or typed here; then sign in to continue.
@@ -10,12 +11,10 @@ export function InvitePage() {
   const fromQuery = searchParams.get('code') ?? '';
   const [code, setCode] = useState(fromQuery);
   const trimmed = code.trim();
-  const findSquadWithInvite = trimmed
-    ? `/find-squad?${new URLSearchParams({ code: trimmed }).toString()}`
-    : null;
-  const signInTo = findSquadWithInvite
-    ? `/sign-in?next=${encodeURIComponent(findSquadWithInvite)}`
-    : '/sign-in';
+  const dashboardNext = trimmed
+    ? `${appRoutes.dashboard}?${new URLSearchParams({ code: trimmed }).toString()}`
+    : appRoutes.dashboard;
+  const signInTo = `/sign-in?next=${encodeURIComponent(dashboardNext)}`;
 
   return (
     <AccountPageShell>

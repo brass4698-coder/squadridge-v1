@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { type ReactNode } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 
 const publicNav = [
   { label: 'How it works', href: '/how-it-works' },
@@ -18,28 +18,16 @@ const footerLinks = [
   { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },
   { label: 'Request access', href: '/request-access' },
+  { label: 'Contact', href: '/contact' },
 ];
 
-/** Public marketing shell. `children` optional so it works both as a layout
- * route (`<Route element={<PublicShell />} />` with nested routes rendering
- * via `<Outlet />`) and as a wrapper (`<PublicShell>...</PublicShell>`). */
-export function PublicShell({ children }: { children?: ReactNode }) {
+export function PublicShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div className="theme-light flex min-h-screen flex-col bg-surface">
       {/* Nav */}
-      <header
-        className="sticky top-0 z-40 border-b"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
+      <header className="sticky top-0 z-40 border-b border-line bg-surface">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link
-            to="/"
-            className="text-sm font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <Link to="/" className="text-sm font-semibold tracking-tight text-ink">
             SquadRidge
           </Link>
 
@@ -50,11 +38,8 @@ export function PublicShell({ children }: { children?: ReactNode }) {
                 to={item.href}
                 className={({ isActive }) =>
                   'text-sm transition-opacity hover:opacity-70 ' +
-                  (isActive ? 'font-medium' : 'font-normal')
+                  (isActive ? 'font-medium text-ink' : 'font-normal text-ink-secondary')
                 }
-                style={({ isActive }) => ({
-                  color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                })}
               >
                 {item.label}
               </NavLink>
@@ -64,15 +49,13 @@ export function PublicShell({ children }: { children?: ReactNode }) {
           <div className="flex items-center gap-4">
             <Link
               to="/sign-in"
-              className="text-sm transition-opacity hover:opacity-70"
-              style={{ color: 'var(--color-text-secondary)' }}
+              className="text-sm transition-opacity hover:opacity-70 text-ink-secondary"
             >
               Sign in
             </Link>
             <Link
               to="/request-access"
-              className="rounded px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: 'var(--color-accent)' }}
+              className="rounded bg-brand px-4 py-2 text-sm font-medium text-brand-on transition-opacity hover:opacity-90"
             >
               Request access
             </Link>
@@ -81,34 +64,27 @@ export function PublicShell({ children }: { children?: ReactNode }) {
       </header>
 
       {/* Page content */}
-      <main className="flex-1">{children ?? <Outlet />}</main>
+      <main className="flex-1">{children}</main>
 
       {/* Footer */}
-      <footer
-        className="border-t px-6 py-12"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
+      <footer className="border-t border-line bg-surface px-6 py-12">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 flex flex-wrap gap-x-8 gap-y-3">
             {footerLinks.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
-                className="text-xs transition-opacity hover:opacity-70"
-                style={{ color: 'var(--color-text-secondary)' }}
+                className="text-xs transition-opacity hover:opacity-70 text-ink-secondary"
               >
                 {item.label}
               </Link>
             ))}
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-xs text-ink-secondary">
               &copy; {new Date().getFullYear()} SquadRidge. All rights reserved.
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            <p className="text-xs text-ink-secondary">
               Session room content is private. Only approved outcomes are published.
             </p>
           </div>

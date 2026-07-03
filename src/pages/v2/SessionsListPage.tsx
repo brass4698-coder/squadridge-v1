@@ -1,164 +1,115 @@
 import { Link } from 'react-router-dom';
-import { StatusBadge } from '../../components/ui/StatusBadge';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { RouteSkeleton } from '../../components/system/RouteSkeleton';
+import { ErrorState } from '../../components/system/ErrorState';
+import { useFacilitatorSessions } from '../../hooks/useFacilitatorSessions';
+import { appRoutes } from '../../lib/appRoutes';
+import type { FacilitatorSessionRow } from '../../hooks/useFacilitatorSessions';
 
-type SessionListStatus = 'live' | 'paused' | 'pending' | 'draft' | 'released' | 'archived';
-
-const allSessions: Array<{
-  id: string;
-  title: string;
-  status: SessionListStatus;
-  participants: number;
-  date: string;
-  org: string;
-}> = [
-  {
-    id: 'sess-001',
-    title: 'Northern Watershed Consultation',
-    status: 'live',
-    participants: 12,
-    date: 'Jun 18, 2024',
-    org: 'Regional Mediation Centre',
-  },
-  {
-    id: 'sess-002',
-    title: 'Urban Housing Policy Working Group',
-    status: 'pending',
-    participants: 8,
-    date: 'Jun 18, 2024',
-    org: 'City Planning Consortium',
-  },
-  {
-    id: 'sess-003',
-    title: 'Regional Trade Framework — Round 2',
-    status: 'draft',
-    participants: 6,
-    date: 'Jun 19, 2024',
-    org: 'Trade Facilitation Office',
-  },
-  {
-    id: 'sess-004',
-    title: 'Community Land Use — Joint Statement',
-    status: 'released',
-    participants: 12,
-    date: 'Mar 14, 2024',
-    org: 'Regional Mediation Centre',
-  },
-  {
-    id: 'sess-005',
-    title: 'Coastal Zone Management Dialogue',
-    status: 'archived',
-    participants: 9,
-    date: 'Feb 2, 2024',
-    org: 'Coastal Authority',
-  },
-];
+function sessionActionLink(s: FacilitatorSessionRow): { to: string; label: string } {
+  if (s.status === 'live' || s.status === 'paused') {
+    return { to: appRoutes.sessionRoom(s.id), label: 'Enter room' };
+  }
+  if (s.status === 'pending') {
+    return { to: appRoutes.sessionInvite(s.id), label: 'Manage invites' };
+  }
+  if (s.status === 'draft') {
+    return { to: `${appRoutes.outcomeNew}?sessionId=${s.id}`, label: 'Draft outcome' };
+  }
+  if (s.status === 'released') {
+    return { to: `/ledger/${s.id}`, label: 'View record' };
+  }
+  return { to: appRoutes.session(s.id), label: 'View' };
+}
 
 export function SessionsListPage() {
-  return (
-    <div className="px-6 py-8 md:px-10">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <div>
-          <h1
-            className="text-2xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Sessions
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            All sessions you have created or facilitated.
-          </p>
-        </div>
-        <Link
-          to="/sessions/new"
-          className="rounded px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-        >
-          + New Session
-        </Link>
-      </div>
+  const { sessions, loading, error } = useFacilitatorSessions();
 
-      <div
-        className="overflow-hidden rounded-lg border"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
-      >
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b" style={{ borderColor: 'var(--color-border)' }}>
-              {['Session', 'Organisation', 'Status', 'Participants', 'Date', ''].map((h) => (
-                <th
-                  key={h}
-                  scope="col"
-                  className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {allSessions.map((s) => (
-              <tr
-                key={s.id}
-                className="border-b last:border-0 transition-colors hover:bg-slate-50"
-                style={{ borderColor: 'var(--color-border)' }}
-              >
-                <td className="px-5 py-3.5">
-                  <Link
-                    to={`/sessions/${s.id}`}
-                    className="font-medium hover:underline"
-                    style={{ color: 'var(--color-text-primary)' }}
+  if (loading) return <RouteSkeleton label="Loading sessions" />;
+
+  return (
+    <div>
+      <PageHeader
+        title="Sessions"
+        description="All sessions you have created or facilitated."
+        action={
+          <Button asChild>
+            <Link to={appRoutes.sessionNew}>New session</Link>
+          </Button>
+        }
+      />
+
+      {error && sessions.length === 0 ? (
+        <ErrorState title="Sessions unavailable" description={error} />
+      ) : sessions.length === 0 ? (
+        <EmptyState
+          heading="No sessions yet"
+          body="Create a session to invite participants and start a structured dialogue."
+          action={
+            <Button asChild>
+              <Link to={appRoutes.sessionNew}>New session</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <Card className="overflow-hidden">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-line">
+                {['Session', 'Organization', 'Status', 'Participants', 'Date', ''].map((h) => (
+                  <th
+                    key={h}
+                    scope="col"
+                    className="px-5 py-3 text-left text-app-meta font-semibold uppercase tracking-wider text-ink-secondary"
                   >
-                    {s.title}
-                  </Link>
-                </td>
-                <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
-                  {s.org}
-                </td>
-                <td className="px-5 py-3.5">
-                  <StatusBadge variant={s.status}>
-                    {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
-                  </StatusBadge>
-                </td>
-                <td
-                  className="px-5 py-3.5 tabular-nums"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  {s.participants}
-                </td>
-                <td className="px-5 py-3.5" style={{ color: 'var(--color-text-secondary)' }}>
-                  {s.date}
-                </td>
-                <td className="px-5 py-3.5">
-                  <Link
-                    to={
-                      s.status === 'live' || s.status === 'paused'
-                        ? `/sessions/${s.id}/room`
-                        : s.status === 'pending'
-                          ? `/sessions/${s.id}/invite`
-                          : s.status === 'draft'
-                            ? `/outcomes/new?sessionId=${s.id}`
-                            : `/ledger/${s.id}`
-                    }
-                    className="text-xs font-medium underline transition-opacity hover:opacity-70"
-                    style={{ color: 'var(--color-accent)' }}
-                  >
-                    {s.status === 'live'
-                      ? 'Enter Room'
-                      : s.status === 'pending'
-                        ? 'Manage Invites'
-                        : s.status === 'draft'
-                          ? 'Draft Outcome'
-                          : s.status === 'released'
-                            ? 'View Record'
-                            : 'View'}
-                  </Link>
-                </td>
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {sessions.map((s) => {
+                const action = sessionActionLink(s);
+                return (
+                  <tr
+                    key={s.id}
+                    className="border-b border-line transition-colors last:border-0 hover:bg-surface-accent"
+                  >
+                    <td className="px-5 py-3.5">
+                      <Link
+                        to={appRoutes.session(s.id)}
+                        className="font-medium text-ink hover:underline"
+                      >
+                        {s.title}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3.5 text-ink-secondary">{s.org}</td>
+                    <td className="px-5 py-3.5">
+                      <Badge variant={s.status}>{s.status}</Badge>
+                    </td>
+                    <td className="px-5 py-3.5 tabular-nums text-ink-secondary">
+                      {s.participants}
+                    </td>
+                    <td className="px-5 py-3.5 text-ink-secondary">{s.date}</td>
+                    <td className="px-5 py-3.5">
+                      <Link
+                        to={action.to}
+                        className="text-app-meta font-medium text-brand underline"
+                      >
+                        {action.label}
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </Card>
+      )}
     </div>
   );
 }

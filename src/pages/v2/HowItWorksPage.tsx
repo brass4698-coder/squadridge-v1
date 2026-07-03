@@ -49,58 +49,39 @@ const faqs = [
 
 export function HowItWorksPage() {
   return (
-    <div style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div className="bg-surface">
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-6 pb-16 pt-20">
-        <p
-          className="mb-3 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
           The session lifecycle
         </p>
-        <h1
-          className="mb-5 text-5xl font-medium tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
+        <h1 className="mb-5 text-5xl font-medium tracking-tight text-ink">
           Four stages. One protected process.
         </h1>
-        <p className="text-lg leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+        <p className="text-lg leading-relaxed text-ink-secondary">
           Every session follows a structured lifecycle — from configuration to verified public
           record.
         </p>
       </section>
 
       {/* Stages */}
-      <section
-        className="border-y py-20"
-        style={{ borderColor: 'var(--color-border)' }}
-        aria-label="Session stages"
-      >
+      <section className="border-y border-line py-20" aria-label="Session stages">
         <div className="mx-auto max-w-3xl px-6">
           <ol className="flex flex-col gap-14">
             {stages.map((stage) => (
               <li key={stage.number} className="flex gap-10">
                 <span
-                  className="mt-1 shrink-0 text-4xl font-light tabular-nums"
-                  style={{ color: 'var(--color-border)', minWidth: '3.5rem' }}
+                  className="mt-1 shrink-0 text-4xl font-light tabular-nums text-line"
+                  style={{ minWidth: '3.5rem' }}
                   aria-hidden="true"
                 >
                   {stage.number}
                 </span>
                 <section aria-labelledby={`stage-${stage.number}`}>
-                  <h2
-                    id={`stage-${stage.number}`}
-                    className="mb-3 text-xl font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
+                  <h2 id={`stage-${stage.number}`} className="mb-3 text-xl font-semibold text-ink">
                     {stage.heading}
                   </h2>
-                  <p
-                    className="text-base leading-relaxed"
-                    style={{ color: 'var(--color-text-secondary)' }}
-                  >
-                    {stage.body}
-                  </p>
+                  <p className="text-base leading-relaxed text-ink-secondary">{stage.body}</p>
                 </section>
               </li>
             ))}
@@ -110,58 +91,35 @@ export function HowItWorksPage() {
 
       {/* FAQ */}
       <section className="mx-auto max-w-3xl px-6 py-20" aria-labelledby="faq-heading">
-        <h2
-          id="faq-heading"
-          className="mb-12 text-3xl font-medium tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
+        <h2 id="faq-heading" className="mb-12 text-3xl font-medium tracking-tight text-ink">
           Common questions
         </h2>
         <dl className="flex flex-col gap-10">
           {faqs.map((faq) => (
-            <div
-              key={faq.q}
-              className="border-t pt-8"
-              style={{ borderColor: 'var(--color-border)' }}
-            >
-              <dt
-                className="mb-3 text-base font-semibold"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
-                {faq.q}
-              </dt>
-              <dd
-                className="text-base leading-relaxed"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {faq.a}
-              </dd>
+            <div key={faq.q} className="border-t border-line pt-8">
+              <dt className="mb-3 text-base font-semibold text-ink">{faq.q}</dt>
+              <dd className="text-base leading-relaxed text-ink-secondary">{faq.a}</dd>
             </div>
           ))}
         </dl>
       </section>
 
       {/* CTA footer */}
-      <section className="border-t py-20" style={{ borderColor: 'var(--color-border)' }}>
+      <section className="border-t border-line py-20">
         <div className="mx-auto max-w-2xl px-6 text-center">
-          <h2
-            className="mb-5 text-3xl font-medium tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h2 className="mb-5 text-3xl font-medium tracking-tight text-ink">
             Ready to run a protected session?
           </h2>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               to="/request-access"
-              className="rounded px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: 'var(--color-accent)' }}
+              className="rounded bg-brand px-6 py-3 text-sm font-medium text-brand-on transition-opacity hover:opacity-90"
             >
               Request Pilot Access
             </Link>
             <Link
               to="/ledger/demo-proposal-001"
-              className="text-sm underline transition-opacity hover:opacity-70"
-              style={{ color: 'var(--color-text-secondary)' }}
+              className="text-sm text-ink-secondary underline transition-opacity hover:opacity-70"
             >
               View a sample record →
             </Link>

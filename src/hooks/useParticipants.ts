@@ -17,7 +17,7 @@ export function useParticipants(sessionId: string | undefined) {
       .eq('session_id', sessionId)
       .order('created_at', { ascending: true });
     if (err) setError(err.message);
-    else setParticipants(data ?? []);
+    else setParticipants((data ?? []) as Participant[]);
     setLoading(false);
   }, [sessionId]);
 

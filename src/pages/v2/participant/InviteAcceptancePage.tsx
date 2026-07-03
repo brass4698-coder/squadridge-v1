@@ -1,98 +1,72 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../components/ui/Button';
+import { TokenShell } from '../../../components/layout/TokenShell';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { participantRoute } from '../../../lib/participantRoutes';
 
 export function InviteAcceptancePage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') ?? 'demo-token';
+  const token = useParticipantToken();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function accept() {
+    if (!token) return;
     setLoading(true);
-    // Replace with real token validation
-    setTimeout(() => navigate(`/p/verify?token=${token}`), 800);
+    setTimeout(() => navigate(participantRoute('verify', token)), 800);
   }
 
+  if (!token) return null;
+
   return (
-    <div
-      className="flex min-h-screen flex-col items-center justify-center px-6 py-16"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
-      <div
-        className="w-full max-w-md rounded-xl border p-10"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-          boxShadow: 'var(--shadow-card)',
-        }}
-      >
-        {/* Eyebrow */}
-        <p
-          className="mb-4 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          Secure Invitation
-        </p>
-
-        <h1
-          className="mb-3 text-2xl font-semibold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          You have been invited to participate
-        </h1>
-
-        <p
-          className="mb-6 text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          A facilitator has extended a formal invitation for you to join a protected dialogue session on SquadRidge. Before you can enter, you will complete a short verification process.
-        </p>
-
-        <div
-          className="mb-8 rounded-lg border p-5"
-          style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg)' }}
-        >
-          <p
-            className="mb-1 text-xs font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            Session
+    <TokenShell>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+        <div className="sr-glass-strong w-full max-w-md rounded-xl p-10">
+          <p className="mb-4 text-app-meta font-semibold uppercase tracking-widest text-brand">
+            Secure invitation
           </p>
-          <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            Northern Watershed Consultation
+
+          <h1 className="mb-3 text-page-title text-ink">You have been invited to participate</h1>
+
+          <p className="mb-6 text-app-body leading-relaxed text-ink-secondary">
+            A facilitator has extended a formal invitation for you to join a protected dialogue
+            session on SquadRidge. Before you can enter, you will complete a short verification
+            process.
           </p>
-          <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-            Facilitated by Regional Mediation Centre &middot; Jun 20, 2024
+
+          <div className="mb-8 rounded-lg border border-line bg-surface-secondary p-5">
+            <p className="mb-1 text-app-meta font-semibold uppercase tracking-wider text-ink-secondary">
+              Session
+            </p>
+            <p className="text-app-body font-medium text-ink">Northern Watershed Consultation</p>
+            <p className="mt-1 text-app-meta text-ink-secondary">
+              Facilitated by Regional Mediation Centre · Jun 20, 2024
+            </p>
+          </div>
+
+          <ul className="mb-8 space-y-2">
+            {[
+              'Your participation is confidential.',
+              'Only the approved outcome document may become public.',
+              'Your identity is protected within the session room.',
+              'You may leave at any time.',
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 text-app-body text-ink-secondary">
+                <span className="mt-0.5 text-base leading-none text-sem-success">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <Button className="w-full" size="lg" onClick={accept} loading={loading}>
+            Accept invitation &amp; continue
+          </Button>
+
+          <p className="mt-4 text-center text-app-meta text-ink-secondary">
+            This invitation link is single-use and expires after verification is complete.
           </p>
         </div>
-
-        <ul className="mb-8 space-y-2">
-          {[
-            'Your participation is confidential.',
-            'Only the approved outcome document may become public.',
-            'Your identity is protected within the room.',
-            'You may leave at any time.',
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              <span className="mt-0.5 text-base leading-none" style={{ color: 'var(--color-success)' }}>✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        <button
-          onClick={accept}
-          disabled={loading}
-          className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-        >
-          {loading ? 'Verifying invitation…' : 'Accept Invitation & Continue'}
-        </button>
-
-        <p className="mt-4 text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          This invitation link is single-use and expires after verification is complete.
-        </p>
       </div>
-    </div>
+    </TokenShell>
   );
 }

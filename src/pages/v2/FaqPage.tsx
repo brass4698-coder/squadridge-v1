@@ -45,36 +45,24 @@ export function FaqPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-20">
       <div className="mb-12 text-center">
-        <p
-          className="mb-3 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          Questions
-        </p>
-        <h1
-          className="mb-3 text-3xl font-semibold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Frequently asked
-        </h1>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-brand">Questions</p>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight text-ink">Frequently asked</h1>
       </div>
 
       <dl className="flex flex-col">
         {faqs.map((faq, i) => (
-          <div key={faq.q} className="border-b" style={{ borderColor: 'var(--color-border)' }}>
+          <div key={faq.q} className="border-b border-line">
             <dt>
               <button
                 onClick={() => toggle(i)}
-                className="flex w-full items-center justify-between py-5 text-left text-sm font-medium"
-                style={{ color: 'var(--color-text-primary)' }}
+                className="flex w-full items-center justify-between py-5 text-left text-sm font-medium text-ink"
                 aria-expanded={open === i}
               >
                 {faq.q}
                 <span
-                  className="ml-4 shrink-0 text-base transition-transform"
+                  className="ml-4 shrink-0 text-base transition-transform text-ink-secondary"
                   style={{
                     transform: open === i ? 'rotate(45deg)' : 'none',
-                    color: 'var(--color-text-secondary)',
                   }}
                   aria-hidden="true"
                 >
@@ -83,12 +71,7 @@ export function FaqPage() {
               </button>
             </dt>
             {open === i && (
-              <dd
-                className="pb-5 text-sm leading-relaxed"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {faq.a}
-              </dd>
+              <dd className="pb-5 text-sm leading-relaxed text-ink-secondary">{faq.a}</dd>
             )}
           </div>
         ))}

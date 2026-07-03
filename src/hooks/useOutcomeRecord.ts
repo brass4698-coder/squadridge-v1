@@ -19,12 +19,13 @@ export function useOutcomeRecord(sessionId: string | undefined) {
       .limit(1)
       .single();
     if (data) {
-      setOutcome(data);
+      const row = data as OutcomeRecord;
+      setOutcome(row);
       const { data: approvalData } = await supabase
         .from('outcome_approvals')
         .select('*')
-        .eq('outcome_id', data.id);
-      setApprovals(approvalData ?? []);
+        .eq('outcome_id', row.id);
+      setApprovals((approvalData ?? []) as OutcomeApproval[]);
     }
     setLoading(false);
   }, [sessionId]);
@@ -47,7 +48,7 @@ export function useOutcomeRecord(sessionId: string | undefined) {
         .eq('id', outcome.id)
         .select()
         .single();
-      if (data) setOutcome(data);
+      if (data) setOutcome(data as OutcomeRecord);
     } else {
       const {
         data: { user },
@@ -58,7 +59,7 @@ export function useOutcomeRecord(sessionId: string | undefined) {
         .insert({ session_id: sessionId, status: 'draft', ...fields })
         .select()
         .single();
-      if (data) setOutcome(data);
+      if (data) setOutcome(data as OutcomeRecord);
     }
   }
 

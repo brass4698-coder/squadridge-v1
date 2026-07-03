@@ -15,7 +15,7 @@ export function useSessions() {
       .select('*')
       .order('created_at', { ascending: false });
     if (err) setError(err.message);
-    else setSessions(data ?? []);
+    else setSessions((data ?? []) as Session[]);
     setLoading(false);
   }, []);
 
@@ -36,8 +36,9 @@ export function useSessions() {
       .select()
       .single();
     if (err) throw err;
-    setSessions((prev) => [data, ...prev]);
-    return data;
+    const row = data as Session;
+    setSessions((prev) => [row, ...prev]);
+    return row;
   }
 
   async function updateSessionStatus(id: string, status: Session['status']) {

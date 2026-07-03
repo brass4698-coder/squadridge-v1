@@ -1,66 +1,73 @@
 import { Link } from 'react-router-dom';
+import { TokenShell } from '../../../components/layout/TokenShell';
 
 export function SessionEndPage() {
   return (
-    <div
-      className="flex min-h-screen flex-col items-center justify-center px-6 py-16 text-center"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
-      <div
-        className="mb-8 flex h-14 w-14 items-center justify-center rounded-full text-xl"
-        style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
-        aria-hidden="true"
-      >
-        ✓
-      </div>
-      <p
-        className="mb-2 text-xs font-semibold uppercase tracking-widest"
-        style={{ color: 'var(--color-accent)' }}
-      >
-        Session Complete
-      </p>
-      <h1
-        className="mb-3 text-2xl font-semibold tracking-tight"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
-        Thank you for participating
-      </h1>
-      <p
-        className="mb-8 max-w-sm text-sm leading-relaxed"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        The session has closed. Your contributions were protected throughout. If an outcome document is produced and approved, you will be notified before it is published.
-      </p>
+    <TokenShell>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+        <div
+          className="mb-8 flex h-14 w-14 items-center justify-center rounded-full text-xl"
+          style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
+          aria-hidden="true"
+        >
+          ✓
+        </div>
+        <p
+          className="mb-2 text-xs font-semibold uppercase tracking-widest"
+          style={{ color: 'var(--color-accent)' }}
+        >
+          Session Complete
+        </p>
+        <h1
+          className="mb-3 text-2xl font-semibold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Thank you for participating
+        </h1>
+        <p
+          className="mb-8 max-w-sm text-sm leading-relaxed"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          The session has closed. Your contributions were protected throughout. If an outcome
+          document is produced and approved, you will be notified before it is published.
+        </p>
 
-      <div
-        className="mb-8 w-full max-w-sm rounded-lg border p-6 text-left"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
-      >
-        <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-          What happens next
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {[
-            'The facilitator will produce a draft outcome document, if applicable.',
-            'All designated approvers will be asked to review and sign off.',
-            'Only an approved, final document will be released to the public ledger.',
-            'The room dialogue — including your contributions — remains permanently private.',
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              <span className="mt-0.5 shrink-0" style={{ color: 'var(--color-accent)' }}>→</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div
+          className="mb-8 w-full max-w-sm rounded-lg border p-6 text-left"
+          style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+        >
+          <h2 className="mb-4 text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            What happens next
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {[
+              'The facilitator will produce a draft outcome document, if applicable.',
+              'All designated approvers will be asked to review and sign off.',
+              'Only an approved, final document will be released to the public ledger.',
+              'The room dialogue — including your contributions — remains permanently private.',
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-3 text-sm"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
+                <span className="mt-0.5 shrink-0" style={{ color: 'var(--color-accent)' }}>
+                  →
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <Link
-        to="/ledger"
-        className="text-sm underline transition-opacity hover:opacity-70"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
-        View the public ledger
-      </Link>
-    </div>
+        <Link
+          to="/ledger"
+          className="text-sm underline transition-opacity hover:opacity-70"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          View the public ledger
+        </Link>
+      </div>
+    </TokenShell>
   );
 }

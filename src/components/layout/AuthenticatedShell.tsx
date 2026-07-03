@@ -1,5 +1,7 @@
-import { useState, type ReactNode } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { type ReactNode, useCallback, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { appRoutes } from '../../lib/appRoutes';
 
 interface NavItem {
   label: string;
@@ -10,7 +12,7 @@ interface NavItem {
 const facilitatorNav: NavItem[] = [
   {
     label: 'Dashboard',
-    href: '/f/dashboard',
+    href: appRoutes.dashboard,
     icon: (
       <svg
         width="16"
@@ -31,7 +33,7 @@ const facilitatorNav: NavItem[] = [
   },
   {
     label: 'Sessions',
-    href: '/f/sessions',
+    href: appRoutes.sessions,
     icon: (
       <svg
         width="16"
@@ -49,7 +51,7 @@ const facilitatorNav: NavItem[] = [
   },
   {
     label: 'Participants',
-    href: '/f/participants',
+    href: appRoutes.participants,
     icon: (
       <svg
         width="16"
@@ -65,6 +67,26 @@ const facilitatorNav: NavItem[] = [
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Insights',
+    href: appRoutes.insights,
+    icon: (
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
       </svg>
     ),
   },
@@ -92,7 +114,7 @@ const facilitatorNav: NavItem[] = [
   },
   {
     label: 'Settings',
-    href: '/f/settings',
+    href: appRoutes.settings,
     icon: (
       <svg
         width="16"
@@ -112,55 +134,44 @@ const facilitatorNav: NavItem[] = [
 ];
 
 interface AuthenticatedShellProps {
-  /** Optional page content. When omitted the shell renders `<Outlet />` so it
-   * can be used as a React Router v6 layout route (e.g. in `App.v2.tsx`). */
-  children?: ReactNode;
+  children: ReactNode;
   role?: 'facilitator' | 'admin';
 }
 
 export function AuthenticatedShell({ children, role = 'facilitator' }: AuthenticatedShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+    navigate('/sign-in?reason=signed-out', { replace: true });
+  }, [navigate, signOut]);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-      isActive
-        ? 'text-[var(--color-accent)] bg-[var(--color-accent-light)]'
-        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-border)]',
+      isActive ? 'text-brand bg-brand-soft' : 'text-ink-secondary hover:text-ink hover:bg-line',
     ].join(' ');
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <div className="flex h-screen overflow-hidden bg-surface">
       {/* Sidebar */}
       <aside
         className={[
-          'flex h-full shrink-0 flex-col border-r transition-all duration-200',
+          'flex h-full shrink-0 flex-col border-r transition-all duration-200 border-line bg-surface',
           sidebarOpen ? 'w-56' : 'w-14',
         ].join(' ')}
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
         aria-label="Main navigation"
       >
         {/* Logo / collapse toggle */}
-        <div
-          className="flex h-14 shrink-0 items-center justify-between border-b px-4"
-          style={{ borderColor: 'var(--color-border)' }}
-        >
+        <div className="flex h-14 shrink-0 items-center justify-between border-b px-4 border-line">
           {sidebarOpen && (
-            <span
-              className="text-sm font-semibold tracking-tight"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              SquadRidge
-            </span>
+            <span className="text-sm font-semibold tracking-tight text-ink">SquadRidge</span>
           )}
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-text-secondary)' }}
+            className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70 text-ink-secondary"
             aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             <svg
@@ -205,11 +216,11 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
         </nav>
 
         {/* Bottom: sign out */}
-        <div className="border-t p-3" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="border-t p-3 border-line">
           <button
-            onClick={() => navigate('/sign-in')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-opacity hover:opacity-70"
-            style={{ color: 'var(--color-text-secondary)' }}
+            type="button"
+            onClick={() => void handleSignOut()}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-opacity hover:opacity-70 text-ink-secondary"
             title={!sidebarOpen ? 'Sign out' : undefined}
           >
             <svg
@@ -234,26 +245,14 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
       {/* Main content */}
       <main className="flex flex-1 flex-col overflow-y-auto">
         {/* Top bar */}
-        <div
-          className="flex h-14 shrink-0 items-center justify-between border-b px-6"
-          style={{
-            borderColor: 'var(--color-border)',
-            backgroundColor: 'var(--color-surface)',
-          }}
-        >
+        <div className="flex h-14 shrink-0 items-center justify-between border-b px-6 border-line bg-surface">
           <div />
-          <span
-            className="rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wider"
-            style={{
-              backgroundColor: 'var(--color-accent-light)',
-              color: 'var(--color-accent)',
-            }}
-          >
+          <span className="rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wider bg-brand-soft text-brand">
             {role === 'admin' ? 'Admin' : 'Facilitator'}
           </span>
         </div>
 
-        <div className="flex-1 p-6">{children ?? <Outlet />}</div>
+        <div className="flex-1 p-6">{children}</div>
       </main>
     </div>
   );
