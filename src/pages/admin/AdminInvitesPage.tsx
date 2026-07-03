@@ -14,6 +14,7 @@
 // out-of-band from invite acceptance) will need new RPCs — see follow-up.
 // ============================================================
 import { AccessRequestAdminTable } from '../../components/access/AccessRequestAdminTable';
+import { UserRolesAdminTable } from '../../components/access/UserRolesAdminTable';
 import { InviteAdminPanel } from '../../components/invites/InviteAdminPanel';
 
 export function AdminInvitesPage() {
@@ -71,6 +72,20 @@ export function AdminInvitesPage() {
           Access requests
         </h2>
         <AccessRequestAdminTable />
+      </section>
+
+      <section
+        aria-labelledby="admin-user-roles-heading"
+        className="rounded-lg border p-6"
+        style={{
+          borderColor: 'var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+        }}
+      >
+        <h2 id="admin-user-roles-heading" className="sr-only">
+          User roles
+        </h2>
+        <UserRolesAdminTable />
       </section>
     </div>
   );
