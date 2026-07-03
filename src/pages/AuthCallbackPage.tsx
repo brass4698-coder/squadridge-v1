@@ -4,16 +4,17 @@ import { AccountPageShell, AccountPanel } from '../components';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
 import { appRoutes } from '../lib/appRoutes';
+import { useDashboardRoute } from '../hooks/useDashboardRoute';
 
-function safeNextPath(raw: string | null): string {
-  if (!raw) return appRoutes.dashboard;
+function safeNextPath(raw: string | null, fallback: string): string {
+  if (!raw) return fallback;
   try {
     const decoded = decodeURIComponent(raw);
     if (decoded.startsWith('/') && !decoded.startsWith('//')) return decoded;
   } catch {
     /* ignore */
   }
-  return appRoutes.dashboard;
+  return fallback;
 }
 
 function signInHref(nextPath: string): string {
@@ -27,7 +28,16 @@ function signInHref(nextPath: string): string {
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const nextPath = safeNextPath(searchParams.get('next'));
+  // Phase 4: role-aware fallback when no explicit ?next is present. If the
+  // caller passed a next-path we respect it; otherwise route to the URL that
+  // matches the freshly-authenticated user's highest-priority role (returned
+  // by `useDashboardRoute`). Falls back to `/app` when the user has no roles
+  // yet or the profile row hasn't been created.
+  const roleDashboard = useDashboardRoute();
+  const nextPath = safeNextPath(
+    searchParams.get('next'),
+    roleDashboard === '/sign-in' ? appRoutes.dashboard : roleDashboard,
+  );
 
   const { supabase, session, loading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);

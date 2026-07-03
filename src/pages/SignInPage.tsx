@@ -8,6 +8,7 @@ import { Input } from '../components/ui/Input';
 import { useAuth } from '../contexts/AuthContext';
 import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
+import { useDashboardRoute } from '../hooks/useDashboardRoute';
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -15,10 +16,15 @@ export function SignInPage() {
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
+  // Phase 4: role-aware default. `useDashboardRoute` returns the URL matching
+  // the user's highest-priority role (or /access-pending when profile is
+  // pending, or /sign-in when profile is null). `?next=…` still wins over
+  // this so session deep-links keep working.
+  const roleDashboard = useDashboardRoute();
   const nextPath =
     nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
       ? decodeURIComponent(nextRaw)
-      : appRoutes.dashboard;
+      : roleDashboard;
 
   const { signIn, session, loading } = useAuth();
   const [email, setEmail] = useState('');
@@ -46,8 +52,11 @@ export function SignInPage() {
     e.preventDefault();
     setError(null);
     setBusy(true);
+    // Pass the concrete next-path when the user explicitly deep-linked (?next);
+    // otherwise let the callback resolve the role-aware dashboard on arrival.
+    const shouldForwardNext = Boolean(nextRaw) && nextPath !== appRoutes.dashboard;
     const { error: err } = await signIn(email, {
-      nextPath: nextPath !== appRoutes.dashboard ? nextPath : undefined,
+      nextPath: shouldForwardNext ? nextPath : undefined,
     });
     setBusy(false);
     if (err) {

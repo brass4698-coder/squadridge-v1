@@ -48,6 +48,14 @@ import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
 import { AdminInvitesPage } from './pages/admin/AdminInvitesPage';
+// Per-role landing pages (Phase 4 — see docs/audit/auth-and-dashboards-audit.md)
+import { SuperAdminDashboardPage } from './pages/dashboards/SuperAdminDashboardPage';
+import { InstitutionAdminDashboardPage } from './pages/dashboards/InstitutionAdminDashboardPage';
+import { MediatorDashboardPage } from './pages/dashboards/MediatorDashboardPage';
+import { AnalystDashboardPage } from './pages/dashboards/AnalystDashboardPage';
+import { ParticipantDashboardPage } from './pages/dashboards/ParticipantDashboardPage';
+import { ObserverDashboardPage } from './pages/dashboards/ObserverDashboardPage';
+import { AccessPendingPage } from './pages/v2/AccessPendingPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { DemoSessionPage } from './pages/DemoSessionPage';
@@ -173,43 +181,149 @@ export default function AppV2() {
 
               {/* ── V2 Authenticated Shell ────────────────────────────────── */}
               {/* /app/* is facilitator-scoped — participants land on /app/participant */}
-              {/* via ROLE_DASHBOARD_MAP. RoleProtectedRoute redirects non-eligible    */}
-              {/* signed-in users to /unauthorized (AccessDeniedPage). RLS is still    */}
-              {/* the authoritative gate on the backend.                               */}
+              {/* Phase 4: parent gate widened to ALL authenticated roles. Every  */}
+              {/* facilitator-scoped route below carries its own narrower           */}
+              {/* RoleProtectedRoute, and each of the 7 roles now has a landing     */}
+              {/* dashboard at /app/{role} matching ROLE_DASHBOARD_MAP. Server-side */}
+              {/* RLS remains authoritative. See                                    */}
+              {/* docs/audit/auth-and-dashboards-audit.md.                          */}
               <Route
                 element={
                   <RequireAuth>
-                    <RoleProtectedRoute
-                      allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
-                    >
-                      <AuthenticatedShell role="facilitator">
-                        <Outlet />
-                      </AuthenticatedShell>
-                    </RoleProtectedRoute>
+                    <AuthenticatedShell role="facilitator">
+                      <Outlet />
+                    </AuthenticatedShell>
                   </RequireAuth>
                 }
               >
-                {/* Facilitator app (/app/*) */}
-                <Route path="/app" element={<FacilitatorDashboardPage />} />
-                <Route path="/app/sessions" element={<SessionsListPage />} />
-                <Route path="/app/sessions/new" element={<SessionSetupPage />} />
-                <Route path="/app/sessions/new/setup" element={<SessionNewPage />} />
-                <Route path="/app/sessions/:sessionId" element={<SessionDetailPage />} />
-                <Route path="/app/sessions/:sessionId/invite" element={<ParticipantInvitePage />} />
-                <Route path="/app/sessions/:sessionId/room" element={<LiveRoomPage />} />
+                {/* /app — historical facilitator dashboard landing */}
                 <Route
-                  path="/app/sessions/:sessionId/participants"
-                  element={<ParticipantsReviewPage />}
+                  path="/app"
+                  element={
+                    <RoleProtectedRoute
+                      allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                    >
+                      <FacilitatorDashboardPage />
+                    </RoleProtectedRoute>
+                  }
                 />
-                <Route path="/app/sessions/:sessionId/control" element={<SessionControlPage />} />
-                <Route path="/app/sessions/:sessionId/outcome" element={<OutcomeWorkspacePage />} />
-                <Route path="/app/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
-                <Route path="/app/participants" element={<ParticipantsIndexPage />} />
-                <Route path="/app/insights" element={<InsightsPage />} />
-                <Route path="/app/outcomes/new" element={<OutcomeDraftingPage />} />
-                <Route path="/app/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
+
+                {/* Per-role landing pages — one per role, each with its own gate */}
+                <Route
+                  path="/app/admin"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin']}>
+                      <SuperAdminDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/institution"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
+                      <InstitutionAdminDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/facilitator"
+                  element={
+                    <RoleProtectedRoute
+                      allowed={['super_admin', 'institution_admin', 'facilitator']}
+                    >
+                      <FacilitatorDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/mediator"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'mediator']}>
+                      <MediatorDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/analyst"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'analyst']}>
+                      <AnalystDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/participant"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'participant']}>
+                      <ParticipantDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/observer"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'observer']}>
+                      <ObserverDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+
+                {/* Session workflow — facilitator-side roles only */}
+                <Route
+                  element={
+                    <RoleProtectedRoute
+                      allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                    >
+                      <Outlet />
+                    </RoleProtectedRoute>
+                  }
+                >
+                  <Route path="/app/sessions" element={<SessionsListPage />} />
+                  <Route path="/app/sessions/new" element={<SessionSetupPage />} />
+                  <Route path="/app/sessions/new/setup" element={<SessionNewPage />} />
+                  <Route path="/app/sessions/:sessionId" element={<SessionDetailPage />} />
+                  <Route
+                    path="/app/sessions/:sessionId/invite"
+                    element={<ParticipantInvitePage />}
+                  />
+                  <Route path="/app/sessions/:sessionId/room" element={<LiveRoomPage />} />
+                  <Route
+                    path="/app/sessions/:sessionId/participants"
+                    element={<ParticipantsReviewPage />}
+                  />
+                  <Route path="/app/sessions/:sessionId/control" element={<SessionControlPage />} />
+                  <Route
+                    path="/app/sessions/:sessionId/outcome"
+                    element={<OutcomeWorkspacePage />}
+                  />
+                  <Route path="/app/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
+                  <Route path="/app/participants" element={<ParticipantsIndexPage />} />
+                  <Route path="/app/outcomes/new" element={<OutcomeDraftingPage />} />
+                  <Route path="/app/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
+                </Route>
+
+                {/* Insights — facilitator-side + analyst */}
+                <Route
+                  path="/app/insights"
+                  element={
+                    <RoleProtectedRoute
+                      allowed={[
+                        'super_admin',
+                        'institution_admin',
+                        'facilitator',
+                        'mediator',
+                        'analyst',
+                      ]}
+                    >
+                      <InsightsPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+
+                {/* Settings — every authenticated role */}
                 <Route path="/app/settings" element={<Navigate to="/settings" replace />} />
-                {/* Admin invites console — narrower role gate than the parent shell. */}
+
+                {/* Admin invites console — super_admin + institution_admin only */}
                 <Route
                   path="/app/admin/invites"
                   element={
@@ -348,6 +462,9 @@ export default function AppV2() {
                 {/* Error pages */}
                 <Route path="/unauthorized" element={<AccessDeniedPage />} />
                 <Route path="/access-denied" element={<Navigate to="/unauthorized" replace />} />
+                {/* Phase 4: landing for signed-in users whose profile is still */}
+                {/* pending review — returned by useDashboardRoute.             */}
+                <Route path="/access-pending" element={<AccessPendingPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
