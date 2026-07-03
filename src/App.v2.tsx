@@ -47,6 +47,7 @@ import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { AdminInvitesPage } from './pages/admin/AdminInvitesPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { DemoSessionPage } from './pages/DemoSessionPage';
@@ -208,6 +209,15 @@ export default function AppV2() {
                 <Route path="/app/outcomes/new" element={<OutcomeDraftingPage />} />
                 <Route path="/app/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
                 <Route path="/app/settings" element={<Navigate to="/settings" replace />} />
+                {/* Admin invites console — narrower role gate than the parent shell. */}
+                <Route
+                  path="/app/admin/invites"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
+                      <AdminInvitesPage />
+                    </RoleProtectedRoute>
+                  }
+                />
               </Route>
 
               {/* ── V2 Public Shell ──────────────────────────────────────── */}

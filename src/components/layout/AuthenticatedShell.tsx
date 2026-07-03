@@ -1,7 +1,8 @@
-import { type ReactNode, useCallback, useState } from 'react';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
+import { hasAnyRole } from '../../lib/roles';
 
 interface NavItem {
   label: string;
@@ -138,15 +139,43 @@ interface AuthenticatedShellProps {
   role?: 'facilitator' | 'admin';
 }
 
+const adminNavItem: NavItem = {
+  label: 'Invites',
+  href: '/app/admin/invites',
+  icon: (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </svg>
+  ),
+};
+
 export function AuthenticatedShell({ children, role = 'facilitator' }: AuthenticatedShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, roles } = useAuth();
 
   const handleSignOut = useCallback(async () => {
     await signOut();
     navigate('/sign-in?reason=signed-out', { replace: true });
   }, [navigate, signOut]);
+
+  // Admins (super_admin + institution_admin) get the Invites entry.
+  // RoleProtectedRoute on /app/admin/invites is the authoritative gate;
+  // this is UX only, so we hide the entry from non-admins to avoid dead-ends.
+  const navItems = useMemo<NavItem[]>(() => {
+    const isAdmin = hasAnyRole(roles, ['super_admin', 'institution_admin']);
+    return isAdmin ? [...facilitatorNav, adminNavItem] : facilitatorNav;
+  }, [roles]);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
@@ -202,7 +231,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
 
         {/* Nav items */}
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {facilitatorNav.map((item) => (
+          {navItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}
