@@ -15,26 +15,30 @@
  */
 
 :root {
-  /* ── Surfaces — modernized deep-neutral (Phase 5) ─────────────────
-     Palette from the "enterprise-grade legal-tech" spec:
-       #0F1117 near-black bg · #1C1F2E blue-gray surface · #2A2D3E line.
-     Values chosen to hit WCAG AA on ink pairings and to give the
-     radial-teal-glow overlay (see globals.css body::before) enough
-     contrast headroom to feel spatial without overpowering text.
+  /* ── Surfaces — deep indigo / navy (Phase 6) ────────────────────────
+     Palette shift from the near-neutral #0F1117 → deep indigo/navy for
+     a more spatial, "futuristic legal-tech" feel:
+       #08091f near-black indigo bg · #141833 navy surface · #25294a line.
+     Pairs with an electric-blue radial glow on the body (see globals.css
+     body::before) and a restrained violet accent surface tint. Values
+     preserve WCAG AA on ink pairings — the deeper indigo base actually
+     buys more contrast headroom than the previous slate-neutral.
      ──────────────────────────────────────────────────────────────── */
-  --sr-bg: #0f1117;
-  --sr-bg-elevated: #1c1f2e;
-  --sr-bg-secondary: #161923;
-  --sr-bg-sunken: #0a0c11;
+  --sr-bg: #08091f;
+  --sr-bg-elevated: #141833;
+  --sr-bg-secondary: #10132a;
+  --sr-bg-sunken: #05061a;
   /* Surface tinted with accent — for selected cards, active sidebar items */
-  --sr-bg-accent: color-mix(in oklch, #14b8a6 8%, #1c1f2e);
+  --sr-bg-accent: color-mix(in oklch, #14b8a6 10%, #141833);
+  /* Restrained violet-tinted surface — for hover previews, futuristic accents */
+  --sr-bg-accent-alt: color-mix(in oklch, #8b5cf6 10%, #141833);
 
   /* ── Lines ──────────────────────────────────────────────────────── */
-  --sr-line: #2a2d3e;
-  --sr-line-strong: #3a3d4e;
-  --sr-divider: #1e2130;
+  --sr-line: #25294a;
+  --sr-line-strong: #363a5e;
+  --sr-divider: #1a1e3d;
   /* Alpha-blended border — adapts to surrounding surface automatically */
-  --sr-border-alpha: oklch(from #f9fafb l c h / 0.09);
+  --sr-border-alpha: oklch(from #f9fafb l c h / 0.1);
 
   /* ── Ink — four levels (gray-50 → gray-500) ─────────────────────── */
   --sr-ink: #f9fafb;
@@ -42,13 +46,27 @@
   --sr-ink-faint: #6b7280;
   --sr-ink-subtle: #4b5563;
 
-  /* ── Single accent — vivid teal for CTAs (teal-500) ─────────────── */
+  /* ── Primary accent — teal for CTAs (kept from Phase 5) ─────────── */
   --sr-primary: #14b8a6;
   --sr-primary-hover: #2dd4bf;
   --sr-primary-pressed: #0d9488;
   --sr-primary-soft: oklch(from #14b8a6 l c h / 0.14);
   --sr-primary-ring: oklch(from #14b8a6 l c h / 0.5);
   --sr-on-primary: #04120f;
+
+  /* ── Secondary accent — restrained violet (Phase 6) ──────────────
+     Used for the futuristic-edge highlights: hover glows on decorative
+     cards, badge borders, subtle background tints. Never a primary CTA
+     colour — teal owns that. */
+  --sr-accent-alt: #8b5cf6;
+  --sr-accent-alt-hover: #a78bfa;
+  --sr-accent-alt-soft: oklch(from #8b5cf6 l c h / 0.14);
+  --sr-accent-alt-ring: oklch(from #8b5cf6 l c h / 0.45);
+
+  /* ── Gradient transition — electric blue (Phase 6) ───────────────
+     Used by the radial background glow. Distinct from --sr-info so
+     each has a semantic home (info: alerts / callouts; glow: bg only). */
+  --sr-glow: #3b82f6;
 
   /* ── Semantic — Tailwind-500 values for consistency ─────────────── */
   --sr-success: #22c55e;

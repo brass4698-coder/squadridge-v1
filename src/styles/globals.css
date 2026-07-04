@@ -95,16 +95,20 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* Phase 6: electric-blue glow at top (--sr-glow), restrained violet
+     bloom at bottom-right (--sr-accent-alt). The two colours transition
+     through the deep-indigo base for a spatial, spectral feel without
+     overpowering foreground text. */
   background:
     radial-gradient(
-      ellipse 80% 50% at 50% -10%,
-      color-mix(in oklch, var(--sr-primary) 12%, transparent),
-      transparent 60%
+      ellipse 90% 55% at 50% -10%,
+      color-mix(in oklch, var(--sr-glow) 18%, transparent),
+      transparent 65%
     ),
     radial-gradient(
-      ellipse 60% 40% at 90% 100%,
-      color-mix(in oklch, var(--sr-primary) 4%, transparent),
-      transparent 50%
+      ellipse 70% 45% at 92% 105%,
+      color-mix(in oklch, var(--sr-accent-alt) 10%, transparent),
+      transparent 55%
     );
 }
 

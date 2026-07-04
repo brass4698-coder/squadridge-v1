@@ -107,9 +107,11 @@ export function SignInPage() {
       <div
         className="animate-fade-in-up sr-glass-strong w-full max-w-[480px] rounded-[16px] p-8 md:p-10"
         style={{
-          borderColor: 'color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line))',
+          // Phase 6: blend teal (primary CTA colour) + electric blue (bg glow)
+          // for a spectral border, layered over the deep-indigo canvas.
+          borderColor: 'color-mix(in oklch, var(--sr-glow) 22%, var(--sr-line))',
           boxShadow:
-            '0 0 0 1px color-mix(in oklch, var(--sr-primary) 18%, transparent), 0 20px 60px oklch(0 0 0 / 0.35), 0 0 80px color-mix(in oklch, var(--sr-primary) 8%, transparent)',
+            '0 0 0 1px color-mix(in oklch, var(--sr-primary) 18%, transparent), 0 20px 60px oklch(0 0 0 / 0.45), 0 0 90px color-mix(in oklch, var(--sr-glow) 10%, transparent), 0 0 140px color-mix(in oklch, var(--sr-accent-alt) 6%, transparent)',
         }}
       >
         {/* Wordmark — sits above the form as the visual anchor */}
