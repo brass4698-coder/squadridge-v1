@@ -124,21 +124,27 @@ export interface SplitPanelVisualProps {
   bridgeLabel?: string;
 }
 
+// Phase 9 wording — canonical "Inside the room / Released as record" split.
+// Kept short so panels stay scannable in under 10 seconds on desktop.
 const DEFAULT_PRIVATE_ITEMS = [
-  'Session transcript',
-  'Participant identities',
-  'Live dialogue signals',
+  'Full discussion remains private.',
+  'Participant identities are verified, never disclosed.',
+  'Signals, notes, and session context stay out of the record.',
 ];
 
-const DEFAULT_PUBLIC_ITEMS = ['Approved outcome text', 'Verification anchor', 'Participant count'];
+const DEFAULT_PUBLIC_ITEMS = [
+  'Only the approved outcome text is released.',
+  'A verification anchor proves the record was issued through SquadRidge.',
+  'Limited metadata (date, participant count) is included when appropriate.',
+];
 
 export function SplitPanelVisual({
   size = 'hero',
-  privateHeading = 'Protected room',
+  privateHeading = 'Inside the room',
   privateItems = DEFAULT_PRIVATE_ITEMS,
-  publicHeading = 'Public outcome',
+  publicHeading = 'Released as record',
   publicItems = DEFAULT_PUBLIC_ITEMS,
-  bridgeLabel = 'Controlled release',
+  bridgeLabel = 'Facilitator-signed release',
 }: SplitPanelVisualProps) {
   const isHero = size === 'hero';
   const panelPad = isHero ? 'p-6 md:p-8' : 'p-4 md:p-5';
@@ -149,7 +155,7 @@ export function SplitPanelVisual({
     <div
       className="grid w-full grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr]"
       role="figure"
-      aria-label="A protected room on the left produces a verified public outcome on the right, connected by a controlled release step."
+      aria-label="A private session room on the left produces a released, verifiable record on the right, connected by a facilitator-signed release step."
     >
       {/* Left — Protected room */}
       <div
@@ -197,7 +203,7 @@ export function SplitPanelVisual({
           }}
         />
         <span
-          className="rounded-full border px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider"
+          className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-wider"
           style={{
             borderColor: 'color-mix(in oklch, var(--sr-primary) 30%, transparent)',
             background: 'var(--sr-primary-soft)',
@@ -205,6 +211,9 @@ export function SplitPanelVisual({
           }}
         >
           {bridgeLabel}
+          {/* Right-pointing chevron so the flow direction (room → record) */}
+          {/* reads at a glance instead of the bridge feeling symmetric.   */}
+          <span aria-hidden>→</span>
         </span>
         <div
           className="hidden h-px w-6 md:block"

@@ -1,127 +1,225 @@
+// ============================================================
+// HowItWorksPage — Phase 9 rewrite
+//
+// Structure per the design critique:
+//   1. Short intro that anchors the model (room vs record)
+//   2. Compact 4-step visual rail — each step:
+//        · one short heading
+//        · one plain-language sentence
+//        · one reassurance sentence
+//   3. Central room-vs-record diagram reused from SplitPanelVisual so the
+//      motif from the homepage carries through the site
+//   4. FAQ strip with the three highest-leverage questions
+//   5. CTA footer
+// ============================================================
 import { Link } from 'react-router-dom';
+import { ArrowRight, FileCheck, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
+import { SectionEyebrow, SplitPanelVisual } from '../../components/marketing/primitives';
 
-const stages = [
+// One-line + one reassurance sentence per step. The reassurance sentence
+// always answers the implicit question a cautious mediator will ask.
+const STEPS = [
   {
     number: '01',
+    icon: Settings,
     heading: 'Configure',
-    body: 'Before any participant enters, the facilitator builds the room. Eligibility requirements, verification steps, and ground rules are locked before invitations go out. Nothing is improvised.',
+    line: 'Set the session rules, participant criteria, and release conditions before dialogue begins.',
+    reassure:
+      'Nothing about the session is improvised — every rule is captured before invitations go out.',
   },
   {
     number: '02',
+    icon: ShieldCheck,
     heading: 'Verify',
-    body: 'Every participant completes an eligibility and identity assurance process. The facilitator reviews and approves the participant list. Access is not granted until verification is confirmed.',
+    line: 'Confirm each participant privately using your chosen eligibility criteria.',
+    reassure: 'Nothing about identity ever appears on the released record.',
   },
   {
     number: '03',
+    icon: MessageSquare,
     heading: 'Facilitate',
-    body: 'The session runs inside a protected room. The facilitator monitors, moderates, and can intervene at any point. Raw discussion is not stored for public access.',
+    line: 'Run the session in a protected environment designed for sensitive, high-stakes exchange.',
+    reassure: 'No public transcript is generated at any point during or after the session.',
   },
   {
     number: '04',
-    heading: 'Draft',
-    body: 'After the session closes, the facilitator leads outcome drafting. Participants review the language. No text is published until every required approval is recorded.',
-  },
-  {
-    number: '05',
+    icon: FileCheck,
     heading: 'Release',
-    body: 'The approved outcome document is released to the public ledger. It carries a verification anchor, release metadata, and citation reference. The session stays private.',
+    line: 'Release only the approved outcome — with a verification anchor and selected metadata.',
+    reassure:
+      'The facilitator signs the release; the platform never publishes anything on its own.',
   },
 ];
 
-const faqs = [
+const FAQS = [
   {
-    q: 'Who can see what happens inside a session?',
-    a: 'Only verified participants and the facilitator. Session content is never published. The only public output is the approved outcome document.',
+    q: 'Who can release a record?',
+    a: 'Only a session facilitator can trigger release, and only after every required approval has been recorded. The platform will not publish anything on its own — release is always an explicit, signed action.',
   },
   {
-    q: "What if participants don't agree on the outcome text?",
-    a: "The facilitator controls the drafting process. Approval is required before release. If consensus isn't reached, no record is published.",
+    q: 'What stays private, always?',
+    a: 'The dialogue itself, participant identities, verification data, facilitator notes, and session signals never leave the room. Only the approved outcome text and a verification anchor are released.',
+  },
+  {
+    q: 'What does the verification anchor prove?',
+    a: 'The anchor confirms the integrity of the released record — anyone can verify that the record has not been altered since release, and that it was issued through SquadRidge. It does not expose the private session content.',
   },
   {
     q: 'Can a released record be withdrawn?',
-    a: 'Yes. A facilitator or organisation administrator can withdraw a record. Withdrawn records are replaced with a notice on the public ledger explaining the withdrawal.',
-  },
-  {
-    q: 'What verification methods are supported?',
-    a: 'Verification is configured per session by the facilitator. Methods include identity document review, organisational email confirmation, and facilitator manual approval.',
+    a: 'Yes. A facilitator or organisation administrator can withdraw a record. The public ledger will show a notice at that record\u2019s ID explaining the withdrawal.',
   },
 ];
 
 export function HowItWorksPage() {
   return (
     <div className="bg-surface">
-      {/* Hero */}
-      <section className="mx-auto max-w-3xl px-6 pb-16 pt-20">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
-          The session lifecycle
-        </p>
-        <h1 className="mb-5 text-5xl font-medium tracking-tight text-ink">
+      {/* Intro */}
+      <section className="mx-auto max-w-3xl px-6 pb-12 pt-20">
+        <SectionEyebrow>How it works</SectionEyebrow>
+        <h1 className="mt-3 text-h1 md:text-display" style={{ color: 'var(--sr-ink)' }}>
           Four stages. One protected process.
         </h1>
-        <p className="text-lg leading-relaxed text-ink-secondary">
-          Every session follows a structured lifecycle — from configuration to verified public
-          record.
+        <p
+          className="mt-5 text-base leading-relaxed md:text-lg"
+          style={{ color: 'var(--sr-ink) ' }}
+        >
+          SquadRidge separates the protected session from the verifiable public record.
+        </p>
+        <p
+          className="mt-3 max-w-2xl text-base leading-relaxed"
+          style={{ color: 'var(--sr-ink-secondary)' }}
+        >
+          Every session follows the same lifecycle. Below: the four stages, and what each one
+          protects.
         </p>
       </section>
 
-      {/* Stages */}
-      <section className="border-y border-line py-20" aria-label="Session stages">
-        <div className="mx-auto max-w-3xl px-6">
-          <ol className="flex flex-col gap-14">
-            {stages.map((stage) => (
-              <li key={stage.number} className="flex gap-10">
-                <span
-                  className="mt-1 shrink-0 text-4xl font-light tabular-nums text-line"
-                  style={{ minWidth: '3.5rem' }}
-                  aria-hidden="true"
-                >
-                  {stage.number}
-                </span>
-                <section aria-labelledby={`stage-${stage.number}`}>
-                  <h2 id={`stage-${stage.number}`} className="mb-3 text-xl font-semibold text-ink">
-                    {stage.heading}
+      {/* Room vs record diagram — reinforces the motif from the homepage. */}
+      <section
+        className="border-t px-6 py-14 md:py-20"
+        style={{ borderColor: 'var(--sr-divider)' }}
+      >
+        <div className="mx-auto max-w-[1100px]">
+          <SplitPanelVisual size="compact" />
+        </div>
+      </section>
+
+      {/* Step rail */}
+      <section
+        className="border-t px-6 py-16 md:py-24"
+        aria-label="Session lifecycle stages"
+        style={{ borderColor: 'var(--sr-divider)' }}
+      >
+        <div className="mx-auto max-w-[1100px]">
+          <div className="relative">
+            {/* Connector line under the numbered nodes on desktop */}
+            <div
+              aria-hidden
+              className="absolute left-6 right-6 top-6 hidden h-px md:block"
+              style={{
+                background:
+                  'linear-gradient(90deg, var(--sr-divider), var(--sr-primary), var(--sr-divider))',
+              }}
+            />
+            <ol className="grid gap-8 md:grid-cols-4">
+              {STEPS.map((step) => (
+                <li key={step.number} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="relative z-10 inline-flex h-12 w-12 items-center justify-center rounded-full border font-mono text-xs font-semibold tabular-nums"
+                      style={{
+                        borderColor: 'color-mix(in oklch, var(--sr-primary) 30%, var(--sr-line))',
+                        background: 'var(--sr-bg-elevated)',
+                        color: 'var(--sr-primary)',
+                      }}
+                    >
+                      {step.number}
+                    </span>
+                    <step.icon
+                      className="size-4 shrink-0"
+                      style={{ color: 'var(--sr-ink-faint)' }}
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                  </div>
+                  <h2 className="text-h3" style={{ color: 'var(--sr-ink)' }}>
+                    {step.heading}
                   </h2>
-                  <p className="text-base leading-relaxed text-ink-secondary">{stage.body}</p>
-                </section>
-              </li>
-            ))}
-          </ol>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: 'var(--sr-ink-secondary)' }}
+                  >
+                    {step.line}
+                  </p>
+                  <p
+                    className="rounded-md border-l-2 py-1 pl-3 text-xs italic leading-relaxed"
+                    style={{
+                      borderColor: 'var(--sr-primary)',
+                      color: 'var(--sr-ink-secondary)',
+                    }}
+                  >
+                    {step.reassure}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-6 py-20" aria-labelledby="faq-heading">
-        <h2 id="faq-heading" className="mb-12 text-3xl font-medium tracking-tight text-ink">
-          Common questions
-        </h2>
-        <dl className="flex flex-col gap-10">
-          {faqs.map((faq) => (
-            <div key={faq.q} className="border-t border-line pt-8">
-              <dt className="mb-3 text-base font-semibold text-ink">{faq.q}</dt>
-              <dd className="text-base leading-relaxed text-ink-secondary">{faq.a}</dd>
-            </div>
-          ))}
-        </dl>
+      <section
+        className="border-t px-6 py-16 md:py-24"
+        style={{ borderColor: 'var(--sr-divider)' }}
+        aria-labelledby="faq-heading"
+      >
+        <div className="mx-auto max-w-3xl">
+          <SectionEyebrow>Common questions</SectionEyebrow>
+          <h2 id="faq-heading" className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
+            The three questions we hear most.
+          </h2>
+          <dl className="mt-10 flex flex-col divide-y" style={{ borderColor: 'var(--sr-divider)' }}>
+            {FAQS.map((faq) => (
+              <div
+                key={faq.q}
+                className="py-6 first:pt-0 last:pb-0"
+                style={{ borderColor: 'var(--sr-divider)' }}
+              >
+                <dt className="text-base font-semibold" style={{ color: 'var(--sr-ink)' }}>
+                  {faq.q}
+                </dt>
+                <dd
+                  className="mt-2 text-sm leading-relaxed"
+                  style={{ color: 'var(--sr-ink-secondary)' }}
+                >
+                  {faq.a}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
 
       {/* CTA footer */}
-      <section className="border-t border-line py-20">
-        <div className="mx-auto max-w-2xl px-6 text-center">
-          <h2 className="mb-5 text-3xl font-medium tracking-tight text-ink">
+      <section
+        className="border-t px-6 py-16 md:py-20"
+        style={{ borderColor: 'var(--sr-divider)' }}
+      >
+        <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
+          <h2 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
             Ready to run a protected session?
           </h2>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/request-access"
-              className="rounded bg-brand px-6 py-3 text-sm font-medium text-brand-on transition-opacity hover:opacity-90"
-            >
-              Request Pilot Access
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link to="/request-access" className="btn-pill btn-pill--primary text-sm">
+              Request pilot access
+              <ArrowRight className="size-4" aria-hidden />
             </Link>
             <Link
-              to="/ledger/demo-proposal-001"
-              className="text-sm text-ink-secondary underline transition-opacity hover:opacity-70"
+              to="/ledger"
+              className="text-xs font-medium underline-offset-4 transition-opacity hover:underline hover:opacity-70"
+              style={{ color: 'var(--sr-ink-faint)' }}
             >
-              View a sample record →
+              See a sample released record
             </Link>
           </div>
         </div>
