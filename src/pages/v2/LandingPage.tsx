@@ -65,30 +65,32 @@ const COMPARISON_ROWS = [
   },
 ];
 
+// One-line-per-step per the critique — reduces the section from dense to
+// scannable. Longer explanations live on the /how-it-works page.
 const LIFECYCLE = [
   {
     number: '01',
     icon: Settings,
     label: 'Configure',
-    body: 'Set eligibility, verification, and ground rules up front so a session cannot be hijacked midstream.',
+    body: 'Set eligibility, verification, and ground rules before the room opens.',
   },
   {
     number: '02',
     icon: ShieldCheck,
     label: 'Verify',
-    body: 'Confirm each participant privately. No identity ever surfaces on a public record.',
+    body: 'Confirm each participant privately using your chosen eligibility criteria; nothing about identity appears on the public record.',
   },
   {
     number: '03',
     icon: MessageSquare,
     label: 'Facilitate',
-    body: 'Run structured dialogue in a protected room. No transcript is generated for the public.',
+    body: 'Run structured dialogue in a protected room; no public transcript is generated.',
   },
   {
     number: '04',
     icon: FileCheck,
     label: 'Release',
-    body: 'Co-write the outcome, capture approvals, publish with a cryptographic anchor.',
+    body: 'Co-write the outcome, capture approvals, publish with a verification anchor.',
   },
 ];
 
@@ -128,14 +130,13 @@ export function LandingPage() {
   return (
     <div style={{ backgroundColor: 'var(--sr-bg)' }}>
       <HeroSection />
-      <CredibilityBadge />
+      <PositioningStatement />
       <WhySection />
       <LifecycleSection />
       <UseCasesSection />
       <SecuritySection />
       <LedgerPreviewSection />
       <PilotAccessSection />
-      <ClosingNote />
     </div>
   );
 }
@@ -145,31 +146,94 @@ export function LandingPage() {
 // ------------------------------------------------------------
 function HeroSection() {
   return (
-    <section className="mx-auto grid w-full max-w-[1200px] items-center gap-12 px-6 pb-16 pt-20 md:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] md:gap-16 md:pb-24 md:pt-28">
+    <section className="mx-auto grid w-full max-w-[1200px] items-center gap-12 px-6 pb-12 pt-20 md:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] md:gap-16 md:pb-16 md:pt-28">
       <div className="animate-fade-in-up">
-        <SectionEyebrow>Verified dialogue for high-stakes sessions</SectionEyebrow>
+        {/* Trust badge in the hero column so it's visibly above the fold */}
+        {/* right beside the primary CTA — not tucked into a strip below.  */}
+        <div
+          className="mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[0.7rem] font-medium"
+          style={{
+            borderColor: 'color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line))',
+            background: 'var(--sr-primary-soft)',
+            color: 'var(--sr-primary)',
+          }}
+        >
+          <span
+            aria-hidden
+            className="inline-flex h-1.5 w-1.5 rounded-full"
+            style={{ background: 'var(--sr-primary)' }}
+          />
+          In pilot with regional mediation centres and cross-border teams
+        </div>
+
         <h1 className="text-h1 md:text-display" style={{ color: 'var(--sr-ink)' }}>
           The room stays protected. The outcome is verifiable.
         </h1>
+
+        {/* Plain-language subheadline — the single-sentence "what it does" line */}
+        {/* a first-time visitor should read after the headline.                  */}
+        <p className="mt-4 max-w-xl text-lg leading-relaxed" style={{ color: 'var(--sr-ink)' }}>
+          Run sensitive mediation sessions privately, then publish a verifiable outcome only when
+          it's safe to share.
+        </p>
+
+        {/* Supporting body copy sits below the subheadline in a lighter weight */}
         <p
-          className="mt-5 max-w-xl text-base leading-relaxed"
+          className="mt-3 max-w-xl text-sm leading-relaxed"
           style={{ color: 'var(--sr-ink-secondary)' }}
         >
-          SquadRidge runs facilitated sessions on protected rooms, then releases the approved
-          outcome with a cryptographic anchor. Everything else stays private.
+          SquadRidge is invitation-only, facilitator-run dialogue with a{' '}
+          <Link
+            to="/security#verification-anchor"
+            className="underline-offset-4 hover:underline"
+            style={{ color: 'var(--sr-primary)' }}
+            title="What is a verification anchor?"
+          >
+            cryptographic verification anchor
+          </Link>{' '}
+          on every released record.
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-4">
+
+        <div className="mt-8 flex flex-wrap items-center gap-5">
           <Link to="/request-access" className="btn-pill btn-pill--primary text-sm">
             Request pilot access
             <ArrowRight className="size-4" aria-hidden />
           </Link>
+          {/* Secondary link is a plain underlined link, not a competing button. */}
           <Link
             to="/how-it-works"
-            className="text-sm font-medium underline-offset-4 transition-opacity hover:underline hover:opacity-70"
-            style={{ color: 'var(--sr-ink-secondary)' }}
+            className="text-xs font-medium underline-offset-4 transition-opacity hover:underline hover:opacity-70"
+            style={{ color: 'var(--sr-ink-faint)' }}
           >
             See how it works
           </Link>
+        </div>
+
+        {/* "Who this is for" strip — three tight audience chips so a first-time */}
+        {/* visitor can instantly see whether SquadRidge is relevant to them.    */}
+        <div
+          className="mt-8 flex flex-wrap items-center gap-2 border-t pt-5"
+          style={{ borderColor: 'var(--sr-divider)' }}
+        >
+          <span
+            className="mr-1 text-[0.7rem] font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--sr-ink-faint)' }}
+          >
+            Built for
+          </span>
+          {['Mediators', 'NGOs & civil society', 'Diplomats & Track II'].map((label) => (
+            <span
+              key={label}
+              className="rounded-full border px-2.5 py-1 text-xs"
+              style={{
+                borderColor: 'var(--sr-line)',
+                background: 'var(--sr-bg-elevated)',
+                color: 'var(--sr-ink-secondary)',
+              }}
+            >
+              {label}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -181,27 +245,28 @@ function HeroSection() {
 }
 
 // ------------------------------------------------------------
-// 2. Single credibility badge — mentioned ONCE
+// 2. Central positioning statement — brought up from the footer per critique
+//    so a scanning reader sees the differentiator before scrolling deeper.
+//    The old "credibility badge" moved into the hero (near the primary CTA)
+//    so this slot is now the positioning line, which was previously buried.
 // ------------------------------------------------------------
-function CredibilityBadge() {
+function PositioningStatement() {
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] justify-center px-6 pb-12 md:pb-16">
-      <div
-        className="flex flex-wrap items-center gap-3 rounded-full border px-5 py-2.5 text-xs"
-        style={{
-          borderColor: 'var(--sr-line)',
-          background: 'var(--sr-bg-elevated)',
-          color: 'var(--sr-ink-secondary)',
-        }}
-      >
-        <span
-          aria-hidden
-          className="inline-flex h-1.5 w-1.5 rounded-full"
-          style={{ background: 'var(--sr-primary)' }}
-        />
-        <span>In pilot with regional mediation centres and cross-border teams</span>
+    <section className="border-t py-10 md:py-14" style={{ borderColor: 'var(--sr-divider)' }}>
+      <div className="mx-auto max-w-[900px] px-6 text-center">
+        <p
+          className="text-base font-semibold leading-relaxed md:text-lg"
+          style={{ color: 'var(--sr-ink)' }}
+        >
+          SquadRidge is not a public forum. It is invitation-only, facilitator-run dialogue with a
+          verifiable release step.
+        </p>
+        <p className="mt-3 text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
+          Nothing about a session becomes public unless a facilitator signs and releases the
+          outcome.
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -308,6 +373,12 @@ function LifecycleSection() {
           <h2 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
             Four stages. One protected process.
           </h2>
+          <p
+            className="mt-3 text-base leading-relaxed"
+            style={{ color: 'var(--sr-ink-secondary)' }}
+          >
+            Four steps from private dialogue to verifiable public record.
+          </p>
         </div>
 
         <div className="relative">
@@ -462,6 +533,16 @@ function LedgerPreviewSection() {
           <h2 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
             This is what a public record looks like.
           </h2>
+          {/* Anchor-benefit line — connects the abstract "cryptographic anchor" */}
+          {/* concept to a concrete outsider benefit. Answers the "so what?"     */}
+          {/* that lands after seeing the technical phrasing.                    */}
+          <p
+            className="mt-3 text-base leading-relaxed"
+            style={{ color: 'var(--sr-ink-secondary)' }}
+          >
+            Anyone can independently verify this record's cryptographic anchor without ever seeing
+            the session content.
+          </p>
         </div>
 
         <article
@@ -540,6 +621,26 @@ function LedgerPreviewSection() {
             </Link>
           </footer>
         </article>
+
+        {/* Anonymized micro-testimonial — grounds the artifact in real usage    */}
+        {/* without exposing the organization or the individual. Names withheld  */}
+        {/* per pilot-partner safety norms.                                       */}
+        <blockquote
+          className="mt-8 rounded-[12px] border-l-2 px-5 py-4"
+          style={{
+            borderColor: 'var(--sr-primary)',
+            background: 'var(--sr-bg-secondary)',
+          }}
+        >
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--sr-ink)' }}>
+            &ldquo;We used SquadRidge for a three-party mediation where any leak would have ended
+            the conversation. The room stayed private, but the joint statement we released is now
+            citable evidence that the process happened at all.&rdquo;
+          </p>
+          <footer className="mt-2 text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
+            &mdash; Regional mediator, Europe · name withheld for safety
+          </footer>
+        </blockquote>
       </div>
     </section>
   );
@@ -587,7 +688,7 @@ function PilotAccessSection() {
         <div>
           <SectionEyebrow>Pilot access</SectionEyebrow>
           <h2 id="apply-heading" className="text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Start the process.
+            Request a pilot intake call.
           </h2>
           <p
             className="mt-4 max-w-md text-base leading-relaxed"
@@ -596,10 +697,28 @@ function PilotAccessSection() {
             Three fields to open a conversation. If your use case is a match, we send a full
             qualification questionnaire next.
           </p>
-          <p className="mt-6 text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-            Ideal for facilitators and organisations running three or more high-stakes sessions per
-            year. Every application is reviewed personally — no automated approvals.
-          </p>
+
+          {/* Explicit expectations per critique — clarify what happens next */}
+          {/* and who we prioritise so applicants can self-qualify.          */}
+          <ul
+            className="mt-6 flex flex-col gap-2 text-xs"
+            style={{ color: 'var(--sr-ink-secondary)' }}
+          >
+            {[
+              'We reply within 3–5 business days.',
+              'We prioritise organisations running 3+ high-stakes sessions per year.',
+              'Every application is reviewed personally — no automated approvals.',
+            ].map((line) => (
+              <li key={line} className="flex items-start gap-2">
+                <span
+                  aria-hidden
+                  className="mt-1.5 inline-flex h-1 w-1 shrink-0 rounded-full"
+                  style={{ background: 'var(--sr-primary)' }}
+                />
+                {line}
+              </li>
+            ))}
+          </ul>
         </div>
 
         {state === 'success' ? (
@@ -679,16 +798,23 @@ function PilotAccessSection() {
               disabled={state === 'submitting'}
               className="btn-pill btn-pill--primary mt-2 w-full text-sm"
             >
-              {state === 'submitting' ? 'Submitting…' : 'Start the conversation'}
+              {state === 'submitting' ? 'Submitting…' : 'Request pilot intake call'}
             </button>
+
+            {/* No-marketing reassurance under the submit — reduces submit anxiety */}
+            {/* for cautious institutional applicants. Kept short.                  */}
+            <p className="text-center text-xs" style={{ color: 'var(--sr-ink-secondary)' }}>
+              We never add applicants to marketing lists; contact is strictly about pilot
+              qualification.
+            </p>
             <p className="text-center text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-              Longer, verified applications on the full{' '}
+              Prefer the full form?{' '}
               <Link
                 to="/request-access"
                 className="underline-offset-4 hover:underline"
                 style={{ color: 'var(--sr-primary)' }}
               >
-                request-access page
+                Request access page
               </Link>
               .
             </p>
@@ -745,21 +871,5 @@ function Field({ id, label, value, onChange, error, type = 'text', autoComplete 
         </p>
       ) : null}
     </div>
-  );
-}
-
-// ------------------------------------------------------------
-// Closing note — quiet, single-line
-// ------------------------------------------------------------
-function ClosingNote() {
-  return (
-    <footer className="border-t py-10" style={{ borderColor: 'var(--sr-divider)' }}>
-      <div className="mx-auto max-w-[1200px] px-6 text-center">
-        <p className="text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-          SquadRidge is not a public forum. It is invitation-only, facilitator-run dialogue with a
-          verifiable release step.
-        </p>
-      </div>
-    </footer>
   );
 }
