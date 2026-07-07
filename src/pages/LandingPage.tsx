@@ -309,17 +309,18 @@ export function LandingPage() {
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start lg:gap-14">
             <div className="min-w-0">
               <p className="mb-4 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                For facilitators and mediators · Pilot-by-pilot · Evidence-aware
+                Pilot-stage · Facilitator-led · Verified-anonymous dialogue
               </p>
               <h1
                 id="hero-heading"
-                className="max-w-[42rem] font-heading text-[clamp(1.85rem,4vw,2.65rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-landing-ink"
+                className="max-w-[42rem] font-display text-[clamp(1.85rem,4vw,2.65rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-landing-ink"
               >
-                Run sensitive dialogue. Publish a citable outcome. Never expose the room.
+                A pilot-stage trust platform for structured, facilitator-led cross-border cohorts.
               </h1>
               <p className="mt-6 max-w-[38rem] font-sans text-[1rem] leading-[1.65] text-landing-body">
-                SquadRidge is verified, facilitator-led infrastructure for small-group dialogue on
-                hard topics — and a way to release a public record without revealing who said what.
+                SquadRidge combines verified access, small-group matching, and safety-conscious
+                workflows for institutions running sensitive dialogue programs — with a path to
+                release citable outcomes without exposing the room.
               </p>
               <p className="mt-4 max-w-[38rem] font-sans text-[0.92rem] leading-relaxed text-slate-400">
                 Built for team conflict, veteran dialogue, community mediation, and cross-border

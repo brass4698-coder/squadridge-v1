@@ -18,6 +18,30 @@ export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
 export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
 
 export type LedgerProposalVote = 'approve' | 'reject' | 'abstain';
+export type IncidentRoomStatus = 'active' | 'paused' | 'archived' | 'closed';
+export type IncidentSeverityTier = 'monitoring' | 'escalating' | 'critical' | 'de-escalating';
+export type IncidentLane =
+  | 'verified_evidence'
+  | 'disputed_claims'
+  | 'unverified_leads'
+  | 'community_impact'
+  | 'official_responses';
+export type IncidentVerificationStatus =
+  | 'pending_review'
+  | 'corroborated'
+  | 'disputed'
+  | 'unverified'
+  | 'retracted';
+export type IncidentModerationState = 'pending' | 'approved' | 'flagged' | 'removed';
+export type IncidentSourceType =
+  | 'document'
+  | 'statement'
+  | 'news'
+  | 'social'
+  | 'official'
+  | 'other';
+export type IncidentThreadStatus = 'open' | 'paused' | 'resolved';
+export type IncidentParticipantRole = 'participant' | 'facilitator' | 'moderator' | 'observer';
 export interface Database {
   public: {
     Tables: {
@@ -480,6 +504,160 @@ export interface Database {
         };
         Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
         Relationships: [];
+      };
+      incident_rooms: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          description: string;
+          status: IncidentRoomStatus;
+          severity_tier: IncidentSeverityTier;
+          facilitator_id: string;
+          created_at: string;
+          updated_at: string;
+          closed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          description?: string;
+          status?: IncidentRoomStatus;
+          severity_tier?: IncidentSeverityTier;
+          facilitator_id: string;
+          created_at?: string;
+          updated_at?: string;
+          closed_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['incident_rooms']['Insert']>;
+        Relationships: [];
+      };
+      incident_items: {
+        Row: {
+          id: string;
+          room_id: string;
+          lane: IncidentLane;
+          verification_status: IncidentVerificationStatus;
+          moderation_state: IncidentModerationState;
+          title: string;
+          body: string;
+          source_url: string | null;
+          source_type: IncidentSourceType;
+          content_warning: string | null;
+          author_id: string;
+          moderator_id: string | null;
+          moderation_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          lane: IncidentLane;
+          verification_status?: IncidentVerificationStatus;
+          moderation_state?: IncidentModerationState;
+          title: string;
+          body: string;
+          source_url?: string | null;
+          source_type?: IncidentSourceType;
+          content_warning?: string | null;
+          author_id: string;
+          moderator_id?: string | null;
+          moderation_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_items']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_items_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_threads: {
+        Row: {
+          id: string;
+          room_id: string;
+          item_id: string | null;
+          topic: string;
+          status: IncidentThreadStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          item_id?: string | null;
+          topic: string;
+          status?: IncidentThreadStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_threads']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_threads_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_messages: {
+        Row: {
+          id: string;
+          thread_id: string;
+          author_id: string;
+          body: string;
+          moderation_state: IncidentModerationState;
+          is_facilitator: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          thread_id: string;
+          author_id: string;
+          body: string;
+          moderation_state?: IncidentModerationState;
+          is_facilitator?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_messages']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_messages_thread_id_fkey';
+            columns: ['thread_id'];
+            referencedRelation: 'incident_threads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_room_participants: {
+        Row: {
+          room_id: string;
+          user_id: string;
+          role: IncidentParticipantRole;
+          joined_at: string;
+        };
+        Insert: {
+          room_id: string;
+          user_id: string;
+          role?: IncidentParticipantRole;
+          joined_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_room_participants']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_room_participants_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {

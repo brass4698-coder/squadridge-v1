@@ -6,7 +6,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-- `AGENTS.md` — developer context file: stack reference, directory map, and coding rules
+- Incident Dialogue Ledger Room — five-table migration with RLS, doxxing-prevention triggers,
+  lazy-loaded `/incident` routes, trauma-informed three-panel UI, and `validate-incident-content`
+  Edge Function
+- `src/utils/contactInfoPatterns.ts` — shared contact-info detection for incident dialogue validation
 - `codeql.yml` — CodeQL static analysis on push, PR, and a weekly schedule
 - `tokens.css` v2 — motion timing tokens (`--sr-ease-*`, `--sr-duration-*`, `--sr-transition`),
   layered elevation shadows (`--sr-shadow-xs/sm/md/lg`), OKLCH alpha blending for `--sr-primary-soft`,
@@ -17,6 +20,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   keyframes + animations, `surface.accent` and `line.alpha` color aliases
 
 ### Changed
+- Landing page hero copy aligned with `CURRENT_STATUS.md` near-term positioning; H1 uses IBM Plex Serif
 - Stale default GitHub workflow templates (`jekyll-docker.yml`, `webpack.yml`,
   `npm-publish-github-packages.yml`, `deno.yml`) replaced with disabled stubs and comments
   explaining why they are not used

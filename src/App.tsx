@@ -56,6 +56,18 @@ const FinancialProjectionsPage = lazy(() =>
   })),
 );
 
+const IncidentRoomListPage = lazy(() =>
+  import('./pages/incident/IncidentRoomListPage').then((m) => ({
+    default: m.IncidentRoomListPage,
+  })),
+);
+
+const IncidentRoomPage = lazy(() =>
+  import('./pages/incident/IncidentRoomPage').then((m) => ({
+    default: m.IncidentRoomPage,
+  })),
+);
+
 const routeChunkFallback = (
   <div
     role="status"
@@ -130,6 +142,24 @@ export default function App() {
                           <FinancialProjectionsPage />
                         </Suspense>
                       </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/incident"
+                    element={
+                      <RequireAuth>
+                        <Suspense fallback={routeChunkFallback}>
+                          <IncidentRoomListPage />
+                        </Suspense>
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/incident/:slug"
+                    element={
+                      <Suspense fallback={routeChunkFallback}>
+                        <IncidentRoomPage />
+                      </Suspense>
                     }
                   />
                   <Route path="/match" element={<Match />} />
