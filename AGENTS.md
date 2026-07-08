@@ -112,3 +112,32 @@ These exist because past PRs broke things in predictable ways. Please follow the
 - **TypeScript strict** — no `any`, no `@ts-ignore` without an explanatory comment.
 - **Test new utilities** — any new file in `src/utils/` or `src/lib/` needs a corresponding
   test in `src/test/`.
+
+## Cursor Cloud specific instructions
+
+Environment prerequisites (Node 22 / npm 10, Docker, Supabase CLI) are already
+installed on the VM; the startup update script runs `npm install`. Standard
+dev/test/lint/build commands live in `README.md` (Scripts) and `package.json`.
+The notes below are the non-obvious gotchas discovered during setup.
+
+- **Active app entry is `src/App.v2.tsx`, not `src/App.tsx`.** `src/main.tsx`
+  does `import App from './App.v2'` — the redesign/v2 router is what actually
+  renders. Route/layout/page definitions live in `App.v2.tsx`, `components/layout/`
+  (`PublicShell`, `AuthenticatedShell`), and `src/pages/v2/`. Editing the legacy
+  `App.tsx`/old shells/pages has no effect on the running app.
+- **Dev server:** `npm run dev` serves on `http://localhost:5173`. Vite binds to
+  `localhost` / `::1` — use `localhost`, not `127.0.0.1`, when probing with curl.
+- **Local `.env` (gitignored) is required to boot.** Set `VITE_SUPABASE_URL` plus
+  a key. `src/lib/supabaseClient.ts` accepts `VITE_SUPABASE_PUBLISHABLE_KEY`, but
+  `src/lib/supabase.ts` reads the legacy `VITE_SUPABASE_ANON_KEY`. A few Vitest
+  suites import `src/lib/supabase.ts`, so set **both** keys in `.env` for the full
+  unit suite to run (CI/`.env.test` only set the publishable key).
+- **Local Supabase needs Docker + a recent CLI.** The pinned `supabase`
+  devDependency (2.91.3) is too old for `supabase/config.toml` (the
+  `auto_expose_new_tables` key needs CLI ≥ 2.106.0). Use `npx supabase@latest ...`
+  (this matches CI's `supabase/setup-cli@v2` `version: latest`), not the bare
+  `supabase:*` npm scripts.
+- **Frontend runs without a backend.** With placeholder Supabase values the app
+  still boots (Vite/esbuild does no typechecking); backend-free routes such as
+  `/onboarding/*` and the participant flow (`/p/*`) render and are interactive,
+  which is the quickest way to sanity-check the UI.
