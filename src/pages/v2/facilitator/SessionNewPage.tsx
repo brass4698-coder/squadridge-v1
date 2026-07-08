@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
+import { useSessions } from '../../../hooks/useSessions';
 import { appRoutes } from '../../../lib/appRoutes';
+import {
+  SESSION_TEMPLATES,
+  getSessionTemplate,
+  type SessionTemplateId,
+} from '../../../lib/sessionTemplates';
 
 const CONFLICT_TYPES = [
   'Labour / employment',
@@ -29,6 +35,8 @@ const LANGUAGE_OPTIONS = [
 
 export function SessionNewPage() {
   const navigate = useNavigate();
+  const { createSession } = useSessions();
+  const [templateId, setTemplateId] = useState<SessionTemplateId | ''>('');
   const [form, setForm] = useState({
     title: '',
     conflictType: '',
@@ -39,6 +47,22 @@ export function SessionNewPage() {
     identityVerification: true,
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function applyTemplate(id: SessionTemplateId) {
+    const template = getSessionTemplate(id);
+    if (!template) return;
+    setTemplateId(id);
+    setForm({
+      title: '',
+      conflictType: template.conflictType,
+      language: template.language,
+      maxParticipants: String(template.maxParticipants),
+      eligibilityNotes: template.eligibilityNotes,
+      outcomePublic: template.outcomePublic,
+      identityVerification: template.identityVerification,
+    });
+  }
 
   function set(key: string, value: unknown) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -47,9 +71,26 @@ export function SessionNewPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    // TODO: Supabase insert in Phase 7
-    await new Promise((r) => setTimeout(r, 600));
-    navigate(appRoutes.sessions);
+    setError(null);
+    try {
+      const template = templateId ? getSessionTemplate(templateId) : undefined;
+      const row = await createSession({
+        title: form.title,
+        conflict_type: form.conflictType,
+        language: form.language,
+        max_participants: parseInt(form.maxParticipants, 10) || 2,
+        eligibility_notes: form.eligibilityNotes || null,
+        identity_verification_required: form.identityVerification,
+        outcome_public: form.outcomePublic,
+        status: 'setup',
+        template_id: templateId || null,
+        setup_config: template?.setupConfig ?? {},
+      });
+      navigate(appRoutes.sessionInvite(row.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create session');
+      setSaving(false);
+    }
   }
 
   const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
@@ -81,6 +122,34 @@ export function SessionNewPage() {
           <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
             Set eligibility criteria and session parameters before inviting participants.
           </p>
+        </div>
+
+        <div className="mb-8">
+          <p className={labelClass} style={labelStyle}>
+            Start from a template (optional)
+          </p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+            {SESSION_TEMPLATES.map((template) => (
+              <button
+                key={template.id}
+                type="button"
+                onClick={() => applyTemplate(template.id)}
+                className="rounded-lg border p-4 text-left transition-colors"
+                style={{
+                  borderColor:
+                    templateId === template.id ? 'var(--color-accent)' : 'var(--color-border)',
+                  backgroundColor: 'var(--color-surface)',
+                }}
+              >
+                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                  {template.label}
+                </p>
+                <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                  {template.audience}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -223,6 +292,12 @@ export function SessionNewPage() {
               </label>
             </div>
           </div>
+
+          {error ? (
+            <p className="text-sm" style={{ color: 'var(--color-danger)' }} role="alert">
+              {error}
+            </p>
+          ) : null}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">

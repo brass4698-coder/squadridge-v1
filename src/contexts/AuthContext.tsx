@@ -21,6 +21,7 @@ import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { fetchProfile } from '../lib/auth';
 import { fetchUserRoles } from '../lib/roles';
+import { getAuthCallbackUrl } from '../lib/authUrls';
 import type { AuthState, Profile, AuthUser } from '../types/auth';
 import type { UserRole } from '../types/roles';
 
@@ -95,11 +96,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (s?.user) {
         const u = { id: s.user.id, email: s.user.email ?? '' };
         setUser(u);
-        loadProfileAndRoles(u.id);
+        setLoading(true);
+        loadProfileAndRoles(u.id).finally(() => {
+          if (mounted) setLoading(false);
+        });
       } else {
         setUser(null);
         setProfile(null);
         setRoles([]);
+        setLoading(false);
       }
     });
 
@@ -146,16 +151,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(
     async (email: string, options?: { nextPath?: string }): Promise<{ error: Error | null }> => {
-      const emailRedirectTo =
-        typeof window !== 'undefined' && options?.nextPath
-          ? new URL(
-              `/auth/callback?next=${encodeURIComponent(options.nextPath)}`,
-              window.location.origin,
-            ).toString()
-          : undefined;
+      const emailRedirectTo = getAuthCallbackUrl(options?.nextPath);
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: emailRedirectTo ? { emailRedirectTo } : undefined,
+        options: { emailRedirectTo },
       });
       if (error) {
         const err = error instanceof Error ? error : new Error(String(error));

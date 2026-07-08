@@ -1,29 +1,27 @@
-// ============================================================
-// SquadRidge Supabase client (anon key only — no service role)
-// ============================================================
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { getSupabasePublicKey, getSupabaseUrl } from './env';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const supabaseUrl = getSupabaseUrl();
+const supabaseKey = getSupabasePublicKey();
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variable.'
-  );
+function createSupabaseClient(): SupabaseClient {
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error(
+      'Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY.',
+    );
+  }
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+/** Singleton anon/publishable client — accepts either key env var. */
+export const supabase: SupabaseClient = createSupabaseClient();
 
-/**
- * Getter function for accessing the Supabase client.
- * Enables compatibility with code patterns that use getSupabase().
- */
-export function getSupabase() {
+export function getSupabase(): SupabaseClient {
   return supabase;
 }

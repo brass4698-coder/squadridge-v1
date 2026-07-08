@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 
 const publicNav = [
   { label: 'How it works', href: '/how-it-works' },
@@ -21,13 +21,89 @@ const footerLinks = [
   { label: 'Contact', href: '/contact' },
 ];
 
+const PUBLIC_MARKETING_PREFIXES = [
+  '/how-it-works',
+  '/use-cases',
+  '/security',
+  '/ledger',
+  '/faq',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/request-access',
+];
+
+function isPublicMarketingRoute(pathname: string): boolean {
+  if (pathname === '/') return true;
+  return PUBLIC_MARKETING_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
 export function PublicShell({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  const isPublicMarketing = isPublicMarketingRoute(pathname);
+  const isHomepage = pathname === '/';
+
   return (
-    <div className="theme-light flex min-h-screen flex-col bg-surface">
-      {/* Nav */}
-      <header className="sticky top-0 z-40 border-b border-line bg-surface">
+    <div
+      className={
+        isPublicMarketing
+          ? 'relative flex min-h-screen flex-col bg-surface text-ink'
+          : 'theme-light flex min-h-screen flex-col bg-surface'
+      }
+    >
+      {isHomepage ? (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 z-0"
+            style={{
+              backgroundImage:
+                'linear-gradient(oklch(from var(--sr-ink) l c h / 0.028) 1px, transparent 1px), linear-gradient(90deg, oklch(from var(--sr-ink) l c h / 0.028) 1px, transparent 1px)',
+              backgroundSize: '48px 48px',
+              maskImage: 'radial-gradient(ellipse 80% 60% at 50% 20%, black, transparent 80%)',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 80% 60% at 50% 20%, black, transparent 80%)',
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 z-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 55% 42% at 50% -6%, oklch(from var(--sr-primary) l c h / 0.14), transparent 70%)',
+            }}
+          />
+        </>
+      ) : null}
+
+      <header
+        className={
+          isPublicMarketing
+            ? 'nav-frosted sticky top-0 z-40'
+            : 'sticky top-0 z-40 border-b border-line bg-surface'
+        }
+      >
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="text-sm font-semibold tracking-tight text-ink">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-sm font-semibold tracking-tight text-ink"
+          >
+            {isPublicMarketing ? (
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              >
+                <path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z" />
+                <path d="M12 7.5 16 10v4l-4 2.5L8 14v-4l4-2.5Z" className="text-brand" />
+              </svg>
+            ) : null}
             SquadRidge
           </Link>
 
@@ -49,13 +125,17 @@ export function PublicShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-4">
             <Link
               to="/sign-in"
-              className="text-sm transition-opacity hover:opacity-70 text-ink-secondary"
+              className="text-sm text-ink-secondary transition-opacity hover:opacity-70"
             >
               Sign in
             </Link>
             <Link
               to="/request-access"
-              className="rounded bg-brand px-4 py-2 text-sm font-medium text-brand-on transition-opacity hover:opacity-90"
+              className={
+                isPublicMarketing
+                  ? 'rounded-full border border-brand/40 px-4 py-1.5 text-sm text-brand transition-colors duration-200 hover:bg-brand-soft'
+                  : 'rounded bg-brand px-4 py-2 text-sm font-medium text-brand-on transition-opacity hover:opacity-90'
+              }
             >
               Request access
             </Link>
@@ -63,18 +143,22 @@ export function PublicShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {/* Page content */}
-      <main className="flex-1">{children}</main>
+      <main className={isPublicMarketing ? 'relative z-10 flex-1' : 'flex-1'}>{children}</main>
 
-      {/* Footer */}
-      <footer className="border-t border-line bg-surface px-6 py-12">
+      <footer
+        className={
+          isPublicMarketing
+            ? 'relative z-10 border-t border-line bg-surface px-6 py-12'
+            : 'border-t border-line bg-surface px-6 py-12'
+        }
+      >
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 flex flex-wrap gap-x-8 gap-y-3">
             {footerLinks.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
-                className="text-xs transition-opacity hover:opacity-70 text-ink-secondary"
+                className="text-xs text-ink-secondary transition-opacity hover:opacity-70"
               >
                 {item.label}
               </Link>

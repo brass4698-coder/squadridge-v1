@@ -1,33 +1,12 @@
-// ============================================================
-// SecurityPage — Phase 9 rewrite
-//
-// Structure per the design critique:
-//   1. Plain-English top summary
-//   2. Architecture model (room vs record diagram + one sentence)
-//   3. Private session layer
-//   4. Released record layer
-//   5. Verification anchor — with a compact "What it proves / What it does not
-//      prove" side-by-side
-//   6. Operational safeguards
-//   7. What we do NOT claim (retained from the old page — critical honesty)
-//   8. Technical appendix (collapsed <details> so main page reads for non-eng)
-//   9. Contact
-//
-// Tone: policy briefing / architecture note, not marketing. Reads for
-// technical + non-technical audiences.
-// ============================================================
 import { Link } from 'react-router-dom';
 import { CheckCircle2, ShieldCheck, X } from 'lucide-react';
-import { SectionEyebrow, SplitPanelVisual } from '../../components/marketing/primitives';
-
-// ------------------------------------------------------------
-// Data
-// ------------------------------------------------------------
+import { CTABlock, MarketingSection, SectionLabel } from '../../components/shared';
 
 const ROOM_LAYER = [
-  'The room is the private, live surface — dialogue, participant messages, and any real-time signals only visible to verified participants and the facilitator.',
-  'No transcript is generated for the public. Room contents are not retained on platform infrastructure after a session is closed and archived.',
-  'Participant identities and verification data are visible only inside the room, to the facilitator. Other participants see the display name and role assigned during onboarding.',
+  'The room is the private, live surface — a facilitator-led messaging room. Written messages are visible only to verified participants and the facilitator.',
+  'SquadRidge does not capture, store, or transmit video or audio. There are no calls and no spoken sessions — dialogue is text-based only.',
+  'No public transcript is generated. Room contents are not retained on platform infrastructure after a session is closed and archived.',
+  'Identity is verified but never disclosed. The facilitator confirms each participant privately; verification data is visible only to the facilitator, and identity never appears on the released record.',
 ];
 
 const RECORD_LAYER = [
@@ -44,6 +23,10 @@ const SAFEGUARDS = [
   {
     heading: 'Controlled release',
     body: 'No outcome is published without every designated approver signing off. The platform cannot unilaterally release anything.',
+  },
+  {
+    heading: 'Text-based room only',
+    body: 'The room is a facilitator-led messaging environment by design. SquadRidge does not record, store, or transmit audio or video, and does not integrate with external call tools.',
   },
   {
     heading: 'Minimal retention',
@@ -70,80 +53,54 @@ const NOT_CLAIMED = [
   'We are not a whistleblower platform. If your threat model includes state-level adversaries, assess accordingly.',
 ];
 
-// ------------------------------------------------------------
-// Page
-// ------------------------------------------------------------
-
 export function SecurityPage() {
   return (
-    <div style={{ backgroundColor: 'var(--sr-bg)' }}>
-      {/* 1. Top summary */}
-      <section className="mx-auto max-w-3xl px-6 py-20">
-        <SectionEyebrow>Security overview</SectionEyebrow>
-        <h1 className="mt-3 text-h1" style={{ color: 'var(--sr-ink)' }}>
-          Verified, not exposed.
-        </h1>
-        <p className="mt-5 text-base leading-relaxed md:text-lg" style={{ color: 'var(--sr-ink)' }}>
-          Security in SquadRidge comes from architecture, not policy language alone. Raw session
-          content is not published. Only facilitator-approved outcomes are released, each carrying a
-          verification anchor that can be checked independently.
-        </p>
-        <p className="mt-4 text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
-          The room and the record are two different objects. This page describes each, how they are
-          separated, and what the anchor does and does not prove.
-        </p>
-      </section>
+    <div className="bg-surface">
+      <MarketingSection className="!pb-12 !pt-20">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="Security overview" />
+          <h1 className="mt-3 text-h1 text-ink">Verified, not exposed.</h1>
+          <p className="mt-5 text-base leading-relaxed text-ink md:text-lg">
+            Security in SquadRidge comes from architecture, not policy language alone. Raw session
+            content is not published. Only facilitator-approved outcomes are released, each carrying
+            a verification anchor that can be checked independently.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            The room and the record are two different objects. This page describes each, how they
+            are separated, and what the anchor does and does not prove.
+          </p>
+        </div>
+      </MarketingSection>
 
-      {/* 2. Architecture model */}
       <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
+        className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
         id="architecture"
       >
-        <div className="mx-auto max-w-[1100px]">
-          <SectionEyebrow>Architecture model</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Two layers, two responsibilities.
-          </h2>
-          <p
-            className="mt-4 max-w-2xl text-sm leading-relaxed"
-            style={{ color: 'var(--sr-ink-secondary)' }}
-          >
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="Architecture model" />
+          <h2 className="mt-3 text-h2 text-ink">Two layers, two responsibilities.</h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
             Inside the room: private, verified, facilitator-controlled. Released as record:
-            approved, verifiable, deliberately narrow.
+            approved, verifiable, deliberately narrow.{' '}
+            <Link to="/how-it-works" className="text-brand hover:underline">
+              How it works
+            </Link>{' '}
+            covers the workflows; this page covers the trust model.
           </p>
-          <div className="mt-10">
-            <SplitPanelVisual size="hero" />
-          </div>
         </div>
       </section>
 
-      {/* 3. Private session layer */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>Private session layer</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Inside the room.
-          </h2>
+          <SectionLabel text="Private session layer" />
+          <h2 className="mt-3 text-h2 text-ink">Inside the room.</h2>
           <ul className="mt-8 flex flex-col gap-4">
-            {ROOM_LAYER.map((line, i) => (
+            {ROOM_LAYER.map((line) => (
               <li
-                key={i}
-                className="flex items-start gap-3 rounded-lg border p-4 text-sm leading-relaxed"
-                style={{
-                  borderColor: 'var(--sr-line)',
-                  background: 'var(--sr-bg-elevated)',
-                  color: 'var(--sr-ink-secondary)',
-                }}
+                key={line}
+                className="flex items-start gap-3 rounded-lg border border-line bg-surface-elevated p-4 text-sm leading-relaxed text-ink-secondary"
               >
-                <ShieldCheck
-                  className="mt-0.5 size-4 shrink-0"
-                  style={{ color: 'var(--sr-ink-faint)' }}
-                  aria-hidden
-                />
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-ink-faint" aria-hidden />
                 <span>{line}</span>
               </li>
             ))}
@@ -151,32 +108,17 @@ export function SecurityPage() {
         </div>
       </section>
 
-      {/* 4. Released record layer */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>Released record layer</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Released as record.
-          </h2>
+          <SectionLabel text="Released record layer" />
+          <h2 className="mt-3 text-h2 text-ink">Released as record.</h2>
           <ul className="mt-8 flex flex-col gap-4">
-            {RECORD_LAYER.map((line, i) => (
+            {RECORD_LAYER.map((line) => (
               <li
-                key={i}
-                className="flex items-start gap-3 rounded-lg p-4 text-sm leading-relaxed"
-                style={{
-                  border: '1px solid color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line))',
-                  background: 'var(--sr-primary-soft)',
-                  color: 'var(--sr-ink)',
-                }}
+                key={line}
+                className="flex items-start gap-3 rounded-lg border border-brand/20 bg-brand-soft p-4 text-sm leading-relaxed text-ink"
               >
-                <CheckCircle2
-                  className="mt-0.5 size-4 shrink-0"
-                  style={{ color: 'var(--sr-primary)' }}
-                  aria-hidden
-                />
+                <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden />
                 <span>{line}</span>
               </li>
             ))}
@@ -184,86 +126,48 @@ export function SecurityPage() {
         </div>
       </section>
 
-      {/* 5. Verification anchor + What proves / What does not prove */}
       <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
+        className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
         id="verification-anchor"
       >
         <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>Verification anchor</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            What the anchor is — and isn't.
-          </h2>
-          <p
-            className="mt-4 text-base leading-relaxed"
-            style={{ color: 'var(--sr-ink-secondary)' }}
-          >
+          <SectionLabel text="Verification anchor" />
+          <h2 className="mt-3 text-h2 text-ink">What the anchor is — and isn't.</h2>
+          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
             A verification anchor is a cryptographic hash of the released record, generated at the
             moment of release. Anyone with the record can recompute the anchor and confirm the
             record has not been altered since.
           </p>
-
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <div
-              className="rounded-[16px] border p-6"
-              style={{
-                border: '1px solid color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line))',
-                background: 'var(--sr-primary-soft)',
-              }}
-            >
-              <p
-                className="text-[0.7rem] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--sr-primary)' }}
-              >
+            <div className="rounded-lg border border-brand/20 bg-brand-soft p-6">
+              <p className="text-[0.7rem] font-semibold uppercase tracking-wider text-brand">
                 What it proves
               </p>
-              <ul
-                className="mt-3 flex flex-col gap-2 text-sm leading-relaxed"
-                style={{ color: 'var(--sr-ink)' }}
-              >
+              <ul className="mt-3 flex flex-col gap-2 text-sm leading-relaxed text-ink">
                 {[
                   'The record has not been altered since release.',
                   'The record was issued through SquadRidge (not fabricated externally).',
                   'The organisation, date, and any included metadata are the ones on file.',
-                ].map((line, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <CheckCircle2
-                      className="mt-0.5 size-3.5 shrink-0"
-                      style={{ color: 'var(--sr-primary)' }}
-                      aria-hidden
-                    />
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-brand" aria-hidden />
                     <span>{line}</span>
                   </li>
                 ))}
               </ul>
             </div>
-
-            <div
-              className="rounded-[16px] border p-6"
-              style={{ borderColor: 'var(--sr-line)', background: 'var(--sr-bg-elevated)' }}
-            >
-              <p
-                className="text-[0.7rem] font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--sr-ink-faint)' }}
-              >
+            <div className="rounded-lg border border-line bg-surface-elevated p-6">
+              <p className="text-[0.7rem] font-semibold uppercase tracking-wider text-ink-faint">
                 What it does not prove
               </p>
-              <ul
-                className="mt-3 flex flex-col gap-2 text-sm leading-relaxed"
-                style={{ color: 'var(--sr-ink-secondary)' }}
-              >
+              <ul className="mt-3 flex flex-col gap-2 text-sm leading-relaxed text-ink-secondary">
                 {[
                   'What was said inside the room — the private session is not encoded in the anchor.',
                   'Who each participant is — identity does not appear on the released record.',
                   'That any external party endorses the outcome — endorsement is out of scope.',
-                ].map((line, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <X
-                      className="mt-0.5 size-3.5 shrink-0"
-                      style={{ color: 'var(--sr-ink-faint)' }}
-                      aria-hidden
-                    />
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-2">
+                    <X className="mt-0.5 size-3.5 shrink-0 text-ink-faint" aria-hidden />
                     <span>{line}</span>
                   </li>
                 ))}
@@ -273,62 +177,36 @@ export function SecurityPage() {
         </div>
       </section>
 
-      {/* 6. Operational safeguards */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-[1100px]">
-          <SectionEyebrow>Operational safeguards</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
+          <SectionLabel text="Operational safeguards" />
+          <h2 className="mt-3 text-h2 text-ink">
             Controls that live in the platform, not in the copy.
           </h2>
           <ul className="mt-10 grid gap-4 md:grid-cols-2">
             {SAFEGUARDS.map((s) => (
-              <li
-                key={s.heading}
-                className="rounded-lg border p-5"
-                style={{
-                  borderColor: 'var(--sr-line)',
-                  background: 'var(--sr-bg-elevated)',
-                }}
-              >
-                <h3 className="text-sm font-semibold" style={{ color: 'var(--sr-ink)' }}>
-                  {s.heading}
-                </h3>
-                <p
-                  className="mt-2 text-sm leading-relaxed"
-                  style={{ color: 'var(--sr-ink-secondary)' }}
-                >
-                  {s.body}
-                </p>
+              <li key={s.heading} className="rounded-lg border border-line bg-surface-elevated p-5">
+                <h3 className="text-sm font-semibold text-ink">{s.heading}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{s.body}</p>
               </li>
             ))}
           </ul>
         </div>
       </section>
 
-      {/* 7. What we do NOT claim (retained honesty from old page) */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>What we do not claim</SectionEyebrow>
-          <h2 className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Limits, stated plainly.
-          </h2>
+          <SectionLabel text="What we do not claim" />
+          <h2 className="mt-3 text-h2 text-ink">Limits, stated plainly.</h2>
           <ul className="mt-8 flex flex-col gap-3">
             {NOT_CLAIMED.map((line) => (
               <li
                 key={line}
-                className="flex items-start gap-3 text-sm leading-relaxed"
-                style={{ color: 'var(--sr-ink-secondary)' }}
+                className="flex items-start gap-3 text-sm leading-relaxed text-ink-secondary"
               >
                 <span
                   aria-hidden
-                  className="mt-1.5 inline-flex h-1 w-1 shrink-0 rounded-full"
-                  style={{ background: 'var(--sr-ink-faint)' }}
+                  className="mt-1.5 inline-flex h-1 w-1 shrink-0 rounded-full bg-ink-faint"
                 />
                 <span>{line}</span>
               </li>
@@ -337,80 +215,56 @@ export function SecurityPage() {
         </div>
       </section>
 
-      {/* 8. Technical appendix (collapsed by default) */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>Technical appendix</SectionEyebrow>
-          <details
-            className="mt-4 rounded-lg border"
-            style={{ borderColor: 'var(--sr-line)', background: 'var(--sr-bg-elevated)' }}
-          >
-            <summary
-              className="cursor-pointer list-none px-5 py-4 text-sm font-medium"
-              style={{ color: 'var(--sr-ink)' }}
-            >
+          <SectionLabel text="Technical appendix" />
+          <details className="mt-4 rounded-lg border border-line bg-surface-elevated">
+            <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-ink">
               For engineers, security reviewers, and auditors — expand for the technical model.
             </summary>
-            <div
-              className="border-t px-5 py-5 text-sm leading-relaxed"
-              style={{ borderColor: 'var(--sr-divider)', color: 'var(--sr-ink-secondary)' }}
-            >
+            <div className="border-t border-line px-5 py-5 text-sm leading-relaxed text-ink-secondary">
               <p>
-                Transport: TLS 1.2+ enforced end-to-end between browser and platform. Session data
-                at rest is encrypted; keys are managed by the platform's KMS.
+                Transport: TLS 1.2+ between browser and platform (transport encryption only — not
+                message-level end-to-end encryption against the operator). Session data at rest is
+                encrypted; keys are managed by the platform&apos;s KMS.
               </p>
               <p className="mt-3">
                 Verification anchor: SHA-256 of the canonicalised released record (outcome text plus
                 included metadata, in a stable JSON encoding). The anchor is emitted at the moment
-                the release action is signed by the facilitator; the pre-image is the released
-                record itself, so any recipient can recompute and verify.
+                the release action is signed by the facilitator.
               </p>
               <p className="mt-3">
-                Approval chain: every required approval is recorded as a signed audit event with the
-                approver's user ID, role, timestamp, and target record ID. The chain is append-only
-                within the platform's audit log; releases cannot be issued without a complete chain.
+                Approval chain: every required approval is recorded as a signed audit event.
+                Releases cannot be issued without a complete chain.
               </p>
               <p className="mt-3">
                 Identity: participant identity data captured during verification is not accessible
-                to other participants or written to any released record. Facilitators see the
-                minimum needed to run the session and can be scoped further per session
-                configuration.
-              </p>
-              <p className="mt-3">
-                Deeper technical review is available for pilot partners — contact us to arrange a
-                briefing with the engineering team.
+                to other participants or written to any released record.
               </p>
             </div>
           </details>
         </div>
       </section>
 
-      {/* 9. Contact */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
+      <section className="border-t border-line px-6 py-12 md:px-8 lg:px-12">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
+          <p className="text-sm text-ink-secondary">
             Security questions or responsible-disclosure reports?
           </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-            <a href="mailto:security@squadridge.com" className="btn-pill btn-pill--primary text-sm">
-              security@squadridge.com
-            </a>
-            <Link
-              to="/request-access"
-              className="text-xs font-medium underline-offset-4 transition-opacity hover:underline hover:opacity-70"
-              style={{ color: 'var(--sr-ink-faint)' }}
-            >
-              Or request pilot access
-            </Link>
-          </div>
+          <a
+            href="mailto:security@squadridge.com"
+            className="btn-pill btn-pill--primary mt-4 inline-flex text-sm"
+          >
+            security@squadridge.com
+          </a>
         </div>
       </section>
+
+      <CTABlock
+        headline="See the trust model in practice."
+        secondaryLabel="Browse the ledger"
+        secondaryHref="/ledger"
+      />
     </div>
   );
 }

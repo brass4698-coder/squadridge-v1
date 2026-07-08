@@ -1,21 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AccountPageShell, AccountPanel } from '../components';
+import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
-import { appRoutes } from '../lib/appRoutes';
-import { useDashboardRoute } from '../hooks/useDashboardRoute';
-
-function safeNextPath(raw: string | null, fallback: string): string {
-  if (!raw) return fallback;
-  try {
-    const decoded = decodeURIComponent(raw);
-    if (decoded.startsWith('/') && !decoded.startsWith('//')) return decoded;
-  } catch {
-    /* ignore */
-  }
-  return fallback;
-}
+import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 
 function signInHref(nextPath: string): string {
   const next = nextPath !== '/' ? `next=${encodeURIComponent(nextPath)}&` : '';
@@ -28,32 +17,31 @@ function signInHref(nextPath: string): string {
 export function AuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // Phase 4: role-aware fallback when no explicit ?next is present. If the
-  // caller passed a next-path we respect it; otherwise route to the URL that
-  // matches the freshly-authenticated user's highest-priority role (returned
-  // by `useDashboardRoute`). Falls back to `/app` when the user has no roles
-  // yet or the profile row hasn't been created.
-  const roleDashboard = useDashboardRoute();
-  const nextPath = safeNextPath(
-    searchParams.get('next'),
-    roleDashboard === '/sign-in' ? appRoutes.dashboard : roleDashboard,
-  );
-
-  const { supabase, session, loading: authLoading } = useAuth();
+  const explicitNext = searchParams.get('next');
+  const { supabase, session, profile, roles, loading, initialized } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const navigated = useRef(false);
 
+  const nextPath = useMemo(
+    () =>
+      resolvePostAuthPath({
+        session,
+        profile,
+        roles,
+        explicitNext: explicitNext ? safeNextPath(explicitNext, '') : null,
+      }),
+    [session, profile, roles, explicitNext],
+  );
+
   const attemptNavigation = useCallback(() => {
-    if (navigated.current) return;
+    if (navigated.current || !session || !initialized || loading) return;
     navigated.current = true;
     navigate(nextPath, { replace: true });
-  }, [navigate, nextPath]);
+  }, [navigate, nextPath, session, initialized, loading]);
 
   useEffect(() => {
-    if (!authLoading && session) {
-      attemptNavigation();
-    }
-  }, [authLoading, session, attemptNavigation]);
+    attemptNavigation();
+  }, [attemptNavigation]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -87,6 +75,14 @@ export function AuthCallbackPage() {
       <div className="mx-auto max-w-copy px-gutter py-14 font-sans text-[0.95rem] text-ink-muted">
         Supabase is not configured.
       </div>
+    );
+  }
+
+  if (!initialized || loading || (session && !navigated.current && !error)) {
+    return (
+      <AccountPageShell>
+        <RouteSkeleton label="Finishing sign-in" />
+      </AccountPageShell>
     );
   }
 

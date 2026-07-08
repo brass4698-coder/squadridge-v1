@@ -1,0 +1,1010 @@
+{
+  "$schema": "https://squadridge.dev/spec/v1",
+  "version": "1.0.0",
+  "generated": "2026-07-07",
+  "description": "SquadRidge platform-wide content + design spec. Single source of truth for marketing/public surface copy, unified design tokens, canonical product rules, automation architecture, and per-route page content. Legal pages (Privacy, Terms) are maintained as separate markdown at docs/legal/ and are NOT encoded here, because they change with legal review and should not be coupled to component structure.",
+
+  "meta": {
+    "product": "SquadRidge",
+    "one_liner": "A structured, text-based protected dialogue platform that lets mediators and peacebuilding organizations run high-stakes sessions in a private room, then release a verifiable public record — without exposing who said what.",
+    "core_value_proposition": "Protected dialogue. Verifiable outcomes.",
+    "eyebrow": "When the conversation is sensitive, the wrong tool can end it.",
+    "tagline": "Privacy by design. Built for peace, built to last.",
+    "trust_line": "Private pilot — now inviting mediators and peacebuilding teams",
+    "tone": "Confident, precise, trust-building. Not salesy. Speaking to people who run sensitive negotiations — they value discretion, credibility, and clarity over hype.",
+    "audiences": {
+      "primary": {
+        "label": "Professional mediators and mediation practitioners",
+        "note": "Beachhead users. The page should speak to them first."
+      },
+      "secondary": {
+        "label": "Peacebuilding NGOs and civil society teams",
+        "note": "Need to document deliberations without exposing participants."
+      },
+      "tertiary": {
+        "label": "Government and Track II diplomacy actors",
+        "note": "Mentioned briefly, never centered. Convene sensitive negotiations that produce shareable communiqués."
+      }
+    }
+  },
+
+  "founding_narrative": {
+    "story_arc": "When dialogue matters, the conditions must hold — a protected room, a structured process, and an outcome people can verify without exposing who was in the room.",
+    "through_line": "Ordinary tools fail sensitive dialogue. SquadRidge holds one clear line between the conversation and the record.",
+    "founder_mission": {
+      "quote": "Some of us learned early that blame travels faster than truth, and that the wrong room can end a conversation before it starts. SquadRidge is the infrastructure we wished existed: a protected space to speak, a structured path forward, and a record people can verify without exposing who was in the room.",
+      "attribution": "The SquadRidge team",
+      "note": "Values-forward founding statement. Belief-framed, not a customer testimonial. Deeper personal north star lives in docs/founding/north-star.md for contributors only."
+    },
+    "belief_quote_landing": {
+      "quote": "We kept seeing sensitive conversations stall the moment someone feared a leak — and fall apart when there was no credible way to show what had been agreed. We built SquadRidge to hold one clear line between the dialogue and the record, so parties can speak freely and still stand behind what they release.",
+      "attribution": "The SquadRidge team"
+    },
+    "decision_tests": [
+      "Uniqueness: does this strengthen room/record separation — or blur it?",
+      "Versatility: does this help another real context without becoming a generic chat app?",
+      "Security: can we state the privacy property honestly in threat-model.md?",
+      "Adaptability: does the facilitator stay in control of judgment and release?",
+      "Real impact: does this help produce a verifiable outcome for an actual dispute or institution?",
+      "Founding purpose: does this protect vulnerable people in the room — not expose them?"
+    ],
+    "tone_rules": [
+      "Calm, precise, trust-building — never alarmist or militarized",
+      "Honest about limits — never claim E2E or legal protection without engineering sign-off",
+      "Facilitator authority — automate workflow, never judgment or release",
+      "No fabricated customer testimonials during pilot stage"
+    ]
+  },
+
+  "canonical_rules": {
+    "is": [
+      "A structured, text-based protected dialogue platform for mediators and peacebuilding organizations",
+      "Facilitator-controlled session lifecycle: Configure → Verify → Facilitate → Release",
+      "Role-based access with private identity verification (participants verified, never disclosed publicly)",
+      "Facilitator-approved outcomes only — no raw session data is ever published",
+      "Verification anchor on every released record (tamper-evident, independently checkable)",
+      "Public ledger of released records that anyone can verify without seeing underlying dialogue",
+      "Data-minimizing by design — the room and the record are architecturally separate",
+      "A facilitator-led messaging room for high-stakes mediated dialogue — structured written rounds under facilitator control"
+    ],
+    "is_not": [
+      "NOT a video or audio call platform — no calls, now or in the current product vision",
+      "NOT a general-purpose messaging app — purpose-built for high-stakes facilitated dialogue",
+      "NOT a recording platform — session dialogue is not published as a transcript; no audio or video is captured",
+      "NOT a replacement for Zoom, Teams, or Signal — SquadRidge is the protected messaging room and verifiable record, not a parallel call tool",
+      "NOT anonymous in the 'no one knows who you are' sense — participants are privately verified by the facilitator. The anonymity is directional: identities are verified but never disclosed publicly in the released record"
+    ],
+    "unbreakable_promises": [
+      "Without exposing who said what — the public record never reveals participant identities or attributions",
+      "No public transcript is generated — the room content stays in the room",
+      "Tamper-evident once released — the verification anchor makes any tampering detectable",
+      "Facilitator-controlled release — only the facilitator decides what becomes public",
+      "The room and the record stay separate by design — this is architectural, not a policy toggle"
+    ],
+    "no_video_decision": {
+      "statement": "SquadRidge is a facilitator-led messaging room only. It does not build, host, or integrate with video or audio calls.",
+      "rationale": "Calls expose participant identity (faces, voices, surroundings), introduce recording risks, and blur the line between the protected room and the released record. The product is structured written dialogue under facilitator control — not a call surface with a record bolted on.",
+      "framing": "Frame as 'facilitator-led messaging room' — the entire protected dialogue happens in SquadRidge. Never suggest external call tools or 'use video elsewhere'.",
+      "out_of_scope": "Video calls, audio calls, call integrations, and audio-only sessions must NOT be referenced on any current page."
+    }
+  },
+
+  "design_tokens": {
+    "note": "Unified token layer (source of truth). Introduce as an additive layer; alias the three existing systems to it (see legacy_aliases) so old code keeps working while new code references semantic tokens directly. Migrate page-by-page during normal content updates; delete a page's aliases once no component references them. Values below reflect the real SquadRidge brand (teal accent on deep-indigo dark base), not generic placeholders.",
+    "primitives": {
+      "color": {
+        "indigo-950": "#05061a",
+        "indigo-900": "#08091f",
+        "indigo-850": "#10132a",
+        "indigo-800": "#141833",
+        "indigo-line": "#25294a",
+        "indigo-line-strong": "#363a5e",
+        "teal-400": "#2dd4bf",
+        "teal-500": "#14b8a6",
+        "teal-600": "#0d9488",
+        "marketing-teal": "#16C7B8",
+        "marketing-cyan": "#00C9C8",
+        "violet-500": "#8b5cf6",
+        "gray-50": "#f9fafb",
+        "gray-400": "#9ca3af",
+        "gray-500": "#6b7280",
+        "gray-600": "#4b5563",
+        "slate-400": "#94A3B8",
+        "slate-500": "#64748B",
+        "green-500": "#22c55e",
+        "amber-500": "#f59e0b",
+        "red-500": "#ef4444",
+        "blue-500": "#3b82f6",
+        "white": "#ffffff"
+      },
+      "font": {
+        "body": "'Inter', system-ui, sans-serif",
+        "heading": "'IBM Plex Sans', 'Public Sans', system-ui, sans-serif",
+        "display": "'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif",
+        "mono": "'IBM Plex Mono', ui-monospace, 'Courier New', monospace",
+        "marketing": "'Public Sans', system-ui, sans-serif"
+      },
+      "space": {
+        "1": "4px",
+        "2": "8px",
+        "3": "16px",
+        "4": "24px",
+        "5": "32px",
+        "6": "48px",
+        "7": "64px",
+        "8": "96px"
+      },
+      "radius": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px",
+        "xl": "20px",
+        "full": "9999px"
+      }
+    },
+    "semantics": {
+      "color": {
+        "bg-primary": "primitives.color.indigo-900",
+        "bg-surface": "primitives.color.indigo-800",
+        "bg-elevated": "primitives.color.indigo-850",
+        "bg-sunken": "primitives.color.indigo-950",
+        "text-primary": "primitives.color.gray-50",
+        "text-secondary": "primitives.color.gray-400",
+        "text-muted": "primitives.color.gray-500",
+        "text-inverse": "primitives.color.indigo-900",
+        "accent": "primitives.color.teal-500",
+        "accent-hover": "primitives.color.teal-400",
+        "accent-pressed": "primitives.color.teal-600",
+        "on-accent": "#04120f",
+        "border": "primitives.color.indigo-line",
+        "border-strong": "primitives.color.indigo-line-strong",
+        "success": "primitives.color.green-500",
+        "warning": "primitives.color.amber-500",
+        "danger": "primitives.color.red-500",
+        "info": "primitives.color.blue-500",
+        "decorative-alt": "primitives.color.violet-500"
+      },
+      "typography": {
+        "display": {
+          "size": "3rem",
+          "leading": "1.08",
+          "family": "display",
+          "tracking": "-0.03em"
+        },
+        "h1": { "size": "2.25rem", "leading": "1.15", "family": "display" },
+        "h2": { "size": "1.75rem", "leading": "1.25", "family": "heading" },
+        "h3": { "size": "1.25rem", "leading": "1.3", "family": "heading" },
+        "h4": { "size": "1.125rem", "leading": "1.4", "family": "heading" },
+        "body-lg": { "size": "1.125rem", "leading": "1.7", "family": "body" },
+        "body": { "size": "1rem", "leading": "1.6", "family": "body" },
+        "body-sm": { "size": "0.875rem", "leading": "1.6", "family": "body" },
+        "caption": { "size": "0.8125rem", "leading": "1.5", "family": "body" },
+        "micro-label": {
+          "size": "0.75rem",
+          "leading": "1.4",
+          "family": "heading",
+          "transform": "uppercase",
+          "tracking": "0.08em"
+        }
+      },
+      "button": {
+        "primary": "Solid accent fill (bg accent, text on-accent). Hover accent-hover. Used for the single most important action per view (e.g. Request pilot access).",
+        "secondary": "Outline/tinted (accent border, accent text, transparent/soft bg). Used for parallel actions (e.g. See how it works).",
+        "tertiary": "Text link with underline-on-hover, muted color. Used for low-emphasis navigation (e.g. Prefer the full form?)."
+      },
+      "interaction_states": {
+        "hover": "Shift accent one step (accent → accent-hover) or lift surface by one bg level.",
+        "focus": "2px offset ring using accent-ring; never remove outline.",
+        "active": "accent-pressed / inset.",
+        "disabled": "opacity 0.5, cursor not-allowed, no hover shift."
+      }
+    },
+    "legacy_aliases": {
+      "note": "Bridge the three existing token systems to the unified semantics above. Additive only — zero visual regression. Remove a group once its consuming pages are migrated.",
+      "system_1_marketing_squadridge": {
+        "consumers": "LandingPage (Tailwind `squadridge-*` palette + Public Sans)",
+        "map": {
+          "squadridge.bg": "semantics.color.bg-sunken",
+          "squadridge.teal": "semantics.color.accent",
+          "squadridge.cyan": "semantics.color.accent-hover",
+          "squadridge.ink": "semantics.color.text-primary",
+          "squadridge.muted": "semantics.color.text-secondary",
+          "squadridge.label": "semantics.color.text-muted",
+          "squadridge.deep": "primitives.color.indigo-line-strong"
+        }
+      },
+      "system_2_app_sr": {
+        "consumers": "HowItWorksPage, SecurityPage (canonical `--sr-*` tokens — already the closest to the unified layer)",
+        "map": {
+          "--sr-bg": "semantics.color.bg-primary",
+          "--sr-bg-elevated": "semantics.color.bg-surface",
+          "--sr-ink": "semantics.color.text-primary",
+          "--sr-ink-secondary": "semantics.color.text-secondary",
+          "--sr-ink-faint": "semantics.color.text-muted",
+          "--sr-primary": "semantics.color.accent",
+          "--sr-primary-soft": "accent @ 14% alpha",
+          "--sr-line": "semantics.color.border",
+          "--sr-divider": "semantics.color.border"
+        }
+      },
+      "system_3_color_alias": {
+        "consumers": "UseCasesPage, LedgerIndexPage, LedgerRecordPage, AboutPage, FaqPage (`--color-*` aliases)",
+        "map": {
+          "--color-accent": "semantics.color.accent",
+          "--color-text-primary": "semantics.color.text-primary",
+          "--color-text-secondary": "semantics.color.text-secondary",
+          "--color-bg": "semantics.color.bg-primary",
+          "--color-surface": "semantics.color.bg-surface",
+          "--color-border": "semantics.color.border",
+          "--color-success": "semantics.color.success",
+          "--color-warning": "semantics.color.warning",
+          "--color-danger": "semantics.color.danger"
+        }
+      }
+    }
+  },
+
+  "automation_architecture": {
+    "communication_principle": "Frame automation as 'the system handles the workflow so the facilitator can focus on the dialogue.' Never frame it as removing human control — it removes manual overhead while preserving human authority at every decision point.",
+    "must_automate": [
+      {
+        "id": "verification-anchor-generation",
+        "name": "Verification anchor generation",
+        "trigger": "Facilitator clicks Release (after all approvals captured).",
+        "action": "System generates the integrity hash, creates the anchor, publishes to the ledger, and makes it independently verifiable — one click.",
+        "human_role": "Facilitator makes the deliberate Release decision; the hash/publish is fully automated."
+      },
+      {
+        "id": "participant-verification-flow",
+        "name": "Participant identity verification flow",
+        "trigger": "Facilitator invites participants.",
+        "action": "System sends verification links, tracks status (pending/verified/declined), and grants room access only after verification completes. Facilitator sees a green/red status dashboard per participant.",
+        "human_role": "Facilitator makes the identity judgment call; the system runs the flow and status tracking."
+      },
+      {
+        "id": "room-access-provisioning",
+        "name": "Room access provisioning",
+        "trigger": "Participant verified; or session ends / facilitator closes room.",
+        "action": "Role-based permissions granted automatically on verification; access revoked automatically on close. No manual access management.",
+        "human_role": "None required for provisioning."
+      },
+      {
+        "id": "record-redaction-enforcement",
+        "name": "Record redaction enforcement",
+        "trigger": "Facilitator assembles the outcome for release.",
+        "action": "System architecturally prevents unapproved content from reaching the release stage. Only content the facilitator explicitly includes can enter the record; everything else stays in the room and is never copyable into the record.",
+        "human_role": "Facilitator chooses what to include; the constraint is enforced by design."
+      },
+      {
+        "id": "ledger-publishing",
+        "name": "Ledger publishing",
+        "trigger": "Record released.",
+        "action": "Record appears automatically on the public ledger with anchor, metadata, and outcome text. No manual publishing step.",
+        "human_role": "None after Release."
+      },
+      {
+        "id": "session-lifecycle-state-machine",
+        "name": "Session lifecycle state machine",
+        "trigger": "Session progresses through Configure → Verify → Facilitate → Release.",
+        "action": "State-machine-driven: cannot facilitate before required participants verify; cannot release before facilitation is complete. Prevents skipping steps.",
+        "human_role": "Facilitator advances stages deliberately; the machine prevents invalid transitions."
+      }
+    ],
+    "should_automate": [
+      {
+        "id": "notifications",
+        "name": "Notification system",
+        "action": "Automated notifications at key points: invitation to verify, room open, new prompt posted, approval requested, record released. Fully wired, not just UI."
+      },
+      {
+        "id": "approval-capture",
+        "name": "Approval capture workflow",
+        "action": "On outcome draft, system sends approval requests to all verified participants, tracks approved/pending/declined, and only allows release once all approvals are captured. No manual email threads."
+      },
+      {
+        "id": "archival",
+        "name": "Session archival and room closure",
+        "action": "After release, room archives automatically (content preserved but read-only; access revoked for non-facilitators). No manual cleanup."
+      },
+      {
+        "id": "audit-trail",
+        "name": "Audit trail logging",
+        "action": "Every action (verification, room entry, prompt posted, approval given, record released) is logged automatically to an internal audit trail. Supports the tamper-evidence promise."
+      }
+    ],
+    "must_not_automate": [
+      {
+        "id": "outcome-drafting",
+        "name": "Outcome drafting",
+        "reason": "Facilitator must write/co-write what becomes public. AI-assisted suggestions may help in the future, but final text must be human-authored and human-approved."
+      },
+      {
+        "id": "identity-judgment",
+        "name": "Verification of participant identity (judgment)",
+        "reason": "System handles the flow, but the facilitator makes the judgment about who is who. Never auto-verify on email alone."
+      },
+      {
+        "id": "release-decision",
+        "name": "Release decision",
+        "reason": "Facilitator must explicitly click Release. Never automatic, timed, or condition-triggered."
+      },
+      {
+        "id": "redaction-decisions",
+        "name": "Redaction decisions",
+        "reason": "Facilitator chooses what goes into the outcome. System may flag potentially sensitive content for review, but humans decide."
+      }
+    ]
+  },
+
+  "shared_content": {
+    "inside_the_room": [
+      "Private to verified participants",
+      "Access is strictly role-based",
+      "No public transcript is generated",
+      "Identities verified, never disclosed"
+    ],
+    "released_as_record": [
+      "Sensitive details redacted before release",
+      "Approved outcome only",
+      "Integrity checkable via verification anchor",
+      "Tamper-evident once released"
+    ],
+    "sample_record": {
+      "illustrative": true,
+      "illustrative_note": "Sample data ONLY — not a real released outcome. SquadRidge is in private pilot; the ledger is not yet populated. Present this clearly labeled as an illustrative example wherever it renders. Replace with a real record once one exists.",
+      "anchor": "SQR-2024-0147",
+      "status": "RELEASED (illustrative)",
+      "verified": true,
+      "title": "Community Land Use — Joint Statement of Principles",
+      "summary": "Agreement reached on three core principles governing future land-use consultations in the northern watershed region.",
+      "organisation": "Regional Mediation Centre",
+      "released": "March 14, 2024",
+      "participants": "12 verified",
+      "footer": "The session that produced this outcome is not public."
+    },
+    "pilot_criteria": [
+      "You run facilitator-led, high-stakes sessions",
+      "Your dialogue is sensitive or cross-border",
+      "You need a verifiable public outcome without exposing the room"
+    ],
+    "nav": ["How it works", "Use cases", "Security", "Ledger", "Sign in", "Request access"],
+    "footer_links": [
+      "How it works",
+      "Use cases",
+      "Security",
+      "Ledger",
+      "About",
+      "FAQ",
+      "Privacy",
+      "Terms",
+      "Request access",
+      "Contact"
+    ],
+    "footer_note": "Session room content is private. Only approved outcomes are published.",
+    "copyright": "© 2026 SquadRidge. All rights reserved."
+  },
+
+  "pages": {
+    "landing": {
+      "route": "/",
+      "layout": "Marketing-forward: hero + sections + CTAs + social proof. Conversion-focused first impression.",
+      "sections": [
+        {
+          "id": "hero",
+          "eyebrow": "When the conversation is sensitive, the wrong tool can end it.",
+          "headline": "Protected dialogue. Verifiable outcomes.",
+          "subhead": "Run mediation sessions and peacebuilding deliberations in a protected room, then release a public record anyone can verify — without exposing who said what.",
+          "ctas": [
+            { "label": "Request pilot access", "href": "/request-access", "variant": "primary" },
+            { "label": "See how it works", "href": "/how-it-works", "variant": "secondary" }
+          ],
+          "trust_line": "Private pilot — now inviting mediators and peacebuilding teams",
+          "trust_bar_placeholder": "[TRUST: Advisor names, pilot count, or partner logos — even anonymized]",
+          "tagline": "Privacy by design. Built for peace, built to last.",
+          "visual": "[VISUAL: Stylized mockup of the protected room interface showing facilitator controls and structured text dialogue]"
+        },
+        {
+          "id": "room-vs-record",
+          "inside_the_room": "shared_content.inside_the_room",
+          "released_as_record": "shared_content.released_as_record",
+          "anchor_display": "SQR-2024-0147 | FACILITATOR-SIGNED RELEASE"
+        },
+        {
+          "id": "built-for-dialogue",
+          "heading": "Built for sensitive, high-stakes dialogue",
+          "items": [
+            "Invite-only access",
+            "Facilitator-controlled release",
+            "Verification anchor on every record",
+            "Data-minimising by design"
+          ]
+        },
+        {
+          "id": "why-ordinary-tools-fail",
+          "heading": "Why ordinary tools fail",
+          "lede": "Video calls have no record. Docs expose everything. Surveys don't verify. None were built for high-stakes dialogue that still needs a credible public outcome.",
+          "comparison_table": {
+            "columns": ["Aspect", "SquadRidge", "Standard tools"],
+            "rows": [
+              {
+                "aspect": "Session content",
+                "squadridge": "Protected. Never published.",
+                "others": "Exposed by default"
+              },
+              {
+                "aspect": "Participant identity",
+                "squadridge": "Verified, never disclosed",
+                "others": "Visible to others"
+              },
+              {
+                "aspect": "Public surface",
+                "squadridge": "Approved outcome only",
+                "others": "Full thread leaks"
+              },
+              {
+                "aspect": "Release authority",
+                "squadridge": "Facilitator-controlled",
+                "others": "Informal, ungoverned"
+              },
+              {
+                "aspect": "Auditability",
+                "squadridge": "Anchor on each record",
+                "others": "No verification"
+              }
+            ]
+          }
+        },
+        {
+          "id": "testimonial",
+          "type": "founder_note",
+          "note": "Belief-framed founder statement, NOT a fabricated customer testimonial (pilot stage).",
+          "quote": "We kept seeing sensitive conversations stall the moment someone feared a leak — and fall apart when there was no credible way to show what had been agreed. We built SquadRidge to hold one clear line between the dialogue and the record, so parties can speak freely and still stand behind what they release.",
+          "attribution": "The SquadRidge team",
+          "note": "Belief-framed team statement, not a named-persona quote. If attributing to a real named founder later, use their real name."
+        },
+        {
+          "id": "session-lifecycle",
+          "heading": "Session lifecycle: Four stages. One protected process.",
+          "visual": "[VISUAL: Horizontal 4-step flowchart diagram — Configure → Verify → Facilitate → Release, with icons for each stage]",
+          "steps": [
+            {
+              "number": "01",
+              "label": "Configure",
+              "body": "Set eligibility, verification, and ground rules before the room opens."
+            },
+            {
+              "number": "02",
+              "label": "Verify",
+              "body": "Confirm each participant privately; nothing about identity reaches the public record."
+            },
+            {
+              "number": "03",
+              "label": "Facilitate",
+              "body": "Run structured dialogue in a protected room; no public transcript is generated."
+            },
+            {
+              "number": "04",
+              "label": "Release",
+              "body": "Co-write the outcome, capture approvals, publish with a verification anchor."
+            }
+          ],
+          "mid_cta": {
+            "label": "Browse the ledger",
+            "href": "/ledger",
+            "variant": "secondary",
+            "note": "Softer, non-committal mid-page CTA. Alternative: 'See how it works'."
+          }
+        },
+        {
+          "id": "built-for-audiences",
+          "heading": "Built for",
+          "visual": "[VISUAL: Three icons — mediator (primary), NGO (secondary), government (tertiary)]",
+          "audiences": [
+            {
+              "tier": "Primary",
+              "label": "Mediators & facilitators",
+              "body": "Run contentious sessions where every party can speak freely, knowing nothing said in the room is ever published. Release a single citable joint statement — verifiable by anyone, attributable to no one — with the line between conversation and record firmly under your control."
+            },
+            {
+              "tier": "Secondary",
+              "label": "NGOs & peacebuilding teams",
+              "body": "Document deliberations without exposing the individuals who took part, so staff and community members are never put at risk by their own participation. Give funders and partners a verifiable record of what was agreed — evidence of impact without a transcript that could be turned against the room."
+            },
+            {
+              "tier": "Also",
+              "label": "Government & Track II",
+              "body": "Convene sensitive negotiations that produce stable, shareable communiqués."
+            }
+          ]
+        },
+        {
+          "id": "security-teaser",
+          "eyebrow": "Verified, not exposed",
+          "heading": "Security by architecture, not by promise.",
+          "body": "No raw session data is ever published — only facilitator-approved outcomes, each carrying a verification anchor. The room and the record stay separate by design.",
+          "link": { "label": "Full security model", "href": "/security" }
+        },
+        {
+          "id": "ledger-preview",
+          "heading": "Public ledger: This is what a released record looks like",
+          "body": "The anchor confirms the record's integrity. Anyone can check it independently — without ever seeing the underlying dialogue.",
+          "record": "shared_content.sample_record",
+          "link": { "label": "Browse all records", "href": "/ledger" }
+        },
+        {
+          "id": "ledger-cta",
+          "heading": "See what a protected session produces",
+          "body": "Explore released records in the public ledger — every outcome is verifiable, and no room is ever exposed.",
+          "cta": { "label": "Browse the ledger", "href": "/ledger", "variant": "secondary" }
+        },
+        {
+          "id": "faq",
+          "heading": "Common questions",
+          "items": "pages.faq.questions[0..5]",
+          "note": "Landing shows the first six questions (through 'Does SquadRidge support video or audio calls?'). Full list on /faq."
+        },
+        {
+          "id": "pilot-access",
+          "heading": "Request a pilot intake call.",
+          "body": "Pilots are limited and reviewed directly. Start with your email — we'll follow up for the details.",
+          "criteria": "shared_content.pilot_criteria",
+          "form": { "fields": ["email"], "submit": "Request access" },
+          "reassurance": "We do not add applicants to marketing lists — your details are used only to review pilot fit.",
+          "link": { "label": "Prefer the full form?", "href": "/request-access" }
+        }
+      ]
+    },
+
+    "how_it_works": {
+      "route": "/how-it-works",
+      "layout": "Step-by-step visual flow, minimal text per step. Process comprehension.",
+      "intro": {
+        "eyebrow": "How it works",
+        "heading": "Four stages. One protected process.",
+        "body": "SquadRidge separates the protected session from the verifiable public record. Every session follows the same lifecycle; the system runs the workflow so the facilitator can focus on the dialogue."
+      },
+      "visual": "[VISUAL: Detailed 4-step flowchart with sub-steps under each stage — Configure → Verify → Facilitate → Release]",
+      "room_vs_record_comparison": {
+        "note": "Include the shared 'Inside the room vs Released as record' comparison on this page.",
+        "inside_the_room": "shared_content.inside_the_room",
+        "released_as_record": "shared_content.released_as_record"
+      },
+      "stages": [
+        {
+          "number": "01",
+          "label": "Configure",
+          "summary": "Set the session up before anyone is invited.",
+          "sub_steps": [
+            "Facilitator sets session title, ground rules, and participant eligibility criteria.",
+            "Facilitator sets verification requirements per the sensitivity of the session.",
+            "System creates the room in a 'pending' state — nothing is live yet."
+          ],
+          "automation_callout": "The lifecycle is a state machine: the room can't move forward until configuration is complete."
+        },
+        {
+          "number": "02",
+          "label": "Verify",
+          "summary": "Confirm who belongs in the room — privately.",
+          "sub_steps": [
+            "Facilitator invites participants via secure link.",
+            "System automatically sends verification requests and tracks status (pending / verified / declined).",
+            "Each participant verifies privately; identity data is visible only to the facilitator.",
+            "The room can't open until all required participants are verified."
+          ],
+          "automation_callout": "Verification is automated — the facilitator reviews who's verified on a real-time status dashboard, but the system handles the flow. Identity judgment stays with the facilitator."
+        },
+        {
+          "number": "03",
+          "label": "Facilitate",
+          "summary": "Run the dialogue as structured, written exchange.",
+          "sub_steps": [
+            "The room opens as a structured, text-based dialogue environment — not a video call.",
+            "The facilitator poses prompts or opens rounds; parties respond in writing.",
+            "The conversation is organized into protected threads.",
+            "No transcript, recording, or raw-data capture — only the structured text participants contribute."
+          ],
+          "no_video_note": "This is a facilitator-led messaging room — not a video call, not an open chat, and not a call integration. All structured dialogue happens in writing under facilitator control."
+        },
+        {
+          "number": "04",
+          "label": "Release",
+          "summary": "Publish only what everyone approved — in one click.",
+          "sub_steps": [
+            "Facilitator drafts the outcome from the dialogue (human-authored).",
+            "System automatically sends approval requests to all verified participants.",
+            "Participants approve, request changes, or decline; the system tracks status.",
+            "Once all approvals are captured, the facilitator clicks Release.",
+            "System automatically generates the verification anchor, publishes to the public ledger, and archives the room (read-only, access revoked)."
+          ],
+          "automation_callout": "The anchor, publishing, and archival are fully automated on Release. The Release decision itself is always a deliberate human action — never timed or condition-triggered."
+        }
+      ],
+      "inside_the_room_section": {
+        "heading": "A facilitator-led messaging room",
+        "body": "The room is structured written dialogue under facilitator control — not a video call or open chat app.",
+        "cards": [
+          {
+            "heading": "Facilitator-led rounds",
+            "body": "The facilitator opens the room, sets prompts, and manages flow. Participants contribute in writing; dialogue stays in the protected room until an outcome is drafted for release."
+          },
+          {
+            "heading": "Messaging only",
+            "body": "SquadRidge does not host calls or capture audio or video. Only the facilitator-approved outcome is released, carrying a verification anchor."
+          }
+        ]
+      },
+      "faq": {
+        "note": "Highest-leverage questions; full set on /faq.",
+        "items": [
+          "Who can release a record?",
+          "What stays private, always?",
+          "What does the verification anchor prove?",
+          "Can a released record be withdrawn?"
+        ]
+      },
+      "cta": { "label": "Request pilot access", "href": "/request-access", "variant": "primary" }
+    },
+
+    "use_cases": {
+      "route": "/use-cases",
+      "layout": "Scenario cards with a clear 'in the room' / 'out as record' split. Pattern recognition.",
+      "intro": {
+        "eyebrow": "Applications",
+        "heading": "Who SquadRidge is built for",
+        "body": "SquadRidge is not a general-purpose platform, and it is not a video tool. It was purpose-built for facilitator-led, text-based dialogue where the room must stay private and the outcome must be credible. Every scenario below follows the same shape: structured written dialogue in the room, an approved and verifiable record out."
+      },
+      "cases": [
+        {
+          "audience": "Civil mediators & conflict-resolution practitioners",
+          "heading": "Community land-use mediation",
+          "scenario": "A regional mediation center facilitates dialogue between community groups and local government over watershed land use.",
+          "in_the_room": "Structured rounds where each party submits its position in writing; the facilitator organizes responses; parties respond to each other's positions. No faces, voices, or transcripts.",
+          "out_as_record": "A Joint Statement of Principles — 12 verified participants, anchor SQR-2024-0147 — published to the ledger.",
+          "why_squadridge": "Community members can participate without fear of public exposure; government gets a verifiable record; the process is transparent without being a transcript."
+        },
+        {
+          "audience": "NGOs & peacebuilding teams",
+          "heading": "Sensitive internal deliberation",
+          "scenario": "A peacebuilding NGO's field team and headquarters deliberate on whether to publicly endorse a controversial peace framework.",
+          "in_the_room": "Structured dialogue where field staff can voice concerns without their names attached to positions; leadership hears all perspectives.",
+          "out_as_record": "A decision memo with rationale. The funder receives a verifiable record that a deliberation occurred and a decision was reached.",
+          "why_squadridge": "Staff are never put at risk by their own participation; the funder gets evidence of process without a transcript that could be weaponized."
+        },
+        {
+          "audience": "Cross-border & Track II dialogue",
+          "heading": "Cross-border Track II dialogue",
+          "scenario": "Civil society groups from conflicting parties convene to explore confidence-building measures.",
+          "in_the_room": "The facilitator structures written rounds where each side submits positions, responds to the other, and negotiates terms — all in the protected messaging room.",
+          "out_as_record": "A joint communiqué — verified participants, anchor — shareable with international mediators and funders.",
+          "why_squadridge": "Parties speak freely knowing nothing is recorded; the communiqué is verifiable without revealing who said what."
+        },
+        {
+          "audience": "Implementation & monitoring",
+          "heading": "Post-agreement implementation monitoring",
+          "scenario": "Parties to a peace agreement report on implementation progress; the facilitator releases periodic verified status updates.",
+          "in_the_room": "Each party submits progress reports in a structured format; the facilitator reviews and organizes them into a protected thread.",
+          "out_as_record": "A verified status update with an anchor, published to the ledger at agreed intervals.",
+          "why_squadridge": "Creates a tamper-evident record of implementation without exposing which party reported what."
+        }
+      ]
+    },
+
+    "security": {
+      "route": "/security",
+      "layout": "Dense, structured, technical detail with clear hierarchy. Trust-building through transparency. Should withstand a security professional's scrutiny.",
+      "intro": {
+        "eyebrow": "Security overview",
+        "heading": "Verified, not exposed.",
+        "body": "Security in SquadRidge comes from architecture, not policy language alone. Raw session content is not published. Only facilitator-approved outcomes are released, each carrying a verification anchor that can be checked independently."
+      },
+      "architecture_separation": {
+        "heading": "Two layers, two responsibilities.",
+        "body": "The room and the record are two different objects. Inside the room: private, verified, facilitator-controlled. Released as record: approved, verifiable, deliberately narrow.",
+        "room_vs_record_comparison": {
+          "inside_the_room": "shared_content.inside_the_room",
+          "released_as_record": "shared_content.released_as_record"
+        }
+      },
+      "identity_model": {
+        "heading": "Directional anonymity: verified, but not disclosed.",
+        "body": "Participants are verified privately by the facilitator before entering the room. Identity is confirmed but never appears in the released record — no names, attributions, or identifying details. Verification data is visible only to the facilitator; other participants see only the display name and role assigned during onboarding."
+      },
+      "data_handling": {
+        "stored": "Session text in the protected room — facilitator prompts and participant responses in structured format.",
+        "never_stored": "No video, no audio, no recordings, and no transcripts beyond the structured text participants contribute.",
+        "published": "The facilitator-approved outcome text only, with its verification anchor.",
+        "explicit_statement": "SquadRidge does not capture, store, or transmit video or audio."
+      },
+      "verification_anchor": {
+        "heading": "What the anchor is — and isn't.",
+        "body": "A verification anchor is a cryptographic hash of the released record, generated automatically at the moment of release. Anyone with the record can recompute the anchor and confirm the record has not been altered since — no account required.",
+        "proves": [
+          "The record has not been altered since release.",
+          "The record was issued through SquadRidge (not fabricated externally).",
+          "The organisation, date, and any included metadata are the ones on file."
+        ],
+        "does_not_prove": [
+          "What was said inside the room — the private session is not encoded in the anchor.",
+          "Who each participant is — identity does not appear on the released record.",
+          "That any external party endorses the outcome — endorsement is out of scope."
+        ]
+      },
+      "room_access": {
+        "heading": "Role-based access, revoked on close.",
+        "body": "Access to any protected area requires an active invitation tied to a session or an approved organisational role. Permissions are granted automatically on verification and revoked automatically when the session closes — no residual access, no manual access management."
+      },
+      "audit_trail": {
+        "heading": "Every action, logged automatically.",
+        "body": "Verification, room entry, prompt posted, approval given, and record released are each written to an internal audit trail automatically. This append-only log underpins the tamper-evidence promise."
+      },
+      "safeguards": [
+        {
+          "heading": "Verified access only",
+          "body": "Every participant passes a facilitator-configured verification process before entering a room."
+        },
+        {
+          "heading": "Controlled release",
+          "body": "No outcome is published without every designated approver signing off. The platform cannot unilaterally release anything."
+        },
+        {
+          "heading": "Text-based room only",
+          "body": "The room is a facilitator-led messaging environment by design. SquadRidge does not record, store, or transmit audio or video, and does not integrate with external call tools."
+        },
+        {
+          "heading": "Minimal retention",
+          "body": "Only the data required to facilitate the session and produce the record is retained. Room dialogue does not persist past session archival."
+        },
+        {
+          "heading": "Participant identity protection",
+          "body": "Personal contact information is not shared between participants; verification data never surfaces to others in the room or on the record."
+        },
+        {
+          "heading": "Auditable release chain",
+          "body": "Every approval and release action is logged; the verification anchor lets outside parties confirm the record has not been altered since."
+        }
+      ],
+      "what_we_do_not_claim": [
+        "We do not claim end-to-end encryption of session content at this time. Content transits over TLS and is encrypted at rest, but it is not operator-proof end-to-end encryption; room-level E2EE is on the development roadmap.",
+        "We do not guarantee anonymity. We guarantee identity protection within the session context and controlled release of outcomes.",
+        "We do not provide legal protection. SquadRidge is a process platform, not a legal instrument.",
+        "We are not a whistleblower platform. If your threat model includes state-level adversaries, assess accordingly."
+      ],
+      "contact": { "label": "security@squadridge.com", "href": "mailto:security@squadridge.com" }
+    },
+
+    "ledger": {
+      "route": "/ledger",
+      "layout": "Table/list view, minimal UI chrome, search and filter. Utility-focused, browseable.",
+      "intro": {
+        "eyebrow": "Public Record",
+        "heading": "Outcome Ledger",
+        "body": "Released outcomes from facilitated dialogue sessions. Each record is published only after explicit approval by all designated parties. Session room content remains permanently private."
+      },
+      "search": {
+        "placeholder": "Search by title, organisation, or region…",
+        "constraint": "Search only touches released-record metadata and approved outcome text. It never exposes room content, participant names, or transcripts."
+      },
+      "record_fields": [
+        "anchor_id",
+        "title",
+        "summary",
+        "organisation",
+        "release_date",
+        "participant_count (number only, no names)",
+        "anchor_verification_status"
+      ],
+      "per_record_line": "The session that produced this outcome is not public.",
+      "verify_interaction": {
+        "label": "Verify this record",
+        "behavior": "Lets a visitor independently check the anchor without an account. Recompute the hash over the displayed released record payload and compare to the stored anchor; show verified / mismatch state. For the pilot/sample this is a demonstration over the published sample payload; clearly label it as such until the production anchor scheme is finalized.",
+        "no_account_required": true
+      },
+      "sample_records": [
+        {
+          "id": "SQR-2024-0147",
+          "title": "Community Land Use — Joint Statement of Principles",
+          "summary": "Agreement on three core principles governing future land-use consultations in the northern watershed region.",
+          "org": "Regional Mediation Centre",
+          "region": "Sub-Saharan Africa",
+          "date": "Mar 14, 2024",
+          "participants": 12,
+          "verified": true
+        },
+        {
+          "id": "SQR-2024-0132",
+          "title": "Urban Housing Policy — Consensus Principles",
+          "summary": "Consensus summary on phased housing-policy reform.",
+          "org": "City Planning Consortium",
+          "region": "Western Europe",
+          "date": "Feb 3, 2024",
+          "participants": 9,
+          "verified": true
+        },
+        {
+          "id": "SQR-2024-0118",
+          "title": "Coastal Zone Dialogue — Working Principles",
+          "summary": "Working principles for coastal-zone co-management.",
+          "org": "Coastal Authority",
+          "region": "East Asia",
+          "date": "Jan 18, 2024",
+          "participants": 7,
+          "verified": true
+        },
+        {
+          "id": "SQR-2023-0409",
+          "title": "Regional Trade Framework — Recommendation",
+          "summary": "Formal recommendation on cross-border trade facilitation.",
+          "org": "Trade Facilitation Office",
+          "region": "South-East Asia",
+          "date": "Dec 9, 2023",
+          "participants": 15,
+          "verified": true
+        }
+      ],
+      "disclosure": "Records are published with the consent of all session parties. Facilitating organisations are responsible for the accuracy of submitted outcomes. SquadRidge does not verify the substance of published records — only the release process.",
+      "cta": { "label": "Browse the ledger", "href": "/ledger", "variant": "secondary" }
+    },
+
+    "about": {
+      "route": "/about",
+      "layout": "Narrative flow with mission, origin story, pilot status. Storytelling — not a feature list.",
+      "eyebrow": "About",
+      "heading": "Why we built SquadRidge",
+      "narrative": [
+        "Most dialogue fails not because people are unwilling to talk, but because the conditions are wrong. The room is unsafe. The process has no structure. The outcome is unverifiable. And the technology — if used at all — was built for something else entirely.",
+        "SquadRidge was built to address a specific gap: there was no serious, purpose-built platform for facilitator-led, high-stakes dialogue that combined participant protection, process control, and a credible path to a public outcome record.",
+        "We made a deliberate architectural choice: SquadRidge is a facilitator-led messaging room only. There are no video calls, audio sessions, or parallel chat surfaces — the entire protected dialogue happens in structured written rounds under facilitator control. That preserves a clear line between the private room and the released record.",
+        "SquadRidge is not a collaboration tool. It is structured facilitation infrastructure. The session room is private. The approved outcome can be public. And every step between those two states is controlled by the facilitator, not the platform.",
+        "We are in an early access phase — a private pilot, now inviting mediators and peacebuilding teams. We work closely with pilot partners to make sure the platform is fit for purpose before broader release."
+      ],
+      "founder_mission": {
+        "quote": "We kept seeing sensitive conversations stall the moment someone feared a leak — and fall apart when there was no credible way to show what had been agreed. We built SquadRidge to hold one clear line between the dialogue and the record, so parties can speak freely and still stand behind what they release.",
+        "attribution": "The SquadRidge team",
+        "note": "Belief-framed team statement, not a named-persona quote. If attributing to a real named founder later, use their real name."
+      },
+      "principles": [
+        "The room is private. Always. The outcome is public only if approved.",
+        "Facilitators are in control of the session lifecycle, not the platform.",
+        "Participants must be eligible. Verification is not optional for high-stakes sessions.",
+        "Public records must be credible. We do not publish unverified or unapproved content.",
+        "We are honest about what the platform does and does not guarantee."
+      ]
+    },
+
+    "faq": {
+      "route": "/faq",
+      "layout": "Accordion / Q&A list, scannable. Self-service answers.",
+      "questions": [
+        {
+          "q": "Who can see what is said in a room?",
+          "a": "Only verified participants and the facilitator. The room content — every prompt, every response — stays in the room. No transcript is ever generated, and nothing said in the room can appear in the released record unless the facilitator explicitly includes it in the approved outcome."
+        },
+        {
+          "q": "What is a verification anchor?",
+          "a": "A tamper-evident integrity marker attached to every released record. It's generated automatically at the moment of release and can be checked independently by anyone — without an account, without contacting SquadRidge. If even a character of the record is altered after release, the anchor will not verify."
+        },
+        {
+          "q": "How is participant data handled?",
+          "a": "Participants are verified privately by the facilitator before they enter the room. Their identity is confirmed but never appears in the released record — no names, no attributions, no identifying details. The public record shows only the number of verified participants and the approved outcome."
+        },
+        {
+          "q": "Is the session end-to-end encrypted?",
+          "a": "Not yet — and we won't say otherwise. Session data is encrypted in transit (TLS) and at rest, but this is not operator-proof end-to-end encryption today: SquadRidge's infrastructure can technically access room content. Room-level end-to-end encryption, so that even our infrastructure cannot read dialogue text, is on our roadmap. Regardless of encryption model, room content is never published — only the facilitator-approved outcome is released.",
+          "honesty_note": "This is the real, non-placeholder answer, grounded in the current implementation (TLS + encryption at rest; E2EE on roadmap). Do not upgrade this claim to 'end-to-end encrypted' until the implementation actually supports it."
+        },
+        {
+          "q": "How long does it take to set up a session?",
+          "a": "A facilitator can configure a room in minutes — set the ground rules, invite participants, and the system handles verification automatically. Most rooms are ready to open within the same day, once all participants complete their private verification."
+        },
+        {
+          "q": "Does SquadRidge support video or audio calls?",
+          "a": "No. SquadRidge is a facilitator-led messaging room only — structured written dialogue under facilitator control. There are no video calls, audio sessions, or call integrations. Only the facilitator-approved outcome is released, with a verification anchor."
+        },
+        {
+          "q": "Can SquadRidge be used for arbitration or legal mediation?",
+          "a": "SquadRidge is designed for facilitated dialogue and joint outcome statements, not for binding arbitration. For formal legal mediation, consult your jurisdiction's requirements."
+        },
+        {
+          "q": "What happens to room data after a record is released?",
+          "a": "The room is archived — content is preserved in a read-only state accessible only to the facilitator. Participant access is revoked. The room content is never published and can never become part of the public record."
+        },
+        {
+          "q": "How is SquadRidge funded?",
+          "a": "SquadRidge is currently in private pilot. We are pursuing grant funding from peacetech and conflict-resolution funders, not venture capital, to keep our mission and incentives aligned with the mediation community."
+        }
+      ]
+    },
+
+    "request_access": {
+      "route": "/request-access",
+      "layout": "Single-column form, minimal distraction, clear criteria. Conversion friction reduction.",
+      "heading": "Request pilot access",
+      "body": "Pilots are limited and reviewed directly. Tell us a little about your work and we'll follow up to check fit.",
+      "criteria": "shared_content.pilot_criteria",
+      "form": {
+        "fields": [
+          { "name": "work_email", "label": "Work email", "type": "email", "required": true },
+          {
+            "name": "organization_name",
+            "label": "Organization name",
+            "type": "text",
+            "required": true
+          },
+          {
+            "name": "role",
+            "label": "Your role",
+            "type": "select",
+            "options": ["Facilitator", "Mediator", "Program officer", "Other"],
+            "required": true
+          },
+          {
+            "name": "use_case",
+            "label": "Briefly describe your use case",
+            "type": "textarea",
+            "required": true
+          },
+          {
+            "name": "session_frequency",
+            "label": "Expected session frequency",
+            "type": "select",
+            "options": ["Occasional", "Monthly", "Weekly", "Not sure yet"],
+            "required": false
+          },
+          {
+            "name": "referral_source",
+            "label": "How did you hear about SquadRidge?",
+            "type": "text",
+            "required": false
+          }
+        ],
+        "submit": "Request access"
+      },
+      "reassurance": "We do not add applicants to marketing lists. Your details are used only to review pilot fit.",
+      "confirmation_state": "Thank you. We'll review your request and follow up within five business days."
+    },
+
+    "contact": {
+      "route": "/contact",
+      "layout": "Simple: email address, optional contact form, professional profile links. Minimal, quick action.",
+      "heading": "Contact",
+      "body": "For pilot enquiries, use the request form. For anything else, reach us directly.",
+      "methods": [
+        { "type": "email", "label": "hello@squadridge.com", "href": "mailto:hello@squadridge.com" },
+        {
+          "type": "email",
+          "label": "Security & responsible disclosure: security@squadridge.com",
+          "href": "mailto:security@squadridge.com"
+        }
+      ],
+      "primary_action": {
+        "label": "Request pilot access",
+        "href": "/request-access",
+        "variant": "primary"
+      }
+    },
+
+    "sign_in": {
+      "route": "/sign-in",
+      "layout": "Centered card, nothing else. Zero cognitive load.",
+      "heading": "Sign in to SquadRidge",
+      "methods": ["email + password", "magic link"],
+      "not_a_user_link": { "label": "Request access", "href": "/request-access" },
+      "note": "No marketing, no secondary content — just the auth card."
+    },
+
+    "privacy": {
+      "route": "/privacy",
+      "layout": "Legal document layout, clear hierarchy, readable.",
+      "source": "docs/legal/privacy.md",
+      "note": "Maintained as markdown outside this JSON so it can move with legal review without being coupled to component structure."
+    },
+
+    "terms": {
+      "route": "/terms",
+      "layout": "Legal document layout, clear hierarchy, readable.",
+      "source": "docs/legal/terms.md",
+      "note": "Maintained as markdown outside this JSON so it can move with legal review without being coupled to component structure."
+    }
+  }
+}

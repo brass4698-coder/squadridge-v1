@@ -30,6 +30,10 @@ export async function acceptInvite(
     p_display_name: displayName,
   });
   if (error) return { success: false, error: error.message };
+  const payload = data as Record<string, unknown>;
+  if (payload.valid === false) {
+    return { success: false, error: String(payload.reason ?? 'invalid_invite') };
+  }
   return data as { success: boolean; dashboard: string };
 }
 

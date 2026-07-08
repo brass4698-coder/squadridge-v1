@@ -24,7 +24,7 @@ export function IncidentItemCard({ item, selected, onSelect }: IncidentItemCardP
   return (
     <article
       className={cn(
-        'rounded-lg border bg-surface p-4 transition-[border-color,box-shadow] duration-[var(--sr-duration-normal)] ease-[var(--sr-ease-spring)] motion-reduce:transition-none',
+        'rounded-lg border bg-surface p-4 transition-[border-color,box-shadow] duration-normal ease-spring motion-reduce:transition-none',
         selected ? 'border-brand/50 shadow-sr-sm' : 'border-line hover:border-line-strong',
       )}
     >

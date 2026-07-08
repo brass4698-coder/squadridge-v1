@@ -19,10 +19,9 @@ Impact claims are intentionally modest: this repo supports *serious bounded pilo
 - Frontend: React + Vite + TypeScript.
 - Styling: Tailwind CSS.
 - Backend: pure BaaS via Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).
-- No Node server tier and **no local Redis** dependency.
-- Edge rate limiting (when enabled) uses Upstash Redis via REST from `supabase/functions/rate-limit/`.
+- No Node server tier. **Local Redis** in `docker-compose.yml` is optional for dev only; production rate limits use Upstash via Edge Functions (`supabase/functions/rate-limit/`).
 
-When older docs mention `docker-compose.yml` or a local Redis stub, treat them as obsolete; follow the current Supabase‑only architecture.
+When docs mention Redis, distinguish local-dev optional (`docker-compose.yml`) from production Upstash.
 
 ## Environment and configuration
 

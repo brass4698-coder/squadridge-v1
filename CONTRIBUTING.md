@@ -1,5 +1,15 @@
 # Contributing
 
+## Cursor / AI rules
+
+Platform conventions for agents and editors live in **`.cursor/rules/`**:
+
+- `squadridge.mdc` — security, Supabase, privacy honesty, network behavior
+- `component-rules.mdc` — UI components, accessibility, de-escalation UX
+- `ai-guidelines.mdc` — optional translation/AI pipelines
+
+Root `.cursorrules` and `AGENTS.md` summarize these. Privacy claims must match `docs/security/threat-model.md`.
+
 ## Branching
 
 - `feature/<short-topic>` — new functionality

@@ -51,10 +51,8 @@ export function useFacilitatorSessions() {
 
   const sessions = useMemo(() => {
     if (useMock) return SESSION_FIXTURES.map(fixtureToRow);
-    if (real.sessions.length > 0) return real.sessions.map(dbToRow);
-    if (real.error) return SESSION_FIXTURES.map(fixtureToRow);
-    return [];
-  }, [useMock, real.sessions, real.error]);
+    return real.sessions.map(dbToRow);
+  }, [useMock, real.sessions]);
 
   return {
     sessions,
@@ -62,7 +60,7 @@ export function useFacilitatorSessions() {
     error: useMock ? null : real.error,
     createSession: real.createSession,
     refetch: real.refetch,
-    isMock: useMock || Boolean(real.error),
+    isMock: useMock,
   };
 }
 

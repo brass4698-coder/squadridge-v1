@@ -19,9 +19,9 @@
   --color-ledger-bg: var(--sr-bg-secondary);
   --color-pending-strip: var(--sr-bg-accent);
 
-  /* Typography */
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  /* Typography — aliases to token source of truth in tokens.css */
+  --font-body: var(--sr-font-body);
+  --font-mono: var(--sr-font-mono);
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -330,6 +330,156 @@ button:focus-visible,
 
   .animate-fade-in-up-delayed {
     animation: fadeInUp 300ms var(--sr-ease-out) 120ms both;
+  }
+
+  /* ── Phase 10: marketing display type ──────────────────────────────
+     Oversized IBM Plex Serif display headline for marketing surfaces.
+     Fluid clamp so it stays massive on desktop without wrapping badly
+     on mobile. Serif conveys institutional gravitas per design-system. */
+  .hero-display {
+    font-family: var(--sr-font-display);
+    font-size: clamp(2.4rem, 5.4vw + 0.5rem, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.06;
+  }
+
+  /* Gradient-swept emphasis word inside the hero headline. The sweep is a
+     slow background-position drift — calm, not a flash. The global
+     reduced-motion block above zeroes the animation duration, leaving a
+     static gradient (still readable, still on-brand). */
+  @keyframes gradientSweep {
+    from {
+      background-position: 0% 50%;
+    }
+    to {
+      background-position: 100% 50%;
+    }
+  }
+
+  .text-gradient-sweep {
+    background: linear-gradient(
+      100deg,
+      var(--sr-primary) 0%,
+      var(--sr-primary-hover) 35%,
+      var(--sr-primary) 50%,
+      var(--sr-primary-hover) 65%,
+      var(--sr-primary) 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradientSweep 9s var(--sr-ease-standard) infinite alternate;
+  }
+
+  /* ── Phase 10: glassmorphic CTA ────────────────────────────────────
+     Frosted, semi-transparent primary action with a soft accent border
+     glow. Sits on the dark hero; falls back gracefully where
+     backdrop-filter is unsupported because --sr-glass-bg is opaque-ish. */
+  .btn-pill--glass {
+    background: var(--sr-glass-bg);
+    color: var(--sr-ink);
+    border-color: color-mix(in oklch, var(--sr-primary) 45%, var(--sr-glass-border));
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--sr-primary) 18%, transparent),
+      0 8px 24px oklch(from var(--sr-primary) l c h / 0.18);
+    backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+  }
+
+  .btn-pill--glass:hover {
+    border-color: color-mix(in oklch, var(--sr-primary) 70%, var(--sr-glass-border));
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--sr-primary) 32%, transparent),
+      0 10px 32px oklch(from var(--sr-primary) l c h / 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-pill--glass:active {
+    transform: translateY(0);
+  }
+
+  /* ── Phase 10: anchor shimmer ──────────────────────────────────────
+     Subtle holographic sweep across verification-anchor IDs so they read
+     "cryptographic artifact" rather than plain mono text. Slow (7s) and
+     low-contrast; reduced-motion zeroes it to a static two-tone. */
+  @keyframes anchorShimmer {
+    from {
+      background-position: 130% 50%;
+    }
+    to {
+      background-position: -30% 50%;
+    }
+  }
+
+  .anchor-shimmer {
+    background: linear-gradient(
+      105deg,
+      var(--sr-ink-secondary) 40%,
+      var(--sr-primary-hover) 50%,
+      var(--sr-ink-secondary) 60%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: anchorShimmer 7s var(--sr-ease-standard) infinite;
+  }
+
+  /* ── Phase 10: ambient hero drift ──────────────────────────────────
+     A slow-moving accent bloom behind the hero. One element, one very
+     slow transform loop — cheap to composite, calm to watch. Global
+     reduced-motion block freezes it into a static glow. */
+  @keyframes ambientDrift {
+    from {
+      transform: translate3d(-4%, -2%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(4%, 3%, 0) scale(1.08);
+    }
+    to {
+      transform: translate3d(-4%, -2%, 0) scale(1);
+    }
+  }
+
+  .hero-ambient {
+    position: absolute;
+    inset: -20% -10%;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 55% 45% at 30% 30%,
+      color-mix(in oklch, var(--sr-primary) 10%, transparent),
+      transparent 70%
+    );
+    animation: ambientDrift 24s var(--sr-ease-standard) infinite;
+    will-change: transform;
+  }
+
+  /* ── Phase 10: scroll-triggered reveal ─────────────────────────────
+     CSS scroll-driven animation (no JS, no CLS risk). Elements rise and
+     fade as they enter the viewport. Progressive enhancement: browsers
+     without animation-timeline support simply render the element static,
+     and the global reduced-motion block neutralises it entirely. */
+  @supports (animation-timeline: view()) {
+    @keyframes revealRise {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal-on-scroll {
+      animation: revealRise var(--sr-duration-slow) var(--sr-ease-out) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
   }
 
   /* Respect the existing reduced-motion block above — no override. */

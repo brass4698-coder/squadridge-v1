@@ -128,7 +128,7 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 
 - [ ] Severity-0 definition for suspected mass correlation or export; runbook includes key rotation and comms.
 
-**Tracking:** File GitHub issues from the templates in [`docs/operations/threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) instead of checking boxes here without implementation work.
+**Tracking:** Operational artifacts for pilot gate: [`break-glass-moderator-decrypt-runbook.md`](../operations/break-glass-moderator-decrypt-runbook.md), [`zk-self-assessment.md`](zk-self-assessment.md), [`public-claims-audit.md`](public-claims-audit.md), pgTAP `v2_sessions_rls.test.sql`. File GitHub issues from [`threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) for remaining items.
 
 ---
 

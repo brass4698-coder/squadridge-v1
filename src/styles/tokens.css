@@ -127,11 +127,20 @@
   --sr-space-7: 64px;
   --sr-space-8: 96px;
 
+  /* Vertical padding for marketing / public page sections */
+  --space-section: var(--sr-space-7);
+
   /* ── Glass surfaces ─────────────────────────────────────────────── */
   --sr-glass-bg: oklch(from var(--sr-bg-elevated) l c h / 0.72);
   --sr-glass-border: oklch(from var(--sr-ink) l c h / 0.08);
   --sr-glass-highlight: oklch(from var(--sr-ink) l c h / 0.04);
   --sr-glass-blur: 12px;
+
+  /* ── Typography — single source for font stacks ─────────────────── */
+  --sr-font-body: 'Inter', system-ui, sans-serif;
+  --sr-font-heading: 'IBM Plex Sans', 'Public Sans', system-ui, sans-serif;
+  --sr-font-display: 'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif;
+  --sr-font-mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
 
   /* ── App typography scale (compact web-app) ───────────────────────── */
   --sr-text-page-title: 1.25rem;

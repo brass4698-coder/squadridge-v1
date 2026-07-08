@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { markParticipantDocumentSubmitted } from '../../../lib/participantToken';
 import { useNavigate } from 'react-router-dom';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
@@ -35,8 +36,9 @@ export function VerificationStepPage() {
     setStep('identity');
   }
 
-  function submitIdentity() {
-    setTimeout(() => setStep('complete'), 600);
+  async function submitIdentity() {
+    if (token) await markParticipantDocumentSubmitted(token);
+    setStep('complete');
   }
 
   function proceed() {

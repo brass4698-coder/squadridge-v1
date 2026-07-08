@@ -9,6 +9,7 @@ import { RouteSkeleton } from '../../components/system/RouteSkeleton';
 import { ErrorState } from '../../components/system/ErrorState';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { FacilitatorWalkthrough } from '../../components/facilitator/FacilitatorWalkthrough';
 import { useDashboardMetrics, useFacilitatorSessions } from '../../hooks/useFacilitatorSessions';
 import { appRoutes } from '../../lib/appRoutes';
 
@@ -44,6 +45,8 @@ export function FacilitatorDashboardPage() {
           </Button>
         }
       />
+
+      <FacilitatorWalkthrough />
 
       {isMock ? (
         <p className="mb-6 rounded-md border border-line bg-surface-secondary px-4 py-2 text-app-meta text-ink-secondary">

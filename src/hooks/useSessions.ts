@@ -24,7 +24,10 @@ export function useSessions() {
   }, [fetchSessions]);
 
   async function createSession(
-    payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'>,
+    payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'> & {
+      template_id?: string | null;
+      setup_config?: Session['setup_config'];
+    },
   ) {
     const {
       data: { user },

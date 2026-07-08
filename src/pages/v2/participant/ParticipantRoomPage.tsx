@@ -1,47 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { useParticipantSession } from '../../../hooks/useParticipantSession';
+import {
+  participantListMessages,
+  participantSendMessage,
+  type ParticipantMessageRow,
+} from '../../../lib/participantToken';
 import { participantRoute } from '../../../lib/participantRoutes';
-
-type Message = { id: string; from: string; role: string; body: string; time: string };
-
-const seedMessages: Message[] = [
-  {
-    id: 'm1',
-    from: 'Facilitator',
-    role: 'Facilitator',
-    body: 'Welcome, everyone. We will begin shortly. Please confirm you can read this message.',
-    time: '10:01 AM',
-  },
-  {
-    id: 'm2',
-    from: 'Amara N.',
-    role: 'Participant',
-    body: 'Confirmed — I can read this.',
-    time: '10:02 AM',
-  },
-  { id: 'm3', from: 'Jonas B.', role: 'Participant', body: 'Ready here.', time: '10:03 AM' },
-];
 
 export function ParticipantRoomPage() {
   const token = useParticipantToken();
-  const [messages, setMessages] = useState<Message[]>(seedMessages);
+  const { ctx } = useParticipantSession(token);
+  const [messages, setMessages] = useState<ParticipantMessageRow[]>([]);
   const [input, setInput] = useState('');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const navigate = useNavigate();
 
-  function send() {
-    if (!input.trim()) return;
-    const msg: Message = {
-      id: `m${Date.now()}`,
-      from: 'You',
-      role: 'Participant',
-      body: input.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages((m) => [...m, msg]);
+  const loadMessages = useCallback(async () => {
+    if (!token) return;
+    const result = await participantListMessages(token);
+    if (result.valid && result.messages) setMessages(result.messages);
+  }, [token]);
+
+  useEffect(() => {
+    void loadMessages();
+    const interval = setInterval(() => void loadMessages(), 4000);
+    return () => clearInterval(interval);
+  }, [loadMessages]);
+
+  async function send() {
+    if (!input.trim() || !token) return;
+    await participantSendMessage(token, input.trim());
     setInput('');
+    await loadMessages();
   }
 
   function leave() {
@@ -65,8 +58,8 @@ export function ParticipantRoomPage() {
           >
             Protected Session · Live
           </p>
-          <h1 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-            Northern Watershed Consultation
+          <h1 className="text-base font-semibold text-ink">
+            {ctx?.session_title ?? 'Protected session'}
           </h1>
         </div>
         <button
@@ -100,34 +93,32 @@ export function ParticipantRoomPage() {
       >
         <div className="mx-auto max-w-2xl flex flex-col gap-4">
           {messages.map((msg) => {
-            const isYou = msg.from === 'You';
-            const isFacilitator = msg.role === 'Facilitator';
+            const isYou = msg.sender_role === 'participant' && msg.sender_label === ctx?.codename;
+            const isFacilitator = msg.sender_role === 'facilitator';
             return (
               <div key={msg.id} className={`flex flex-col ${isYou ? 'items-end' : 'items-start'}`}>
                 <div className="mb-1 flex items-center gap-2">
                   <span
-                    className="text-xs font-medium"
-                    style={{
-                      color: isFacilitator ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-                    }}
+                    className={`text-xs font-medium ${isFacilitator ? 'text-brand' : 'text-ink-secondary'}`}
                   >
-                    {msg.from} {isFacilitator ? '· Facilitator' : ''}
+                    {isYou ? 'You' : msg.sender_label}
+                    {isFacilitator ? ' · Facilitator' : ''}
                   </span>
-                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {msg.time}
+                  <span className="text-xs text-ink-faint">
+                    {new Date(msg.sent_at).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </span>
                 </div>
                 <div
-                  className="max-w-md rounded-xl px-5 py-3 text-sm leading-relaxed"
-                  style={{
-                    backgroundColor: isYou
-                      ? 'var(--color-accent)'
+                  className={`max-w-md rounded-xl px-5 py-3 text-sm leading-relaxed ${
+                    isYou
+                      ? 'bg-brand text-brand-on'
                       : isFacilitator
-                        ? 'var(--color-accent-light)'
-                        : 'var(--color-surface)',
-                    color: isYou ? '#fff' : 'var(--color-text-primary)',
-                    border: isYou ? 'none' : `1px solid var(--color-border)`,
-                  }}
+                        ? 'border border-brand/30 bg-brand-soft text-ink'
+                        : 'border border-line bg-surface-elevated text-ink'
+                  }`}
                 >
                   {msg.body}
                 </div>

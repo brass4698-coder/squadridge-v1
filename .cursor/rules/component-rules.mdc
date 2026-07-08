@@ -2,31 +2,142 @@
 description: SquadRidge Component Library Rules
 globs: src/components/**/*.tsx, src/ui/**/*.tsx
 ---
+
 # SquadRidge — components
 
-## Rules
+Build components for a high-trust, privacy-first, conflict-resolution platform. Components must feel calm, modern, durable, and operationally clear under pressure.
 
-1. **Layout**: Dark navy `#0A0F1E`, Space Grotesk + DM Sans, WCAG AA contrast.
-2. **A11y**: Never rely on color alone; pair with text/icons for warnings (e.g. Amber `#F5A623`).
-3. **Weight**: Small bundles; avoid decorative animation on low-bandwidth paths.
-4. **Buttons**: Teal `#0E9AA7` primary; clear pressed/hover states.
+## Non-negotiable principles
 
-## Typography & spacing
+1. **Accessibility first**
+   - Meet WCAG AA at minimum.
+   - Normal text must meet at least 4.5:1 contrast.
+   - Large text must meet at least 3:1 contrast.
+   - UI components, icons, focus indicators, chart marks, and input boundaries must meet at least 3:1 contrast against adjacent colors.
+   - Never rely on color alone to convey state, warning, success, trend, or urgency; pair color with text, icon, pattern, or shape.
 
-- Fluid type with `clamp()` where headings need to scale.
-- Tailwind spacing scale; keep rhythm consistent.
+2. **Calm clarity**
+   - Components must communicate clearly without alarmist visual language.
+   - Use restrained emphasis, not aggressive motion or high-noise styling.
+   - Warnings and tension signals should support de-escalation and comprehension.
 
-## Patterns
+3. **Performance-aware polish**
+   - Keep bundles small.
+   - Avoid heavy decorative animation, especially on low-bandwidth or high-stress paths.
+   - Motion must be purposeful, subtle, and removable under reduced-motion preferences.
 
-- **Sentiment / tension UI**: Show trend with color + label/icon.
-- **Interventions**: Slow down / Pull back — large tap targets, calm wording.
-- **Mod tools**: Dense tables/cards; readable on dark backgrounds.
+4. **Consistency over novelty**
+   - Use shared tokens, variants, spacing, and states.
+   - Avoid one-off component styling unless it is justified and documented.
+   - Prefer reusable variants over ad hoc class strings.
 
-## SVG
+## Theme and visual system
 
-- Simple, consistent stroke/fill; no flags or weapon imagery.
+- Default product shell uses deep indigo/navy surfaces from `--sr-bg` and `--sr-bg-elevated` in `tokens.css` — never hardcode hex in components.
+- Primary actions use `--sr-primary` (teal); all interactive states must be tokenized and contrast-checked.
+- Warning colors use `--sr-warning` only with sufficient contrast and paired text/icon support.
+- Dark surfaces must preserve readability for dense operational views, not just look visually dramatic.
 
-## Code
+## Typography
 
-- React function components + hooks; Tailwind for styles; explicit TypeScript props/types.
-- Prefer props for variants; avoid one-off style escapes unless necessary.
+- Use tokenized fonts from `src/styles/tokens.css`: Inter for body/UI, IBM Plex Sans for headings, IBM Plex Serif for marketing display, IBM Plex Mono for ledger/code.
+- Do not hardcode `font-family` in components — use Tailwind `font-sans`, `font-display`, `font-heading`, or `font-mono`.
+- Use fluid type with `clamp()` only where scaling materially improves layout, such as page headings or responsive section headers (`--sr-text-display`, `--sr-text-h1`, etc.).
+- Do not use oversized marketing typography in product UI (`/app/*` chrome uses the compact app scale).
+- Maintain a clear type hierarchy for:
+  - page titles
+  - section headings
+  - body
+  - labels
+  - metadata
+  - button text
+
+## Spacing and layout
+
+- Use the Tailwind spacing scale consistently.
+- Maintain visual rhythm across cards, tables, forms, drawers, and modals.
+- Dense operational views are acceptable, but never at the cost of readability or tap-target size.
+- Interactive elements must remain usable on mobile and pointer devices.
+- Large tap targets are required for intervention actions such as “Slow down” and “Pull back.”
+
+## Component state requirements
+
+Every interactive component must define:
+- default state
+- hover state
+- focus-visible state
+- active/pressed state
+- disabled state
+- loading state where relevant
+- error state where relevant
+- empty state where relevant
+
+Do not ship components with missing or ambiguous states.
+
+## Buttons
+
+- Primary buttons use the designated action color token.
+- Buttons must have clear hover, pressed, focus, and disabled states.
+- Button labels must be action-led and explicit.
+- Do not rely on color fill alone; destructive, warning, or secondary actions should also differ through label, icon, border, or hierarchy.
+- Maintain adequate target size for touch and keyboard users.
+
+## Forms
+
+- All inputs must have visible labels.
+- Do not rely on placeholder text as the only label.
+- Required, invalid, success, and helper states must use text and icons in addition to color.
+- Error messages must be specific and adjacent to the relevant field.
+- Inputs on dark backgrounds must preserve strong border and text contrast.
+
+## Tables and dense tools
+
+- Moderation tools, admin tools, and operational dashboards may use dense tables/cards, but must remain readable on dark surfaces.
+- Use tabular numerals where metrics or time values matter.
+- Support keyboard navigation and clear focus movement for dense tools.
+- Sticky headers, overflow handling, and mobile fallback behavior must be intentional.
+
+## Sentiment / tension UI
+
+- Show trend using color plus label/icon, never color alone.
+- Prefer calm wording and directional guidance over deterministic emotional judgments.
+- Surface uncertainty when confidence is low.
+- Do not turn sentiment visuals into punitive or sensational UI.
+
+## Interventions
+
+- Intervention controls such as “Slow down” and “Pull back” must be prominent, calm, and easy to tap.
+- Intervention components should visually de-escalate the interface, not intensify it.
+- Use supportive copy, generous spacing, and stable layout behavior.
+
+## SVG and iconography
+
+- Keep SVG style simple and consistent in stroke, fill, corner treatment, and visual weight.
+- Avoid violent, militarized, nationalistic, or inflammatory imagery, including flags and weapon motifs.
+- Icons must support comprehension, not replace labels in critical workflows.
+- Decorative SVG should not introduce ambiguity or visual clutter.
+
+## Motion
+
+- Motion must be subtle and purposeful.
+- Respect `prefers-reduced-motion`.
+- Avoid decorative looping animation in critical communication, moderation, or safety flows.
+- Use motion for feedback, hierarchy, and orientation, not spectacle.
+
+## Code standards
+
+- Use React function components and hooks.
+- Use explicit TypeScript props and exported prop types where appropriate.
+- Prefer variant props and composable APIs over one-off style overrides.
+- Use Tailwind for styling, but avoid class sprawl that hides component intent.
+- Keep business logic out of purely presentational components when possible.
+- Accessibility props, keyboard handling, and semantic structure are part of the component contract.
+
+## Testing requirements
+
+- Verify contrast for all text, controls, icons, and data visual marks.
+- Verify keyboard access and visible focus states.
+- Verify components in dark theme and any light/admin/demo variants.
+- Verify reduced-motion behavior.
+- Verify mobile readability and target sizing.
+- Verify warning, trend, and status components still make sense without color perception.

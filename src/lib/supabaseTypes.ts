@@ -20,6 +20,8 @@ export interface Database {
           status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
           created_at: string;
           updated_at: string;
+          template_id: string | null;
+          setup_config: Json;
         };
         Insert: {
           facilitator_id: string;
@@ -31,10 +33,14 @@ export interface Database {
           identity_verification_required: boolean;
           outcome_public: boolean;
           status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          template_id?: string | null;
+          setup_config?: Json;
         };
         Update: {
           status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
           updated_at?: string;
+          template_id?: string | null;
+          setup_config?: Json;
         };
       };
       participants: {
@@ -157,7 +163,32 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      validate_participant_token: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      record_participant_consent: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_mark_document_submitted: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_send_message: {
+        Args: { p_token: string; p_body: string };
+        Returns: Json;
+      };
+      participant_list_messages: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      release_outcome: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
+    };
     Enums: Record<string, never>;
   };
 }

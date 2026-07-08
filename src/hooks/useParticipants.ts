@@ -52,15 +52,39 @@ export function useParticipants(sessionId: string | undefined) {
     participantId: string,
     status: Participant['verification_status'],
   ) {
+    const patch: Partial<Participant> = { verification_status: status };
+    if (status === 'verified') {
+      patch.admitted_at = new Date().toISOString();
+    }
     const { error: err } = await supabase
       .from('participants')
-      .update({ verification_status: status })
+      .update(patch)
       .eq('id', participantId);
     if (err) throw err;
-    setParticipants((prev) =>
-      prev.map((p) => (p.id === participantId ? { ...p, verification_status: status } : p)),
-    );
+    setParticipants((prev) => prev.map((p) => (p.id === participantId ? { ...p, ...patch } : p)));
   }
 
-  return { participants, loading, error, setVerificationStatus, refetch: fetch };
+  async function addParticipant(input: {
+    codename: string;
+    invite_token: string;
+    email_hash?: string | null;
+  }) {
+    if (!sessionId) throw new Error('No session');
+    const { data, error: err } = await supabase
+      .from('participants')
+      .insert({
+        session_id: sessionId,
+        codename: input.codename,
+        invite_token: input.invite_token,
+        email_hash: input.email_hash ?? null,
+      })
+      .select()
+      .single();
+    if (err) throw err;
+    const row = data as Participant;
+    setParticipants((prev) => [...prev, row]);
+    return row;
+  }
+
+  return { participants, loading, error, setVerificationStatus, addParticipant, refetch: fetch };
 }

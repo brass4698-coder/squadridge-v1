@@ -72,18 +72,42 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     setOutcome((prev) => (prev ? { ...prev, status: 'pending_approval' } : prev));
   }
 
+  async function seedApprovals(labels: string[]) {
+    if (!outcome) return;
+    const rows = labels.map((label) => ({
+      outcome_id: outcome.id,
+      approver_label: label,
+      status: 'pending' as const,
+    }));
+    const { data } = await supabase.from('outcome_approvals').insert(rows).select();
+    if (data) setApprovals(data as OutcomeApproval[]);
+  }
+
+  async function setApprovalStatus(approvalId: string, status: OutcomeApproval['status']) {
+    const patch = {
+      status,
+      approved_at: status === 'approved' ? new Date().toISOString() : null,
+    };
+    await supabase.from('outcome_approvals').update(patch).eq('id', approvalId);
+    setApprovals((prev) => prev.map((a) => (a.id === approvalId ? { ...a, ...patch } : a)));
+  }
+
   async function publishToLedger() {
     if (!outcome) return;
-    const sha = await computeSha256(JSON.stringify({ ...outcome, facilitator_notes: undefined }));
-    await supabase
-      .from('outcome_records')
-      .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
-      .eq('id', outcome.id);
-    await supabase
-      .from('sessions')
-      .update({ status: 'released', updated_at: new Date().toISOString() })
-      .eq('id', sessionId);
-    setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
+    const { data, error } = await supabase.rpc('release_outcome', { p_outcome_id: outcome.id });
+    if (error) throw error;
+    const result = data as { ok?: boolean; ledger_sha?: string; error?: string };
+    if (!result?.ok) throw new Error(result?.error ?? 'Release failed');
+    setOutcome((prev) =>
+      prev
+        ? {
+            ...prev,
+            status: 'published',
+            ledger_sha: result.ledger_sha ?? prev.ledger_sha,
+            published_at: new Date().toISOString(),
+          }
+        : prev,
+    );
   }
 
   return {
@@ -92,15 +116,9 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     loading,
     saveDraft,
     submitForRelease,
+    seedApprovals,
+    setApprovalStatus,
     publishToLedger,
     refetch: fetch,
   };
-}
-
-async function computeSha256(input: string): Promise<string> {
-  const msgBuffer = new TextEncoder().encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
 }

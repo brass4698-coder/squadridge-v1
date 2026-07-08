@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenShell } from '../../../components/layout/TokenShell';
+import { recordParticipantConsent } from '../../../lib/participantToken';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { participantRoute } from '../../../lib/participantRoutes';
 
@@ -38,10 +39,11 @@ export function ConsentPage() {
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
 
-  function proceed() {
+  async function proceed() {
     if (!checked || !token) return;
     setAccepted(true);
-    setTimeout(() => navigate(participantRoute('briefing', token)), 500);
+    await recordParticipantConsent(token);
+    navigate(participantRoute('briefing', token));
   }
 
   if (!token) return null;

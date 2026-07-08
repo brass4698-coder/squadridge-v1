@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
+import { useOutcomeRecord } from '../../../hooks/useOutcomeRecord';
+import { useParticipants } from '../../../hooks/useParticipants';
 import { appRoutes } from '../../../lib/appRoutes';
 
 export function OutcomeWorkspacePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const { outcome, loading, saveDraft, submitForRelease, seedApprovals, approvals } =
+    useOutcomeRecord(sessionId);
+  const { participants } = useParticipants(sessionId);
   const [form, setForm] = useState({
     summary: '',
     agreedTerms: '',
@@ -13,6 +18,17 @@ export function OutcomeWorkspacePage() {
     facilitatorNotes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!outcome) return;
+    setForm({
+      summary: outcome.summary ?? '',
+      agreedTerms: outcome.agreed_terms ?? '',
+      pendingItems: outcome.pending_items ?? '',
+      facilitatorNotes: outcome.facilitator_notes ?? '',
+    });
+  }, [outcome]);
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -20,144 +36,134 @@ export function OutcomeWorkspacePage() {
 
   async function handleSaveDraft() {
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
+    setError(null);
+    try {
+      await saveDraft({
+        summary: form.summary,
+        agreed_terms: form.agreedTerms || undefined,
+        pending_items: form.pendingItems || undefined,
+        facilitator_notes: form.facilitatorNotes || undefined,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed');
+    }
     setSaving(false);
   }
 
   async function handleSubmitForRelease() {
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600));
-    navigate(appRoutes.sessionRelease(sessionId ?? ''));
+    setError(null);
+    try {
+      await saveDraft({
+        summary: form.summary,
+        agreed_terms: form.agreedTerms || undefined,
+        pending_items: form.pendingItems || undefined,
+        facilitator_notes: form.facilitatorNotes || undefined,
+      });
+      await submitForRelease();
+      if (approvals.length === 0) {
+        const labels = [
+          ...participants
+            .filter((p) => p.verification_status === 'verified')
+            .map((p) => p.codename),
+          'Facilitator',
+        ];
+        await seedApprovals(labels);
+      }
+      navigate(appRoutes.sessionRelease(sessionId ?? ''));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Submit failed');
+      setSaving(false);
+    }
   }
-
-  const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
-  const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    borderColor: 'var(--color-border)',
-    color: 'var(--color-text-primary)',
-  };
-  const labelClass = 'mb-1.5 block text-xs font-medium';
-  const labelStyle = { color: 'var(--color-text-secondary)' };
 
   return (
     <AuthenticatedShell>
       <div className="mx-auto max-w-2xl">
-        {/* Header */}
         <div className="mb-8">
-          <p
-            className="mb-1 text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            Session {sessionId}
-          </p>
-          <h1
-            className="text-xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
             Outcome workspace
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Draft the outcome document. Once submitted for release, all parties will be notified to
-            review and approve.
+          </p>
+          <h1 className="text-xl font-semibold text-ink">Draft the public record</h1>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Only this approved text may be published. Session room dialogue is never included.
           </p>
         </div>
 
-        {/* Confidentiality notice */}
-        <div
-          className="mb-6 rounded border-l-4 px-4 py-3 text-xs"
-          style={{
-            borderColor: 'var(--color-accent)',
-            backgroundColor: 'var(--color-accent-light)',
-            color: 'var(--color-accent)',
-          }}
-        >
-          This document is private until all parties approve release. Session room content will
-          never be published.
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Outcome summary <span aria-hidden>*</span>
-            </label>
-            <textarea
-              required
-              rows={4}
-              className={inputClass}
-              style={inputStyle}
-              placeholder="Summarise the outcome reached in plain language…"
-              value={form.summary}
-              onChange={(e) => set('summary', e.target.value)}
-            />
+        {loading ? (
+          <p className="text-sm text-ink-secondary">Loading draft…</p>
+        ) : (
+          <div className="flex flex-col gap-6">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                Outcome summary <span aria-hidden>*</span>
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={form.summary}
+                onChange={(e) => set('summary', e.target.value)}
+                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                Agreed terms
+              </label>
+              <textarea
+                rows={5}
+                value={form.agreedTerms}
+                onChange={(e) => set('agreedTerms', e.target.value)}
+                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                Pending items
+              </label>
+              <textarea
+                rows={3}
+                value={form.pendingItems}
+                onChange={(e) => set('pendingItems', e.target.value)}
+                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-ink-secondary">
+                Facilitator notes (never published)
+              </label>
+              <textarea
+                rows={3}
+                value={form.facilitatorNotes}
+                onChange={(e) => set('facilitatorNotes', e.target.value)}
+                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+              />
+            </div>
+            {error ? (
+              <p className="text-sm text-sem-danger" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void handleSaveDraft()}
+                className="flex-1 rounded border border-line py-3 text-sm font-medium text-ink"
+              >
+                Save draft
+              </button>
+              <button
+                type="button"
+                disabled={saving || !form.summary.trim()}
+                onClick={() => void handleSubmitForRelease()}
+                className="flex-1 btn-pill btn-pill--primary text-sm"
+              >
+                Submit for release
+              </button>
+            </div>
           </div>
-
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Agreed terms
-            </label>
-            <textarea
-              rows={5}
-              className={inputClass}
-              style={inputStyle}
-              placeholder="List the specific terms, commitments, or agreements reached…"
-              value={form.agreedTerms}
-              onChange={(e) => set('agreedTerms', e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Pending or unresolved items
-            </label>
-            <textarea
-              rows={3}
-              className={inputClass}
-              style={inputStyle}
-              placeholder="Any items deferred or not resolved in this session…"
-              value={form.pendingItems}
-              onChange={(e) => set('pendingItems', e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Facilitator notes (internal only)
-            </label>
-            <textarea
-              rows={3}
-              className={inputClass}
-              style={inputStyle}
-              placeholder="Notes for the facilitation record. Not visible to participants or the public ledger."
-              value={form.facilitatorNotes}
-              onChange={(e) => set('facilitatorNotes', e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              disabled={saving}
-              className="flex-1 rounded border py-3 text-sm font-medium transition-opacity hover:opacity-70 disabled:opacity-50"
-              style={{
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text-primary)',
-                backgroundColor: 'transparent',
-              }}
-            >
-              {saving ? 'Saving…' : 'Save draft'}
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmitForRelease}
-              disabled={!form.summary || saving}
-              className="flex-1 rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-              style={{ backgroundColor: 'var(--color-accent)' }}
-            >
-              Submit for release
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </AuthenticatedShell>
   );

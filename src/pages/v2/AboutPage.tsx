@@ -1,89 +1,124 @@
 import { Link } from 'react-router-dom';
+import { CTABlock, MarketingSection, SectionLabel } from '../../components/shared';
+
+const PRINCIPLES = [
+  'The room is private. Always. The outcome is public only if approved.',
+  'Facilitators control the session lifecycle — not the platform.',
+  'Participants must be eligible. Verification is required for high-stakes sessions.',
+  'Public records must be credible. We do not publish unapproved content.',
+  'We state plainly what the platform does and does not guarantee.',
+];
+
+const NEVER_DO = [
+  'Publish raw session dialogue or generate a public transcript',
+  'Host video, audio, or real-time calls of any kind',
+  'Auto-release outcomes — release is always facilitator-initiated',
+  'Claim end-to-end encryption or legal protection without engineering sign-off',
+  'Replace professional mediation judgment with automated decisions',
+];
+
+const FOUNDER_MISSION =
+  'Some of us learned early that blame travels faster than truth, and that the wrong room can end a conversation before it starts. SquadRidge is the infrastructure we wished existed: a protected space to speak, a structured path forward, and a record people can verify without exposing who was in the room.';
 
 export function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-20">
-      <div className="mb-12">
-        <p
-          className="mb-3 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          About
-        </p>
-        <h1
-          className="mb-4 text-3xl font-semibold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Why we built SquadRidge
-        </h1>
-        <p
-          className="text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          Most dialogue fails not because people are unwilling to talk, but because the conditions are wrong. The room is unsafe. The process has no structure. The outcome is unverifiable. And the technology — if used at all — was built for something else entirely.
-        </p>
-      </div>
+    <div className="bg-surface">
+      <MarketingSection className="!pb-12 !pt-20">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="About" />
+          <h1 className="mb-4 text-h1 text-ink">Why we built SquadRidge</h1>
+          <p className="text-base leading-relaxed text-ink-secondary">
+            Most dialogue fails not because people are unwilling to talk, but because the conditions
+            are wrong — the room is unsafe, the process has no structure, and the outcome is
+            unverifiable.
+          </p>
+        </div>
+      </MarketingSection>
 
-      <div className="mb-10 flex flex-col gap-6 text-sm leading-loose" style={{ color: 'var(--color-text-secondary)' }}>
-        <p>
-          SquadRidge was built to address a specific gap: there was no serious, purpose-built platform for facilitator-led, high-stakes dialogue that combined participant protection, process control, and a credible path to a public outcome record.
-        </p>
-        <p>
-          The platforms people use — video conferencing tools, shared document editors, discussion forums, collaboration suites — were not built for this. They lack eligibility gating, identity protection, facilitator control over the session lifecycle, and a formal, verifiable output.
-        </p>
-        <p>
-          SquadRidge is not a collaboration tool. It is structured facilitation infrastructure. The session room is private. The approved outcome can be public. And every step between those two states is controlled by the facilitator, not the platform.
-        </p>
-        <p>
-          We are in an early access phase. The platform is currently available to a limited number of facilitators, mediators, and institutions on a pilot basis. We work closely with pilot partners to ensure the platform is fit for purpose before broader release.
-        </p>
-      </div>
+      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl flex flex-col gap-6 text-sm leading-relaxed text-ink-secondary md:text-base">
+          <p>
+            SquadRidge addresses a specific gap: no purpose-built platform for facilitator-led,
+            high-stakes dialogue that combines participant protection, process control, and a
+            credible path to a public outcome record.
+          </p>
+          <p>
+            We made a deliberate architectural choice: SquadRidge is a facilitator-led messaging
+            room only. There are no video calls, audio sessions, or parallel chat surfaces — the
+            entire protected dialogue happens in structured written rounds under facilitator
+            control. That keeps faces, voices, and surroundings out of the process and preserves a
+            clear line between the private room and the released record.
+          </p>
+          <p>
+            SquadRidge is not a collaboration tool. It is structured facilitation infrastructure.
+            The session room is private. The approved outcome can be public. Every step between
+            those two states is controlled by the facilitator.
+          </p>
+          <p>
+            We are in an early access phase — a private pilot, now inviting mediators and
+            peacebuilding teams. We work closely with pilot partners to make sure the platform is
+            fit for purpose before broader release.
+          </p>
+        </div>
+      </section>
 
-      <div
-        className="mb-10 rounded-xl border p-8"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
-        <h2
-          className="mb-4 text-base font-semibold"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Platform principles
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {[
-            'The room is private. Always. The outcome is public only if approved.',
-            'Facilitators are in control of the session lifecycle, not the platform.',
-            'Participants must be eligible. Verification is not optional for high-stakes sessions.',
-            'Public records must be credible. We do not publish unverified or unapproved content.',
-            'We are honest about what the platform does and does not guarantee.',
-          ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              <span className="mt-0.5 shrink-0" style={{ color: 'var(--color-accent)' }}>→</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl">
+          <blockquote className="rounded-lg border border-line bg-surface-elevated p-8">
+            <p className="text-base leading-relaxed text-ink md:text-lg">
+              &ldquo;{FOUNDER_MISSION}&rdquo;
+            </p>
+            <footer className="mt-4 text-xs font-medium text-ink-faint">
+              — The SquadRidge team
+            </footer>
+          </blockquote>
+        </div>
+      </section>
 
-      <div className="flex gap-6">
-        <Link
-          to="/request-access"
-          className="text-sm font-medium underline transition-opacity hover:opacity-70"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          Request pilot access →
-        </Link>
-        <Link
-          to="/how-it-works"
-          className="text-sm font-medium underline transition-opacity hover:opacity-70"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          How it works
-        </Link>
-      </div>
+      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="Platform principles" />
+          <h2 className="mt-3 text-h2 text-ink">What we optimise for</h2>
+          <ul className="mt-8 flex flex-col gap-3">
+            {PRINCIPLES.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-ink-secondary">
+                <span className="mt-0.5 shrink-0 text-brand">→</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="Honest boundaries" />
+          <h2 className="mt-3 text-h2 text-ink">What we will never do</h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            These are architectural commitments, not marketing disclaimers.{' '}
+            <Link to="/security" className="text-brand hover:underline">
+              Security
+            </Link>{' '}
+            documents the full trust model.
+          </p>
+          <ul className="mt-8 flex flex-col gap-3">
+            {NEVER_DO.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-ink-secondary">
+                <span className="mt-0.5 shrink-0 text-ink-faint" aria-hidden>
+                  ×
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <CTABlock
+        headline="Join the private pilot."
+        secondaryLabel="See use cases"
+        secondaryHref="/use-cases"
+      />
     </div>
   );
 }

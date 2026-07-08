@@ -1,118 +1,89 @@
-// ============================================================
-// HowItWorksPage — Phase 9 rewrite
-//
-// Structure per the design critique:
-//   1. Short intro that anchors the model (room vs record)
-//   2. Compact 4-step visual rail — each step:
-//        · one short heading
-//        · one plain-language sentence
-//        · one reassurance sentence
-//   3. Central room-vs-record diagram reused from SplitPanelVisual so the
-//      motif from the homepage carries through the site
-//   4. FAQ strip with the three highest-leverage questions
-//   5. CTA footer
-// ============================================================
 import { Link } from 'react-router-dom';
-import { ArrowRight, FileCheck, MessageSquare, Settings, ShieldCheck } from 'lucide-react';
-import { SectionEyebrow, SplitPanelVisual } from '../../components/marketing/primitives';
-
-// One-line + one reassurance sentence per step. The reassurance sentence
-// always answers the implicit question a cautious mediator will ask.
-const STEPS = [
-  {
-    number: '01',
-    icon: Settings,
-    heading: 'Configure',
-    line: 'Set the session rules, participant criteria, and release conditions before dialogue begins.',
-    reassure:
-      'Nothing about the session is improvised — every rule is captured before invitations go out.',
-  },
-  {
-    number: '02',
-    icon: ShieldCheck,
-    heading: 'Verify',
-    line: 'Confirm each participant privately using your chosen eligibility criteria.',
-    reassure: 'Nothing about identity ever appears on the released record.',
-  },
-  {
-    number: '03',
-    icon: MessageSquare,
-    heading: 'Facilitate',
-    line: 'Run the session in a protected environment designed for sensitive, high-stakes exchange.',
-    reassure: 'No public transcript is generated at any point during or after the session.',
-  },
-  {
-    number: '04',
-    icon: FileCheck,
-    heading: 'Release',
-    line: 'Release only the approved outcome — with a verification anchor and selected metadata.',
-    reassure:
-      'The facilitator signs the release; the platform never publishes anything on its own.',
-  },
-];
-
-const FAQS = [
-  {
-    q: 'Who can release a record?',
-    a: 'Only a session facilitator can trigger release, and only after every required approval has been recorded. The platform will not publish anything on its own — release is always an explicit, signed action.',
-  },
-  {
-    q: 'What stays private, always?',
-    a: 'The dialogue itself, participant identities, verification data, facilitator notes, and session signals never leave the room. Only the approved outcome text and a verification anchor are released.',
-  },
-  {
-    q: 'What does the verification anchor prove?',
-    a: 'The anchor confirms the integrity of the released record — anyone can verify that the record has not been altered since release, and that it was issued through SquadRidge. It does not expose the private session content.',
-  },
-  {
-    q: 'Can a released record be withdrawn?',
-    a: 'Yes. A facilitator or organisation administrator can withdraw a record. The public ledger will show a notice at that record\u2019s ID explaining the withdrawal.',
-  },
-];
+import { howItWorksVignette } from '../../data/howItWorksVignette';
+import { stages } from '../../data/stages';
+import { workflows } from '../../data/workflows';
+import { privatePublicItems } from '../../data/privatePublicItems';
+import {
+  CTABlock,
+  MarketingSection,
+  PrivatePublicSplit,
+  SectionLabel,
+  StageCard,
+  WorkflowSection,
+} from '../../components/shared';
 
 export function HowItWorksPage() {
   return (
     <div className="bg-surface">
-      {/* Intro */}
-      <section className="mx-auto max-w-3xl px-6 pb-12 pt-20">
-        <SectionEyebrow>How it works</SectionEyebrow>
-        <h1 className="mt-3 text-h1 md:text-display" style={{ color: 'var(--sr-ink)' }}>
-          Four stages. One protected process.
-        </h1>
-        <p
-          className="mt-5 text-base leading-relaxed md:text-lg"
-          style={{ color: 'var(--sr-ink) ' }}
-        >
-          SquadRidge separates the protected session from the verifiable public record.
-        </p>
-        <p
-          className="mt-3 max-w-2xl text-base leading-relaxed"
-          style={{ color: 'var(--sr-ink-secondary)' }}
-        >
-          Every session follows the same lifecycle. Below: the four stages, and what each one
-          protects.
-        </p>
-      </section>
+      <MarketingSection className="!pb-12 !pt-20">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="How it works" />
+          <h1 className="mt-3 text-h1 text-ink">Four stages. One protected process.</h1>
+          <p className="mt-5 text-base leading-relaxed text-ink md:text-lg">
+            SquadRidge separates the protected session from the verifiable public record. Start with
+            one scenario below — then the lifecycle and the three workflows that implement it in the
+            product.
+          </p>
+        </div>
+      </MarketingSection>
 
-      {/* Room vs record diagram — reinforces the motif from the homepage. */}
       <section
-        className="border-t px-6 py-14 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
+        className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
+        aria-labelledby="vignette-heading"
       >
         <div className="mx-auto max-w-[1100px]">
-          <SplitPanelVisual size="compact" />
+          <SectionLabel text={howItWorksVignette.eyebrow} />
+          <h2 id="vignette-heading" className="mt-3 text-h2 text-ink">
+            {howItWorksVignette.heading}
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-secondary">
+            {howItWorksVignette.lede}
+          </p>
+
+          <ol className="mt-10 grid gap-4 md:grid-cols-2">
+            {howItWorksVignette.steps.map((step) => (
+              <li
+                key={step.label}
+                className="rounded-lg border border-line bg-surface-elevated p-6"
+              >
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-semibold text-brand">{step.label}</span>
+                  <span className="rounded-full border border-line bg-surface-sunken px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-ink-faint">
+                    {step.stage}
+                  </span>
+                </div>
+                <h3 className="text-sm font-semibold text-ink">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-8 rounded-lg border border-brand/30 bg-brand-soft px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand">
+              What gets released
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+              {howItWorksVignette.outcome}{' '}
+              <Link to="/ledger" className="text-brand hover:underline">
+                See the record format
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Step rail */}
       <section
-        className="border-t px-6 py-16 md:py-24"
+        className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
         aria-label="Session lifecycle stages"
-        style={{ borderColor: 'var(--sr-divider)' }}
       >
         <div className="mx-auto max-w-[1100px]">
-          <div className="relative">
-            {/* Connector line under the numbered nodes on desktop */}
+          <SectionLabel text="Lifecycle stages" />
+          <h2 className="mt-3 text-h2 text-ink">Configure → Verify → Facilitate → Release</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-secondary">
+            The scenario above follows these four stages. Every session uses the same lifecycle —
+            only the context and outcome text change.
+          </p>
+          <ol className="relative mt-14 grid gap-8 md:grid-cols-4">
             <div
               aria-hidden
               className="absolute left-6 right-6 top-6 hidden h-px md:block"
@@ -121,109 +92,102 @@ export function HowItWorksPage() {
                   'linear-gradient(90deg, var(--sr-divider), var(--sr-primary), var(--sr-divider))',
               }}
             />
-            <ol className="grid gap-8 md:grid-cols-4">
-              {STEPS.map((step) => (
-                <li key={step.number} className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="relative z-10 inline-flex h-12 w-12 items-center justify-center rounded-full border font-mono text-xs font-semibold tabular-nums"
-                      style={{
-                        borderColor: 'color-mix(in oklch, var(--sr-primary) 30%, var(--sr-line))',
-                        background: 'var(--sr-bg-elevated)',
-                        color: 'var(--sr-primary)',
-                      }}
-                    >
-                      {step.number}
-                    </span>
-                    <step.icon
-                      className="size-4 shrink-0"
-                      style={{ color: 'var(--sr-ink-faint)' }}
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                  </div>
-                  <h2 className="text-h3" style={{ color: 'var(--sr-ink)' }}>
-                    {step.heading}
-                  </h2>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: 'var(--sr-ink-secondary)' }}
-                  >
-                    {step.line}
-                  </p>
-                  <p
-                    className="rounded-md border-l-2 py-1 pl-3 text-xs italic leading-relaxed"
-                    style={{
-                      borderColor: 'var(--sr-primary)',
-                      color: 'var(--sr-ink-secondary)',
-                    }}
-                  >
-                    {step.reassure}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section
-        className="border-t px-6 py-16 md:py-24"
-        style={{ borderColor: 'var(--sr-divider)' }}
-        aria-labelledby="faq-heading"
-      >
-        <div className="mx-auto max-w-3xl">
-          <SectionEyebrow>Common questions</SectionEyebrow>
-          <h2 id="faq-heading" className="mt-3 text-h2" style={{ color: 'var(--sr-ink)' }}>
-            The three questions we hear most.
-          </h2>
-          <dl className="mt-10 flex flex-col divide-y" style={{ borderColor: 'var(--sr-divider)' }}>
-            {FAQS.map((faq) => (
-              <div
-                key={faq.q}
-                className="py-6 first:pt-0 last:pb-0"
-                style={{ borderColor: 'var(--sr-divider)' }}
-              >
-                <dt className="text-base font-semibold" style={{ color: 'var(--sr-ink)' }}>
-                  {faq.q}
-                </dt>
-                <dd
-                  className="mt-2 text-sm leading-relaxed"
-                  style={{ color: 'var(--sr-ink-secondary)' }}
-                >
-                  {faq.a}
-                </dd>
-              </div>
+            {stages.map((stage) => (
+              <StageCard
+                key={stage.number}
+                number={stage.number}
+                title={stage.title}
+                description={stage.fullDescription}
+                variant="full"
+              />
             ))}
-          </dl>
+          </ol>
         </div>
       </section>
 
-      {/* CTA footer */}
-      <section
-        className="border-t px-6 py-16 md:py-20"
-        style={{ borderColor: 'var(--sr-divider)' }}
-      >
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-          <h2 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
-            Ready to run a protected session?
-          </h2>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link to="/request-access" className="btn-pill btn-pill--primary text-sm">
-              Request pilot access
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-            <Link
-              to="/ledger"
-              className="text-xs font-medium underline-offset-4 transition-opacity hover:underline hover:opacity-70"
-              style={{ color: 'var(--sr-ink-faint)' }}
-            >
-              See a sample released record
-            </Link>
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1100px]">
+          <SectionLabel text="Room and record" />
+          <h2 className="mt-3 text-h2 text-ink">What stays inside. What gets released.</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-secondary">
+            The outcome is authored for release. There is no dialogue transcript to publish or
+            withhold — only the approved record leaves the room.
+          </p>
+          <div className="mt-10 max-w-xl">
+            <PrivatePublicSplit
+              size="compact"
+              privateItems={privatePublicItems.private}
+              publicItems={privatePublicItems.public}
+            />
           </div>
         </div>
       </section>
+
+      <section
+        className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
+        aria-label="Session workflows"
+      >
+        <div className="mx-auto flex max-w-[1100px] flex-col gap-16">
+          <div className="max-w-3xl">
+            <SectionLabel text="Workflows" />
+            <h2 className="mt-3 text-h2 text-ink">Three workflows, in order.</h2>
+            <p className="mt-4 text-sm leading-relaxed text-ink-secondary md:text-base">
+              The four stages map to three product workflows:{' '}
+              <strong className="font-medium text-ink">Setup</strong> (Configure + Verify),{' '}
+              <strong className="font-medium text-ink">Facilitation</strong> (Facilitate), and{' '}
+              <strong className="font-medium text-ink">Release</strong> (Release). Each step keeps
+              facilitator control throughout.
+            </p>
+          </div>
+          {workflows.map((workflow) => (
+            <WorkflowSection key={workflow.label} {...workflow} />
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12">
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="Inside the room" />
+          <h2 className="mt-3 text-h2 text-ink">A facilitator-led messaging room.</h2>
+          <p className="mt-5 text-base leading-relaxed text-ink-secondary">
+            The room is structured, text-based dialogue under facilitator control — not a video
+            call, not an open chat app. Written messages give every party time to weigh their words
+            and keep the process structured.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-line bg-surface-elevated p-6">
+              <h3 className="text-sm font-semibold text-ink">Facilitator-led rounds</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+                The facilitator opens the room, sets prompts, and manages the flow. Participants
+                contribute in writing; dialogue stays in the protected room until an outcome is
+                drafted for release.
+              </p>
+            </div>
+            <div className="rounded-lg border border-line bg-surface-elevated p-6">
+              <h3 className="text-sm font-semibold text-ink">
+                Messaging only — nothing is published as a transcript
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+                SquadRidge does not host calls, capture audio or video, or publish session dialogue.
+                Only the facilitator-approved outcome is released, carrying a verification anchor.{' '}
+                <Link to="/security#verification-anchor" className="text-brand hover:underline">
+                  What the anchor proves
+                </Link>{' '}
+                ·{' '}
+                <Link to="/security" className="text-brand hover:underline">
+                  Storage and honest limits
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <CTABlock
+        headline="Ready to run a protected session?"
+        secondaryLabel="See a sample record"
+        secondaryHref="/ledger"
+      />
     </div>
   );
 }

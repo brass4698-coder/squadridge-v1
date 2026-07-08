@@ -25,6 +25,7 @@ import {
   GrainOverlay,
 } from './components';
 import { AuthGate } from './components/auth/AuthGate';
+import { ActiveUserGate } from './components/auth/ActiveUserGate';
 import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
@@ -37,6 +38,8 @@ import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
 import { VerificationPage } from './pages/VerificationPage';
 import { InvitePage } from './pages/InvitePage';
+import { StaffInviteAcceptPage } from './pages/StaffInviteAcceptPage';
+import { InviteCompletePage } from './pages/InviteCompletePage';
 import { SettingsIndexPage } from './pages/SettingsIndexPage';
 import { SafetyCenterPage } from './pages/SafetyCenterPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
@@ -211,9 +214,11 @@ export default function AppV2() {
               <Route
                 element={
                   <RequireAuth>
-                    <AuthenticatedShell role="facilitator">
-                      <Outlet />
-                    </AuthenticatedShell>
+                    <ActiveUserGate>
+                      <AuthenticatedShell role="facilitator">
+                        <Outlet />
+                      </AuthenticatedShell>
+                    </ActiveUserGate>
                   </RequireAuth>
                 }
               >
@@ -405,6 +410,8 @@ export default function AppV2() {
                 {/* Auth (existing pages, new shell) */}
                 <Route path="/sign-in" element={<SignInPage />} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route path="/invite/accept/:token" element={<StaffInviteAcceptPage />} />
+                <Route path="/invite/complete" element={<InviteCompletePage />} />
                 <Route path="/verify" element={<VerificationPage />} />
                 <Route path="/invite" element={<InvitePage />} />
 
@@ -485,7 +492,14 @@ export default function AppV2() {
                 <Route path="/access-denied" element={<Navigate to="/unauthorized" replace />} />
                 {/* Phase 4: landing for signed-in users whose profile is still */}
                 {/* pending review — returned by useDashboardRoute.             */}
-                <Route path="/access-pending" element={<AccessPendingPage />} />
+                <Route
+                  path="/access-pending"
+                  element={
+                    <RequireAuth>
+                      <AccessPendingPage />
+                    </RequireAuth>
+                  }
+                />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>

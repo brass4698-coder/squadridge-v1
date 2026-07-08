@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { FormField } from '../../components/ui/FormField';
 import { Input } from '../../components/ui/Input';
@@ -16,12 +16,33 @@ const USE_CASE_OPTIONS = [
   'Other',
 ];
 
+const ROLE_OPTIONS = [
+  'Professional mediator / facilitator',
+  'NGO / peacebuilding programme lead',
+  'Government or public institution',
+  'Ombuds / internal investigator',
+  'Researcher or academic',
+  'Other',
+];
+
+const FREQUENCY_OPTIONS = [
+  'A few sessions per year',
+  'Monthly',
+  'Weekly or more',
+  'One-off pilot only',
+];
+
 export function RequestAccessPage() {
+  const [searchParams] = useSearchParams();
+  const prefilledEmail = searchParams.get('email')?.trim() ?? '';
   const { submit, loading, error, submitted } = useAccessRequest();
   const [form, setForm] = useState({
     name: '',
     organisation: '',
-    email: '',
+    email: prefilledEmail,
+    role: '',
+    sessionFrequency: '',
+    referral: '',
     useCase: '',
     description: '',
   });
@@ -32,12 +53,20 @@ export function RequestAccessPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const detailBlock = [
+      form.description.trim(),
+      form.role ? `Role: ${form.role}` : '',
+      form.sessionFrequency ? `Session frequency: ${form.sessionFrequency}` : '',
+      form.referral ? `Referral: ${form.referral}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n');
     await submit({
       full_name: form.name,
       organisation: form.organisation || undefined,
       email: form.email,
       use_case: form.useCase,
-      description: form.description,
+      description: detailBlock,
     });
   }
 
@@ -114,6 +143,48 @@ export function RequestAccessPage() {
             placeholder="jane@organization.org"
             value={form.email}
             onChange={(e) => set('email', e.target.value)}
+          />
+        </FormField>
+
+        <FormField id="access-role" label="Your role">
+          <select
+            id="access-role"
+            required
+            className="focus-ring w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+            value={form.role}
+            onChange={(e) => set('role', e.target.value)}
+          >
+            <option value="">Select…</option>
+            {ROLE_OPTIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        </FormField>
+
+        <FormField id="access-frequency" label="How often do you run sensitive sessions?">
+          <select
+            id="access-frequency"
+            className="focus-ring w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm text-ink"
+            value={form.sessionFrequency}
+            onChange={(e) => set('sessionFrequency', e.target.value)}
+          >
+            <option value="">Select…</option>
+            {FREQUENCY_OPTIONS.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+        </FormField>
+
+        <FormField id="access-referral" label="How did you hear about SquadRidge?">
+          <Input
+            id="access-referral"
+            placeholder="Optional"
+            value={form.referral}
+            onChange={(e) => set('referral', e.target.value)}
           />
         </FormField>
 

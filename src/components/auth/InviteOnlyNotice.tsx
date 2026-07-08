@@ -5,13 +5,24 @@ import { Link } from 'react-router-dom';
 
 export function InviteOnlyNotice() {
   return (
-    <div className="rounded-md border border-sq-border bg-sq-surface px-4 py-3 text-sm text-sq-muted">
+    <div
+      className="rounded-lg border px-4 py-3 text-sm"
+      style={{
+        borderColor: 'var(--sr-line)',
+        background: 'var(--sr-bg-secondary)',
+        color: 'var(--sr-ink-secondary)',
+      }}
+    >
       <p>
-        SquadRidge is an invite-only platform.{' '}
-        <Link to="/request-access" className="text-sq-primary underline hover:no-underline">
+        SquadRidge is invite-only for pilot access.{' '}
+        <Link
+          to="/request-access"
+          className="underline-offset-4 hover:underline"
+          style={{ color: 'var(--sr-primary)' }}
+        >
           Request access
         </Link>{' '}
-        if you’d like to join.
+        if you do not have an invitation yet.
       </p>
     </div>
   );

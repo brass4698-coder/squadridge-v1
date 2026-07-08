@@ -6,10 +6,22 @@ consistent. Read it before making significant changes.
 
 ## What is SquadRidge?
 
-A peace-tech platform for **verified anonymous dialogue** across conflict lines.
-Users join verified groups (called squads), get matched with counterparts, and hold
-structured conversations recorded in a tamper-evident ledger. Zero-knowledge proofs
-(Semaphore) prove group membership without revealing identity.
+A peace-tech platform for **facilitator-led, high-stakes dialogue** — protected sessions
+in a private room, then a **verifiable public outcome record** without exposing who said what.
+The product spine is **Configure → Verify → Facilitate → Release**: mediators and peacebuilding
+teams control the session lifecycle; the platform automates verification flow, anchors, and
+ledger publish.
+
+**Core architectural line:** the room and the record are separate by design — not policy.
+
+Legacy paths still exist for citizen matchmaking (squads, intent-based queue matching) and
+Semaphore attribute verification — see `docs/security/threat-model.md` for honest privacy
+bounds (not full platform zero-knowledge, not operator-blind E2E today). Public marketing
+and v2 facilitator flows center the mediation/ledger story; see `squadridge_platform_spec.json`
+and `docs/founding/north-star.md` for narrative source of truth.
+
+**Cursor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
+`ai-guidelines.mdc` (optional AI). Root `.cursorrules` summarizes both.
 
 ## Stack
 
@@ -32,10 +44,11 @@ structured conversations recorded in a tamper-evident ledger. Zero-knowledge pro
 
 - **Token source of truth**: `src/styles/tokens.css` — CSS custom properties with `--sr-` prefix
 - **Tailwind bridge**: `tailwind.config.ts` maps `--sr-*` vars to utility classes (`bg-surface`, `text-brand`, etc.)
-- **Default theme**: dark (graphite `#0c0e12` base), `.theme-light` for marketing/ledger surfaces
-- **Accent**: single slate-teal `--sr-primary: #2aa39a` — one accent, full stop
-- **Fonts**: IBM Plex Sans (UI), IBM Plex Serif (display/marketing), IBM Plex Mono (ledger/code)
-- **Motion**: use `motion` (Framer) + `animate-step-in` / `animate-step-in-body` Tailwind utilities
+- **Default theme**: dark deep-indigo base (`--sr-bg: #08091f`), `.theme-light` for marketing/ledger surfaces
+- **Accent**: teal `--sr-primary: #14b8a6` — one primary accent; violet `--sr-accent-alt` for decorative highlights only
+- **Fonts (tokenized)**: Inter (body), IBM Plex Sans (headings/UI), IBM Plex Serif (marketing display), IBM Plex Mono (ledger/code) — see `--sr-font-*` in tokens.css
+- **Motion**: `motion` (Framer) + `animate-step-in` utilities; respect `prefers-reduced-motion`
+- **Rules**: No raw hex in components; WCAG AA; calm de-escalation copy; no militarized iconography (flags, weapons)
 
 ## Directory Map
 
@@ -103,6 +116,9 @@ These exist because past PRs broke things in predictable ways. Please follow the
   (`bg-surface`, `text-brand`, `border-line`, etc.). Raw hex in JSX/CSS will be flagged in review.
 - **Never set `VITE_ZK_STUB=true` in production paths** — `check:no-zk-stub-prod` will catch it,
   but don't rely on CI to enforce something this important.
+- **Do not overclaim privacy** — message protection is application-layer encryption with
+  operator-readable keys today; see `docs/security/threat-model.md` before UI or marketing copy.
+- **Redis in `docker-compose.yml` is local-dev optional** — production rate limits use Upstash via Edge Functions.
 - **Migrations are append-only** — never edit an existing file in `supabase/migrations/`.
   Always add a new timestamped file.
 - **RLS is mandatory** — every new table needs `alter table ... enable row level security`

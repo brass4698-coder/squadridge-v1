@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/Button';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { DEV_PARTICIPANT_DEMO_TOKEN, participantRoute } from '../../../lib/participantRoutes';
+import { staffInviteAcceptPath } from '../../../lib/pendingInvite';
 import { validateInviteToken } from '../../../lib/invites';
 import type { InviteValidationResult } from '../../../types/invites';
 import { copyForInviteReason, type InviteInvalidCopy } from '../../../lib/inviteInvalidCopy';
@@ -57,10 +58,11 @@ export function InviteAcceptancePage() {
   function accept() {
     if (!token || status.kind !== 'valid') return;
     setAccepting(true);
-    // The actual auth handshake happens on the verify step; this navigation
-    // matches the existing participant flow and is exercised by
-    // e2e/phase0-routing.spec.ts.
-    setTimeout(() => navigate(participantRoute('verify', token)), 500);
+    if (token === DEV_PARTICIPANT_DEMO_TOKEN) {
+      setTimeout(() => navigate(participantRoute('verify', token)), 500);
+      return;
+    }
+    navigate(staffInviteAcceptPath(token));
   }
 
   if (!token) return null;

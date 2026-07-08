@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Play, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
 import { Input } from '../components/ui/Input';
+import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
+import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
 import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 import { useDashboardRoute } from '../hooks/useDashboardRoute';
 import { signInWithDemo, DEMO_EMAIL } from '../lib/demoLogin';
+import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 
 /**
  * Sign in — Phase 5 redesign.
@@ -26,12 +29,9 @@ export function SignInPage() {
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
   const roleDashboard = useDashboardRoute();
-  const nextPath =
-    nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
-      ? decodeURIComponent(nextRaw)
-      : roleDashboard;
+  const nextPath = safeNextPath(nextRaw ? decodeURIComponent(nextRaw) : null, roleDashboard);
 
-  const { signIn, session, loading } = useAuth();
+  const { signIn, session, loading, initialized, profile, roles } = useAuth();
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [demoBusy, setDemoBusy] = useState(false);
@@ -44,14 +44,35 @@ export function SignInPage() {
   const showExpiredBanner = reason === 'expired';
   const showSignedOutBanner = reason === 'signed-out';
 
-  useEffect(() => {
-    if (!loading && session) {
-      navigate(nextPath, { replace: true });
-    }
-  }, [loading, session, navigate, nextPath]);
+  const redirected = useRef(false);
 
-  if (!loading && session) {
-    return null;
+  useEffect(() => {
+    if (!initialized || loading || !session || redirected.current) return;
+    const destination = resolvePostAuthPath({
+      session,
+      profile,
+      roles,
+      explicitNext: nextRaw,
+    });
+    if (destination === '/sign-in') return;
+    redirected.current = true;
+    navigate(destination, { replace: true });
+  }, [initialized, loading, session, profile, roles, nextRaw, navigate]);
+
+  if (!initialized || loading) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+        <RouteSkeleton label="Checking session" />
+      </div>
+    );
+  }
+
+  if (session) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+        <RouteSkeleton label="Signing you in" />
+      </div>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -139,6 +160,10 @@ export function SignInPage() {
             ? 'Enter your work email. We send a one-time link — no password stored on our side.'
             : 'Enter your email and we send a one-time sign-in link. First visit creates your account automatically.'}
         </p>
+
+        <div className="mt-5">
+          <InviteOnlyNotice />
+        </div>
 
         {showLinkHelpBanner ? (
           <div
