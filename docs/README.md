@@ -28,7 +28,9 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 
 | Topic                                   | Document                                                               |
 | --------------------------------------- | ---------------------------------------------------------------------- |
-| What SquadRidge is (mission, mechanics) | [product/product-overview.md](product/product-overview.md)             |
+| **Full platform description (start here)** | [product/platform-description.md](product/platform-description.md)   |
+| Short pitch (30s / 2min)                | [product-one-pager.md](product-one-pager.md)                           |
+| What SquadRidge is (summary index)      | [product/product-overview.md](product/product-overview.md)             |
 | Onboarding journey (product view)       | [product/onboarding-flow.md](product/onboarding-flow.md)               |
 | User journeys                           | [product/user-journeys.md](product/user-journeys.md)                   |
 | Feature specifications                  | [product/feature-specifications.md](product/feature-specifications.md) |

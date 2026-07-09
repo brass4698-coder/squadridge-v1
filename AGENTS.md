@@ -17,8 +17,8 @@ ledger publish.
 Legacy paths still exist for citizen matchmaking (squads, intent-based queue matching) and
 Semaphore attribute verification — see `docs/security/threat-model.md` for honest privacy
 bounds (not full platform zero-knowledge, not operator-blind E2E today). Public marketing
-and v2 facilitator flows center the mediation/ledger story; see `squadridge_platform_spec.json`
-and `docs/founding/north-star.md` for narrative source of truth.
+and v2 facilitator flows center the mediation/ledger story; see [`docs/product/platform-description.md`](docs/product/platform-description.md),
+`squadridge_platform_spec.json`, and `docs/founding/north-star.md` for narrative source of truth.
 
 **Cursor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
 `ai-guidelines.mdc` (optional AI). Root `.cursorrules` summarizes both.
