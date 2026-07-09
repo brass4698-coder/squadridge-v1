@@ -1,4 +1,6 @@
-/**
+/* DEFERRED: pilot-first — investor-facing financial projections. Not part of MVP demo.
+ * Gated to super_admin at /financial-projections (App.v2.tsx). Issue #48.
+ *
  * FinancialProjectionsPage
  *
  * Investor-facing financial projections view.  Reuses `buildFinancialModel` /

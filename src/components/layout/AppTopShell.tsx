@@ -17,6 +17,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { DemoBanner } from '../demo/DemoBanner';
 import { UserAvatarMenu } from './UserAvatarMenu';
 import { useAuth } from '../../contexts/AuthContext';
+import { canAccessRoute } from '../../lib/guards';
 
 interface AppTopShellProps {
   /** Optional page content. When omitted the shell renders `<Outlet />`. */
@@ -24,14 +25,14 @@ interface AppTopShellProps {
 }
 
 const NAV = [
-  { label: 'Decks', href: '/decks', authOnly: true },
-  { label: 'Ledger', href: '/ledger', authOnly: false },
-  { label: 'How it works', href: '/how-it-works', authOnly: false },
-  { label: 'Security', href: '/security', authOnly: false },
+  { label: 'Decks', href: '/decks', authOnly: true, superAdminOnly: true },
+  { label: 'Ledger', href: '/ledger', authOnly: false, superAdminOnly: false },
+  { label: 'How it works', href: '/how-it-works', authOnly: false, superAdminOnly: false },
+  { label: 'Security', href: '/security', authOnly: false, superAdminOnly: false },
 ];
 
 export function AppTopShell({ children }: AppTopShellProps) {
-  const { session } = useAuth();
+  const { session, roles } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -41,7 +42,11 @@ export function AppTopShell({ children }: AppTopShellProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navItems = NAV.filter((item) => !item.authOnly || Boolean(session));
+  const navItems = NAV.filter((item) => {
+    if (item.authOnly && !session) return false;
+    if (item.superAdminOnly && !canAccessRoute(roles, ['super_admin'])) return false;
+    return true;
+  });
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--sr-bg)' }}>

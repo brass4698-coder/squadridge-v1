@@ -453,6 +453,7 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | [`docs/legal/privacy.md`](../legal/privacy.md) · [`docs/legal/terms.md`](../legal/terms.md) | User-facing legal |
 | [`docs/founding/north-star.md`](../founding/north-star.md) | Contributor decision tests |
 | [`docs/operations/pilot-runbook.md`](../operations/pilot-runbook.md) | Running a real pilot session |
+| [`docs/audit/institutional-readiness-audit.md`](../audit/institutional-readiness-audit.md) | Institutional readiness baseline (10 domains, audience fit) |
 | [`AGENTS.md`](../../AGENTS.md) | Developer orientation |
 
 ---

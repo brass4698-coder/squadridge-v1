@@ -1,10 +1,10 @@
 // ============================================================
 // DecksPage — /decks (Phase 5)
 //
-// Showcase of SquadRidge pitch and presentation materials. Auth-only route
-// (see App.v2.tsx). Distinct from the internal `PitchDeckHubPage` at
-// /pitch-deck-hub, which is an ops management view with financial models
-// and consistency checks — this page is the outward-facing gallery.
+// /* DEFERRED: pilot-first — pitch materials gallery for investors.
+//    Gated to super_admin only. Not part of MVP community-partner demo. */
+//
+// Showcase of SquadRidge pitch and presentation materials.
 //
 // Each card either links to `/decks/:id` for a viewer (not yet built —
 // renders "Coming Soon") or opens a Request Access mailto until a real

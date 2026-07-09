@@ -1,3 +1,5 @@
+/* DEFERRED: pilot-first — internal pitch deck ops hub. Not part of MVP demo.
+   Gated to super_admin at /pitch-deck-hub (App.v2.tsx). */
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,

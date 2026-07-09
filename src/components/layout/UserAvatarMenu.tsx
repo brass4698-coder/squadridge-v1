@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { canAccessRoute } from '../../lib/guards';
 import { isDemoUser } from '../../lib/demoLogin';
 
 function initialsFor(email: string | undefined | null): string {
@@ -20,7 +21,7 @@ function initialsFor(email: string | undefined | null): string {
 }
 
 export function UserAvatarMenu() {
-  const { session, profile, signOut } = useAuth();
+  const { session, profile, signOut, roles } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -67,6 +68,7 @@ export function UserAvatarMenu() {
   const email = session.user?.email ?? profile?.email ?? '';
   const initials = initialsFor(email);
   const demo = isDemoUser(session);
+  const showInvestorNav = canAccessRoute(roles, ['super_admin']);
 
   return (
     <div ref={rootRef} className="relative flex items-center gap-2">
@@ -122,7 +124,9 @@ export function UserAvatarMenu() {
             </div>
           ) : null}
           <MenuItem to="/app" label="Dashboard" onClick={() => setOpen(false)} />
-          <MenuItem to="/decks" label="Decks" onClick={() => setOpen(false)} />
+          {showInvestorNav ? (
+            <MenuItem to="/decks" label="Decks (admin)" onClick={() => setOpen(false)} />
+          ) : null}
           <MenuItem to="/settings" label="Settings" onClick={() => setOpen(false)} />
           <div
             className="my-1 border-t"

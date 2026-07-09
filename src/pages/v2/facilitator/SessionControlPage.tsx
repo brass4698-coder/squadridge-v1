@@ -25,6 +25,7 @@ export function SessionControlPage() {
   const [roomStatus, setRoomStatus] = useState<RoomStatus>('waiting');
   const [showEndModal, setShowEndModal] = useState(false);
   const [facilitatorInput, setFacilitatorInput] = useState('');
+  const [transitionError, setTransitionError] = useState<string | null>(null);
 
   useEffect(() => {
     setRoomStatus(mapSessionStatus(session?.status));
@@ -34,21 +35,41 @@ export function SessionControlPage() {
 
   async function setLive() {
     if (!sessionId) return;
-    await updateSessionStatus(sessionId, 'live');
-    setRoomStatus('live');
+    setTransitionError(null);
+    try {
+      await updateSessionStatus(sessionId, 'live');
+      setRoomStatus('live');
+    } catch (err) {
+      setTransitionError(
+        err instanceof Error
+          ? err.message
+          : 'Could not start session. Verify all participants first.',
+      );
+    }
   }
 
   async function setPaused() {
     if (!sessionId) return;
-    await updateSessionStatus(sessionId, 'paused');
-    setRoomStatus('paused');
+    setTransitionError(null);
+    try {
+      await updateSessionStatus(sessionId, 'paused');
+      setRoomStatus('paused');
+    } catch (err) {
+      setTransitionError(err instanceof Error ? err.message : 'Could not pause session.');
+    }
   }
 
   async function endSession() {
     if (!sessionId) return;
-    await updateSessionStatus(sessionId, 'ended');
-    setRoomStatus('ended');
-    setShowEndModal(false);
+    setTransitionError(null);
+    try {
+      await updateSessionStatus(sessionId, 'ended');
+      setRoomStatus('ended');
+      setShowEndModal(false);
+    } catch (err) {
+      setTransitionError(err instanceof Error ? err.message : 'Could not end session.');
+      setShowEndModal(false);
+    }
   }
 
   async function sendFacilitatorMessage() {
@@ -80,6 +101,26 @@ export function SessionControlPage() {
             {statusLabel[status]}
           </span>
         </div>
+
+        {transitionError ? (
+          <div
+            className="mb-4 rounded-lg border border-sem-danger/40 bg-sem-danger-soft px-4 py-3 text-sm text-sem-danger"
+            role="alert"
+          >
+            {transitionError}
+            {transitionError.toLowerCase().includes('verified') ? (
+              <p className="mt-2 text-ink-secondary">
+                <button
+                  type="button"
+                  onClick={() => navigate(appRoutes.sessionParticipants(sessionId ?? ''))}
+                  className="font-medium text-brand underline"
+                >
+                  Review participant verification
+                </button>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mb-6 flex flex-wrap gap-3 rounded-lg border border-line bg-surface-elevated p-4">
           {status === 'waiting' && (

@@ -86,8 +86,17 @@ export function OutcomeWorkspacePage() {
           </p>
           <h1 className="text-xl font-semibold text-ink">Draft the public record</h1>
           <p className="mt-1 text-sm text-ink-secondary">
-            Only this approved text may be published. Session room dialogue is never included.
+            Only facilitator-authored fields may be published. The session room and the public
+            record are separate by design — room dialogue cannot be copied into this document.
           </p>
+        </div>
+
+        <div
+          className="mb-6 rounded-lg border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
+          role="note"
+        >
+          Write the outcome in your own words. There is no import from the room; anything said in
+          dialogue stays in the room unless you deliberately summarise it here.
         </div>
 
         {loading ? (

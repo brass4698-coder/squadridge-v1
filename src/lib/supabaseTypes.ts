@@ -50,6 +50,7 @@ export interface Database {
           codename: string;
           invite_token: string;
           invite_used: boolean;
+          invite_expires_at: string;
           email_hash: string | null;
           verification_status: 'pending' | 'verified' | 'denied';
           document_submitted: boolean;
@@ -187,6 +188,14 @@ export interface Database {
       release_outcome: {
         Args: { p_outcome_id: string };
         Returns: Json;
+      };
+      transition_session_status: {
+        Args: { p_session_id: string; p_status: string };
+        Returns: Json;
+      };
+      outcome_contains_verbatim_room_content: {
+        Args: { p_outcome_id: string };
+        Returns: boolean;
       };
     };
     Enums: Record<string, never>;

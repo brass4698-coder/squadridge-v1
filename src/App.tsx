@@ -11,6 +11,7 @@ import {
   SessionAccess,
   Toaster,
 } from './components';
+import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
@@ -128,9 +129,11 @@ export default function App() {
                     path="/pitch-deck-hub"
                     element={
                       <RequireAuth>
-                        <Suspense fallback={routeChunkFallback}>
-                          <PitchDeckHubPage />
-                        </Suspense>
+                        <RoleProtectedRoute allowed={['super_admin']}>
+                          <Suspense fallback={routeChunkFallback}>
+                            <PitchDeckHubPage />
+                          </Suspense>
+                        </RoleProtectedRoute>
                       </RequireAuth>
                     }
                   />
@@ -138,9 +141,11 @@ export default function App() {
                     path="/financial-projections"
                     element={
                       <RequireAuth>
-                        <Suspense fallback={routeChunkFallback}>
-                          <FinancialProjectionsPage />
-                        </Suspense>
+                        <RoleProtectedRoute allowed={['super_admin']}>
+                          <Suspense fallback={routeChunkFallback}>
+                            <FinancialProjectionsPage />
+                          </Suspense>
+                        </RoleProtectedRoute>
                       </RequireAuth>
                     }
                   />

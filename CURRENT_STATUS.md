@@ -1,80 +1,111 @@
 # Current Status
 
-> Last updated: June 2026
+> Last updated: July 2026
 
 This document is the fastest honest summary of what SquadRidge is today. It is intended for teammates, pilot partners, security reviewers, and funders who need a current-state snapshot before reading deeper docs.
 
+**Canonical product story:** [`docs/product/platform-description.md`](docs/product/platform-description.md) · **Institutional readiness:** [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md)
+
 ## Snapshot
 
-- **Stage:** Advanced MVP / pilot foundation
-- **Primary use case:** Verified-anonymous, facilitator-guided cross-border dialogue in small squads
-- **Recommended initial wedge:** Institution-led pilots with peacebuilding organizations, academic labs, or Track II facilitators
-- **Stack:** React 19, Vite 6, TypeScript, Tailwind CSS 3, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions), Semaphore ZK v4
+- **Stage:** Private pilot foundation — v2 facilitator platform primary
+- **Primary use case:** Facilitator-led protected written dialogue with verifiable public outcomes (Configure → Verify → Facilitate → Release)
+- **Institutional maturity:** ~**4/10** — credible for bounded mediator-led pilots; not procurement-ready for Track II audit-grade or military-adjacent deployment
+- **Recommended initial wedge:** Institution-led pilots with professional mediators, peacebuilding NGOs, or Track II facilitators who accept operator-readable room content per the threat model
+- **Stack:** React 19, Vite 6, TypeScript, Tailwind CSS 3, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions)
 - **CI:** GitHub Actions — lint, typecheck, Vitest, Playwright e2e, CodeQL static analysis, dependency-review, pgTAP DB tests
 
-## Shipped Now
+## Shipped Now (v2 — primary)
 
-- Web application with landing, onboarding, verification, intent selection, matching, session, ledger, profile, and moderator/admin routes
-- Supabase-backed schema (42 applied migrations), RLS on all 23 tables, and Edge Functions in [`supabase/`](./supabase/)
-- Semaphore ZK v4 verification path with production guardrails around `VITE_ZK_STUB`
-- Anonymous and passwordless sign-in flows
-- Matchmaking, squad, message, moderation, and ledger data model
-- CI workflows: lint, typecheck, test, build, Playwright e2e, CodeQL static analysis, dependency review, Supabase deploys
-- Threat model and security/architecture documentation that explicitly describe current limits
-- Demo and walkthrough flows for investor and partner conversations
-- **Design token system v2** (`src/styles/tokens.css`): OKLCH-based surfaces, semantic ink levels, motion timing constants (`--sr-ease-*`, `--sr-duration-*`), layered elevation shadows, focus-ring token, radius scale — fully bridged to Tailwind utilities in `tailwind.config.ts`
-- **AI agent context** (`AGENTS.md`): stack summary, directory map, and hard coding rules for Cursor / Copilot / Claude
-- **Conflict Severity Index (CSI):** database tables and RLS (`conflict_severity_snapshots`, `escalation_alerts`); mediator-facing read UI at `/admin/csi`. Automated ingestion and partner API are still roadmap — see [`docs/product/conflict-severity-index.md`](./docs/product/conflict-severity-index.md).
+- Public marketing site (landing, how-it-works, use cases, security, FAQ, about, contact, legal)
+- Pilot access request form → `access_requests`
+- Invite-only auth (magic link, profiles, seven roles, RLS)
+- Staff invite create / validate / accept / revoke
+- Per-role dashboards at `/app/{role}` (`App.v2.tsx`)
+- Session create with templates (`/app/sessions/new/setup`)
+- Participant invite tokens + facilitator verification review (`ParticipantsReviewPage`)
+- Live `session_messages` — facilitator control room (`/control`) + participant token path (`/p/room`)
+- Outcome draft, approvals, `release_outcome` RPC → public ledger query
+- Public ledger UI at `/ledger` with illustrative sample labeling when no live records exist
+- Facilitator walkthrough (in-app)
+- Threat model, public-claims audit, and platform-description aligned with engineering reality
+- Design token system v2 (`src/styles/tokens.css`) + `AGENTS.md` for contributors
 
 ## Pilot-Ready With Care
 
-- Facilitator-led small cohort pilots with bounded participant groups
+- Facilitator-led mediation sessions with 2–6 verified participants and manual facilitator verification (authoritative over simulated participant OTP UI)
 - Staging or controlled production demos for partner diligence
-- Measurement of basic operational metrics such as verification completion, time to match, session completion, and repeat participation
-- Moderator-supported sessions where operator visibility and current security boundaries are clearly disclosed
+- Pre-registered operational metrics (verification completion, time-to-release, session completion) — not quantitative “lives saved” claims
+- Sessions where operator-readable room content and security boundaries are disclosed in partner MOU
+
+## Partial / Known Gaps (before credible institutional claims)
+
+- Enforced session state machine (can skip Verify → Facilitate manually today) — **ROADMAP P0 #1**
+- Participant token invite path alignment (staff vs session tokens) — **ROADMAP P0 #2**
+- Architectural record redaction in outcome editor — **ROADMAP P0 #3**
+- Workflow notifications at verify / approve / release — **ROADMAP P1 #4**
+- v2 metadata-only audit trail — **ROADMAP P1 #5**
+- First **real** published ledger record from a pilot session — **ROADMAP P1 #6**
+- Room-level operator-blind E2E encryption — roadmap / threat model §13, not shipped
 
 ## Demo Only Or Requires Extra Validation
 
 - Broad self-serve public onboarding for high-risk populations
 - Any positioning that implies Signal-grade end-to-end encryption against the platform operator
-- Large-scale institutional analytics or early-warning claims beyond basic SQL-derivable metrics
-- Claims that AI de-escalation effectiveness or peace impact have already been validated in the field
-- Any high-risk deployment that has not passed a dedicated security review and operational readiness check
+- Quantitative impact claims (% conflict prevented, lives saved) without methodology and real pilot data
+- Automated early-warning or CSI as a public product line (internal `/admin/csi` moderator console only)
+- Legacy squad matchmaking (`/match`, `/session/:squadId`) as the institutional product story
+- Any high-risk deployment that has not passed dedicated security review and operational readiness check
 
-## Strategic Narrative (Roadmap)
+## Legacy Routes Inventory
 
-Long-term **prevention / early-signal** positioning and partner archetypes live in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not a product spec.
+Still mounted or referenced in the codebase — **disclose in diligence**; do not lead institutional pitches with these.
 
-**Not shipped** as a full product line until explicitly called out here: **automated** CSI ingestion at scale, public CSI maps or feeds, and quantitative "lives saved" claims. Mediator read surfaces and **draft** methodology remain scoped to pilot operations.
+| Route | Status |
+| ----- | ------ |
+| `/match` | Legacy — intent-pool citizen matchmaking |
+| `/session/:squadId` | Legacy — squad encrypted chat |
+| `/session/demo-session-001` | Demo — gated by `VITE_ENABLE_DEMO_SQUAD` in production |
+| `/incident`, `/incident/:slug` | Legacy — not in `App.v2.tsx` router |
+| `/ledger-legacy` | Legacy — pre-v2 proposal ledger |
+| `/admin/csi` | Internal — moderator-rostered CSI read console |
 
-## Roadmap Priorities
+## Strategic Narrative (context only)
 
-1. Pilot operations: facilitator tooling, runbooks, incident handling, cohort support
-2. Security maturity: external review, key-management roadmap, stronger release gates, auditability
-3. Metrics and evidence: instrumentation, partner reporting, pilot outcome capture
-4. Institutional packaging: partner one-pager, data room, legal/privacy artifacts, pilot playbooks
-5. Privacy architecture evolution: either remain explicit about operator-readable content or invest in a true E2E design path
+Long-term **prevention / early-signal** positioning lives in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not the v2 product spec.
+
+**Not shipped** as a product line: automated CSI ingestion at scale, public CSI maps, quantitative “lives saved” claims, or citizen open matchmaking at institutional scale.
+
+## Roadmap Priorities (Phase A — next 90 days)
+
+See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria.
+
+1. **P0:** Enforced session state machine, participant token path fix, record redaction
+2. **P1:** Workflow notifications, v2 audit trail, first live ledger record, unify “New session” entry
+3. Pilot operations: runbooks, incident handling, cohort support
+4. External security review before Track II or government expansion
 
 ## Known Risks
 
-- Current message confidentiality is not true operator-proof E2E; see [`docs/security/threat-model.md`](./docs/security/threat-model.md)
-- Metadata and privileged-access risks remain material for higher-risk deployments
-- Demo and roadmap narratives are stronger than current pilot evidence
-- Operational maturity for live pilots still depends on written process and disciplined environment management
-- Some business and funding docs are still strategy-forward and should not be treated as validated traction
+- Current message confidentiality is not true operator-proof E2E; see [`docs/security/threat-model.md`](docs/security/threat-model.md)
+- Participant verification UI is partially simulated — facilitator manual review is authoritative
+- No live published ledger records yet — samples are labeled illustrative
+- Legacy routes and old README narratives can confuse institutional buyers if not disclosed
+- Operational maturity for live pilots depends on written process and disciplined environment management
 
 ## Recommended Near-Term Positioning
 
 Use this product story in the next 30–90 days:
 
-> SquadRidge is a pilot-stage trust and dialogue platform for structured, facilitator-led cross-border cohorts. It combines verified access, small-group matching, and safety-conscious workflows for institutions running sensitive dialogue programs.
+> SquadRidge is a private-pilot facilitator-led dialogue platform. Parties speak in a protected written room; only facilitator-approved outcomes are released with a verification anchor — not a transcript. We are inviting mediators and peacebuilding teams.
 
-Avoid these stronger claims unless and until they are separately demonstrated:
+Avoid these stronger claims unless separately demonstrated:
 
-- "full anonymity"
-- "operator-proof encryption"
-- "proven peace impact at scale"
-- "global early-warning infrastructure"
+- “full anonymity”
+- “operator-proof encryption”
+- “proven peace impact at scale” or “lives saved”
+- “global early-warning infrastructure”
+- Automated verification or notification flows as fully shipped
 
 ## Go / No-Go For Real Pilots
 
@@ -82,17 +113,18 @@ Before any real pilot, confirm:
 
 - release checklist passes (`npm run check:all`)
 - threat model claims are reflected in partner-facing materials
-- incident owner and moderator owner are assigned
-- pilot runbook exists for the exact cohort format being used
+- incident owner and facilitator owner are assigned
+- pilot runbook exists for the exact session format being used
 - success metrics and post-session surveys are defined in advance
+- partner MOU references operator-readable content boundaries
 
 ## Key Documents
 
-- Repo setup and shipping notes: [`README.md`](./README.md)
-- AI agent context and coding rules: [`AGENTS.md`](./AGENTS.md)
-- Changelog: [`CHANGELOG.md`](./CHANGELOG.md)
-- Strategic positioning (roadmap narrative): [`docs/business/strategic-positioning-early-warning.md`](./docs/business/strategic-positioning-early-warning.md)
-- Security source of truth: [`docs/security/threat-model.md`](./docs/security/threat-model.md)
-- Architecture summary: [`docs/technical/architecture-overview.md`](./docs/technical/architecture-overview.md)
-- Production checklist: [`docs/operations/production-checklist.md`](./docs/operations/production-checklist.md)
-- Diligence summary: [`DILIGENCE_OVERVIEW.md`](./DILIGENCE_OVERVIEW.md)
+- Full platform description: [`docs/product/platform-description.md`](docs/product/platform-description.md)
+- Institutional readiness audit: [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md)
+- Phase A checklist: [`ROADMAP.md`](ROADMAP.md)
+- Repo setup: [`README.md`](README.md)
+- AI agent context: [`AGENTS.md`](AGENTS.md)
+- Security source of truth: [`docs/security/threat-model.md`](docs/security/threat-model.md)
+- Pilot runbook: [`docs/operations/pilot-runbook.md`](docs/operations/pilot-runbook.md)
+- Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)

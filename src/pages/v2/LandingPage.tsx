@@ -26,6 +26,7 @@ export function LandingPage() {
   return (
     <div>
       <HeroSection />
+      <HowItWorksStrip />
       <BuiltForDialogueSection />
       <WhySection />
       <FounderBeliefSection />
@@ -55,8 +56,9 @@ function HeroSection() {
             <span className="whitespace-nowrap text-brand">Verifiable outcomes.</span>
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-secondary">
-            Run mediation sessions and peacebuilding deliberations in a protected room, then release
-            a public record anyone can verify — without exposing who said what.
+            SquadRidge helps mediators, NGOs, and community partners run structured cross-border
+            dialogue and violence-prevention processes in a protected room — then release a public
+            record anyone can verify, without exposing who said what.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-5">
             <Link to="/request-access" className="btn-pill btn-pill--primary text-sm">
@@ -89,6 +91,52 @@ function HeroSection() {
           privateItems={privatePublicItems.private}
           publicItems={privatePublicItems.public}
         />
+      </div>
+    </MarketingSection>
+  );
+}
+
+const DEMO_STEPS = [
+  {
+    step: '1',
+    title: 'Request access',
+    body: 'Community partners and facilitators apply for the private pilot. Admins review and send invite-only access.',
+  },
+  {
+    step: '2',
+    title: 'Protected dialogue',
+    body: 'Verified participants join a facilitator-led written room — structured dialogue designed to reduce escalation, not open chat.',
+  },
+  {
+    step: '3',
+    title: 'Verifiable outcome',
+    body: 'When parties approve, the facilitator releases an integrity-checked public record — not a transcript of the room.',
+  },
+] as const;
+
+function HowItWorksStrip() {
+  return (
+    <MarketingSection className="border-y border-line bg-surface-elevated/40 py-12">
+      <div className="mx-auto max-w-6xl">
+        <SectionLabel text="How it works" />
+        <h2 className="text-h3 text-ink">Three steps from invite to credible record.</h2>
+        <ol className="mt-8 grid gap-6 md:grid-cols-3">
+          {DEMO_STEPS.map((item) => (
+            <li key={item.step} className="rounded-lg border border-line bg-surface p-5">
+              <span className="font-mono text-xs font-semibold text-brand">Step {item.step}</span>
+              <h3 className="mt-2 text-base font-semibold text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 text-sm text-ink-faint">
+          <Link
+            to="/how-it-works"
+            className="font-medium text-brand underline-offset-4 hover:underline"
+          >
+            Full lifecycle: Configure → Verify → Facilitate → Release
+          </Link>
+        </p>
       </div>
     </MarketingSection>
   );

@@ -19,7 +19,7 @@ const MOUNTED_APP_ROUTES = new Set<string>([
   '/app/participant',
   '/app/observer',
   '/app/sessions',
-  '/app/sessions/new',
+  '/app/sessions/new/setup',
   '/app/insights',
   '/app/participants',
   '/app/outcomes/new',

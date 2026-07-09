@@ -45,12 +45,20 @@ export function useSessions() {
   }
 
   async function updateSessionStatus(id: string, status: Session['status']) {
-    const { error: err } = await supabase
-      .from('sessions')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', id);
+    if (status === 'released') {
+      throw new Error('Session release must use the outcome release flow.');
+    }
+    const { data, error: err } = await supabase.rpc('transition_session_status', {
+      p_session_id: id,
+      p_status: status,
+    });
     if (err) throw err;
-    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+    const result = data as { ok?: boolean; error?: string; status?: Session['status'] };
+    if (!result?.ok) {
+      throw new Error(result?.error ?? 'Status transition blocked');
+    }
+    const nextStatus = result.status ?? status;
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, status: nextStatus } : s)));
   }
 
   return { sessions, loading, error, createSession, updateSessionStatus, refetch: fetchSessions };

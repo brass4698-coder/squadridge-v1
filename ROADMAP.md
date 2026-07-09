@@ -10,10 +10,10 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 1. Enforced session state machine
 
-- [ ] DB or RPC rejects `live`/`open` status if required participants are not `verified`
-- [ ] DB or RPC rejects `release_outcome` if any required approval is not `approved`
-- [ ] Facilitator UI surfaces clear error when transition is blocked (not silent failure)
-- [ ] Unit or pgTAP test covers invalid transitions
+- [x] DB or RPC rejects `live`/`open` status if required participants are not `verified`
+- [x] DB or RPC rejects `release_outcome` if any required approval is not `approved`
+- [x] Facilitator UI surfaces clear error when transition is blocked (not silent failure)
+- [x] Unit or pgTAP test covers invalid transitions
 
 **Files:** new migration, `SessionControlPage`, `OutcomeReleasePage`, `release_outcome` RPC  
 **Acceptance:** Facilitator cannot skip Verify → Facilitate or Release without approvals in a fresh session.
@@ -22,9 +22,9 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 2. Fix participant token invite path
 
-- [ ] `/p/invite/:token` validates against `participants.invite_token` (or participant RPC), not staff `invites` table
-- [ ] Accept flow redirects to `/p/verify/:token`, not `/invite/accept/:token`
-- [ ] Token expiry and declined states handled with recoverable error UI
+- [x] `/p/invite/:token` validates against `participants.invite_token` (or participant RPC), not staff `invites` table
+- [x] Accept flow redirects to `/p/verify/:token`, not `/invite/accept/:token`
+- [x] Token expiry and declined states handled with recoverable error UI
 - [ ] E2E or integration test: generate link on `ParticipantInvitePage` → participant completes through `/p/room`
 
 **Files:** `ParticipantInvitePage`, `InviteAcceptancePage`, `participantToken.ts`, participant RPCs  
@@ -34,10 +34,10 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 3. Architectural record redaction
 
-- [ ] Outcome editor has no “import from room” or paste-from-messages action
-- [ ] Outcome fields are facilitator-authored only (`summary`, `agreed_terms`, `pending_items`)
-- [ ] UI copy states room content cannot be copied into the record
-- [ ] Optional: server-side reject if outcome payload contains verbatim `session_messages` hash match
+- [x] Outcome editor has no “import from room” or paste-from-messages action
+- [x] Outcome fields are facilitator-authored only (`summary`, `agreed_terms`, `pending_items`)
+- [x] UI copy states room content cannot be copied into the record
+- [x] Optional: server-side reject if outcome payload contains verbatim `session_messages` hash match
 
 **Files:** `OutcomeWorkspacePage`, `OutcomeReleasePage`, platform spec `record-redaction-enforcement`  
 **Acceptance:** No code path publishes raw session dialogue to `outcome_records`.
@@ -83,8 +83,8 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 7. Unify “New session” entry
 
-- [ ] `/app/sessions/new` redirects to `/app/sessions/new/setup` OR setup wizard persists a real session
-- [ ] Dashboard “New session” CTA uses real create path only
+- [x] `/app/sessions/new` redirects to `/app/sessions/new/setup` OR setup wizard persists a real session
+- [x] Dashboard “New session” CTA uses real create path only
 - [ ] Remove or gate hardcoded `sess-new-001` fixture from primary flow
 
 **Files:** `App.v2.tsx`, `SessionNewPage`, facilitator dashboard  

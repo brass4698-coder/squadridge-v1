@@ -4,21 +4,17 @@ import { Button } from '../../../components/ui/Button';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { DEV_PARTICIPANT_DEMO_TOKEN, participantRoute } from '../../../lib/participantRoutes';
-import { staffInviteAcceptPath } from '../../../lib/pendingInvite';
-import { validateInviteToken } from '../../../lib/invites';
-import type { InviteValidationResult } from '../../../types/invites';
-import { copyForInviteReason, type InviteInvalidCopy } from '../../../lib/inviteInvalidCopy';
-import { ROLE_LABELS } from '../../../types/roles';
-import type { RoleKey } from '../../../types/roles';
+import { validateParticipantToken } from '../../../lib/participantToken';
+import type { ParticipantTokenContext } from '../../../lib/participantToken';
+import {
+  copyForParticipantTokenError,
+  type ParticipantInvalidCopy,
+} from '../../../lib/participantInvalidCopy';
 
 type Status =
   | { kind: 'loading' }
-  | { kind: 'valid'; invite: InviteValidationResult }
-  | { kind: 'invalid'; copy: InviteInvalidCopy };
-
-function isKnownRoleKey(key: string | undefined): key is RoleKey {
-  return key !== undefined && key in ROLE_LABELS;
-}
+  | { kind: 'valid'; ctx: ParticipantTokenContext }
+  | { kind: 'invalid'; copy: ParticipantInvalidCopy };
 
 export function InviteAcceptancePage() {
   const token = useParticipantToken();
@@ -30,24 +26,26 @@ export function InviteAcceptancePage() {
     let cancelled = false;
     if (!token) return;
 
-    // Local demo token: skip the network call and render the fixture UI
-    // so that `/p/invite/demo-token` still walks correctly without Supabase.
     if (token === DEV_PARTICIPANT_DEMO_TOKEN) {
       setStatus({
         kind: 'valid',
-        invite: { valid: true, email: undefined, role_key: 'participant' },
+        ctx: {
+          valid: true,
+          codename: 'Demo Participant',
+          session_title: 'Northern Watershed Consultation',
+        },
       });
       return;
     }
 
     void (async () => {
-      const result = await validateInviteToken(token);
+      const result = await validateParticipantToken(token);
       if (cancelled) return;
       if (!result.valid) {
-        setStatus({ kind: 'invalid', copy: copyForInviteReason(result.reason) });
+        setStatus({ kind: 'invalid', copy: copyForParticipantTokenError(result.error) });
         return;
       }
-      setStatus({ kind: 'valid', invite: result });
+      setStatus({ kind: 'valid', ctx: result });
     })();
 
     return () => {
@@ -58,11 +56,7 @@ export function InviteAcceptancePage() {
   function accept() {
     if (!token || status.kind !== 'valid') return;
     setAccepting(true);
-    if (token === DEV_PARTICIPANT_DEMO_TOKEN) {
-      setTimeout(() => navigate(participantRoute('verify', token)), 500);
-      return;
-    }
-    navigate(staffInviteAcceptPath(token));
+    navigate(participantRoute('verify', token));
   }
 
   if (!token) return null;
@@ -120,8 +114,7 @@ export function InviteAcceptancePage() {
     );
   }
 
-  const invite = status.invite;
-  const roleLabel = isKnownRoleKey(invite.role_key) ? ROLE_LABELS[invite.role_key] : 'Participant';
+  const ctx = status.ctx;
 
   return (
     <TokenShell>
@@ -141,12 +134,14 @@ export function InviteAcceptancePage() {
 
           <div className="mb-8 rounded-lg border border-line bg-surface-secondary p-5">
             <p className="mb-1 text-app-meta font-semibold uppercase tracking-wider text-ink-secondary">
-              Invitation
+              Session
             </p>
             <p className="text-app-body font-medium text-ink">
-              {invite.email ?? 'Northern Watershed Consultation'}
+              {ctx.session_title ?? 'Protected dialogue session'}
             </p>
-            <p className="mt-1 text-app-meta text-ink-secondary">Role: {roleLabel}</p>
+            {ctx.codename ? (
+              <p className="mt-1 text-app-meta text-ink-secondary">Your codename: {ctx.codename}</p>
+            ) : null}
           </div>
 
           <ul className="mb-8 space-y-2">

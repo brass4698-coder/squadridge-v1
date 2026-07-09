@@ -97,7 +97,17 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     const { data, error } = await supabase.rpc('release_outcome', { p_outcome_id: outcome.id });
     if (error) throw error;
     const result = data as { ok?: boolean; ledger_sha?: string; error?: string };
-    if (!result?.ok) throw new Error(result?.error ?? 'Release failed');
+    if (!result?.ok) {
+      const message =
+        result?.error === 'APPROVALS_PENDING'
+          ? 'All parties must approve before release.'
+          : result?.error === 'VERBATIM_ROOM_CONTENT'
+            ? 'Outcome text matches room dialogue verbatim. Rewrite in facilitator-authored language.'
+            : result?.error === 'SESSION_NOT_ENDED'
+              ? 'End the session before releasing the outcome.'
+              : (result?.error ?? 'Release failed');
+      throw new Error(message);
+    }
     setOutcome((prev) =>
       prev
         ? {

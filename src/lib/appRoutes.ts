@@ -2,7 +2,7 @@
 export const appRoutes = {
   dashboard: '/app',
   sessions: '/app/sessions',
-  sessionNew: '/app/sessions/new',
+  sessionNew: '/app/sessions/new/setup',
   session: (id: string) => `/app/sessions/${encodeURIComponent(id)}`,
   sessionInvite: (id: string) => `/app/sessions/${encodeURIComponent(id)}/invite`,
   sessionRoom: (id: string) => `/app/sessions/${encodeURIComponent(id)}/room`,

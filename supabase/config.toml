@@ -16,11 +16,7 @@ extra_search_path = ["public", "extensions"]
 # The maximum number of rows returns from a view, table, or stored procedure. Limits payload size
 # for accidental or malicious requests.
 max_rows = 1000
-# BRIDGE for Supabase CLI >=2.106.0 breaking change: auto_expose_new_tables now defaults
-# to false. Keep true until every table has explicit GRANTs in migrations (see
-# supabase/migrations/20260617190000_explicit_role_grants.sql). Remove this line once all
-# tables are covered and CI stays green. Deadline: before Oct 30 2026 CLI deprecation.
-auto_expose_new_tables = true
+# New tables require explicit GRANTs in migrations (see 20260617190000_explicit_role_grants.sql).
 
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.

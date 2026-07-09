@@ -163,7 +163,7 @@ jobs:
 
       - uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.91.3
 
       - name: Start local stack and apply migrations
         run: |

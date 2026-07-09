@@ -84,7 +84,6 @@ import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
 
 // ── New v2 pages — Phase 2 (authenticated facilitator core) ──────────────────
 import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
-import { SessionSetupPage } from './pages/v2/SessionSetupPage';
 import { SessionsListPage } from './pages/v2/SessionsListPage';
 import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
 import { LiveRoomPage } from './pages/v2/LiveRoomPage';
@@ -114,26 +113,36 @@ import { InsightsPage } from './pages/v2/InsightsPage';
 import { LegacyAppRedirect } from './components/routing/LegacyAppRedirect';
 import { ContactPage } from './pages/v2/ContactPage';
 
+const routeChunkFallback = (
+  <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    className="flex min-h-dvh items-center justify-center bg-surface font-sans text-sm text-ink-secondary"
+  >
+    <span className="sr-only">Loading page content.</span>
+    <span aria-hidden="true">Loading…</span>
+  </div>
+);
+
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
     default: m.Onboarding,
   })),
 );
 
-const LedgerPage = lazy(() =>
-  import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
+const PitchDeckHubPage = lazy(() =>
+  import('./pages/PitchDeckHubPage').then((m) => ({ default: m.PitchDeckHubPage })),
 );
 
-const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-surface text-sm text-ink-secondary"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
-  </div>
+const FinancialProjectionsPage = lazy(() =>
+  import('./pages/FinancialProjectionsPage').then((m) => ({
+    default: m.FinancialProjectionsPage,
+  })),
+);
+
+const LedgerPage = lazy(() =>
+  import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
 );
 
 export default function AppV2() {
@@ -185,22 +194,36 @@ export default function AppV2() {
               <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
               <Route path="/p/done/:token" element={<SessionEndPage />} />
 
-              {/* ── Phase 5: /decks — dark frosted top-nav shell ──────────── */}
-              {/* Auth-only, dedicated shell (neither the light PublicShell    */}
-              {/* nor the facilitator sidebar). Renders the pitch-materials    */}
-              {/* gallery + placeholder /decks/:deckId viewer. DemoBanner is   */}
-              {/* mounted inside AppTopShell so it follows the user here.      */}
+              {/* ── Investor materials (super_admin only — pilot-first) ───── */}
               <Route
                 element={
                   <RequireAuth>
-                    <AppTopShell>
-                      <Outlet />
-                    </AppTopShell>
+                    <RoleProtectedRoute allowed={['super_admin']}>
+                      <AppTopShell>
+                        <Outlet />
+                      </AppTopShell>
+                    </RoleProtectedRoute>
                   </RequireAuth>
                 }
               >
                 <Route path="/decks" element={<DecksPage />} />
                 <Route path="/decks/:deckId" element={<DeckViewerPage />} />
+                <Route
+                  path="/pitch-deck-hub"
+                  element={
+                    <Suspense fallback={routeChunkFallback}>
+                      <PitchDeckHubPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/financial-projections"
+                  element={
+                    <Suspense fallback={routeChunkFallback}>
+                      <FinancialProjectionsPage />
+                    </Suspense>
+                  }
+                />
               </Route>
 
               {/* ── V2 Authenticated Shell ────────────────────────────────── */}
@@ -305,7 +328,10 @@ export default function AppV2() {
                   }
                 >
                   <Route path="/app/sessions" element={<SessionsListPage />} />
-                  <Route path="/app/sessions/new" element={<SessionSetupPage />} />
+                  <Route
+                    path="/app/sessions/new"
+                    element={<Navigate to="/app/sessions/new/setup" replace />}
+                  />
                   <Route path="/app/sessions/new/setup" element={<SessionNewPage />} />
                   <Route path="/app/sessions/:sessionId" element={<SessionDetailPage />} />
                   <Route

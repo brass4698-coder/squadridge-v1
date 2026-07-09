@@ -73,6 +73,14 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Sentry / client observability        | [security/observability-and-sentry.md](security/observability-and-sentry.md) |
 | Verified / anonymous auth narrative  | [auth/anonymous-to-verified.md](auth/anonymous-to-verified.md)               |
 
+## Audits & institutional readiness
+
+| Topic                                | Document                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
+| **Institutional readiness (start here)** | [audit/institutional-readiness-audit.md](audit/institutional-readiness-audit.md) |
+| Auth, invites, and role dashboards   | [audit/auth-and-dashboards-audit.md](audit/auth-and-dashboards-audit.md)     |
+| Public marketing ↔ engineering claims | [security/public-claims-audit.md](security/public-claims-audit.md)           |
+
 ## Operations & piloting
 
 | Topic                | Document                                                                 |
