@@ -405,12 +405,30 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 
 ## 16. Roadmap and explicit non-goals
 
-### Near-term direction (feasible, aligned with architecture)
+**Full strategy:** [impact-roadmap.md](impact-roadmap.md) · **Phase A checklist:** [ROADMAP.md](../../ROADMAP.md) · **Ridge Protocol (B1):** [ridge-protocol-spec.md](ridge-protocol-spec.md)
 
-- Harden participant token invite flow end-to-end.
+### Near-term direction (Phase A — next 90 days)
+
+- Enforced session state machine (no skip Verify → Facilitate → Release).
+- Fix participant token invite path end-to-end.
+- Architectural record redaction in outcome editor.
 - Wire workflow notifications at verify / approve / release.
+- v2 audit trail (metadata only).
 - First **real** published ledger records from pilot sessions (replacing samples).
-- Room-level E2E encryption — **research/roadmap**; see threat model §13.
+- Unify “New session” entry to real create path.
+
+### Medium-term differentiation (Phase B — 12 months)
+
+- Ridge Protocol structured written rounds.
+- Public anchor verification page (`/ledger/:id/verify`).
+- Outcome negotiation workspace (record-only).
+- Session protocol library expansion.
+- Multi-session dispute arc, institution release packaging, ledger withdrawal UI.
+
+### Long-term multipliers (Phase C)
+
+- Room-level E2E encryption — research/roadmap; see threat model §13.
+- Offline/low-bandwidth participant path, citation API, facilitator training mode.
 
 ### Explicit non-goals (current product vision)
 
@@ -427,6 +445,9 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | Document | Use when |
 | -------- | -------- |
 | [`squadridge_platform_spec.json`](../../squadridge_platform_spec.json) | Canonical marketing copy and page content |
+| [`docs/product/impact-roadmap.md`](impact-roadmap.md) | Impact and differentiation strategy (90-day + 12-month) |
+| [`ROADMAP.md`](../../ROADMAP.md) | Phase A actionable checklist |
+| [`docs/product/ridge-protocol-spec.md`](ridge-protocol-spec.md) | Ridge Protocol round choreography (B1) |
 | [`docs/product-one-pager.md`](../product-one-pager.md) | Short spoken pitch (30s / 2min) |
 | [`docs/security/threat-model.md`](../security/threat-model.md) | Engineering and security review |
 | [`docs/legal/privacy.md`](../legal/privacy.md) · [`docs/legal/terms.md`](../legal/terms.md) | User-facing legal |

@@ -11,6 +11,9 @@
     "eyebrow": "When the conversation is sensitive, the wrong tool can end it.",
     "tagline": "Privacy by design. Built for peace, built to last.",
     "trust_line": "Private pilot — now inviting mediators and peacebuilding teams",
+    "impact_roadmap": "docs/product/impact-roadmap.md",
+    "phase_a_checklist": "ROADMAP.md",
+    "ridge_protocol_spec": "docs/product/ridge-protocol-spec.md",
     "tone": "Confident, precise, trust-building. Not salesy. Speaking to people who run sensitive negotiations — they value discretion, credibility, and clarity over hype.",
     "audiences": {
       "primary": {
@@ -334,6 +337,52 @@
         "name": "Redaction decisions",
         "reason": "Facilitator chooses what goes into the outcome. System may flag potentially sensitive content for review, but humans decide."
       }
+    ]
+  },
+
+  "ridge_protocol": {
+    "status": "design_spec",
+    "spec_path": "docs/product/ridge-protocol-spec.md",
+    "tagline": "A controlled crossing — structured written rounds, not a chat flood.",
+    "communication_principle": "The Ridge Protocol is SquadRidge's signature facilitation mode: parties cross the ridge one round at a time, under facilitator gatekeeping. Frame as process infrastructure for high-stakes dialogue — never as surveillance or auto-moderation.",
+    "round_types": [
+      {
+        "id": "position",
+        "label": "Position round",
+        "summary": "Each party submits independently; other drafts hidden until facilitator closes the round."
+      },
+      {
+        "id": "response",
+        "label": "Response round",
+        "summary": "Parties respond to facilitator-synthesized positions — not verbatim opposing quotes."
+      },
+      {
+        "id": "joint",
+        "label": "Joint round",
+        "summary": "Optional shared thread under facilitator prompt; default moderated release to other side."
+      },
+      {
+        "id": "cooling",
+        "label": "Cooling interval",
+        "summary": "Mandatory pause between rounds; compose disabled; Power of Pause copy."
+      }
+    ],
+    "power_of_pause": {
+      "slow_down": "Participant requests pause; breathing overlay; facilitator notified.",
+      "pull_back": "Retract last draft within policy window.",
+      "pause_room": "Facilitator sets entire room read-only for cooling.",
+      "advance_round": "Facilitator-only gate to next round — never automatic."
+    },
+    "must_not": [
+      "Auto-publish round content to the ledger",
+      "Auto-advance rounds without facilitator action",
+      "Expose raw opposing submissions before facilitator closes a position round",
+      "AI-draft public outcome text from round messages"
+    ],
+    "depends_on_phase_a": [
+      "Enforced session state machine",
+      "Fixed participant token invite path",
+      "Architectural record redaction"
     ]
   },
 
