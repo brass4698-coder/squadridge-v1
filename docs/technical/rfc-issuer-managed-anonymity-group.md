@@ -9,6 +9,7 @@
 | Date | Change |
 | ---- | ------ |
 | 2026-04-30 | Status: Draft → Implemented v1. Client proof path now resolves `VITE_ISSUER_GROUP_ID` / `VITE_ISSUER_MANIFEST_URL` / `VITE_ISSUER_SIGNING_KEY_BASE64URL`, builds the group from the issuer's signed manifest via `resolveIssuerRegistry`, and forwards `issuer_group_id` to the Edge verifier so `merkleTreeRoot` is cross-checked against `issuer_groups.current_root`. Decoy / demo path unchanged. |
+| 2026-07-17 | §9: Pilot enablement checklist for keeping `VITE_SEMAPHORE_DEMO_GROUP=false` — env, interface sketch, trust model, touchpoints, deferred work. |
 
 ## 1. Problem
 
@@ -200,3 +201,61 @@ This RFC is "shipped" when:
 3. The Edge verifier rejects proofs whose root does not match `issuer_groups.current_root` (covered by an Edge unit test and an end-to-end test against a synthetic issuer).
 4. The threat model § that currently warns about bundled decoys is updated to describe the issuer model and any residual limits.
 5. A pilot cohort runs end-to-end with `VITE_SEMAPHORE_DEMO_GROUP=false` for at least one session.
+
+## 9. Pilot enablement — disabling `VITE_SEMAPHORE_DEMO_GROUP`
+
+Real pilots must not rely on bundled decoys. Use this checklist to keep `VITE_SEMAPHORE_DEMO_GROUP=false` (or unset) in production:
+
+### 9.1 Configure issuer env (client)
+
+```bash
+# .env / Vercel — production
+VITE_SEMAPHORE_DEMO_GROUP=false
+# do NOT set VITE_ALLOW_DEMO_DECOYS_IN_PROD
+VITE_ISSUER_GROUP_ID=issuer.example/2026-04-cohort
+VITE_ISSUER_MANIFEST_URL=https://issuer.example/squadridge/manifest.json
+VITE_ISSUER_SIGNING_KEY_BASE64URL=<ed25519-public-key>
+```
+
+### 9.2 Interface sketch (`buildAnonymityGroup.ts`)
+
+```ts
+// Production path — issuerGroupId required
+await buildSessionAnonymityGroup(userIdentity, {
+  issuerGroupId: import.meta.env.VITE_ISSUER_GROUP_ID,
+});
+
+// Demo path only — gated by shouldUseBuiltinSemaphoreDecoys(env)
+await buildSessionAnonymityGroup(userIdentity, {
+  // omit issuerGroupId; VITE_SEMAPHORE_DEMO_GROUP must allow decoys
+});
+```
+
+`shouldUseBuiltinSemaphoreDecoys` returns true only in DEV / test / e2e, or when both demo flags are set in production. Otherwise the issuer path (or an explicit `decoyIdentities` list from a trusted source) is mandatory.
+
+### 9.3 Trust model (operator honesty)
+
+| Party | Sees | Must not hold |
+| ----- | ---- | ------------- |
+| Issuer | Commitment ↔ real identity map | Platform credentials |
+| SquadRidge platform | Commitments + signed Merkle root | Identity map |
+| Client prover | Own identity + full leaf set for group build | Issuer signing private key |
+| Edge verifier | Proof + `issuer_group_id` + cached root | Identity map |
+
+### 9.4 Integration touchpoints (already landed in v1)
+
+| Touchpoint | Role |
+| ---------- | ---- |
+| `src/lib/zk/buildAnonymityGroup.ts` | Issuer vs decoy branch |
+| `src/lib/zk/issuerManifest.ts` | Fetch + Ed25519 verify + cache |
+| `src/lib/zk/issuerRegistry.ts` | Env → group id / URL / key |
+| `supabase/functions/_shared/handleZkProofVerification.ts` | Root cross-check vs `issuer_groups` |
+| `supabase/migrations/*issuer_groups*` | Enrolled issuers + cached roots |
+| `scripts/ensure-no-demo-decoys-prod.mjs` + `vite.config.ts` | CI / build gate |
+| Threat model §13.1 | Partner-facing honesty |
+
+### 9.5 Still deferred
+
+- Proactive manifest refresh cron (RFC §4.3) — operators must rotate `issuer_groups` before `current_root_expires_at`.
+- Revocation beyond full-group root roll (§6.4).
+- Large-member pagination / leaf-path-only client builds (§6.3).

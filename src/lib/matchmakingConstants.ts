@@ -13,8 +13,14 @@ export const MATCHMAKING_SQUAD_TOTAL = 4;
 export const MATCHED_SQUAD_TTL_HOURS = 24;
 
 /**
- * MVP: queue rows are not auto-cancelled by age in Postgres. Users leave via
- * `matchmaking_cancel_waiting` or by matching.
+ * Waiting `match_queue` rows get `expires_at = now() + 7 days` (`set_match_queue_ttl`).
+ * Hourly `sweep_matchmaking_queue` / `run_expired_data_cleanup` deletes expired rows.
+ */
+export const MATCH_QUEUE_TTL_DAYS = 7;
+
+/**
+ * Prefer Leave queue (`matchmaking_cancel_waiting`) when you stop waiting; the server
+ * also expires stale waiting rows after {@link MATCH_QUEUE_TTL_DAYS} days.
  */
 export const MATCH_QUEUE_NO_SERVER_TIMEOUT =
-  'There is no automatic server-side timeout for the queue in this MVP — use Leave queue when you stop waiting.';
+  'Queue entries expire after about a week on the server — use Leave queue if you stop waiting sooner.';

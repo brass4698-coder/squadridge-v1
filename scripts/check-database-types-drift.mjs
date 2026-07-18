@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * After `supabase gen types typescript --local`, compare public.Tables (and messages.Row keys)
- * to `src/lib/database.types.ts`. Fails if codegen introduces tables/columns missing from the hand-maintained file.
+ * to `src/types/supabase.ts`. Fails if codegen introduces tables/columns missing from the committed file.
  * Run with local stack up (e.g. CI `db` job after `supabase db reset`).
  */
 import { spawnSync } from 'node:child_process';
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const handPath = join(root, 'src', 'lib', 'database.types.ts');
+const handPath = join(root, 'src', 'types', 'supabase.ts');
 
 function braceSlice(s, openBraceIdx) {
   let depth = 0;
@@ -164,4 +164,4 @@ if (extraTablesOnlyInHand.length) {
   );
 }
 
-console.log(`PASS database.types.ts covers ${genTableNames.size} codegen public tables (--local).`);
+console.log(`PASS src/types/supabase.ts covers ${genTableNames.size} codegen public tables (--local).`);

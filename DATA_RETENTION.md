@@ -8,11 +8,12 @@ This document explains how long different types of data are kept and how we dele
 
 The current production deletion path is **TTL-based**, not partition-based:
 
-- **Messages:** every row in `public.messages` has an `expires_at` column set by a `BEFORE INSERT` trigger to `now() + 7 days`. The hourly `pg_cron` job `cleanup-expired-data` issues `DELETE FROM public.messages WHERE expires_at < now()`.
-- **Match queue:** the same trigger pattern sets a 7-day TTL on `public.match_queue`; the same cron job clears expired rows.
-- **Squads:** the same cron job clears `public.squads` rows past their `expires_at`.
+- **Messages:** every row in `public.messages` has an `expires_at` column set by a `BEFORE INSERT` trigger to `now() + 7 days`. The hourly `pg_cron` job `cleanup-expired-data` calls `public.run_expired_data_cleanup()`, which logs `action = 'ttl_purge'` to `moderation_audit_log` then `DELETE`s expired rows.
+- **Match queue:** the same trigger pattern sets a 7-day TTL on `public.match_queue`; the same cleanup orchestrator clears expired rows (via `sweep_matchmaking_queue`).
+- **Squads:** the same orchestrator clears `public.squads` rows past their `expires_at`.
+- **ZK proof submissions:** `public.zk_proof_submissions.expires_at` defaults to `created_at + 90 days` (there is no `zk_pool` table); purged by the same hourly job.
 
-See [`supabase/migrations/20260418090000_ttl_cleanup.sql`](./supabase/migrations/20260418090000_ttl_cleanup.sql). The retention windows below describe the policy intent; today the implementation enforces a uniform 7-day TTL for messages and the queue, and the longer windows for audit/access logs are policy-only.
+See [`supabase/migrations/20260418090000_ttl_cleanup.sql`](./supabase/migrations/20260418090000_ttl_cleanup.sql) and [`supabase/migrations/20260718071000_ttl_cleanup_audit_and_zk_expiry.sql`](./supabase/migrations/20260718071000_ttl_cleanup_audit_and_zk_expiry.sql). Cron intent is also listed under `[db.seed]` comments in `supabase/config.toml` and in [`supabase/cron_jobs.md`](./supabase/cron_jobs.md) (the CLI rejects a literal `[db.cron_jobs]` key — migrations install the schedules on reset/push).
 
 ## Retention categories and recommended defaults
 
@@ -28,7 +29,7 @@ See [`supabase/migrations/20260418090000_ttl_cleanup.sql`](./supabase/migrations
   - Rationale: required for dispute resolution and to evidence sanctioned moderator decrypts (migration `20260428120000_moderator_decrypt_audit_rpc.sql`).
   - Access: read paths are restricted to moderator RPCs and to operators with direct DB access.
 
-- **ZK verification artifacts (`zk_proof_submissions`, `verified_attributes`):** see [`docs/technical/data-retention-zk.md`](./docs/technical/data-retention-zk.md). On account deletion these rows are removed via the `auth.users` / `public.users` cascade.
+- **ZK verification artifacts (`zk_proof_submissions`, `verified_attributes`):** see [`docs/technical/data-retention-zk.md`](./docs/technical/data-retention-zk.md). Proof rows carry `expires_at` (default 90 days) and are purged by the hourly TTL job; on account deletion these rows are also removed via the `auth.users` / `public.users` cascade.
 
 - **Access logs / monitoring traces:** managed by the platform (Supabase, host, CDN). The application does not store raw access logs and does not currently hash IPs at the application layer. Treat platform-side log retention as the source of truth and limit dashboard access; align the windows you commit to with what those platforms actually enforce.
 

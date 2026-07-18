@@ -40,3 +40,4 @@ The UI must show an explicit consent modal **between** steps 2 and 3 (see [`src/
 - Profile schema: `supabase/migrations/*profiles*`
 - Sign-in UI: `/sign-in`
 - Edge ingest + redaction: [`docs/security/encryption-scope.md`](../security/encryption-scope.md), `supabase/functions/ingest-message/edgeHandler.ts`
+- Semaphore anonymity sets for pilots: keep `VITE_SEMAPHORE_DEMO_GROUP=false` and use an issuer-managed group ([`docs/technical/rfc-issuer-managed-anonymity-group.md`](../technical/rfc-issuer-managed-anonymity-group.md)). Bundled demo decoys are **not** a production anonymity set — see encryption-scope and threat model §13.1.

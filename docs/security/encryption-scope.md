@@ -8,6 +8,32 @@
 - **Moderator decrypt for review is audited.** Migration `20260428120000_moderator_decrypt_audit_rpc.sql` adds an RPC that records a `message_plaintext_decrypt_review` row in `moderation_audit_log` (with required justification ≥ 8 characters) **before** returning plaintext, so any legitimate review leaves a tamper-resistant trail. The mod dashboard surfaces this through `src/lib/moderation/modDecrypt.ts` + `src/pages/ModDashboardPage.tsx`.
 - **Archived squads keep decryptable history.** Migration `20260428123000_archive_squad_encryption_snapshot.sql` snapshots the squad message key (and epoch metadata) at archive time, so historical decrypt-for-review continues to work after a squad ends without retaining the live key indefinitely.
 
+## Demo session claim (anonymous → verified)
+
+Demo / anonymous users can migrate eligible `squad_members` rows onto a verified account via the claim-code flow documented in [`docs/auth/anonymous-to-verified.md`](../auth/anonymous-to-verified.md):
+
+1. `create_demo_session_claim` → claim code
+2. `issue_demo_claim_consent` → short-lived consent token
+3. `finalize_demo_session_claim` → membership rewrite (no message history rewrite)
+
+Encryption implications:
+
+- Existing message rows keep their original `sender_id` and the same squad `message_encryption_key`.
+- Post-claim writes still go only through `ingest-message` (edge-only INSERT).
+- Moderator decrypt audit continues to apply to both pre-claim and post-claim ciphertext.
+
+## Semaphore demo decoys (`VITE_SEMAPHORE_DEMO_GROUP`)
+
+This flag is **not** about message encryption. It gates the **bundled-in-source Semaphore decoys** used to pad anonymity groups during demos (`squadridge-decoy-{a,b,c}` in `src/lib/zk/buildAnonymityGroup.ts`).
+
+| Environment | Expected setting |
+| ----------- | ---------------- |
+| Real pilots / production | `VITE_SEMAPHORE_DEMO_GROUP` unset or `false`; use issuer-managed groups ([RFC](../technical/rfc-issuer-managed-anonymity-group.md)) |
+| Local / Vitest / Playwright | Demo decoys allowed in DEV / `MODE=test` / `MODE=e2e` |
+| Explicit internal demo build | Both `VITE_SEMAPHORE_DEMO_GROUP=true` **and** `VITE_ALLOW_DEMO_DECOYS_IN_PROD=true` (CI rejects the latter for normal prod release jobs) |
+
+Bundled decoys **collapse** the anonymity set (three of four members are public). Do not enable them for high-stakes cohorts. See threat model §13.1.
+
 ## What is not protected (today)
 
 - **Supabase / Postgres at the SQL layer** can read **plaintext** if the application ever writes plaintext to the database or if keys are exposed in logs or misconfigured policies. The audited mod-decrypt RPC narrows this for legitimate review but does not change the underlying trust model.

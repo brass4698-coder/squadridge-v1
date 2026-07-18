@@ -1,7 +1,11 @@
 /// <reference types="vitest/config" />
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -30,6 +34,11 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    resolve: {
+      alias: {
+        '@': path.resolve(rootDir, 'src'),
+      },
+    },
     plugins: [
       react(),
       process.env.ANALYZE === '1' &&
@@ -44,6 +53,8 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       globals: false,
       include: ['src/**/*.{test,spec}.{ts,tsx}', 'supabase/functions/**/*.{test,spec}.ts'],
+      // Local Docker smoke suite — run via `npm run test:smoke` (vitest.smoke.config.ts).
+      exclude: ['**/node_modules/**', '**/dist/**', '**/*.smoke.test.ts'],
       setupFiles: ['./src/test/setupTests.ts'],
       coverage: {
         provider: 'v8',

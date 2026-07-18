@@ -26,6 +26,81 @@ Lead institutional and partner conversations with `/app` facilitator flows, `/p/
 
 Optional Redis in `docker-compose.yml` is for local worker experiments only — not required for the app.
 
+## Local Development
+
+Full stack on your machine: Vite (port **5173**) + local Supabase via the CLI (Docker) + optional Redis.
+
+### Prerequisites
+
+- **Node.js 22+** and npm 10+
+- **Docker Desktop** running (required for `supabase start`)
+- Dev dependency **`supabase` CLI** (`package.json` pins `^2.91.3` — run via `npx` / npm scripts)
+
+### 1. Install and env
+
+```bash
+npm install
+cp .env.example .env
+```
+
+Start local Supabase, then copy URLs/keys from status into `.env`:
+
+```bash
+npm run supabase:start
+npx supabase status -o env
+```
+
+Typical local values:
+
+| Variable | Local value |
+| -------- | ----------- |
+| `VITE_SUPABASE_PROJECT_REF` | `squadridge` (matches `project_id` in `supabase/config.toml`) |
+| `VITE_SUPABASE_URL` | `http://127.0.0.1:54321` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` / `VITE_SUPABASE_ANON_KEY` | from `supabase status` |
+| `VITE_SITE_URL` | `http://localhost:5173` (auth redirects; matches `[auth] site_url`) |
+
+Edge Functions secrets live in gitignored `supabase/functions/.env` (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) — never put `service_role` in `VITE_*`.
+
+### 2. Database reset and types
+
+```bash
+npm run db:reset          # apply all migrations + seed
+npm run db:types          # regenerate src/types/supabase.ts from local schema
+```
+
+Aliases: `npm run supabase:db:reset`, `npm run gen:types:local`.
+
+### 3. Run the app
+
+```bash
+npm run dev               # http://localhost:5173
+```
+
+Useful companions:
+
+| Command | Purpose |
+| ------- | ------- |
+| `npm run supabase:status` | API / Studio / DB URLs |
+| `npm run supabase:stop` | Stop the local stack |
+| `docker compose up -d` | Optional Redis only (not Supabase) |
+
+### Config notes (`supabase/config.toml`)
+
+- `[auth] site_url` = `http://localhost:5173`; `[auth.email] enable_confirmations = false` for local ease
+- `[realtime] enabled = true`; `[storage] enabled = false` (app does not use Storage yet)
+- Postgres `major_version = 17`; latest migration timestamp documented as `20260718071000`
+- Supabase Docker images are selected by the **CLI version**, not `docker-compose.yml`
+
+### Verify
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+Studio: http://127.0.0.1:54323 — Mailpit (auth emails): http://127.0.0.1:54324
+
 ## Prerequisites
 
 - **Node.js 22+** and npm 10+ (enforced via `engines` in `package.json`)
@@ -106,15 +181,17 @@ Never commit `.env*` files with secrets. If `node_modules` shows as tracked, run
 
 ### Supabase
 
-| Command                       | Description                                |
-| ----------------------------- | ------------------------------------------ |
-| `npm run supabase:start`      | Start local Supabase stack                 |
-| `npm run supabase:stop`       | Stop local Supabase stack                  |
-| `npm run supabase:status`     | Print local service URLs and status        |
-| `npm run supabase:db:reset`   | Reset local DB and re-run all migrations   |
-| `npm run supabase:db:push`    | Push pending migrations to linked project  |
-| `npm run gen:types`           | Regenerate `database.types.ts` from linked project |
-| `npm run gen:types:local`     | Regenerate `database.types.ts` from local stack    |
+| Command                       | Description                                              |
+| ----------------------------- | -------------------------------------------------------- |
+| `npm run supabase:start`      | Start local Supabase stack                               |
+| `npm run supabase:stop`       | Stop local Supabase stack                                |
+| `npm run supabase:status`     | Print local service URLs and status                      |
+| `npm run db:reset`            | Reset local DB and re-run all migrations (`supabase db reset`) |
+| `npm run supabase:db:reset`   | Alias for `db:reset`                                     |
+| `npm run supabase:db:push`    | Push pending migrations to linked project                |
+| `npm run db:types`            | Regenerate `src/types/supabase.ts` from local stack      |
+| `npm run gen:types:local`     | Alias for `db:types`                                     |
+| `npm run gen:types`           | Regenerate `src/types/supabase.ts` from linked project   |
 
 ## After linking Supabase + GitHub
 

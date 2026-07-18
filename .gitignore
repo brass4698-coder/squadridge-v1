@@ -16,6 +16,8 @@ build/
 .env.production
 .env.staging
 # .env.example, .env.e2e, and .env.test are intentionally committed (no secrets)
+# Local Edge Function secrets (service_role). Hosted: Dashboard → Edge Functions → Secrets.
+supabase/functions/.env
 
 # Supabase local stack
 supabase/.branches

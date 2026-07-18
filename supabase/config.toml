@@ -4,6 +4,9 @@
 # working directory name when running `supabase init`.
 project_id = "squadridge"
 
+# Must match VITE_SUPABASE_PROJECT_REF in .env.example (local Docker project name).
+# Linked cloud projects use a separate 20-char ref (see `supabase link` / CI secrets).
+
 [api]
 enabled = true
 # Port to use for the API URL.
@@ -35,6 +38,8 @@ health_timeout = "2m"
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
 # server_version;` on the remote database to check.
 major_version = 17
+# Latest migration timestamp applied by `supabase db reset` (not a CLI-parsed key — documentation only):
+# schema_version = "20260718071000"
 
 [db.pooler]
 enabled = false
@@ -64,6 +69,14 @@ enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
 sql_paths = ["./seed.sql"]
+
+# pg_cron schedules (version-controlled documentation — CLI rejects unknown [db.cron_jobs]).
+# Installed by SQL migrations on db reset/push; keep in sync with:
+#   20260718071000_ttl_cleanup_audit_and_zk_expiry.sql  → cleanup-expired-data
+#   20260420120000_matchmaking_sweep_cron.sql           → matchmaking-sweep-active-pools
+# intended:
+#   cleanup-expired-data          | 0 * * * *     | SELECT public.run_expired_data_cleanup();
+#   matchmaking-sweep-active-pools| */3 * * * *   | SELECT public.matchmaking_sweep_active_pools();
 
 [db.network_restrictions]
 # Enable management of network restrictions.
@@ -108,7 +121,8 @@ port = 54324
 # sender_name = "Admin"
 
 [storage]
-enabled = true
+# SquadRidge does not use Storage yet (message blobs / avatars stay out of Storage API).
+enabled = false
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
@@ -152,9 +166,9 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:5173"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+additional_redirect_urls = ["http://localhost:5173", "http://localhost:5173/auth/callback", "http://127.0.0.1:5173", "http://127.0.0.1:5173/auth/callback"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).
@@ -387,6 +401,9 @@ backend = "postgres"
 verify_jwt = true
 
 [functions.zk-verify]
+verify_jwt = true
+
+[functions.zk-insert]
 verify_jwt = true
 
 [functions.rate-limit]

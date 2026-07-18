@@ -58,9 +58,11 @@ flowchart LR
   subgraph client [Browser]
     A[Semaphore / client logic]
     B[Session token]
+    M[Message AES-GCM client]
   end
   subgraph edge [Edge Functions]
     C[verify-zk-proof]
+    I[ingest-message]
   end
   subgraph db [Supabase Postgres]
     D[RLS for anon JWT]
@@ -68,11 +70,20 @@ flowchart LR
   end
   A -->|HTTPS| C
   A -->|HTTPS API| D
+  M -->|ciphertext + JWT| I
   C -->|service role| E
+  I -->|decrypt redact re-encrypt INSERT| E
 ```
 
 - **RLS:** Constrains what **other users** can read/write via the Data API; **does not** make data unreadable to privileged DB/service-role access.
 - **Edge `verify-zk-proof`:** Verifies proofs and inserts rows; holds **service role** — treat as part of TCB (trusted computing base).
+- **Edge `ingest-message`:** Sole write path for live squad chat. Decrypts with the squad key, runs `redactOutgoingLiveMessage`, re-encrypts, and INSERTs with the service role. Direct authenticated INSERTs into `messages` are denied (`WITH CHECK (false)`). Part of the TCB.
+
+### 4.1 Operator visibility (matches ModDashboard callout)
+
+Squad message keys are **stored for this product**; moderators (and anyone with service-role or raw DB access) can read ciphertext and decrypt for review. This is **not** Signal-style operator-blind E2E.
+
+Legitimate moderator review must call `moderator_record_decrypt_audit` with a written justification (≥ 8 characters) **before** client-side decrypt. Each successful path logs `message_plaintext_decrypt_review` in `moderation_audit_log`. The Mod dashboard surfaces this in amber copy (`src/pages/ModDashboardPage.tsx`) so operators cannot mistake audited review for operator-proof encryption.
 
 ---
 
@@ -143,6 +154,7 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | 2026-04-28 | §5: Edge-only `messages` inserts (`20260428194500`), audited moderator decrypt RPC (`20260428120000`), squad encryption snapshot archive (`20260428123000`). §13.1: `VITE_SEMAPHORE_DEMO_GROUP` flag for bundled demo decoys. |
 | 2026-04-28 | Audit remediation Phase 0–2: `create_demo_squad` RPC (atomic, `20260428220000`); demo squad keys rotated and client-side key generation removed (`20260428210000`); demo claim consent token (`20260428230000`); issuer-managed anonymity group implemented (`20260428240000`, RFC §13.1); structured Edge logger (`supabase/functions/_shared/log.ts`); `VITE_SEMAPHORE_DEMO_GROUP` requires `VITE_ALLOW_DEMO_DECOYS_IN_PROD` for production builds. |
 | 2026-04-30 | §13.1: Client proof path now passes `issuer_group_id` to the Edge verifier when `VITE_ISSUER_GROUP_ID` / `VITE_ISSUER_MANIFEST_URL` / `VITE_ISSUER_SIGNING_KEY_BASE64URL` are configured (`src/lib/zk/issuerRegistry.ts`); RFC `rfc-issuer-managed-anonymity-group.md` status moved from Draft to Implemented v1. Manifest refresh cron remains deferred (RFC §4.3). New ledger publish workflow: squad-member draft inserts, member voting on `ledger_proposal_votes` with RLS-scoped insert, and a moderator-gated `publish-ledger-proposal` Edge Function that enforces a 2/3 participation + majority-approve threshold before flipping `status='published'`. |
+| 2026-07-17 | §4 trust boundaries: add `ingest-message` to the Edge TCB diagram. New §4.1 operator-visibility note aligned with ModDashboard amber callout (keys stored; audited `message_plaintext_decrypt_review`). |
 
 ---
 

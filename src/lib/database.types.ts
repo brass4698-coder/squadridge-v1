@@ -73,6 +73,14 @@ export interface Database {
           onboarding_completed_at: string | null;
           created_at: string;
           updated_at: string;
+          /** Invite-only columns (20260704 reconcile); optional until migration applied. */
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          status?: string | null;
+          primary_role?: string | null;
+          onboarding_completed?: boolean | null;
+          last_dashboard?: string | null;
         };
         Insert: {
           id: string;
@@ -87,6 +95,13 @@ export interface Database {
           onboarding_completed_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          status?: string | null;
+          primary_role?: string | null;
+          onboarding_completed?: boolean | null;
+          last_dashboard?: string | null;
         };
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
         Relationships: [];
@@ -99,6 +114,7 @@ export interface Database {
           nullifier_hash: string;
           attribute_scope: string;
           created_at: string;
+          expires_at: string;
         };
         Insert: {
           id?: string;
@@ -107,6 +123,7 @@ export interface Database {
           nullifier_hash: string;
           attribute_scope: string;
           created_at?: string;
+          expires_at?: string;
         };
         Update: Partial<Database['public']['Tables']['zk_proof_submissions']['Insert']>;
         Relationships: [];
@@ -974,6 +991,10 @@ export interface Database {
         Args: { p_message_id: string; p_reason: string };
         Returns: undefined;
       };
+      moderator_flag_and_archive: {
+        Args: { p_target_type: string; p_target_id: string; p_reason: string };
+        Returns: undefined;
+      };
       moderator_archive_squad: {
         Args: { p_squad_id: string };
         Returns: undefined;
@@ -981,6 +1002,10 @@ export interface Database {
       moderator_record_decrypt_audit: {
         Args: { p_message_id: string; p_justification: string };
         Returns: undefined;
+      };
+      auth_user_is_moderator: {
+        Args: Record<string, never>;
+        Returns: boolean;
       };
       get_or_create_squad_message_key: {
         Args: { p_squad_id: string };

@@ -36,11 +36,8 @@ export * from './sessionClaim';
 export * from './sentry';
 export * from './squad';
 export * from './squadMessageKey';
-// Barrel: prefer the typed client (`./supabaseClient`) for `supabase`. The
-// untyped client in `./supabase` still exists for consumers that import it
-// directly (AuthContext, incoming auth wave) — only its `getSupabase` helper
-// is re-exported here to avoid a duplicate `supabase` symbol.
-export { getSupabase } from './supabase';
-export * from './supabaseClient';
+// Single browser client. Barrel exports the untyped alias so RPC-heavy call
+// sites stay green; import from `./supabaseClient` for `Database` typing.
+export { getSupabase, supabase } from './supabase';
 export * from './verifyZkProofResponse';
 export * from './zk';

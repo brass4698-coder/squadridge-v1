@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import type { OutcomeRecord, Session } from '../lib/supabaseTypes';
 
-export type LedgerEntry = OutcomeRecord & { session: Pick<Session, 'title' | 'conflict_type' | 'language'> | null };
+export type LedgerEntry = OutcomeRecord & {
+  session: Pick<Session, 'title' | 'conflict_type' | 'language'> | null;
+};
 
 export function useLedger(search = '') {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -25,7 +27,9 @@ export function useLedger(search = '') {
     setLoading(false);
   }, [search]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
   return { entries, loading, refetch: fetch };
 }
