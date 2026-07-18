@@ -89,7 +89,20 @@ const genResult = spawnSync('npx', ['supabase', 'gen', 'types', 'typescript', '-
 });
 
 if (genResult.error || genResult.status !== 0) {
-  console.error(genResult.stderr || genResult.stdout || '');
+  const detail = `${genResult.stderr || ''}\n${genResult.stdout || ''}`;
+  console.error(detail);
+  // Local machines without Docker Desktop cannot run --local codegen. CI `db` job
+  // starts the stack first; soft-skip here so `npm run check:all` remains usable offline.
+  const dockerMissing =
+    /dockerDesktopLinuxEngine|Docker Desktop is a prerequisite|Cannot connect to the Docker daemon|pipe\/docker/i.test(
+      detail,
+    );
+  if (dockerMissing && process.env.CI !== 'true') {
+    console.warn(
+      'SKIP database.types drift check: local Supabase/Docker is not running. CI db job still enforces this.',
+    );
+    process.exit(0);
+  }
   console.error('DATABASE TYPES DRIFT: supabase gen types failed (start local stack: supabase start).');
   process.exit(2);
 }

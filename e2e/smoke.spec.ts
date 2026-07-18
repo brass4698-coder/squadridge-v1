@@ -13,7 +13,8 @@ test.describe('critical path smoke', () => {
 
   test('/dev/supabase is not a public route', async ({ page }) => {
     await page.goto('/dev/supabase');
-    await expect(page).toHaveURL((url) => url.pathname === '/');
+    await expect(page.getByRole('heading', { name: /page not found/i })).toBeVisible();
+    await expect(page.getByText('404')).toBeVisible();
   });
 
   test('offline demo session page renders', async ({ page }) => {
@@ -24,7 +25,7 @@ test.describe('critical path smoke', () => {
 
   test('ledger index renders', async ({ page }) => {
     await page.goto('/ledger');
-    await expect(page.getByRole('heading', { name: /SquadRidge\s*Ledger/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Outcome ledger/i })).toBeVisible();
   });
 
   test('match demo gate reaches confirmation', async ({ page }) => {

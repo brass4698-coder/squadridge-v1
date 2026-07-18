@@ -10,7 +10,7 @@ test.describe('Phase 0 routing', () => {
   test('find-squad legacy redirect reaches invite gate', async ({ page }) => {
     await page.goto('/find-squad');
     await expect(page).toHaveURL(/\/invite/);
-    await expect(page.getByRole('heading', { name: /invited/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Invitation link required/i })).toBeVisible();
   });
 
   test('participant invite deep link loads acceptance screen', async ({ page }) => {

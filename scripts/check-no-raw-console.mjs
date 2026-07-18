@@ -38,12 +38,15 @@ const ALLOWLIST = new Set([
   join(root, 'scripts', 'check-prod-readiness.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'ensure-no-zk-stub-prod.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'ensure-no-demo-decoys-prod.mjs').replace(/\\/g, '/'),
+  join(root, 'scripts', 'ensure-no-demo-login-prod.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'check-banned-public-copy.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'check-database-types-drift.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'bundle-ingest-message.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'clean.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'waitlist-smoke.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'generate-investor-deck-model.ts').replace(/\\/g, '/'),
+  // Local/dev seed CLI — console is the operator interface; not a prod data path.
+  join(root, 'scripts', 'seedDemo.mjs').replace(/\\/g, '/'),
   // Build-time helper (no Supabase / production data); writes a static asset.
   join(root, 'scripts', 'generate-noise-png.mjs').replace(/\\/g, '/'),
 ]);

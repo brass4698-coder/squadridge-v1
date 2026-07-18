@@ -19,6 +19,9 @@ Semaphore attribute verification — see `docs/security/threat-model.md` for hon
 bounds (not full platform zero-knowledge, not operator-blind E2E today). Public marketing
 and v2 facilitator flows center the mediation/ledger story; see [`docs/product/platform-description.md`](docs/product/platform-description.md),
 `squadridge_platform_spec.json`, and `docs/founding/north-star.md` for narrative source of truth.
+The longer civic early-warning → redacted ledger → proposal vision lives in
+[`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md)
+(vision-labeled; do not treat as shipped claims).
 
 **Cursor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
 `ai-guidelines.mdc` (optional AI). Root `.cursorrules` summarizes both.

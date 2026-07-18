@@ -659,6 +659,269 @@ export interface Database {
           },
         ];
       };
+      // ── v2 facilitator platform (20260618+) ──
+      sessions: {
+        Row: {
+          id: string;
+          facilitator_id: string;
+          title: string;
+          conflict_type: string;
+          language: string;
+          max_participants: number;
+          eligibility_notes: string | null;
+          identity_verification_required: boolean;
+          outcome_public: boolean;
+          status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          created_at: string;
+          updated_at: string;
+          template_id: string | null;
+          setup_config: Json;
+        };
+        Insert: {
+          facilitator_id: string;
+          title: string;
+          conflict_type: string;
+          language?: string;
+          max_participants?: number;
+          eligibility_notes?: string | null;
+          identity_verification_required?: boolean;
+          outcome_public?: boolean;
+          status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          template_id?: string | null;
+          setup_config?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['sessions']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      participants: {
+        Row: {
+          id: string;
+          session_id: string;
+          codename: string;
+          invite_token: string;
+          invite_used: boolean;
+          email_hash: string | null;
+          verification_status: 'pending' | 'verified' | 'denied';
+          document_submitted: boolean;
+          consented_at: string | null;
+          admitted_at: string | null;
+          left_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          codename: string;
+          invite_token: string;
+          invite_used?: boolean;
+          email_hash?: string | null;
+          verification_status?: 'pending' | 'verified' | 'denied';
+          document_submitted?: boolean;
+          consented_at?: string | null;
+          admitted_at?: string | null;
+          left_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['participants']['Insert']>;
+        Relationships: [];
+      };
+      verification_requests: {
+        Row: {
+          id: string;
+          participant_id: string;
+          document_type: string | null;
+          storage_path: string | null;
+          submitted_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+        };
+        Insert: {
+          participant_id: string;
+          document_type?: string | null;
+          storage_path?: string | null;
+          submitted_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['verification_requests']['Insert']>;
+        Relationships: [];
+      };
+      outcome_records: {
+        Row: {
+          id: string;
+          session_id: string;
+          summary: string;
+          agreed_terms: string | null;
+          pending_items: string | null;
+          facilitator_notes: string | null;
+          status: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at: string | null;
+          ledger_sha: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          session_id: string;
+          summary: string;
+          agreed_terms?: string | null;
+          pending_items?: string | null;
+          facilitator_notes?: string | null;
+          status?: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at?: string | null;
+          ledger_sha?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['outcome_records']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      outcome_approvals: {
+        Row: {
+          id: string;
+          outcome_id: string;
+          approver_label: string;
+          status: 'pending' | 'approved' | 'rejected';
+          approved_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          outcome_id: string;
+          approver_label: string;
+          status?: 'pending' | 'approved' | 'rejected';
+          approved_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['outcome_approvals']['Insert']>;
+        Relationships: [];
+      };
+      access_requests: {
+        Row: {
+          id: string;
+          full_name: string;
+          organisation: string | null;
+          email: string;
+          use_case: string;
+          description: string;
+          status: 'pending' | 'approved' | 'rejected';
+          created_at: string;
+        };
+        Insert: {
+          full_name: string;
+          organisation?: string | null;
+          email: string;
+          use_case: string;
+          description: string;
+          status?: 'pending' | 'approved' | 'rejected';
+        };
+        Update: Partial<Database['public']['Tables']['access_requests']['Insert']>;
+        Relationships: [];
+      };
+      session_messages: {
+        Row: {
+          id: string;
+          session_id: string;
+          sender_label: string;
+          sender_role: 'facilitator' | 'participant';
+          body: string;
+          sent_at: string;
+        };
+        Insert: {
+          session_id: string;
+          sender_label: string;
+          sender_role: 'facilitator' | 'participant';
+          body: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      session_resolution_items: {
+        Row: {
+          id: string;
+          session_id: string;
+          title: string;
+          description: string | null;
+          owner_org: string | null;
+          target_days: number | null;
+          support_count: number;
+          rank_order: number | null;
+          status: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          session_id: string;
+          title: string;
+          description?: string | null;
+          owner_org?: string | null;
+          target_days?: number | null;
+          support_count?: number;
+          rank_order?: number | null;
+          status?: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['session_resolution_items']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      session_resolution_supports: {
+        Row: {
+          id: string;
+          item_id: string;
+          participant_id: string;
+          created_at: string;
+        };
+        Insert: {
+          item_id: string;
+          participant_id: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      session_audit_events: {
+        Row: {
+          id: string;
+          session_id: string;
+          event_type: string;
+          actor_role: string | null;
+          actor_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          event_type: string;
+          actor_role?: string | null;
+          actor_id?: string | null;
+          metadata?: Json;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      workflow_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          session_id: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          session_id?: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at?: string | null;
+        };
+        Update: {
+          read_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       ledger_proposal_vote_summary: {

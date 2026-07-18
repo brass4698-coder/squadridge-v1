@@ -145,6 +145,57 @@ export interface Database {
         };
         Update: Partial<Database['public']['Tables']['access_requests']['Insert']>;
       };
+      session_resolution_items: {
+        Row: {
+          id: string;
+          session_id: string;
+          title: string;
+          description: string | null;
+          owner_org: string | null;
+          target_days: number | null;
+          support_count: number;
+          rank_order: number | null;
+          status: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          session_id: string;
+          title: string;
+          description?: string | null;
+          owner_org?: string | null;
+          target_days?: number | null;
+          support_count?: number;
+          rank_order?: number | null;
+          status?: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label?: string | null;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          owner_org?: string | null;
+          target_days?: number | null;
+          support_count?: number;
+          rank_order?: number | null;
+          status?: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label?: string | null;
+          updated_at?: string;
+        };
+      };
+      session_resolution_supports: {
+        Row: {
+          id: string;
+          item_id: string;
+          participant_id: string;
+          created_at: string;
+        };
+        Insert: {
+          item_id: string;
+          participant_id: string;
+        };
+        Update: never;
+      };
       session_messages: {
         Row: {
           id: string;
@@ -162,6 +213,48 @@ export interface Database {
         };
         Update: never;
       };
+      session_audit_events: {
+        Row: {
+          id: string;
+          session_id: string;
+          event_type: string;
+          actor_role: string | null;
+          actor_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          event_type: string;
+          actor_role?: string | null;
+          actor_id?: string | null;
+          metadata?: Json;
+        };
+        Update: never;
+      };
+      workflow_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          session_id: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          session_id?: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at?: string | null;
+        };
+        Update: {
+          read_at?: string | null;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -175,6 +268,20 @@ export interface Database {
       };
       participant_mark_document_submitted: {
         Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_record_contact_hash: {
+        Args: { p_token: string; p_email: string };
+        Returns: Json;
+      };
+      submit_access_request: {
+        Args: {
+          p_full_name: string;
+          p_email: string;
+          p_use_case: string;
+          p_description: string;
+          p_organisation?: string | null;
+        };
         Returns: Json;
       };
       participant_send_message: {
@@ -191,6 +298,14 @@ export interface Database {
       };
       transition_session_status: {
         Args: { p_session_id: string; p_status: string };
+        Returns: Json;
+      };
+      list_session_resolutions_for_participant: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_support_resolution: {
+        Args: { p_token: string; p_item_id: string };
         Returns: Json;
       };
       outcome_contains_verbatim_room_content: {

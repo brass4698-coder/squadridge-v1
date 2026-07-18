@@ -11,6 +11,8 @@
 
 For the **honest current-state** story, use [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and the [pilot one-pager](pilot-partner-one-pager.md).
 
+For the **full end-to-end civic mental model** (intake → facilitated structuring → redacted ledger → proposals → institutional feedback), see [`../product/civic-early-warning-response-model.md`](../product/civic-early-warning-response-model.md). That document is vision-labeled and must not be pasted into public marketing without the honesty markers.
+
 ---
 
 ## Aligned with shipped product today
@@ -123,6 +125,7 @@ Over time, ethically governed metrics and partner workflows could support **earl
 ## Related documents
 
 - [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) — what is real today.  
+- [`../product/civic-early-warning-response-model.md`](../product/civic-early-warning-response-model.md) — full civic early-warning & response mental model.  
 - [`go-to-market.md`](go-to-market.md), [`partnership-strategy.md`](partnership-strategy.md) — market and partner framing.  
 - [`../product/csi-spec.md`](../product/csi-spec.md) — draft CSI outline (not implemented).  
 - [`../security/threat-model.md`](../security/threat-model.md) — non-negotiable honesty on risk.

@@ -307,14 +307,18 @@ Until real sessions are released to production:
 | Invite-only auth (magic link, profiles, 7 roles, RLS) | **Shipped** |
 | Staff invite create / validate / accept / revoke | **Shipped** |
 | Session create with templates | **Shipped** |
-| Participant invite tokens + facilitator verification review | **Shipped** (participant UI partially simulated) |
+| Participant invite tokens + facilitator verification review | **Shipped** |
+| Participant contact-hash + document upload (Edge Function) | **Shipped** — facilitator review is authoritative (not automated KYC) |
 | Live `session_messages` (facilitator + participant paths) | **Shipped** |
+| Enforced session state machine (DB/RPC guards) | **Shipped** |
 | Outcome draft, approvals, `release_outcome` → ledger query | **Shipped** |
+| Architectural record redaction (no import-from-room) | **Shipped** |
+| In-app workflow notifications (verify / open / approve / release) | **Shipped** — email delivery still planned |
+| v2 session audit trail + export | **Shipped** |
+| Session resolution workflow (template-gated) | **Shipped** |
 | Public ledger UI with sample-data labeling | **Shipped** |
 | Facilitator walkthrough (in-app) | **Shipped** |
-| Workflow notifications (email at verify/approve/release) | **Planned** — prefs table exists; not fully wired |
-| Participant self-serve verification (OTP, document upload) | **Partial** — facilitator review is authoritative |
-| Enforced session state machine (block skip steps) | **Partial** — manual status updates |
+| Email workflow notifications | **Planned** — prefs recorded; no delivery pipeline |
 | Room-level E2E encryption | **Roadmap** — not operator-blind today |
 
 ### Legacy product lines (still in codebase — separate stories)
@@ -409,13 +413,11 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 
 ### Near-term direction (Phase A — next 90 days)
 
-- Enforced session state machine (no skip Verify → Facilitate → Release).
-- Fix participant token invite path end-to-end.
-- Architectural record redaction in outcome editor.
-- Wire workflow notifications at verify / approve / release.
-- v2 audit trail (metadata only).
+- Email delivery for workflow notifications (in-app already shipped).
+- Full e2e: facilitator invite link → participant `/p/room` against live DB.
 - First **real** published ledger records from pilot sessions (replacing samples).
-- Unify “New session” entry to real create path.
+- Deploy hygiene: migrations `20260710`–`20260712` + `participant-verification-upload` on pilot projects.
+- Pre-registered pilot metrics and partner MOU discipline.
 
 ### Medium-term differentiation (Phase B — 12 months)
 
@@ -445,6 +447,7 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | Document | Use when |
 | -------- | -------- |
 | [`squadridge_platform_spec.json`](../../squadridge_platform_spec.json) | Canonical marketing copy and page content |
+| [`docs/product/civic-early-warning-response-model.md`](civic-early-warning-response-model.md) | End-to-end civic early-warning → proposal vision (labeled vs shipped) |
 | [`docs/product/impact-roadmap.md`](impact-roadmap.md) | Impact and differentiation strategy (90-day + 12-month) |
 | [`ROADMAP.md`](../../ROADMAP.md) | Phase A actionable checklist |
 | [`docs/product/ridge-protocol-spec.md`](ridge-protocol-spec.md) | Ridge Protocol round choreography (B1) |
@@ -452,6 +455,7 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | [`docs/security/threat-model.md`](../security/threat-model.md) | Engineering and security review |
 | [`docs/legal/privacy.md`](../legal/privacy.md) · [`docs/legal/terms.md`](../legal/terms.md) | User-facing legal |
 | [`docs/founding/north-star.md`](../founding/north-star.md) | Contributor decision tests |
+| [`docs/founding/positioning.md`](../founding/positioning.md) | Category positioning, market wedge, audience stack, message guardrails |
 | [`docs/operations/pilot-runbook.md`](../operations/pilot-runbook.md) | Running a real pilot session |
 | [`docs/audit/institutional-readiness-audit.md`](../audit/institutional-readiness-audit.md) | Institutional readiness baseline (10 domains, audience fit) |
 | [`AGENTS.md`](../../AGENTS.md) | Developer orientation |

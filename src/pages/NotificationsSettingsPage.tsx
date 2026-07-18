@@ -24,26 +24,27 @@ const TOGGLES: ReadonlyArray<NotificationToggle> = [
     key: 'in_app_session_alerts',
     title: 'In-app session alerts',
     description:
-      'Show a banner inside the app when a squad you are matched to needs attention (new draft, facilitator pause, archive).',
+      'Show a banner when a facilitated session needs attention (verification submitted, room opened, approval recorded, record released).',
   },
   {
     key: 'in_app_publish_alerts',
     title: 'In-app publish alerts',
-    description: 'Surface a small toast when a ledger proposal you voted on is published.',
+    description:
+      'Surface alerts when a ledger proposal you voted on is published (legacy squad path) or when a session outcome is released.',
   },
   {
     key: 'email_pilot_updates',
     title: 'Email — pilot updates',
     description: 'Occasional email about the pilot you are part of. Off by default.',
     honesty:
-      'No delivery pipeline is wired in this build; the preference is recorded for future use.',
+      'No email delivery pipeline is wired in this build; the preference is recorded for future use. In-app session alerts are live.',
   },
 ];
 
 /**
- * Notification preferences. Preferences-only in v1: no delivery system is
- * wired today. The in-app surfaces gate on these flags so toggling them off
- * silences the corresponding banners/toasts immediately.
+ * Notification preferences. In-app session workflow alerts are live (DB triggers +
+ * WorkflowNotificationsBanner). Email delivery remains preferences-only until a
+ * delivery pipeline ships.
  */
 export function NotificationsSettingsPage() {
   const { supabase, session } = useAuth();

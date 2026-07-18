@@ -29,6 +29,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Topic                                   | Document                                                               |
 | --------------------------------------- | ---------------------------------------------------------------------- |
 | **Full platform description (start here)** | [product/platform-description.md](product/platform-description.md)   |
+| Civic early-warning & response model (vision) | [product/civic-early-warning-response-model.md](product/civic-early-warning-response-model.md) |
 | Impact & differentiation roadmap          | [product/impact-roadmap.md](product/impact-roadmap.md)               |
 | Phase A engineering checklist             | [../ROADMAP.md](../ROADMAP.md)                                       |
 | Ridge Protocol spec (B1)                  | [product/ridge-protocol-spec.md](product/ridge-protocol-spec.md)     |
@@ -86,6 +87,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Topic                | Document                                                                 |
 | -------------------- | ------------------------------------------------------------------------ |
 | Pilot runbook        | [operations/pilot-runbook.md](operations/pilot-runbook.md)               |
+| v2 pilot checklist   | [operations/v2-pilot-checklist.md](operations/v2-pilot-checklist.md)     |
 | Incidents            | [operations/incidents.md](operations/incidents.md)                       |
 | Production checklist | [operations/production-checklist.md](operations/production-checklist.md) |
 

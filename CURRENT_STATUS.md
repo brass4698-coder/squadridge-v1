@@ -4,13 +4,13 @@
 
 This document is the fastest honest summary of what SquadRidge is today. It is intended for teammates, pilot partners, security reviewers, and funders who need a current-state snapshot before reading deeper docs.
 
-**Canonical product story:** [`docs/product/platform-description.md`](docs/product/platform-description.md) · **Institutional readiness:** [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md)
+**Canonical product story:** [`docs/product/platform-description.md`](docs/product/platform-description.md) · **Institutional readiness:** [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md) · **Phase A checklist:** [`ROADMAP.md`](ROADMAP.md)
 
 ## Snapshot
 
 - **Stage:** Private pilot foundation — v2 facilitator platform primary
 - **Primary use case:** Facilitator-led protected written dialogue with verifiable public outcomes (Configure → Verify → Facilitate → Release)
-- **Institutional maturity:** ~**4/10** — credible for bounded mediator-led pilots; not procurement-ready for Track II audit-grade or military-adjacent deployment
+- **Institutional maturity:** ~**5/10** — credible for bounded mediator-led pilots with disclosed security boundaries; not procurement-ready for Track II audit-grade or military-adjacent deployment
 - **Recommended initial wedge:** Institution-led pilots with professional mediators, peacebuilding NGOs, or Track II facilitators who accept operator-readable room content per the threat model
 - **Stack:** React 19, Vite 6, TypeScript, Tailwind CSS 3, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions)
 - **CI:** GitHub Actions — lint, typecheck, Vitest, Playwright e2e, CodeQL static analysis, dependency-review, pgTAP DB tests
@@ -24,8 +24,14 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Per-role dashboards at `/app/{role}` (`App.v2.tsx`)
 - Session create with templates (`/app/sessions/new/setup`)
 - Participant invite tokens + facilitator verification review (`ParticipantsReviewPage`)
+- Participant contact-hash + document upload via `participant-verification-upload` Edge Function (facilitator review remains authoritative — not automated KYC)
 - Live `session_messages` — facilitator control room (`/control`) + participant token path (`/p/room`)
+- Enforced session lifecycle guards (DB/RPC blocks invalid Verify → Facilitate / Release without approvals)
 - Outcome draft, approvals, `release_outcome` RPC → public ledger query
+- Architectural record redaction (facilitator-authored outcomes only; no import-from-room)
+- In-app workflow notifications (verify / room open / approval / release) + prefs gate
+- v2 metadata-only session audit trail + export UI
+- Session resolution workflow (template-gated) with participant support
 - Public ledger UI at `/ledger` with illustrative sample labeling when no live records exist
 - Facilitator walkthrough (in-app)
 - Threat model, public-claims audit, and platform-description aligned with engineering reality
@@ -33,20 +39,19 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 
 ## Pilot-Ready With Care
 
-- Facilitator-led mediation sessions with 2–6 verified participants and manual facilitator verification (authoritative over simulated participant OTP UI)
+- Facilitator-led mediation sessions with 2–6 verified participants and manual facilitator verification
 - Staging or controlled production demos for partner diligence
 - Pre-registered operational metrics (verification completion, time-to-release, session completion) — not quantitative “lives saved” claims
 - Sessions where operator-readable room content and security boundaries are disclosed in partner MOU
+- **Deploy prerequisite:** apply migrations through `20260712_*`, deploy Edge Functions (including `participant-verification-upload`), and provision the `participant-verification` storage bucket
 
-## Partial / Known Gaps (before credible institutional claims)
+## Remaining Gaps (honest unfinished)
 
-- Enforced session state machine (can skip Verify → Facilitate manually today) — **ROADMAP P0 #1**
-- Participant token invite path alignment (staff vs session tokens) — **ROADMAP P0 #2**
-- Architectural record redaction in outcome editor — **ROADMAP P0 #3**
-- Workflow notifications at verify / approve / release — **ROADMAP P1 #4**
-- v2 metadata-only audit trail — **ROADMAP P1 #5**
-- First **real** published ledger record from a pilot session — **ROADMAP P1 #6**
+- Email delivery for workflow notifications (prefs recorded; pipeline not wired) — **ROADMAP P1 #4**
+- E2E covering full facilitator invite → `/p/room` against a live DB — **ROADMAP P0 #2**
+- First **real** published ledger record from a pilot session — **ROADMAP P1 #6** (operator step)
 - Room-level operator-blind E2E encryption — roadmap / threat model §13, not shipped
+- Civic early-warning → automated proposal engine vision — see [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md) (vision-labeled, not shipped)
 
 ## Demo Only Or Requires Extra Validation
 
@@ -72,26 +77,21 @@ Still mounted or referenced in the codebase — **disclose in diligence**; do no
 
 ## Strategic Narrative (context only)
 
-Long-term **prevention / early-signal** positioning lives in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md). That document is **strategy and fundraising context**, not the v2 product spec.
+Long-term **prevention / early-signal** positioning lives in [`docs/business/strategic-positioning-early-warning.md`](docs/business/strategic-positioning-early-warning.md) and [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md). Those documents are **strategy and vision**, not the v2 product spec.
 
 **Not shipped** as a product line: automated CSI ingestion at scale, public CSI maps, quantitative “lives saved” claims, or citizen open matchmaking at institutional scale.
 
-## Roadmap Priorities (Phase A — next 90 days)
+## Roadmap Priorities (Phase A)
 
-See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria.
-
-1. **P0:** Enforced session state machine, participant token path fix, record redaction
-2. **P1:** Workflow notifications, v2 audit trail, first live ledger record, unify “New session” entry
-3. Pilot operations: runbooks, incident handling, cohort support
-4. External security review before Track II or government expansion
+See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria. Most P0/P1 engineering items are complete; remaining work is email delivery, full participant-path e2e against live DB, first real ledger publish, and pilot ops.
 
 ## Known Risks
 
 - Current message confidentiality is not true operator-proof E2E; see [`docs/security/threat-model.md`](docs/security/threat-model.md)
-- Participant verification UI is partially simulated — facilitator manual review is authoritative
+- Facilitator manual review is authoritative for participant verification (by design for pilot)
 - No live published ledger records yet — samples are labeled illustrative
 - Legacy routes and old README narratives can confuse institutional buyers if not disclosed
-- Operational maturity for live pilots depends on written process and disciplined environment management
+- Operational maturity for live pilots depends on written process and disciplined environment management (migrations + Edge Function deploy)
 
 ## Recommended Near-Term Positioning
 
@@ -105,22 +105,24 @@ Avoid these stronger claims unless separately demonstrated:
 - “operator-proof encryption”
 - “proven peace impact at scale” or “lives saved”
 - “global early-warning infrastructure”
-- Automated verification or notification flows as fully shipped
+- Email workflow notifications as fully shipped
 
 ## Go / No-Go For Real Pilots
 
 Before any real pilot, confirm:
 
-- release checklist passes (`npm run check:all`)
+- release checklist passes (`npm run check:all` with local Supabase for type drift, or CI green)
 - threat model claims are reflected in partner-facing materials
 - incident owner and facilitator owner are assigned
-- pilot runbook exists for the exact session format being used
+- pilot runbook exists for the exact session format being used ([`docs/operations/v2-pilot-checklist.md`](docs/operations/v2-pilot-checklist.md))
 - success metrics and post-session surveys are defined in advance
 - partner MOU references operator-readable content boundaries
+- migrations `20260710`–`20260712` and `participant-verification-upload` are deployed to the pilot project
 
 ## Key Documents
 
 - Full platform description: [`docs/product/platform-description.md`](docs/product/platform-description.md)
+- Civic early-warning → proposal vision: [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md)
 - Institutional readiness audit: [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md)
 - Phase A checklist: [`ROADMAP.md`](ROADMAP.md)
 - Repo setup: [`README.md`](README.md)
