@@ -9,17 +9,14 @@ export interface FAQAccordionProps {
 
 export function FAQAccordion({ items }: FAQAccordionProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-px border border-line bg-line">
       {items.map((item) => (
-        <details
-          key={item.question}
-          className="group rounded-lg border border-line bg-surface-elevated px-5 py-4 shadow-sr-sm"
-        >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+        <details key={item.question} className="group bg-surface-elevated px-5 py-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
             {item.question}
             <span
               aria-hidden
-              className="shrink-0 text-lg leading-none text-brand transition-transform duration-200 group-open:rotate-45"
+              className="shrink-0 font-mono text-sm leading-none text-ink-faint transition-transform duration-200 group-open:rotate-45"
             >
               +
             </span>

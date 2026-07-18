@@ -22,9 +22,20 @@ import { logError, safeErrorMessage } from './log';
 export const DEMO_EMAIL: string =
   (import.meta.env.VITE_DEMO_EMAIL as string | undefined)?.trim() || 'demo@squadridge.com';
 
-/** Overridable via `VITE_DEMO_PASSWORD`. Never log this value. */
+/** Default password in bundle — never enable demo login in production without explicit override. */
 export const DEMO_PASSWORD: string =
   (import.meta.env.VITE_DEMO_PASSWORD as string | undefined) || 'SquadRidgeDemo2026!';
+
+/**
+ * Demo password login is disabled in production builds unless
+ * VITE_ENABLE_DEMO_LOGIN=true (internal staging only).
+ */
+export function isDemoLoginEnabled(): boolean {
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_ENABLE_DEMO_LOGIN === 'true';
+  }
+  return import.meta.env.VITE_ENABLE_DEMO_LOGIN !== 'false';
+}
 
 /**
  * Sign the browser in as the demo user. Returns `{ ok: true }` on success or

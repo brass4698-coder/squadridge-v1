@@ -12,7 +12,7 @@ The room and the record are architecturally separate. Session room content — f
 
 - **Account data** for facilitators and organisations: name, work email, organisational affiliation, and role.
 - **Participant verification data**: the information a facilitator requires to confirm eligibility (which may include email confirmation, identity-document review, or manual approval). This is visible only to the facilitator.
-- **Session room content**: the structured text participants contribute during a session (prompts and written responses).
+- **Session room content**: the structured text participants contribute during a session (prompts and written responses). v2 room messages are access-controlled platform data — not operator-proof end-to-end encryption.
 - **Operational and audit data**: an internal audit trail of actions (verification, room entry, prompt posted, approval given, record released), used to support the tamper-evidence of released records and to secure the platform.
 
 ## 3. What we never collect
@@ -34,7 +34,9 @@ We use the data above only to operate the service: to run the session lifecycle,
 
 ## 7. Storage, retention, and security
 
-Session data is encrypted in transit (TLS) and at rest. Room content is not retained on platform infrastructure after a session is closed and archived; an archived room is read-only and accessible only to the facilitator. We retain only the minimum needed to operate the service and to preserve the integrity of released records.
+Session data is encrypted in transit (TLS). **v2 session room messages are stored as access-controlled platform data** (not operator-proof end-to-end encryption). Legacy squad chat uses application-layer ciphertext with operator-readable keys. Room content is never published to the public ledger; only facilitator-approved outcomes are released.
+
+We retain the minimum needed to operate the service and to preserve the integrity of released records. v2 room retention policies are being extended; released ledger records are permanent by design.
 
 We are precise about our security boundaries: content protection today is **not** operator-proof end-to-end encryption, and we do not claim it is. Room-level end-to-end encryption is on our roadmap. See the [Security page](/security) for the full model.
 

@@ -1,140 +1,140 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
-import { audiences } from '../../data/audiences';
-import { builtForDialogueItems } from '../../data/builtForDialogue';
-import { comparisonRows } from '../../data/comparisonRows';
-import { faqHome } from '../../data/faqHome';
-import { privatePublicItems } from '../../data/privatePublicItems';
+import { ArrowRight, Check } from 'lucide-react';
+import { OPERATIONAL_CONTEXTS } from '../../data/institutionalHome';
 import { homepageSampleRecord } from '../../data/sampleRecords';
-import { stages } from '../../data/stages';
+import { CTA } from '../../data/siteMessaging';
+import { InterfaceEvidence, SystemModelSequence, TrustBar } from '../../components/institutional';
 import {
-  ComparisonTable,
-  CTABlock,
+  EvaluatorPath,
   FAQAccordion,
   MarketingSection,
-  PilotAccessTeaser,
-  PrivatePublicSplit,
   RecordCard,
   SectionLabel,
-  StageCard,
 } from '../../components/shared';
+import { faqHome } from '../../data/faqHome';
 
-const FOUNDER_BELIEF_QUOTE =
-  'We kept seeing sensitive conversations stall the moment someone feared a leak — and fall apart when there was no credible way to show what had been agreed. We built SquadRidge to hold one clear line between the dialogue and the record, so parties can speak freely and still stand behind what they release.';
+const HERO_PROOF = [
+  'Limited-entry rooms, verified access',
+  'No public transcript, no open feed',
+  'Approval-gated release with a verifiable anchor',
+] as const;
+
+const TRUST_PILLARS = [
+  {
+    title: 'Privacy boundary',
+    body: 'The room and the record are separate systems — separation by architecture, not a policy you must trust.',
+  },
+  {
+    title: 'Facilitator authority',
+    body: 'You control access, pace, approvals, and whether an outcome is ever released. The platform does not decide.',
+  },
+  {
+    title: 'Verification anchor',
+    body: 'Every released record carries a tamper-evident hash anyone can recompute to confirm it was not altered.',
+  },
+  {
+    title: 'Documented limits',
+    body: 'We state exactly what is protected and what is not — no overclaimed end-to-end encryption or zero-knowledge.',
+  },
+] as const;
 
 export function LandingPage() {
   return (
     <div>
       <HeroSection />
-      <HowItWorksStrip />
-      <BuiltForDialogueSection />
-      <WhySection />
-      <FounderBeliefSection />
-      <LifecycleTeaserSection />
-      <BuiltForSection />
-      <SecurityTeaserSection />
-      <LedgerPreviewSection />
+      <TrustBar />
+      <SystemModelSection />
+      <TrustPillarsSection />
+      <ContextsSection />
+      <InterfaceSection />
+      <LedgerSection />
       <FaqSection />
-      <PilotAccessTeaser />
-      <CTABlock
-        headline="Ready to run a protected session?"
-        secondaryLabel="See how it works"
-        secondaryHref="/how-it-works"
-      />
+      <PilotIntakeSection />
     </div>
   );
 }
 
 function HeroSection() {
   return (
-    <MarketingSection>
-      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <div>
-          <SectionLabel text="When the conversation is sensitive, the wrong tool can end it." />
-          <h1 className="font-display text-[clamp(2rem,3.2vw,3rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink">
-            <span className="whitespace-nowrap">Protected dialogue.</span>{' '}
-            <span className="whitespace-nowrap text-brand">Verifiable outcomes.</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-secondary">
-            SquadRidge helps mediators, NGOs, and community partners run structured cross-border
-            dialogue and violence-prevention processes in a protected room — then release a public
-            record anyone can verify, without exposing who said what.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-5">
-            <Link to="/request-access" className="btn-pill btn-pill--primary text-sm">
-              Request pilot access
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-            <Link
-              to="/how-it-works"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-secondary underline-offset-4 transition-colors hover:text-ink hover:underline"
-            >
-              See how it works
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </div>
-          <div className="mt-6 flex flex-col gap-3">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-surface-elevated px-3 py-1.5 text-[0.7rem] font-medium text-ink-faint">
-              <span
-                aria-hidden
-                className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-brand motion-reduce:animate-none"
-              />
-              Private pilot — now inviting mediators and peacebuilding teams
-            </div>
-            <p className="text-xs font-medium tracking-wide text-ink-faint">
-              Privacy by design. Built for peace, built to last.
-            </p>
-          </div>
+    <MarketingSection className="!pb-16 !pt-20 md:!pt-28">
+      <div className="mx-auto max-w-3xl text-center">
+        <SectionLabel text="For mediators, facilitators, and institutional conveners" />
+        <h1 className="font-display text-[clamp(2rem,4.2vw,3.5rem)] font-medium leading-[1.08] tracking-tight text-ink">
+          Verified deliberation
+          <br className="hidden sm:block" /> for sensitive decisions.
+        </h1>
+        <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-ink-secondary">
+          SquadRidge gives facilitators and institutions a protected room where a limited number of
+          verified participants work through high-stakes issues — contributing without public
+          attribution — and release only outcome records that can be trusted outside the room.
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <Link to="/request-access" className="btn-institutional btn-institutional--primary">
+            Request pilot access
+            <ArrowRight className="size-3.5" aria-hidden />
+          </Link>
+          <a href="#system-model" className="btn-institutional btn-institutional--ghost">
+            See the release flow
+          </a>
         </div>
-        <PrivatePublicSplit
-          size="hero"
-          privateItems={privatePublicItems.private}
-          publicItems={privatePublicItems.public}
-        />
+
+        <ul className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {HERO_PROOF.map((point) => (
+            <li key={point} className="flex items-center gap-2 text-sm text-ink-secondary">
+              <Check className="size-3.5 shrink-0 text-brand" aria-hidden />
+              {point}
+            </li>
+          ))}
+        </ul>
       </div>
     </MarketingSection>
   );
 }
 
-const DEMO_STEPS = [
-  {
-    step: '1',
-    title: 'Request access',
-    body: 'Community partners and facilitators apply for the private pilot. Admins review and send invite-only access.',
-  },
-  {
-    step: '2',
-    title: 'Protected dialogue',
-    body: 'Verified participants join a facilitator-led written room — structured dialogue designed to reduce escalation, not open chat.',
-  },
-  {
-    step: '3',
-    title: 'Verifiable outcome',
-    body: 'When parties approve, the facilitator releases an integrity-checked public record — not a transcript of the room.',
-  },
-] as const;
-
-function HowItWorksStrip() {
+function SystemModelSection() {
   return (
-    <MarketingSection className="border-y border-line bg-surface-elevated/40 py-12">
+    <MarketingSection id="system-model" className="border-t border-line">
       <div className="mx-auto max-w-6xl">
-        <SectionLabel text="How it works" />
-        <h2 className="text-h3 text-ink">Three steps from invite to credible record.</h2>
-        <ol className="mt-8 grid gap-6 md:grid-cols-3">
-          {DEMO_STEPS.map((item) => (
-            <li key={item.step} className="rounded-lg border border-line bg-surface p-5">
-              <span className="font-mono text-xs font-semibold text-brand">Step {item.step}</span>
-              <h3 className="mt-2 text-base font-semibold text-ink">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+        <div className="max-w-2xl">
+          <SectionLabel text="The model" />
+          <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+            One document, three governed states.
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            The room and the record are separate by design. Follow a single matter through each
+            state — and see, at every step, who is in control and what never becomes public.
+          </p>
+        </div>
+        <div className="mt-12">
+          <SystemModelSequence />
+        </div>
+      </div>
+    </MarketingSection>
+  );
+}
+
+function TrustPillarsSection() {
+  return (
+    <MarketingSection className="border-t border-line bg-surface-sunken/50">
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          <SectionLabel text="Trust model" />
+          <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+            Why institutions trust the outcome.
+          </h2>
+        </div>
+        <ul className="mt-10 grid gap-px border border-line bg-line md:grid-cols-2 lg:grid-cols-4">
+          {TRUST_PILLARS.map((pillar) => (
+            <li key={pillar.title} className="bg-surface-elevated p-6">
+              <h3 className="text-sm font-semibold tracking-tight text-ink">{pillar.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-secondary">{pillar.body}</p>
             </li>
           ))}
-        </ol>
+        </ul>
         <p className="mt-6 text-sm text-ink-faint">
-          <Link
-            to="/how-it-works"
-            className="font-medium text-brand underline-offset-4 hover:underline"
-          >
-            Full lifecycle: Configure → Verify → Facilitate → Release
+          <Link to="/security" className="text-ink-secondary underline-offset-4 hover:underline">
+            Read the full security model
           </Link>
         </p>
       </div>
@@ -142,68 +142,32 @@ function HowItWorksStrip() {
   );
 }
 
-function BuiltForDialogueSection() {
+function ContextsSection() {
   return (
-    <MarketingSection>
+    <MarketingSection className="border-t border-line">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-10 max-w-3xl">
-          <SectionLabel text="Built for sensitive dialogue" />
-          <h2 className="text-h2 text-ink">
-            Architecture for high-stakes rooms — not general chat.
+        <div className="max-w-2xl">
+          <SectionLabel text="One room model" />
+          <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+            Different matters. The same governed room.
           </h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+            Every context below runs on the same mechanism: verified entry, protected written
+            deliberation under a facilitator, and a deliberate release of only what the group
+            approved.
+          </p>
         </div>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {builtForDialogueItems.map((item) => (
-            <li
-              key={item}
-              className="flex items-start gap-3 rounded-lg border border-line bg-surface-elevated p-5 text-sm leading-relaxed text-ink-secondary"
-            >
-              <ShieldCheck
-                className="mt-0.5 size-4 shrink-0 text-brand"
-                strokeWidth={1.75}
-                aria-hidden
-              />
-              {item}
+        <ul className="mt-10 grid gap-px border border-line bg-line md:grid-cols-2">
+          {OPERATIONAL_CONTEXTS.map((ctx) => (
+            <li key={ctx.label} className="bg-surface-elevated p-6 md:p-8">
+              <h3 className="text-sm font-semibold text-ink">{ctx.label}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-secondary">{ctx.body}</p>
             </li>
           ))}
         </ul>
-      </div>
-    </MarketingSection>
-  );
-}
-
-function WhySection() {
-  return (
-    <MarketingSection id="why">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-10 max-w-3xl">
-          <SectionLabel text="Why ordinary tools fail" />
-          <h2 className="text-h2 text-ink">
-            Video calls have no record. Docs expose everything. Surveys don't verify.
-          </h2>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
-            None were built for high-stakes dialogue that still needs a credible public outcome.
-          </p>
-        </div>
-        <ComparisonTable rows={comparisonRows} />
-      </div>
-    </MarketingSection>
-  );
-}
-
-function FounderBeliefSection() {
-  return (
-    <MarketingSection>
-      <div className="mx-auto max-w-3xl">
-        <blockquote className="rounded-lg border border-line bg-surface-elevated p-8 md:p-10">
-          <p className="text-base leading-relaxed text-ink md:text-lg">
-            &ldquo;{FOUNDER_BELIEF_QUOTE}&rdquo;
-          </p>
-          <footer className="mt-4 text-xs font-medium text-ink-faint">— The SquadRidge team</footer>
-        </blockquote>
-        <p className="mt-4 text-center text-xs text-ink-faint">
-          <Link to="/about" className="text-brand underline-offset-4 hover:underline">
-            Our founding story
+        <p className="mt-6 text-sm text-ink-faint">
+          <Link to="/use-cases" className="text-ink-secondary underline-offset-4 hover:underline">
+            Operational use cases
           </Link>
         </p>
       </div>
@@ -211,122 +175,42 @@ function FounderBeliefSection() {
   );
 }
 
-function LifecycleTeaserSection() {
+function InterfaceSection() {
   return (
-    <MarketingSection id="lifecycle">
+    <MarketingSection className="border-t border-line bg-surface-sunken/50">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-14 max-w-3xl">
-          <SectionLabel text="Session lifecycle" />
-          <h2 className="text-h2 text-ink">Four stages. One protected process.</h2>
-          <p className="mt-4 text-sm text-ink-secondary">
-            <Link to="/how-it-works" className="text-brand underline-offset-4 hover:underline">
-              How it works
-            </Link>{' '}
-            explains each stage and the three workflows behind them.
-          </p>
+        <div className="max-w-2xl">
+          <SectionLabel text="Product evidence" />
+          <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+            Facilitator oversight and release, in one view.
+          </h2>
         </div>
-        <ol className="relative grid gap-8 md:grid-cols-4">
-          <div aria-hidden className="absolute left-0 right-0 top-5 hidden h-px bg-line md:block" />
-          {stages.map((stage) => (
-            <StageCard
-              key={stage.number}
-              number={stage.number}
-              title={stage.title}
-              description={stage.shortDescription}
-              variant="teaser"
-            />
-          ))}
-        </ol>
-        <div className="mt-10 text-center">
-          <Link
-            to="/ledger"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline"
-          >
+        <div className="mt-10">
+          <InterfaceEvidence />
+        </div>
+      </div>
+    </MarketingSection>
+  );
+}
+
+function LedgerSection() {
+  return (
+    <MarketingSection className="border-t border-line">
+      <div className="mx-auto max-w-3xl">
+        <SectionLabel text="Released record" />
+        <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+          What a published outcome looks like.
+        </h2>
+        <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
+          Approved outcome text, limited metadata, and a verification anchor — no session room
+          content.{' '}
+          <Link to="/ledger" className="text-ink-secondary underline-offset-4 hover:underline">
             Browse the ledger
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-        </div>
-      </div>
-    </MarketingSection>
-  );
-}
-
-function BuiltForSection() {
-  return (
-    <MarketingSection>
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-12 max-w-3xl">
-          <SectionLabel text="Built for" />
-          <h2 className="text-h2 text-ink">The work that needs precision, not audience.</h2>
-          <p className="mt-4 text-sm text-ink-secondary">
-            <Link to="/use-cases" className="text-brand underline-offset-4 hover:underline">
-              Use cases
-            </Link>{' '}
-            shows six concrete scenarios across these audiences.
-          </p>
-        </div>
-        <ul className="grid gap-6 md:grid-cols-3">
-          {audiences.map((audience) => (
-            <li
-              key={audience.label}
-              className="flex flex-col gap-3 rounded-lg border border-line bg-surface-elevated p-6"
-            >
-              <p className="text-xs font-semibold tracking-wide text-ink-faint">{audience.tag}</p>
-              <h3 className="text-lg font-semibold text-ink">{audience.label}</h3>
-              <p className="text-sm leading-relaxed text-ink-secondary">{audience.body}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </MarketingSection>
-  );
-}
-
-function SecurityTeaserSection() {
-  return (
-    <MarketingSection>
-      <div className="mx-auto max-w-3xl">
-        <SectionLabel text="Verified, not exposed" />
-        <h2 className="text-h2 text-ink">Security by architecture, not by promise.</h2>
-        <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-          No raw session data is ever published — only facilitator-approved outcomes, each carrying
-          a verification anchor. The room and the record stay separate by design.{' '}
-          <Link to="/security" className="text-brand underline-offset-4 hover:underline">
-            Full security model
           </Link>
         </p>
-        <div className="mt-6 flex items-start gap-2.5">
-          <ShieldCheck
-            className="mt-0.5 size-4 shrink-0 text-ink-faint"
-            strokeWidth={1.75}
-            aria-hidden
-          />
-          <p className="text-xs leading-relaxed text-ink-faint">
-            The anchor confirms record integrity — see Security for what it proves and what it does
-            not expose.
-          </p>
+        <div className="mt-10">
+          <RecordCard {...homepageSampleRecord} />
         </div>
-      </div>
-    </MarketingSection>
-  );
-}
-
-function LedgerPreviewSection() {
-  return (
-    <MarketingSection>
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-10 max-w-2xl">
-          <SectionLabel text="Public ledger" />
-          <h2 className="text-h2 text-ink">This is what a released record looks like.</h2>
-          <p className="mt-3 text-base leading-relaxed text-ink-secondary">
-            Approved outcome text, a verification anchor, and limited metadata — nothing from the
-            session room.{' '}
-            <Link to="/ledger" className="text-brand underline-offset-4 hover:underline">
-              Browse the ledger
-            </Link>
-          </p>
-        </div>
-        <RecordCard {...homepageSampleRecord} />
       </div>
     </MarketingSection>
   );
@@ -334,19 +218,50 @@ function LedgerPreviewSection() {
 
 function FaqSection() {
   return (
-    <MarketingSection id="faq">
+    <MarketingSection className="border-t border-line bg-surface-sunken/50">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-10">
-          <SectionLabel text="Common questions" />
-          <h2 className="text-h2 text-ink">Answers before you ask.</h2>
-          <p className="mt-3 text-sm text-ink-secondary">
-            <Link to="/faq" className="text-brand underline-offset-4 hover:underline">
-              Full FAQ
-            </Link>{' '}
-            covers everything else.
-          </p>
+        <SectionLabel text="For mediators" />
+        <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+          Questions before a pilot.
+        </h2>
+        <div className="mt-10">
+          <FAQAccordion items={faqHome} />
         </div>
-        <FAQAccordion items={faqHome} />
+        <p className="mt-6 text-sm text-ink-faint">
+          <Link to="/faq" className="text-ink-secondary underline-offset-4 hover:underline">
+            Full FAQ
+          </Link>
+        </p>
+      </div>
+    </MarketingSection>
+  );
+}
+
+function PilotIntakeSection() {
+  return (
+    <MarketingSection className="border-t border-line" id="pilot">
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-2xl">
+          <SectionLabel text="Pilot access" />
+          <h2 className="font-display text-h2 font-medium tracking-tight text-ink">
+            {CTA.pilotHeadline}
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-ink-secondary">{CTA.pilotBody}</p>
+        </div>
+
+        <div className="mt-10">
+          <EvaluatorPath />
+        </div>
+
+        <div className="mt-12 flex flex-wrap gap-4">
+          <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
+            {CTA.primaryLabel}
+            <ArrowRight className="size-3.5" aria-hidden />
+          </Link>
+          <Link to="/contact" className="btn-institutional btn-institutional--ghost">
+            {CTA.briefingHeadline}
+          </Link>
+        </div>
       </div>
     </MarketingSection>
   );

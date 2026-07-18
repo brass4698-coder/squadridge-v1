@@ -24,13 +24,13 @@ function RecordCardInner({
   anchorStatus = 'verified',
 }: Omit<RecordCardProps, 'href'>) {
   return (
-    <article className="overflow-hidden rounded-lg border border-line bg-surface-elevated shadow-sr-sm">
+    <article className="overflow-hidden border border-line bg-surface-elevated">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
         <div className="flex items-center gap-3">
-          <p className="font-mono text-xs text-brand">{id}</p>
+          <p className="font-mono text-xs text-ink-faint">{id}</p>
           {variant === 'sample' ? (
-            <span className="rounded-full border border-line bg-surface-secondary px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-ink-faint">
-              Illustrative example
+            <span className="border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wider text-ink-faint">
+              Illustrative
             </span>
           ) : null}
         </div>
@@ -38,11 +38,11 @@ function RecordCardInner({
       </header>
 
       <div className="px-6 py-6">
-        <h3 className="text-lg font-semibold leading-tight text-ink">{title}</h3>
+        <h3 className="font-display text-lg font-medium leading-tight text-ink">{title}</h3>
         <p className="mt-3 text-sm leading-relaxed text-ink-secondary">{summary}</p>
       </div>
 
-      <dl className="grid grid-cols-1 gap-px border-t border-line bg-surface-secondary sm:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-px border-t border-line bg-line sm:grid-cols-2">
         <MetaCell label="Organisation" value={org} />
         <MetaCell label="Released" value={date} />
         <MetaCell label="Participants" value={`${participantCount} verified`} />
@@ -72,8 +72,12 @@ function MetaCell({
 }) {
   return (
     <div className="bg-surface px-6 py-4">
-      <dt className="text-xs uppercase tracking-[0.08em] text-ink-faint">{label}</dt>
-      <dd className={`mt-1 text-sm text-ink ${mono ? 'font-mono text-brand' : ''}`}>{value}</dd>
+      <dt className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
+        {label}
+      </dt>
+      <dd className={`mt-1 text-sm text-ink ${mono ? 'font-mono text-ink-secondary' : ''}`}>
+        {value}
+      </dd>
     </div>
   );
 }
@@ -83,7 +87,7 @@ export function RecordCard(props: RecordCardProps) {
 
   if (href) {
     return (
-      <Link to={href} className="block transition-shadow hover:shadow-sr-md">
+      <Link to={href} className="block transition-colors hover:border-line-strong">
         <RecordCardInner {...inner} />
       </Link>
     );
@@ -104,11 +108,11 @@ export function RecordCardCompact({
   href,
 }: RecordCardProps) {
   const content = (
-    <article className="rounded-lg border border-line bg-surface-elevated p-6 shadow-sr-sm transition-shadow hover:shadow-sr-md">
+    <article className="border border-line bg-surface-elevated p-6 transition-colors hover:border-line-strong">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="mb-1 font-mono text-xs text-brand">{id}</p>
-          <h2 className="text-sm font-semibold text-ink">{title}</h2>
+          <p className="mb-1 font-mono text-xs text-ink-faint">{id}</p>
+          <h2 className="font-display text-sm font-medium text-ink">{title}</h2>
           <p className="mt-1 text-xs text-ink-secondary">
             {org} · {date} · {participantCount} verified participants
           </p>
@@ -116,8 +120,8 @@ export function RecordCardCompact({
         <VerificationAnchorBadge anchorId={id} status={anchorStatus} />
       </div>
       {variant === 'sample' ? (
-        <p className="mt-3 border-t border-line pt-3 text-xs italic text-ink-faint">
-          Sample record. The session that produces an outcome is never public.
+        <p className="mt-3 border-t border-line pt-3 text-xs text-ink-faint">
+          Illustrative example. Session room content is never published.
         </p>
       ) : null}
     </article>

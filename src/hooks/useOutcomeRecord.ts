@@ -90,6 +90,21 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     };
     await supabase.from('outcome_approvals').update(patch).eq('id', approvalId);
     setApprovals((prev) => prev.map((a) => (a.id === approvalId ? { ...a, ...patch } : a)));
+    if (status === 'approved' && sessionId) {
+      const approval = approvals.find((a) => a.id === approvalId);
+      await supabase.rpc('log_session_audit_event', {
+        p_session_id: sessionId,
+        p_event_type: 'approval_given',
+        p_actor_role: 'facilitator',
+        p_metadata: { approver_label: approval?.approver_label ?? approvalId },
+      });
+      await supabase.rpc('notify_facilitator_workflow', {
+        p_session_id: sessionId,
+        p_event_type: 'approval_given',
+        p_title: 'Approval recorded',
+        p_body: `${approval?.approver_label ?? 'An approver'} marked approved.`,
+      });
+    }
   }
 
   async function publishToLedger() {

@@ -13,7 +13,7 @@
  *   import App from './App.v2';
  */
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import {
   RequireAuth,
@@ -86,8 +86,7 @@ import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
 import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
 import { SessionsListPage } from './pages/v2/SessionsListPage';
 import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
-import { LiveRoomPage } from './pages/v2/LiveRoomPage';
-import { OutcomeDraftingPage } from './pages/v2/OutcomeDraftingPage';
+import { appRoutes } from './lib/appRoutes';
 
 // ── New v2 pages — Phase 3 (facilitator sub-pages) ───────────────────────────
 import { SessionNewPage } from './pages/v2/facilitator/SessionNewPage';
@@ -144,6 +143,15 @@ const FinancialProjectionsPage = lazy(() =>
 const LedgerPage = lazy(() =>
   import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
 );
+
+function SessionRoomLegacyRedirect() {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  return <Navigate to={appRoutes.sessionControl(sessionId ?? '')} replace />;
+}
+
+function OutcomesLegacyRedirect() {
+  return <Navigate to={appRoutes.sessions} replace />;
+}
 
 export default function AppV2() {
   return (
@@ -338,7 +346,10 @@ export default function AppV2() {
                     path="/app/sessions/:sessionId/invite"
                     element={<ParticipantInvitePage />}
                   />
-                  <Route path="/app/sessions/:sessionId/room" element={<LiveRoomPage />} />
+                  <Route
+                    path="/app/sessions/:sessionId/room"
+                    element={<SessionRoomLegacyRedirect />}
+                  />
                   <Route
                     path="/app/sessions/:sessionId/participants"
                     element={<ParticipantsReviewPage />}
@@ -350,8 +361,8 @@ export default function AppV2() {
                   />
                   <Route path="/app/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
                   <Route path="/app/participants" element={<ParticipantsIndexPage />} />
-                  <Route path="/app/outcomes/new" element={<OutcomeDraftingPage />} />
-                  <Route path="/app/outcomes/:outcomeId" element={<OutcomeDraftingPage />} />
+                  <Route path="/app/outcomes/new" element={<OutcomesLegacyRedirect />} />
+                  <Route path="/app/outcomes/:outcomeId" element={<OutcomesLegacyRedirect />} />
                 </Route>
 
                 {/* Insights — facilitator-side + analyst */}

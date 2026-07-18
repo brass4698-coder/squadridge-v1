@@ -1,19 +1,50 @@
 import type { UseCaseCardProps } from '../components/shared/UseCaseCard';
 
+export const flagshipUseCaseId = 'civil-mediation';
+
 export const useCases: UseCaseCardProps[] = [
   {
-    sector: 'Civil mediators & conflict-resolution',
+    sector: 'Civil mediators & conflict resolution · Flagship',
     title: 'Community land-use mediation',
     context:
-      'Parties to a contested land-use question — residents, authorities, and community organisations — need a structured process where positions can be stated without exposure. Ordinary tools leave a discoverable trail.',
+      'Parties to a contested land-use question — residents, authorities, and community organisations — need a structured process where positions can be stated without exposure. Ordinary tools leave a discoverable trail; institutions still need a credible outcome they can cite.',
     inTheRoom:
-      'Structured written dialogue across facilitator-led rounds. Each party sets out its position and responds at its own pace. No faces, voices, or transcripts — the exchange stays private to verified participants.',
+      'Structured written dialogue across facilitator-led rounds. Each party sets out its position and responds at its own pace. No faces, voices, or transcripts — the exchange stays private to verified participants under your control.',
     releasedRecord:
       'A Joint Statement of Principles, approved by every party, published to the ledger with a verification anchor.',
     whySquadridge:
-      'Community members can participate without fear of public exposure; government gets a verifiable record; the process is transparent without being a transcript.',
+      'You can give parties a protected room and give institutions a verifiable record — without exposing who said what, and without replacing your professional judgment.',
     recordSampleId: 'SQR-2024-0147',
-    ctaLabel: 'Request access as a facilitator',
+    ctaLabel: 'Request access as a mediator',
+    ctaHref: '/request-access',
+  },
+  {
+    sector: 'Restorative & de-escalation processes',
+    title: 'Facilitated strategy session with a releasable agreement',
+    context:
+      'A restorative or de-escalation process involving multiple stakeholders needs a protected written room — tensions are high, attribution is sensitive, and a credible summary of agreed next steps may need to exist outside the room.',
+    inTheRoom:
+      'Structured written rounds under a trained facilitator. Parties engage without real-time confrontation; dialogue stays private. Support for intervention proposals where groups must rank commitments before release.',
+    releasedRecord:
+      'A facilitator-approved agreement summary or action plan on the ledger — verifiable release integrity, no transcript, no participant attribution.',
+    whySquadridge:
+      'Supports de-escalation through structure and time-bound written dialogue — not monitoring, scoring, or surveillance of communities.',
+    ctaLabel: 'See how it works',
+    ctaHref: '/how-it-works',
+  },
+  {
+    sector: 'City community safety',
+    title: 'Municipal coordination — action commitments record',
+    context:
+      'A city community safety office convenes verified representatives from community-led violence interruption programs, youth services, and neighborhood coalitions. Partners need a protected written room to negotiate shared priorities without leaking internal positions — then a credible record funders and council can verify.',
+    inTheRoom:
+      'Structured written coordination rounds under facilitator oversight. Partners propose interventions, signal support privately, and the facilitator ranks a shortlist — no transcript, no surveillance analytics, no public attribution of who said what.',
+    releasedRecord:
+      'An Action Commitments Record on the ledger: prioritized interventions, lead organizations, timelines, and participant org count — with a verification anchor. Room dialogue never publishes.',
+    whySquadridge:
+      'Aligns with community violence prevention and peacetech goals: traceable institutional decisions without turning dialogue into monitoring. Partners coordinate safely; the city releases only what everyone approved.',
+    recordSampleId: 'SQR-2026-0312',
+    ctaLabel: 'Request a municipal briefing',
     ctaHref: '/request-access',
   },
   {
@@ -40,13 +71,13 @@ export const useCases: UseCaseCardProps[] = [
     releasedRecord:
       'A shareable communiqué or statement of common ground, released only on facilitator sign-off and anchored so any reader can confirm it is unaltered.',
     whySquadridge:
-      'Parties speak freely knowing nothing is recorded; the communiqué is verifiable without revealing who said what.',
+      'Parties speak freely knowing nothing is recorded for public release; the communiqué is verifiable without revealing who said what.',
     ctaLabel: 'Request pilot access',
     ctaHref: '/request-access',
   },
   {
     sector: 'Implementation & monitoring',
-    title: 'Post-agreement implementation monitoring',
+    title: 'Post-agreement implementation check-ins',
     context:
       'After an agreement is reached, parties need accountability without exposing internal reporting. Periodic check-ins must produce a credible public checkpoint.',
     inTheRoom:
@@ -72,18 +103,7 @@ export const useCases: UseCaseCardProps[] = [
     ctaLabel: 'Request pilot access',
     ctaHref: '/request-access',
   },
-  {
-    sector: 'Corporate ESG & board governance',
-    title: 'Deliberations requiring an audit-grade record',
-    context:
-      'A board committee or ESG working group must deliberate on a contested issue and produce a decision record that satisfies auditors, regulators, or ESG raters — without leaking the deliberation itself.',
-    inTheRoom:
-      'Committee members deliberate in structured written rounds. Sensitive commercial or strategic reasoning stays inside the room.',
-    releasedRecord:
-      "A verified decision record — the committee's approved resolution, with metadata (date, participant count, scope) — anchored and independently verifiable. Satisfies audit-grade requirements without exposing deliberation content.",
-    whySquadridge:
-      'Deliberation stays private; auditors and regulators get a verifiable decision record without the room.',
-    ctaLabel: 'Request pilot access',
-    ctaHref: '/request-access',
-  },
 ];
+
+/** Secondary contexts — shown after the flagship on marketing pages. */
+export const secondaryUseCases = useCases.slice(1);

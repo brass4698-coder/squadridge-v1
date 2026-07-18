@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export function SectionLabel({ text }: { text: string }) {
   return (
-    <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand">
+    <p className="section-label mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-brand">
       {text}
     </p>
   );

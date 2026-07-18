@@ -52,16 +52,24 @@ export function useParticipants(sessionId: string | undefined) {
     participantId: string,
     status: Participant['verification_status'],
   ) {
-    const patch: Partial<Participant> = { verification_status: status };
-    if (status === 'verified') {
-      patch.admitted_at = new Date().toISOString();
-    }
-    const { error: err } = await supabase
-      .from('participants')
-      .update(patch)
-      .eq('id', participantId);
+    const { data, error: err } = await supabase.rpc('facilitator_set_participant_verification', {
+      p_participant_id: participantId,
+      p_status: status,
+    });
     if (err) throw err;
-    setParticipants((prev) => prev.map((p) => (p.id === participantId ? { ...p, ...patch } : p)));
+    const result = data as { ok?: boolean; error?: string };
+    if (!result?.ok) throw new Error(result?.error ?? 'Update failed');
+    setParticipants((prev) =>
+      prev.map((p) =>
+        p.id === participantId
+          ? {
+              ...p,
+              verification_status: status,
+              admitted_at: status === 'verified' ? new Date().toISOString() : p.admitted_at,
+            }
+          : p,
+      ),
+    );
   }
 
   async function addParticipant(input: {

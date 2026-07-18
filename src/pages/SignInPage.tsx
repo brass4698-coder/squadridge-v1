@@ -5,12 +5,13 @@ import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
 import { Input } from '../components/ui/Input';
 import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
+import { SquadRidgeLockup } from '../components/SquadRidgeWordmark';
 import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
 import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 import { useDashboardRoute } from '../hooks/useDashboardRoute';
-import { signInWithDemo, DEMO_EMAIL } from '../lib/demoLogin';
+import { signInWithDemo, DEMO_EMAIL, isDemoLoginEnabled } from '../lib/demoLogin';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 
 /**
@@ -136,20 +137,8 @@ export function SignInPage() {
         }}
       >
         {/* Wordmark — sits above the form as the visual anchor */}
-        <div className="mb-8 flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
-            style={{
-              background: 'linear-gradient(135deg, var(--sr-primary), var(--sr-primary-pressed))',
-              color: 'var(--sr-on-primary)',
-            }}
-          >
-            SR
-          </span>
-          <span className="text-lg font-semibold tracking-tight" style={{ color: 'var(--sr-ink)' }}>
-            SquadRidge
-          </span>
+        <div className="mb-8 text-ink">
+          <SquadRidgeLockup size="lg" showTagline alt="SquadRidge — Facilitator Led Rooms" />
         </div>
 
         <h1 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
@@ -254,36 +243,39 @@ export function SignInPage() {
               Email me a magic link
             </Button>
 
-            {/* Demo access — visually distinct ghost style with play icon */}
-            <div className="relative py-2">
-              <div
-                className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t"
-                style={{ borderColor: 'var(--sr-divider)' }}
-              />
-              <p
-                className="relative mx-auto w-fit px-3 text-[0.7rem] font-medium uppercase tracking-wider"
-                style={{
-                  backgroundColor: 'var(--sr-bg-elevated)',
-                  color: 'var(--sr-ink-faint)',
-                }}
-              >
-                or
-              </p>
-            </div>
+            {isDemoLoginEnabled() ? (
+              <>
+                <div className="relative py-2">
+                  <div
+                    className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t"
+                    style={{ borderColor: 'var(--sr-divider)' }}
+                  />
+                  <p
+                    className="relative mx-auto w-fit px-3 text-[0.7rem] font-medium uppercase tracking-wider"
+                    style={{
+                      backgroundColor: 'var(--sr-bg-elevated)',
+                      color: 'var(--sr-ink-faint)',
+                    }}
+                  >
+                    or
+                  </p>
+                </div>
 
-            <button
-              type="button"
-              onClick={() => void handleDemo()}
-              disabled={demoBusy}
-              className="btn-pill btn-pill--ghost w-full"
-              aria-label={`Try the SquadRidge demo (${DEMO_EMAIL})`}
-            >
-              <Play className="size-4" aria-hidden />
-              {demoBusy ? 'Signing in…' : 'Try the Demo'}
-            </button>
-            <p className="text-center text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-              Instant read-only access to seeded example sessions. No email required.
-            </p>
+                <button
+                  type="button"
+                  onClick={() => void handleDemo()}
+                  disabled={demoBusy}
+                  className="btn-pill btn-pill--ghost w-full"
+                  aria-label={`Try the SquadRidge demo (${DEMO_EMAIL})`}
+                >
+                  <Play className="size-4" aria-hidden />
+                  {demoBusy ? 'Signing in…' : 'Try the Demo'}
+                </button>
+                <p className="text-center text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
+                  Instant read-only access to seeded example sessions. No email required.
+                </p>
+              </>
+            ) : null}
           </form>
         )}
 

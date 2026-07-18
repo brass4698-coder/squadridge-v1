@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
 import { useOutcomeRecord } from '../../../hooks/useOutcomeRecord';
 import { useParticipants } from '../../../hooks/useParticipants';
@@ -8,6 +8,8 @@ import { appRoutes } from '../../../lib/appRoutes';
 export function OutcomeWorkspacePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const importState = location.state as { agreedTermsImport?: string } | null;
   const { outcome, loading, saveDraft, submitForRelease, seedApprovals, approvals } =
     useOutcomeRecord(sessionId);
   const { participants } = useParticipants(sessionId);
@@ -29,6 +31,15 @@ export function OutcomeWorkspacePage() {
       facilitatorNotes: outcome.facilitator_notes ?? '',
     });
   }, [outcome]);
+
+  useEffect(() => {
+    if (!importState?.agreedTermsImport) return;
+    setForm((f) => ({
+      ...f,
+      agreedTerms: f.agreedTerms.trim() ? f.agreedTerms : (importState.agreedTermsImport ?? ''),
+    }));
+    navigate(location.pathname, { replace: true, state: null });
+  }, [importState?.agreedTermsImport, location.pathname, navigate]);
 
   function set(key: string, value: string) {
     setForm((f) => ({ ...f, [key]: value }));

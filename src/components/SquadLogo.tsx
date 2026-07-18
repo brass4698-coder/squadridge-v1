@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 
-const LOGO_PNG = '/assets/logo.png';
-const FALLBACK_SVG = '/logo-bridge.svg';
+const ICON_SVG = '/assets/squadridge-icon.svg';
+const ICON_PNG = '/assets/logo.png';
 
 export interface LogoProps {
   size?: number;
@@ -11,11 +11,11 @@ export interface LogoProps {
   'aria-hidden'?: boolean | 'true' | 'false';
 }
 
-/** Raster bridge mark (`public/assets/logo.png`), with SVG fallback if the PNG is missing. */
+/** SquadRidge mark — three figures at a ridge under a protected circle. */
 export function SquadLogo({ size = 34, className, style, 'aria-hidden': ariaHidden }: LogoProps) {
   return (
     <img
-      src={LOGO_PNG}
+      src={ICON_SVG}
       alt=""
       role="presentation"
       width={size}
@@ -26,8 +26,8 @@ export function SquadLogo({ size = 34, className, style, 'aria-hidden': ariaHidd
       decoding="async"
       onError={(e) => {
         const img = e.currentTarget;
-        if (!img.src.includes('logo-bridge')) {
-          img.src = FALLBACK_SVG;
+        if (!img.src.includes('logo.png')) {
+          img.src = ICON_PNG;
         }
       }}
     />

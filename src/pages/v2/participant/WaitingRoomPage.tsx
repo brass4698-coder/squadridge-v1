@@ -1,26 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { useParticipantSession } from '../../../hooks/useParticipantSession';
 import { participantRoute } from '../../../lib/participantRoutes';
+
+const LIVE_STATUSES = new Set(['live', 'open', 'paused']);
+
+function isRoomReady(
+  sessionStatus: string | undefined,
+  verificationStatus: string | undefined,
+): boolean {
+  return verificationStatus === 'verified' && !!sessionStatus && LIVE_STATUSES.has(sessionStatus);
+}
 
 export function WaitingRoomPage() {
   const token = useParticipantToken();
+  const { ctx, refresh } = useParticipantSession(token ?? '');
   const [dots, setDots] = useState('.');
-  const [admitted, setAdmitted] = useState(false);
   const navigate = useNavigate();
 
-  // Animate waiting indicator
+  const admitted = isRoomReady(ctx?.session_status, ctx?.verification_status);
+
   useEffect(() => {
     const id = setInterval(() => setDots((d) => (d.length >= 3 ? '.' : d + '.')), 600);
     return () => clearInterval(id);
   }, []);
 
-  // Simulate facilitator admitting — replace with real-time subscription
+  // Poll facilitator session status until room is live and participant is verified
   useEffect(() => {
-    const id = setTimeout(() => setAdmitted(true), 5000);
-    return () => clearTimeout(id);
-  }, []);
+    if (!token) return;
+    const poll = setInterval(() => void refresh(), 3000);
+    return () => clearInterval(poll);
+  }, [token, refresh]);
 
   function enterRoom() {
     if (!token) return;
@@ -29,10 +41,27 @@ export function WaitingRoomPage() {
 
   if (!token) return null;
 
+  const sessionTitle = ctx?.session_title ?? 'Protected session';
+  const pendingVerification = ctx?.verification_status === 'pending';
+  const denied = ctx?.verification_status === 'denied';
+
   return (
     <TokenShell>
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-        {!admitted ? (
+        {denied ? (
+          <>
+            <h1
+              className="mb-3 text-2xl font-semibold tracking-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Access not approved
+            </h1>
+            <p className="max-w-sm text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              The facilitator has not approved your participation. Contact them if you believe this
+              is an error.
+            </p>
+          </>
+        ) : !admitted ? (
           <>
             <div
               className="mb-8 flex h-16 w-16 items-center justify-center rounded-full"
@@ -57,14 +86,17 @@ export function WaitingRoomPage() {
               className="mb-3 text-2xl font-semibold tracking-tight"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              Waiting for the facilitator{dots}
+              {pendingVerification
+                ? `Awaiting facilitator approval${dots}`
+                : `Waiting for the facilitator${dots}`}
             </h1>
             <p
               className="mb-8 max-w-sm text-sm leading-relaxed"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              The session has not opened yet, or the facilitator is confirming participants. You
-              will be admitted automatically when the room is ready.
+              {pendingVerification
+                ? 'Your verification materials were submitted. The facilitator must approve you before the room opens.'
+                : 'The session has not opened yet. You can enter when the facilitator opens the room and you are verified.'}
             </p>
             <div
               className="rounded-lg border px-6 py-5"
@@ -74,14 +106,19 @@ export function WaitingRoomPage() {
               }}
             >
               <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                Northern Watershed Consultation
+                {sessionTitle}
               </p>
-              <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                Jun 20, 2024 · 10:00 AM
-              </p>
+              {ctx?.session_status ? (
+                <p
+                  className="mt-1 text-xs capitalize"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Session status: {ctx.session_status}
+                </p>
+              ) : null}
             </div>
             <p className="mt-6 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              Keep this tab open. Do not refresh.
+              Keep this tab open. Status refreshes automatically.
             </p>
           </>
         ) : (
@@ -111,9 +148,10 @@ export function WaitingRoomPage() {
               The room is ready
             </h1>
             <p className="mb-8 max-w-sm text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              The facilitator has opened the session. You may now enter.
+              The facilitator has opened the session and you are verified. You may now enter.
             </p>
             <button
+              type="button"
               onClick={enterRoom}
               className="rounded px-8 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: 'var(--color-accent)' }}

@@ -128,7 +128,7 @@ export function SessionNewPage() {
           <p className={labelClass} style={labelStyle}>
             Start from a template (optional)
           </p>
-          <div className="mt-2 grid gap-3 sm:grid-cols-3">
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
             {SESSION_TEMPLATES.map((template) => (
               <button
                 key={template.id}
@@ -162,7 +162,7 @@ export function SessionNewPage() {
               required
               className={inputClass}
               style={inputStyle}
-              placeholder="e.g. Land boundary dispute — March 2026"
+              placeholder="e.g. Q1 community safety coordination — March 2026"
               value={form.title}
               onChange={(e) => set('title', e.target.value)}
             />

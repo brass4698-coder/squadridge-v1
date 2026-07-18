@@ -1,4 +1,8 @@
-export type SessionTemplateId = 'community_mediation' | 'ngo_deliberation' | 'track2_dialogue';
+export type SessionTemplateId =
+  | 'city_community_safety'
+  | 'community_mediation'
+  | 'ngo_deliberation'
+  | 'track2_dialogue';
 
 export interface SessionTemplate {
   id: SessionTemplateId;
@@ -15,6 +19,13 @@ export interface SessionTemplate {
     suggestedOutcomeStructure: string;
     requiredApprovals: 'all_verified' | 'facilitator_plus_parties';
     groundRules: string[];
+    resolutionWorkflow?: boolean;
+    suggestedProposals?: Array<{
+      title: string;
+      description?: string;
+      owner_org?: string;
+      target_days?: number;
+    }>;
   };
 }
 
@@ -22,16 +33,16 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
   {
     id: 'community_mediation',
     label: 'Community mediation',
-    audience: 'Civil mediators & conflict-resolution',
+    audience: 'Professional mediators & facilitation teams',
     description:
-      'Land-use or community disputes where parties need structured written dialogue and a joint statement.',
+      'Land-use or community disputes where parties need a protected written room and a joint statement you can release with verifiable provenance.',
     conflictType: 'Land & property',
     language: 'English',
     maxParticipants: 4,
     identityVerification: true,
     outcomePublic: true,
     eligibilityNotes:
-      'Parties must have standing in the dispute. Facilitator confirms eligibility before verification.',
+      'Parties must have standing in the dispute. You confirm eligibility before verification.',
     setupConfig: {
       suggestedOutcomeStructure:
         'Joint Statement of Principles — positions acknowledged, agreed principles, next steps.',
@@ -39,7 +50,56 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
       groundRules: [
         'Written contributions only in the room',
         'No attribution in the public record',
-        'Facilitator moderates pace and tone',
+        'You moderate pace and tone as facilitator',
+      ],
+    },
+  },
+  {
+    id: 'city_community_safety',
+    label: 'City community safety',
+    audience: 'Municipal offices & community partners',
+    description:
+      'Coordinate community-led violence prevention partners under facilitator oversight — rank interventions, then release an action commitments record.',
+    conflictType: 'Community & civic',
+    language: 'English',
+    maxParticipants: 8,
+    identityVerification: true,
+    outcomePublic: true,
+    eligibilityNotes:
+      'Verified representatives from participating organizations only. City staff facilitate; community partners join via invite tokens. No public attribution of room dialogue.',
+    setupConfig: {
+      suggestedOutcomeStructure:
+        'Action Commitments Record — prioritized interventions, lead organizations, timelines, and follow-up owners.',
+      requiredApprovals: 'facilitator_plus_parties',
+      groundRules: [
+        'Written contributions only — structured coordination, not open chat',
+        'Intervention proposals may be supported; support counts are not public attribution',
+        'Released record contains approved commitments only — no room transcript',
+        'Facilitator moderates pace; pause available if process needs cooling',
+      ],
+      resolutionWorkflow: true,
+      suggestedProposals: [
+        {
+          title: 'Expanded youth evening programming',
+          description:
+            'Increase supervised programming in priority neighborhoods during peak hours.',
+          owner_org: 'Youth services partner',
+          target_days: 90,
+        },
+        {
+          title: 'Shared cross-agency referral protocol',
+          description:
+            'Standardize warm handoffs between outreach, behavioral health, and employment partners.',
+          owner_org: 'Multi-party',
+          target_days: 60,
+        },
+        {
+          title: 'Neighborhood listening sessions',
+          description:
+            'Facilitator-led listening rounds with documented follow-up themes (not public quotes).',
+          owner_org: 'Community coalition',
+          target_days: 45,
+        },
       ],
     },
   },

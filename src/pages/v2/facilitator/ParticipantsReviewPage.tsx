@@ -3,12 +3,15 @@ import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShel
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { useParticipants } from '../../../hooks/useParticipants';
+import { useVerificationRequests } from '../../../hooks/useVerificationRequests';
 import { appRoutes } from '../../../lib/appRoutes';
 
 export function ParticipantsReviewPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { participants, loading, setVerificationStatus } = useParticipants(sessionId);
+  const participantIds = participants.map((p) => p.id);
+  const { latestForParticipant, openDocument } = useVerificationRequests(participantIds);
 
   const allVerified =
     participants.length > 0 && participants.every((p) => p.verification_status === 'verified');
@@ -64,6 +67,20 @@ export function ParticipantsReviewPage() {
                   {p.document_submitted
                     ? 'Identity document submitted'
                     : 'No document submitted yet'}
+                  {latestForParticipant(p.id)?.storage_path ? (
+                    <button
+                      type="button"
+                      className="ml-2 underline"
+                      onClick={async () => {
+                        const path = latestForParticipant(p.id)?.storage_path;
+                        if (!path) return;
+                        const url = await openDocument(path);
+                        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                    >
+                      View document
+                    </button>
+                  ) : null}
                 </div>
 
                 {p.verification_status !== 'verified' ? (

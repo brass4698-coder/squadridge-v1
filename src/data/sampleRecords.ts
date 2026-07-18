@@ -22,6 +22,17 @@ export const sampleRecords: RecordCardProps[] = [
     anchorStatus: 'verified',
   },
   {
+    id: 'SQR-2026-0312',
+    title: 'Community Safety Coordination — Q1 Action Commitments',
+    summary:
+      'Three prioritized interventions agreed across participating organizations: expanded youth programming, a shared referral protocol, and neighborhood listening sessions with documented follow-up themes.',
+    org: 'Municipal Community Safety Office',
+    date: 'March 12, 2026',
+    participantCount: 5,
+    variant: 'sample',
+    anchorStatus: 'verified',
+  },
+  {
     id: 'rec-002',
     title: 'Urban Housing Policy — Consensus Principles',
     summary: 'Consensus principles for stakeholder consultation on urban housing policy revisions.',
@@ -55,6 +66,25 @@ export const sampleRecords: RecordCardProps[] = [
 ];
 
 const DETAIL_EXTENSIONS: Record<string, Omit<LedgerRecordDetail, keyof RecordCardProps>> = {
+  'SQR-2026-0312': {
+    region: 'Pacific Northwest (illustrative)',
+    sessionDate: 'March 10, 2026',
+    releasedDate: 'March 12, 2026',
+    outcomeType: 'Action Commitments Record',
+    verificationAnchor: '8f3a91c2e4b56d0f71ac23409de1f783c8ab4521d7e63f901234bcde5678ef90',
+    body: `ACTION COMMITMENTS RECORD — COMMUNITY SAFETY COORDINATION
+Municipal Community Safety Office — March 12, 2026
+
+The following commitments were agreed by verified organizational representatives participating in a facilitator-led coordination session. Support counts informed prioritization; individual attribution does not appear on this record.
+
+1. Expanded youth evening programming — Youth services partner (90 days)
+
+2. Shared cross-agency referral protocol — Multi-party (60 days)
+
+3. Neighborhood listening sessions with documented follow-up themes — Community coalition (45 days)
+
+This record documents approved commitments and limited metadata only. Session room dialogue is not published. SquadRidge is not a surveillance or monitoring product.`,
+  },
   'SQR-2024-0147': {
     region: 'Sub-Saharan Africa',
     sessionDate: 'March 14, 2024',

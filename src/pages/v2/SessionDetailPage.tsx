@@ -3,11 +3,14 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { RouteSkeleton } from '../../components/system/RouteSkeleton';
 import { useFacilitatorSessions } from '../../hooks/useFacilitatorSessions';
+import { useSessionAudit } from '../../hooks/useSessionAudit';
+import { SessionAuditPanel } from '../../components/session/SessionAuditPanel';
 import { appRoutes } from '../../lib/appRoutes';
 
 export function SessionDetailPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const { sessions, loading } = useFacilitatorSessions();
+  const { events, loading: auditLoading, error: auditError } = useSessionAudit(sessionId);
   const session = sessions.find((s) => s.id === sessionId);
 
   if (loading) return <RouteSkeleton label="Loading session" />;
@@ -73,7 +76,7 @@ export function SessionDetailPage() {
         <ul className="mt-4 flex flex-col gap-2">
           <li>
             <Button asChild>
-              <Link to={appRoutes.sessionRoom(session.id)}>Open live room</Link>
+              <Link to={appRoutes.sessionControl(session.id)}>Open session control</Link>
             </Button>
           </li>
           <li>
@@ -97,6 +100,16 @@ export function SessionDetailPage() {
             </Button>
           </li>
         </ul>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-section-title text-ink">Session audit trail</h2>
+        <p className="mt-2 text-sm text-ink-secondary">
+          Metadata-only lifecycle events for diligence review. Message bodies are never logged.
+        </p>
+        <div className="mt-4">
+          <SessionAuditPanel events={events} loading={auditLoading} error={auditError} />
+        </div>
       </section>
     </div>
   );

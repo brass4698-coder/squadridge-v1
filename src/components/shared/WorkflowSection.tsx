@@ -24,7 +24,7 @@ export function WorkflowSection({
         <div className="flex items-start gap-3">
           <Icon className="mt-1 size-5 shrink-0 text-ink-faint" strokeWidth={1.75} aria-hidden />
           <div>
-            <h3 className="text-h2 text-ink">{title}</h3>
+            <h3 className="font-display text-h2 font-medium tracking-tight text-ink">{title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary md:text-base">
               {description}
             </p>

@@ -1,36 +1,61 @@
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
-import { CTABlock, MarketingSection, SectionLabel } from '../../components/shared';
+import { PilotAccessVisual } from '../../components/institutional';
+import { CTA } from '../../data/siteMessaging';
+import { CTABlock, EvaluatorPath, MarketingSection, SectionLabel } from '../../components/shared';
 
 export function ContactPage() {
   return (
-    <div className="bg-surface">
+    <div>
       <MarketingSection className="!pt-20">
-        <div className="mx-auto max-w-xl">
-          <SectionLabel text="Contact" />
-          <h1 className="mt-2 text-h1 text-ink">Get in touch</h1>
-          <p className="mt-4 text-app-body leading-relaxed text-ink-secondary">
-            For pilot access, security questions, or partnership inquiries, email our team or submit
-            a formal access request.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
-              <a href="mailto:hello@squadridge.org">hello@squadridge.org</a>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link to="/request-access">Request access</Link>
-            </Button>
+        <div className="mx-auto grid max-w-6xl items-start gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-16">
+          <PilotAccessVisual className="order-2 lg:order-1" />
+          <div className="order-1 max-w-xl lg:order-2">
+            <SectionLabel text="Contact" />
+            <h1 className="font-display text-h1 font-medium tracking-tight text-ink">
+              Inquiries from mediators and partners
+            </h1>
+            <p className="mt-4 text-sm leading-relaxed text-ink-secondary md:text-base">
+              For pilot diligence, security review, practice fit conversations, or partnership
+              exploration before formal intake. We respond to serious inquiries from mediators,
+              facilitation teams, and institutional partners — not bulk sales requests.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <a
+                href="mailto:hello@squadridge.org"
+                className="btn-institutional btn-institutional--primary"
+              >
+                hello@squadridge.org
+              </a>
+              <Link to="/request-access" className="btn-institutional btn-institutional--ghost">
+                Submit pilot intake
+              </Link>
+            </div>
+            <p className="mt-6 text-xs text-ink-faint">
+              Security disclosures:{' '}
+              <a
+                href="mailto:security@squadridge.com"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                security@squadridge.com
+              </a>
+            </p>
           </div>
-          <p className="mt-6 text-xs text-ink-faint">
-            Security disclosures:{' '}
-            <a href="mailto:security@squadridge.com" className="text-brand hover:underline">
-              security@squadridge.com
-            </a>
-          </p>
         </div>
       </MarketingSection>
 
-      <CTABlock headline="Ready to run a protected session?" />
+      <MarketingSection className="border-t border-line !py-12">
+        <div className="mx-auto max-w-6xl">
+          <EvaluatorPath current="apply" />
+        </div>
+      </MarketingSection>
+
+      <CTABlock
+        headline={CTA.briefingHeadline}
+        body={CTA.briefingBody}
+        primaryLabel={CTA.primaryLabel}
+        secondaryLabel="Read the security overview"
+        secondaryHref="/security"
+      />
     </div>
   );
 }

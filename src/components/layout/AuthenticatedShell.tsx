@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
 import { hasAnyRole } from '../../lib/roles';
 import { DemoBanner } from '../demo/DemoBanner';
+import { SquadLogo } from '../SquadLogo';
+import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { UserAvatarMenu } from './UserAvatarMenu';
 
 interface NavItem {
@@ -196,39 +198,43 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
         aria-label="Main navigation"
       >
         {/* Logo / collapse toggle */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b px-4 border-line">
-          {sidebarOpen && (
-            <span className="text-sm font-semibold tracking-tight text-ink">SquadRidge</span>
-          )}
-          <button
-            onClick={() => setSidebarOpen((v) => !v)}
-            className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70 text-ink-secondary"
-            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              {sidebarOpen ? (
-                <>
+        <div className="flex h-14 shrink-0 items-center border-b px-3 border-line">
+          {sidebarOpen ? (
+            <>
+              <span className="flex min-w-0 items-center gap-2 text-ink" aria-hidden>
+                <SquadLogo size={28} aria-hidden />
+                <SquadRidgeWordmark size="sm" />
+              </span>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70 text-ink-secondary"
+                aria-label="Collapse sidebar"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </>
-              )}
-            </svg>
-          </button>
+                </svg>
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="mx-auto rounded p-1 transition-opacity hover:opacity-80"
+              aria-label="Expand sidebar"
+            >
+              <SquadLogo size={28} aria-hidden />
+            </button>
+          )}
         </div>
 
         {/* Nav items */}

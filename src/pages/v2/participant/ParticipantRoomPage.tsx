@@ -1,40 +1,24 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { useParticipantMessages } from '../../../hooks/useParticipantMessages';
 import { useParticipantSession } from '../../../hooks/useParticipantSession';
-import {
-  participantListMessages,
-  participantSendMessage,
-  type ParticipantMessageRow,
-} from '../../../lib/participantToken';
+import { ParticipantResolutionPanel } from '../../../components/participant/ParticipantResolutionPanel';
 import { participantRoute } from '../../../lib/participantRoutes';
 
 export function ParticipantRoomPage() {
   const token = useParticipantToken();
-  const { ctx } = useParticipantSession(token);
-  const [messages, setMessages] = useState<ParticipantMessageRow[]>([]);
+  const { ctx } = useParticipantSession(token ?? '');
+  const { messages, status, error, send } = useParticipantMessages(token ?? undefined);
   const [input, setInput] = useState('');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const navigate = useNavigate();
 
-  const loadMessages = useCallback(async () => {
-    if (!token) return;
-    const result = await participantListMessages(token);
-    if (result.valid && result.messages) setMessages(result.messages);
-  }, [token]);
-
-  useEffect(() => {
-    void loadMessages();
-    const interval = setInterval(() => void loadMessages(), 4000);
-    return () => clearInterval(interval);
-  }, [loadMessages]);
-
-  async function send() {
+  async function sendMessage() {
     if (!input.trim() || !token) return;
-    await participantSendMessage(token, input.trim());
-    setInput('');
-    await loadMessages();
+    const result = await send(input);
+    if (result.ok) setInput('');
   }
 
   function leave() {
@@ -71,18 +55,24 @@ export function ParticipantRoomPage() {
         </button>
       </div>
 
-      {/* Confidentiality strip */}
       <div
-        className="border-b px-6 py-2.5 text-center text-xs"
+        className="border-b px-6 py-2 text-center text-xs"
         style={{
           borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-accent-light)',
-          color: 'var(--color-accent)',
+          backgroundColor: 'var(--color-surface)',
+          color: 'var(--color-text-secondary)',
         }}
       >
-        This dialogue is private. Nothing said here will be shared publicly without explicit
-        approval.
+        {error
+          ? `Sync issue: ${error}`
+          : status === 'offline'
+            ? 'Offline — messages will sync when you reconnect'
+            : status === 'syncing'
+              ? 'Syncing messages…'
+              : 'Connected — messages refresh automatically'}
       </div>
+
+      <ParticipantResolutionPanel token={token} />
 
       {/* Messages */}
       <main
@@ -145,7 +135,7 @@ export function ParticipantRoomPage() {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                send();
+                sendMessage();
               }
             }}
             placeholder="Write your contribution… (Enter to send, Shift+Enter for new line)"
@@ -157,7 +147,7 @@ export function ParticipantRoomPage() {
             }}
           />
           <button
-            onClick={send}
+            onClick={() => void sendMessage()}
             disabled={!input.trim()}
             className="shrink-0 rounded px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
             style={{ backgroundColor: 'var(--color-accent)' }}

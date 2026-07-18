@@ -25,39 +25,41 @@ export function UseCaseCard({
   ctaHref,
 }: UseCaseCardProps) {
   return (
-    <article className="flex flex-col rounded-lg border border-line bg-surface-elevated p-8 shadow-sr-sm">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand">{sector}</p>
-      <h2 className="mb-3 text-lg font-semibold leading-snug text-ink">{title}</h2>
+    <article className="flex flex-col border border-line bg-surface-elevated p-8">
+      <p className="mb-3 font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-ink-faint">
+        {sector}
+      </p>
+      <h2 className="mb-3 font-display text-lg font-medium leading-snug text-ink">{title}</h2>
       <p className="mb-6 text-sm leading-relaxed text-ink-secondary">{context}</p>
 
-      <dl className="mb-6 flex flex-1 flex-col gap-4">
-        <div className="rounded-lg border border-line bg-surface-sunken p-4">
-          <dt className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+      <dl className="mb-6 flex flex-1 flex-col gap-px border border-line bg-line">
+        <div className="bg-surface-sunken p-4">
+          <dt className="mb-1 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
             In the room
           </dt>
-          <dd className="text-sm leading-relaxed text-ink">{inTheRoom}</dd>
+          <dd className="text-sm leading-relaxed text-ink-secondary">{inTheRoom}</dd>
         </div>
-        <div className="rounded-lg border border-brand/30 bg-brand-soft p-4">
-          <dt className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand">
+        <div className="bg-surface-elevated p-4">
+          <dt className="mb-1 flex flex-wrap items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
             Released record
             {recordSampleId ? <RecordAnchorBadge recordId={recordSampleId} /> : null}
           </dt>
-          <dd className="text-sm leading-relaxed text-ink">{releasedRecord}</dd>
+          <dd className="text-sm leading-relaxed text-ink-secondary">{releasedRecord}</dd>
         </div>
       </dl>
 
       {whySquadridge ? (
-        <p className="mb-6 border-l-2 border-brand/40 pl-4 text-sm leading-relaxed text-ink-secondary">
-          <span className="font-medium text-ink">Why SquadRidge: </span>
+        <p className="mb-6 border-l border-line-strong pl-4 text-sm leading-relaxed text-ink-secondary">
+          <span className="font-medium text-ink">Fit: </span>
           {whySquadridge}
         </p>
       ) : null}
 
       <Link
         to={ctaHref}
-        className="text-sm font-medium text-brand underline transition-opacity hover:opacity-70"
+        className="text-sm text-ink-secondary underline-offset-4 transition-colors hover:text-ink hover:underline"
       >
-        {ctaLabel} →
+        {ctaLabel}
       </Link>
     </article>
   );

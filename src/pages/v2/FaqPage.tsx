@@ -1,27 +1,50 @@
 import { faqFull } from '../../data/faqFull';
-import { CTABlock, FAQAccordion, MarketingSection, SectionLabel } from '../../components/shared';
+import { CTA } from '../../data/siteMessaging';
+import { TrustBoundarySchematic } from '../../components/institutional';
+import {
+  CTABlock,
+  EvaluatorPath,
+  FAQAccordion,
+  MarketingSection,
+  SectionLabel,
+} from '../../components/shared';
 
 export function FaqPage() {
   return (
-    <div className="bg-surface">
+    <div>
       <MarketingSection className="!pb-12 !pt-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <SectionLabel text="Questions" />
-          <h1 className="mb-3 text-h1 text-ink">Frequently asked</h1>
-          <p className="text-sm text-ink-secondary">
-            Everything we answer before a pilot intake call. The homepage shows the five most common
-            questions.
+        <div className="mx-auto max-w-3xl">
+          <SectionLabel text="For mediators" />
+          <h1 className="font-display text-h1 font-medium tracking-tight text-ink">
+            Questions mediators ask before a pilot.
+          </h1>
+          <p className="mt-5 text-base leading-relaxed text-ink-secondary">
+            Direct answers for professional mediators and facilitation teams — including what
+            SquadRidge is not (surveillance, monitoring, open chat, a replacement for your craft).
+            The homepage shows the six highest-priority questions.
           </p>
         </div>
       </MarketingSection>
 
-      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
+      <MarketingSection className="border-t border-line bg-surface-sunken/30 !py-14">
+        <div className="mx-auto max-w-6xl">
+          <TrustBoundarySchematic />
+        </div>
+      </MarketingSection>
+
+      <section className="border-t border-line px-6 pb-12 md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
           <FAQAccordion items={faqFull} />
         </div>
       </section>
 
-      <CTABlock headline="Still have questions? Request a pilot intake call." />
+      <MarketingSection className="!py-12">
+        <div className="mx-auto max-w-6xl">
+          <EvaluatorPath current="trust" />
+        </div>
+      </MarketingSection>
+
+      <CTABlock headline={CTA.pilotHeadline} body={CTA.pilotBody} />
     </div>
   );
 }

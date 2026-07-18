@@ -15,6 +15,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { DemoBanner } from '../demo/DemoBanner';
+import { SquadRidgeLockup } from '../SquadRidgeWordmark';
 import { UserAvatarMenu } from './UserAvatarMenu';
 import { useAuth } from '../../contexts/AuthContext';
 import { canAccessRoute } from '../../lib/guards';
@@ -54,23 +55,8 @@ export function AppTopShell({ children }: AppTopShellProps) {
 
       <header className="nav-frosted sticky top-0 z-40" data-scrolled={scrolled ? 'true' : 'false'}>
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2.5">
-            <span
-              aria-hidden
-              className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold"
-              style={{
-                background: 'linear-gradient(135deg, var(--sr-primary), var(--sr-primary-pressed))',
-                color: 'var(--sr-on-primary)',
-              }}
-            >
-              SR
-            </span>
-            <span
-              className="text-sm font-semibold tracking-tight"
-              style={{ color: 'var(--sr-ink)' }}
-            >
-              SquadRidge
-            </span>
+          <Link to="/" className="text-ink" aria-label="SquadRidge home">
+            <SquadRidgeLockup size="sm" />
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">

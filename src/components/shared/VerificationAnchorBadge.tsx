@@ -10,10 +10,10 @@ export function VerificationAnchorBadge({ anchorId, status }: VerificationAnchor
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
+      className={`inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-[0.08em] ${
         isVerified
-          ? 'border-brand/20 bg-brand-soft text-brand'
-          : 'border-line bg-surface-secondary text-ink-faint'
+          ? 'border-line-strong bg-surface-secondary text-ink-secondary'
+          : 'border-line bg-surface-sunken text-ink-faint'
       }`}
     >
       {isVerified ? <CheckCircle2 className="size-3 shrink-0" aria-hidden /> : null}
@@ -26,7 +26,7 @@ export function VerificationAnchorBadge({ anchorId, status }: VerificationAnchor
 /** Shorthand badge for use-case cards linking to the release stage. */
 export function RecordAnchorBadge({ recordId }: { recordId: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-brand/25 bg-brand-soft px-2 py-0.5 font-mono text-[0.65rem] font-semibold uppercase tracking-wider text-brand">
+    <span className="inline-flex items-center border border-line bg-surface-sunken px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wider text-ink-faint">
       {recordId}
     </span>
   );
@@ -35,7 +35,7 @@ export function RecordAnchorBadge({ recordId }: { recordId: string }) {
 /** Shorthand reference to a lifecycle stage on use-case cards. */
 export function StageBadge({ stage }: { stage: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-line bg-surface-secondary px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-ink-faint">
+    <span className="inline-flex items-center border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wider text-ink-faint">
       {stage}
     </span>
   );

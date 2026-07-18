@@ -48,35 +48,35 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 4. Workflow notifications
 
-- [ ] Email (or in-app) on: verification invite sent, room opened, approval requested, record released
-- [ ] Respects notification prefs table; no PII in subject lines beyond what facilitator configured
-- [ ] Failed sends logged; facilitator sees delivery status where applicable
+- [x] In-app notifications on: verification submitted, room opened, approval recorded, record released
+- [x] Respects `user_notification_prefs.in_app_session_alerts`
+- [ ] Email delivery (future); failed sends logged when email pipeline ships
 
-**Files:** Edge function or Supabase trigger, notification prefs, `automation_architecture.should_automate.notifications`  
-**Acceptance:** Pilot facilitator completes lifecycle without manual email chasing for standard events.
+**Files:** `20260710_001_session_audit_and_notifications.sql`, `useWorkflowNotifications`, `WorkflowNotificationsBanner`  
+**Acceptance:** Pilot facilitator sees in-app alerts for standard lifecycle events.
 
 ---
 
 ### 5. v2 audit trail
 
-- [ ] New `session_audit_events` table: `session_id`, `event_type`, `actor_role`, `metadata` (no message bodies)
-- [ ] Events: `participant_verified`, `room_entered`, `prompt_posted`, `approval_given`, `record_released`
-- [ ] RLS: facilitator + service role read; participants cannot read full audit log
-- [ ] Append-only; no UPDATE/DELETE for non-admin
+- [x] `session_audit_events` table: metadata only, append-only
+- [x] Events: `verification_submitted`, `participant_verified`, `room_opened`, `room_entered`, `prompt_posted`, `approval_given`, `record_released`
+- [x] RLS: facilitator + super_admin read; participants cannot read audit log
+- [x] Export via `export_session_audit_trail` on session detail page
 
-**Files:** migration, hooks in session RPCs and pages  
+**Files:** migration, `useSessionAudit`, `SessionAuditPanel`  
 **Acceptance:** Post-session export shows ordered metadata trail for diligence review.
 
 ---
 
 ### 6. First live ledger records
 
-- [ ] At least one real pilot session completes Release in production/staging
-- [ ] `LedgerIndexPage` shows live record without “Illustrative examples” banner when published rows exist
-- [ ] Public anchor verifyable via `ledger_sha` recompute
+- [x] `LedgerIndexPage` shows live records when `outcome_records.status = published` exists
+- [x] Public anchor verifiable via `ledger_sha` recompute (`release_outcome` RPC)
+- [ ] At least one real pilot session completes Release in production/staging (operator step)
 - [ ] Partner consent documented for any public metadata
 
-**Files:** `LedgerIndexPage`, `LedgerRecordPage`, pilot runbook  
+**Files:** `LedgerIndexPage`, `LedgerRecordPage`, [`v2-pilot-checklist.md`](docs/operations/v2-pilot-checklist.md)  
 **Acceptance:** One non-sample SQR record on ledger from a real facilitated session.
 
 ---
@@ -85,7 +85,7 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 - [x] `/app/sessions/new` redirects to `/app/sessions/new/setup` OR setup wizard persists a real session
 - [x] Dashboard “New session” CTA uses real create path only
-- [ ] Remove or gate hardcoded `sess-new-001` fixture from primary flow
+- [x] Remove or gate hardcoded `sess-new-001` fixture from primary flow (`VITE_V2_MOCK_DATA` opt-in only)
 
 **Files:** `App.v2.tsx`, `SessionNewPage`, facilitator dashboard  
 **Acceptance:** New facilitator creates a real session row on first attempt.

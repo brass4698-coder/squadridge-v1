@@ -54,6 +54,10 @@
   --sr-primary-ring: oklch(from #14b8a6 l c h / 0.5);
   --sr-on-primary: #04120f;
 
+  /* ── Brand mark (logo SVGs) — deep teal + ridge stone ───────────── */
+  --sr-brand-mark: #01696f;
+  --sr-brand-ridge: #8e7a68;
+
   /* ── Secondary accent — restrained violet (Phase 6) ──────────────
      Used for the futuristic-edge highlights: hover glows on decorative
      cards, badge borders, subtle background tints. Never a primary CTA
@@ -204,4 +208,51 @@
   --sr-glass-bg: oklch(from var(--sr-bg-elevated) l c h / 0.85);
   --sr-glass-border: oklch(from #14181f l c h / 0.08);
   --sr-glass-highlight: oklch(from #14181f l c h / 0.03);
+}
+
+/* ── Institutional marketing theme (graphite, audit-minded) ─────────── */
+body[data-theme='institutional'] {
+  --sr-bg: #0c0d0f;
+  --sr-bg-elevated: #131417;
+  --sr-bg-secondary: #101114;
+  --sr-bg-sunken: #09090b;
+  --sr-bg-accent: color-mix(in oklch, #4a7c78 8%, #131417);
+  --sr-bg-accent-alt: color-mix(in oklch, #6b7280 8%, #131417);
+
+  --sr-line: #232428;
+  --sr-line-strong: #34363c;
+  --sr-divider: #1a1b1f;
+
+  --sr-ink: #ececee;
+  --sr-ink-secondary: #9a9ea8;
+  --sr-ink-faint: #6b707a;
+  --sr-ink-subtle: #4b5058;
+
+  --sr-primary: #4a7c78;
+  --sr-primary-hover: #568986;
+  --sr-primary-pressed: #3d6662;
+  --sr-primary-soft: oklch(from #4a7c78 l c h / 0.12);
+  --sr-primary-ring: oklch(from #4a7c78 l c h / 0.4);
+  --sr-on-primary: #f4f6f5;
+
+  --sr-accent-alt: #5c6370;
+  --sr-glow: transparent;
+
+  --sr-shadow-xs: 0 1px 2px oklch(0 0 0 / 0.4);
+  --sr-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.45);
+  --sr-shadow-md: 0 2px 8px oklch(0 0 0 / 0.5);
+  --sr-shadow-lg: 0 8px 32px oklch(0 0 0 / 0.55);
+
+  --sr-glass-bg: var(--sr-bg-elevated);
+  --sr-glass-border: var(--sr-line);
+  --sr-glass-blur: 0px;
+
+  --space-section: 5.5rem;
+  --sr-text-display: 2.75rem;
+  --sr-text-h1: 2rem;
+  --sr-text-h2: 1.5rem;
+}
+
+body[data-theme='institutional']::before {
+  display: none;
 }

@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => {
         'for a deliberate internal-demo build (CI prod release jobs must not set this).',
     );
   }
+  if (mode === 'production' && env.VITE_ENABLE_DEMO_LOGIN === 'true') {
+    throw new Error(
+      'Production build blocked: VITE_ENABLE_DEMO_LOGIN=true exposes password demo login in the client bundle. ' +
+        'Unset for release builds or use a non-production staging environment.',
+    );
+  }
 
   return {
     plugins: [

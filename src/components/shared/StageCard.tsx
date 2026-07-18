@@ -9,12 +9,18 @@ export function StageCard({ number, title, description, variant }: StageCardProp
   return (
     <li className="flex flex-col gap-3">
       <span
-        className="relative z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand/30 bg-surface font-mono text-xs font-semibold tabular-nums text-brand md:h-12 md:w-12"
+        className="relative z-10 inline-flex h-10 w-10 items-center justify-center border border-line bg-surface-sunken font-mono text-xs font-medium tabular-nums text-ink-secondary md:h-11 md:w-11"
         aria-hidden
       >
         {number}
       </span>
-      <h3 className={variant === 'teaser' ? 'text-lg font-semibold text-ink' : 'text-h3 text-ink'}>
+      <h3
+        className={
+          variant === 'teaser'
+            ? 'font-display text-lg font-medium text-ink'
+            : 'font-display text-h3 font-medium text-ink'
+        }
+      >
         {title}
       </h3>
       <p

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
+import { SessionResolutionPanel } from '../../../components/facilitator/SessionResolutionPanel';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { useSessionMessages } from '../../../hooks/useSessionMessages';
 import { useSession, useSessions } from '../../../hooks/useSessions';
 import { appRoutes } from '../../../lib/appRoutes';
+import { sessionUsesResolutionWorkflow } from '../../../lib/sessionResolutions';
 
 type RoomStatus = 'waiting' | 'live' | 'paused' | 'ended';
 
@@ -21,11 +23,18 @@ export function SessionControlPage() {
   const navigate = useNavigate();
   const { session, loading } = useSession(sessionId);
   const { updateSessionStatus } = useSessions();
-  const { messages, sendMessage } = useSessionMessages(sessionId);
+  const { messages, sendMessage, connectionStatus, retryConnection } =
+    useSessionMessages(sessionId);
   const [roomStatus, setRoomStatus] = useState<RoomStatus>('waiting');
   const [showEndModal, setShowEndModal] = useState(false);
   const [facilitatorInput, setFacilitatorInput] = useState('');
   const [transitionError, setTransitionError] = useState<string | null>(null);
+  const [outcomeImport, setOutcomeImport] = useState<string | null>(null);
+
+  const showResolutions = sessionUsesResolutionWorkflow(
+    session?.template_id,
+    session?.setup_config,
+  );
 
   useEffect(() => {
     setRoomStatus(mapSessionStatus(session?.status));
@@ -122,6 +131,30 @@ export function SessionControlPage() {
           </div>
         ) : null}
 
+        {connectionStatus !== 'live' && connectionStatus !== 'idle' ? (
+          <div
+            className="mb-4 rounded-lg border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
+            role="status"
+          >
+            {connectionStatus === 'reconnecting'
+              ? 'Reconnecting to live messages…'
+              : connectionStatus === 'offline'
+                ? 'You are offline. Messages will sync when connectivity returns.'
+                : connectionStatus === 'connection_error'
+                  ? 'Live connection failed.'
+                  : 'Connecting to live messages…'}
+            {connectionStatus === 'connection_error' ? (
+              <button
+                type="button"
+                onClick={retryConnection}
+                className="ml-2 font-medium text-brand underline"
+              >
+                Retry
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="mb-6 flex flex-wrap gap-3 rounded-lg border border-line bg-surface-elevated p-4">
           {status === 'waiting' && (
             <button
@@ -171,7 +204,11 @@ export function SessionControlPage() {
           {status === 'ended' && (
             <button
               type="button"
-              onClick={() => navigate(appRoutes.sessionOutcome(sessionId ?? ''))}
+              onClick={() =>
+                navigate(appRoutes.sessionOutcome(sessionId ?? ''), {
+                  state: outcomeImport ? { agreedTermsImport: outcomeImport } : undefined,
+                })
+              }
               className="btn-pill btn-pill--primary text-sm"
             >
               Draft outcome
@@ -225,6 +262,15 @@ export function SessionControlPage() {
             </div>
           ) : null}
         </div>
+
+        {showResolutions && sessionId ? (
+          <SessionResolutionPanel
+            sessionId={sessionId}
+            setupConfig={session?.setup_config}
+            roomActive={status === 'live' || status === 'paused'}
+            onShortlistReady={setOutcomeImport}
+          />
+        ) : null}
       </div>
 
       {showEndModal ? (

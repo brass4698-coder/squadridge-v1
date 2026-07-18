@@ -17,8 +17,8 @@ function sessionActionLink(s: FacilitatorSessionRow): { to: string; label: strin
   if (s.status === 'pending') {
     return { to: appRoutes.sessionInvite(s.id), label: 'Manage invites' };
   }
-  if (s.status === 'draft') {
-    return { to: `${appRoutes.outcomeNew}?sessionId=${s.id}`, label: 'Draft outcome' };
+  if (s.status === 'draft' || s.status === 'archived') {
+    return { to: appRoutes.sessionOutcome(s.id), label: 'Draft outcome' };
   }
   if (s.status === 'released') {
     return { to: `/ledger/${s.id}`, label: 'View record' };

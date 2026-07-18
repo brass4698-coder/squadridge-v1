@@ -299,6 +299,106 @@ button:focus-visible,
     box-shadow: none;
   }
 
+  /* ── Institutional CTAs (quiet, rectangular) ─────────────────────── */
+  .btn-institutional {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--sr-radius-sm);
+    padding: 0.625rem 1.125rem;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    transition:
+      background var(--sr-duration-normal) var(--sr-ease-standard),
+      border-color var(--sr-duration-normal) var(--sr-ease-standard),
+      color var(--sr-duration-normal) var(--sr-ease-standard);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+
+  .btn-institutional--primary {
+    background: var(--sr-primary);
+    color: var(--sr-on-primary);
+  }
+
+  .btn-institutional--primary:hover {
+    background: var(--sr-primary-hover);
+  }
+
+  .btn-institutional--primary:active {
+    background: var(--sr-primary-pressed);
+  }
+
+  .btn-institutional--ghost {
+    background: transparent;
+    color: var(--sr-ink-secondary);
+    border-color: var(--sr-line-strong);
+  }
+
+  .btn-institutional--ghost:hover {
+    color: var(--sr-ink);
+    border-color: var(--sr-ink-faint);
+  }
+
+  body[data-theme='institutional'] .section-label {
+    color: var(--sr-ink-faint);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  body[data-theme='institutional'] .btn-pill--primary:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  body[data-theme='institutional'] .nav-frosted {
+    background: var(--sr-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  body[data-theme='institutional'] a:not(.btn-institutional):not(.btn-pill) {
+    text-decoration-color: var(--sr-line-strong);
+  }
+
+  body[data-theme='institutional'] .text-brand {
+    color: var(--sr-ink-secondary);
+  }
+
+  /* ── Institutional visuals: grid atmosphere, document-grade frames ─ */
+  .institutional-visual-frame {
+    background: var(--sr-bg-elevated);
+  }
+
+  .institutional-grid-backdrop {
+    background-image:
+      linear-gradient(color-mix(in oklch, var(--sr-line) 65%, transparent) 1px, transparent 1px),
+      linear-gradient(
+        90deg,
+        color-mix(in oklch, var(--sr-line) 65%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 1.5rem 1.5rem;
+    opacity: 0.55;
+  }
+
+  .institutional-visual-vignette {
+    background: radial-gradient(
+      ellipse 85% 75% at 50% 45%,
+      transparent 35%,
+      color-mix(in oklch, var(--sr-bg) 55%, transparent) 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .institutional-visual-frame svg {
+      transition: opacity var(--sr-duration-normal) var(--sr-ease-standard);
+    }
+  }
+
   /* ── Phase 5: frosted nav shell ────────────────────────────────── */
   .nav-frosted {
     background: color-mix(in oklch, var(--sr-bg) 78%, transparent);

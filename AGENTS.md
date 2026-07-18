@@ -23,8 +23,8 @@ The longer civic early-warning → redacted ledger → proposal vision lives in
 [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md)
 (vision-labeled; do not treat as shipped claims).
 
-**Cursor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
-`ai-guidelines.mdc` (optional AI). Root `.cursorrules` summarizes both.
+**Contributor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
+`ai-guidelines.mdc` (optional translation/AI paths). Root `.cursorrules` summarizes both.
 
 ## Stack
 

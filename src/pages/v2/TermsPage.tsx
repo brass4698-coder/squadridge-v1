@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import { MarketingSection, SectionLabel } from '../../components/shared';
+import { SITE_THESIS_SHORT } from '../../data/siteMessaging';
 
 const SECTIONS = [
   {
@@ -7,7 +9,7 @@ const SECTIONS = [
   },
   {
     heading: '2. Eligibility',
-    body: `Access to SquadRidge is by invitation or approved application only. You must be at least 18 years old. You must not use the platform for any unlawful purpose.`,
+    body: `Access to SquadRidge is by invitation or approved application only. You must be at least 18 years old. You must not use the platform for any unlawful purpose or for surveillance, monitoring, or predictive policing use cases inconsistent with the platform's design.`,
   },
   {
     heading: '3. Facilitator responsibilities',
@@ -41,8 +43,24 @@ export function TermsPage() {
       <MarketingSection className="!pb-12 !pt-20">
         <div className="mx-auto max-w-3xl">
           <SectionLabel text="Legal" />
-          <h1 className="mb-2 text-h1 text-ink">Terms of Use</h1>
-          <p className="text-xs text-ink-faint">Last updated: June 2024</p>
+          <h1 className="font-display mb-2 text-h1 font-medium tracking-tight text-ink">
+            Terms of Use
+          </h1>
+          <p className="text-xs text-ink-faint">Last updated: July 2026</p>
+          <p className="mt-5 text-sm leading-relaxed text-ink-secondary">
+            {SITE_THESIS_SHORT} These terms govern mediator- and facilitator-led use of protected
+            sessions and controlled release of outcome records.
+          </p>
+          <p className="mt-4 text-sm text-ink-secondary">
+            Privacy and security:{' '}
+            <Link to="/privacy" className="text-ink underline-offset-4 hover:underline">
+              Privacy policy
+            </Link>
+            {' · '}
+            <Link to="/security" className="text-ink underline-offset-4 hover:underline">
+              Security overview
+            </Link>
+          </p>
         </div>
       </MarketingSection>
 
@@ -50,7 +68,9 @@ export function TermsPage() {
         <div className="mx-auto flex max-w-3xl flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
           {SECTIONS.map((section) => (
             <section key={section.heading}>
-              <h2 className="mb-3 text-base font-semibold text-ink">{section.heading}</h2>
+              <h2 className="font-display mb-3 text-base font-medium text-ink">
+                {section.heading}
+              </h2>
               <p>{section.body}</p>
             </section>
           ))}

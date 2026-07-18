@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SquadLogo, SquadRidgeWordmark } from '../../../../components';
+import { SquadRidgeLockup } from '../../../../components';
 import { useOnboardingShell } from './OnboardingShellContext';
 
 interface Props {
@@ -105,13 +105,8 @@ export function OnboardingLayout({
       <main className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto overscroll-y-contain px-5 py-2 sm:px-6 sm:py-3">
         <div className="mx-auto flex min-h-0 w-full max-w-[960px] flex-1 flex-col justify-center">
           <div className="flex min-h-0 w-full max-w-full flex-col gap-3 sm:gap-4">
-            <div className="inline-flex shrink-0 items-center gap-2 self-start sm:gap-[0.525rem]">
-              <SquadLogo size={34} className="block h-[34px] w-[34px] shrink-0" aria-hidden />
-              <SquadRidgeWordmark
-                alt=""
-                className="h-[1.4rem] w-auto max-w-[min(140px,32vw)] translate-y-px sm:h-[1.575rem] md:h-[1.75rem]"
-                aria-hidden
-              />
+            <div className="inline-flex shrink-0 self-start text-ink">
+              <SquadRidgeLockup size="md" alt="SquadRidge" />
             </div>
             <div className="min-h-0">{children}</div>
             {trustNote ? (

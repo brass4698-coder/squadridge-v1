@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import { MarketingSection, SectionLabel } from '../../components/shared';
+import { SITE_NOT, SITE_THESIS_SHORT } from '../../data/siteMessaging';
 
 const SECTIONS = [
   {
@@ -7,7 +9,7 @@ const SECTIONS = [
   },
   {
     heading: '2. Session room content',
-    body: `Session room dialogue is treated as private by default. We do not use session room content for any purpose other than facilitating the session. Room content is not reviewed by platform staff unless a safety or legal obligation requires it. Room content is not retained on platform infrastructure after a session is closed and archived.`,
+    body: `Session room dialogue is treated as private by default and is never published to the ledger. v2 messages are stored as access-controlled platform data (not operator-proof end-to-end encryption). We do not use room content for marketing, unrelated analytics, or surveillance-style monitoring. Platform staff access room content only when required for safety, support, or legal obligation.`,
   },
   {
     heading: '3. Outcome records',
@@ -37,8 +39,25 @@ export function PrivacyPage() {
       <MarketingSection className="!pb-12 !pt-20">
         <div className="mx-auto max-w-3xl">
           <SectionLabel text="Legal" />
-          <h1 className="mb-2 text-h1 text-ink">Privacy Policy</h1>
-          <p className="text-xs text-ink-faint">Last updated: June 2024</p>
+          <h1 className="font-display mb-2 text-h1 font-medium tracking-tight text-ink">
+            Privacy Policy
+          </h1>
+          <p className="text-xs text-ink-faint">Last updated: July 2026</p>
+          <p className="mt-5 text-sm leading-relaxed text-ink-secondary">
+            {SITE_THESIS_SHORT} This policy describes what we collect, how session room content
+            differs from released ledger records, and what we do not do with your data.
+          </p>
+          <ul className="mt-4 flex flex-col gap-1 text-xs text-ink-faint">
+            {SITE_NOT.map((line) => (
+              <li key={line}>· {line}</li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm text-ink-secondary">
+            Technical trust boundaries:{' '}
+            <Link to="/security" className="text-ink underline-offset-4 hover:underline">
+              Security overview
+            </Link>
+          </p>
         </div>
       </MarketingSection>
 
@@ -46,7 +65,9 @@ export function PrivacyPage() {
         <div className="mx-auto flex max-w-3xl flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
           {SECTIONS.map((section) => (
             <section key={section.heading}>
-              <h2 className="mb-3 text-base font-semibold text-ink">{section.heading}</h2>
+              <h2 className="font-display mb-3 text-base font-medium text-ink">
+                {section.heading}
+              </h2>
               <p>{section.body}</p>
             </section>
           ))}

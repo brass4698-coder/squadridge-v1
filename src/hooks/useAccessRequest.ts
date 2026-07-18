@@ -20,11 +20,26 @@ export function useAccessRequest() {
   async function submit(payload: AccessRequestPayload) {
     setLoading(true);
     setError(null);
-    const { error: err } = await supabase.from('access_requests').insert(payload);
+    const { data, error: err } = await supabase.rpc('submit_access_request', {
+      p_full_name: payload.full_name,
+      p_email: payload.email,
+      p_use_case: payload.use_case,
+      p_description: payload.description,
+      p_organisation: payload.organisation ?? null,
+    });
     if (err) {
       setError(err.message);
     } else {
-      setSubmitted(true);
+      const result = data as { ok?: boolean; error?: string };
+      if (!result?.ok) {
+        const msg =
+          result?.error === 'RATE_LIMIT'
+            ? 'Too many requests from this email. Try again in an hour.'
+            : (result?.error ?? 'Submission failed');
+        setError(msg);
+      } else {
+        setSubmitted(true);
+      }
     }
     setLoading(false);
   }

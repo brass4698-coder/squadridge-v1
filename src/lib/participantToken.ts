@@ -13,6 +13,7 @@ export interface ParticipantTokenContext {
   session_title?: string;
   session_status?: string;
   session_language?: string;
+  identity_verification_required?: boolean;
 }
 
 export interface ParticipantMessageRow {
@@ -38,11 +39,24 @@ export async function recordParticipantConsent(token: string): Promise<Participa
 export async function markParticipantDocumentSubmitted(
   token: string,
 ): Promise<ParticipantTokenContext> {
+  /** @deprecated Use uploadParticipantVerificationDocument — server rejects bare flag RPC. */
   const { data, error } = await supabase.rpc('participant_mark_document_submitted', {
     p_token: token,
   });
   if (error) return { valid: false, error: error.message };
   return data as ParticipantTokenContext;
+}
+
+export async function recordParticipantContactHash(
+  token: string,
+  email: string,
+): Promise<{ valid: boolean; error?: string }> {
+  const { data, error } = await supabase.rpc('participant_record_contact_hash', {
+    p_token: token,
+    p_email: email,
+  });
+  if (error) return { valid: false, error: error.message };
+  return data as { valid: boolean; error?: string };
 }
 
 export async function participantSendMessage(

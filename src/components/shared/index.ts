@@ -15,3 +15,4 @@ export { CTABlock, type CTABlockProps } from './CTABlock';
 export { FAQAccordion, type FAQAccordionProps, type FaqAccordionItem } from './FAQAccordion';
 export { PrivatePublicSplit, type PrivatePublicSplitProps } from './PrivatePublicSplit';
 export { PilotAccessTeaser } from './PilotAccessTeaser';
+export { EvaluatorPath } from './EvaluatorPath';

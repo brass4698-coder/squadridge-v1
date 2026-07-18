@@ -14,13 +14,13 @@ export function InviteOnlyNotice() {
       }}
     >
       <p>
-        SquadRidge is invite-only for pilot access.{' '}
+        SquadRidge is invite-only during the private pilot for mediators and facilitation teams.{' '}
         <Link
           to="/request-access"
           className="underline-offset-4 hover:underline"
           style={{ color: 'var(--sr-primary)' }}
         >
-          Request access
+          Request pilot access
         </Link>{' '}
         if you do not have an invitation yet.
       </p>

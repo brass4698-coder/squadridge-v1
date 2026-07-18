@@ -176,7 +176,7 @@ Investor-only surfaces (`/pitch-deck-hub`, `/financial-projections`, `/decks`) a
 
 - **Index:** [`docs/README.md`](docs/README.md) — curated map (product, technical, security, ops, ADRs)
 - **Institutional readiness:** [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md)
-- **AI agent context:** [`AGENTS.md`](AGENTS.md) — stack, directory map, rules for Cursor / Copilot / Claude
+- **Contributor orientation:** [`AGENTS.md`](AGENTS.md) — stack, directory map, coding rules
 - **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 - Current status snapshot: [`CURRENT_STATUS.md`](CURRENT_STATUS.md)
 - Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)

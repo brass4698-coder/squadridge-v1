@@ -3,36 +3,42 @@ import { ArrowRight } from 'lucide-react';
 
 export interface CTABlockProps {
   headline: string;
+  body?: string;
   primaryLabel?: string;
   primaryHref?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
+  align?: 'left' | 'center';
 }
 
 export function CTABlock({
   headline,
+  body,
   primaryLabel = 'Request pilot access',
   primaryHref = '/request-access',
   secondaryLabel,
   secondaryHref,
+  align = 'left',
 }: CTABlockProps) {
+  const isCenter = align === 'center';
+
   return (
     <section
       className="border-t border-line px-6 py-[var(--space-section)] md:px-8 lg:px-12"
       aria-label="Call to action"
     >
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-        <h2 className="text-h2 text-ink">{headline}</h2>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link to={primaryHref} className="btn-pill btn-pill--primary text-sm">
+      <div
+        className={`mx-auto flex max-w-2xl flex-col gap-6 ${isCenter ? 'items-center text-center' : 'items-start'}`}
+      >
+        <h2 className="font-display text-h2 font-medium tracking-tight text-ink">{headline}</h2>
+        {body ? <p className="text-sm leading-relaxed text-ink-secondary">{body}</p> : null}
+        <div className={`flex flex-wrap gap-4 ${isCenter ? 'justify-center' : ''}`}>
+          <Link to={primaryHref} className="btn-institutional btn-institutional--primary">
             {primaryLabel}
-            <ArrowRight className="size-4" aria-hidden />
+            <ArrowRight className="size-3.5" aria-hidden />
           </Link>
           {secondaryLabel && secondaryHref ? (
-            <Link
-              to={secondaryHref}
-              className="text-xs font-medium text-ink-faint underline-offset-4 transition-opacity hover:underline hover:opacity-70"
-            >
+            <Link to={secondaryHref} className="btn-institutional btn-institutional--ghost">
               {secondaryLabel}
             </Link>
           ) : null}

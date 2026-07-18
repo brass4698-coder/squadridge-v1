@@ -7,6 +7,7 @@ import {
   SectionLabel,
   VerificationAnchorBadge,
 } from '../../components/shared';
+import { CTA } from '../../data/siteMessaging';
 
 export function LedgerRecordPage() {
   const { recordId } = useParams<{ recordId: string }>();
@@ -61,7 +62,7 @@ export function LedgerRecordPage() {
               <VerificationAnchorBadge anchorId={anchorId} status="verified" />
             </div>
 
-            <h1 className="text-h1 text-ink">{title}</h1>
+            <h1 className="font-display text-h1 font-medium tracking-tight text-ink">{title}</h1>
             <p className="mt-4 text-sm italic text-ink-secondary">
               Approved outcome from a facilitated session. The session room is not public.
             </p>
@@ -71,8 +72,8 @@ export function LedgerRecordPage() {
 
         <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-10 rounded-lg border border-line bg-surface-elevated p-8">
-              <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-ink-faint">
+            <div className="mb-10 border border-line bg-surface-elevated p-8">
+              <h2 className="mb-6 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
                 Approved outcome text
               </h2>
               <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink">
@@ -80,20 +81,20 @@ export function LedgerRecordPage() {
               </pre>
             </div>
 
-            <section className="mb-10 rounded-lg border border-line bg-surface-elevated p-6">
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+            <section className="mb-10 border border-line bg-surface-elevated p-6">
+              <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
                 Verification anchor
               </h2>
-              <code className="block break-all rounded-lg border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
+              <code className="block break-all border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
                 {entry.ledger_sha ?? entry.id}
               </code>
             </section>
 
             <section>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+              <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
                 Cite this record
               </h2>
-              <code className="block rounded-lg border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
+              <code className="block border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
                 {citation}
               </code>
             </section>
@@ -101,9 +102,10 @@ export function LedgerRecordPage() {
         </section>
 
         <CTABlock
-          headline="Run a session that produces a verifiable record."
-          secondaryLabel="See how it works"
-          secondaryHref="/how-it-works"
+          headline={CTA.pilotHeadline}
+          body={CTA.pilotBody}
+          secondaryLabel={CTA.secondaryProcess}
+          secondaryHref={CTA.secondaryProcessHref}
         />
       </div>
     );
@@ -117,9 +119,11 @@ export function LedgerRecordPage() {
         <MarketingSection className="!pt-20">
           <div className="mx-auto max-w-3xl text-center">
             <SectionLabel text="Record not found" />
-            <h1 className="text-h2 text-ink">No record matches that ID.</h1>
+            <h1 className="font-display text-h2 font-medium text-ink">
+              No record matches that ID.
+            </h1>
             <p className="mt-4 text-sm text-ink-secondary">
-              <Link to="/ledger" className="text-brand hover:underline">
+              <Link to="/ledger" className="text-ink-secondary underline-offset-4 hover:underline">
                 Back to ledger
               </Link>
             </p>
@@ -147,8 +151,8 @@ export function LedgerRecordPage() {
             </ol>
           </nav>
 
-          <div className="mb-8 rounded-lg border border-brand/25 bg-brand-soft px-5 py-4 text-sm leading-relaxed text-ink-secondary">
-            <span className="font-semibold text-ink">Illustrative example.</span> Sample data
+          <div className="mb-8 border border-line bg-surface-elevated px-5 py-4 text-sm leading-relaxed text-ink-secondary">
+            <span className="font-medium text-ink">Illustrative example.</span> Sample data
             demonstrating the released record format.
           </div>
 
@@ -160,13 +164,15 @@ export function LedgerRecordPage() {
             />
           </div>
 
-          <h1 className="text-h1 text-ink">{record.title}</h1>
+          <h1 className="font-display text-h1 font-medium tracking-tight text-ink">
+            {record.title}
+          </h1>
           <p className="mt-4 text-sm italic text-ink-secondary">
             Approved outcome text from a facilitated, text-based dialogue. The session that produced
             this outcome is not public.
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-2 rounded-lg border border-line bg-surface-sunken px-3 py-2 text-xs text-ink-secondary">
+          <div className="mt-6 flex flex-wrap items-center gap-x-2 border border-line bg-surface-sunken px-3 py-2 text-xs text-ink-secondary">
             <span className="font-semibold uppercase tracking-wider text-ink-faint">Context:</span>
             <span>{record.org}</span>
             <span className="opacity-40">·</span>
@@ -179,8 +185,8 @@ export function LedgerRecordPage() {
 
       <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-10 rounded-lg border border-line bg-surface-elevated p-8">
-            <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-ink-faint">
+          <div className="mb-10 border border-line bg-surface-elevated p-8">
+            <h2 className="mb-6 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
               Approved outcome text
             </h2>
             <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink">
@@ -188,20 +194,20 @@ export function LedgerRecordPage() {
             </pre>
           </div>
 
-          <section className="mb-10 rounded-lg border border-line bg-surface-elevated p-6">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+          <section className="mb-10 border border-line bg-surface-elevated p-6">
+            <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
               Verification anchor
             </h2>
-            <code className="block break-all rounded-lg border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
+            <code className="block break-all border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
               {record.verificationAnchor}
             </code>
           </section>
 
           <section>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint">
+            <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
               Cite this record
             </h2>
-            <code className="block rounded-lg border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
+            <code className="block border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
               {citation}
             </code>
           </section>
@@ -209,9 +215,10 @@ export function LedgerRecordPage() {
       </section>
 
       <CTABlock
-        headline="Run a session that produces a verifiable record."
-        secondaryLabel="See how it works"
-        secondaryHref="/how-it-works"
+        headline={CTA.pilotHeadline}
+        body={CTA.pilotBody}
+        secondaryLabel={CTA.secondaryProcess}
+        secondaryHref={CTA.secondaryProcessHref}
       />
     </div>
   );
