@@ -1,20 +1,21 @@
 import { TRUST_INDICATORS } from '../../data/institutionalHome';
+import { publicShellInnerClass } from '../layout/publicShellTokens';
 
 export function TrustBar() {
   return (
     <div
-      className="border-y border-line bg-surface-sunken"
+      className="border-y border-line bg-surface-sunken/80"
       role="region"
       aria-label="Platform credibility indicators"
     >
-      <div className="mx-auto max-w-6xl px-6 py-5 md:px-8 lg:px-12">
-        <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+      <div className={`${publicShellInnerClass} py-4 md:py-5`}>
+        <ul className="flex flex-wrap items-center gap-x-8 gap-y-3 md:justify-start">
           {TRUST_INDICATORS.map((item) => (
             <li
               key={item}
-              className="flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.1em] text-ink-faint"
+              className="flex items-center gap-2 font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-ink-faint"
             >
-              <span aria-hidden className="inline-block h-px w-3 bg-line-strong" />
+              <span aria-hidden className="inline-block h-px w-4 bg-line-strong" />
               {item}
             </li>
           ))}

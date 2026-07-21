@@ -13,8 +13,8 @@ export function participantRoute(step: ParticipantStep, token: string): string {
   return `/p/${step}/${encoded}`;
 }
 
-/** Demo token accepted only in local dev builds for walkthroughs. */
-export const DEV_PARTICIPANT_DEMO_TOKEN = 'demo-token';
+/** @deprecated Prefer `DEV_PARTICIPANT_DEMO_TOKEN` from `participantDemo`. */
+export { DEV_PARTICIPANT_DEMO_TOKEN } from './participantDemo';
 
 export function buildParticipantInviteUrl(token: string, origin = window.location.origin): string {
   return `${origin}${participantRoute('invite', token)}`;

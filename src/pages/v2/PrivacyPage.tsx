@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
-import { MarketingSection, SectionLabel } from '../../components/shared';
+import {
+  MarketingPageHero,
+  MarketingSection,
+  ProseMeasure,
+  ShellWidth,
+} from '../../components/shared';
 import { SITE_NOT, SITE_THESIS_SHORT } from '../../data/siteMessaging';
 
 const SECTIONS = [
@@ -35,44 +40,47 @@ const SECTIONS = [
 
 export function PrivacyPage() {
   return (
-    <div className="bg-surface">
-      <MarketingSection className="!pb-12 !pt-20">
-        <div className="mx-auto max-w-3xl">
-          <SectionLabel text="Legal" />
-          <h1 className="font-display mb-2 text-h1 font-medium tracking-tight text-ink">
-            Privacy Policy
-          </h1>
-          <p className="text-xs text-ink-faint">Last updated: July 2026</p>
-          <p className="mt-5 text-sm leading-relaxed text-ink-secondary">
-            {SITE_THESIS_SHORT} This policy describes what we collect, how session room content
-            differs from released ledger records, and what we do not do with your data.
-          </p>
-          <ul className="mt-4 flex flex-col gap-1 text-xs text-ink-faint">
-            {SITE_NOT.map((line) => (
-              <li key={line}>· {line}</li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-ink-secondary">
-            Technical trust boundaries:{' '}
-            <Link to="/security" className="text-ink underline-offset-4 hover:underline">
-              Security overview
-            </Link>
-          </p>
-        </div>
-      </MarketingSection>
+    <div>
+      <MarketingPageHero
+        slim
+        label="Legal"
+        title="Privacy Policy"
+        lead={
+          <>
+            <p className="font-mono text-xs text-ink-faint">Last updated: July 2026</p>
+            <p className="mt-4">
+              {SITE_THESIS_SHORT} This policy describes what we collect, how session room content
+              differs from released ledger records, and what we do not do with your data.
+            </p>
+            <ul className="mt-4 flex flex-col gap-1 text-xs text-ink-faint">
+              {SITE_NOT.map((line) => (
+                <li key={line}>· {line}</li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm text-ink-secondary">
+              Technical trust boundaries:{' '}
+              <Link to="/security" className="text-ink underline-offset-4 hover:underline">
+                Security overview
+              </Link>
+            </p>
+          </>
+        }
+      />
 
-      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-3xl flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
-          {SECTIONS.map((section) => (
-            <section key={section.heading}>
-              <h2 className="font-display mb-3 text-base font-medium text-ink">
-                {section.heading}
-              </h2>
-              <p>{section.body}</p>
-            </section>
-          ))}
-        </div>
-      </section>
+      <MarketingSection tone="bordered">
+        <ShellWidth>
+          <ProseMeasure className="flex flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
+            {SECTIONS.map((section) => (
+              <section key={section.heading}>
+                <h2 className="font-display mb-3 text-base font-medium text-ink">
+                  {section.heading}
+                </h2>
+                <p>{section.body}</p>
+              </section>
+            ))}
+          </ProseMeasure>
+        </ShellWidth>
+      </MarketingSection>
     </div>
   );
 }

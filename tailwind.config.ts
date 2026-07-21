@@ -5,6 +5,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        /** Marketing shell desktop nav / CTAs */
+        nav: '900px',
+      },
       colors: {
         // ── Legacy palette (keep for backward compat with existing components) ──
         navy: {
@@ -44,11 +48,11 @@ export default {
           border: '#2d3748',
         },
         ink: {
-          DEFAULT: '#f1f5f9',
-          secondary: '#a8b2c1',
+          DEFAULT: 'var(--sr-ink)',
+          secondary: 'var(--sr-ink-secondary)',
           faint: 'var(--sr-ink-faint)',
-          muted: '#6b7280',
-          subtle: '#475569',
+          muted: 'var(--sr-ink-faint)',
+          subtle: 'var(--sr-ink-subtle)',
         },
         // ── shadcn tokens (onboarding scope) ─────────────────────────────
         border: 'var(--border)',
@@ -189,16 +193,19 @@ export default {
         lg: '1.5rem',
         xl: '2rem',
         '2xl': '3rem',
-        section: '4.5rem',
+        section: 'var(--space-section)',
         'section-sm': '3rem',
-        'section-lg': '6rem',
+        'section-lg': 'var(--space-section-lg)',
         'heading-body': '2.5rem',
         'body-cta': '1.5rem',
         gutter: 'clamp(1rem, 5vw, 2rem)',
       },
 
       maxWidth: {
-        copy: '40rem',
+        copy: 'var(--sr-measure-prose)',
+        prose: 'var(--sr-measure-prose)',
+        measure: 'var(--sr-measure-wide)',
+        shell: 'var(--sr-shell-max)',
       },
 
       borderRadius: {

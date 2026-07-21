@@ -4,15 +4,7 @@ import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { useParticipantSession } from '../../../hooks/useParticipantSession';
 import { participantRoute } from '../../../lib/participantRoutes';
-
-const LIVE_STATUSES = new Set(['live', 'open', 'paused']);
-
-function isRoomReady(
-  sessionStatus: string | undefined,
-  verificationStatus: string | undefined,
-): boolean {
-  return verificationStatus === 'verified' && !!sessionStatus && LIVE_STATUSES.has(sessionStatus);
-}
+import { isParticipantRoomReady } from '../../../lib/participantRoomGate';
 
 export function WaitingRoomPage() {
   const token = useParticipantToken();
@@ -20,7 +12,7 @@ export function WaitingRoomPage() {
   const [dots, setDots] = useState('.');
   const navigate = useNavigate();
 
-  const admitted = isRoomReady(ctx?.session_status, ctx?.verification_status);
+  const admitted = isParticipantRoomReady(ctx?.session_status, ctx?.verification_status);
 
   useEffect(() => {
     const id = setInterval(() => setDots((d) => (d.length >= 3 ? '.' : d + '.')), 600);

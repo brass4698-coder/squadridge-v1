@@ -5,24 +5,22 @@
 [![CI](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/ci.yml/badge.svg)](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/codeql.yml/badge.svg)](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/codeql.yml)
 
-SquadRidge is a **facilitator-led protected dialogue platform** for mediators, peacebuilding organizations, and institutions running high-stakes conversations. Parties speak in a **private written room** under facilitator control; nothing said in the room is published. When dialogue produces something worth standing behind, the facilitator drafts an **outcome**, captures approvals, and **releases** a public record with a **verification anchor** — so anyone can confirm the record has not been altered, without learning who said what.
+SquadRidge is a **facilitator-led protected dialogue platform** for NGO and peacebuilding teams (and mediators) running high-stakes written conversations. Parties speak in a **private written room** under facilitator control; nothing said in the room is published. When dialogue produces something worth standing behind, the facilitator drafts an **outcome**, captures approvals, and **releases** an **anchored record** — private/partner-shared by default for pilots; optionally listed on the public ledger.
 
-**Private pilot** — we are inviting mediators and peacebuilding teams; see [`docs/product/platform-description.md`](docs/product/platform-description.md) for the full honest picture.
+**Private pilot MVP:** NGO internal deliberation → Configure → Verify → Facilitate → Release (private anchored decision memo). See [`docs/product/platform-description.md`](docs/product/platform-description.md) and [`CURRENT_STATUS.md`](CURRENT_STATUS.md).
 
-**Built on React 19 + Vite 6 + TypeScript + Tailwind CSS 3 + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).** Legacy citizen matchmaking paths still use Semaphore ZK proofs — not the primary v2 product story.
+**Built on React 19 + Vite 6 + TypeScript + Tailwind CSS 3 + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).**
 
-**How it works (v2 lifecycle):** **Configure** → **Verify** → **Facilitate** (written dialogue) → **Release** (approved outcome + anchor). See [`CURRENT_STATUS.md`](CURRENT_STATUS.md) and [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md) for shipped vs pilot-ready vs legacy surfaces.
+**Primary paths:** `/request-access` → `/app` (facilitator) → `/p/*` (participant tokens) → private release (or `/ledger` when public).
 
-### Legacy routes (still in codebase — not the v2 story)
+### Legacy routes (soft-retired in `App.v2` — code kept, not the product story)
 
-| Route | Purpose |
-| ----- | ------- |
-| `/match`, `/session/:squadId` | Legacy squad matchmaking and encrypted squad chat |
-| `/incident` | Incident dialogue rooms (mounted in `App.tsx` only; not in v2 router) |
-| `/ledger-legacy` | Pre-v2 proposal ledger |
-| `/admin/csi` | Internal moderator CSI console (not a public early-warning product) |
-
-Lead institutional and partner conversations with `/app` facilitator flows, `/p/*` participant tokens, and `/ledger`.
+| Route | Status |
+| ----- | ------ |
+| `/match`, `/verify`, `/session/*`, `/onboarding/*` | Redirect to `/request-access` or `/` |
+| `/ledger-legacy` | Redirects to `/ledger` |
+| `/incident` | Only in unused `App.tsx` router |
+| `/admin/csi` | Internal moderator console (not a public product) |
 
 Optional Redis in `docker-compose.yml` is for local worker experiments only — not required for the app.
 
@@ -202,7 +200,7 @@ Use this checklist to confirm everything is wired (manual steps in the dashboard
 | 1 | **GitHub:** Repo → **Actions** → **Deploy Supabase to production** succeeds on `main`. If it fails, see [supabase/README.md](supabase/README.md) (secrets, PAT format, migration drift). |
 | 2 | **Supabase:** **Table Editor** or **SQL** — tables from `supabase/migrations/` exist (`users`, `squads`, `messages`, …). |
 | 3 | **Supabase:** **Authentication → Providers** — **Anonymous** enabled. |
-| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/admin/health` (**moderator** account — connectivity), `/find-squad` (**Find my squad**), or expand **Session hub** → developer **Create demo squad** to exercise auth + RLS + Realtime. |
+| 4 | **Local:** `.env` targets the **same** project CI deploys. Run `npm run dev`, open `/request-access`, sign in as a facilitator, create an **NGO internal deliberation** session at `/app/sessions/new/setup`, and exercise `/p/invite/:token` → `/p/room/:token`. |
 | 5 | **Local (release gate):** Run `npm run build`, `npm test`, and `npm run check:all` — should pass before you rely on CI or a deploy. |
 
 ### Frontend hosting (MVP)
@@ -211,29 +209,27 @@ Use the same variables as local production builds (`VITE_SUPABASE_URL`, `VITE_SU
 
 The [`.github/workflows/deploy-frontend.yml`](.github/workflows/deploy-frontend.yml) workflow runs tests, `npm run build` (with `VITE_ZK_STUB=false`), and uploads the `dist/` folder as a **build artifact** for download or attachment to your host (Vercel/Netlify/Cloudflare Pages typically use the same env vars in project settings instead of this artifact).
 
-### Demos (investors and staging)
+### Legacy diligence demos (not the pilot path)
 
-- **Offline squad UI:** `/session/demo-session-001` on your dev server or deploy is always routed to the static **DemoSessionPage** — a browser-only mock with seeded messages; copy on the page points to the real security model. This does **not** require `VITE_ENABLE_DEMO_SQUAD`.
-- **Guided tour:** From the home page, **Start guided tour** runs the scripted steps in [`src/demo/demoScript.ts`](src/demo/demoScript.ts), including onboarding, **ZK verification** (`/verify?demo=1`), intent, match, the offline session, ledger, security, and profile.
-- **Developer shortcuts:** Set `VITE_ENABLE_DEMO_SQUAD=true` to show extra affordances — see [`.env.example`](.env.example).
+Citizen matchmaking, ZK `/verify`, and offline squad mock UIs remain in the codebase for historical diligence but are **soft-retired from the live router**. Prefer the facilitator walkthrough below. Details: [`docs/technical/demo-walkthrough.md`](docs/technical/demo-walkthrough.md) (legacy-labeled).
 
-## Demo Flow
+## Demo Flow (pilot MVP)
 
-Use this **5-step walkthrough** when showing SquadRidge to a community partner, mediator, or grant reviewer. Target: under **3 minutes** for the public story; **15–20 minutes** for a live facilitator session (requires admin setup).
+Use this walkthrough for an NGO/peacebuilding partner. Target: under **3 minutes** for the public story; **15–20 minutes** for a live facilitator session (requires admin setup).
 
 | Step | What to show | Route / action |
 | ---- | ------------ | -------------- |
-| **1. Homepage** | Mission (cross-border dialogue & violence prevention), **Request pilot access** CTA, 3-step “How it works” strip | `/` |
+| **1. Homepage** | Protected room → release gate → record; **Request pilot access** | `/` |
 | **2. Request access** | Partner submits interest; explain invite-only pilot | `/request-access` |
-| **3. Sign in (admin sends invite)** | **Manual:** Super admin creates staff invite at `/admin/invites` (or Supabase dashboard). User opens invite link → magic link / OAuth → lands on role dashboard | `/invite/:token` → `/auth/callback` |
-| **4. Facilitator dashboard** | Active user with `facilitator` role sees sessions list; create session → invite participants | `/app/facilitator` → `/app/sessions/new/setup` |
-| **5. Live dialogue** | Facilitator opens live room; participant joins via `/p/invite/:token` flow; messages appear in real time (Supabase Realtime) | `/app/sessions/:id/live` and `/p/room/:token` |
+| **3. Sign in (admin sends invite)** | Super admin creates staff invite; user lands on facilitator dashboard | `/invite/accept/:token` → `/app` |
+| **4. Create NGO session** | Default template **NGO internal deliberation** (private outcome) | `/app/sessions/new/setup` |
+| **5. Invite → room → release** | Participant `/p/invite/:token` … `/p/room/:token`; facilitator releases **private anchored** decision memo | `/app/sessions/:id/control`, `/release` |
 
 ### Manual steps (not self-serve today)
 
-- **Staff invites:** A `super_admin` must approve waitlist signups and send invite links (`/admin/invites`). New accounts start as `pending` until activated.
-- **Participant invites:** Facilitator generates per-participant tokens from the session setup flow; participants never use the main app sign-in.
-- **Legacy squad demo (optional):** `/session/demo-session-001` shows offline mock chat; set `VITE_ENABLE_DEMO_SQUAD=true` for developer shortcuts.
+- **Staff invites:** A `super_admin` must approve access requests and send invite links (`/app/admin/invites`). New accounts start as `pending` until activated.
+- **Participant invites:** Facilitator generates per-participant tokens; participants use `/p/*`, not staff sign-in.
+- **Public ledger:** Optional; leave “Also publish to the public ledger” unchecked for first pilots.
 
 ### Verify locally before a demo
 

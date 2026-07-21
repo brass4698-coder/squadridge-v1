@@ -4,6 +4,7 @@ import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShel
 import { useSessions } from '../../../hooks/useSessions';
 import { appRoutes } from '../../../lib/appRoutes';
 import {
+  DEFAULT_PILOT_TEMPLATE_ID,
   SESSION_TEMPLATES,
   getSessionTemplate,
   type SessionTemplateId,
@@ -33,35 +34,43 @@ const LANGUAGE_OPTIONS = [
   'Other',
 ];
 
+function formFromTemplate(id: SessionTemplateId) {
+  const template = getSessionTemplate(id);
+  if (!template) {
+    return {
+      title: '',
+      conflictType: '',
+      language: 'English',
+      maxParticipants: '2',
+      eligibilityNotes: '',
+      outcomePublic: false,
+      identityVerification: true,
+    };
+  }
+  return {
+    title: '',
+    conflictType: template.conflictType,
+    language: template.language,
+    maxParticipants: String(template.maxParticipants),
+    eligibilityNotes: template.eligibilityNotes,
+    outcomePublic: template.outcomePublic,
+    identityVerification: template.identityVerification,
+  };
+}
+
 export function SessionNewPage() {
   const navigate = useNavigate();
   const { createSession } = useSessions();
-  const [templateId, setTemplateId] = useState<SessionTemplateId | ''>('');
-  const [form, setForm] = useState({
-    title: '',
-    conflictType: '',
-    language: 'English',
-    maxParticipants: '2',
-    eligibilityNotes: '',
-    outcomePublic: false,
-    identityVerification: true,
-  });
+  const [templateId, setTemplateId] = useState<SessionTemplateId>(DEFAULT_PILOT_TEMPLATE_ID);
+  const [form, setForm] = useState(() => formFromTemplate(DEFAULT_PILOT_TEMPLATE_ID));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function applyTemplate(id: SessionTemplateId) {
     const template = getSessionTemplate(id);
-    if (!template) return;
+    if (!template || template.pilotFocus === 'deferred') return;
     setTemplateId(id);
-    setForm({
-      title: '',
-      conflictType: template.conflictType,
-      language: template.language,
-      maxParticipants: String(template.maxParticipants),
-      eligibilityNotes: template.eligibilityNotes,
-      outcomePublic: template.outcomePublic,
-      identityVerification: template.identityVerification,
-    });
+    setForm(formFromTemplate(id));
   }
 
   function set(key: string, value: unknown) {
@@ -126,29 +135,63 @@ export function SessionNewPage() {
 
         <div className="mb-8">
           <p className={labelClass} style={labelStyle}>
-            Start from a template (optional)
+            Session template
+          </p>
+          <p className="mb-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            Pilot default: NGO internal deliberation with a private anchored decision memo. Public
+            ledger publish is optional.
           </p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
-            {SESSION_TEMPLATES.map((template) => (
-              <button
-                key={template.id}
-                type="button"
-                onClick={() => applyTemplate(template.id)}
-                className="rounded-lg border p-4 text-left transition-colors"
-                style={{
-                  borderColor:
-                    templateId === template.id ? 'var(--color-accent)' : 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface)',
-                }}
-              >
-                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                  {template.label}
-                </p>
-                <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                  {template.audience}
-                </p>
-              </button>
-            ))}
+            {SESSION_TEMPLATES.map((template) => {
+              const deferred = template.pilotFocus === 'deferred';
+              const selected = templateId === template.id;
+              return (
+                <button
+                  key={template.id}
+                  type="button"
+                  disabled={deferred}
+                  onClick={() => applyTemplate(template.id)}
+                  aria-disabled={deferred}
+                  title={
+                    deferred
+                      ? 'Not pilot focus — available after first private releases'
+                      : undefined
+                  }
+                  className="rounded-lg border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    borderColor: selected ? 'var(--color-accent)' : 'var(--color-border)',
+                    backgroundColor: 'var(--color-surface)',
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {template.label}
+                    </p>
+                    {template.pilotFocus === 'primary' ? (
+                      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-brand">
+                        Pilot default
+                      </span>
+                    ) : null}
+                    {deferred ? (
+                      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-ink-secondary">
+                        Later
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {deferred
+                      ? 'Not pilot focus. Use NGO deliberation or community mediation for first runs.'
+                      : template.audience}
+                  </p>
+                  {!deferred && !template.outcomePublic ? (
+                    <p className="mt-2 text-xs text-brand">Private anchored outcome by default</p>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -272,7 +315,7 @@ export function SessionNewPage() {
                 </div>
               </label>
 
-              {/* Outcome public */}
+              {/* Outcome public — off by default for NGO pilot */}
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
@@ -282,11 +325,12 @@ export function SessionNewPage() {
                 />
                 <div>
                   <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    Publish outcome to public ledger
+                    Also publish to the public ledger
                   </p>
                   <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    The approved outcome text will be visible at /ledger. Participant identities
-                    remain private.
+                    Leave unchecked for a private partner-shared anchored record (recommended for
+                    first pilots). When checked, approved outcome text appears at /ledger —
+                    identities stay private either way.
                   </p>
                 </div>
               </label>

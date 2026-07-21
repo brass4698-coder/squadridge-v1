@@ -3,8 +3,9 @@
 Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It complements the legacy squad pre-flight in [`pilot-runbook.md`](./pilot-runbook.md) — do not substitute one for the other.
 
 **Product path:** Configure → Verify → Facilitate → Release  
+**Beachhead template:** NGO internal deliberation (`ngo_deliberation`) — private anchored outcome by default  
 **Routes:** Facilitator `/app/sessions/...` · Participant `/p/invite/:token` … `/p/room/:token`  
-**Not in scope for v2 pilots:** `/match`, squad ZK chat, `/admin/csi`, `/incident` (unless explicitly enabled and documented).
+**Not in scope for v2 pilots:** `/match`, `/verify`, squad ZK chat, `/admin/csi`, `/incident`, Track II as first session (soft-retired or deferred in UI).
 
 ---
 
@@ -26,7 +27,7 @@ Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It co
 
 | # | Step | Route |
 |---|------|-------|
-| 1 | Create session | `/app/sessions/new/setup` |
+| 1 | Create session (prefer **NGO internal deliberation**; leave public ledger unchecked) | `/app/sessions/new/setup` |
 | 2 | Invite participants (copy `/p/invite/:token` links) | `/app/sessions/:id/invite` |
 | 3 | Review verification submissions | `/app/sessions/:id/participants` |
 | 4 | Approve each participant (`verified`) | Same |

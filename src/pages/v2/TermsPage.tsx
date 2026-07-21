@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
-import { MarketingSection, SectionLabel } from '../../components/shared';
+import {
+  MarketingPageHero,
+  MarketingSection,
+  ProseMeasure,
+  ShellWidth,
+} from '../../components/shared';
 import { SITE_THESIS_SHORT } from '../../data/siteMessaging';
 
 const SECTIONS = [
@@ -39,43 +44,46 @@ const SECTIONS = [
 
 export function TermsPage() {
   return (
-    <div className="bg-surface">
-      <MarketingSection className="!pb-12 !pt-20">
-        <div className="mx-auto max-w-3xl">
-          <SectionLabel text="Legal" />
-          <h1 className="font-display mb-2 text-h1 font-medium tracking-tight text-ink">
-            Terms of Use
-          </h1>
-          <p className="text-xs text-ink-faint">Last updated: July 2026</p>
-          <p className="mt-5 text-sm leading-relaxed text-ink-secondary">
-            {SITE_THESIS_SHORT} These terms govern mediator- and facilitator-led use of protected
-            sessions and controlled release of outcome records.
-          </p>
-          <p className="mt-4 text-sm text-ink-secondary">
-            Privacy and security:{' '}
-            <Link to="/privacy" className="text-ink underline-offset-4 hover:underline">
-              Privacy policy
-            </Link>
-            {' · '}
-            <Link to="/security" className="text-ink underline-offset-4 hover:underline">
-              Security overview
-            </Link>
-          </p>
-        </div>
-      </MarketingSection>
+    <div>
+      <MarketingPageHero
+        slim
+        label="Legal"
+        title="Terms of Use"
+        lead={
+          <>
+            <p className="font-mono text-xs text-ink-faint">Last updated: July 2026</p>
+            <p className="mt-4">
+              {SITE_THESIS_SHORT} These terms govern mediator- and facilitator-led use of protected
+              sessions and controlled release of outcome records.
+            </p>
+            <p className="mt-4 text-sm text-ink-secondary">
+              Privacy and security:{' '}
+              <Link to="/privacy" className="text-ink underline-offset-4 hover:underline">
+                Privacy policy
+              </Link>
+              {' · '}
+              <Link to="/security" className="text-ink underline-offset-4 hover:underline">
+                Security overview
+              </Link>
+            </p>
+          </>
+        }
+      />
 
-      <section className="border-t border-line px-6 pb-[var(--space-section)] md:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-3xl flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
-          {SECTIONS.map((section) => (
-            <section key={section.heading}>
-              <h2 className="font-display mb-3 text-base font-medium text-ink">
-                {section.heading}
-              </h2>
-              <p>{section.body}</p>
-            </section>
-          ))}
-        </div>
-      </section>
+      <MarketingSection tone="bordered">
+        <ShellWidth>
+          <ProseMeasure className="flex flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
+            {SECTIONS.map((section) => (
+              <section key={section.heading}>
+                <h2 className="font-display mb-3 text-base font-medium text-ink">
+                  {section.heading}
+                </h2>
+                <p>{section.body}</p>
+              </section>
+            ))}
+          </ProseMeasure>
+        </ShellWidth>
+      </MarketingSection>
     </div>
   );
 }

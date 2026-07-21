@@ -133,6 +133,17 @@
 
   /* Vertical padding for marketing / public page sections */
   --space-section: var(--sr-space-7);
+  --space-section-lg: var(--sr-space-8);
+
+  /* Marketing layout measures */
+  --sr-shell-max: 70rem; /* ~1120px — aligns with --content-max */
+  --sr-measure-prose: 41.25rem; /* ~660px — --content-narrow */
+  --sr-measure-wide: 60rem; /* ~960px — --content-wide */
+  --sr-measure-narrow: 36rem;
+
+  --content-narrow: 660px;
+  --content-wide: 960px;
+  --content-max: 1120px;
 
   /* ── Glass surfaces ─────────────────────────────────────────────── */
   --sr-glass-bg: oklch(from var(--sr-bg-elevated) l c h / 0.72);
@@ -210,47 +221,96 @@
   --sr-glass-highlight: oklch(from #14181f l c h / 0.03);
 }
 
-/* ── Institutional marketing theme (graphite, audit-minded) ─────────── */
+/* ── Institutional marketing — civic-grade confidentiality (light) ───
+   Warm mineral neutrals, deep ink-teal action, rare integrity green.
+   App chrome stays on :root dark; this theme is PublicShell marketing. */
 body[data-theme='institutional'] {
-  --sr-bg: #0c0d0f;
-  --sr-bg-elevated: #131417;
-  --sr-bg-secondary: #101114;
-  --sr-bg-sunken: #09090b;
-  --sr-bg-accent: color-mix(in oklch, #4a7c78 8%, #131417);
-  --sr-bg-accent-alt: color-mix(in oklch, #6b7280 8%, #131417);
+  --sr-bg: #f5f3ee;
+  --sr-bg-elevated: #fbfaf7;
+  --sr-bg-secondary: #f0eee8;
+  --sr-bg-sunken: #ebe8e1;
+  --sr-bg-accent: color-mix(in oklch, #0e5e63 8%, #fbfaf7);
+  --sr-bg-accent-alt: color-mix(in oklch, #5f6a67 6%, #fbfaf7);
 
-  --sr-line: #232428;
-  --sr-line-strong: #34363c;
-  --sr-divider: #1a1b1f;
+  --sr-line: #ddd8ce;
+  --sr-line-strong: #c9c2b6;
+  --sr-divider: #e7e2d8;
+  --sr-border-alpha: oklch(from #1f2423 l c h / 0.1);
 
-  --sr-ink: #ececee;
-  --sr-ink-secondary: #9a9ea8;
-  --sr-ink-faint: #6b707a;
-  --sr-ink-subtle: #4b5058;
+  --sr-ink: #1f2423;
+  --sr-ink-secondary: #5f6a67;
+  --sr-ink-faint: #7a8581;
+  --sr-ink-subtle: #9aa39f;
 
-  --sr-primary: #4a7c78;
-  --sr-primary-hover: #568986;
-  --sr-primary-pressed: #3d6662;
-  --sr-primary-soft: oklch(from #4a7c78 l c h / 0.12);
-  --sr-primary-ring: oklch(from #4a7c78 l c h / 0.4);
-  --sr-on-primary: #f4f6f5;
+  --sr-primary: #0e5e63;
+  --sr-primary-hover: #0c5156;
+  --sr-primary-pressed: #0a4549;
+  --sr-primary-soft: oklch(from #0e5e63 l c h / 0.1);
+  --sr-primary-ring: oklch(from #0e5e63 l c h / 0.35);
+  --sr-on-primary: #f7faf9;
 
-  --sr-accent-alt: #5c6370;
+  --sr-warning: #a15a37;
+  --sr-warning-soft: oklch(from #a15a37 l c h / 0.12);
+
+  --sr-accent-alt: #5f6a67;
   --sr-glow: transparent;
 
-  --sr-shadow-xs: 0 1px 2px oklch(0 0 0 / 0.4);
-  --sr-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.45);
-  --sr-shadow-md: 0 2px 8px oklch(0 0 0 / 0.5);
-  --sr-shadow-lg: 0 8px 32px oklch(0 0 0 / 0.55);
+  --sr-shadow-xs: 0 1px 2px oklch(0.2 0.02 80 / 0.06);
+  --sr-shadow-sm: 0 1px 2px oklch(0.2 0.02 80 / 0.05), 0 4px 12px oklch(0.2 0.02 80 / 0.06);
+  --sr-shadow-md: 0 2px 6px oklch(0.2 0.02 80 / 0.06), 0 8px 24px oklch(0.2 0.02 80 / 0.08);
+  --sr-shadow-lg: 0 8px 32px oklch(0.2 0.02 80 / 0.1);
 
-  --sr-glass-bg: var(--sr-bg-elevated);
+  --sr-glass-bg: color-mix(in oklch, #fbfaf7 88%, transparent);
   --sr-glass-border: var(--sr-line);
-  --sr-glass-blur: 0px;
+  --sr-glass-blur: 12px;
 
   --space-section: 5.5rem;
-  --sr-text-display: 2.75rem;
-  --sr-text-h1: 2rem;
-  --sr-text-h2: 1.5rem;
+  --space-section-lg: 7rem;
+  --sr-shell-max: 72rem;
+  --sr-measure-prose: 40rem;
+  --sr-measure-wide: 42rem;
+  --sr-measure-narrow: 36rem;
+
+  /* Marketing display only — product UI stays sans via body/heading */
+  --sr-font-display: 'Instrument Serif', 'IBM Plex Serif', Georgia, serif;
+  --sr-font-body: 'Inter', 'Public Sans', system-ui, sans-serif;
+  --sr-font-heading: 'Inter', 'Public Sans', system-ui, sans-serif;
+
+  --sr-text-display: clamp(2.25rem, 3.8vw, 3rem);
+  --sr-text-h1: clamp(1.75rem, 2.4vw, 2.125rem);
+  --sr-text-h2: clamp(1.375rem, 1.8vw, 1.625rem);
+  --sr-text-h3: 1.125rem;
+  --sr-text-eyebrow: 0.6875rem;
+  --sr-text-lead: 1.0625rem;
+  --sr-text-meta: 0.75rem;
+
+  --sr-radius-lg: 0.5rem;
+  --sr-radius-xl: 0.625rem;
+
+  /* Governed modes — room enclosed, gate tinted, ledger flat */
+  --sr-mode-room-bg: #ebe8e1;
+  --sr-mode-room-border: #d5cfc3;
+  --sr-mode-gate-bg: color-mix(in oklch, #0e5e63 7%, #fbfaf7);
+  --sr-mode-gate-border: color-mix(in oklch, #0e5e63 22%, #ddd8ce);
+  --sr-mode-ledger-bg: #fbfaf7;
+  --sr-mode-ledger-border: #c9c2b6;
+  --sr-verify: #3d7a67;
+  --sr-verify-soft: oklch(from #3d7a67 l c h / 0.12);
+  --sr-verify-ink: #2f5f50;
+
+  --sr-ease-governed: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --sr-duration-governed: 200ms;
+
+  /* Light marketing surface helpers (override dark :root alphas) */
+  --color-border-subtle: oklch(from #1f2423 l c h / 0.1);
+  --color-border-medium: oklch(from #1f2423 l c h / 0.16);
+  --color-surface-raised: #fbfaf7;
+  --color-surface-hover: #f0eee8;
+  --color-text-muted: #7a8581;
+  --color-badge-private: oklch(from #a15a37 l c h / 0.12);
+  --color-badge-private-text: #8a4d2f;
+  --color-badge-published: var(--sr-verify-soft);
+  --color-badge-published-text: var(--sr-verify-ink);
 }
 
 body[data-theme='institutional']::before {

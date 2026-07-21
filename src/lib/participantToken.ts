@@ -1,3 +1,4 @@
+import { isDemoParticipantToken } from './participantDemo';
 import { supabase } from './supabase';
 
 export interface ParticipantTokenContext {
@@ -24,13 +25,33 @@ export interface ParticipantMessageRow {
   sent_at: string;
 }
 
+/** Synthetic context so demo-token can reach `/p/room` without a live DB row. */
+export function demoParticipantContext(): ParticipantTokenContext {
+  return {
+    valid: true,
+    participant_id: 'demo-participant',
+    session_id: 'demo-session',
+    codename: 'Demo Participant',
+    verification_status: 'verified',
+    document_submitted: true,
+    consented_at: new Date().toISOString(),
+    admitted_at: new Date().toISOString(),
+    session_title: 'Northern Watershed Consultation',
+    session_status: 'live',
+    session_language: 'English',
+    identity_verification_required: false,
+  };
+}
+
 export async function validateParticipantToken(token: string): Promise<ParticipantTokenContext> {
+  if (isDemoParticipantToken(token)) return demoParticipantContext();
   const { data, error } = await supabase.rpc('validate_participant_token', { p_token: token });
   if (error) return { valid: false, error: error.message };
   return data as ParticipantTokenContext;
 }
 
 export async function recordParticipantConsent(token: string): Promise<ParticipantTokenContext> {
+  if (isDemoParticipantToken(token)) return demoParticipantContext();
   const { data, error } = await supabase.rpc('record_participant_consent', { p_token: token });
   if (error) return { valid: false, error: error.message };
   return data as ParticipantTokenContext;
@@ -51,6 +72,10 @@ export async function recordParticipantContactHash(
   token: string,
   email: string,
 ): Promise<{ valid: boolean; error?: string }> {
+  if (isDemoParticipantToken(token)) {
+    void email;
+    return { valid: true };
+  }
   const { data, error } = await supabase.rpc('participant_record_contact_hash', {
     p_token: token,
     p_email: email,
@@ -63,6 +88,9 @@ export async function participantSendMessage(
   token: string,
   body: string,
 ): Promise<{ valid: boolean; error?: string; message_id?: string }> {
+  if (isDemoParticipantToken(token)) {
+    return { valid: true, message_id: `demo-msg-${Date.now()}` };
+  }
   const { data, error } = await supabase.rpc('participant_send_message', {
     p_token: token,
     p_body: body,
@@ -74,6 +102,20 @@ export async function participantSendMessage(
 export async function participantListMessages(
   token: string,
 ): Promise<{ valid: boolean; error?: string; messages?: ParticipantMessageRow[] }> {
+  if (isDemoParticipantToken(token)) {
+    return {
+      valid: true,
+      messages: [
+        {
+          id: 'demo-msg-1',
+          sender_label: 'Facilitator',
+          sender_role: 'facilitator',
+          body: 'Welcome. This is a demo room for walkthroughs.',
+          sent_at: new Date().toISOString(),
+        },
+      ],
+    };
+  }
   const { data, error } = await supabase.rpc('participant_list_messages', { p_token: token });
   if (error) return { valid: false, error: error.message };
   const row = data as { valid: boolean; error?: string; messages?: ParticipantMessageRow[] };

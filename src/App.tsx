@@ -12,6 +12,7 @@ import {
   Toaster,
 } from './components';
 import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
+import { SessionTimeoutWarning } from './components/auth/SessionTimeoutWarning';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
@@ -90,6 +91,7 @@ export default function App() {
           <ScrollToTop />
           <DemoWalkthroughProvider>
             <AuthProvider>
+              <SessionTimeoutWarning />
               <Toaster position="top-center" richColors closeButton className="font-sans" />
               <Routes>
                 <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />

@@ -296,6 +296,10 @@ export interface Database {
         Args: { p_outcome_id: string };
         Returns: Json;
       };
+      verify_outcome_anchor: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
       transition_session_status: {
         Args: { p_session_id: string; p_status: string };
         Returns: Json;

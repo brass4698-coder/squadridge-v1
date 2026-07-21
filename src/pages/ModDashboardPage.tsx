@@ -1,8 +1,14 @@
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ClipboardList, Inbox, MessageSquare } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AuditTooltip } from '../components/shared/AuditTooltip';
+import { EmptyState } from '../components/shared/EmptyState';
+import { SensitiveField } from '../components/shared/SensitiveField';
+import { SkeletonCard } from '../components/shared/SkeletonCard';
+import { TrustLabel } from '../components/shared/TrustLabel';
 import { useAuth } from '../contexts/AuthContext';
 import { moderatorDecryptMessageForReview } from '../lib/moderation/modDecrypt';
 import { assertEdgeRateLimit } from '../lib/rateLimitEdge';
@@ -429,6 +435,9 @@ export function ModDashboardPage() {
           role="status"
           className="mt-4 max-w-[72ch] rounded-lg border border-amber/40 bg-amber/10 p-4 font-sans text-[0.82rem] leading-relaxed text-amber"
         >
+          <div className="mb-2">
+            <TrustLabel variant="moderator" />
+          </div>
           <strong className="font-semibold text-amber">Operator visibility:</strong> Squad message
           keys are stored for this product; moderators can read ciphertext and decrypt for review.
           Each decrypt requires a written justification and logs{' '}
@@ -461,7 +470,10 @@ export function ModDashboardPage() {
           </label>
         </div>
         {squadsQuery.isPending ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
+          <div className="mt-4 space-y-3">
+            <SkeletonCard minHeight="5rem" lines={2} />
+            <SkeletonCard minHeight="5rem" lines={2} />
+          </div>
         ) : squadsQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
             {squadsQuery.error instanceof Error
@@ -469,7 +481,12 @@ export function ModDashboardPage() {
               : 'Could not load squads.'}
           </p>
         ) : squads.length === 0 ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">No squads found.</p>
+          <EmptyState
+            icon={Inbox}
+            heading="No squads yet"
+            body="When sessions are created, they will appear here for review."
+            className="mt-2 py-10"
+          />
         ) : filteredSquads.length === 0 ? (
           <p className="mt-4 font-sans text-[0.875rem] text-slate-500">
             No squads match your filter.
@@ -481,7 +498,12 @@ export function ModDashboardPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-sans text-[0.9rem] font-medium text-gray-light">{s.topic}</p>
-                    <p className="mt-1 font-mono text-[0.7rem] text-slate-500">{s.id}</p>
+                    <div className="mt-1">
+                      <SensitiveField
+                        value={s.id}
+                        className="font-mono text-[0.7rem] text-slate-500"
+                      />
+                    </div>
                     <p className="mt-1 font-sans text-[0.75rem] text-slate-400">
                       Created {new Date(s.created_at).toLocaleString()} · {s.member_count} members ·{' '}
                       <span className="uppercase">{s.status}</span>
@@ -503,14 +525,16 @@ export function ModDashboardPage() {
                       Open session
                     </Link>
                     {!s.archived_at ? (
-                      <button
-                        type="button"
-                        disabled={archiveMutation.isPending}
-                        className="rounded-[6px] border border-slate-600 px-2 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-amber/40 hover:text-gray-light disabled:opacity-50"
-                        onClick={() => setArchiveSquadId(s.id)}
-                      >
-                        Archive
-                      </button>
+                      <AuditTooltip>
+                        <button
+                          type="button"
+                          disabled={archiveMutation.isPending}
+                          className="rounded-[6px] border border-slate-600 px-2 py-1 font-sans text-[0.75rem] text-slate-300 hover:border-amber/40 hover:text-gray-light disabled:opacity-50"
+                          onClick={() => setArchiveSquadId(s.id)}
+                        >
+                          Archive
+                        </button>
+                      </AuditTooltip>
                     ) : null}
                   </div>
                 </div>
@@ -550,7 +574,11 @@ export function ModDashboardPage() {
                       </p>
                     )}
                     {messagesQuery.isPending ? (
-                      <p className="font-sans text-[0.8rem] text-slate-500">Loading messages…</p>
+                      <SkeletonCard
+                        minHeight="8rem"
+                        lines={3}
+                        className="border-navy-light bg-[#0f1623]"
+                      />
                     ) : messagesQuery.isError ? (
                       <p className="font-sans text-[0.8rem] text-amber" role="alert">
                         {messagesQuery.error instanceof Error
@@ -558,7 +586,12 @@ export function ModDashboardPage() {
                           : 'Could not load.'}
                       </p>
                     ) : (messagesQuery.data ?? []).length === 0 ? (
-                      <p className="font-sans text-[0.8rem] text-slate-500">No messages.</p>
+                      <EmptyState
+                        icon={MessageSquare}
+                        heading="No messages in this squad"
+                        body="The message queue is empty."
+                        className="py-8"
+                      />
                     ) : (
                       <ul className="max-h-[320px] space-y-2 overflow-y-auto">
                         {(messagesQuery.data ?? []).map((m) => (
@@ -573,31 +606,38 @@ export function ModDashboardPage() {
                             <p className="mt-1 break-all text-slate-500">
                               {previewCipher(m.payload_ciphertext)}
                             </p>
+                            <div className="mt-1">
+                              <TrustLabel variant="moderator" />
+                            </div>
                             {m.status === 'sent' ? (
                               <div className="mt-2 flex flex-wrap gap-3">
-                                <button
-                                  type="button"
-                                  disabled={flagMutation.isPending}
-                                  className="font-sans text-[0.75rem] font-medium text-amber hover:underline disabled:opacity-50"
-                                  onClick={() => {
-                                    setFlagMessageId(m.id);
-                                    setFlagReasonDraft('');
-                                  }}
-                                >
-                                  Flag message
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={decryptMutation.isPending}
-                                  className="font-sans text-[0.75rem] font-medium text-teal hover:underline disabled:opacity-50"
-                                  onClick={() => {
-                                    setDecryptTarget(m);
-                                    setDecryptJustification('');
-                                    setDecryptPlaintext(null);
-                                  }}
-                                >
-                                  Decrypt for review
-                                </button>
+                                <AuditTooltip>
+                                  <button
+                                    type="button"
+                                    disabled={flagMutation.isPending}
+                                    className="font-sans text-[0.75rem] font-medium text-amber hover:underline disabled:opacity-50"
+                                    onClick={() => {
+                                      setFlagMessageId(m.id);
+                                      setFlagReasonDraft('');
+                                    }}
+                                  >
+                                    Flag message
+                                  </button>
+                                </AuditTooltip>
+                                <AuditTooltip>
+                                  <button
+                                    type="button"
+                                    disabled={decryptMutation.isPending}
+                                    className="font-sans text-[0.75rem] font-medium text-teal hover:underline disabled:opacity-50"
+                                    onClick={() => {
+                                      setDecryptTarget(m);
+                                      setDecryptJustification('');
+                                      setDecryptPlaintext(null);
+                                    }}
+                                  >
+                                    Decrypt for review
+                                  </button>
+                                </AuditTooltip>
                               </div>
                             ) : null}
                           </li>
@@ -617,7 +657,9 @@ export function ModDashboardPage() {
           Moderation audit log
         </h2>
         {auditQuery.isPending ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">Loading…</p>
+          <div className="mt-4">
+            <SkeletonCard minHeight="8rem" lines={4} />
+          </div>
         ) : auditQuery.isError ? (
           <p className="mt-4 font-sans text-[0.875rem] text-amber" role="alert">
             {auditQuery.error instanceof Error
@@ -625,7 +667,12 @@ export function ModDashboardPage() {
               : 'Could not load audit log.'}
           </p>
         ) : audits.length === 0 ? (
-          <p className="mt-4 font-sans text-[0.875rem] text-slate-500">No audit entries yet.</p>
+          <EmptyState
+            icon={ClipboardList}
+            heading="No audit entries yet"
+            body="Flag, archive, and decrypt-review actions will appear here."
+            className="mt-2 py-10"
+          />
         ) : (
           <ul className="mt-4 divide-y divide-navy-light">
             {audits.map((row) => (
@@ -637,6 +684,14 @@ export function ModDashboardPage() {
                 <span className="ml-2 text-slate-500">
                   {new Date(row.created_at).toLocaleString()}
                 </span>
+                {row.target_id ? (
+                  <div className="mt-1">
+                    <SensitiveField
+                      value={String(row.target_id)}
+                      className="font-mono text-[0.7rem] text-slate-500"
+                    />
+                  </div>
+                ) : null}
                 {row.metadata &&
                 typeof row.metadata === 'object' &&
                 Object.keys(row.metadata).length > 0 ? (

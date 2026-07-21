@@ -2,6 +2,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Check, ClipboardPen, Copy, List, Shield } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { LedgerPageSkeletonCards, LedgerPageSkeletonRows, PrimaryCTA } from '../components';
+import { SensitiveField } from '../components/shared/SensitiveField';
+import { TrustLabel } from '../components/shared/TrustLabel';
 import {
   useLedgerProposalBySlug,
   useLedgerPublishedList,
@@ -75,6 +77,9 @@ function LedgerPublicRecordHeader({
 }) {
   return (
     <header className="border-b border-white/[0.08] pb-8">
+      <div className="mb-3">
+        <TrustLabel variant="ledger" />
+      </div>
       <p className="mb-5 font-mono text-[0.62rem] font-normal uppercase tracking-[0.12em] text-ink-muted">
         <span className="text-ink-secondary">Public outcome record</span>
         <span className="mx-2 text-ink-subtle" aria-hidden>
@@ -84,7 +89,10 @@ function LedgerPublicRecordHeader({
         <span className="mx-2 text-ink-subtle" aria-hidden>
           ·
         </span>
-        <span className="break-all font-normal tracking-normal text-ink-secondary">{slug}</span>
+        <SensitiveField
+          value={slug}
+          className="break-all text-[0.62rem] font-normal tracking-normal text-ink-secondary"
+        />
       </p>
       <h1
         className="font-heading text-ink"
@@ -138,17 +146,23 @@ function LedgerVerificationStrip({
       className="mt-8 overflow-hidden border border-white/[0.1] bg-[#060910]/90"
       aria-label="Verification identifiers for this record"
     >
-      <h2 className="border-b border-white/[0.07] bg-[#080d14] px-4 py-2 font-heading text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle">
-        Verification
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] bg-[#080d14] px-4 py-2">
+        <h2 className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle">
+          Verification
+        </h2>
+        <TrustLabel variant="ledger" />
+      </div>
       <div className="grid divide-y divide-white/[0.08] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <div className="px-4 py-3.5">
           <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
             Public slug
           </p>
-          <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-snug text-ink-secondary">
-            {slug}
-          </p>
+          <div className="mt-1.5">
+            <SensitiveField
+              value={slug}
+              className="break-all text-[0.72rem] leading-snug text-ink-secondary"
+            />
+          </div>
         </div>
         <div className="px-4 py-3.5">
           <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
@@ -160,9 +174,12 @@ function LedgerVerificationStrip({
           <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
             Ledger reference
           </p>
-          <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-snug text-ink-secondary">
-            {ledgerRef}
-          </p>
+          <div className="mt-1.5">
+            <SensitiveField
+              value={ledgerRef}
+              className="break-all text-[0.72rem] leading-snug text-ink-secondary"
+            />
+          </div>
         </div>
       </div>
     </section>

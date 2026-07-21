@@ -12,6 +12,7 @@ import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 import { useDashboardRoute } from '../hooks/useDashboardRoute';
 import { signInWithDemo, DEMO_EMAIL, isDemoLoginEnabled } from '../lib/demoLogin';
+import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 
 /**
@@ -86,7 +87,7 @@ export function SignInPage() {
     });
     setBusy(false);
     if (err) {
-      setError(err.message);
+      setError(classifyClientError(err).userMessage);
       return;
     }
     setSent(true);
@@ -98,7 +99,7 @@ export function SignInPage() {
     const result = await signInWithDemo();
     if (!result.ok) {
       setDemoBusy(false);
-      setError(result.error);
+      setError(classifyClientError(new Error(result.error)).userMessage);
       return;
     }
     // The useEffect above will handle navigation once session resolves.
@@ -106,7 +107,7 @@ export function SignInPage() {
 
   if (!configured) {
     return (
-      <div className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 py-12 text-center">
+      <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-6 py-12 text-left">
         <p className="text-sm text-ink-secondary">
           Supabase is not configured. Add{' '}
           <code
@@ -125,9 +126,9 @@ export function SignInPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+    <div className="mx-auto flex min-h-dvh w-full items-start justify-start px-6 py-12 md:items-center md:justify-center">
       <div
-        className="animate-fade-in-up sr-glass-strong w-full max-w-[480px] rounded-[16px] p-8 md:p-10"
+        className="animate-fade-in-up sr-glass-strong w-full max-w-[480px] rounded-[16px] p-8 text-left md:p-10"
         style={{
           // Phase 6: blend teal (primary CTA colour) + electric blue (bg glow)
           // for a spectral border, layered over the deep-indigo canvas.
@@ -178,7 +179,7 @@ export function SignInPage() {
             }}
             role="status"
           >
-            This sign-in link has expired. Request a new link below.
+            Your session ended for safety. Enter your email below for a fresh sign-in link.
           </div>
         ) : null}
 
@@ -203,9 +204,14 @@ export function SignInPage() {
               borderColor: 'var(--sr-line)',
               background: 'var(--sr-bg-secondary)',
             }}
+            role="status"
           >
-            <p className="text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
-              Check your inbox for the sign-in link. After you open it, we'll route you
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--sr-ink)' }}>
+              Check your inbox for the sign-in link. It expires in about an hour and can only be
+              used once.
+            </p>
+            <p className="mt-2 text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
+              After you open it, we&apos;ll route you
               {nextPath !== appRoutes.dashboard
                 ? ' to your session workspace.'
                 : ' to your dashboard.'}
@@ -237,10 +243,11 @@ export function SignInPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@organization.org"
+                className="h-11"
               />
             </FormField>
-            <Button type="submit" className="w-full" size="lg" loading={busy}>
-              Email me a magic link
+            <Button type="submit" className="h-11 w-full" size="lg" loading={busy}>
+              Send sign-in link
             </Button>
 
             {isDemoLoginEnabled() ? (
@@ -271,7 +278,7 @@ export function SignInPage() {
                   <Play className="size-4" aria-hidden />
                   {demoBusy ? 'Signing in…' : 'Try the Demo'}
                 </button>
-                <p className="text-center text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
+                <p className="text-left text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
                   Instant read-only access to seeded example sessions. No email required.
                 </p>
               </>

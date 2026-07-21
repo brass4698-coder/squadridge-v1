@@ -357,7 +357,7 @@ function ReleaseControl({
       <p
         id={statusId}
         aria-live="polite"
-        className="mt-2 text-center text-[0.7rem] leading-snug text-ink-faint"
+        className="mt-2 text-left text-[0.7rem] leading-snug text-ink-faint"
       >
         {released ? (
           <>Approved outcome published with a verification anchor. Reset to replay.</>

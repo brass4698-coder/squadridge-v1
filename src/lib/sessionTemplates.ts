@@ -4,6 +4,9 @@ export type SessionTemplateId =
   | 'ngo_deliberation'
   | 'track2_dialogue';
 
+/** Pilot wedge ranking — primary is the default create-session selection. */
+export type SessionTemplatePilotFocus = 'primary' | 'secondary' | 'deferred';
+
 export interface SessionTemplate {
   id: SessionTemplateId;
   label: string;
@@ -15,6 +18,8 @@ export interface SessionTemplate {
   identityVerification: boolean;
   outcomePublic: boolean;
   eligibilityNotes: string;
+  /** How this template is presented during private pilot. */
+  pilotFocus: SessionTemplatePilotFocus;
   setupConfig: {
     suggestedOutcomeStructure: string;
     requiredApprovals: 'all_verified' | 'facilitator_plus_parties';
@@ -29,7 +34,33 @@ export interface SessionTemplate {
   };
 }
 
+export const DEFAULT_PILOT_TEMPLATE_ID: SessionTemplateId = 'ngo_deliberation';
+
 export const SESSION_TEMPLATES: SessionTemplate[] = [
+  {
+    id: 'ngo_deliberation',
+    label: 'NGO internal deliberation',
+    audience: 'NGOs & peacebuilding teams',
+    description:
+      'Sensitive staff deliberation with a funder-safe record — no transcript that could be weaponized.',
+    conflictType: 'Community & civic',
+    language: 'English',
+    maxParticipants: 6,
+    identityVerification: true,
+    outcomePublic: false,
+    eligibilityNotes: 'Verified staff and named partners only. No external observers in the room.',
+    pilotFocus: 'primary',
+    setupConfig: {
+      suggestedOutcomeStructure:
+        'Decision memo — context, options considered, agreed position, implementation owners.',
+      requiredApprovals: 'facilitator_plus_parties',
+      groundRules: [
+        'Contributions visible only inside the room',
+        'Released record is a private anchored decision memo by default',
+        'No individual attribution on any released record',
+      ],
+    },
+  },
   {
     id: 'community_mediation',
     label: 'Community mediation',
@@ -43,6 +74,7 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
     outcomePublic: true,
     eligibilityNotes:
       'Parties must have standing in the dispute. You confirm eligibility before verification.',
+    pilotFocus: 'secondary',
     setupConfig: {
       suggestedOutcomeStructure:
         'Joint Statement of Principles — positions acknowledged, agreed principles, next steps.',
@@ -67,6 +99,7 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
     outcomePublic: true,
     eligibilityNotes:
       'Verified representatives from participating organizations only. City staff facilitate; community partners join via invite tokens. No public attribution of room dialogue.',
+    pilotFocus: 'deferred',
     setupConfig: {
       suggestedOutcomeStructure:
         'Action Commitments Record — prioritized interventions, lead organizations, timelines, and follow-up owners.',
@@ -104,29 +137,6 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
     },
   },
   {
-    id: 'ngo_deliberation',
-    label: 'NGO internal deliberation',
-    audience: 'NGOs & peacebuilding teams',
-    description:
-      'Sensitive staff deliberation with a funder-safe record — no transcript that could be weaponized.',
-    conflictType: 'Community & civic',
-    language: 'English',
-    maxParticipants: 6,
-    identityVerification: true,
-    outcomePublic: false,
-    eligibilityNotes: 'Verified staff and named partners only. No external observers in the room.',
-    setupConfig: {
-      suggestedOutcomeStructure:
-        'Decision memo — context, options considered, agreed position, implementation owners.',
-      requiredApprovals: 'facilitator_plus_parties',
-      groundRules: [
-        'Contributions visible only inside the room',
-        'Released record contains agreed position only',
-        'No individual attribution on public record',
-      ],
-    },
-  },
-  {
     id: 'track2_dialogue',
     label: 'Track II / cross-line dialogue',
     audience: 'Cross-border & Track II dialogue',
@@ -139,6 +149,7 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
     outcomePublic: true,
     eligibilityNotes:
       'Verified representatives only. All dialogue stays in the SquadRidge messaging room.',
+    pilotFocus: 'deferred',
     setupConfig: {
       suggestedOutcomeStructure:
         'Shareable communiqué or statement of common ground — facilitator-signed release.',
@@ -154,4 +165,8 @@ export const SESSION_TEMPLATES: SessionTemplate[] = [
 
 export function getSessionTemplate(id: SessionTemplateId | ''): SessionTemplate | undefined {
   return SESSION_TEMPLATES.find((t) => t.id === id);
+}
+
+export function isDeferredPilotTemplate(id: SessionTemplateId): boolean {
+  return getSessionTemplate(id)?.pilotFocus === 'deferred';
 }

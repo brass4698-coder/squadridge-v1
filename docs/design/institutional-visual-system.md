@@ -4,31 +4,56 @@ Art direction for the public marketing site and institutional-facing materials. 
 
 ## Design intent
 
-The site should read as **secure infrastructure**, not a startup landing page: calm, precise, audit-minded, and defensible.
+**Civic-grade confidentiality** — secure infrastructure, not a cybersecurity or SaaS landing page. Calm, precise, audit-minded. Wow comes from restraint, alignment, and governed depth — never neon, purple gradients, or AI-security spectacle.
+
+Pasteable kit (tokens, components, motion, checklist): [`squadridge-trust-ui-kit.md`](squadridge-trust-ui-kit.md).
 
 ## Color system
 
-Applied via `body[data-theme='institutional']` in [`src/styles/tokens.css`](../src/styles/tokens.css):
+Applied via `body[data-theme='institutional']` in [`src/styles/tokens.css`](../../src/styles/tokens.css):
 
 | Token | Role | Value |
 | ----- | ---- | ----- |
-| `--sr-bg` | Canvas | `#0c0d0f` graphite |
-| `--sr-bg-elevated` | Cards, panels | `#131417` |
-| `--sr-bg-sunken` | Recessed areas | `#09090b` |
-| `--sr-line` | Borders, grid | `#232428` |
-| `--sr-ink` | Primary text | `#ececee` |
-| `--sr-ink-secondary` | Body | `#9a9ea8` |
-| `--sr-primary` | Single accent (teal-mineral) | `#4a7c78` |
+| `--sr-bg` | Canvas | `#F5F3EE` warm mineral |
+| `--sr-bg-elevated` | Cards, panels | `#FBFAF7` |
+| `--sr-bg-secondary` | Lifted panels | `#F0EEE8` |
+| `--sr-bg-sunken` | Recessed / room | `#EBE8E1` |
+| `--sr-line` | Borders, grid | `#DDD8CE` |
+| `--sr-ink` | Primary text | `#1F2423` |
+| `--sr-ink-secondary` | Body / metadata | `#5F6A67` |
+| `--sr-primary` | Action (ink-teal) | `#0E5E63` |
+| `--sr-verify` | Integrity only | `#3D7A67` |
+| `--sr-warning` | Documented limits | `#A15A37` clay |
 
-**Rules:** No bright gradients, neon, or decorative blobs on marketing pages. Amber (`--sr-warning`) for pending states only.
+**Rules:** No bright gradients, neon, or decorative blobs on marketing pages. Clay warning for documented limits and cautionary notices — not alarm red. Verification color is rare — ledger anchors and approval confirmations only. App chrome stays on dark `:root`; this theme is PublicShell marketing only.
+
+## Governed visual modes
+
+Recurring modes for the room → gate → ledger sequence (CSS: `.sr-mode-room`, `.sr-mode-gate`, `.sr-mode-ledger`):
+
+| Mode | Feel | Surface |
+| ---- | ---- | ------- |
+| **Private room** | Soft, enclosed, subdued metadata | Warm sunken / inset perimeter |
+| **Release gate** | Highest structure, deliberate threshold | Ink-teal tint + elevate |
+| **Public ledger** | Flatter, open, integrity cues | Clean elevated panel, minimal chrome |
+
+## Trust UI checklist
+
+- [ ] One accent for actions; verification color only on integrity states
+- [ ] Labels before icons; mono for metadata and anchors
+- [ ] Thin document rules over card shadows / floating chrome
+- [ ] Gate surfaces tinted, not neon-bordered
+- [ ] Motion is procedural (`--sr-ease-governed`); no bounce
+- [ ] Evidence frames use `.sr-evidence-frame` / `.sr-evidence-rail`
+- [ ] Released records show a sparse integrity mark (`.sr-integrity-mark`)
 
 ## Typography
 
-- **Display / major headings:** IBM Plex Serif (`font-display`) — institutional, editorial
-- **UI / body:** Inter (`font-sans`) — legible, policy-grade
-- **Metadata / anchors:** IBM Plex Mono (`font-mono`) — audit cues
+- **Display / major headings (marketing only):** Instrument Serif (`font-display`)
+- **UI / body / controls:** Inter (`font-sans`) — legible, policy-grade
+- **Metadata / anchors:** IBM Plex Mono (`font-mono`) — audit cues, tabular nums for counts
 
-Headlines are restrained in size (`--sr-text-display: 2.75rem` on institutional theme).
+Do not overuse serif inside product workflows — controlled workflow, not editorial flourish.
 
 ## Spacing
 
@@ -67,18 +92,17 @@ Avoid:
 
 ## Homepage structure
 
-See [`src/pages/v2/LandingPage.tsx`](../src/pages/v2/LandingPage.tsx):
+See [`src/pages/v2/LandingPage.tsx`](../../src/pages/v2/LandingPage.tsx):
 
-1. Hero + room/record split
-2. Trust bar
-3. Confidentiality model
-4. Verification model
-5. Product mechanics
-6. Why it matters
-7. Interface evidence
-8. Security posture
-9. Operational contexts
-10. Ledger sample + diligence FAQ + institutional CTA
+1. Editorial hero + system model diagram (room → gate → ledger)
+2. Process stage panel — three governed states (single module)
+3. Trust boundary table + honesty micro-summary
+4. Product evidence sequence (three visual modes)
+5. Mediation flagship + context teasers
+6. Released record specimen + pilot intake (`#pilot`)
+
+Also see [`marketing-redesign-audit.md`](marketing-redesign-audit.md) and
+[`alignment-system.md`](alignment-system.md) (left-first alignment rules).
 
 ## Imagery guidance
 

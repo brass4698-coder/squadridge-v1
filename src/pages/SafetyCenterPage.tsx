@@ -52,14 +52,14 @@ export function SafetyCenterPage() {
           </div>
         </dl>
         <p className="mt-3 font-sans text-[0.8rem] text-slate-500">
-          Verification and ZK eligibility are separate from what others see in dialogue — you stay
-          anonymous to other participants.
+          Facilitator verification confirms eligibility for a session. Released records do not name
+          participants. Room content is access-controlled, not operator-blind encryption.
         </p>
         <Link
-          to="/verify"
+          to="/security"
           className="mt-4 inline-flex min-h-[44px] items-center text-teal-light underline-offset-4 hover:underline"
         >
-          Verification &amp; ZK scope
+          Security &amp; privacy boundaries
         </Link>
       </section>
 

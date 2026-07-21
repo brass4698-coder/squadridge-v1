@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { DEV_PARTICIPANT_DEMO_TOKEN } from './participantDemo';
 import {
   validateParticipantToken,
   recordParticipantConsent,
   generateInviteToken,
   hashEmail,
+  demoParticipantContext,
+  participantListMessages,
 } from './participantToken';
+import { buildParticipantInviteUrl, participantRoute } from './participantRoutes';
 
 const rpc = vi.fn();
 
@@ -61,5 +65,25 @@ describe('participantToken', () => {
     const b = await hashEmail('test@example.com');
     expect(a).toBe(b);
     expect(a).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('demo token short-circuits validate and list without RPC', async () => {
+    const ctx = await validateParticipantToken(DEV_PARTICIPANT_DEMO_TOKEN);
+    expect(ctx.valid).toBe(true);
+    expect(ctx.verification_status).toBe('verified');
+    expect(ctx.session_status).toBe('live');
+    expect(rpc).not.toHaveBeenCalled();
+
+    const messages = await participantListMessages(DEV_PARTICIPANT_DEMO_TOKEN);
+    expect(messages.valid).toBe(true);
+    expect(messages.messages?.length).toBeGreaterThan(0);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it('facilitator invite URL points at /p/invite/:token', () => {
+    const token = generateInviteToken();
+    const url = buildParticipantInviteUrl(token, 'https://app.example');
+    expect(url).toBe(`https://app.example${participantRoute('invite', token)}`);
+    expect(demoParticipantContext().session_title).toBeTruthy();
   });
 });

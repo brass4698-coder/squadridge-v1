@@ -98,6 +98,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Design system | [design/design-system.md](design/design-system.md)             |
 | Full-site visual direction | [design/full-site-visual-direction.md](design/full-site-visual-direction.md) |
 | Institutional visual system | [design/institutional-visual-system.md](design/institutional-visual-system.md) |
+| Trust UI kit (tokens + components) | [design/squadridge-trust-ui-kit.md](design/squadridge-trust-ui-kit.md) |
 | UX patterns   | [design/ux-patterns.md](design/ux-patterns.md)                 |
 | Accessibility | [design/accessibility-guide.md](design/accessibility-guide.md) |
 | Tone of voice | [brand/tone-of-voice.md](brand/tone-of-voice.md)               |

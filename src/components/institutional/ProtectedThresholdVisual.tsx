@@ -9,11 +9,11 @@ export function ProtectedThresholdVisual({ className = '' }: { className?: strin
     <InstitutionalVisualFrame
       ariaLabel="Abstract architectural view of a controlled threshold leading to a protected session room"
       className={className}
-      aspect="video"
+      aspect="auto"
     >
       <svg
         viewBox="0 0 420 300"
-        className="h-full w-full max-h-[280px] text-ink-faint"
+        className="h-full w-full text-ink-faint"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden

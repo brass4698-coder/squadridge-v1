@@ -1,48 +1,34 @@
 import { faqFull } from '../../data/faqFull';
 import { CTA } from '../../data/siteMessaging';
-import { TrustBoundarySchematic } from '../../components/institutional';
-import {
-  CTABlock,
-  EvaluatorPath,
-  FAQAccordion,
-  MarketingSection,
-  SectionLabel,
-} from '../../components/shared';
+import { CTABlock, FAQAccordion } from '../../components/shared';
+import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 
+/** FAQ — dense instrument, no decorative schematic or journey kit. */
 export function FaqPage() {
   return (
     <div>
-      <MarketingSection className="!pb-12 !pt-20">
-        <div className="mx-auto max-w-3xl">
-          <SectionLabel text="For mediators" />
-          <h1 className="font-display text-h1 font-medium tracking-tight text-ink">
-            Questions mediators ask before a pilot.
+      <header className="border-b border-line pt-16 pb-10 md:pt-20">
+        <div className={publicShellInnerClass}>
+          <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+            For mediators
+          </p>
+          <h1 className="mt-4 max-w-[22ch] font-display text-display font-medium text-ink">
+            Questions before a pilot.
           </h1>
-          <p className="mt-5 text-base leading-relaxed text-ink-secondary">
-            Direct answers for professional mediators and facilitation teams — including what
-            SquadRidge is not (surveillance, monitoring, open chat, a replacement for your craft).
-            The homepage shows the six highest-priority questions.
+          <p className="mt-4 max-w-prose text-sm leading-relaxed text-ink-secondary">
+            Direct answers — including what SquadRidge is not: surveillance, open chat, or a
+            replacement for professional judgment.
           </p>
         </div>
-      </MarketingSection>
+      </header>
 
-      <MarketingSection className="border-t border-line bg-surface-sunken/30 !py-14">
-        <div className="mx-auto max-w-6xl">
-          <TrustBoundarySchematic />
-        </div>
-      </MarketingSection>
-
-      <section className="border-t border-line px-6 pb-12 md:px-8 lg:px-12">
-        <div className="mx-auto max-w-3xl">
-          <FAQAccordion items={faqFull} />
+      <section className="py-12 md:py-14">
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure text-left">
+            <FAQAccordion items={faqFull} />
+          </div>
         </div>
       </section>
-
-      <MarketingSection className="!py-12">
-        <div className="mx-auto max-w-6xl">
-          <EvaluatorPath current="trust" />
-        </div>
-      </MarketingSection>
 
       <CTABlock headline={CTA.pilotHeadline} body={CTA.pilotBody} />
     </div>

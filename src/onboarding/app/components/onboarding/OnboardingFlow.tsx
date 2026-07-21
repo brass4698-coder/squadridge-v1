@@ -130,6 +130,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <OnboardingShellProvider heightMode="fill">
         <OnboardingChrome
           progressPercent={progressPercent}
+          stepNumber={index + 1}
+          totalSteps={STEPS.length}
           onExitRequest={() => setExitDialogOpen(true)}
         />
         <div className="min-h-0 flex-1 overflow-y-auto">

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { DEV_PARTICIPANT_DEMO_TOKEN } from '../lib/participantRoutes';
+import { DEV_PARTICIPANT_DEMO_TOKEN } from '../lib/participantDemo';
 
 /**
  * Reads the participant invite token from the URL path (`/p/:step/:token`).

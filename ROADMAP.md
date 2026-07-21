@@ -25,7 +25,8 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 - [x] `/p/invite/:token` validates against `participants.invite_token` (or participant RPC), not staff `invites` table
 - [x] Accept flow redirects to `/p/verify/:token`, not `/invite/accept/:token`
 - [x] Token expiry and declined states handled with recoverable error UI
-- [ ] E2E or integration test: generate link on `ParticipantInvitePage` → participant completes through `/p/room`
+- [x] E2E: demo-token walkthrough invite → `/p/room` (`e2e/phase0-routing.spec.ts`)
+- [x] Integration: pgTAP facilitator `invite_token` → consent → verify → live room messaging (`supabase/tests/database/v2_participant_invite_to_room.test.sql`)
 
 **Files:** `ParticipantInvitePage`, `InviteAcceptancePage`, `participantToken.ts`, participant RPCs  
 **Acceptance:** Facilitator-generated participant link works without staff-invite workaround.
@@ -104,6 +105,17 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ---
 
+## Out of scope until first private released outcome
+
+Do not expand into these until one NGO pilot completes Release with a non-public anchored record:
+
+- Citizen matchmaking / public ZK verify UI as a product surface
+- Operator-blind E2E encryption program
+- Civic early-warning / CSI as a public product
+- New session templates or Ridge Protocol round choreography
+- Track II / city community safety as default create-session paths
+- Email notification delivery pipeline (in-app alerts are enough for first pilot)
+
 ## Phase B preview (not Phase A)
 
-See [impact-roadmap.md](docs/product/impact-roadmap.md) and [ridge-protocol-spec.md](docs/product/ridge-protocol-spec.md) for 12-month differentiation work. Do not start B1 until P0 items 1–3 are complete.
+See [impact-roadmap.md](docs/product/impact-roadmap.md) and [ridge-protocol-spec.md](docs/product/ridge-protocol-spec.md) for 12-month differentiation work. Do not start B1 until P0 items 1–3 are complete and the freeze above is lifted.

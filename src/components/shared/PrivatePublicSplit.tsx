@@ -37,9 +37,9 @@ export function PrivatePublicSplit({
         headingSize={headingSize}
       />
 
-      <div className="flex flex-col items-center justify-center gap-2 px-2 py-4 lg:py-0">
+      <div className="flex flex-col items-start justify-center gap-2 px-2 py-4 lg:py-0">
         <div className="hidden h-full w-px bg-line-strong lg:block" aria-hidden />
-        <p className="max-w-[8rem] text-center font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+        <p className="max-w-[8rem] text-left font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
           {bridgeLabel}
         </p>
         <div className="hidden h-full w-px bg-line-strong lg:block" aria-hidden />

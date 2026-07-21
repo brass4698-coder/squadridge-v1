@@ -116,11 +116,15 @@ export function useOutcomeRecord(sessionId: string | undefined) {
       const message =
         result?.error === 'APPROVALS_PENDING'
           ? 'All parties must approve before release.'
-          : result?.error === 'VERBATIM_ROOM_CONTENT'
-            ? 'Outcome text matches room dialogue verbatim. Rewrite in facilitator-authored language.'
-            : result?.error === 'SESSION_NOT_ENDED'
-              ? 'End the session before releasing the outcome.'
-              : (result?.error ?? 'Release failed');
+          : result?.error === 'APPROVALS_REQUIRED'
+            ? 'Add at least one approver before release.'
+            : result?.error === 'VERBATIM_ROOM_CONTENT'
+              ? 'Outcome text matches room dialogue verbatim. Rewrite in facilitator-authored language.'
+              : result?.error === 'SESSION_NOT_ENDED'
+                ? 'End the session before releasing the outcome.'
+                : result?.error === 'SUMMARY_REQUIRED'
+                  ? 'Add a decision memo summary before release.'
+                  : (result?.error ?? 'Release failed');
       throw new Error(message);
     }
     setOutcome((prev) =>

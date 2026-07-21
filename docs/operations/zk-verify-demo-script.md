@@ -1,5 +1,7 @@
 # ZK verification — demo script (short)
 
+> **Legacy diligence only.** `/verify` is soft-retired in `App.v2` (redirects to `/request-access`). This script is for staging builds that still mount the page, or for historical security demos — not the NGO pilot path.
+
 **Route:** `/verify` ([`VerificationPage`](../../src/pages/VerificationPage.tsx))  
 **Prerequisites:** [ZK demo staging checklist](zk-demo-staging-checklist.md) (real Semaphore + Edge, stub off).
 

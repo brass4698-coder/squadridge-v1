@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
-import { DEV_PARTICIPANT_DEMO_TOKEN, participantRoute } from '../../../lib/participantRoutes';
+import { participantRoute } from '../../../lib/participantRoutes';
 import { validateParticipantToken } from '../../../lib/participantToken';
 import type { ParticipantTokenContext } from '../../../lib/participantToken';
 import {
@@ -25,18 +25,6 @@ export function InviteAcceptancePage() {
   useEffect(() => {
     let cancelled = false;
     if (!token) return;
-
-    if (token === DEV_PARTICIPANT_DEMO_TOKEN) {
-      setStatus({
-        kind: 'valid',
-        ctx: {
-          valid: true,
-          codename: 'Demo Participant',
-          session_title: 'Northern Watershed Consultation',
-        },
-      });
-      return;
-    }
 
     void (async () => {
       const result = await validateParticipantToken(token);

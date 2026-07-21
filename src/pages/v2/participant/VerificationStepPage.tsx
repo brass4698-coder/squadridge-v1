@@ -12,8 +12,9 @@ type Step = 'email' | 'identity' | 'complete';
 
 export function VerificationStepPage() {
   const token = useParticipantToken();
-  const { ctx } = useParticipantSession(token ?? '');
-  const identityRequired = ctx?.identity_verification_required !== false;
+  const { ctx, loading: sessionLoading } = useParticipantSession(token ?? '');
+  // Wait for token context so demo / non-ID sessions do not force document upload.
+  const identityRequired = ctx?.identity_verification_required === true;
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -27,14 +28,15 @@ export function VerificationStepPage() {
       setEmailError('Enter a valid organisational email address.');
       return;
     }
-    if (!token) return;
+    if (!token || sessionLoading) return;
     setEmailError('');
     const result = await recordParticipantContactHash(token, email.trim());
     if (!result.valid) {
       setEmailError(result.error ?? 'Could not record email. Try again.');
       return;
     }
-    setStep(identityRequired ? 'identity' : 'complete');
+    const needsIdentity = ctx?.identity_verification_required === true;
+    setStep(needsIdentity ? 'identity' : 'complete');
   }
 
   async function submitIdentity() {
@@ -125,10 +127,11 @@ export function VerificationStepPage() {
                 <button
                   type="button"
                   onClick={() => void confirmEmail()}
-                  className="rounded py-2.5 text-sm font-medium text-white"
+                  disabled={sessionLoading}
+                  className="rounded py-2.5 text-sm font-medium text-white disabled:opacity-40"
                   style={{ backgroundColor: 'var(--color-accent)' }}
                 >
-                  Continue
+                  {sessionLoading ? 'Loading…' : 'Continue'}
                 </button>
               </div>
             </>

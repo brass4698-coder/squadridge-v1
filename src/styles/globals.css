@@ -19,6 +19,17 @@
   --color-ledger-bg: var(--sr-bg-secondary);
   --color-pending-strip: var(--sr-bg-accent);
 
+  /* Marketing surface / border / text helpers */
+  --color-border-subtle: hsla(0, 0%, 100%, 0.1);
+  --color-border-medium: hsla(0, 0%, 100%, 0.18);
+  --color-surface-raised: hsla(0, 0%, 100%, 0.04);
+  --color-surface-hover: hsla(0, 0%, 100%, 0.07);
+  --color-text-muted: hsla(0, 0%, 100%, 0.45);
+  --color-badge-private: hsla(38, 60%, 50%, 0.18);
+  --color-badge-private-text: hsla(38, 80%, 70%, 1);
+  --color-badge-published: hsla(168, 50%, 40%, 0.18);
+  --color-badge-published-text: hsla(168, 70%, 65%, 1);
+
   /* Typography — aliases to token source of truth in tokens.css */
   --font-body: var(--sr-font-body);
   --font-mono: var(--sr-font-mono);
@@ -27,25 +38,36 @@
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-md: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.25rem;
-  --text-3xl: 3rem;
-  --text-4xl: 4rem;
+  --text-label: 0.6875rem;
+  --text-body: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: 3.25rem;
+
+  --tracking-caps: 0.1em;
 
   --leading-body: 1.6; /* Phase 5: 1.6 body per spec */
   --leading-heading: 1.18;
 
-  /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
+  /* Spacing scale (aligned with --sr-space-*) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 96px;
   --space-12: 3rem;
   --space-16: 4rem;
   --space-24: 6rem;
+
+  /* Content widths */
+  --content-narrow: 660px;
+  --content-wide: 960px;
+  --content-max: 1120px;
 
   /* Radius */
   --radius-sm: 4px;
@@ -330,17 +352,19 @@ button:focus-visible,
 
   .btn-institutional--primary:active {
     background: var(--sr-primary-pressed);
+    transform: translateY(1px);
   }
 
   .btn-institutional--ghost {
     background: transparent;
     color: var(--sr-ink-secondary);
-    border-color: var(--sr-line-strong);
+    border: 1.5px solid var(--sr-line-strong);
   }
 
   .btn-institutional--ghost:hover {
     color: var(--sr-ink);
     border-color: var(--sr-ink-faint);
+    background: var(--sr-bg-elevated);
   }
 
   body[data-theme='institutional'] .section-label {
@@ -355,9 +379,10 @@ button:focus-visible,
   }
 
   body[data-theme='institutional'] .nav-frosted {
-    background: var(--sr-bg);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    background: var(--sr-glass-bg);
+    backdrop-filter: blur(var(--sr-glass-blur)) saturate(120%);
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(120%);
+    border-bottom-color: var(--sr-line);
   }
 
   body[data-theme='institutional'] a:not(.btn-institutional):not(.btn-pill) {
@@ -365,7 +390,44 @@ button:focus-visible,
   }
 
   body[data-theme='institutional'] .text-brand {
-    color: var(--sr-ink-secondary);
+    color: var(--sr-primary);
+  }
+
+  body[data-theme='institutional'] .btn-institutional--primary {
+    box-shadow: var(--sr-shadow-xs);
+  }
+
+  body[data-theme='institutional'] .btn-institutional--primary:hover {
+    box-shadow: var(--sr-shadow-sm);
+  }
+
+  /* ── Marketing alignment system (left-first) ─────────────────────── */
+  body[data-theme='institutional'] {
+    text-align: left;
+  }
+
+  .sr-align-content {
+    text-align: left;
+  }
+
+  .sr-align-prose {
+    text-align: left;
+    max-width: var(--sr-measure-prose);
+  }
+
+  .sr-align-cta {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  /** Rare exception: short headline-only CTA band (no long body). */
+  .sr-align-cta-center {
+    text-align: center;
+    align-items: center;
+  }
+
+  body[data-theme='institutional'] .sr-marketing-surface {
+    text-align: left;
   }
 
   /* ── Institutional visuals: grid atmosphere, document-grade frames ─ */
@@ -399,6 +461,103 @@ button:focus-visible,
     }
   }
 
+  /* ── Trust UI: governed modes + evidence frames ─────────────────── */
+  .sr-mode-room {
+    background: var(--sr-mode-room-bg, var(--sr-bg-sunken));
+    border-color: var(--sr-mode-room-border, var(--sr-line));
+  }
+
+  .sr-mode-gate {
+    background: var(--sr-mode-gate-bg, var(--sr-bg-accent));
+    border-color: var(--sr-mode-gate-border, var(--sr-primary-soft));
+    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--sr-primary) 12%, transparent);
+  }
+
+  .sr-mode-ledger {
+    background: var(--sr-mode-ledger-bg, var(--sr-bg-elevated));
+    border-color: var(--sr-mode-ledger-border, var(--sr-line-strong));
+  }
+
+  .sr-evidence-frame {
+    overflow: hidden;
+    border: 1px solid var(--sr-line);
+    border-radius: var(--sr-radius-lg);
+    background: var(--sr-bg-elevated);
+  }
+
+  .sr-evidence-rail {
+    display: grid;
+    gap: 1px;
+    background: var(--sr-line);
+  }
+
+  @media (min-width: 1024px) {
+    .sr-evidence-rail {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .sr-evidence-pane {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem 1.35rem;
+    background: var(--sr-bg-elevated);
+    transition:
+      background var(--sr-duration-governed, 200ms) var(--sr-ease-governed, ease),
+      border-color var(--sr-duration-governed, 200ms) var(--sr-ease-governed, ease),
+      box-shadow var(--sr-duration-governed, 200ms) var(--sr-ease-governed, ease);
+  }
+
+  @media (min-width: 768px) {
+    .sr-evidence-pane {
+      padding: 1.5rem 1.65rem;
+    }
+  }
+
+  .sr-integrity-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--sr-font-mono);
+    font-size: var(--sr-text-meta, 0.75rem);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sr-verify-ink, var(--sr-primary));
+  }
+
+  .sr-integrity-mark::before {
+    content: '';
+    display: block;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--sr-verify, var(--sr-primary));
+    box-shadow: 0 0 0 3px var(--sr-verify-soft, var(--sr-primary-soft));
+  }
+
+  .sr-approval-count {
+    font-family: var(--sr-font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--sr-verify-ink, var(--sr-ink));
+  }
+
+  .sr-threshold-elevate {
+    position: relative;
+    z-index: 1;
+    transform: translateY(-2px);
+    box-shadow: var(--sr-shadow-md);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sr-threshold-elevate {
+      transform: none;
+    }
+  }
+
   /* ── Phase 5: frosted nav shell ────────────────────────────────── */
   .nav-frosted {
     background: color-mix(in oklch, var(--sr-bg) 78%, transparent);
@@ -415,8 +574,8 @@ button:focus-visible,
   /* ── Phase 5: fade-in-up entrance ──────────────────────────────── */
   @keyframes fadeInUp {
     from {
-      opacity: 0;
-      transform: translateY(12px);
+      opacity: 1;
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
@@ -425,11 +584,11 @@ button:focus-visible,
   }
 
   .animate-fade-in-up {
-    animation: fadeInUp 300ms var(--sr-ease-out) both;
+    animation: fadeInUp 150ms var(--sr-ease-out) both;
   }
 
   .animate-fade-in-up-delayed {
-    animation: fadeInUp 300ms var(--sr-ease-out) 120ms both;
+    animation: fadeInUp 150ms var(--sr-ease-out) 80ms both;
   }
 
   /* ── Phase 10: marketing display type ──────────────────────────────

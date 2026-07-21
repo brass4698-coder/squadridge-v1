@@ -15,12 +15,12 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { SessionTimeoutWarning } from './components/auth/SessionTimeoutWarning';
 import {
   RequireAuth,
   RequireModerator,
   ScrollToTop,
   SentryNavigationListener,
-  SessionAccess,
   Toaster,
   GrainOverlay,
 } from './components';
@@ -36,7 +36,6 @@ import { AuthenticatedShell } from './components/layout/AuthenticatedShell';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { SignInPage } from './pages/SignInPage';
 import { SupabaseHealthPage } from './pages/SupabaseHealthPage';
-import { VerificationPage } from './pages/VerificationPage';
 import { InvitePage } from './pages/InvitePage';
 import { StaffInviteAcceptPage } from './pages/StaffInviteAcceptPage';
 import { InviteCompletePage } from './pages/InviteCompletePage';
@@ -62,10 +61,7 @@ import { AccessPendingPage } from './pages/v2/AccessPendingPage';
 // Phase 5 — decks gallery + dedicated dark top-nav shell
 import { DecksPage, DeckViewerPage } from './pages/v2/DecksPage';
 import { AppTopShell } from './components/layout/AppTopShell';
-import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
-import { DemoSessionPage } from './pages/DemoSessionPage';
-import { Match } from './pages/Match';
 
 // ── New v2 pages — Phase 1 (public marketing) ────────────────────────────────
 import { LandingPage } from './pages/v2/LandingPage';
@@ -79,6 +75,7 @@ import { SecurityPage } from './pages/v2/SecurityPage';
 import { UseCasesPage } from './pages/v2/UseCasesPage';
 import { LedgerIndexPage } from './pages/v2/LedgerIndexPage';
 import { LedgerRecordPage } from './pages/v2/LedgerRecordPage';
+import { LedgerVerifyPage } from './pages/v2/LedgerVerifyPage';
 import { NotFoundPage } from './pages/v2/NotFoundPage';
 import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
 
@@ -124,12 +121,6 @@ const routeChunkFallback = (
   </div>
 );
 
-const OnboardingApp = lazy(() =>
-  import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
-    default: m.Onboarding,
-  })),
-);
-
 const PitchDeckHubPage = lazy(() =>
   import('./pages/PitchDeckHubPage').then((m) => ({ default: m.PitchDeckHubPage })),
 );
@@ -138,10 +129,6 @@ const FinancialProjectionsPage = lazy(() =>
   import('./pages/FinancialProjectionsPage').then((m) => ({
     default: m.FinancialProjectionsPage,
   })),
-);
-
-const LedgerPage = lazy(() =>
-  import('./pages/LedgerPage').then((m) => ({ default: m.LedgerPage })),
 );
 
 function SessionRoomLegacyRedirect() {
@@ -160,18 +147,15 @@ export default function AppV2() {
       <ScrollToTop />
       <DemoWalkthroughProvider>
         <AuthProvider>
+          <SessionTimeoutWarning />
           <Toaster position="top-center" richColors closeButton className="font-sans" />
           <AuthGate>
             <Routes>
-              {/* Onboarding (unchanged) */}
-              <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />
+              {/* Legacy citizen onboarding — soft-retired; pilot funnel is request-access */}
+              <Route path="/onboarding" element={<Navigate to="/request-access" replace />} />
               <Route
                 path="/onboarding/:stepId"
-                element={
-                  <Suspense fallback={routeChunkFallback}>
-                    <OnboardingApp />
-                  </Suspense>
-                }
+                element={<Navigate to="/request-access" replace />}
               />
 
               {/* Legacy facilitator paths → /app namespace */}
@@ -423,6 +407,7 @@ export default function AppV2() {
 
                 {/* Ledger (public outcome records) */}
                 <Route path="/ledger" element={<LedgerIndexPage />} />
+                <Route path="/ledger/:recordId/verify" element={<LedgerVerifyPage />} />
                 <Route path="/ledger/:recordId" element={<LedgerRecordPage />} />
 
                 {/* Legacy ledger routes → v2 ledger */}
@@ -438,10 +423,12 @@ export default function AppV2() {
                   path="/forgot-password"
                   element={<Navigate to="/sign-in?reason=link" replace />}
                 />
-                <Route path="/intent" element={<Navigate to="/invite" replace />} />
-                <Route path="/match-setup" element={<Navigate to="/invite" replace />} />
-                <Route path="/find-squad" element={<Navigate to="/invite" replace />} />
-                <Route path="/match" element={<Match />} />
+                {/* Legacy citizen matchmaking / ZK — soft-retired (code kept, not product story) */}
+                <Route path="/intent" element={<Navigate to="/request-access" replace />} />
+                <Route path="/match-setup" element={<Navigate to="/request-access" replace />} />
+                <Route path="/find-squad" element={<Navigate to="/request-access" replace />} />
+                <Route path="/match" element={<Navigate to="/request-access" replace />} />
+                <Route path="/verify" element={<Navigate to="/request-access" replace />} />
                 <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
 
                 {/* Auth (existing pages, new shell) */}
@@ -449,25 +436,13 @@ export default function AppV2() {
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/invite/accept/:token" element={<StaffInviteAcceptPage />} />
                 <Route path="/invite/complete" element={<InviteCompletePage />} />
-                <Route path="/verify" element={<VerificationPage />} />
                 <Route path="/invite" element={<InvitePage />} />
 
-                {/* Legacy ledger (existing page, new shell) */}
-                <Route
-                  path="/ledger-legacy"
-                  element={
-                    <Suspense fallback={routeChunkFallback}>
-                      <LedgerPage />
-                    </Suspense>
-                  }
-                />
+                {/* Legacy proposal ledger → v2 ledger */}
+                <Route path="/ledger-legacy" element={<Navigate to="/ledger" replace />} />
                 <Route
                   path="/ledger-legacy/:proposalId"
-                  element={
-                    <Suspense fallback={routeChunkFallback}>
-                      <LedgerPage />
-                    </Suspense>
-                  }
+                  element={<Navigate to="/ledger" replace />}
                 />
 
                 {/* Settings (existing pages, new shell) */}
@@ -506,23 +481,10 @@ export default function AppV2() {
                   <Route index element={<Navigate to="rooms" replace />} />
                 </Route>
 
-                {/* Demo session */}
-                {isDemoSquadShortcutsEnabled() ? (
-                  <>
-                    <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                    <Route
-                      path="/session/demo"
-                      element={<Navigate to="/session/demo-session-001" replace />}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <Route path="/session/demo-session-001" element={<Navigate to="/" replace />} />
-                    <Route path="/session/demo" element={<Navigate to="/" replace />} />
-                  </>
-                )}
-
-                <Route path="/session/:squadId?" element={<SessionAccess />} />
+                {/* Legacy squad session hub — soft-retired (demo flag no longer mounts room UI) */}
+                <Route path="/session/demo-session-001" element={<Navigate to="/" replace />} />
+                <Route path="/session/demo" element={<Navigate to="/" replace />} />
+                <Route path="/session/:squadId?" element={<Navigate to="/" replace />} />
 
                 {/* Error pages */}
                 <Route path="/unauthorized" element={<AccessDeniedPage />} />

@@ -29,22 +29,22 @@ export const faqFull: FaqItem[] = [
   {
     question: 'Who can see what is said in a room?',
     answer:
-      'Only verified participants and the facilitator. No one else. The room content is never published, and identities never appear on the public record — what leaves the room is only the outcome you approve.',
+      'Verified participants and the facilitator can see room dialogue. Content is access-controlled and never published as a transcript. Platform operators with database access can read v2 room content today — this is not Signal-grade operator-blind encryption. Identities never appear on a released record; only facilitator-approved outcome text may leave the room.',
   },
   {
     question: 'What gets published to the ledger?',
     answer:
-      'Only facilitator-approved outcome text and limited metadata (organisation, date, participant count). Session dialogue, transcripts, and individual attribution are never published. See the ledger index for illustrative examples.',
+      'Only when you choose a public release: facilitator-approved outcome text and limited metadata (organisation, date, participant count). Many pilot sessions use a private anchored decision memo instead — still integrity-checked, not listed on the public ledger. Session dialogue and individual attribution are never published either way.',
   },
   {
     question: 'What is a verification anchor?',
     answer:
-      'A tamper-evident integrity marker attached to every released record. Anyone can check it independently to confirm the record has not been altered since release. It proves release integrity — not room content, participant identity, or external endorsement of substance.',
+      'A tamper-evident integrity marker attached to every released record. Anyone with the record can check it to confirm the text has not been altered since release. It proves release integrity — not room content, participant identity, or external endorsement of substance.',
   },
   {
     question: 'How is participant data handled?',
     answer:
-      'Participants are verified privately by the facilitator. Identity is confirmed but never disclosed in the released record — no names, attributions, or identifying details appear in public records. This is directional anonymity: verified, but not exposed on the record.',
+      'Participants are verified privately by the facilitator. Identity is confirmed for eligibility but not named on the released record — no names, attributions, or identifying details appear in public or partner-facing outcome text.',
   },
   {
     question: 'Is the session end-to-end encrypted?',

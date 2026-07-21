@@ -1,5 +1,7 @@
 # Guided demo walkthrough
 
+> **Legacy diligence only.** The live product path is `/request-access` → `/app` → `/p/*` → private release (NGO deliberation). Citizen matchmaking, `/verify`, and offline squad mocks are soft-retired from `App.v2` routing — do not use this document as the default contributor or partner demo script. Prefer [`docs/operations/v2-pilot-checklist.md`](../operations/v2-pilot-checklist.md).
+
 The product tour is a **demo-only** layer: scripted routes, optional auto-actions on `data-demo` hooks, banner + bottom chrome, and **Space** to advance when the tour is active (not while typing in fields). It is **not** required for production traffic.
 
 Implementation lives in **`src/demo/`** (script, provider, layout, telemetry helpers).

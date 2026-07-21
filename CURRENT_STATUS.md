@@ -9,9 +9,9 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 ## Snapshot
 
 - **Stage:** Private pilot foundation — v2 facilitator platform primary
-- **Primary use case:** Facilitator-led protected written dialogue with verifiable public outcomes (Configure → Verify → Facilitate → Release)
-- **Institutional maturity:** ~**5/10** — credible for bounded mediator-led pilots with disclosed security boundaries; not procurement-ready for Track II audit-grade or military-adjacent deployment
-- **Recommended initial wedge:** Institution-led pilots with professional mediators, peacebuilding NGOs, or Track II facilitators who accept operator-readable room content per the threat model
+- **Primary use case:** NGO / peacebuilding **internal deliberation** with a **private anchored** decision memo (Configure → Verify → Facilitate → Release). Public ledger is optional stretch.
+- **Institutional maturity:** ~**5/10** — credible for bounded NGO/facilitator pilots with disclosed security boundaries; not procurement-ready for Track II audit-grade or military-adjacent deployment
+- **Recommended initial wedge:** Peacebuilding NGO facilitators, 2–6 staff/partners, operator-readable room content disclosed in MOU; template `ngo_deliberation`
 - **Stack:** React 19, Vite 6, TypeScript, Tailwind CSS 3, Supabase (Postgres, RLS, Auth, Realtime, Edge Functions)
 - **CI:** GitHub Actions — lint, typecheck, Vitest, Playwright e2e, CodeQL static analysis, dependency-review, pgTAP DB tests
 
@@ -27,7 +27,9 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Participant contact-hash + document upload via `participant-verification-upload` Edge Function (facilitator review remains authoritative — not automated KYC)
 - Live `session_messages` — facilitator control room (`/control`) + participant token path (`/p/room`)
 - Enforced session lifecycle guards (DB/RPC blocks invalid Verify → Facilitate / Release without approvals)
-- Outcome draft, approvals, `release_outcome` RPC → public ledger query
+- Outcome draft, approvals, `release_outcome` RPC → public ledger query when `outcome_public`
+- Content-only verification anchors + `/ledger/:id/verify` (`verify_outcome_anchor`)
+- Private releases stay off the public ledger (RLS + query filters)
 - Architectural record redaction (facilitator-authored outcomes only; no import-from-room)
 - In-app workflow notifications (verify / room open / approval / release) + prefs gate
 - v2 metadata-only session audit trail + export UI
@@ -39,17 +41,17 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 
 ## Pilot-Ready With Care
 
-- Facilitator-led mediation sessions with 2–6 verified participants and manual facilitator verification
+- NGO internal deliberation (default template) with 2–6 verified participants and manual facilitator verification
+- Private anchored release as the first success metric; public `/ledger` only with partner consent
 - Staging or controlled production demos for partner diligence
 - Pre-registered operational metrics (verification completion, time-to-release, session completion) — not quantitative “lives saved” claims
 - Sessions where operator-readable room content and security boundaries are disclosed in partner MOU
-- **Deploy prerequisite:** apply migrations through `20260712_*`, deploy Edge Functions (including `participant-verification-upload`), and provision the `participant-verification` storage bucket
+- **Deploy prerequisite:** apply migrations through `20260721_001_institutional_spine_phase0.sql`, deploy Edge Functions (including `participant-verification-upload`), and provision the `participant-verification` storage bucket
 
 ## Remaining Gaps (honest unfinished)
 
 - Email delivery for workflow notifications (prefs recorded; pipeline not wired) — **ROADMAP P1 #4**
-- E2E covering full facilitator invite → `/p/room` against a live DB — **ROADMAP P0 #2**
-- First **real** published ledger record from a pilot session — **ROADMAP P1 #6** (operator step)
+- First **real** private released outcome from a pilot session (operator step); public ledger optional after that — **ROADMAP P1 #6**
 - Room-level operator-blind E2E encryption — roadmap / threat model §13, not shipped
 - Civic early-warning → automated proposal engine vision — see [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md) (vision-labeled, not shipped)
 
@@ -64,15 +66,14 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 
 ## Legacy Routes Inventory
 
-Still mounted or referenced in the codebase — **disclose in diligence**; do not lead institutional pitches with these.
+Soft-retired in `App.v2.tsx` (redirect to pilot funnel). Code may remain for diligence — **not the product story**.
 
 | Route | Status |
 | ----- | ------ |
-| `/match` | Legacy — intent-pool citizen matchmaking |
-| `/session/:squadId` | Legacy — squad encrypted chat |
-| `/session/demo-session-001` | Demo — gated by `VITE_ENABLE_DEMO_SQUAD` in production |
-| `/incident`, `/incident/:slug` | Legacy — not in `App.v2.tsx` router |
-| `/ledger-legacy` | Legacy — pre-v2 proposal ledger |
+| `/match`, `/verify`, `/onboarding/*` | Redirect → `/request-access` |
+| `/session/*` | Redirect → `/` |
+| `/ledger-legacy` | Redirect → `/ledger` |
+| `/incident`, `/incident/:slug` | Not in `App.v2.tsx` router |
 | `/admin/csi` | Internal — moderator-rostered CSI read console |
 
 ## Strategic Narrative (context only)

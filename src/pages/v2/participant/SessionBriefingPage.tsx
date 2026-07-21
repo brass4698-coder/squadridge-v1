@@ -118,9 +118,11 @@ export function SessionBriefingPage() {
             }}
           >
             <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-              <strong>Outcome note:</strong> This session may produce a joint statement. If drafted
-              and approved by all designated parties, it will be published to the public ledger. The
-              room itself — including all dialogue — remains permanently private.
+              <strong>Outcome note:</strong> This session may produce a facilitator-authored
+              decision memo. If drafted and approved, it is released with a verification anchor —
+              often private for partners and funders, and only listed on the public ledger when the
+              facilitator enables that. The room itself — including all dialogue — remains
+              permanently private.
             </p>
           </div>
 

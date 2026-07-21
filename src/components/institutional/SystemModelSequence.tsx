@@ -1,29 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { BadgeCheck, Lock, ShieldCheck, type LucideIcon } from 'lucide-react';
-import { StatusChip } from './StatusChip';
+import { StatusBadge, type StatusBadgeVariant } from '../StatusBadge';
 
 /**
- * SystemModelSequence
- *
- * The homepage's single dominant explanation of the product model. One sticky
- * diagram tracks three governed states as the reader scrolls three stage
- * blocks; each stage answers the same three questions — what exists, who
- * controls it, and what never becomes public — so the whole "private room →
- * release gate → public record" story is grasped once, in one place, instead
- * of being re-explained across several stacked text sections.
- *
- * The sticky diagram is decorative reinforcement (aria-hidden); the ordered
- * stage list carries the accessible content. Token-driven, dark-institutional.
+ * Technical control model — three clearly separated sub-sections per stage.
  */
-
-type StageVariant = 'private' | 'verified' | 'released';
 
 interface Stage {
   id: string;
+  anchorId: string;
   num: string;
   label: string;
   chipLabel: string;
-  chipVariant: StageVariant;
+  badgeVariant: StatusBadgeVariant;
   Icon: LucideIcon;
   exists: string;
   controls: string;
@@ -33,10 +22,11 @@ interface Stage {
 const STAGES: Stage[] = [
   {
     id: 'room',
+    anchorId: 'stage-room',
     num: '01',
     label: 'Private room',
     chipLabel: 'Private',
-    chipVariant: 'private',
+    badgeVariant: 'private',
     Icon: Lock,
     exists: 'Verified parties exchange structured written rounds.',
     controls: 'You set who enters, the pace, and when it ends.',
@@ -44,10 +34,11 @@ const STAGES: Stage[] = [
   },
   {
     id: 'gate',
+    anchorId: 'stage-gate',
     num: '02',
     label: 'Release gate',
     chipLabel: 'Governed',
-    chipVariant: 'verified',
+    badgeVariant: 'governed',
     Icon: ShieldCheck,
     exists: 'Recorded approvals and a facilitator-drafted outcome.',
     controls: 'Nothing leaves the room without your explicit release.',
@@ -55,10 +46,11 @@ const STAGES: Stage[] = [
   },
   {
     id: 'record',
+    anchorId: 'stage-record',
     num: '03',
     label: 'Public record',
     chipLabel: 'Published',
-    chipVariant: 'released',
+    badgeVariant: 'published',
     Icon: BadgeCheck,
     exists: 'Approved outcome, limited metadata, and a verification anchor.',
     controls: 'Anyone can recompute the anchor to confirm integrity.',
@@ -83,7 +75,7 @@ export function SystemModelSequence() {
           }
         }
       },
-      { rootMargin: '-45% 0px -45% 0px', threshold: 0 },
+      { rootMargin: '-35% 0px -45% 0px', threshold: 0 },
     );
 
     els.forEach((el) => observer.observe(el));
@@ -91,122 +83,125 @@ export function SystemModelSequence() {
   }, []);
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:gap-16">
-      {/* Sticky diagram — desktop reinforcement */}
+    <div className="grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] lg:gap-20">
       <div className="hidden lg:block">
-        <div className="sticky top-24 self-start">
-          <StickyDiagram active={active} />
+        <div className="sticky top-28 self-start">
+          <StickyNav active={active} />
         </div>
       </div>
 
-      {/* Accessible ordered stages */}
-      <ol className="flex flex-col">
-        {STAGES.map((stage, index) => (
-          <li
-            key={stage.id}
-            data-index={index}
-            ref={(el) => {
-              stageRefs.current[index] = el;
-            }}
-            className="flex flex-col justify-center border-t border-line py-12 first:border-t-0 first:pt-0 lg:min-h-[64vh] lg:py-20"
-          >
-            <StageHeader stage={stage} className="lg:hidden" />
-            <span className="font-mono text-xs text-ink-faint">Stage {stage.num}</span>
-            <h3 className="font-display mt-2 text-h3 font-medium tracking-tight text-ink">
-              {stage.label}
-            </h3>
-            <dl className="mt-6 flex flex-col gap-5 border-l border-line pl-5">
-              <Fact term="What exists" desc={stage.exists} />
-              <Fact term="Who controls it" desc={stage.controls} />
-              <Fact term="Never public" desc={stage.withheld} accent />
-            </dl>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function Fact({ term, desc, accent = false }: { term: string; desc: string; accent?: boolean }) {
-  return (
-    <div>
-      <dt className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className={`h-1.5 w-1.5 rounded-full ${accent ? 'bg-brand' : 'bg-ink-subtle'}`}
-        />
-        <span className={`text-xs font-semibold ${accent ? 'text-brand' : 'text-ink'}`}>
-          {term}
-        </span>
-      </dt>
-      <dd className="mt-1.5 pl-3.5 text-sm leading-relaxed text-ink-secondary">{desc}</dd>
-    </div>
-  );
-}
-
-function StageHeader({ stage, className = '' }: { stage: Stage; className?: string }) {
-  const { Icon } = stage;
-  return (
-    <div className={`mb-6 flex items-center gap-3 ${className}`}>
-      <span className="flex size-9 shrink-0 items-center justify-center border border-brand bg-brand-soft text-brand">
-        <Icon className="size-4" aria-hidden />
-      </span>
-      <StatusChip label={stage.chipLabel} variant={stage.chipVariant} />
-    </div>
-  );
-}
-
-function StickyDiagram({ active }: { active: number }) {
-  return (
-    <div aria-hidden>
-      <ol className="flex flex-col gap-3">
+      <ol className="m-0 flex max-w-[42rem] list-none flex-col gap-14 p-0 md:gap-20">
         {STAGES.map((stage, index) => {
-          const isActive = index === active;
-          const { Icon } = stage;
+          const Icon = stage.Icon;
           return (
             <li
               key={stage.id}
-              className={`flex items-start gap-4 border p-5 transition-all duration-normal ${
-                isActive
-                  ? 'border-line-strong bg-surface-elevated shadow-sr-md'
-                  : 'border-line bg-surface-sunken'
-              }`}
+              id={stage.anchorId}
+              data-index={index}
+              ref={(el) => {
+                stageRefs.current[index] = el;
+              }}
+              className="scroll-mt-28"
             >
-              <span
-                className={`flex size-9 shrink-0 items-center justify-center border transition-colors duration-normal ${
-                  isActive ? 'border-brand bg-brand-soft text-brand' : 'border-line text-ink-faint'
-                }`}
-              >
-                <Icon className="size-4" />
-              </span>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[0.65rem] text-ink-faint">{stage.num}</span>
-                  <StatusChip label={stage.chipLabel} variant={stage.chipVariant} />
+              <header className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center border border-[color:var(--color-border-subtle)] text-ink-faint">
+                    <Icon className="size-3.5" aria-hidden />
+                  </span>
+                  <span className="font-mono text-xs tabular-nums text-[color:var(--color-text-muted)]">
+                    Stage {stage.num}
+                  </span>
+                  <StatusBadge variant={stage.badgeVariant}>{stage.chipLabel}</StatusBadge>
                 </div>
-                <h4
-                  className={`mt-1.5 text-sm font-semibold transition-colors duration-normal ${
-                    isActive ? 'text-ink' : 'text-ink-secondary'
-                  }`}
-                >
-                  {stage.label}
-                </h4>
-                <p
-                  className={`mt-1 text-xs leading-snug transition-opacity duration-normal ${
-                    isActive ? 'text-ink-secondary opacity-100' : 'text-ink-faint opacity-70'
-                  }`}
-                >
-                  {stage.exists}
-                </p>
+              </header>
+
+              <h3 className="font-display mt-0 mb-0 text-[1.5rem] font-medium tracking-tight text-ink md:text-[1.625rem]">
+                {stage.label}
+              </h3>
+
+              <div className="mt-8 flex flex-col gap-4">
+                <ControlCell term="What exists" desc={stage.exists} />
+                <ControlCell term="Who controls it" desc={stage.controls} />
+                <ControlCell term="Never public" desc={stage.withheld} accent />
               </div>
             </li>
           );
         })}
       </ol>
-      <p className="mt-5 border-t border-line pt-4 text-xs leading-relaxed text-ink-faint">
-        <span className="font-semibold text-brand">Never becomes public: </span>
-        {STAGES[active].withheld}
+    </div>
+  );
+}
+
+function ControlCell({
+  term,
+  desc,
+  accent = false,
+}: {
+  term: string;
+  desc: string;
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`flex flex-col gap-3 rounded-md border px-5 py-5 ${
+        accent
+          ? 'border-[hsla(168,30%,40%,0.35)] bg-[hsla(168,25%,35%,0.08)]'
+          : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-raised)]'
+      }`}
+    >
+      <p
+        className={`m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] ${
+          accent ? 'text-brand' : 'text-[color:var(--color-text-muted)]'
+        }`}
+      >
+        {term}
+      </p>
+      <p className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink' : 'text-ink-secondary'}`}>
+        {desc}
       </p>
     </div>
+  );
+}
+
+function StickyNav({ active }: { active: number }) {
+  return (
+    <nav aria-hidden>
+      <p className="mb-5 m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-[color:var(--color-text-muted)]">
+        Stages
+      </p>
+      <ol className="m-0 flex list-none flex-col gap-0 border-l border-[color:var(--color-border-subtle)] p-0">
+        {STAGES.map((stage, index) => {
+          const isActive = index === active;
+          return (
+            <li key={stage.id}>
+              <div
+                className={`border-l-2 py-3 pl-4 transition-colors ${
+                  isActive ? '-ml-px border-brand' : 'border-transparent'
+                }`}
+              >
+                <span className="block font-mono text-[0.65rem] tabular-nums text-[color:var(--color-text-muted)]">
+                  {stage.num}
+                </span>
+                <span
+                  className={`mt-1 block text-sm font-medium ${
+                    isActive ? 'text-ink' : 'text-ink-secondary'
+                  }`}
+                >
+                  {stage.label}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-8 border-t border-[color:var(--color-border-subtle)] pt-5">
+        <div className="flex flex-col gap-2">
+          <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-brand">
+            Never public
+          </p>
+          <p className="m-0 text-xs leading-relaxed text-ink-faint">{STAGES[active].withheld}</p>
+        </div>
+      </div>
+    </nav>
   );
 }

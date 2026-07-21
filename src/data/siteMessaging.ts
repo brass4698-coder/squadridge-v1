@@ -12,21 +12,21 @@ export const SITE_NOT = [
   'Not a legal instrument or operator-proof E2E encryption (today)',
 ] as const;
 
-/** Ordered by go-to-market priority — see docs/founding/positioning.md §3. */
+/** Ordered by go-to-market priority — mediation practice first. */
 export const TARGET_AUDIENCES = [
-  'Professional mediators and dispute-resolution practitioners',
+  'Professional mediators and dispute-resolution practitioners (primary)',
   'Restorative and de-escalation facilitation teams',
+  'NGO and peacebuilding program teams',
+  'Ombuds and institutional governance teams',
   'Municipal, civic, and multi-agency coordination operators',
-  'NGO, university, and institutional program teams',
-  'Peacebuilding and Track II dialogue facilitators',
-  'Ombuds and institutional governance teams (expansion)',
+  'Track II dialogue facilitators (later)',
 ] as const;
 
 export const PILOT_FIT_STRONG = [
-  'Facilitator- or mediator-led sessions with a defined release outcome (agreements, principles, commitments)',
+  'NGO or peacebuilding facilitator-led internal deliberation (2–6 staff/partners)',
+  'Need for a private anchored decision memo — public ledger optional',
   'High attribution sensitivity — parties need a protected written room',
-  'Institutional or multi-party need for a verifiable public record without publishing dialogue',
-  'Willingness to operate within documented security boundaries (no overclaiming)',
+  'Willingness to operate within documented security boundaries (operator-readable rooms today)',
 ] as const;
 
 export const PILOT_FIT_WEAK = [
