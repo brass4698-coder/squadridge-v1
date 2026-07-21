@@ -2,13 +2,11 @@ import { Link, useParams } from 'react-router-dom';
 import { getSampleRecordById } from '../../data/sampleRecords';
 import { useLedgerRecord } from '../../hooks/useLedger';
 import {
-  CTABlock,
   MarketingSection,
   SectionLabel,
   ShellWidth,
   VerificationAnchorBadge,
 } from '../../components/shared';
-import { CTA } from '../../data/siteMessaging';
 
 function Breadcrumb({ title }: { title: string }) {
   return (
@@ -30,16 +28,18 @@ function RecordBody({
   body,
   anchor,
   citation,
+  recordId,
 }: {
   body: string;
   anchor: string;
   citation: string;
+  recordId?: string;
 }) {
   return (
     <MarketingSection tone="bordered" density="compact">
       <ShellWidth>
         <div className="mx-auto max-w-measure">
-          <div className="mb-8 border border-line bg-surface-elevated p-6 md:p-8">
+          <div className="sr-evidence-frame mb-8 p-6 md:p-8">
             <h2 className="mb-5 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
               Approved outcome text
             </h2>
@@ -55,6 +55,16 @@ function RecordBody({
             <code className="block break-all border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
               {anchor}
             </code>
+            {recordId ? (
+              <p className="mt-3">
+                <Link
+                  to={`/ledger/${recordId}/verify`}
+                  className="font-mono text-xs text-brand hover:underline"
+                >
+                  Verify integrity anchor →
+                </Link>
+              </p>
+            ) : null}
           </section>
 
           <section>
@@ -78,11 +88,15 @@ export function LedgerRecordPage() {
 
   if (loading) {
     return (
-      <MarketingSection density="spacious">
-        <ShellWidth>
-          <p className="font-mono text-sm text-ink-secondary">Loading record…</p>
-        </ShellWidth>
-      </MarketingSection>
+      <div className="sr-mode-ledger min-h-[40vh]">
+        <MarketingSection density="spacious">
+          <ShellWidth>
+            <p className="font-mono text-sm text-ink-secondary" role="status">
+              Loading record…
+            </p>
+          </ShellWidth>
+        </MarketingSection>
+      </div>
     );
   }
 
@@ -104,7 +118,7 @@ export function LedgerRecordPage() {
     const citation = `${entry.session?.conflict_type ?? 'Facilitated session'}. (${entry.published_at ? new Date(entry.published_at).getFullYear() : new Date().getFullYear()}). ${title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${entry.id}.`;
 
     return (
-      <div>
+      <div className="sr-mode-ledger">
         <MarketingSection density="compact" className="!pt-16">
           <ShellWidth>
             <div className="max-w-measure">
@@ -130,13 +144,11 @@ export function LedgerRecordPage() {
           </ShellWidth>
         </MarketingSection>
 
-        <RecordBody body={body} anchor={entry.ledger_sha ?? entry.id} citation={citation} />
-
-        <CTABlock
-          headline={CTA.pilotHeadline}
-          body={CTA.pilotBody}
-          secondaryLabel={CTA.secondaryProcess}
-          secondaryHref={CTA.secondaryProcessHref}
+        <RecordBody
+          body={body}
+          anchor={entry.ledger_sha ?? entry.id}
+          citation={citation}
+          recordId={entry.id}
         />
       </div>
     );
@@ -146,35 +158,41 @@ export function LedgerRecordPage() {
 
   if (!record) {
     return (
-      <MarketingSection density="spacious" className="!pt-16">
-        <ShellWidth>
-          <div className="max-w-measure">
-            <SectionLabel text="Record not found" />
-            <h1 className="font-display text-h2 font-medium text-ink">
-              No record matches that ID.
-            </h1>
-            <p className="mt-4 text-sm text-ink-secondary">
-              <Link to="/ledger" className="underline-offset-4 hover:underline">
-                Back to ledger
-              </Link>
-            </p>
-          </div>
-        </ShellWidth>
-      </MarketingSection>
+      <div className="sr-mode-ledger min-h-[40vh]">
+        <MarketingSection density="spacious" className="!pt-16">
+          <ShellWidth>
+            <div className="max-w-measure">
+              <SectionLabel text="Record not found" />
+              <h1 className="font-display text-h2 font-medium text-ink">
+                No public record matches that ID.
+              </h1>
+              <p className="mt-4 text-sm text-ink-secondary">
+                Private anchored releases are not listed on the public ledger. If you expected a
+                public record, confirm the ID with the releasing facilitator.
+              </p>
+              <p className="mt-4">
+                <Link to="/ledger" className="underline-offset-4 hover:underline">
+                  Back to ledger
+                </Link>
+              </p>
+            </div>
+          </ShellWidth>
+        </MarketingSection>
+      </div>
     );
   }
 
   const citation = `${record.org}. (${new Date(record.releasedDate).getFullYear() || '2024'}). ${record.title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
-    <div>
+    <div className="sr-mode-ledger">
       <MarketingSection density="compact" className="!pt-16">
         <ShellWidth>
           <div className="max-w-measure">
             <Breadcrumb title={record.title} />
             <div className="mb-5 border border-line bg-surface-elevated px-4 py-3 text-sm leading-relaxed text-ink-secondary">
               <span className="font-medium text-ink">Illustrative example.</span> Sample data
-              demonstrating the released record format.
+              demonstrating the released record format — not a live publish.
             </div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <SectionLabel text="Released outcome record" />
@@ -215,13 +233,6 @@ export function LedgerRecordPage() {
       </MarketingSection>
 
       <RecordBody body={record.body} anchor={record.verificationAnchor} citation={citation} />
-
-      <CTABlock
-        headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
-        secondaryLabel={CTA.secondaryProcess}
-        secondaryHref={CTA.secondaryProcessHref}
-      />
     </div>
   );
 }

@@ -89,6 +89,26 @@ export function SessionControlPage() {
 
   if (loading) return <RouteSkeleton label="Loading session" />;
 
+  if (!session && !loading) {
+    return (
+      <AuthenticatedShell>
+        <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+          <h1 className="text-xl font-semibold text-ink">Session not found</h1>
+          <p className="mt-2 text-sm text-ink-secondary">
+            This control room link may be invalid, or you may not have access.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate(appRoutes.sessions)}
+            className="mt-6 text-sm font-medium text-brand underline"
+          >
+            Back to sessions
+          </button>
+        </div>
+      </AuthenticatedShell>
+    );
+  }
+
   const statusLabel: Record<RoomStatus, string> = {
     waiting: 'Waiting',
     live: 'Live',
@@ -98,15 +118,19 @@ export function SessionControlPage() {
 
   return (
     <AuthenticatedShell>
-      <div className="mx-auto max-w-2xl">
+      <div className="sr-mode-room mx-auto max-w-2xl rounded-lg border border-[color:var(--sr-mode-room-border)] p-5 md:p-6">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
-              Session control
+              Facilitator room
             </p>
             <h1 className="text-xl font-semibold text-ink">{session?.title ?? 'Session'}</h1>
+            <p className="mt-1 text-xs text-ink-faint">
+              Calm facilitation chrome — pause when needed; room content stays private to this
+              session.
+            </p>
           </div>
-          <span className="rounded bg-surface-sunken px-2.5 py-1 text-xs font-semibold text-ink">
+          <span className="rounded bg-surface-sunken px-2.5 py-1 text-xs font-semibold tabular-nums text-ink">
             {statusLabel[status]}
           </span>
         </div>
@@ -122,7 +146,7 @@ export function SessionControlPage() {
                 <button
                   type="button"
                   onClick={() => navigate(appRoutes.sessionParticipants(sessionId ?? ''))}
-                  className="font-medium text-brand underline"
+                  className="min-h-[44px] font-medium text-brand underline"
                 >
                   Review participant verification
                 </button>
@@ -135,21 +159,22 @@ export function SessionControlPage() {
           <div
             className="mb-4 rounded-lg border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
             role="status"
+            aria-live="polite"
           >
             {connectionStatus === 'reconnecting'
-              ? 'Reconnecting to live messages…'
+              ? 'Reconnecting to live messages… Drafts stay on this device until the room syncs.'
               : connectionStatus === 'offline'
-                ? 'You are offline. Messages will sync when connectivity returns.'
+                ? 'You appear offline. Messages already loaded remain visible; new sends will retry when connectivity returns.'
                 : connectionStatus === 'connection_error'
-                  ? 'Live connection failed.'
+                  ? 'Live connection failed. You can retry without leaving the room.'
                   : 'Connecting to live messages…'}
-            {connectionStatus === 'connection_error' ? (
+            {connectionStatus === 'connection_error' || connectionStatus === 'offline' ? (
               <button
                 type="button"
                 onClick={retryConnection}
-                className="ml-2 font-medium text-brand underline"
+                className="ml-2 min-h-[44px] font-medium text-brand underline"
               >
-                Retry
+                Retry connection
               </button>
             ) : null}
           </div>
@@ -217,15 +242,19 @@ export function SessionControlPage() {
         </div>
 
         <div className="rounded-lg border border-line bg-surface-elevated">
-          <div className="flex items-center justify-between border-b border-line px-5 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
             <p className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">
               Room dialogue
             </p>
-            <p className="text-xs text-ink-faint">Private to session participants</p>
+            <p className="text-xs text-ink-faint">Private to session · not published on release</p>
           </div>
           <div className="flex max-h-96 flex-col gap-4 overflow-y-auto p-5">
             {messages.length === 0 ? (
-              <p className="text-sm text-ink-secondary">No messages yet.</p>
+              <p className="py-6 text-center text-sm text-ink-secondary">
+                {status === 'waiting'
+                  ? 'Room is waiting. Start the session when participants are ready.'
+                  : 'No messages yet. Facilitator notes appear here when sent.'}
+              </p>
             ) : (
               messages.map((m) => (
                 <div key={m.id}>

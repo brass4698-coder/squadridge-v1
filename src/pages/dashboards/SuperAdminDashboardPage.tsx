@@ -20,9 +20,10 @@ const QUICK_LINKS: DashboardQuickLink[] = [
     description: 'Aggregate outcomes, sentiment trends, and platform-level metrics.',
   },
   {
-    label: 'Ledger',
+    label: 'Public ledger',
     href: '/ledger',
-    description: 'Published outcome records, chain-of-custody verifiable.',
+    description:
+      'Public outcome records with verification anchors. Private releases stay off-index.',
   },
 ];
 
@@ -31,7 +32,7 @@ export function SuperAdminDashboardPage() {
     <RoleDashboardShell
       role="super_admin"
       headline="System overview"
-      intro="You have platform-wide access. Everything below is scoped to the entire deployment, not a single institution."
+      intro="Highest-privilege operational density. Prefer institution admins for day-to-day org work."
       quickLinks={QUICK_LINKS}
       aboutYourRole="Super admin is the highest-privilege role. You can grant any role including super_admin, revoke arbitrary user roles (except the last remaining super_admin), and see every session and audit record. Prefer institution admins for org-scoped operations when possible."
     />

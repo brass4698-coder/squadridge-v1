@@ -6,6 +6,12 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 
 **Canonical product story:** [`docs/product/platform-description.md`](docs/product/platform-description.md) · **Institutional readiness:** [`docs/audit/institutional-readiness-audit.md`](docs/audit/institutional-readiness-audit.md) · **Phase A checklist:** [`ROADMAP.md`](ROADMAP.md)
 
+## Institutional direction (Phase 1)
+
+**Polish room → gate → ledger for NGO private release** on the existing `App.v2` spine (Configure → Verify → Facilitate → Release). Default template remains `ngo_deliberation` with a **private anchored** outcome; public ledger publish is optional.
+
+This is **not** a multi-role case/matter SaaS rebuild, not a marketing redesign, and not a revival of citizen matchmaking / ZK product surfaces. Soft-retired routes stay retired.
+
 ## Snapshot
 
 - **Stage:** Private pilot foundation — v2 facilitator platform primary
@@ -21,15 +27,15 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Pilot access request form → `access_requests`
 - Invite-only auth (magic link, profiles, seven roles, RLS)
 - Staff invite create / validate / accept / revoke
-- Per-role dashboards at `/app/{role}` (`App.v2.tsx`)
+- Per-role dashboards at `/app/{role}` (`App.v2.tsx`) — real routes only; density/copy cues differ by role
 - Session create with templates (`/app/sessions/new/setup`)
 - Participant invite tokens + facilitator verification review (`ParticipantsReviewPage`)
 - Participant contact-hash + document upload via `participant-verification-upload` Edge Function (facilitator review remains authoritative — not automated KYC)
-- Live `session_messages` — facilitator control room (`/control`) + participant token path (`/p/room`)
+- Live `session_messages` — facilitator control room (`/control`, `.sr-mode-room`) + participant token path (`/p/room`)
 - Enforced session lifecycle guards (DB/RPC blocks invalid Verify → Facilitate / Release without approvals)
-- Outcome draft, approvals, `release_outcome` RPC → public ledger query when `outcome_public`
+- Outcome draft, approvals, release gate (`.sr-mode-gate`, tabular `.sr-approval-count`, instrument preview) → `release_outcome` RPC; public ledger query when `outcome_public`
 - Content-only verification anchors + `/ledger/:id/verify` (`verify_outcome_anchor`)
-- Private releases stay off the public ledger (RLS + query filters)
+- Private releases stay off the public ledger (RLS + query filters); ledger UI is archival, not marketing
 - Architectural record redaction (facilitator-authored outcomes only; no import-from-room)
 - In-app workflow notifications (verify / room open / approval / release) + prefs gate
 - v2 metadata-only session audit trail + export UI
@@ -55,6 +61,12 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Room-level operator-blind E2E encryption — roadmap / threat model §13, not shipped
 - Civic early-warning → automated proposal engine vision — see [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md) (vision-labeled, not shipped)
 
+## Known migration hold: `20260707_001_incident_dialogue_rooms.sql`
+
+**Do not treat incident dialogue as a v2 product surface.** Routes `/incident` and `/incident/:slug` are **not** mounted in `App.v2.tsx` (legacy `App.tsx` only).
+
+The `20260707` migration creates helper functions that reference `incident_room_participants` **before** that table is created in the same file. Applying it can fail on a clean database. **Leave it unmounted and do not force-fix remote** until a dedicated append-only repair migration is reviewed. Institutional pilots should apply the institutional spine path (`20260708` onward / `20260721_001`) and ignore incident rooms for Phase 1.
+
 ## Demo Only Or Requires Extra Validation
 
 - Broad self-serve public onboarding for high-risk populations
@@ -63,6 +75,7 @@ This document is the fastest honest summary of what SquadRidge is today. It is i
 - Automated early-warning or CSI as a public product line (internal `/admin/csi` moderator console only)
 - Legacy squad matchmaking (`/match`, `/session/:squadId`) as the institutional product story
 - Any high-risk deployment that has not passed dedicated security review and operational readiness check
+- Incident dialogue rooms (schema + legacy UI) — unmounted on v2; migration hold above
 
 ## Legacy Routes Inventory
 
@@ -84,7 +97,7 @@ Long-term **prevention / early-signal** positioning lives in [`docs/business/str
 
 ## Roadmap Priorities (Phase A)
 
-See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria. Most P0/P1 engineering items are complete; remaining work is email delivery, full participant-path e2e against live DB, first real ledger publish, and pilot ops.
+See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria. Near-term institutional work is **room → gate → ledger polish** for private NGO release — not multi-role case SaaS. Remaining ops gaps: email delivery, full participant-path e2e against live DB, first real private release in a pilot, and pilot ops.
 
 ## Known Risks
 
@@ -93,12 +106,13 @@ See [`ROADMAP.md`](ROADMAP.md) for acceptance criteria. Most P0/P1 engineering i
 - No live published ledger records yet — samples are labeled illustrative
 - Legacy routes and old README narratives can confuse institutional buyers if not disclosed
 - Operational maturity for live pilots depends on written process and disciplined environment management (migrations + Edge Function deploy)
+- `20260707` incident migration may fail on clean apply — leave unmounted until repaired (see above)
 
 ## Recommended Near-Term Positioning
 
 Use this product story in the next 30–90 days:
 
-> SquadRidge is a private-pilot facilitator-led dialogue platform. Parties speak in a protected written room; only facilitator-approved outcomes are released with a verification anchor — not a transcript. We are inviting mediators and peacebuilding teams.
+> SquadRidge is a private-pilot facilitator-led dialogue platform. Parties speak in a protected written room; only facilitator-approved outcomes are released with a verification anchor — not a transcript. Default for NGO pilots is a **private** anchored decision memo. We are inviting mediators and peacebuilding teams.
 
 Avoid these stronger claims unless separately demonstrated:
 
@@ -119,6 +133,7 @@ Before any real pilot, confirm:
 - success metrics and post-session surveys are defined in advance
 - partner MOU references operator-readable content boundaries
 - migrations `20260710`–`20260712` and `participant-verification-upload` are deployed to the pilot project
+- **Do not** require `20260707` incident rooms for NGO private-release pilots
 
 ## Key Documents
 

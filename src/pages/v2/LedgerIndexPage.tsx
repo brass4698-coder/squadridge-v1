@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { sampleRecords } from '../../data/sampleRecords';
 import { useLedger } from '../../hooks/useLedger';
 import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
-import { CTA } from '../../data/siteMessaging';
-import { CTABlock, RecordCardCompact, TrustLabel } from '../../components/shared';
+import { RecordCardCompact, TrustLabel } from '../../components/shared';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 
 /**
- * Ledger index — archival docket: title bar + search + list. No hero kit.
+ * Ledger index — civic archive: title + search + list. Not a marketing page.
+ * Private releases are excluded by RLS + useLedger filters.
  */
 export function LedgerIndexPage() {
   const [query, setQuery] = useState('');
@@ -22,16 +22,16 @@ export function LedgerIndexPage() {
   const hasLive = liveCards.length > 0;
 
   return (
-    <div>
-      <header className="border-b border-line bg-surface-sunken/50">
-        <div className={`${publicShellInnerClass} py-12 md:py-14`}>
+    <div className="sr-mode-ledger min-h-[50vh]">
+      <header className="border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/50">
+        <div className={`${publicShellInnerClass} py-10 md:py-12`}>
           <TrustLabel variant="ledger" />
           <div className="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="font-display text-display font-medium text-ink">Outcome ledger</h1>
               <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-secondary">
-                Approved outcomes only. Each entry carries a verification anchor. Session dialogue
-                is never published.
+                Public approved outcomes only. Each entry carries a verification anchor. Session
+                dialogue is never published. Private NGO releases do not appear here.
               </p>
             </div>
             <label className="block w-full max-w-sm md:shrink-0">
@@ -48,7 +48,8 @@ export function LedgerIndexPage() {
           </div>
           {!hasLive && !loading ? (
             <p className="mt-6 border border-line bg-surface-elevated px-4 py-3 font-mono text-xs text-ink-secondary">
-              Illustrative examples — no live published records yet.
+              Illustrative examples — no live public records yet. Private anchored releases remain
+              off this index by design.
             </p>
           ) : null}
         </div>
@@ -57,7 +58,9 @@ export function LedgerIndexPage() {
       <section className="py-10 md:py-12">
         <div className={publicShellInnerClass}>
           {loading ? (
-            <p className="py-8 font-mono text-sm text-ink-secondary">Loading ledger…</p>
+            <p className="py-8 font-mono text-sm text-ink-secondary" role="status">
+              Loading ledger…
+            </p>
           ) : null}
 
           {hasLive ? (
@@ -87,18 +90,12 @@ export function LedgerIndexPage() {
           </div>
 
           <p className="mt-10 max-w-prose font-mono text-xs leading-relaxed text-ink-faint">
-            Facilitator sign-off publishes the record. SquadRidge verifies release integrity — not
-            the substance of outcomes.
+            Facilitator sign-off publishes the record. Integrity anchors confirm the released text
+            has not been altered — not the substance of outcomes. Verify any live record from its
+            detail page.
           </p>
         </div>
       </section>
-
-      <CTABlock
-        headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
-        secondaryLabel={CTA.secondaryProcess}
-        secondaryHref={CTA.secondaryProcessHref}
-      />
     </div>
   );
 }

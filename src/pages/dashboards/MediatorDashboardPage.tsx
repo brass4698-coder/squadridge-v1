@@ -5,19 +5,19 @@ import {
 
 const QUICK_LINKS: DashboardQuickLink[] = [
   {
-    label: 'Sessions to mediate',
+    label: 'Sessions',
     href: '/app/sessions',
-    description: 'Live and upcoming sessions where you are assigned as a mediator.',
-  },
-  {
-    label: 'Outcomes in review',
-    href: '/app/outcomes/new',
-    description: 'Draft or in-progress outcome documents awaiting your input.',
+    description: 'Live and upcoming sessions where you assist the facilitator.',
   },
   {
     label: 'Insights',
     href: '/app/insights',
-    description: 'Session sentiment traces and de-escalation signals.',
+    description: 'Session sentiment traces and de-escalation signals (read-focused).',
+  },
+  {
+    label: 'Public ledger',
+    href: '/ledger',
+    description: 'Published outcomes only — private releases stay off this index.',
   },
 ];
 
@@ -25,10 +25,10 @@ export function MediatorDashboardPage() {
   return (
     <RoleDashboardShell
       role="mediator"
-      headline="Mediation workspace"
-      intro="Your workspace mirrors the facilitator surface with read-write access to mediation-specific tools. Session control still requires a facilitator on the room."
+      headline="Mediation assist"
+      intro="Denser than participant view, lighter than facilitator control. You support the room; session start/end and release remain facilitator-owned."
       quickLinks={QUICK_LINKS}
-      aboutYourRole="Mediators assist facilitators during high-tension dialogue moments. You can view session state, participate in the room, and co-author outcomes. You cannot create sessions or issue invites."
+      aboutYourRole="Mediators assist facilitators during high-tension dialogue. You can view session state and participate in the room. Creating sessions, issuing invites, and releasing outcomes remain facilitator actions."
     />
   );
 }

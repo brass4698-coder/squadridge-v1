@@ -109,15 +109,15 @@ export function InviteAcceptancePage() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
         <div className="sr-glass-strong w-full max-w-md rounded-xl p-10">
           <p className="mb-4 text-app-meta font-semibold uppercase tracking-widest text-brand">
-            Secure invitation
+            Session invitation
           </p>
 
           <h1 className="mb-3 text-page-title text-ink">You have been invited to participate</h1>
 
           <p className="mb-6 text-app-body leading-relaxed text-ink-secondary">
-            A facilitator has extended a formal invitation for you to join a protected dialogue
-            session on SquadRidge. Before you can enter, you will complete a short verification
-            process.
+            A facilitator has invited you to a private written dialogue session. Before you can
+            enter, you will complete a short verification step. Your facilitator confirms
+            participation — this is not automated identity proof.
           </p>
 
           <div className="mb-8 rounded-lg border border-line bg-surface-secondary p-5">

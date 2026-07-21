@@ -11,35 +11,44 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { FacilitatorWalkthrough } from '../../components/facilitator/FacilitatorWalkthrough';
 import { WorkflowNotificationsBanner } from '../../components/session/WorkflowNotificationsBanner';
-import { useDashboardMetrics, useFacilitatorSessions } from '../../hooks/useFacilitatorSessions';
+import {
+  useDashboardMetrics,
+  useFacilitatorSessions,
+  type FacilitatorSessionRow,
+} from '../../hooks/useFacilitatorSessions';
 import { appRoutes } from '../../lib/appRoutes';
 
-const pendingApprovals = [
-  {
-    id: 'appr-001',
-    title: 'Urban Housing Policy — Outcome Draft',
-    requestedBy: 'M. Osei',
-    due: 'Today',
-  },
-  {
-    id: 'appr-002',
-    title: 'Trade Framework — Amendment Clause B',
-    requestedBy: 'K. Lindqvist',
-    due: 'Tomorrow',
-  },
-];
+function attentionHref(s: FacilitatorSessionRow): string {
+  if (s.status === 'pending') return appRoutes.sessionParticipants(s.id);
+  if (s.status === 'live' || s.status === 'paused') return appRoutes.sessionControl(s.id);
+  if (s.status === 'archived') return appRoutes.sessionOutcome(s.id);
+  if (s.status === 'released') return appRoutes.sessionRelease(s.id);
+  return appRoutes.session(s.id);
+}
+
+function attentionHint(s: FacilitatorSessionRow): string {
+  if (s.status === 'pending') return 'Verify participants';
+  if (s.status === 'live' || s.status === 'paused') return 'Open control room';
+  if (s.status === 'archived') return 'Draft or release outcome';
+  if (s.status === 'draft') return 'Continue setup';
+  return 'Open session';
+}
 
 export function FacilitatorDashboardPage() {
   const { sessions, loading, error, isMock } = useFacilitatorSessions();
   const metrics = useDashboardMetrics(sessions);
+
+  const needsAttention = sessions
+    .filter((s) => ['pending', 'live', 'paused', 'archived', 'draft'].includes(s.status))
+    .slice(0, 5);
 
   if (loading) return <RouteSkeleton label="Loading dashboard" />;
 
   return (
     <div>
       <PageHeader
-        title="Dashboard"
-        description="Active sessions, pending approvals, and recent outcomes at a glance."
+        title="Facilitator workspace"
+        description="Configure → Verify → Facilitate → Release. Private NGO deliberation is the default path; public ledger is optional."
         action={
           <Button asChild>
             <Link to={appRoutes.sessionNew}>New session</Link>
@@ -99,7 +108,7 @@ export function FacilitatorDashboardPage() {
                 ) : sessions.length === 0 ? (
                   <EmptyState
                     heading="No sessions yet"
-                    body="Create a session to invite participants and start a structured dialogue."
+                    body="Create an NGO deliberation session to invite partners and release a private anchored decision memo."
                     action={
                       <Button asChild>
                         <Link to={appRoutes.sessionNew}>New session</Link>
@@ -155,27 +164,35 @@ export function FacilitatorDashboardPage() {
                 <h2 id="pending-approvals-heading" className="text-section-title text-ink">
                   Needs attention
                 </h2>
-                <Badge variant="brand">{pendingApprovals.length}</Badge>
+                <Badge variant="brand">{needsAttention.length}</Badge>
               </div>
-              <div className="flex flex-col gap-3">
-                {pendingApprovals.map((a) => (
-                  <Link
-                    key={a.id}
-                    to={appRoutes.outcome(a.id)}
-                    className="sr-glass block rounded-lg border border-line p-4 transition-opacity hover:opacity-90"
-                  >
-                    <p className="text-app-body font-medium text-ink">{a.title}</p>
-                    <p className="mt-1 text-app-meta text-ink-secondary">
-                      Requested by {a.requestedBy} · Due {a.due}
-                    </p>
-                  </Link>
-                ))}
-              </div>
+              {needsAttention.length === 0 ? (
+                <EmptyState
+                  className="py-8"
+                  heading="Nothing waiting"
+                  body="When sessions need verify, facilitate, or release, they appear here."
+                />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {needsAttention.map((s) => (
+                    <Link
+                      key={s.id}
+                      to={attentionHref(s)}
+                      className="sr-glass block rounded-lg border border-line p-4 transition-opacity hover:opacity-90"
+                    >
+                      <p className="text-app-body font-medium text-ink">{s.title}</p>
+                      <p className="mt-1 text-app-meta text-ink-secondary">
+                        {attentionHint(s)} · {s.status}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              )}
               <Link
-                to={appRoutes.insights}
+                to={appRoutes.sessions}
                 className="mt-4 inline-block text-app-meta text-brand underline"
               >
-                View all insights →
+                View all sessions →
               </Link>
             </section>
           </div>

@@ -60,7 +60,8 @@ export function LedgerVerifyPage() {
           <p className="mb-8 max-w-prose text-base text-ink-secondary">
             Recomputes the SHA-256 of the approved outcome text and compares it to the stored
             verification anchor. This confirms the released instrument has not been altered — not
-            that the substance is true, legally binding, or endorsed by SquadRidge.
+            that the substance is true, legally binding, or endorsed by SquadRidge. Private records
+            are not publicly verifiable.
           </p>
 
           <div className="sr-evidence-frame max-w-measure p-6 md:p-8">

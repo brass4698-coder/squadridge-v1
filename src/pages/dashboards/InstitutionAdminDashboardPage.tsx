@@ -16,10 +16,9 @@ const QUICK_LINKS: DashboardQuickLink[] = [
     description: 'Sessions run by facilitators in your institution.',
   },
   {
-    label: 'Insights',
-    href: '/app/insights',
-    description:
-      'Sentiment trends, participation metrics, and outcome throughput for your cohorts.',
+    label: 'Public ledger',
+    href: '/ledger',
+    description: 'Public published outcomes. Private NGO releases do not appear here.',
   },
 ];
 
@@ -28,7 +27,7 @@ export function InstitutionAdminDashboardPage() {
     <RoleDashboardShell
       role="institution_admin"
       headline="Institution overview"
-      intro="You administer users, workspaces, and cohorts inside your institution. Access outside your institution is denied by RLS at the server."
+      intro="Admin density: users, invites, and cohort sessions — not a case-management console. Access outside your institution is denied by RLS."
       quickLinks={QUICK_LINKS}
       aboutYourRole="Institution admins can grant and revoke facilitator, mediator, analyst, participant, and observer roles inside their institution. Only super_admin can grant super_admin. All grants and revocations are logged in audit_events."
     />

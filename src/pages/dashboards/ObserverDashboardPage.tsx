@@ -5,19 +5,19 @@ import {
 
 const QUICK_LINKS: DashboardQuickLink[] = [
   {
-    label: 'Published outcomes',
+    label: 'Public outcome ledger',
     href: '/ledger',
-    description: 'The public ledger of released outcome records.',
+    description: 'Released public records only. Private NGO releases are not listed.',
   },
   {
     label: 'How it works',
     href: '/how-it-works',
-    description: 'Explainer of the session, verification, and release protocols.',
+    description: 'Configure → Verify → Facilitate → Release in plain language.',
   },
   {
     label: 'Security & privacy',
     href: '/security',
-    description: 'What is visible to whom, and what remains encrypted.',
+    description: 'Honest boundaries: what is protected, what operators can still read.',
   },
 ];
 
@@ -26,9 +26,9 @@ export function ObserverDashboardPage() {
     <RoleDashboardShell
       role="observer"
       headline="Observer view"
-      intro="You have read-only access to public outcomes and documentation. Session rooms and participant identities are not accessible from this role."
+      intro="Lightest shell: public records and documentation. Session rooms and participant identities are not accessible from this role."
       quickLinks={QUICK_LINKS}
-      aboutYourRole="Observers can read published outcomes and platform documentation. This role is intended for accountability partners, press, and researchers who do not participate in dialogue directly."
+      aboutYourRole="Observers can read published outcomes and platform documentation. This role is intended for accountability partners and researchers who do not participate in dialogue directly."
     />
   );
 }

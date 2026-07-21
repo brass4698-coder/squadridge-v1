@@ -88,8 +88,8 @@ export function useDashboardMetrics(sessions: FacilitatorSessionRow[]) {
     return {
       kpis: [
         { label: 'Active sessions', value: String(active) },
-        { label: 'Pending approvals', value: String(pending) },
-        { label: 'Outcomes published', value: String(released) },
+        { label: 'Awaiting verify', value: String(pending) },
+        { label: 'Released outcomes', value: String(released) },
         { label: 'Participants', value: String(participants) },
       ],
       sentimentTrend,
