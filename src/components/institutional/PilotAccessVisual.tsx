@@ -17,7 +17,7 @@ export function PilotAccessVisual({ className = '' }: { className?: string }) {
           { step: '03', label: 'Pilot onboarding', state: 'Facilitator setup + security briefing' },
         ].map((item) => (
           <div key={item.step} className="border-l-2 border-line-strong pl-4">
-            <p className="font-mono text-[0.65rem] uppercase tracking-widest text-ink-faint">
+            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-widest text-ink-faint">
               {item.step}
             </p>
             <p className="mt-1 text-sm font-medium text-ink">{item.label}</p>

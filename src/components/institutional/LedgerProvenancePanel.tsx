@@ -14,7 +14,7 @@ export function LedgerProvenancePanel({ className = '' }: { className?: string }
       <div className="grid w-full max-w-2xl gap-px border border-line bg-line md:grid-cols-[1fr_auto]">
         <div className="bg-surface-elevated p-5 md:p-6">
           <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Outcome record · preview
             </p>
             <StatusChip label="Pending release" variant="verified" />
@@ -48,7 +48,7 @@ export function LedgerProvenancePanel({ className = '' }: { className?: string }
 
         <aside className="flex flex-col justify-between bg-surface-sunken p-5 md:w-48 md:p-6">
           <div>
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Provenance
             </p>
             <p className="mt-3 break-all font-mono text-[0.7rem] leading-relaxed text-ink-secondary">
@@ -86,7 +86,7 @@ function RedactedLine({ width, label }: { width: string; label?: string }) {
 
 function ProvenanceMarker({ label, active }: { label: string; active: boolean }) {
   return (
-    <div className="flex items-center gap-2 text-[0.65rem] text-ink-secondary">
+    <div className="flex items-center gap-2 text-[length:var(--text-label)] text-ink-secondary">
       <span
         className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${active ? 'bg-brand' : 'border border-line-strong bg-transparent'}`}
         aria-hidden

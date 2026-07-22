@@ -13,6 +13,7 @@ import {
   formatApprovalCount,
 } from '../../../lib/approvalCounts';
 import { appRoutes } from '../../../lib/appRoutes';
+import { ApprovalCount } from '../../../components/motion';
 
 export function OutcomeReleasePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -111,7 +112,7 @@ export function OutcomeReleasePage() {
           <section className="sr-evidence-frame mb-8 p-5" aria-labelledby="instrument-preview-h">
             <h2
               id="instrument-preview-h"
-              className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint"
+              className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint"
             >
               Instrument preview
             </h2>
@@ -130,9 +131,9 @@ export function OutcomeReleasePage() {
           role="status"
         >
           <p className="flex flex-wrap items-baseline gap-2">
-            <span className="sr-approval-count text-base font-medium">
+            <ApprovalCount className="text-base font-medium">
               {formatApprovalCount(counts.approved, counts.total)}
-            </span>
+            </ApprovalCount>
             <span className="text-xs">
               {allApproved
                 ? outcomePublic
@@ -225,7 +226,7 @@ export function OutcomeReleasePage() {
           </p>
         )}
 
-        <p className="mt-4 text-center font-mono text-[0.65rem] leading-relaxed text-ink-faint">
+        <p className="mt-4 text-center font-mono text-[length:var(--text-label)] leading-relaxed text-ink-faint">
           Release is irreversible for this instrument. Participant identities are not disclosed on
           the record; room content remains operator-readable under your MOU.
         </p>

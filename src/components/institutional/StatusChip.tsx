@@ -19,7 +19,7 @@ export function StatusChip({ label, variant = 'neutral' }: { label: string; vari
     return <StatusBadge variant={badge}>{label}</StatusBadge>;
   }
   return (
-    <span className="inline-flex items-center rounded-sm border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-[0.08em] text-ink-secondary">
+    <span className="inline-flex items-center rounded-sm border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.08em] text-ink-secondary">
       {label}
     </span>
   );

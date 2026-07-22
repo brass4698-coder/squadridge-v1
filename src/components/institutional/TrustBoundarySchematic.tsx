@@ -2,15 +2,41 @@ import { InstitutionalVisualFrame } from './InstitutionalVisualFrame';
 import { StatusChip } from './StatusChip';
 
 const LAYERS = [
-  { label: 'Invite boundary', detail: 'Token-gated entry', variant: 'private' as const },
-  { label: 'Verification gate', detail: 'Facilitator approval', variant: 'verified' as const },
-  { label: 'Protected room', detail: 'Written dialogue only', variant: 'private' as const },
-  { label: 'Release gate', detail: 'Explicit facilitator sign-off', variant: 'verified' as const },
-  { label: 'Public record', detail: 'Anchored outcome', variant: 'released' as const },
+  {
+    label: 'Invite boundary',
+    detail: 'Token-gated entry',
+    variant: 'private' as const,
+    surface: 'sr-mode-room',
+  },
+  {
+    label: 'Verification gate',
+    detail: 'Facilitator approval',
+    variant: 'verified' as const,
+    surface: 'sr-mode-gate',
+  },
+  {
+    label: 'Protected room',
+    detail: 'Written dialogue only',
+    variant: 'private' as const,
+    surface: 'sr-mode-room',
+  },
+  {
+    label: 'Release gate',
+    detail: 'Explicit facilitator sign-off',
+    variant: 'verified' as const,
+    surface: 'sr-mode-gate',
+  },
+  {
+    label: 'Public record',
+    detail: 'Anchored outcome',
+    variant: 'released' as const,
+    surface: 'sr-mode-ledger',
+  },
 ];
 
 /**
  * Access and release boundaries — architectural clarity, not cyber branding.
+ * Surfaces follow room → gate → ledger so the schematic reads as process, not security theater.
  */
 export function TrustBoundarySchematic({ className = '' }: { className?: string }) {
   return (
@@ -24,18 +50,17 @@ export function TrustBoundarySchematic({ className = '' }: { className?: string 
           {LAYERS.map((layer, index) => (
             <li key={layer.label} className="relative flex flex-col">
               {index > 0 ? (
-                <div
-                  className="ml-6 flex h-6 items-center border-l border-line-strong pl-4"
-                  aria-hidden
-                >
-                  <span className="font-mono text-[0.6rem] uppercase tracking-widest text-ink-faint">
+                <div className="ml-6 flex h-5 items-center border-l border-line pl-4" aria-hidden>
+                  <span className="font-mono text-[0.6rem] uppercase tracking-widest text-ink-subtle">
                     Controlled passage
                   </span>
                 </div>
               ) : null}
-              <div className="flex flex-wrap items-center justify-between gap-3 border border-line bg-surface-sunken px-5 py-4">
+              <div
+                className={`flex flex-wrap items-center justify-between gap-3 border px-5 py-4 ${layer.surface}`}
+              >
                 <div>
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+                  <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
                     Layer {String(index + 1).padStart(2, '0')}
                   </p>
                   <h3 className="mt-1 text-sm font-semibold text-ink">{layer.label}</h3>

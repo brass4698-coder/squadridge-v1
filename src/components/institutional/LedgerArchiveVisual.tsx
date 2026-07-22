@@ -56,7 +56,9 @@ export function LedgerArchiveVisual({ className = '' }: { className?: string }) 
             </header>
             <h3 className="mt-2 text-sm font-medium text-ink">{entry.title}</h3>
             <p className="mt-1 text-xs text-ink-secondary">{entry.org}</p>
-            <p className="mt-3 font-mono text-[0.65rem] text-ink-faint">sha256:{entry.anchor}</p>
+            <p className="mt-3 font-mono text-[length:var(--text-label)] text-ink-faint">
+              sha256:{entry.anchor}
+            </p>
           </article>
         ))}
         <p className="text-xs leading-relaxed text-ink-faint">

@@ -86,7 +86,7 @@ export function RequestAccessPage() {
       <div className="flex min-h-[70vh] items-start py-20">
         <div className={publicShellInnerClass}>
           <div className="max-w-md border border-line bg-surface-elevated p-8 text-left">
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Intake
             </p>
             <h1 className="mt-3 font-display text-h2 font-medium text-ink">Request received</h1>
@@ -109,7 +109,7 @@ export function RequestAccessPage() {
       >
         {/* Left rail — criteria & process (sticky on large screens) */}
         <aside className="border-b border-line py-14 lg:sticky lg:top-14 lg:self-start lg:border-b-0 lg:border-r lg:py-16 lg:pr-12">
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+          <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
             Pilot intake
           </p>
           <h1 className="mt-4 font-display text-display font-medium text-ink">
@@ -121,7 +121,7 @@ export function RequestAccessPage() {
 
           <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
             <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-brand">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-brand">
                 Strong fit
               </p>
               <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
@@ -136,7 +136,7 @@ export function RequestAccessPage() {
               </ul>
             </div>
             <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
                 Likely not a fit
               </p>
               <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
@@ -174,7 +174,7 @@ export function RequestAccessPage() {
             onSubmit={(e) => void handleSubmit(e)}
             className="flex w-full max-w-lg flex-col gap-5 text-left"
           >
-            <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Application
             </p>
 

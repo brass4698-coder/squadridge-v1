@@ -10,7 +10,7 @@ export function EvaluatorPath({ current }: { current?: EvaluatorStepId }) {
       aria-label="Recommended path for mediators"
       className="border border-line bg-surface-elevated p-5 md:p-6"
     >
-      <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+      <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
         Recommended reading order
       </p>
       <ol className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">

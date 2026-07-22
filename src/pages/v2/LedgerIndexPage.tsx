@@ -65,7 +65,7 @@ export function LedgerIndexPage() {
 
           {hasLive ? (
             <div className="mb-12">
-              <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+              <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
                 Published
               </h2>
               <div className="divide-y divide-line border border-line">
@@ -78,7 +78,7 @@ export function LedgerIndexPage() {
 
           <div>
             {hasLive ? (
-              <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+              <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
                 Illustrative
               </h2>
             ) : null}

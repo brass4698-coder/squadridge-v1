@@ -40,7 +40,7 @@ function RecordBody({
       <ShellWidth>
         <div className="mx-auto max-w-measure">
           <div className="sr-evidence-frame mb-8 p-6 md:p-8">
-            <h2 className="mb-5 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <h2 className="mb-5 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Approved outcome text
             </h2>
             <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink">
@@ -49,7 +49,7 @@ function RecordBody({
           </div>
 
           <section className="mb-8 border border-line bg-surface-elevated p-5">
-            <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Verification anchor
             </h2>
             <code className="block break-all border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
@@ -68,7 +68,7 @@ function RecordBody({
           </section>
 
           <section>
-            <h2 className="mb-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Cite this record
             </h2>
             <code className="block border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">

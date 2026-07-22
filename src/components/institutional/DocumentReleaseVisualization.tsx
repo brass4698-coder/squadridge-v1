@@ -261,7 +261,7 @@ function StageShell({
     >
       <header className="flex items-center justify-between gap-2 border-b border-line px-5 py-3.5">
         <div className="flex items-center gap-2.5">
-          <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+          <span className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
             {step}
           </span>
           <h3 className="text-sm font-semibold text-ink">{title}</h3>
@@ -379,7 +379,7 @@ function ReleaseControl({
 function RecordBody({ released, reduce }: { released: boolean; reduce: boolean | null }) {
   return (
     <div className="flex flex-1 flex-col">
-      <span className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+      <span className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
         Outcome summary — facilitator-authored
       </span>
 
@@ -400,7 +400,7 @@ function RecordBody({ released, reduce }: { released: boolean; reduce: boolean |
             <span className="h-3 w-11/12 rounded-xs bg-surface-sunken" />
             <span className="h-3 w-9/12 rounded-xs bg-surface-sunken" />
           </div>
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
             <Lock className="size-3" strokeWidth={2} /> Awaiting release
           </span>
         </div>

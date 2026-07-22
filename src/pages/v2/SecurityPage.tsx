@@ -61,15 +61,16 @@ const SAFEGUARDS = [
 
 /**
  * Security — limits lead. Architecture second. Safeguards as a docket, not a feature grid.
+ * Visual tone: calm institutional trust / peace-tech — not cyber-SaaS.
  */
 export function SecurityPage() {
   return (
-    <div>
+    <div className="sr-security-page">
       <header className="border-b border-line pt-16 pb-14 md:pt-20">
         <div className={publicShellInnerClass}>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:gap-16">
             <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
                 Security · Documented limits
               </p>
               <h1 className="mt-4 font-display text-display font-medium text-ink">
@@ -88,7 +89,7 @@ export function SecurityPage() {
       {/* Limits first — the distinctive trust move */}
       <section
         id="reviewers"
-        className="scroll-mt-20 border-b border-line bg-surface-sunken/60 py-14 md:py-16"
+        className="sr-security-limits scroll-mt-20 border-b border-line py-14 md:py-16"
         aria-labelledby="limits-h"
       >
         <ShellWidth>
@@ -100,15 +101,15 @@ export function SecurityPage() {
               Read this before the safeguards. Accurate expectations are part of the product.
             </p>
           </div>
-          <ol className="divide-y divide-line border border-line">
+          <ol className="divide-y divide-line overflow-hidden rounded-lg border border-line">
             {NOT_CLAIMED.map((item, i) => (
               <li
                 key={item.short}
-                className="grid gap-3 bg-surface-elevated px-5 py-5 md:grid-cols-[8rem_minmax(0,1fr)] md:gap-8"
+                className="sr-security-limit-row grid gap-3 px-5 py-5 md:grid-cols-[8rem_minmax(0,1fr)] md:gap-8"
               >
                 <div className="font-mono text-xs text-ink-faint">
                   <span className="text-ink-subtle">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="mt-1 block font-medium uppercase tracking-[0.08em] text-ink">
+                  <span className="sr-security-limit-label mt-1 block font-medium uppercase tracking-[0.08em]">
                     {item.short}
                   </span>
                 </div>
@@ -122,9 +123,9 @@ export function SecurityPage() {
       <section className="border-b border-line py-16 md:py-20">
         <ShellWidth>
           <h2 className="font-display text-h2 font-medium text-ink">Two layers</h2>
-          <div className="mt-10 grid gap-px border border-line bg-line lg:grid-cols-2">
-            <div className="bg-surface-elevated p-6 md:p-8">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-line bg-line lg:grid-cols-2">
+            <div className="sr-security-layer-private p-6 md:p-8">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
                 Private session
               </p>
               <ul className="mt-6 space-y-5">
@@ -136,8 +137,8 @@ export function SecurityPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-surface-sunken p-6 md:p-8">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-ink-faint">
+            <div className="sr-security-layer-record p-6 md:p-8">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
                 Released record
               </p>
               <ul className="mt-6 space-y-5">
@@ -149,7 +150,7 @@ export function SecurityPage() {
                 ))}
               </ul>
               <p className="mt-8 text-sm text-ink-faint">
-                <Link to="/how-it-works" className="underline-offset-4 hover:underline">
+                <Link to="/how-it-works" className="text-brand underline-offset-4 hover:underline">
                   Process overview
                 </Link>
               </p>
@@ -160,7 +161,7 @@ export function SecurityPage() {
 
       <section
         id="verification-anchor"
-        className="scroll-mt-20 border-b border-line bg-surface-sunken/40 py-16"
+        className="scroll-mt-20 border-b border-line bg-surface-secondary/50 py-16"
       >
         <ShellWidth>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
@@ -173,8 +174,8 @@ export function SecurityPage() {
                 of release. Anyone with the record can recompute it.
               </p>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <div className="border border-line bg-surface-elevated p-5">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-brand">
+                <div className="sr-security-proves border p-5">
+                  <p className="sr-security-proves-label font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em]">
                     Proves
                   </p>
                   <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
@@ -183,8 +184,8 @@ export function SecurityPage() {
                     <li>Listed metadata matches the file</li>
                   </ul>
                 </div>
-                <div className="border border-line bg-surface p-5">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
+                <div className="sr-security-nonprove border border-line p-5">
+                  <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
                     Does not prove
                   </p>
                   <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
@@ -222,7 +223,7 @@ export function SecurityPage() {
 
       <section className="border-b border-line py-12">
         <ShellWidth>
-          <details className="max-w-measure border border-line bg-surface-elevated">
+          <details className="max-w-measure overflow-hidden rounded-lg border border-line bg-surface-elevated">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-ink">
               Technical appendix — engineers & auditors
             </summary>

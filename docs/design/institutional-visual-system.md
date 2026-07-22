@@ -134,6 +134,7 @@ Institutional, calm, high-trust — never flashy or startup-generic. Prefer abst
 
 - **About:** hero threshold visual, full-width session→ledger schematic, ledger/provenance panel between narrative sections
 - **Homepage / subsystem pages:** one major visual anchor per section — avoid many small decorative graphics
+- **Security (`/security`):** schematic + document-instrument only — `TrustBoundarySchematic` in the hero and `LedgerProvenancePanel` at the anchor section. No decorative illustration system, lifestyle photos, or cybersecurity icon packs. Typography and docket lists carry the rest.
 
 ### Components
 

@@ -75,7 +75,7 @@ export function SessionLedgerSchematic({ className = '' }: { className?: string 
                 />
               ) : null}
               <div className="mb-3 flex items-start justify-between gap-2">
-                <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+                <span className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 {node.chip}

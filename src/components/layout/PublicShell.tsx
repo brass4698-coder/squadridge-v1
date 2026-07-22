@@ -66,6 +66,7 @@ function isPublicMarketingRoute(pathname: string): boolean {
 export function PublicShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const isPublicMarketing = isPublicMarketingRoute(pathname);
+  const isSecurityRoute = pathname === '/security' || pathname.startsWith('/security/');
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuId = useId();
 
@@ -79,6 +80,17 @@ export function PublicShell({ children }: { children: ReactNode }) {
     document.body.removeAttribute('data-theme');
     return undefined;
   }, [isPublicMarketing]);
+
+  useEffect(() => {
+    if (isSecurityRoute) {
+      document.body.setAttribute('data-security-surface', 'warm-dark');
+      return () => {
+        document.body.removeAttribute('data-security-surface');
+      };
+    }
+    document.body.removeAttribute('data-security-surface');
+    return undefined;
+  }, [isSecurityRoute]);
 
   useEffect(() => {
     setMobileOpen(false);

@@ -9,7 +9,7 @@ export function FaqPage() {
     <div>
       <header className="border-b border-line pt-16 pb-10 md:pt-20">
         <div className={publicShellInnerClass}>
-          <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+          <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
             For mediators
           </p>
           <h1 className="mt-4 max-w-[22ch] font-display text-display font-medium text-ink">

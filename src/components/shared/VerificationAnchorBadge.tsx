@@ -25,7 +25,7 @@ export function VerificationAnchorBadge({ anchorId, status }: VerificationAnchor
 
 export function RecordAnchorBadge({ recordId }: { recordId: string }) {
   return (
-    <span className="inline-flex items-center border border-line bg-surface-sunken px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wider text-ink-faint">
+    <span className="inline-flex items-center border border-line bg-surface-sunken px-2 py-0.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-wider text-ink-faint">
       {recordId}
     </span>
   );
@@ -33,7 +33,7 @@ export function RecordAnchorBadge({ recordId }: { recordId: string }) {
 
 export function StageBadge({ stage }: { stage: string }) {
   return (
-    <span className="inline-flex items-center border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[0.65rem] font-medium uppercase tracking-wider text-ink-faint">
+    <span className="inline-flex items-center border border-line bg-surface-secondary px-2 py-0.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-wider text-ink-faint">
       {stage}
     </span>
   );

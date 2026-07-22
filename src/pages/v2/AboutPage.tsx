@@ -33,7 +33,7 @@ export function AboutPage() {
         <div className={publicShellInnerClass}>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-end">
             <div>
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
                 About
               </p>
               <h1 className="mt-4 max-w-[18ch] font-display text-display font-medium text-ink">

@@ -97,6 +97,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Marketing: comfortable root scale for high-DPI / institutional reading */
+html:has(body[data-theme='institutional']) {
+  font-size: 17px;
+}
+
+@media (min-width: 1280px) {
+  html:has(body[data-theme='institutional']) {
+    font-size: 18px;
+  }
+}
+
 body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
@@ -334,9 +345,11 @@ button:focus-visible,
     letter-spacing: 0.02em;
     line-height: 1;
     transition:
-      background var(--sr-duration-normal) var(--sr-ease-standard),
-      border-color var(--sr-duration-normal) var(--sr-ease-standard),
-      color var(--sr-duration-normal) var(--sr-ease-standard);
+      background var(--sr-duration-fast) var(--sr-ease-out),
+      border-color var(--sr-duration-fast) var(--sr-ease-out),
+      color var(--sr-duration-fast) var(--sr-ease-out),
+      transform var(--sr-duration-fast) var(--sr-ease-out),
+      box-shadow var(--sr-duration-fast) var(--sr-ease-out);
     cursor: pointer;
     border: 1px solid transparent;
   }
@@ -352,7 +365,7 @@ button:focus-visible,
 
   .btn-institutional--primary:active {
     background: var(--sr-primary-pressed);
-    transform: translateY(1px);
+    transform: translateY(1px) scale(0.985);
   }
 
   .btn-institutional--ghost {
@@ -365,6 +378,10 @@ button:focus-visible,
     color: var(--sr-ink);
     border-color: var(--sr-ink-faint);
     background: var(--sr-bg-elevated);
+  }
+
+  .btn-institutional--ghost:active {
+    transform: translateY(1px) scale(0.985);
   }
 
   body[data-theme='institutional'] .section-label {
@@ -459,6 +476,128 @@ button:focus-visible,
     .institutional-visual-frame svg {
       transition: opacity var(--sr-duration-normal) var(--sr-ease-standard);
     }
+  }
+
+  /* ── /security — warm-dark institutional calm (peace-tech, not cyber) ─
+     Route-scoped via data-security-surface. Keeps global light marketing
+     intact; de-emphasizes orange; one restrained teal accent. */
+  body[data-theme='institutional'][data-security-surface='warm-dark'] {
+    --sr-bg: #1b1a17;
+    --sr-bg-elevated: #24231f;
+    --sr-bg-secondary: #2c2a26;
+    --sr-bg-sunken: #14130f;
+    --sr-bg-accent: color-mix(in oklch, #4a8f88 14%, #24231f);
+    --sr-bg-accent-alt: color-mix(in oklch, #a8a49a 8%, #24231f);
+
+    --sr-line: #3d3a34;
+    --sr-line-strong: #524e46;
+    --sr-divider: #32302b;
+    --sr-border-alpha: oklch(from #eceae4 l c h / 0.1);
+
+    --sr-ink: #eceae4;
+    --sr-ink-secondary: #a8a49a;
+    --sr-ink-faint: #7d7970;
+    --sr-ink-subtle: #5e5b54;
+
+    --sr-primary: #4a8f88;
+    --sr-primary-hover: #5a9f98;
+    --sr-primary-pressed: #3d7a74;
+    --sr-primary-soft: oklch(from #4a8f88 l c h / 0.16);
+    --sr-primary-ring: oklch(from #4a8f88 l c h / 0.4);
+    --sr-on-primary: #0f1413;
+
+    --sr-warning: #b07a52;
+    --sr-warning-soft: oklch(from #b07a52 l c h / 0.14);
+
+    --sr-accent-alt: #8a8680;
+    --sr-glow: transparent;
+
+    --sr-shadow-xs: 0 1px 2px oklch(0.1 0.02 80 / 0.35);
+    --sr-shadow-sm: 0 1px 2px oklch(0.1 0.02 80 / 0.3), 0 4px 14px oklch(0.08 0.02 80 / 0.35);
+    --sr-shadow-md: 0 4px 18px oklch(0.08 0.02 80 / 0.4);
+
+    --sr-glass-bg: color-mix(in oklch, #24231f 88%, transparent);
+    --sr-glass-border: var(--sr-line);
+    --sr-glass-blur: 14px;
+
+    --sr-mode-room-bg: #161510;
+    --sr-mode-room-border: #3a3730;
+    --sr-mode-gate-bg: color-mix(in oklch, #4a8f88 12%, #24231f);
+    --sr-mode-gate-border: color-mix(in oklch, #4a8f88 28%, #3d3a34);
+    --sr-mode-ledger-bg: #26241f;
+    --sr-mode-ledger-border: #4a463e;
+
+    --sr-verify: #6a9b84;
+    --sr-verify-soft: oklch(from #6a9b84 l c h / 0.16);
+    --sr-verify-ink: #a8d4bc;
+
+    --color-border-subtle: oklch(from #eceae4 l c h / 0.1);
+    --color-border-medium: oklch(from #eceae4 l c h / 0.16);
+    --color-surface-raised: #24231f;
+    --color-surface-hover: #2c2a26;
+    --color-text-muted: #7d7970;
+    --color-badge-private: oklch(from #eceae4 l c h / 0.08);
+    --color-badge-private-text: #c4bfb4;
+    --color-badge-published: var(--sr-verify-soft);
+    --color-badge-published-text: var(--sr-verify-ink);
+
+    /* Security H1 — document-grade, slightly above marketing display floor */
+    --sr-text-display: clamp(2.75rem, 4.6vw, 3.625rem);
+  }
+
+  body[data-theme='institutional'][data-security-surface='warm-dark']::before {
+    display: none;
+  }
+
+  /* Page helpers — inherit warm-dark tokens above */
+  .sr-security-page .institutional-grid-backdrop {
+    opacity: 0.22;
+  }
+
+  .sr-security-page .institutional-visual-frame {
+    background: var(--sr-bg-elevated);
+    border-color: var(--sr-line);
+  }
+
+  .sr-security-limits {
+    background: color-mix(in oklch, var(--sr-bg-sunken) 75%, var(--sr-bg));
+  }
+
+  .sr-security-limit-row {
+    background: var(--sr-bg-elevated);
+  }
+
+  .sr-security-limit-row:nth-child(even) {
+    background: color-mix(in oklch, var(--sr-bg-secondary) 70%, var(--sr-bg-elevated));
+  }
+
+  .sr-security-limit-label {
+    color: var(--sr-ink);
+  }
+
+  .sr-security-layer-private {
+    background: var(--sr-mode-room-bg, var(--sr-bg-sunken));
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklch, var(--sr-mode-room-border, var(--sr-line)) 85%, transparent);
+  }
+
+  .sr-security-layer-record {
+    background: var(--sr-mode-ledger-bg, var(--sr-bg-elevated));
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklch, var(--sr-mode-ledger-border, var(--sr-line-strong)) 75%, transparent);
+  }
+
+  .sr-security-proves {
+    background: color-mix(in oklch, var(--sr-verify, var(--sr-primary)) 10%, var(--sr-bg-elevated));
+    border-color: color-mix(in oklch, var(--sr-verify, var(--sr-primary)) 28%, var(--sr-line));
+  }
+
+  .sr-security-proves-label {
+    color: var(--sr-verify-ink, var(--sr-primary));
+  }
+
+  .sr-security-nonprove {
+    background: var(--sr-bg-secondary);
   }
 
   /* ── Trust UI: governed modes + evidence frames ─────────────────── */
@@ -571,10 +710,66 @@ button:focus-visible,
     box-shadow: 0 4px 20px oklch(0 0 0 / 0.3);
   }
 
+  /* ── Calm Apple-like motion (purpose only; respect reduced-motion) ─ */
+  @keyframes srFadeRise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .sr-press {
+    transition:
+      transform var(--sr-duration-fast) var(--sr-ease-out),
+      box-shadow var(--sr-duration-fast) var(--sr-ease-out);
+  }
+
+  .sr-press:active {
+    transform: translateY(1px) scale(0.985);
+  }
+
+  .sr-lift {
+    transition:
+      transform var(--sr-duration-normal) var(--sr-ease-spring),
+      box-shadow var(--sr-duration-normal) var(--sr-ease-spring),
+      border-color var(--sr-duration-normal) var(--sr-ease-out);
+  }
+
+  .sr-fade-rise {
+    animation: srFadeRise var(--sr-duration-governed, 200ms) var(--sr-ease-out) both;
+  }
+
+  /* Native <details> open — continuity without fighting the element */
+  details[open] > .sr-details-body {
+    animation: srFadeRise var(--sr-duration-governed, 200ms) var(--sr-ease-out) both;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sr-lift:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sr-press:active,
+    .sr-lift:hover {
+      transform: none;
+    }
+
+    .sr-fade-rise,
+    details[open] > .sr-details-body {
+      animation: none;
+    }
+  }
+
   /* ── Phase 5: fade-in-up entrance ──────────────────────────────── */
   @keyframes fadeInUp {
     from {
-      opacity: 1;
+      opacity: 0;
       transform: translateY(6px);
     }
     to {
@@ -589,6 +784,13 @@ button:focus-visible,
 
   .animate-fade-in-up-delayed {
     animation: fadeInUp 150ms var(--sr-ease-out) 80ms both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-fade-in-up-delayed {
+      animation: none;
+    }
   }
 
   /* ── Phase 10: marketing display type ──────────────────────────────

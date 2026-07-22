@@ -13,7 +13,7 @@ export function TrustBar() {
           {TRUST_INDICATORS.map((item) => (
             <li
               key={item}
-              className="flex items-center gap-2 font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-ink-faint"
+              className="flex items-center gap-2 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint"
             >
               <span aria-hidden className="inline-block h-px w-4 bg-line-strong" />
               {item}

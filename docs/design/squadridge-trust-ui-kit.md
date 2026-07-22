@@ -33,6 +33,8 @@ App chrome (`:root`) remains dark for signed-in operations. Marketing routes set
 
 Rules: serif only at page/section display sizes. Product workflows stay sans + tabular nums.
 
+Comfortable marketing scale (everyone, not a toggle): root `17px` / `18px` ≥1280px via `html:has(body[data-theme='institutional'])`. Labels floor at `--text-label: 0.75rem`; body ~`--text-body: 1.0625rem`; display uses larger `clamp()`.
+
 ---
 
 ## Governed state language
@@ -68,8 +70,10 @@ Labels above fields; focus via `--sr-focus-ring` (teal). Validation reads as ope
 ## Motion
 
 - 160–220ms (`--sr-duration-governed`)
-- Ease: `--sr-ease-governed` (procedural, no bounce)
-- Celebrate verification/release with restraint only
+- Ease: `--sr-ease-governed` / `--sr-ease-spring` (procedural settle, no bounce)
+- Utilities: `.sr-press`, `.sr-lift`, `.sr-fade-rise`, `details[open] > .sr-details-body`
+- React: `GovernedPanel`, `ApprovalCount` in `src/components/motion/`
+- Celebrate verification/release with restraint only; respect `prefers-reduced-motion`
 
 ---
 

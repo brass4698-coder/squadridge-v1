@@ -11,6 +11,11 @@ export interface UseCaseCardProps {
   recordSampleId?: string;
   ctaLabel: string;
   ctaHref: string;
+  /**
+   * When true, omit sector/title chrome (for accordion rows that already show them).
+   * Keeps the shared skeleton: setup → In the room → Released record → Fit.
+   */
+  embedded?: boolean;
 }
 
 /** Case-file row for operational contexts — archival list, not equal tiles. */
@@ -24,12 +29,57 @@ export function UseCaseCard({
   recordSampleId,
   ctaLabel,
   ctaHref,
+  embedded = false,
 }: UseCaseCardProps) {
+  const body = (
+    <>
+      <p className="text-sm leading-relaxed text-ink-secondary">{context}</p>
+
+      <dl className="mt-6 space-y-0 divide-y divide-line overflow-hidden rounded-md border border-line">
+        <div className="bg-surface-sunken px-4 py-4 md:px-5">
+          <dt className="mb-2 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[0.1em] text-ink-faint">
+            In the room
+          </dt>
+          <dd className="m-0 text-sm leading-relaxed text-ink-secondary">{inTheRoom}</dd>
+        </div>
+        <div className="bg-surface-elevated px-4 py-4 md:px-5">
+          <dt className="mb-2 flex flex-wrap items-center gap-2 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[0.1em] text-ink-faint">
+            Released record
+            {recordSampleId ? <RecordAnchorBadge recordId={recordSampleId} /> : null}
+          </dt>
+          <dd className="m-0 text-sm leading-relaxed text-ink-secondary">{releasedRecord}</dd>
+        </div>
+      </dl>
+
+      {whySquadridge ? (
+        <p className="mt-5 border-l border-line-strong pl-4 text-sm leading-relaxed text-ink-secondary">
+          <span className="font-medium text-ink">Fit: </span>
+          {whySquadridge}
+        </p>
+      ) : null}
+
+      {embedded ? (
+        <p className="mt-5">
+          <Link
+            to={ctaHref}
+            className="text-sm text-brand underline-offset-4 transition-colors hover:underline"
+          >
+            {ctaLabel}
+          </Link>
+        </p>
+      ) : null}
+    </>
+  );
+
+  if (embedded) {
+    return <article className="px-1 py-5 md:px-2 md:py-6">{body}</article>;
+  }
+
   return (
     <article className="border-b border-line bg-surface-elevated last:border-b-0">
       <div className="grid gap-6 p-5 md:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] md:gap-10 md:p-6 lg:p-7">
         <div>
-          <p className="font-mono text-[0.65rem] font-medium uppercase tracking-[0.12em] text-ink-faint">
+          <p className="font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint">
             {sector}
           </p>
           <h2 className="mt-3 font-display text-base font-medium leading-snug text-ink md:text-lg">
@@ -42,33 +92,7 @@ export function UseCaseCard({
             {ctaLabel}
           </Link>
         </div>
-
-        <div className="min-w-0">
-          <p className="text-sm leading-relaxed text-ink-secondary">{context}</p>
-
-          <dl className="mt-5 divide-y divide-line border border-line">
-            <div className="bg-surface-sunken px-4 py-3.5">
-              <dt className="mb-1 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
-                In the room
-              </dt>
-              <dd className="text-sm leading-relaxed text-ink-secondary">{inTheRoom}</dd>
-            </div>
-            <div className="bg-surface-elevated px-4 py-3.5">
-              <dt className="mb-1 flex flex-wrap items-center gap-2 font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
-                Released record
-                {recordSampleId ? <RecordAnchorBadge recordId={recordSampleId} /> : null}
-              </dt>
-              <dd className="text-sm leading-relaxed text-ink-secondary">{releasedRecord}</dd>
-            </div>
-          </dl>
-
-          {whySquadridge ? (
-            <p className="mt-4 border-l border-line-strong pl-4 text-sm leading-relaxed text-ink-secondary">
-              <span className="font-medium text-ink">Fit: </span>
-              {whySquadridge}
-            </p>
-          ) : null}
-        </div>
+        <div className="min-w-0">{body}</div>
       </div>
     </article>
   );

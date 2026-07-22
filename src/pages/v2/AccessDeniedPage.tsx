@@ -13,7 +13,7 @@ export function AccessDeniedPage() {
       <div className={publicShellInnerClass}>
         <div className="max-w-measure text-left">
           <ShieldOff className="mb-6 h-10 w-10 text-ink-faint" aria-hidden="true" strokeWidth={2} />
-          <p className="mb-3 font-mono text-[0.65rem] font-medium uppercase tracking-[0.14em] text-ink-faint">
+          <p className="mb-3 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             403
           </p>
           <h1 className="mb-3 font-display text-h1 font-medium text-ink">

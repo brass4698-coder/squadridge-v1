@@ -20,14 +20,14 @@ export function LandingHero() {
             <h1 className="mt-0 max-w-[15ch] text-left font-display text-display font-medium leading-[1.05] tracking-tight text-ink">
               Verified deliberation for sensitive decisions.
             </h1>
-            <p className="mt-7 max-w-[32rem] text-left text-[1.0625rem] leading-[1.65] text-ink-secondary">
+            <p className="mt-7 max-w-[32rem] text-left text-[length:var(--sr-text-lead)] leading-[1.65] text-ink-secondary">
               Run sensitive mediations and inquiries in a private written room and release only an
               approved outcome to a public, verifiable record.
             </p>
-            <p className="mt-4 max-w-[28rem] text-sm leading-relaxed text-ink-faint">
+            <p className="mt-4 max-w-[28rem] text-base leading-relaxed text-ink-faint">
               For mediation practices, ombuds offices, and city community safety teams.
             </p>
-            <p className="mt-6 text-sm font-medium leading-relaxed text-ink-secondary">
+            <p className="mt-6 text-base font-medium leading-relaxed text-ink-secondary">
               No transcript. No open feed. No auto-publish.
             </p>
             <div className="mt-12 flex flex-wrap justify-start gap-3">

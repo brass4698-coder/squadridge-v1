@@ -4,6 +4,7 @@ import { OPERATIONAL_CONTEXTS } from '../../data/institutionalHome';
 import { flagshipUseCaseId, useCases } from '../../data/useCases';
 import { CTA, SITE_THESIS } from '../../data/siteMessaging';
 import { CTABlock, UseCaseCard } from '../../components/shared';
+import { GovernedPanel } from '../../components/motion';
 import { SectionLabel } from '../../components/SectionLabel';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { contextSlug } from '../../utils/contextSlug';
@@ -55,14 +56,16 @@ export function UseCasesPage() {
         aria-label="Flagship"
       >
         <div className={publicShellInnerClass}>
-          <p className="mb-4 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-brand">
+          <p className="mb-4 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-brand">
             Flagship · {flagshipUseCaseId}
           </p>
           <div
             id={contextSlug(OPERATIONAL_CONTEXTS[0].label)}
             className="scroll-mt-20 border border-line"
           >
-            <UseCaseCard {...flagship} />
+            <GovernedPanel>
+              <UseCaseCard {...flagship} />
+            </GovernedPanel>
           </div>
         </div>
       </section>
@@ -83,7 +86,7 @@ export function UseCasesPage() {
                   <details className="group" open={Boolean(anchor && hash === `#${anchor}`)}>
                     <summary className="flex cursor-pointer list-none flex-col gap-2 py-5 md:flex-row md:items-baseline md:justify-between md:gap-8 [&::-webkit-details-marker]:hidden">
                       <div className="min-w-0">
-                        <p className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-ink-faint">
+                        <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
                           {uc.sector}
                         </p>
                         <h3 className="mt-1 text-sm font-semibold text-ink group-open:text-ink">
@@ -91,14 +94,14 @@ export function UseCasesPage() {
                         </h3>
                       </div>
                       <span className="shrink-0 font-mono text-xs text-ink-faint group-open:hidden">
-                        Expand
+                        Show details
                       </span>
                       <span className="hidden shrink-0 font-mono text-xs text-ink-faint group-open:inline">
-                        Collapse
+                        Hide details
                       </span>
                     </summary>
-                    <div className="border-t border-line bg-surface-elevated">
-                      <UseCaseCard {...uc} />
+                    <div className="sr-details-body border-t border-line bg-surface-elevated px-0 md:px-1">
+                      <UseCaseCard {...uc} embedded />
                     </div>
                   </details>
                 </li>

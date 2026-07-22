@@ -11,7 +11,7 @@ export function AccessPendingPage() {
     <div className="py-16">
       <div className={publicShellInnerClass}>
         <div className="max-w-measure text-left">
-          <p className="font-mono text-[0.65rem] font-medium uppercase tracking-[0.14em] text-ink-faint">
+          <p className="font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             Account status
           </p>
           <h1 className="mt-3 font-display text-h1 font-medium tracking-tight text-ink">

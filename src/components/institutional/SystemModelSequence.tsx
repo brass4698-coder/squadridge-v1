@@ -179,7 +179,7 @@ function StickyNav({ active }: { active: number }) {
                   isActive ? '-ml-px border-brand' : 'border-transparent'
                 }`}
               >
-                <span className="block font-mono text-[0.65rem] tabular-nums text-[color:var(--color-text-muted)]">
+                <span className="block font-mono text-[length:var(--text-label)] tabular-nums text-[color:var(--color-text-muted)]">
                   {stage.num}
                 </span>
                 <span

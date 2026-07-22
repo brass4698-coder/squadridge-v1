@@ -1,5 +1,6 @@
 import { StatusBadge } from '../StatusBadge';
 import { MetaField, MetaFieldGrid } from '../landing/MetaField';
+import { ApprovalCount } from '../motion';
 
 /**
  * End-to-end trust sequence: private room → release gate → public ledger.
@@ -88,10 +89,7 @@ export function InterfaceEvidence() {
               Facilitator-drafted summary. No room transcript included.
             </p>
             <MetaFieldGrid className="mt-4 gap-x-8 gap-y-3">
-              <MetaField
-                label="Approvals"
-                value={<span className="sr-approval-count">3 / 3</span>}
-              />
+              <MetaField label="Approvals" value={<ApprovalCount>3 / 3</ApprovalCount>} />
               <MetaField label="Release" value="Explicit click" mono />
             </MetaFieldGrid>
           </div>

@@ -53,7 +53,7 @@ export function LedgerVerifyPage() {
             <span className="text-ink">Verify</span>
           </nav>
 
-          <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-ink-faint">
+          <p className="mb-2 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
             Integrity check
           </p>
           <h1 className="mb-3 font-display text-h1 text-ink">Verify outcome anchor</h1>
