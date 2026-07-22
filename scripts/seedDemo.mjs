@@ -18,8 +18,9 @@
  * SECURITY:
  *   • NEVER commit the service role key. Put it in .env.local (already in
  *     .gitignore) and load with `node --env-file=.env.local scripts/seedDemo.mjs`.
- *   • The demo user is NOT a super_admin; it has the participant role only.
- *     Data seeded here is intentionally illustrative, not real.
+ *     The demo user is NOT a super_admin; it has facilitator + participant
+ *     roles so "Try the Demo" lands in the facilitator workspace with seeded
+ *     sessions. Data seeded here is intentionally illustrative, not real.
  *
  * Usage:
  *   node --env-file=.env.local scripts/seedDemo.mjs
@@ -29,6 +30,10 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { execFileSync } from 'node:child_process';
+import { writeFileSync, unlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -48,6 +53,30 @@ const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
+/**
+ * Run SQL against the linked remote DB. Needed for profile privileged columns —
+ * `guard_profiles_privileged_columns` only opens when
+ * `app.allow_profile_privileged_update=true` in the same transaction (same latch
+ * as `accept_invite`). PostgREST upserts cannot set that GUC.
+ */
+function runLinkedSql(sql) {
+  const sqlPath = join(tmpdir(), `squadridge-seed-demo-${Date.now()}.sql`);
+  writeFileSync(sqlPath, sql, 'utf8');
+  try {
+    execFileSync(
+      'npx',
+      ['supabase', 'db', 'query', '--linked', '--agent=no', '-f', sqlPath],
+      { stdio: 'inherit', shell: true },
+    );
+  } finally {
+    try {
+      unlinkSync(sqlPath);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 async function upsertDemoUser() {
   console.log(`[seedDemo] Ensuring demo user exists (${DEMO_EMAIL})…`);
   // `admin.createUser` errors if the user exists; treat that as success.
@@ -58,7 +87,12 @@ async function upsertDemoUser() {
     user_metadata: { display_name: 'SquadRidge Demo' },
   });
 
-  if (createErr && !/already registered|already exists/i.test(createErr.message)) {
+  if (
+    createErr &&
+    !/already (been )?registered|already exists|email.?address.?.*registered/i.test(
+      createErr.message,
+    )
+  ) {
     throw createErr;
   }
 
@@ -74,7 +108,12 @@ async function upsertDemoUser() {
     if (!match) {
       throw new Error(`[seedDemo] Could not find or create demo user (${DEMO_EMAIL}).`);
     }
-    console.log(`[seedDemo] Demo user existed (id=${match.id}).`);
+    const { error: pwErr } = await admin.auth.admin.updateUserById(match.id, {
+      password: DEMO_PASSWORD,
+      email_confirm: true,
+    });
+    if (pwErr) throw pwErr;
+    console.log(`[seedDemo] Demo user existed (id=${match.id}); password refreshed.`);
     return match.id;
   }
 
@@ -85,30 +124,46 @@ async function upsertDemoUser() {
 async function upsertProfileAndRole(userId) {
   console.log('[seedDemo] Upserting profile + participant role…');
 
-  const { error: profileErr } = await admin.from('profiles').upsert(
-    {
-      id: userId,
-      email: DEMO_EMAIL,
-      display_name: 'SquadRidge Demo',
-      status: 'active',
-      primary_role: 'participant',
-      onboarding_completed: true,
-    },
-    { onConflict: 'id' },
-  );
-  if (profileErr) throw profileErr;
+  const emailLit = DEMO_EMAIL.replace(/'/g, "''");
+  const idLit = userId.replace(/'/g, "''");
 
-  const { error: roleErr } = await admin.from('user_roles').upsert(
-    {
-      user_id: userId,
-      role_key: 'participant',
-      workspace_id: null,
-      institution_id: null,
-      granted_by: null,
-    },
-    { onConflict: 'user_id,role_key,workspace_id,institution_id' },
-  );
-  if (roleErr) throw roleErr;
+  // Single DO block so `supabase db query` / Management API runs the full
+  // privileged update in one statement (multi-statement files only execute first).
+  runLinkedSql(`
+do $$
+begin
+  perform set_config('app.allow_profile_privileged_update', 'true', true);
+
+  insert into public.profiles (
+    id, email, display_name, status, primary_role, onboarding_completed
+  ) values (
+    '${idLit}'::uuid,
+    '${emailLit}',
+    'SquadRidge Demo',
+    'active',
+    'facilitator',
+    true
+  )
+  on conflict (id) do update set
+    email = excluded.email,
+    display_name = excluded.display_name,
+    status = excluded.status,
+    primary_role = excluded.primary_role,
+    onboarding_completed = excluded.onboarding_completed;
+
+  delete from public.user_roles
+  where user_id = '${idLit}'::uuid
+    and role_key in ('participant', 'facilitator')
+    and workspace_id is null
+    and institution_id is null;
+
+  insert into public.user_roles (
+    user_id, role_key, workspace_id, institution_id, granted_by
+  ) values
+    ('${idLit}'::uuid, 'facilitator', null, null, null),
+    ('${idLit}'::uuid, 'participant', null, null, null);
+end $$;
+`);
 }
 
 async function upsertDemoSessions(facilitatorId) {

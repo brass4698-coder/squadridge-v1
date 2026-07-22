@@ -30,6 +30,9 @@ export function SignInPage() {
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
+  const autoDemo =
+    searchParams.get('demo') === '1' ||
+    (import.meta.env.DEV && isDemoLoginEnabled() && !reason && !intent && !nextRaw);
   const roleDashboard = useDashboardRoute();
   const nextPath = safeNextPath(nextRaw ? decodeURIComponent(nextRaw) : null, roleDashboard);
 
@@ -47,6 +50,7 @@ export function SignInPage() {
   const showSignedOutBanner = reason === 'signed-out';
 
   const redirected = useRef(false);
+  const autoDemoStarted = useRef(false);
 
   useEffect(() => {
     if (!initialized || loading || !session || redirected.current) return;
@@ -60,6 +64,15 @@ export function SignInPage() {
     redirected.current = true;
     navigate(destination, { replace: true });
   }, [initialized, loading, session, profile, roles, nextRaw, navigate]);
+
+  useEffect(() => {
+    if (!autoDemo || !isDemoLoginEnabled() || !configured) return;
+    if (!initialized || loading || session || autoDemoStarted.current) return;
+    autoDemoStarted.current = true;
+    void handleDemo();
+    // handleDemo is stable for this mount; omit from deps to avoid re-entry.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot auto demo
+  }, [autoDemo, configured, initialized, loading, session]);
 
   if (!initialized || loading) {
     return (
@@ -102,7 +115,13 @@ export function SignInPage() {
       setError(classifyClientError(new Error(result.error)).userMessage);
       return;
     }
-    // The useEffect above will handle navigation once session resolves.
+    // Strip ?demo=1 so refresh does not re-trigger; session effect navigates next.
+    if (searchParams.get('demo') === '1') {
+      const params = new URLSearchParams(searchParams);
+      params.delete('demo');
+      const qs = params.toString();
+      navigate(qs ? `/sign-in?${qs}` : '/sign-in', { replace: true });
+    }
   }
 
   if (!configured) {

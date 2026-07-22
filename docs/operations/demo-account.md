@@ -33,16 +33,14 @@ state.
 
 ## What gets seeded
 
-- **User**: `demo@squadridge.com`, `status='active'`, `primary_role='participant'`
-- **Role**: participant only (no facilitator / admin powers)
+- **User**: `demo@squadridge.com`, `status='active'`, `primary_role='facilitator'`
+- **Roles**: facilitator + participant (no admin powers)
 - **Sessions** (3): landlord-tenant, business partnership, workplace conflict
 - **Participants** (2 per session): pseudonymous codenames, verified status
 - **Outcome records** (1 per session): draft, pending_approval, published — one of each
 
-The demo user is **not** a super_admin or facilitator. If you need a demo
-admin, seed a separate account and grant roles via the invite-only auth
-migration RPCs (`create_invite` + `accept_invite`, or the new
-`grant_role_to_user` RPC from `feat/phase3-role-management`).
+The demo user is **not** a super_admin. Post-login routing prefers the facilitator
+dashboard so seeded sessions are visible immediately.
 
 ## Rotating the password
 
