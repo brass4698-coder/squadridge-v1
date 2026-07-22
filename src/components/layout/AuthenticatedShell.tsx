@@ -4,6 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
 import { hasAnyRole } from '../../lib/roles';
 import { DemoBanner } from '../demo/DemoBanner';
+import { DemoLayout } from '../../demo/DemoLayout';
+import { useDemoWalkthrough } from '../../demo/DemoWalkthroughContext';
 import { SquadLogo } from '../SquadLogo';
 import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
 import { UserAvatarMenu } from './UserAvatarMenu';
@@ -167,6 +169,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { signOut, roles } = useAuth();
+  const { showDemoChrome } = useDemoWalkthrough();
 
   const handleSignOut = useCallback(async () => {
     await signOut();
@@ -188,124 +191,126 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
     ].join(' ');
 
   return (
-    <div className="flex h-screen overflow-hidden bg-surface">
-      {/* Sidebar */}
-      <aside
-        className={[
-          'flex h-full shrink-0 flex-col border-r transition-all duration-200 border-line bg-surface',
-          sidebarOpen ? 'w-56' : 'w-14',
-        ].join(' ')}
-        aria-label="Main navigation"
-      >
-        {/* Logo / collapse toggle */}
-        <div className="flex h-14 shrink-0 items-center border-b px-3 border-line">
-          {sidebarOpen ? (
-            <>
-              <span className="flex min-w-0 items-center gap-2 text-ink" aria-hidden>
-                <SquadLogo size={28} aria-hidden />
-                <SquadRidgeWordmark size="sm" />
-              </span>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70 text-ink-secondary"
-                aria-label="Collapse sidebar"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="mx-auto rounded p-1 transition-opacity hover:opacity-80"
-              aria-label="Expand sidebar"
-            >
-              <SquadLogo size={28} aria-hidden />
-            </button>
-          )}
-        </div>
-
-        {/* Nav items */}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              className={navLinkClass}
-              title={!sidebarOpen ? item.label : undefined}
-            >
-              <span className="shrink-0">{item.icon}</span>
-              {sidebarOpen && <span>{item.label}</span>}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* Bottom: sign out */}
-        <div className="border-t p-3 border-line">
-          <button
-            type="button"
-            onClick={() => void handleSignOut()}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-opacity hover:opacity-70 text-ink-secondary"
-            title={!sidebarOpen ? 'Sign out' : undefined}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            {sidebarOpen && <span>Sign out</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex flex-1 flex-col overflow-y-auto">
-        {/* Phase 5: DemoBanner above the top bar (only renders for demo user); */}
-        {/* UserAvatarMenu replaces the old text-only role badge with a real   */}
-        {/* account dropdown (Dashboard, Decks, Settings, Sign out).            */}
-        <DemoBanner />
-        <div
-          className="flex h-14 shrink-0 items-center justify-between border-b px-6"
-          style={{
-            borderColor: 'var(--sr-line)',
-            backgroundColor: 'var(--sr-bg-elevated)',
-          }}
+    <DemoLayout>
+      <div className="flex h-screen overflow-hidden bg-surface">
+        {/* Sidebar */}
+        <aside
+          className={[
+            'flex h-full shrink-0 flex-col border-r transition-all duration-200 border-line bg-surface',
+            sidebarOpen ? 'w-56' : 'w-14',
+          ].join(' ')}
+          aria-label="Main navigation"
         >
-          <span
-            className="rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider"
+          {/* Logo / collapse toggle */}
+          <div className="flex h-14 shrink-0 items-center border-b px-3 border-line">
+            {sidebarOpen ? (
+              <>
+                <span className="flex min-w-0 items-center gap-2 text-ink" aria-hidden>
+                  <SquadLogo size={28} aria-hidden />
+                  <SquadRidgeWordmark size="sm" />
+                </span>
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70 text-ink-secondary"
+                  aria-label="Collapse sidebar"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="mx-auto rounded p-1 transition-opacity hover:opacity-80"
+                aria-label="Expand sidebar"
+              >
+                <SquadLogo size={28} aria-hidden />
+              </button>
+            )}
+          </div>
+
+          {/* Nav items */}
+          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                className={navLinkClass}
+                title={!sidebarOpen ? item.label : undefined}
+                data-demo={item.href === appRoutes.sessions ? 'nav-sessions' : undefined}
+              >
+                <span className="shrink-0">{item.icon}</span>
+                {sidebarOpen && <span>{item.label}</span>}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Bottom: sign out */}
+          <div className="border-t p-3 border-line">
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-opacity hover:opacity-70 text-ink-secondary"
+              title={!sidebarOpen ? 'Sign out' : undefined}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              {sidebarOpen && <span>Sign out</span>}
+            </button>
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="flex flex-1 flex-col overflow-y-auto">
+          <DemoBanner />
+          <div
+            className="flex h-14 shrink-0 items-center justify-between border-b px-6"
             style={{
-              background: 'var(--sr-primary-soft)',
-              color: 'var(--sr-primary)',
+              borderColor: 'var(--sr-line)',
+              backgroundColor: 'var(--sr-bg-elevated)',
             }}
           >
-            {role === 'admin' ? 'Admin' : 'Facilitator'}
-          </span>
-          <UserAvatarMenu />
-        </div>
+            <span
+              className="rounded-full px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wider"
+              style={{
+                background: 'var(--sr-primary-soft)',
+                color: 'var(--sr-primary)',
+              }}
+            >
+              {role === 'admin' ? 'Admin' : 'Facilitator'}
+            </span>
+            <UserAvatarMenu />
+          </div>
 
-        <div className="flex-1 p-6">{children ?? <Outlet />}</div>
-      </main>
-    </div>
+          <div className={`flex-1 p-6 ${showDemoChrome ? 'pb-28' : ''}`}>
+            {children ?? <Outlet />}
+          </div>
+        </main>
+      </div>
+    </DemoLayout>
   );
 }

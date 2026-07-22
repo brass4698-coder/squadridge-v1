@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -55,44 +54,43 @@ export function OutcomeReleasePage() {
 
   if (!sessionId) {
     return (
-      <AuthenticatedShell>
-        <EmptyState
-          heading="Session not found"
-          body="Open release from a session detail page."
-          action={
-            <Link to={appRoutes.sessions} className="text-sm font-medium text-brand underline">
-              Back to sessions
-            </Link>
-          }
-        />
-      </AuthenticatedShell>
+      <EmptyState
+        heading="Session not found"
+        body="Open release from a session detail page."
+        action={
+          <Link to={appRoutes.sessions} className="text-sm font-medium text-brand underline">
+            Back to sessions
+          </Link>
+        }
+      />
     );
   }
 
   if (!outcome) {
     return (
-      <AuthenticatedShell>
-        <div className="sr-mode-gate mx-auto max-w-xl rounded-lg border border-[color:var(--sr-mode-gate-border)] p-6 md:p-8">
-          <EmptyState
-            heading="No outcome draft yet"
-            body="Draft and submit the decision memo before collecting approvals and releasing."
-            action={
-              <Link
-                to={appRoutes.sessionOutcome(sessionId)}
-                className="btn-pill btn-pill--primary text-sm"
-              >
-                Open outcome workspace
-              </Link>
-            }
-          />
-        </div>
-      </AuthenticatedShell>
+      <div className="sr-mode-gate mx-auto max-w-xl rounded-lg border border-[color:var(--sr-mode-gate-border)] p-6 md:p-8">
+        <EmptyState
+          heading="No outcome draft yet"
+          body="Draft and submit the decision memo before collecting approvals and releasing."
+          action={
+            <Link
+              to={appRoutes.sessionOutcome(sessionId)}
+              className="btn-pill btn-pill--primary text-sm"
+            >
+              Open outcome workspace
+            </Link>
+          }
+        />
+      </div>
     );
   }
 
   return (
-    <AuthenticatedShell>
-      <div className="sr-mode-gate mx-auto max-w-xl rounded-lg border border-[color:var(--sr-mode-gate-border)] p-6 md:p-8">
+    <>
+      <div
+        className="sr-mode-gate mx-auto max-w-xl rounded-lg border border-[color:var(--sr-mode-gate-border)] p-6 md:p-8"
+        data-demo="session-release"
+      >
         <div className="mb-8">
           <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
             Release gate · Session {sessionId.slice(0, 8)}
@@ -249,6 +247,6 @@ export function OutcomeReleasePage() {
           onCancel={() => setShowPublishModal(false)}
         />
       ) : null}
-    </AuthenticatedShell>
+    </>
   );
 }

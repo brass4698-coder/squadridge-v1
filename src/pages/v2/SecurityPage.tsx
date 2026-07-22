@@ -66,7 +66,7 @@ const SAFEGUARDS = [
 export function SecurityPage() {
   return (
     <div className="sr-security-page">
-      <header className="border-b border-line pt-16 pb-14 md:pt-20">
+      <header className="border-b border-line pt-16 pb-14 md:pt-20" data-demo="security-hero">
         <div className={publicShellInnerClass}>
           <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:gap-16">
             <div>

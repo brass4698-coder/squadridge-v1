@@ -17,7 +17,10 @@ export function LandingHero() {
             <SectionLabel className="!mb-4">
               Mediators · Facilitators · Institutional conveners
             </SectionLabel>
-            <h1 className="mt-0 max-w-[15ch] text-left font-display text-display font-medium leading-[1.05] tracking-tight text-ink">
+            <h1
+              className="mt-0 max-w-[15ch] text-left font-display text-display font-medium leading-[1.05] tracking-tight text-ink"
+              data-demo="landing-hero"
+            >
               Verified deliberation for sensitive decisions.
             </h1>
             <p className="mt-7 max-w-[32rem] text-left text-[length:var(--sr-text-lead)] leading-[1.65] text-ink-secondary">

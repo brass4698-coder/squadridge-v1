@@ -32,7 +32,7 @@ export function SessionsListPage() {
   if (loading) return <RouteSkeleton label="Loading sessions" />;
 
   return (
-    <div>
+    <div data-demo="sessions-list">
       <PageHeader
         title="Sessions"
         description="All sessions you have created or facilitated."

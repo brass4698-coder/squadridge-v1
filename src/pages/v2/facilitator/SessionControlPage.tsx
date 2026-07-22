@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
 import { SessionResolutionPanel } from '../../../components/facilitator/SessionResolutionPanel';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
@@ -91,21 +90,19 @@ export function SessionControlPage() {
 
   if (!session && !loading) {
     return (
-      <AuthenticatedShell>
-        <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-          <h1 className="text-xl font-semibold text-ink">Session not found</h1>
-          <p className="mt-2 text-sm text-ink-secondary">
-            This control room link may be invalid, or you may not have access.
-          </p>
-          <button
-            type="button"
-            onClick={() => navigate(appRoutes.sessions)}
-            className="mt-6 text-sm font-medium text-brand underline"
-          >
-            Back to sessions
-          </button>
-        </div>
-      </AuthenticatedShell>
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="text-xl font-semibold text-ink">Session not found</h1>
+        <p className="mt-2 text-sm text-ink-secondary">
+          This control room link may be invalid, or you may not have access.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate(appRoutes.sessions)}
+          className="mt-6 text-sm font-medium text-brand underline"
+        >
+          Back to sessions
+        </button>
+      </div>
     );
   }
 
@@ -117,8 +114,11 @@ export function SessionControlPage() {
   };
 
   return (
-    <AuthenticatedShell>
-      <div className="sr-mode-room mx-auto max-w-2xl rounded-lg border border-[color:var(--sr-mode-room-border)] p-5 md:p-6">
+    <>
+      <div
+        className="sr-mode-room mx-auto max-w-2xl rounded-lg border border-[color:var(--sr-mode-room-border)] p-5 md:p-6"
+        data-demo="session-control"
+      >
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
@@ -313,6 +313,6 @@ export function SessionControlPage() {
           onCancel={() => setShowEndModal(false)}
         />
       ) : null}
-    </AuthenticatedShell>
+    </>
   );
 }

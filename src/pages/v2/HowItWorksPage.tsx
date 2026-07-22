@@ -16,7 +16,10 @@ import { publicShellInnerClass } from '../../components/layout/publicShellTokens
 export function HowItWorksPage() {
   return (
     <div>
-      <header className="border-b border-line pt-16 pb-12 md:pt-20 md:pb-14">
+      <header
+        className="border-b border-line pt-16 pb-12 md:pt-20 md:pb-14"
+        data-demo="how-it-works-spine"
+      >
         <div className={publicShellInnerClass}>
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-end lg:gap-16">
             <div>

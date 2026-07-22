@@ -1,67 +1,38 @@
 # Guided demo walkthrough
 
-> **Legacy diligence only.** The live product path is `/request-access` → `/app` → `/p/*` → private release (NGO deliberation). Citizen matchmaking, `/verify`, and offline squad mocks are soft-retired from `App.v2` routing — do not use this document as the default contributor or partner demo script. Prefer [`docs/operations/v2-pilot-checklist.md`](../operations/v2-pilot-checklist.md).
+The live product tour is an **App.v2 institutional spine**: public story → facilitator
+workspace → seeded session control → outcome → release gate. Chrome includes directional
+bubbles, a spotlight ring, and **Back / Next / Skip** controls.
 
-The product tour is a **demo-only** layer: scripted routes, optional auto-actions on `data-demo` hooks, banner + bottom chrome, and **Space** to advance when the tour is active (not while typing in fields). It is **not** required for production traffic.
+Implementation lives in **`src/demo/`**.
 
-Implementation lives in **`src/demo/`** (script, provider, layout, telemetry helpers).
+## How to start
 
-## What ships in every build
+1. Ensure the demo account is seeded (`docs/operations/demo-account.md`).
+2. Open `/sign-in` and choose **Try the Demo** (or visit `/sign-in?demo=1`).
+3. After auth, the tour starts at `/?demo=1` and advances through `DEMO_MAIN_STEPS`
+   in `src/demo/demoScript.ts`.
 
-| Surface | Route | Notes |
-| ------- | ----- | ----- |
-| Offline squad mock | `/session/demo-session-001` | [`DemoSessionPage`](../../src/pages/DemoSessionPage.tsx): no Supabase Realtime; copy links to `/security`. **Not** gated on `VITE_ENABLE_DEMO_SQUAD`. |
-| ZK verification (standalone) | `/verify` | Real Semaphore + Edge path when configured; the tour adds **`/verify?demo=1`** as a step with overlay copy aligned to the threat model. |
-| Profile in tour | `/settings/profile?demo=1` | [`ProfileSettingsPage`](../../src/pages/ProfileSettingsPage.tsx) calls `ensureAnonymousSession()` when `demo=1` so the step works without visiting Match first. |
+You can also call `startWalkthrough()` from `useDemoWalkthrough()` (see
+`src/pages/admin/AdminDemoPage.tsx`).
 
-## Investor-facing behavior
+## Chrome
 
-- **Pitch / diligence:** The offline session is explicitly a **mock**; live squad rooms use [`SessionPage`](../../src/pages/SessionPage.tsx) with Realtime and app-layer encryption (see [`threat-model.md`](../security/threat-model.md)).
-- **`VITE_ENABLE_DEMO_SQUAD`:** Optional. Only enables **developer** shortcuts (e.g. creating a test squad from the session hub), not the public `/session/demo-session-001` route.
+| Control | Behavior |
+| ------- | -------- |
+| Direction bubble | Overlay copy + optional spotlight on `data-demo` / selector targets |
+| **← Back** | Previous scripted step |
+| **Next →** | Next scripted step (Space also advances when not typing) |
+| **Skip** | Clears tour flag and returns to `/` |
 
-## Removing the tour completely
+`DemoLayout` is mounted from `PublicShell` and `AuthenticatedShell`.
 
-Follow these steps in order; after each step, run `npm run build` and smoke-test `/`, `/match?demo=1`, and intent/match flows.
+## Script steps (summary)
 
-1. **Delete the demo package**  
-   Remove the entire directory **`src/demo/`** (including `demoScript.test.ts`).
+Welcome → How it works → Security → Ledger → Facilitator dashboard → Sessions →
+Session control (seeded live room) → Outcome draft → Release gate → Tour complete.
 
-2. **`src/App.tsx`**  
-   - Remove the `DemoWalkthroughProvider` import and unwrap the tree so `AuthProvider` is directly inside `BrowserRouter` (no provider wrapper).  
-   - Remove the route **`/onboarding/demo`** (if present) or its **`Navigate`** to **`/onboarding?demo=1&ob=1`**.  
-   - Remove the route **`/session/demo`** (`Navigate` to `demo-session-001`) if you added it only for the tour alias.
+## Removing the tour
 
-3. **`src/components/layout/AppLayout.tsx`**  
-   - Remove `DemoLayout`, `useDemoWalkthrough`, and the `showDemoChrome` / `demoMainPad` padding logic.  
-   - Render the previous structure: `ZkStubBanner`, `OfflineBanner`, `AuthIssueBanner`, `AppHeaderNav`, `main` with `Outlet`, `footer` — **without** wrapping children in `DemoLayout`.
-
-4. **`src/pages/LandingPage.tsx`**  
-   - Remove `useDemoWalkthrough` / `startWalkthrough`.  
-   - Remove the **Start guided tour** button (and any copy that exists only for the tour).
-
-5. **`src/pages/Match.tsx`**  
-   - Remove the import from **`../demo/demoScript`** (`DEMO_WALKTHROUGH_STORAGE_KEY`).  
-   - In the `guidedDemo` effect, remove the **`walkthroughActive`** branch so offline guided demo again uses only the original timeout → **`/session/demo-session-001`** behavior (unless you intentionally keep pacing changes).  
-   - Optionally remove **`data-demo="match-guided-root"`** from the guided-demo container.
-
-6. **`src/pages/IntentPage.tsx`** and **`src/pages/DemoSessionPage.tsx`**  
-   - Remove **`data-demo="..."`** attributes that were added for scripted auto-actions (safe to leave, but removal avoids dead hooks).
-
-7. **Verify**  
-   Run:
-
-   ```bash
-   rg "demo/DemoWalkthrough|DemoWalkthroughProvider|useDemoWalkthrough|DemoLayout|demoWalkthrough|DEMO_WALKTHROUGH_STORAGE_KEY|onboardingTourPath" src
-   ```
-
-   There should be **no** matches except unrelated uses of the word “demo” (e.g. `DemoSessionPage`, ledger fixtures, `demo=` query params on match).
-
-### Runtime state
-
-The tour sets **`sessionStorage.demoWalkthrough = "1"`** while active. Removing the code does not clear existing tabs; users can clear site data or session storage, or ignore it (nothing will read the key after removal).
-
-### What to keep
-
-Do **not** remove unless you are dropping investor/offline demos entirely:
-
-- **`DemoSessionPage`**, **`/session/demo-session-001`**, **`lib/demoSession.ts`**, **`?demo=1`** on Match — these are separate from the **walkthrough** package and support offline/story demos without the scripted tour.
+See historical notes in git history for deleting `src/demo/` entirely. Prefer keeping the
+package and updating `demoScript.ts` when the product spine changes.

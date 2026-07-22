@@ -47,20 +47,8 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   const currentStepTitle = currentStep?.title ?? null;
 
-  /** Keep landing/ledger/security polished: show guided chrome on those paths only when `?demo=1` is in the URL. */
-  const marketingPublicPath =
-    location.pathname === '/' ||
-    location.pathname.startsWith('/ledger') ||
-    location.pathname.startsWith('/security');
-
-  /** Single published ledger records should read as artifacts, not a guided tour step. */
-  const isLedgerProposalDetail = /^\/ledger\/[^/]+$/.test(location.pathname);
-
-  const showDemoChrome =
-    demoActive &&
-    currentStepIndex >= 0 &&
-    !(marketingPublicPath && !demoQuery) &&
-    !isLedgerProposalDetail;
+  /** Show chrome whenever the URL matches a scripted tour step. */
+  const showDemoChrome = demoActive && currentStepIndex >= 0;
 
   const onboardingDemoTour =
     location.pathname.startsWith('/onboarding/') && searchParams.get('demo') === '1';

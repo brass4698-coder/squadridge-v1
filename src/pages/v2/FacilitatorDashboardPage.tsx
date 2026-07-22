@@ -45,7 +45,7 @@ export function FacilitatorDashboardPage() {
   if (loading) return <RouteSkeleton label="Loading dashboard" />;
 
   return (
-    <div>
+    <div data-demo="facilitator-dashboard">
       <PageHeader
         title="Facilitator workspace"
         description="Configure → Verify → Facilitate → Release. Private NGO deliberation is the default path; public ledger is optional."

@@ -1,8 +1,13 @@
-import { DEMO_PROPOSAL_ID } from '../lib';
 import { DEMO_PERSONA } from './demoPersona';
 
 /** `sessionStorage` key — tour active when set to `"1"` (with optional `?demo=1` in URL). */
 export const DEMO_WALKTHROUGH_STORAGE_KEY = 'demoWalkthrough';
+
+/**
+ * Seeded live demo session from `scripts/seedDemo.mjs`
+ * (landlord-tenant dispute). Used by facilitator tour steps.
+ */
+export const DEMO_FACILITATOR_SESSION_ID = '11111111-1111-4111-8111-111111111111';
 
 export type EnvMode = 'local' | 'staging' | 'prod';
 
@@ -10,8 +15,7 @@ export type EnvMode = 'local' | 'staging' | 'prod';
  * Single scripted interaction. Run **in order**; no parallelism.
  * - `focus` / `click` / `select`: wait `delayMs` (default 250 ms) before running.
  * - `type`: optional `delayMs` before focus+typing; `charDelayMs` between each character (default ~100 ms).
- * - `wait`: pause for `ms` (e.g. between scripted onboarding steps).
- * Ending a step with `click` on the real Next/Submit lets existing app handlers navigate — do not route from the runner.
+ * - `wait`: pause for `ms`.
  */
 export type DemoAction =
   | { kind: 'focus'; selector: string; delayMs?: number }
@@ -32,7 +36,6 @@ export type DemoStep = {
   title: string;
   description?: string;
   envModes: Partial<Record<EnvMode, 'live' | 'mock'>>;
-  /** Per-step automation: each field is more entries in this array; often ends with `click` on the real Next control. */
   actions?: DemoAction[];
   overlaySteps?: DemoOverlayStep[];
   inMainScript?: boolean;
@@ -48,291 +51,184 @@ const mockAll: Partial<Record<EnvMode, 'live' | 'mock'>> = {
 export const HUMAN_CHAR_MS = 125;
 
 /**
- * Canonical presenter tour. Order matches Back/Next.
- * Text fields use `type` for human-paced typing; toggles use `click` / `select`.
+ * Canonical NGO / facilitator tour for App.v2.
+ * Order matches Back / Next / Skip chrome.
  */
 export const demoSteps: DemoStep[] = [
   {
-    id: 'landing',
+    id: 'welcome',
     path: '/?demo=1',
     title: 'Welcome',
-    description: 'Product story — onboarding, verification, intent, match, session, ledger.',
-    inMainScript: true,
-    envModes: mockAll,
-  },
-  {
-    id: 'onboarding_mission',
-    path: '/onboarding/mission?demo=1&owt=0',
-    title: 'Mission brief',
-    description: 'Onboarding — read the brief, then use Next in the card to continue.',
-    inMainScript: true,
-    envModes: mockAll,
-  },
-  {
-    id: 'onboarding_identity',
-    path: '/onboarding/identity?demo=1&owt=1',
-    title: 'Identity',
-    description: 'Callsign, lane, and operational context.',
-    inMainScript: true,
-    envModes: mockAll,
-    actions: [
-      { kind: 'focus', selector: '[data-demo="onboarding-callsign"]', delayMs: 400 },
-      {
-        kind: 'type',
-        selector: '[data-demo="onboarding-callsign"]',
-        text: 'Falcon-23',
-        charDelayMs: HUMAN_CHAR_MS,
-      },
-      { kind: 'wait', ms: 2000 },
-      { kind: 'click', selector: '[data-demo="onboarding-role-analyst"]', delayMs: 200 },
-      { kind: 'wait', ms: 1000 },
-      {
-        kind: 'select',
-        selector: '[data-demo="onboarding-era-trigger"]',
-        value: 'contemporary',
-        delayMs: 200,
-      },
-    ],
-  },
-  {
-    id: 'onboarding_placement',
-    path: '/onboarding/placement?demo=1&owt=2',
-    title: 'Placement',
-    description: 'Language, region, and time window.',
-    inMainScript: true,
-    envModes: mockAll,
-    actions: [
-      { kind: 'focus', selector: '[data-demo="onboarding-language"]', delayMs: 400 },
-      {
-        kind: 'type',
-        selector: '[data-demo="onboarding-language"]',
-        text: 'English',
-        charDelayMs: HUMAN_CHAR_MS,
-      },
-      { kind: 'wait', ms: 1000 },
-      { kind: 'focus', selector: '[data-demo="onboarding-region"]', delayMs: 200 },
-      {
-        kind: 'type',
-        selector: '[data-demo="onboarding-region"]',
-        text: 'Pacific North West',
-        charDelayMs: HUMAN_CHAR_MS,
-      },
-      { kind: 'wait', ms: 1000 },
-      { kind: 'focus', selector: '[data-demo="onboarding-timezone"]', delayMs: 200 },
-      {
-        kind: 'type',
-        selector: '[data-demo="onboarding-timezone"]',
-        text: 'Weekday Evenings PT',
-        charDelayMs: HUMAN_CHAR_MS,
-      },
-    ],
-  },
-  {
-    id: 'onboarding_rules',
-    path: '/onboarding/rules?demo=1&owt=3',
-    title: 'Rules & safety',
-    description: 'Accept the rules to continue.',
-    inMainScript: true,
-    envModes: mockAll,
-    actions: [
-      { kind: 'wait', ms: 2000 },
-      { kind: 'click', selector: '[data-demo="onboarding-rules-accept"]', delayMs: 200 },
-    ],
-  },
-  {
-    id: 'onboarding_verification',
-    path: '/onboarding/verification?demo=1&owt=4',
-    title: 'Verification',
-    description: 'Verification step in onboarding.',
-    inMainScript: true,
-    envModes: mockAll,
-  },
-  {
-    id: 'onboarding_dryrun',
-    path: '/onboarding/dryrun?demo=1&owt=5',
-    title: 'Dry run',
-    description: 'Finish onboarding to enter the guided flow.',
-    inMainScript: true,
-    envModes: mockAll,
-  },
-  {
-    id: 'verify_standalone',
-    path: '/verify?demo=1',
-    title: 'ZK verification',
-    description: 'Semaphore proof in-browser; server verifies via Edge Function.',
+    description: 'Private room → release gate → public ledger.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
       {
-        id: 'v1',
+        id: 'welcome-brand',
         content:
-          'Same path as production: proof is verified server-side. Squad chat is a separate surface—messaging is not end-to-end against the operator until shipped.',
-        selector: '[data-demo="verify-root"]',
+          'SquadRidge is facilitator-led dialogue infrastructure: the room stays private; only an approved outcome can become public.',
+        selector: '[data-demo="landing-hero"]',
+      },
+      {
+        id: 'welcome-nav',
+        content:
+          'Use Next to walk the product spine. Back returns to the previous step. Skip exits anytime.',
       },
     ],
   },
   {
-    id: 'intent',
-    path: '/find-squad?demo=1',
-    title: 'Intent',
-    description: 'Slow intent text — choose perspective in the app.',
-    inMainScript: true,
-    envModes: mockAll,
-    actions: [
-      { kind: 'focus', selector: '[data-demo="intent-input"]', delayMs: 1200 },
-      {
-        kind: 'type',
-        selector: '[data-demo="intent-input"]',
-        text: DEMO_PERSONA.intent,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1200,
-      },
-    ],
-    overlaySteps: [
-      {
-        id: 'in1',
-        content: 'After typing: pick Perspective A or B in the app before Find my squad.',
-        selector: '[data-demo="intent-input"]',
-      },
-    ],
-  },
-  {
-    id: 'match',
-    path: '/match?demo=1',
-    title: 'Matchmaking',
-    description: 'Guided beat — Next advances when you are ready.',
+    id: 'how_it_works',
+    path: '/how-it-works?demo=1',
+    title: 'How it works',
+    description: 'Configure → Verify → Facilitate → Release.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
       {
-        id: 'm1',
-        content: 'Simulates finding your squad — pacing is controlled by the tour.',
-        selector: '[data-demo="match-guided-root"]',
-      },
-    ],
-  },
-  {
-    id: 'session_offline',
-    path: '/session/demo-session-001?demo=1',
-    title: 'Squad session (demo)',
-    description: 'Offline mock messages (browser only).',
-    inMainScript: true,
-    envModes: mockAll,
-    actions: [
-      { kind: 'focus', selector: '[data-demo="session-composer"]', delayMs: 1200 },
-      {
-        kind: 'type',
-        selector: '[data-demo="session-composer"]',
-        text: DEMO_PERSONA.sessionLine,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1200,
-      },
-    ],
-    overlaySteps: [
-      {
-        id: 's1',
-        content: 'Offline demo — nothing leaves this browser tab.',
-        selector: '[data-demo="session-composer"]',
-      },
-    ],
-  },
-  {
-    id: 'ledger',
-    path: `/ledger/${DEMO_PROPOSAL_ID}?demo=1`,
-    title: 'Ledger',
-    description: 'Seeded proposal drill-down.',
-    inMainScript: true,
-    envModes: mockAll,
-    overlaySteps: [
-      {
-        id: 'l1',
-        content: 'Citable, timestamped output — demo row uses the seeded proposal id.',
+        id: 'hiw-spine',
+        content:
+          'Mediators control the lifecycle. The platform automates verification status, session controls, and ledger publish — not the dialogue itself.',
+        selector: '[data-demo="how-it-works-spine"]',
       },
     ],
   },
   {
     id: 'security',
     path: '/security?demo=1',
-    title: 'Security & privacy',
-    description: 'Zero-knowledge posture and verification.',
+    title: 'Security boundary',
+    description: 'What stays in the room vs what can be released.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
       {
-        id: 'sec1',
+        id: 'security-frame',
         content:
-          'Verification proves membership without exposing identity to peers or the public ledger.',
+          'Trust claims stay honest: the room and the record are separate by design. Read this surface before you pilot.',
+        selector: '[data-demo="security-hero"]',
       },
     ],
   },
   {
-    id: 'profile',
-    path: '/settings/profile?demo=1',
-    title: 'Profile',
-    description:
-      'Same persona as the guided tour — Northstar-7, strategist, matching routing hints.',
+    id: 'ledger',
+    path: '/ledger?demo=1',
+    title: 'Public ledger',
+    description: 'Released outcome records — not chat transcripts.',
     inMainScript: true,
     envModes: mockAll,
-    actions: [
-      { kind: 'focus', selector: '[data-demo="profile-callsign"]', delayMs: 1200 },
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-callsign"]',
-        text: DEMO_PERSONA.callsign,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1200,
+        id: 'ledger-index',
+        content:
+          'The ledger holds approved public records only. Session dialogue never appears here.',
+        selector: '[data-demo="ledger-index"]',
+      },
+    ],
+  },
+  {
+    id: 'facilitator_dashboard',
+    path: '/app?demo=1',
+    title: 'Facilitator workspace',
+    description: 'Your operating home after sign-in.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'dash-header',
+        content:
+          'You are signed in as the demo facilitator. Seeded sessions appear here so you can practice Configure → Verify → Facilitate → Release.',
+        selector: '[data-demo="facilitator-dashboard"]',
       },
       {
-        kind: 'select',
-        selector: '[data-demo="profile-role"]',
-        value: DEMO_PERSONA.role,
-        delayMs: 1200,
+        id: 'dash-new',
+        content:
+          'New session starts a fresh room. For this tour we open a seeded live session next.',
+        selector: '[data-demo="nav-sessions"]',
       },
-      { kind: 'focus', selector: '[data-demo="profile-tags"]', delayMs: 1000 },
+    ],
+  },
+  {
+    id: 'sessions_list',
+    path: '/app/sessions?demo=1',
+    title: 'Sessions',
+    description: 'All rooms you facilitate.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-tags"]',
-        text: DEMO_PERSONA.tags,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1200,
+        id: 'sessions-table',
+        content:
+          'Each row is a deliberation room with a lifecycle status. Open a live session to enter the control surface.',
+        selector: '[data-demo="sessions-list"]',
       },
-      { kind: 'focus', selector: '[data-demo="profile-era"]', delayMs: 1000 },
+    ],
+  },
+  {
+    id: 'session_control',
+    path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/control?demo=1`,
+    title: 'Session control',
+    description: 'Facilitate inside the private room.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-era"]',
-        text: DEMO_PERSONA.eraLens,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1000,
+        id: 'control-room',
+        content:
+          'This is the private room control surface. Participants are pseudonymous; dialogue stays here until you choose to draft an outcome.',
+        selector: '[data-demo="session-control"]',
       },
-      { kind: 'focus', selector: '[data-demo="profile-lang"]', delayMs: 1000 },
+    ],
+  },
+  {
+    id: 'session_outcome',
+    path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/outcome?demo=1`,
+    title: 'Outcome draft',
+    description: 'Write what may leave the room.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-lang"]',
-        text: DEMO_PERSONA.language,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1000,
+        id: 'outcome-draft',
+        content:
+          'Outcomes are facilitator-authored. Nothing becomes public until you pass the release gate.',
+        selector: '[data-demo="session-outcome"]',
       },
-      { kind: 'focus', selector: '[data-demo="profile-region"]', delayMs: 1000 },
+    ],
+  },
+  {
+    id: 'session_release',
+    path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/release?demo=1`,
+    title: 'Release gate',
+    description: 'Approve what the ledger may publish.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-region"]',
-        text: DEMO_PERSONA.region,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1000,
+        id: 'release-gate',
+        content:
+          'Release is explicit. You decide whether a record is published — the platform does not auto-publish chat.',
+        selector: '[data-demo="session-release"]',
       },
-      { kind: 'focus', selector: '[data-demo="profile-timewindow"]', delayMs: 1000 },
+    ],
+  },
+  {
+    id: 'tour_complete',
+    path: '/app?demo=1&tour=done',
+    title: 'Tour complete',
+    description: 'Explore freely, or exit to the public site.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
       {
-        kind: 'type',
-        selector: '[data-demo="profile-timewindow"]',
-        text: DEMO_PERSONA.timezoneWindow,
-        charDelayMs: HUMAN_CHAR_MS,
-        delayMs: 1000,
+        id: 'done',
+        content:
+          'You have walked the institutional spine. Keep exploring seeded sessions, or use Skip to leave the guided tour.',
+        selector: '[data-demo="facilitator-dashboard"]',
       },
     ],
   },
 ];
 
-/** Main linear script (excludes appendix routes like `/mod`). */
+/** Main linear script (excludes appendix routes). */
 export const DEMO_MAIN_STEPS: DemoStep[] = demoSteps.filter((s) => s.inMainScript !== false);
 
 /** First scripted route — used by the lightweight demo shell before the full walkthrough chunk loads. */
@@ -345,9 +241,14 @@ export const DEMO_APPENDIX = {
     title: 'Moderator console',
     inMainScript: false as const,
   },
+  /** @deprecated Legacy citizen persona — kept for tests that import DEMO_PERSONA. */
+  persona: DEMO_PERSONA,
 } as const;
 
-/** Compare pathname + query (order of query keys ignored). */
+/** Query keys ignored when matching tour steps (order and extra flags). */
+const PATH_MATCH_IGNORE_KEYS = new Set(['demo']);
+
+/** Compare pathname + query (order of query keys ignored; `demo` ignored). */
 export function pathsEqual(a: string, b: string): boolean {
   const base = 'https://squadridge.local';
   const ua = new URL(a.startsWith('http') ? a : `${base}${a.startsWith('/') ? a : `/${a}`}`);
@@ -355,6 +256,7 @@ export function pathsEqual(a: string, b: string): boolean {
   if (ua.pathname !== ub.pathname) return false;
   const keys = new Set([...ua.searchParams.keys(), ...ub.searchParams.keys()]);
   for (const k of keys) {
+    if (PATH_MATCH_IGNORE_KEYS.has(k)) continue;
     if ((ua.searchParams.get(k) ?? '') !== (ub.searchParams.get(k) ?? '')) return false;
   }
   return true;

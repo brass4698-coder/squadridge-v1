@@ -22,7 +22,7 @@ export function LedgerIndexPage() {
   const hasLive = liveCards.length > 0;
 
   return (
-    <div className="sr-mode-ledger min-h-[50vh]">
+    <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index">
       <header className="border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/50">
         <div className={`${publicShellInnerClass} py-10 md:py-12`}>
           <TrustLabel variant="ledger" />

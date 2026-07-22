@@ -14,19 +14,18 @@ import { useDashboardRoute } from '../hooks/useDashboardRoute';
 import { signInWithDemo, DEMO_EMAIL, isDemoLoginEnabled } from '../lib/demoLogin';
 import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
+import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
 
 /**
  * Sign in — Phase 5 redesign.
  *
- * Full-viewport centering, glowing teal border on the card, wordmark above
- * the form, cleaned-up label hierarchy (no shouty ACCOUNT eyebrow), and a
- * Demo Access button that goes straight to `signInWithPassword` against the
- * seeded demo user. Error visibility is gated on actual error state so the
- * "Failed to fetch" message no longer flashes on idle load.
+ * Demo Access signs in as the seeded demo user, then launches the guided
+ * walkthrough (bubbles, Back / Next / Skip) across the institutional spine.
  */
 export function SignInPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { startWalkthrough } = useDemoWalkthrough();
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
@@ -51,9 +50,18 @@ export function SignInPage() {
 
   const redirected = useRef(false);
   const autoDemoStarted = useRef(false);
+  const pendingGuidedTour = useRef(false);
 
   useEffect(() => {
     if (!initialized || loading || !session || redirected.current) return;
+
+    if (pendingGuidedTour.current) {
+      redirected.current = true;
+      pendingGuidedTour.current = false;
+      startWalkthrough();
+      return;
+    }
+
     const destination = resolvePostAuthPath({
       session,
       profile,
@@ -63,15 +71,13 @@ export function SignInPage() {
     if (destination === '/sign-in') return;
     redirected.current = true;
     navigate(destination, { replace: true });
-  }, [initialized, loading, session, profile, roles, nextRaw, navigate]);
+  }, [initialized, loading, session, profile, roles, nextRaw, navigate, startWalkthrough]);
 
   useEffect(() => {
     if (!autoDemo || !isDemoLoginEnabled() || !configured) return;
     if (!initialized || loading || session || autoDemoStarted.current) return;
     autoDemoStarted.current = true;
     void handleDemo();
-    // handleDemo is stable for this mount; omit from deps to avoid re-entry.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot auto demo
   }, [autoDemo, configured, initialized, loading, session]);
 
   if (!initialized || loading) {
@@ -85,7 +91,9 @@ export function SignInPage() {
   if (session) {
     return (
       <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
-        <RouteSkeleton label="Signing you in" />
+        <RouteSkeleton
+          label={pendingGuidedTour.current ? 'Starting guided demo' : 'Signing you in'}
+        />
       </div>
     );
   }
@@ -115,13 +123,7 @@ export function SignInPage() {
       setError(classifyClientError(new Error(result.error)).userMessage);
       return;
     }
-    // Strip ?demo=1 so refresh does not re-trigger; session effect navigates next.
-    if (searchParams.get('demo') === '1') {
-      const params = new URLSearchParams(searchParams);
-      params.delete('demo');
-      const qs = params.toString();
-      navigate(qs ? `/sign-in?${qs}` : '/sign-in', { replace: true });
-    }
+    pendingGuidedTour.current = true;
   }
 
   if (!configured) {
@@ -295,10 +297,11 @@ export function SignInPage() {
                   aria-label={`Try the SquadRidge demo (${DEMO_EMAIL})`}
                 >
                   <Play className="size-4" aria-hidden />
-                  {demoBusy ? 'Signing in…' : 'Try the Demo'}
+                  {demoBusy ? 'Starting guided demo…' : 'Try the Demo'}
                 </button>
                 <p className="text-left text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-                  Instant read-only access to seeded example sessions. No email required.
+                  Guided walkthrough with directions, Back / Next, and Skip. Seeded example sessions
+                  — no email required.
                 </p>
               </>
             ) : null}

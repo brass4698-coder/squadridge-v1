@@ -17,8 +17,8 @@ function isSpaceAdvanceBlocked(target: EventTarget | null): boolean {
 }
 
 /**
- * Demo chrome: top banner, bottom bar, optional overlays, Space-to-advance (when not typing).
- * Safe to delete with `src/demo/` — core routes ignore this.
+ * Demo chrome: top banner, bottom bar (Back / Next / Skip), directional bubbles, Space-to-advance.
+ * Uses a fixed dark tour surface so institutional light pages stay readable.
  */
 export function DemoLayout({ children }: Props) {
   const {
@@ -50,11 +50,11 @@ export function DemoLayout({ children }: Props) {
     <>
       {showDemoChrome ? (
         <div
-          className="relative z-[5] border-b border-amber/25 bg-amber/10 px-gutter py-2.5 text-center"
+          className="relative z-[5] border-b border-amber-400/35 bg-[#0c1220] px-gutter py-2.5 text-center"
           role="status"
         >
-          <p className="font-sans text-[0.8rem] leading-snug text-amber/95 md:text-[0.85rem]">
-            Guided simulation. Seeded data only; no live disputes or real people.
+          <p className="font-sans text-[0.8rem] leading-snug text-amber-100 md:text-[0.85rem]">
+            Guided demo — seeded data only. Use Back / Next, or Skip to leave the tour.
           </p>
         </div>
       ) : null}
@@ -62,9 +62,9 @@ export function DemoLayout({ children }: Props) {
       {showDemoChrome ? (
         <>
           <DemoOverlay steps={currentStep?.overlaySteps} layoutKey={currentStepIndex} />
-          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-navy-light/60 bg-[#070b12]/95 px-gutter py-3 backdrop-blur-md">
+          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-amber-400/25 bg-[#0c1220] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6">
             <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              <p className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {currentStepIndex >= 0 && currentStepTitle ? (
                   <>
                     Step {currentStepIndex + 1} · {currentStepTitle}
@@ -76,26 +76,26 @@ export function DemoLayout({ children }: Props) {
               <div className="flex flex-wrap gap-2 sm:justify-end">
                 <button
                   type="button"
-                  className="btn-secondary min-h-[2.5rem] px-4 py-2 text-sm"
+                  className="min-h-[2.5rem] rounded-md border border-slate-500 bg-transparent px-4 py-2 text-sm font-medium text-slate-100 hover:border-slate-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={!canGoBack}
                   onClick={goBack}
                 >
-                  Back
+                  ← Back
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary min-h-[2.5rem] px-4 py-2 text-sm"
+                  className="min-h-[2.5rem] rounded-md bg-amber-400 px-4 py-2 text-sm font-semibold text-[#0c1220] hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
                   disabled={!canGoNext}
                   onClick={goNext}
                 >
-                  Next
+                  Next →
                 </button>
                 <button
                   type="button"
-                  className="min-h-[2.5rem] rounded-md border border-slate-600 bg-transparent px-4 py-2 text-sm font-medium text-slate-200 hover:border-slate-500 hover:bg-white/5"
+                  className="min-h-[2.5rem] rounded-md border border-slate-600 bg-transparent px-4 py-2 text-sm font-medium text-slate-300 hover:border-slate-400 hover:text-slate-100"
                   onClick={exitDemo}
                 >
-                  Exit tour
+                  Skip
                 </button>
               </div>
             </div>
