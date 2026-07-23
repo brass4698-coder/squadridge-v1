@@ -56,11 +56,11 @@ export function DemoWalkthroughs() {
             className="mb-4 text-3xl font-medium tracking-tight sm:text-4xl"
             style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
           >
-            Four paths for a serious pilot review
+            Deeper demo surfaces for diligence
           </h2>
           <p className="text-base leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-            Choose the path that matches your role. Illustrative surfaces stay labeled; production
-            claims stay on the Security page.
+            After you choose your audience path above, use these modules for a deeper walkthrough.
+            Illustrative surfaces stay labeled; production claims stay on the Security page.
           </p>
         </Reveal>
 

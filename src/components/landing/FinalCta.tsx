@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Reveal } from './Reveal';
-import { LANDING_SLOGAN } from './LandingHero';
 
 export function FinalCta() {
   return (
@@ -16,10 +15,16 @@ export function FinalCta() {
     >
       <Reveal className="mx-auto max-w-2xl px-6 text-center">
         <p
-          className="mb-4 text-sm font-medium leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
+          className="mb-2 text-xs font-semibold uppercase tracking-[0.12em]"
+          style={{ color: 'var(--color-accent)' }}
         >
-          {LANDING_SLOGAN}
+          SquadRidge
+        </p>
+        <p
+          className="mb-4 text-lg font-medium leading-snug sm:text-xl"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          Zero‑Knowledge Harmony Rooms for High‑Stakes Organizational Truce
         </p>
         <h2
           id="final-cta-heading"
@@ -44,7 +49,7 @@ export function FinalCta() {
             Request pilot access
           </Link>
           <Link
-            to="/security"
+            to="/request-access?intent=briefing"
             className="inline-flex rounded border px-6 py-3 text-sm font-medium transition-opacity hover:opacity-80"
             style={{
               borderColor: 'var(--color-border)',
@@ -52,7 +57,14 @@ export function FinalCta() {
               backgroundColor: 'var(--color-surface)',
             }}
           >
-            Read security model
+            Request a briefing
+          </Link>
+          <Link
+            to="/security"
+            className="inline-flex px-2 py-3 text-sm font-medium underline-offset-4 hover:underline"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            For security reviewers
           </Link>
         </div>
       </Reveal>

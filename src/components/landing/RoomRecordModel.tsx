@@ -37,18 +37,19 @@ export function RoomRecordModel() {
           className="mb-3 text-xs font-semibold uppercase tracking-[0.12em]"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          Architecture
+          System model
         </p>
         <h2
           id="room-record-heading"
           className="mb-4 text-3xl font-medium tracking-tight sm:text-4xl"
           style={{ color: 'var(--color-text-primary)', lineHeight: 1.15 }}
         >
-          The room and the record are different objects.
+          Three governed states. One matter.
         </h2>
         <p className="text-base leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          What enters the room stays under session boundaries. What the public can verify is only
-          what survives the release gate—with documented limits, not marketing shortcuts.
+          The private room, the release gate, and the public ledger are different objects. What
+          enters the room stays under session boundaries. What the public can verify is only what
+          survives the gate—with documented limits, not marketing shortcuts.
         </p>
       </Reveal>
 

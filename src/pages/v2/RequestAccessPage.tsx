@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const USE_CASE_OPTIONS = [
   'Mediator / dispute resolution professional',
@@ -12,6 +13,8 @@ const USE_CASE_OPTIONS = [
 ];
 
 export function RequestAccessPage() {
+  const [searchParams] = useSearchParams();
+  const isBriefing = searchParams.get('intent') === 'briefing';
   const [form, setForm] = useState({
     name: '',
     organisation: '',
@@ -45,13 +48,31 @@ export function RequestAccessPage() {
           style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
           aria-hidden
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h1 className="mb-2 text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request received</h1>
-        <p className="max-w-sm text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          We review all pilot applications manually. You will hear from us within 5–7 business days.
+        <h1
+          className="mb-2 text-xl font-semibold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {isBriefing ? 'Briefing request received' : 'Request received'}
+        </h1>
+        <p
+          className="max-w-sm text-sm leading-relaxed"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          We review all requests manually. You will hear from us within 5–7 business days with an
+          honest fit assessment.
         </p>
       </div>
     );
@@ -67,45 +88,95 @@ export function RequestAccessPage() {
   const labelStyle = { color: 'var(--color-text-secondary)' };
 
   return (
-    <div
-      className="mx-auto max-w-xl px-6 py-16"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
+    <div className="mx-auto max-w-xl px-6 py-16" style={{ backgroundColor: 'var(--color-bg)' }}>
       <div className="mb-10 text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Pilot access</p>
-        <h1 className="mb-2 text-2xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request access</h1>
+        <p
+          className="mb-2 text-xs font-semibold uppercase tracking-widest"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          {isBriefing ? 'Executive briefing' : 'Pilot access'}
+        </p>
+        <h1
+          className="mb-2 text-2xl font-semibold tracking-tight"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {isBriefing ? 'Request a briefing' : 'Request access'}
+        </h1>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in touch.
+          {isBriefing
+            ? 'For executives evaluating fit. Tell us about the organizational matter and we will schedule a disciplined briefing—not a sales demo.'
+            : 'SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in touch.'}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className={labelClass} style={labelStyle}>Full name <span aria-hidden>*</span></label>
-            <input required className={inputClass} style={inputStyle} placeholder="Jane Smith" value={form.name} onChange={(e) => set('name', e.target.value)} />
+            <label className={labelClass} style={labelStyle}>
+              Full name <span aria-hidden>*</span>
+            </label>
+            <input
+              required
+              className={inputClass}
+              style={inputStyle}
+              placeholder="Jane Smith"
+              value={form.name}
+              onChange={(e) => set('name', e.target.value)}
+            />
           </div>
           <div>
-            <label className={labelClass} style={labelStyle}>Organisation</label>
-            <input className={inputClass} style={inputStyle} placeholder="Optional" value={form.organisation} onChange={(e) => set('organisation', e.target.value)} />
+            <label className={labelClass} style={labelStyle}>
+              Organisation
+            </label>
+            <input
+              className={inputClass}
+              style={inputStyle}
+              placeholder="Optional"
+              value={form.organisation}
+              onChange={(e) => set('organisation', e.target.value)}
+            />
           </div>
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>Work email <span aria-hidden>*</span></label>
-          <input required type="email" className={inputClass} style={inputStyle} placeholder="jane@organisation.org" value={form.email} onChange={(e) => set('email', e.target.value)} />
+          <label className={labelClass} style={labelStyle}>
+            Work email <span aria-hidden>*</span>
+          </label>
+          <input
+            required
+            type="email"
+            className={inputClass}
+            style={inputStyle}
+            placeholder="jane@organisation.org"
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
+          />
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>Primary use case <span aria-hidden>*</span></label>
-          <select required className={inputClass} style={inputStyle} value={form.useCase} onChange={(e) => set('useCase', e.target.value)}>
+          <label className={labelClass} style={labelStyle}>
+            Primary use case <span aria-hidden>*</span>
+          </label>
+          <select
+            required
+            className={inputClass}
+            style={inputStyle}
+            value={form.useCase}
+            onChange={(e) => set('useCase', e.target.value)}
+          >
             <option value="">Select…</option>
-            {USE_CASE_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+            {USE_CASE_OPTIONS.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className={labelClass} style={labelStyle}>Brief description <span aria-hidden>*</span></label>
+          <label className={labelClass} style={labelStyle}>
+            Brief description <span aria-hidden>*</span>
+          </label>
           <textarea
             required
             rows={4}

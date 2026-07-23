@@ -1,6 +1,7 @@
 export { Reveal } from './Reveal';
 export { LandingHero, LANDING_SLOGAN } from './LandingHero';
 export { TrustProofRail } from './TrustProofRail';
+export { AudiencePaths } from './AudiencePaths';
 export { OrdinaryChannelsFail } from './OrdinaryChannelsFail';
 export { ZeroKnowledgeArchitecture } from './ZeroKnowledgeArchitecture';
 export { RoomRecordModel } from './RoomRecordModel';

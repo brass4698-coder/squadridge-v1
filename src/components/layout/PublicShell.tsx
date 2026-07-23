@@ -10,9 +10,9 @@ const publicNav = [
 ] as const;
 
 const homeJump = [
+  { label: 'Your path', href: '/#audience-paths' },
   { label: 'Zero Knowledge', href: '/#zero-knowledge' },
-  { label: 'Room & record', href: '/#room-and-record' },
-  { label: 'Demo paths', href: '/#demo' },
+  { label: 'Governed states', href: '/#room-and-record' },
   { label: 'Pilot', href: '/#pilot' },
 ] as const;
 

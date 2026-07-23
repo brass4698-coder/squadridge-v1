@@ -2,16 +2,16 @@ import { Reveal } from './Reveal';
 
 const MARKERS = [
   {
+    title: 'Zero-Knowledge Harmony Rooms',
+    body: 'Identity minimization and need-to-know boundaries—not a claim that the operator knows nothing.',
+  },
+  {
     title: 'Invite-only access',
     body: 'No open rooms. Participants enter through facilitator-configured verification.',
   },
   {
     title: 'Approved outcomes only',
     body: 'Raw dialogue is never auto-published. Release is a deliberate facilitator action.',
-  },
-  {
-    title: 'Verification anchors',
-    body: 'Released records carry a cryptographic hash so tampering is detectable.',
   },
   {
     title: 'Documented limits',

@@ -1,4 +1,5 @@
 import {
+  AudiencePaths,
   CoreFeatures,
   DemoWalkthroughs,
   FinalCta,
@@ -20,6 +21,7 @@ export function LandingPage() {
     <div style={{ backgroundColor: 'var(--color-bg)' }}>
       <LandingHero />
       <TrustProofRail />
+      <AudiencePaths />
       <OrdinaryChannelsFail />
       <ZeroKnowledgeArchitecture />
       <RoomRecordModel />
