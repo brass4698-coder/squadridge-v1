@@ -33,10 +33,10 @@ export function UseCaseGrid() {
             id="use-cases-h"
             className="mt-0 font-display text-[1.5rem] font-medium leading-tight tracking-tight text-ink md:text-[1.625rem]"
           >
-            Built first for mediation practice.
+            One room model. Multiple institutional contexts.
           </h2>
           <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-            One architecture. Other contexts share the same room model.
+            The same trust architecture, applied to different matters.
           </p>
         </div>
 

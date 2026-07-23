@@ -1,23 +1,16 @@
 // ============================================================
-// DemoBanner (Phase 5)
-//
-// Persistent top strip shown when the current session is the demo user
-// (see `isDemoUser` in src/lib/demoLogin.ts). Rendered by both
-// AuthenticatedShell and PublicShell so the strip follows the user
-// wherever they navigate.
-//
-// Design: single row, teal-tinted, dismissable to session-only via
-// `sessionStorage` (a full sign-out or refresh brings it back — that's
-// intentional; demo status should never silently hide).
+// DemoBanner — read-only demo environment strip
 // ============================================================
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { isDemoUser } from '../../lib/demoLogin';
+import { useDemoWalkthrough } from '../../demo/DemoWalkthroughContext';
 
 const DISMISS_KEY = 'squadridge:demo-banner-dismissed';
 
 export function DemoBanner() {
   const { session } = useAuth();
+  const { startWalkthrough } = useDemoWalkthrough();
   const [dismissed, setDismissed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -37,6 +30,16 @@ export function DemoBanner() {
       /* ignore quota errors */
     }
     setDismissed(true);
+  };
+
+  const handleReset = () => {
+    try {
+      sessionStorage.removeItem('squadridge:demo-preset');
+      sessionStorage.removeItem(DISMISS_KEY);
+    } catch {
+      /* ignore */
+    }
+    window.location.assign('/app/facilitator');
   };
 
   return (
@@ -59,14 +62,30 @@ export function DemoBanner() {
           />
           <span>
             <strong className="font-semibold" style={{ color: 'var(--sr-ink)' }}>
-              You're viewing the SquadRidge demo.
+              Demo mode — read-only environment.
             </strong>{' '}
             <span style={{ color: 'var(--sr-ink-secondary)' }}>
-              Data is read-only and resets periodically.
+              Sample matters by use case. Data resets periodically. Not pilot access.
             </span>
           </span>
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => startWalkthrough()}
+            className="rounded-full border px-3 py-1.5 text-xs font-semibold"
+            style={{ borderColor: 'var(--sr-line)', color: 'var(--sr-ink)' }}
+          >
+            Launch walkthrough
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-full border px-3 py-1.5 text-xs font-semibold"
+            style={{ borderColor: 'var(--sr-line)', color: 'var(--sr-ink)' }}
+          >
+            Reset demo
+          </button>
           <a
             href="/request-access"
             className="rounded-full px-4 py-1.5 text-xs font-semibold transition-colors"
@@ -80,11 +99,10 @@ export function DemoBanner() {
           <button
             type="button"
             onClick={handleDismiss}
-            aria-label="Dismiss demo banner for this session"
-            className="rounded-full px-2 py-1.5 text-xs transition-opacity hover:opacity-70"
+            className="rounded-full px-3 py-1.5 text-xs font-medium"
             style={{ color: 'var(--sr-ink-secondary)' }}
           >
-            ×
+            Dismiss
           </button>
         </div>
       </div>

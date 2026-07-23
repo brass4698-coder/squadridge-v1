@@ -46,7 +46,7 @@ export function SecurityDisclosurePage() {
 
           <div className="mt-10 flex flex-col gap-4 border-t border-white/[0.06] pt-8 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10 sm:gap-y-3">
             <Link
-              to="/#waitlist"
+              to="/request-access"
               className="font-sans text-[0.875rem] font-medium text-[#94a3b8] underline-offset-4 transition-colors hover:text-[#cbd5e1] hover:underline"
             >
               Request pilot access

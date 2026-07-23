@@ -1,84 +1,80 @@
 import { Link, useParams } from 'react-router-dom';
-import { getSampleRecordById } from '../../data/sampleRecords';
+import { getSampleRecordById, type LedgerRecordDetail } from '../../data/sampleRecords';
 import { useLedgerRecord } from '../../hooks/useLedger';
 import {
-  MarketingSection,
-  SectionLabel,
-  ShellWidth,
-  VerificationAnchorBadge,
-} from '../../components/shared';
+  ReleasedRecordDossier,
+  type ReleasedRecordDossierProps,
+} from '../../components/ledger/ReleasedRecordDossier';
+import { MarketingSection, SectionLabel, ShellWidth } from '../../components/shared';
+import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 
-function Breadcrumb({ title }: { title: string }) {
-  return (
-    <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex items-center gap-2 font-mono text-xs text-ink-secondary">
-        <li>
-          <Link to="/ledger" className="hover:underline">
-            Ledger
-          </Link>
-        </li>
-        <li aria-hidden="true">›</li>
-        <li className="truncate text-ink">{title}</li>
-      </ol>
-    </nav>
-  );
-}
-
-function RecordBody({
-  body,
-  anchor,
-  citation,
-  recordId,
-}: {
-  body: string;
-  anchor: string;
+function liveEntryToDossier(entry: NonNullable<ReturnType<typeof useLedgerRecord>['entry']>): {
+  record: ReleasedRecordDossierProps['record'];
   citation: string;
-  recordId?: string;
-}) {
-  return (
-    <MarketingSection tone="bordered" density="compact">
-      <ShellWidth>
-        <div className="mx-auto max-w-measure">
-          <div className="sr-evidence-frame mb-8 p-6 md:p-8">
-            <h2 className="mb-5 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-              Approved outcome text
-            </h2>
-            <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-ink">
-              {body}
-            </pre>
-          </div>
+} {
+  const title = entry.session?.title ?? 'Released outcome';
+  const releasedDate = entry.published_at
+    ? new Date(entry.published_at).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : '—';
+  const year = entry.published_at
+    ? new Date(entry.published_at).getFullYear()
+    : new Date().getFullYear();
+  const body = [entry.summary, entry.agreed_terms, entry.pending_items]
+    .filter(Boolean)
+    .join('\n\n');
+  const summaryBits = [entry.summary, entry.agreed_terms, entry.pending_items]
+    .filter(Boolean)
+    .map((s) => String(s).split('\n')[0]?.slice(0, 160) ?? '')
+    .filter(Boolean)
+    .slice(0, 5);
 
-          <section className="mb-8 border border-line bg-surface-elevated p-5">
-            <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-              Verification anchor
-            </h2>
-            <code className="block break-all border border-line bg-surface-sunken px-4 py-3 font-mono text-xs text-ink-secondary">
-              {anchor}
-            </code>
-            {recordId ? (
-              <p className="mt-3">
-                <Link
-                  to={`/ledger/${recordId}/verify`}
-                  className="font-mono text-xs text-brand hover:underline"
-                >
-                  Verify integrity anchor →
-                </Link>
-              </p>
-            ) : null}
-          </section>
+  const citation = `${entry.session?.conflict_type ?? 'Facilitated session'}. (${year}). ${title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${entry.id}.`;
 
-          <section>
-            <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-              Cite this record
-            </h2>
-            <code className="block border border-line bg-surface-sunken px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
-              {citation}
-            </code>
-          </section>
-        </div>
-      </ShellWidth>
-    </MarketingSection>
-  );
+  return {
+    citation,
+    record: {
+      id: entry.id,
+      title,
+      org: entry.session?.conflict_type ?? 'Releasing organisation',
+      region: 'As recorded',
+      releasedDate,
+      sessionDate: releasedDate,
+      outcomeType: 'Released outcome record',
+      processType: entry.session?.conflict_type ?? 'Facilitated written session',
+      visibilityClass: 'Public release',
+      participantCount: 0,
+      verificationAnchor: entry.ledger_sha ?? entry.id,
+      generatedAt: entry.published_at ?? new Date().toISOString(),
+      outcomeSummary:
+        summaryBits.length > 0
+          ? summaryBits
+          : [
+              'Approved outcome text released after facilitator-governed approvals.',
+              'Session room dialogue is not public.',
+              'Verification anchor binds this released instrument.',
+            ],
+      body: body || 'Approved outcome text.',
+      processNote:
+        'Produced in a private written session. Release required deliberate facilitator approval after recorded confirmations. Only approved outcome text and limited metadata are public.',
+      scopeConfirms: [
+        'That approved outcome text was released',
+        'That a verification anchor binds this instrument',
+      ],
+      scopeDoesNot: [
+        'Session transcript',
+        'Participant identities',
+        'Unapproved drafts',
+        'Full platform zero-knowledge or Signal-grade E2E claims',
+      ],
+      relatedRecords: [],
+      variant: 'live',
+      anchorStatus: 'verified',
+    },
+  };
 }
 
 export function LedgerRecordPage() {
@@ -89,74 +85,27 @@ export function LedgerRecordPage() {
   if (loading) {
     return (
       <div className="sr-mode-ledger min-h-[40vh]">
-        <MarketingSection density="spacious">
-          <ShellWidth>
-            <p className="font-mono text-sm text-ink-secondary" role="status">
-              Loading record…
-            </p>
-          </ShellWidth>
-        </MarketingSection>
+        <div className={`${publicShellInnerClass} py-16`}>
+          <p className="font-mono text-sm text-ink-secondary" role="status">
+            Loading released record…
+          </p>
+        </div>
       </div>
     );
   }
 
   if (entry) {
-    const anchorId = entry.ledger_sha
-      ? `SQR-${entry.ledger_sha.slice(0, 8).toUpperCase()}`
-      : entry.id.slice(0, 8).toUpperCase();
-    const title = entry.session?.title ?? 'Released outcome';
-    const body = [entry.summary, entry.agreed_terms, entry.pending_items]
-      .filter(Boolean)
-      .join('\n\n');
-    const releasedDate = entry.published_at
-      ? new Date(entry.published_at).toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
-      : '—';
-    const citation = `${entry.session?.conflict_type ?? 'Facilitated session'}. (${entry.published_at ? new Date(entry.published_at).getFullYear() : new Date().getFullYear()}). ${title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${entry.id}.`;
-
+    const { record, citation } = liveEntryToDossier(entry);
     return (
-      <div className="sr-mode-ledger">
-        <MarketingSection density="compact" className="!pt-16">
-          <ShellWidth>
-            <div className="max-w-measure">
-              <Breadcrumb title={title} />
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-                <SectionLabel text="Released outcome record" />
-                <VerificationAnchorBadge anchorId={anchorId} status="verified" />
-              </div>
-              <h1 className="font-display text-display font-medium text-ink">{title}</h1>
-              <p className="mt-4 text-sm italic text-ink-secondary">
-                Approved outcome from a facilitated session. The session room is not public.
-              </p>
-              <p className="mt-3 font-mono text-xs text-ink-faint">Released: {releasedDate}</p>
-              <p className="mt-4">
-                <Link
-                  to={`/ledger/${entry.id}/verify`}
-                  className="font-mono text-xs text-brand hover:underline"
-                >
-                  Verify integrity anchor →
-                </Link>
-              </p>
-            </div>
-          </ShellWidth>
-        </MarketingSection>
-
-        <RecordBody
-          body={body}
-          anchor={entry.ledger_sha ?? entry.id}
-          citation={citation}
-          recordId={entry.id}
-        />
-      </div>
+      <ReleasedRecordDossier
+        record={record}
+        citation={citation}
+        verifyHref={`/ledger/${entry.id}/verify`}
+      />
     );
   }
 
-  const record = sample;
-
-  if (!record) {
+  if (!sample) {
     return (
       <div className="sr-mode-ledger min-h-[40vh]">
         <MarketingSection density="spacious" className="!pt-16">
@@ -182,57 +131,18 @@ export function LedgerRecordPage() {
     );
   }
 
-  const citation = `${record.org}. (${new Date(record.releasedDate).getFullYear() || '2024'}). ${record.title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  return <SampleDossier record={sample} />;
+}
+
+function SampleDossier({ record }: { record: LedgerRecordDetail }) {
+  const year = new Date(record.releasedDate).getFullYear() || new Date().getFullYear();
+  const citation = `${record.org}. (${year}). ${record.title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
-    <div className="sr-mode-ledger">
-      <MarketingSection density="compact" className="!pt-16">
-        <ShellWidth>
-          <div className="max-w-measure">
-            <Breadcrumb title={record.title} />
-            <div className="mb-5 border border-line bg-surface-elevated px-4 py-3 text-sm leading-relaxed text-ink-secondary">
-              <span className="font-medium text-ink">Illustrative example.</span> Sample data
-              demonstrating the released record format — not a live publish.
-            </div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <SectionLabel text="Released outcome record" />
-              <VerificationAnchorBadge
-                anchorId={record.id}
-                status={record.anchorStatus ?? 'verified'}
-              />
-            </div>
-            <h1 className="font-display text-display font-medium text-ink">{record.title}</h1>
-            <p className="mt-4 text-sm italic text-ink-secondary">
-              Approved outcome text from a facilitated, text-based dialogue. The session that
-              produced this outcome is not public.
-            </p>
-            <dl className="mt-6 grid gap-px border border-line bg-line sm:grid-cols-3">
-              <div className="bg-surface-sunken px-3 py-2.5">
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.1em] text-ink-faint">
-                  Organisation
-                </dt>
-                <dd className="mt-0.5 font-mono text-xs text-ink-secondary">{record.org}</dd>
-              </div>
-              <div className="bg-surface-sunken px-3 py-2.5">
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.1em] text-ink-faint">
-                  Region
-                </dt>
-                <dd className="mt-0.5 font-mono text-xs text-ink-secondary">{record.region}</dd>
-              </div>
-              <div className="bg-surface-sunken px-3 py-2.5">
-                <dt className="font-mono text-[0.6rem] uppercase tracking-[0.1em] text-ink-faint">
-                  Released
-                </dt>
-                <dd className="mt-0.5 font-mono text-xs text-ink-secondary">
-                  {record.releasedDate}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </ShellWidth>
-      </MarketingSection>
-
-      <RecordBody body={record.body} anchor={record.verificationAnchor} citation={citation} />
-    </div>
+    <ReleasedRecordDossier
+      record={record}
+      citation={citation}
+      illustrativeNotice="Shows the structure of a released record only; the session that produced it is never public."
+    />
   );
 }

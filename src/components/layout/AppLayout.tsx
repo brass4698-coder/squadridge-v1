@@ -142,7 +142,7 @@ export function AppLayout() {
 
                   <ul className={twMerge(shellListResetClass, 'flex flex-col gap-2')}>
                     <li className="list-none">
-                      <a href="/#waitlist" className={footerLinkClass}>
+                      <a href="/request-access" className={footerLinkClass}>
                         Pilot access
                       </a>
                     </li>

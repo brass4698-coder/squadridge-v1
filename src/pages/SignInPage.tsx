@@ -1,26 +1,46 @@
 import { useEffect, useRef, useState } from 'react';
-import { Play, Shield } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
 import { FormField } from '../components/ui/FormField';
 import { Input } from '../components/ui/Input';
 import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
-import { SquadRidgeLockup } from '../components/SquadRidgeWordmark';
+import { GovernedEntryLayout } from '../components/shell/GovernedEntryLayout';
 import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
 import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
 import { useDashboardRoute } from '../hooks/useDashboardRoute';
-import { signInWithDemo, DEMO_EMAIL, isDemoLoginEnabled } from '../lib/demoLogin';
+import { signInWithDemo, isDemoLoginEnabled } from '../lib/demoLogin';
 import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
 
+const ROLE_CARDS = [
+  {
+    title: 'Participant access',
+    body: 'Enter via invitation credential or magic link for a specific room.',
+    href: '/enter/credential',
+  },
+  {
+    title: 'Facilitator console',
+    body: 'Role-scoped workspace for rooms, pacing, and release gate.',
+    href: '/sign-in?next=%2Fapp%2Ffacilitator',
+    scrollToForm: true,
+  },
+  {
+    title: 'Institutional reviewer',
+    body: 'Inspect documented limits and public records — or sign in when credentialed.',
+    href: '/security#reviewers',
+  },
+  {
+    title: 'Demo workspace',
+    body: 'Read-only guided walkthrough with sample matters. Explicitly separate from pilot access.',
+    href: '/sign-in?demo=1',
+    demo: true,
+  },
+] as const;
+
 /**
- * Sign in — Phase 5 redesign.
- *
- * Demo Access signs in as the seeded demo user, then launches the guided
- * walkthrough (bubbles, Back / Next / Skip) across the institutional spine.
+ * Governed entry hub — role routing before operational dashboards.
  */
 export function SignInPage() {
   const navigate = useNavigate();
@@ -29,9 +49,7 @@ export function SignInPage() {
   const nextRaw = searchParams.get('next');
   const reason = searchParams.get('reason');
   const intent = searchParams.get('intent');
-  const autoDemo =
-    searchParams.get('demo') === '1' ||
-    (import.meta.env.DEV && isDemoLoginEnabled() && !reason && !intent && !nextRaw);
+  const wantDemo = searchParams.get('demo') === '1';
   const roleDashboard = useDashboardRoute();
   const nextPath = safeNextPath(nextRaw ? decodeURIComponent(nextRaw) : null, roleDashboard);
 
@@ -41,12 +59,10 @@ export function SignInPage() {
   const [demoBusy, setDemoBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const configured = isSupabaseConfigured();
   const isSignup = intent === 'signup';
-  const showLinkHelpBanner = reason === 'link';
-  const showExpiredBanner = reason === 'expired';
-  const showSignedOutBanner = reason === 'signed-out';
 
   const redirected = useRef(false);
   const autoDemoStarted = useRef(false);
@@ -73,30 +89,13 @@ export function SignInPage() {
     navigate(destination, { replace: true });
   }, [initialized, loading, session, profile, roles, nextRaw, navigate, startWalkthrough]);
 
+  // Explicit demo only — never silent DEV auto-demo.
   useEffect(() => {
-    if (!autoDemo || !isDemoLoginEnabled() || !configured) return;
+    if (!wantDemo || !isDemoLoginEnabled() || !configured) return;
     if (!initialized || loading || session || autoDemoStarted.current) return;
     autoDemoStarted.current = true;
     void handleDemo();
-  }, [autoDemo, configured, initialized, loading, session]);
-
-  if (!initialized || loading) {
-    return (
-      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
-        <RouteSkeleton label="Checking session" />
-      </div>
-    );
-  }
-
-  if (session) {
-    return (
-      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
-        <RouteSkeleton
-          label={pendingGuidedTour.current ? 'Starting guided demo' : 'Signing you in'}
-        />
-      </div>
-    );
-  }
+  }, [wantDemo, configured, initialized, loading, session]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -126,205 +125,163 @@ export function SignInPage() {
     pendingGuidedTour.current = true;
   }
 
-  if (!configured) {
+  if (!initialized || loading) {
     return (
-      <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center px-6 py-12 text-left">
-        <p className="text-sm text-ink-secondary">
-          Supabase is not configured. Add{' '}
-          <code
-            className="rounded px-1 font-mono text-[0.8rem]"
-            style={{ backgroundColor: 'var(--sr-line)', color: 'var(--sr-ink)' }}
-          >
-            VITE_SUPABASE_URL
-          </code>{' '}
-          and a publishable or anon key to use sign-in.
-        </p>
-        <Link to="/" className="mt-6 text-sm font-medium" style={{ color: 'var(--sr-primary)' }}>
-          Back to home
-        </Link>
+      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+        <RouteSkeleton label="Checking session" />
       </div>
     );
   }
 
-  return (
-    <div className="mx-auto flex min-h-dvh w-full items-start justify-start px-6 py-12 md:items-center md:justify-center">
-      <div
-        className="animate-fade-in-up sr-glass-strong w-full max-w-[480px] rounded-[16px] p-8 text-left md:p-10"
-        style={{
-          // Phase 6: blend teal (primary CTA colour) + electric blue (bg glow)
-          // for a spectral border, layered over the deep-indigo canvas.
-          borderColor: 'color-mix(in oklch, var(--sr-glow) 22%, var(--sr-line))',
-          boxShadow:
-            '0 0 0 1px color-mix(in oklch, var(--sr-primary) 18%, transparent), 0 20px 60px oklch(0 0 0 / 0.45), 0 0 90px color-mix(in oklch, var(--sr-glow) 10%, transparent), 0 0 140px color-mix(in oklch, var(--sr-accent-alt) 6%, transparent)',
-        }}
-      >
-        {/* Wordmark — sits above the form as the visual anchor */}
-        <div className="mb-8 text-ink">
-          <SquadRidgeLockup size="lg" showTagline alt="SquadRidge — Facilitator Led Rooms" />
-        </div>
-
-        <h1 className="text-h2" style={{ color: 'var(--sr-ink)' }}>
-          {isSignup ? 'Create your account' : 'Welcome back'}
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
-          {isSignup
-            ? 'Enter your work email. We send a one-time link — no password stored on our side.'
-            : 'Enter your email and we send a one-time sign-in link. First visit creates your account automatically.'}
-        </p>
-
-        <div className="mt-5">
-          <InviteOnlyNotice />
-        </div>
-
-        {showLinkHelpBanner ? (
-          <div
-            className="mt-5 rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: 'color-mix(in oklch, var(--sr-warning) 30%, transparent)',
-              background: 'var(--sr-warning-soft)',
-              color: 'var(--sr-ink)',
-            }}
-            role="status"
-          >
-            No password to reset — enter your email below and we'll send a fresh magic link.
-          </div>
-        ) : null}
-
-        {showExpiredBanner ? (
-          <div
-            className="mt-5 rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: 'color-mix(in oklch, var(--sr-warning) 30%, transparent)',
-              background: 'var(--sr-warning-soft)',
-              color: 'var(--sr-ink)',
-            }}
-            role="status"
-          >
-            Your session ended for safety. Enter your email below for a fresh sign-in link.
-          </div>
-        ) : null}
-
-        {showSignedOutBanner ? (
-          <div
-            className="mt-5 rounded-lg border px-4 py-3 text-sm"
-            style={{
-              borderColor: 'var(--sr-line)',
-              background: 'var(--sr-bg-secondary)',
-              color: 'var(--sr-ink-secondary)',
-            }}
-            role="status"
-          >
-            You signed out successfully.
-          </div>
-        ) : null}
-
-        {sent ? (
-          <div
-            className="mt-6 rounded-lg border p-5"
-            style={{
-              borderColor: 'var(--sr-line)',
-              background: 'var(--sr-bg-secondary)',
-            }}
-            role="status"
-          >
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--sr-ink)' }}>
-              Check your inbox for the sign-in link. It expires in about an hour and can only be
-              used once.
-            </p>
-            <p className="mt-2 text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
-              After you open it, we&apos;ll route you
-              {nextPath !== appRoutes.dashboard
-                ? ' to your session workspace.'
-                : ' to your dashboard.'}
-            </p>
-          </div>
-        ) : (
-          <form className="mt-6 space-y-4" onSubmit={(e) => void handleSubmit(e)} noValidate>
-            {/* Only render when there IS an error — no idle flash. */}
-            {error ? (
-              <p
-                className="rounded-lg border px-3 py-2 text-sm"
-                role="alert"
-                style={{
-                  borderColor: 'color-mix(in oklch, var(--sr-danger) 30%, transparent)',
-                  background: 'var(--sr-danger-soft)',
-                  color: 'var(--sr-ink)',
-                }}
-              >
-                {error}
-              </p>
-            ) : null}
-            <FormField id="signin-email" label="Work email">
-              <Input
-                id="signin-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@organization.org"
-                className="h-11"
-              />
-            </FormField>
-            <Button type="submit" className="h-11 w-full" size="lg" loading={busy}>
-              Send sign-in link
-            </Button>
-
-            {isDemoLoginEnabled() ? (
-              <>
-                <div className="relative py-2">
-                  <div
-                    className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t"
-                    style={{ borderColor: 'var(--sr-divider)' }}
-                  />
-                  <p
-                    className="relative mx-auto w-fit px-3 text-[0.7rem] font-medium uppercase tracking-wider"
-                    style={{
-                      backgroundColor: 'var(--sr-bg-elevated)',
-                      color: 'var(--sr-ink-faint)',
-                    }}
-                  >
-                    or
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => void handleDemo()}
-                  disabled={demoBusy}
-                  className="btn-pill btn-pill--ghost w-full"
-                  aria-label={`Try the SquadRidge demo (${DEMO_EMAIL})`}
-                >
-                  <Play className="size-4" aria-hidden />
-                  {demoBusy ? 'Starting guided demo…' : 'Try the Demo'}
-                </button>
-                <p className="text-left text-xs" style={{ color: 'var(--sr-ink-faint)' }}>
-                  Guided walkthrough with directions, Back / Next, and Skip. Seeded example sessions
-                  — no email required.
-                </p>
-              </>
-            ) : null}
-          </form>
-        )}
-
-        <nav
-          className="mt-8 flex items-center justify-between border-t pt-6 text-xs"
-          style={{
-            borderColor: 'var(--sr-divider)',
-            color: 'var(--sr-ink-secondary)',
-          }}
-          aria-label="Account help"
-        >
-          <Link to="/security" className="inline-flex items-center gap-1.5 hover:opacity-70">
-            <Shield className="size-3 shrink-0 opacity-60" aria-hidden />
-            Security & privacy
-          </Link>
-          <Link to="/" className="hover:opacity-70">
-            Back to home
-          </Link>
-        </nav>
+  if (session) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
+        <RouteSkeleton label="Signing you in" />
       </div>
-    </div>
+    );
+  }
+
+  if (!configured) {
+    return (
+      <GovernedEntryLayout>
+        <p className="text-sm text-ink-secondary">Supabase is not configured for sign-in.</p>
+        <Link to="/" className="mt-4 inline-block text-brand">
+          Back to home
+        </Link>
+      </GovernedEntryLayout>
+    );
+  }
+
+  return (
+    <GovernedEntryLayout title="Governed entry">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
+        <div>
+          <h1 className="font-display text-display font-medium tracking-tight text-ink">
+            Enter a governed room
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
+            Role-linked access for pilot rooms and verified parties — not open signup. Choose your
+            path, then continue with a magic link or invitation credential.
+          </p>
+
+          <div className="mt-6">
+            <InviteOnlyNotice />
+          </div>
+
+          <ul className="mt-10 m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
+            {ROLE_CARDS.map((card) => (
+              <li key={card.title}>
+                {'demo' in card && card.demo ? (
+                  <button
+                    type="button"
+                    disabled={!isDemoLoginEnabled() || demoBusy}
+                    onClick={() => void handleDemo()}
+                    className="flex h-full w-full flex-col rounded-lg border border-line bg-surface-elevated p-4 text-left transition-colors hover:border-brand/40"
+                  >
+                    <span className="font-medium text-ink">{card.title}</span>
+                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
+                  </button>
+                ) : 'scrollToForm' in card && card.scrollToForm ? (
+                  <button
+                    type="button"
+                    onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    className="flex h-full w-full flex-col rounded-lg border border-line bg-surface-elevated p-4 text-left transition-colors hover:border-brand/40"
+                  >
+                    <span className="font-medium text-ink">{card.title}</span>
+                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
+                  </button>
+                ) : (
+                  <Link
+                    to={card.href}
+                    className="flex h-full flex-col rounded-lg border border-line bg-surface-elevated p-4 no-underline transition-colors hover:border-brand/40"
+                  >
+                    <span className="font-medium text-ink">{card.title}</span>
+                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <nav className="mt-8 flex flex-wrap gap-4 text-sm" aria-label="Secondary entry">
+            <Link to="/enter/credential" className="text-brand">
+              Enter invitation credential
+            </Link>
+            <Link to="/enter/qr" className="text-brand">
+              Scan invitation QR
+            </Link>
+            <Link to="/request-access" className="text-brand">
+              Request pilot access
+            </Link>
+          </nav>
+        </div>
+
+        <div className="rounded-lg border border-line bg-surface-elevated p-6 md:p-8">
+          <h2 className="m-0 font-display text-lg font-medium text-ink">
+            {isSignup ? 'Create your account' : 'Magic-link sign-in'}
+          </h2>
+          <p className="mt-2 text-sm text-ink-secondary">
+            Invitation-linked accounts only. We email a one-time link — no password stored here.
+          </p>
+
+          {reason === 'link' || reason === 'expired' || reason === 'signed-out' ? (
+            <p
+              className="mt-4 rounded-md border border-line bg-surface-sunken px-3 py-2 text-sm text-ink-secondary"
+              role="status"
+            >
+              {reason === 'signed-out'
+                ? 'You signed out successfully.'
+                : reason === 'expired'
+                  ? 'Your session ended for safety. Request a fresh link below.'
+                  : 'No password to reset — request a fresh magic link below.'}
+            </p>
+          ) : null}
+
+          {sent ? (
+            <p className="mt-6 text-sm text-ink" role="status">
+              Check your inbox for the sign-in link. It expires in about an hour.
+            </p>
+          ) : (
+            <form
+              ref={formRef}
+              className="mt-6 space-y-4"
+              onSubmit={(e) => void handleSubmit(e)}
+              noValidate
+            >
+              {error ? (
+                <p
+                  className="rounded-md border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              ) : null}
+              <FormField id="signin-email" label="Work email">
+                <Input
+                  id="signin-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@organization.org"
+                  className="h-11"
+                />
+              </FormField>
+              <button
+                type="submit"
+                className="btn-institutional btn-institutional--primary w-full"
+                disabled={busy}
+              >
+                {busy ? 'Sending…' : 'Send sign-in link'}
+              </button>
+              <p className="text-xs text-ink-faint">
+                Pilot access · Demo mode · Reviewer walkthrough are separate paths above.
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+    </GovernedEntryLayout>
   );
 }

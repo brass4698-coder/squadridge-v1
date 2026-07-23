@@ -389,7 +389,7 @@ function LedgerDetailFooterNav() {
           Ledger index
         </span>
       </Link>
-      <a href="/#waitlist" className={cell}>
+      <a href="/request-access" className={cell}>
         <span className="font-mono text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
           Apply
         </span>
@@ -1097,7 +1097,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
             <div className="min-w-0 sm:pr-10 lg:pr-14">
               <PrimaryCTA
                 label="Request pilot access"
-                href="/#waitlist"
+                href="/request-access"
                 size="md"
                 shape="squircle"
                 className="w-full sm:w-fit"

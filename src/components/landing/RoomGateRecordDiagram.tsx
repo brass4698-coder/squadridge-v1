@@ -52,7 +52,7 @@ export function RoomGateRecordDiagram({ className }: { className?: string }) {
 
       <ol className="sr-evidence-rail m-0 list-none p-0">
         {NODES.map((node) => (
-          <li key={node.id} className={cn('sr-evidence-pane', node.modeClass)}>
+          <li key={node.id} className={cn('sr-evidence-pane sr-interactive', node.modeClass)}>
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-xs tabular-nums text-ink-faint">{node.num}</span>
               <StatusBadge variant={node.variant}>{node.badge}</StatusBadge>
@@ -69,10 +69,6 @@ export function RoomGateRecordDiagram({ className }: { className?: string }) {
           </li>
         ))}
       </ol>
-
-      <p className="border-t border-line bg-surface-sunken/50 px-5 py-3 text-left text-xs leading-relaxed text-ink-faint">
-        No transcript. No open feed. No auto-publish.
-      </p>
     </div>
   );
 }

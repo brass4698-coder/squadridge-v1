@@ -56,6 +56,9 @@ const PUBLIC_MARKETING_PREFIXES = [
   '/privacy',
   '/terms',
   '/request-access',
+  '/sign-in',
+  '/enter',
+  '/access-pending',
 ];
 
 function isPublicMarketingRoute(pathname: string): boolean {
@@ -222,6 +225,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
         </header>
 
         <main
+          data-scroll-root={isPublicMarketing ? undefined : true}
           className={
             (isPublicMarketing
               ? 'sr-marketing-surface relative z-10 flex-1 text-left'
@@ -246,8 +250,8 @@ export function PublicShell({ children }: { children: ReactNode }) {
               <div>
                 <SquadRidgeLockup size="sm" className="mb-4 text-ink" alt="SquadRidge" />
                 <p className="max-w-sm text-sm leading-relaxed text-ink-secondary">
-                  Privacy-first facilitation infrastructure. Private session rooms. Approved
-                  outcomes only.
+                  Private session rooms · facilitator-governed release · approved outcomes only. Not
+                  a chat product.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">

@@ -1,8 +1,8 @@
 const DEFAULT_ITEMS = [
+  'Private session room',
   'Facilitator-governed release',
   'Approved outcomes only',
-  'No transcript · no auto-publish',
-  'Manual pilot review',
+  'Verifiable public record',
 ] as const;
 
 /**

@@ -76,8 +76,8 @@ function RecordCardInner({
             Notice
           </p>
           <p className="m-0 text-sm leading-snug text-ink-secondary">
-            Sample data, not a real released record. The session that produces an outcome is never
-            public.
+            Illustrative sample. Shows the structure of a released record only; the session that
+            produced it is never public.
           </p>
         </footer>
       ) : null}

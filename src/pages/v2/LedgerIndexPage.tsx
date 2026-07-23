@@ -1,61 +1,110 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { sampleRecords } from '../../data/sampleRecords';
 import { useLedger } from '../../hooks/useLedger';
 import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
 import { RecordCardCompact, TrustLabel } from '../../components/shared';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { useAuth } from '../../contexts/AuthContext';
+import { appRoutes } from '../../lib/appRoutes';
 
 /**
- * Ledger index — civic archive: title + search + list. Not a marketing page.
- * Private releases are excluded by RLS + useLedger filters.
+ * Ledger index — civic archive of approved outcomes only.
  */
 export function LedgerIndexPage() {
   const [query, setQuery] = useState('');
-  const { entries, loading } = useLedger(query);
+  const { entries, loading, error, refetch } = useLedger(query);
+  const { session } = useAuth();
 
   const liveCards = useMemo(() => entries.map(ledgerEntryToCard), [entries]);
-  const sampleCards = sampleRecords.map((rec) => ({
-    ...rec,
-    href: `/ledger/${rec.id}`,
-  }));
+  const sampleCards = useMemo(
+    () => sampleRecords.map((rec) => ({ ...rec, href: `/ledger/${rec.id}` })),
+    [],
+  );
 
   const hasLive = liveCards.length > 0;
+  const filteredSamples = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sampleCards;
+    return sampleCards.filter(
+      (r) =>
+        r.title.toLowerCase().includes(q) ||
+        r.summary.toLowerCase().includes(q) ||
+        r.org.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q),
+    );
+  }, [query, sampleCards]);
 
   return (
     <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index">
       <header className="border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/50">
-        <div className={`${publicShellInnerClass} py-10 md:py-12`}>
+        <div className={`${publicShellInnerClass} py-10 md:py-14`}>
           <TrustLabel variant="ledger" />
-          <div className="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h1 className="font-display text-display font-medium text-ink">Outcome ledger</h1>
-              <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-secondary">
-                Public approved outcomes only. Each entry carries a verification anchor. Session
-                dialogue is never published. Private NGO releases do not appear here.
+          <div className="mt-4 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <h1 className="font-display text-display font-medium tracking-tight text-ink">
+                Released records
+              </h1>
+              <p className="mt-4 text-base leading-relaxed text-ink-secondary">
+                Public approved outcomes only — each with a verification anchor. Session dialogue
+                and participant identities are never published. Private NGO releases do not appear
+                here.
               </p>
+              <ul className="mt-5 m-0 flex list-none flex-wrap gap-2 p-0">
+                {[
+                  'Approved outcomes only',
+                  'Verification anchors',
+                  'No transcript',
+                  'No auto-publish',
+                ].map((t) => (
+                  <li
+                    key={t}
+                    className="rounded-sm border border-line px-2.5 py-1 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint"
+                  >
+                    {t}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <label className="block w-full max-w-sm md:shrink-0">
-              <span className="sr-only">Search records</span>
+            <label className="block w-full max-w-sm shrink-0">
+              <span className="mb-1.5 block font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                Search records
+              </span>
               <input
                 id="ledger-search"
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by summary…"
+                placeholder="Title, organisation, or record ID…"
                 className="w-full border border-line bg-surface-elevated px-4 py-2.5 font-mono text-sm text-ink outline-none focus:border-line-strong"
               />
             </label>
           </div>
-          {!hasLive && !loading ? (
-            <p className="mt-6 border border-line bg-surface-elevated px-4 py-3 font-mono text-xs text-ink-secondary">
-              Illustrative examples — no live public records yet. Private anchored releases remain
-              off this index by design.
+          {error ? (
+            <div className="mt-6 flex flex-wrap items-center gap-3 border border-sem-danger/30 bg-sem-danger-soft px-4 py-3 text-sm text-ink">
+              <p className="m-0">
+                Could not load live records. Illustrative specimens remain available.
+              </p>
+              <button
+                type="button"
+                className="font-mono text-xs uppercase tracking-[0.1em] text-brand"
+                onClick={() => void refetch()}
+              >
+                Retry
+              </button>
+            </div>
+          ) : null}
+          {!hasLive && !loading && !error ? (
+            <p className="mt-8 max-w-2xl border border-line bg-surface-elevated px-4 py-3 text-sm leading-relaxed text-ink-secondary">
+              <span className="font-medium text-ink">Illustrative archive.</span> No live public
+              records in this environment yet. Open any specimen to review the full release-dossier
+              layout used for institutional verification.
             </p>
           ) : null}
         </div>
       </header>
 
-      <section className="py-10 md:py-12">
+      <section className="py-10 md:py-14">
         <div className={publicShellInnerClass}>
           {loading ? (
             <p className="py-8 font-mono text-sm text-ink-secondary" role="status">
@@ -64,11 +113,22 @@ export function LedgerIndexPage() {
           ) : null}
 
           {hasLive ? (
-            <div className="mb-12">
-              <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-                Published
-              </h2>
-              <div className="divide-y divide-line border border-line">
+            <div className="mb-14">
+              <div className="mb-4 flex items-baseline justify-between gap-4">
+                <h2 className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
+                  Published
+                </h2>
+                {session ? (
+                  <Link to={appRoutes.appLedger} className="text-xs text-brand">
+                    Workspace ledger →
+                  </Link>
+                ) : (
+                  <Link to="/sign-in?next=%2Fapp%2Fledger" className="text-xs text-brand">
+                    Sign in for workspace view →
+                  </Link>
+                )}
+              </div>
+              <div className="divide-y divide-line overflow-hidden rounded-lg border border-line">
                 {liveCards.map((rec) => (
                   <RecordCardCompact key={rec.href} {...rec} />
                 ))}
@@ -77,23 +137,34 @@ export function LedgerIndexPage() {
           ) : null}
 
           <div>
-            {hasLive ? (
-              <h2 className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-                Illustrative
-              </h2>
-            ) : null}
-            <div className="divide-y divide-line border border-line">
-              {sampleCards.map((rec) => (
+            <h2 className="mb-2 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
+              {hasLive ? 'Illustrative specimens' : 'Illustrative released records'}
+            </h2>
+            <p className="mb-5 max-w-2xl text-sm text-ink-secondary">
+              Longer dossier format: release summary, outcome bullets, approved text, scope &amp;
+              limits, verification panel, citation/export, and related records.
+            </p>
+            <div className="divide-y divide-line overflow-hidden rounded-lg border border-line">
+              {filteredSamples.map((rec) => (
                 <RecordCardCompact key={rec.id} {...rec} href={`/ledger/${rec.id}`} />
               ))}
             </div>
+            {filteredSamples.length === 0 ? (
+              <p className="mt-6 text-sm text-ink-faint">
+                No illustrative records match that search.
+              </p>
+            ) : null}
           </div>
 
-          <p className="mt-10 max-w-prose font-mono text-xs leading-relaxed text-ink-faint">
-            Facilitator sign-off publishes the record. Integrity anchors confirm the released text
-            has not been altered — not the substance of outcomes. Verify any live record from its
-            detail page.
-          </p>
+          <aside className="mt-12 max-w-2xl border-l-2 border-line pl-4 text-sm leading-relaxed text-ink-faint">
+            <p className="m-0 font-medium text-ink-secondary">What never becomes public</p>
+            <p className="mt-2 mb-0">
+              Session transcripts, participant identities, unapproved drafts, and private NGO
+              releases stay off this ledger. Facilitator sign-off publishes the approved instrument.
+              Integrity anchors confirm the released text has not been altered — not the substance
+              of outcomes.
+            </p>
+          </aside>
         </div>
       </section>
     </div>

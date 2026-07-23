@@ -1,35 +1,37 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { appRoutes } from '../../lib/appRoutes';
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
-  `inline-flex min-h-[44px] items-center border-b-2 px-1 pb-2 pt-1 font-sans text-[0.85rem] font-medium transition-colors ${
+  `inline-flex min-h-[44px] items-center border-b-2 px-1 pb-2 pt-1 text-sm font-medium transition-colors ${
     isActive
-      ? 'border-teal text-slate-100'
-      : 'border-transparent text-slate-500 hover:border-white/10 hover:text-slate-300'
+      ? 'border-brand text-ink'
+      : 'border-transparent text-ink-faint hover:border-line hover:text-ink-secondary'
   }`;
 
-/** Tab bar + outlet for the account settings sub-routes. */
+const base = appRoutes.settings;
+
+/** Tab bar + outlet for account settings — stays inside AuthenticatedShell. */
 export function SettingsLayout() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-gutter py-8">
-      <h1 className="font-heading text-fluid-h2 text-gray-light">Settings</h1>
-      <p className="mt-1 font-sans text-[0.9rem] text-slate-500">
-        Account, trust, and safety. Set your perspective and matching context on{' '}
-        <span className="text-slate-400">/find-squad</span> before you join the queue.
+    <div className="mx-auto w-full max-w-3xl">
+      <h1 className="font-display text-h2 font-medium text-ink">Settings</h1>
+      <p className="mt-1 text-sm text-ink-secondary">
+        Account, trust, and notification preferences for your governed workspace.
       </p>
       <nav
-        className="mb-8 mt-6 flex flex-wrap gap-x-6 gap-y-1 border-b border-white/[0.08]"
+        className="mb-8 mt-6 flex flex-wrap gap-x-6 gap-y-1 border-b border-line"
         aria-label="Settings sections"
       >
-        <NavLink to="/settings" end className={tabClass}>
+        <NavLink to={base} end className={tabClass}>
           Overview
         </NavLink>
-        <NavLink to="/settings/profile" className={tabClass}>
+        <NavLink to={`${base}/profile`} className={tabClass}>
           Profile &amp; keys
         </NavLink>
-        <NavLink to="/settings/safety" className={tabClass}>
+        <NavLink to={`${base}/safety`} className={tabClass}>
           Safety center
         </NavLink>
-        <NavLink to="/settings/notifications" className={tabClass}>
+        <NavLink to={`${base}/notifications`} className={tabClass}>
           Notifications
         </NavLink>
       </nav>

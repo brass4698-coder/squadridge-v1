@@ -1,5 +1,8 @@
 export { LandingHero } from './LandingHero';
 export { TrustStrip } from './TrustStrip';
+export { AudiencePathStrip } from './AudiencePathStrip';
+export { MatterThroughNav } from './MatterThroughNav';
+export { PrivacyByBoundary } from './PrivacyByBoundary';
 export { RoomGateRecordDiagram } from './RoomGateRecordDiagram';
 export { GovernedStatesRail } from './GovernedStatesRail';
 export { ProcessStagePanel } from './ProcessStagePanel';

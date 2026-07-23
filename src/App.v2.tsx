@@ -24,6 +24,7 @@ import {
   Toaster,
   GrainOverlay,
 } from './components';
+import { ScrollExtremesControl } from './components/ScrollExtremesControl';
 import { AuthGate } from './components/auth/AuthGate';
 import { ActiveUserGate } from './components/auth/ActiveUserGate';
 import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
@@ -83,7 +84,12 @@ import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
 import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
 import { SessionsListPage } from './pages/v2/SessionsListPage';
 import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
+import { ReleaseGatePage } from './pages/v2/ReleaseGatePage';
+import { EnterCredentialPage } from './pages/v2/EnterCredentialPage';
+import { EnterQrPage } from './pages/v2/EnterQrPage';
 import { appRoutes } from './lib/appRoutes';
+import { ExecutiveGovernancePage } from './pages/dashboards/ExecutiveGovernancePage';
+import { AppLedgerDashboardPage } from './pages/dashboards/AppLedgerDashboardPage';
 
 // ── New v2 pages — Phase 3 (facilitator sub-pages) ───────────────────────────
 import { SessionNewPage } from './pages/v2/facilitator/SessionNewPage';
@@ -230,7 +236,7 @@ export default function AppV2() {
                 element={
                   <RequireAuth>
                     <ActiveUserGate>
-                      <AuthenticatedShell role="facilitator">
+                      <AuthenticatedShell>
                         <Outlet />
                       </AuthenticatedShell>
                     </ActiveUserGate>
@@ -308,6 +314,26 @@ export default function AppV2() {
                     </RoleProtectedRoute>
                   }
                 />
+                <Route
+                  path="/app/executive"
+                  element={
+                    <RoleProtectedRoute allowed={['super_admin', 'institution_admin', 'observer']}>
+                      <ExecutiveGovernancePage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route path="/app/ombuds" element={<Navigate to="/app/mediator" replace />} />
+                <Route
+                  path="/app/release-gate"
+                  element={
+                    <RoleProtectedRoute
+                      allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                    >
+                      <ReleaseGatePage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route path="/app/ledger" element={<AppLedgerDashboardPage />} />
 
                 {/* Session workflow — facilitator-side roles only */}
                 <Route
@@ -367,8 +393,13 @@ export default function AppV2() {
                   }
                 />
 
-                {/* Settings — every authenticated role */}
-                <Route path="/app/settings" element={<Navigate to="/settings" replace />} />
+                {/* Settings — keep chrome inside AuthenticatedShell */}
+                <Route path="/app/settings" element={<SettingsLayout />}>
+                  <Route index element={<SettingsIndexPage />} />
+                  <Route path="profile" element={<ProfileSettingsPage />} />
+                  <Route path="safety" element={<SafetyCenterPage />} />
+                  <Route path="notifications" element={<NotificationsSettingsPage />} />
+                </Route>
 
                 {/* Admin invites console — super_admin + institution_admin only */}
                 <Route
@@ -433,6 +464,8 @@ export default function AppV2() {
 
                 {/* Auth (existing pages, new shell) */}
                 <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/enter/credential" element={<EnterCredentialPage />} />
+                <Route path="/enter/qr" element={<EnterQrPage />} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/invite/accept/:token" element={<StaffInviteAcceptPage />} />
                 <Route path="/invite/complete" element={<InviteCompletePage />} />
@@ -445,20 +478,9 @@ export default function AppV2() {
                   element={<Navigate to="/ledger" replace />}
                 />
 
-                {/* Settings (existing pages, new shell) */}
-                <Route
-                  path="/settings"
-                  element={
-                    <RequireAuth>
-                      <SettingsLayout />
-                    </RequireAuth>
-                  }
-                >
-                  <Route index element={<SettingsIndexPage />} />
-                  <Route path="profile" element={<ProfileSettingsPage />} />
-                  <Route path="safety" element={<SafetyCenterPage />} />
-                  <Route path="notifications" element={<NotificationsSettingsPage />} />
-                </Route>
+                {/* Settings — legacy URL → in-shell settings */}
+                <Route path="/settings/*" element={<Navigate to="/app/settings" replace />} />
+                <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
 
                 {/* Admin (existing pages, new shell) */}
                 <Route
@@ -506,6 +528,7 @@ export default function AppV2() {
         </AuthProvider>
       </DemoWalkthroughProvider>
       <GrainOverlay />
+      <ScrollExtremesControl />
     </BrowserRouter>
   );
 }

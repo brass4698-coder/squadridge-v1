@@ -40,7 +40,7 @@ function usePublicNavActive() {
     howItWorks: pathname === '/' && hash === '#how-it-works',
     security: pathname.startsWith('/security'),
     ledger: pathname === '/ledger' || pathname === '/ledger/' || pathname.startsWith('/ledger/'),
-    pilotAccess: (pathname === '/' && hash === '#waitlist') || pathname.startsWith('/invite'),
+    pilotAccess: pathname.startsWith('/request-access') || pathname.startsWith('/invite'),
   };
 }
 
@@ -133,7 +133,12 @@ function DesktopPrimaryNav({
     { key: 'how', to: '/#how-it-works', label: 'How it works', isActive: active.howItWorks },
     { key: 'sec', to: '/security', label: 'Security', isActive: active.security },
     { key: 'led', to: '/ledger', label: 'Ledger', isActive: active.ledger },
-    { key: 'pilot', to: '/#waitlist', label: 'Request pilot access', isActive: active.pilotAccess },
+    {
+      key: 'pilot',
+      to: '/request-access',
+      label: 'Request pilot access',
+      isActive: active.pilotAccess,
+    },
   ] as const;
 
   return (
@@ -259,7 +264,12 @@ function MobileNavPanel({
     { to: '/#how-it-works', label: 'How it works', active: active.howItWorks, hash: true },
     { to: '/security', label: 'Security', active: active.security, hash: false },
     { to: '/ledger', label: 'Ledger', active: active.ledger, hash: false },
-    { to: '/#waitlist', label: 'Request pilot access', active: active.pilotAccess, hash: true },
+    {
+      to: '/request-access',
+      label: 'Request pilot access',
+      active: active.pilotAccess,
+      hash: false,
+    },
   ] as const;
 
   return (
@@ -305,7 +315,7 @@ function MobileNavPanel({
         </nav>
         <div className="mt-5 border-t border-white/[0.06] pt-5">
           <a
-            href="/#waitlist"
+            href="/request-access"
             className={twMerge(
               'focus-ring inline-flex h-10 min-h-[40px] w-full items-center justify-center rounded-[8px] px-4 font-heading text-[0.875rem] font-semibold transition-opacity',
               'bg-teal text-white hover:bg-teal-dark',
@@ -404,7 +414,7 @@ function PublicShellHeader() {
           <div className="flex min-w-0 shrink-0 items-center justify-end gap-3 lg:justify-self-end">
             <div className="hidden lg:block">
               <a
-                href="/#waitlist"
+                href="/request-access"
                 className={twMerge(
                   'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-teal px-[16px] font-heading text-[0.875rem] font-semibold text-white transition-[opacity,background-color] hover:bg-teal-dark',
                   'lg:min-h-[44px]',

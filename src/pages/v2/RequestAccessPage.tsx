@@ -5,43 +5,53 @@ import { Input } from '../../components/ui/Input';
 import { useAccessRequest } from '../../hooks/useAccessRequest';
 import { CTA, PILOT_FIT_STRONG, PILOT_FIT_WEAK } from '../../data/siteMessaging';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { SectionLabel } from '../../components/SectionLabel';
 
-const USE_CASE_OPTIONS = [
-  'Mediator / dispute resolution professional',
-  'Mediation program or ADR center',
+const ORG_TYPES = [
+  'Mediation practice / ADR center',
+  'Ombuds office',
   'City / community safety office',
   'Government or public institution',
-  'NGO / civil society organization',
-  'Peace-tech or conflict-tech researcher',
+  'NGO / civil society',
   'Academic institution',
-  'Legal professional',
-  'Journalist / documentarian',
+  'Other',
+];
+
+const MATTER_TYPES = [
+  'Mediation & dispute resolution',
+  'Restorative / de-escalation',
+  'City community safety',
+  'Ombuds / institutional inquiry',
+  'Regional consultation',
   'Other',
 ];
 
 const ROLE_OPTIONS = [
   'Professional mediator / facilitator',
-  'Mediation program lead',
-  'NGO / peacebuilding programme lead',
-  'Government or public institution',
-  'Ombuds / internal investigator',
-  'Researcher or academic',
+  'Program lead',
+  'Ombuds / investigator',
+  'Executive / sponsor',
+  'Institutional convener',
   'Other',
 ];
 
-const FREQUENCY_OPTIONS = [
-  'A few sessions per year',
-  'Monthly',
-  'Weekly or more',
-  'One-off pilot only',
-];
+const SENSITIVITY = ['Standard', 'Elevated', 'High'];
+const PUBLIC_RECORD = ['Likely needed', 'Optional', 'Internal-only preferred', 'Unsure'];
+const TIMEFRAMES = ['Within 30 days', '1–3 months', '3–6 months', 'Exploratory only'];
 
 const SELECT_CLASS =
   'focus-ring w-full border border-line bg-surface-elevated px-3 py-2.5 text-sm text-ink';
 
+const TRUST_RAIL = [
+  'Manual review',
+  'Invite-only pilot',
+  'Role-scoped access',
+  'No open self-serve deployment',
+  '5–7 business day response',
+] as const;
+
 /**
- * Request access — single intake composition: criteria + process + form.
- * No marketing-hero kit, no evaluator path filler.
+ * Institutional pilot intake console.
  */
 export function RequestAccessPage() {
   const [searchParams] = useSearchParams();
@@ -52,31 +62,43 @@ export function RequestAccessPage() {
     organisation: '',
     email: prefilledEmail,
     role: '',
-    sessionFrequency: '',
-    referral: '',
-    useCase: '',
-    description: '',
+    orgType: '',
+    matterType: '',
+    participants: '',
+    region: '',
+    sensitivity: '',
+    publicRecord: '',
+    painPoints: '',
+    timeframe: '',
+    phone: '',
   });
 
-  function set(key: string, value: string) {
+  function set(key: keyof typeof form, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const detailBlock = [
-      form.description.trim(),
-      form.role ? `Role: ${form.role}` : '',
-      form.sessionFrequency ? `Session frequency: ${form.sessionFrequency}` : '',
-      form.referral ? `Referral: ${form.referral}` : '',
+      form.painPoints.trim(),
+      `Role in process: ${form.role}`,
+      `Organization type: ${form.orgType}`,
+      `Matter type: ${form.matterType}`,
+      `Estimated participants: ${form.participants}`,
+      `Region / geography: ${form.region}`,
+      `Sensitivity level: ${form.sensitivity}`,
+      `Public record may be needed: ${form.publicRecord}`,
+      `Desired pilot timeframe: ${form.timeframe}`,
+      form.phone ? `Contact phone: ${form.phone}` : '',
     ]
       .filter(Boolean)
-      .join('\n\n');
+      .join('\n');
+
     await submit({
       full_name: form.name,
       organisation: form.organisation || undefined,
       email: form.email,
-      use_case: form.useCase,
+      use_case: form.matterType || form.orgType,
       description: detailBlock,
     });
   }
@@ -85,17 +107,30 @@ export function RequestAccessPage() {
     return (
       <div className="flex min-h-[70vh] items-start py-20">
         <div className={publicShellInnerClass}>
-          <div className="max-w-md border border-line bg-surface-elevated p-8 text-left">
+          <div className="max-w-lg border border-line bg-surface-elevated p-8 text-left">
             <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
               Intake
             </p>
-            <h1 className="mt-3 font-display text-h2 font-medium text-ink">Request received</h1>
+            <h1 className="mt-3 font-display text-h2 font-medium text-ink">Submission received</h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Manual review. Expect a response within 5–7 business days — not an automated approval.
             </p>
-            <Link to="/" className="btn-institutional btn-institutional--ghost mt-8 inline-flex">
-              Return home
-            </Link>
+            <div className="mt-6 space-y-3 text-sm text-ink-secondary">
+              <p className="m-0 font-medium text-ink">Possible next steps from the review team</p>
+              <ul className="m-0 list-disc space-y-1 pl-5">
+                <li>Additional diligence required</li>
+                <li>Briefing recommended before review</li>
+                <li>Not a fit at this stage</li>
+              </ul>
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/" className="btn-institutional btn-institutional--ghost">
+                Return home
+              </Link>
+              <Link to="/contact" className="btn-institutional btn-institutional--primary">
+                Request a briefing
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -103,202 +138,286 @@ export function RequestAccessPage() {
   }
 
   return (
-    <div className="border-b border-line">
-      <div
-        className={`${publicShellInnerClass} grid gap-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]`}
-      >
-        {/* Left rail — criteria & process (sticky on large screens) */}
-        <aside className="border-b border-line py-14 lg:sticky lg:top-14 lg:self-start lg:border-b-0 lg:border-r lg:py-16 lg:pr-12">
-          <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
-            Pilot intake
-          </p>
-          <h1 className="mt-4 font-display text-display font-medium text-ink">
+    <div className="border-b border-line pb-20">
+      <header className="border-b border-line py-14 md:py-16">
+        <div className={publicShellInnerClass}>
+          <SectionLabel>Pilot intake</SectionLabel>
+          <h1 className="mt-3 max-w-2xl font-display text-display font-medium tracking-tight text-ink">
             Request pilot access
           </h1>
-          <p className="mt-4 max-w-prose text-sm leading-relaxed text-ink-secondary">
-            {CTA.pilotBody} No urgency gimmicks. No auto-approval.
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-secondary">
+            Manual application review for facilitators and institutions. Co-designed pilot scope —
+            not self-serve signup.
           </p>
-
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
-            <div>
-              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-brand">
-                Strong fit
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
-                {PILOT_FIT_STRONG.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span aria-hidden className="text-ink-faint">
-                      +
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
-                Likely not a fit
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
-                {PILOT_FIT_WEAK.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span aria-hidden className="text-ink-faint">
-                      −
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <ol className="mt-10 space-y-3 border-t border-line pt-8 text-sm text-ink-secondary">
-            <li className="flex gap-3">
-              <span className="font-mono text-xs text-ink-faint">01</span>
-              Submit operational context
-            </li>
-            <li className="flex gap-3">
-              <span className="font-mono text-xs text-ink-faint">02</span>
-              Manual fit review
-            </li>
-            <li className="flex gap-3">
-              <span className="font-mono text-xs text-ink-faint">03</span>
-              Diligence conversation & co-designed scope
-            </li>
-          </ol>
-        </aside>
-
-        {/* Form */}
-        <div className="py-14 lg:py-16 lg:pl-12">
-          <form
-            onSubmit={(e) => void handleSubmit(e)}
-            className="flex w-full max-w-lg flex-col gap-5 text-left"
-          >
-            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-              Application
-            </p>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <FormField id="access-name" label="Full name">
-                <Input
-                  id="access-name"
-                  required
-                  placeholder="Jane Smith"
-                  value={form.name}
-                  onChange={(e) => set('name', e.target.value)}
-                />
-              </FormField>
-              <FormField id="access-org" label="Organization">
-                <Input
-                  id="access-org"
-                  placeholder="Optional"
-                  value={form.organisation}
-                  onChange={(e) => set('organisation', e.target.value)}
-                />
-              </FormField>
-            </div>
-
-            <FormField id="access-email" label="Work email">
-              <Input
-                id="access-email"
-                required
-                type="email"
-                placeholder="jane@organization.org"
-                value={form.email}
-                onChange={(e) => set('email', e.target.value)}
-              />
-            </FormField>
-
-            <FormField id="access-role" label="Your role">
-              <select
-                id="access-role"
-                required
-                className={SELECT_CLASS}
-                value={form.role}
-                onChange={(e) => set('role', e.target.value)}
-              >
-                <option value="">Select…</option>
-                {ROLE_OPTIONS.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField id="access-frequency" label="How often do you run sensitive sessions?">
-              <select
-                id="access-frequency"
-                className={SELECT_CLASS}
-                value={form.sessionFrequency}
-                onChange={(e) => set('sessionFrequency', e.target.value)}
-              >
-                <option value="">Select…</option>
-                {FREQUENCY_OPTIONS.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField id="access-referral" label="How did you hear about SquadRidge?">
-              <Input
-                id="access-referral"
-                placeholder="Optional"
-                value={form.referral}
-                onChange={(e) => set('referral', e.target.value)}
-              />
-            </FormField>
-
-            <FormField id="access-use-case" label="Primary use case">
-              <select
-                id="access-use-case"
-                required
-                className={SELECT_CLASS}
-                value={form.useCase}
-                onChange={(e) => set('useCase', e.target.value)}
-              >
-                <option value="">Select…</option>
-                {USE_CASE_OPTIONS.map((u) => (
-                  <option key={u} value={u}>
-                    {u}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-
-            <FormField id="access-description" label="Operational context">
-              <textarea
-                id="access-description"
-                required
-                rows={4}
-                className={SELECT_CLASS}
-                placeholder="Dialogue context, facilitator capacity, what you need from verification…"
-                value={form.description}
-                onChange={(e) => set('description', e.target.value)}
-              />
-            </FormField>
-
-            {error ? (
-              <p className="text-sm text-sem-danger" role="alert">
-                {error}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-institutional btn-institutional--primary w-full disabled:opacity-50"
-            >
-              {loading ? 'Submitting…' : 'Submit for manual review'}
-            </button>
-
-            <p className="text-xs leading-relaxed text-ink-faint">
-              Information is reviewed confidentially. This is not self-serve account creation.
-            </p>
-          </form>
         </div>
+      </header>
+
+      <div
+        className={`${publicShellInnerClass} mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-16`}
+      >
+        <div className="min-w-0 space-y-12">
+          <section>
+            <h2 className="font-display text-h3 font-medium text-ink">Who this is for</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+              Mediation practices, ombuds offices, institutional conveners, and city community
+              safety teams preparing a governed written room with optional public release.
+            </p>
+          </section>
+
+          <section className="grid gap-8 sm:grid-cols-2">
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Strong fit</h3>
+              <ul className="mt-3 m-0 list-disc space-y-2 pl-5 text-sm text-ink-secondary">
+                {PILOT_FIT_STRONG.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Likely not a fit</h3>
+              <ul className="mt-3 m-0 list-disc space-y-2 pl-5 text-sm text-ink-secondary">
+                {PILOT_FIT_WEAK.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="font-display text-h3 font-medium text-ink">How intake works</h2>
+            <ol className="mt-4 m-0 list-none space-y-4 p-0">
+              {[
+                'Submit this application with matter context and sensitivity.',
+                'Manual diligence conversation within 5–7 business days.',
+                'Co-designed pilot scope and role-scoped invitations — no open deployment.',
+              ].map((step, i) => (
+                <li key={step} className="flex gap-3 text-sm text-ink-secondary">
+                  <span className="font-mono text-ink-faint">{String(i + 1).padStart(2, '0')}</span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <section>
+            <h2 className="font-display text-h3 font-medium text-ink">Pilot application</h2>
+            <form className="mt-6 space-y-4" onSubmit={(e) => void handleSubmit(e)}>
+              {error ? (
+                <p
+                  className="rounded-md border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              ) : null}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField id="name" label="Name">
+                  <Input
+                    id="name"
+                    required
+                    value={form.name}
+                    onChange={(e) => set('name', e.target.value)}
+                  />
+                </FormField>
+                <FormField id="organisation" label="Organization">
+                  <Input
+                    id="organisation"
+                    required
+                    value={form.organisation}
+                    onChange={(e) => set('organisation', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField id="email" label="Work email">
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => set('email', e.target.value)}
+                  />
+                </FormField>
+                <FormField id="phone" label="Contact phone (optional)">
+                  <Input
+                    id="phone"
+                    value={form.phone}
+                    onChange={(e) => set('phone', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <FormField id="role" label="Role in process">
+                <select
+                  id="role"
+                  required
+                  className={SELECT_CLASS}
+                  value={form.role}
+                  onChange={(e) => set('role', e.target.value)}
+                >
+                  <option value="">Select…</option>
+                  {ROLE_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField id="orgType" label="Organization type">
+                  <select
+                    id="orgType"
+                    required
+                    className={SELECT_CLASS}
+                    value={form.orgType}
+                    onChange={(e) => set('orgType', e.target.value)}
+                  >
+                    <option value="">Select…</option>
+                    {ORG_TYPES.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+                <FormField id="matterType" label="Matter type / use case">
+                  <select
+                    id="matterType"
+                    required
+                    className={SELECT_CLASS}
+                    value={form.matterType}
+                    onChange={(e) => set('matterType', e.target.value)}
+                  >
+                    <option value="">Select…</option>
+                    {MATTER_TYPES.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField id="participants" label="Estimated participants">
+                  <Input
+                    id="participants"
+                    required
+                    value={form.participants}
+                    onChange={(e) => set('participants', e.target.value)}
+                    placeholder="e.g. 6–12"
+                  />
+                </FormField>
+                <FormField id="region" label="Region / operating geography">
+                  <Input
+                    id="region"
+                    required
+                    value={form.region}
+                    onChange={(e) => set('region', e.target.value)}
+                  />
+                </FormField>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField id="sensitivity" label="Sensitivity level">
+                  <select
+                    id="sensitivity"
+                    required
+                    className={SELECT_CLASS}
+                    value={form.sensitivity}
+                    onChange={(e) => set('sensitivity', e.target.value)}
+                  >
+                    <option value="">Select…</option>
+                    {SENSITIVITY.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+                <FormField id="publicRecord" label="Whether a public record may be needed">
+                  <select
+                    id="publicRecord"
+                    required
+                    className={SELECT_CLASS}
+                    value={form.publicRecord}
+                    onChange={(e) => set('publicRecord', e.target.value)}
+                  >
+                    <option value="">Select…</option>
+                    {PUBLIC_RECORD.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+              </div>
+              <FormField id="timeframe" label="Desired pilot timeframe">
+                <select
+                  id="timeframe"
+                  required
+                  className={SELECT_CLASS}
+                  value={form.timeframe}
+                  onChange={(e) => set('timeframe', e.target.value)}
+                >
+                  <option value="">Select…</option>
+                  {TIMEFRAMES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+              <FormField id="pain" label="Current tools or process pain points">
+                <textarea
+                  id="pain"
+                  required
+                  rows={4}
+                  className={SELECT_CLASS}
+                  value={form.painPoints}
+                  onChange={(e) => set('painPoints', e.target.value)}
+                />
+              </FormField>
+              <button
+                type="submit"
+                className="btn-institutional btn-institutional--primary"
+                disabled={loading}
+              >
+                {loading ? 'Submitting…' : CTA.primaryLabel}
+              </button>
+            </form>
+          </section>
+
+          <section>
+            <h2 className="font-display text-h3 font-medium text-ink">
+              What happens after submission
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
+              A human reviews fit, sensitivity, and whether a public record path is appropriate. You
+              may be asked for a short briefing before any invitations are issued.
+            </p>
+            <Link to="/contact" className="mt-4 inline-flex text-sm text-brand">
+              Optional: request a briefing first →
+            </Link>
+          </section>
+        </div>
+
+        <aside className="lg:sticky lg:top-20 lg:self-start">
+          <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+            Trust rail
+          </p>
+          <ul className="mt-3 m-0 list-none space-y-2 p-0">
+            {TRUST_RAIL.map((item) => (
+              <li
+                key={item}
+                className="rounded-sm border border-line bg-surface-sunken px-3 py-2 text-xs font-medium text-ink-secondary"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-relaxed text-ink-faint">
+            We reduce exposure by design. We do not claim full platform zero-knowledge or
+            Signal-grade E2E today.
+          </p>
+        </aside>
       </div>
     </div>
   );

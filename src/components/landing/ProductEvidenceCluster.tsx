@@ -21,8 +21,8 @@ export function ProductEvidenceCluster() {
             Facilitator chrome — not a chat product.
           </h2>
           <p className="mt-4 mb-0 max-w-[34rem] text-sm leading-relaxed text-ink-secondary">
-            One governed sequence with three visual modes — enclosed room, accent-tinted gate, open
-            ledger — so control is visible without decoration.
+            Facilitator interface with governed visual modes — so control stays visible without
+            turning the product into a chat surface.
           </p>
         </div>
         <div className="mt-12 md:mt-14">

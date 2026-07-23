@@ -127,7 +127,7 @@ export function UserAvatarMenu() {
           {showInvestorNav ? (
             <MenuItem to="/decks" label="Decks (admin)" onClick={() => setOpen(false)} />
           ) : null}
-          <MenuItem to="/settings" label="Settings" onClick={() => setOpen(false)} />
+          <MenuItem to="/app/settings" label="Settings" onClick={() => setOpen(false)} />
           <div
             className="my-1 border-t"
             role="separator"

@@ -1,6 +1,7 @@
 /** Canonical authenticated app paths (Phase 2 namespace). */
 export const appRoutes = {
   dashboard: '/app',
+  facilitator: '/app/facilitator',
   sessions: '/app/sessions',
   sessionNew: '/app/sessions/new/setup',
   session: (id: string) => `/app/sessions/${encodeURIComponent(id)}`,
@@ -12,6 +13,10 @@ export const appRoutes = {
   sessionRelease: (id: string) => `/app/sessions/${encodeURIComponent(id)}/release`,
   participants: '/app/participants',
   insights: '/app/insights',
+  releaseGate: '/app/release-gate',
+  appLedger: '/app/ledger',
+  executive: '/app/executive',
+  ombuds: '/app/ombuds',
   outcomes: '/app/outcomes',
   outcomeNew: '/app/outcomes/new',
   outcome: (id: string) => `/app/outcomes/${encodeURIComponent(id)}`,

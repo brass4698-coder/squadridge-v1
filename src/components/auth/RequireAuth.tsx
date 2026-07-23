@@ -25,7 +25,7 @@ export function RequireAuth({ children, requireCompleteProfile }: RequireAuthPro
 
   if (requireCompleteProfile && !profileComplete) {
     const next = encodeURIComponent(`${location.pathname}${location.search}${location.hash}`);
-    return <Navigate to={`/settings/profile?next=${next}`} replace />;
+    return <Navigate to={`/app/settings/profile?next=${next}`} replace />;
   }
 
   return <>{children}</>;

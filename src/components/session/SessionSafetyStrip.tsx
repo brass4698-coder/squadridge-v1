@@ -16,7 +16,7 @@ export function SessionSafetyStrip({ squadId }: { squadId: string }) {
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <Link
-          to={`/settings/safety?ref=session`}
+          to={`/app/settings/safety?ref=session`}
           className="inline-flex min-h-[38px] items-center rounded-md border border-teal/40 bg-teal/10 px-3 font-sans text-[0.78rem] font-medium text-teal hover:bg-teal/20"
         >
           Report / resources

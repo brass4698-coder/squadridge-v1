@@ -53,5 +53,5 @@ export const ROLE_DASHBOARD_MAP: Record<RoleKey, string> = {
   mediator: '/app/mediator',
   analyst: '/app/analyst',
   participant: '/app/participant',
-  observer: '/app/observer',
+  observer: '/app/executive',
 };

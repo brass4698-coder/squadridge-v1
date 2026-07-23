@@ -108,7 +108,7 @@ export function AccountMenu({ menuTriggerLabel, triggerVariant = 'default' }: Ac
         >
           <Link
             role="menuitem"
-            to="/settings/profile"
+            to="/app/settings/profile"
             className="block px-4 py-2.5 font-sans text-[0.85rem] text-[#c4cdd9] transition-colors hover:bg-[#141c2e] hover:text-[#f1f5f9]"
             onClick={() => setOpen(false)}
           >

@@ -9,7 +9,7 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
 export function BoundarySection() {
   return (
     <section
-      className="border-b border-[color:var(--color-border-subtle)] py-14 md:py-16"
+      className="sr-section-enter border-b border-[color:var(--color-border-subtle)] py-14 md:py-16"
       aria-labelledby="boundary-h"
     >
       <div className={publicShellInnerClass}>
