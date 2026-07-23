@@ -266,6 +266,41 @@ export const demoSteps: DemoStep[] = [
     ],
   },
   {
+    id: 'slow_down_room',
+    path: '/p/room/demo-token?demo=1',
+    title: 'Slow down',
+    description:
+      'Power of Pause in the participant room — breath overlay and send cooldown. No message-body surveillance.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'sd1',
+        content:
+          'Slow down is a calm, optional pause. Facilitators can also apply it from the intervention rail.',
+        selector: '[data-testid="slow-down-btn"]',
+      },
+    ],
+    actions: [
+      { kind: 'click', selector: '[data-testid="slow-down-btn"]', delayMs: 800 },
+      { kind: 'wait', ms: 2500 },
+    ],
+  },
+  {
+    id: 'release_gate',
+    path: '/sessions/sess-001/release?demo=1',
+    title: 'Release gate',
+    description: 'Outcome release requires approvals — room dialogue stays private until gated.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'rg1',
+        content: 'Only approved outcomes cross the gate into the public ledger.',
+      },
+    ],
+  },
+  {
     id: 'profile',
     path: '/settings/profile?demo=1',
     title: 'Profile',

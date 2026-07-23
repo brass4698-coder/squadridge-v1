@@ -32,4 +32,31 @@ test.describe('critical path smoke', () => {
     await expect(page.getByText('Match ready')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('heading', { name: /Confirm to enter the room/i })).toBeVisible();
   });
+
+  test('participant room Slow down overlay and cooldown', async ({ page }) => {
+    await page.goto('/p/room/demo-token');
+    await expect(page.getByRole('heading', { name: /Northern Watershed/i })).toBeVisible();
+    await page.getByTestId('slow-down-btn').click();
+    await expect(page.getByRole('heading', { name: /^Slow down$/i })).toBeVisible();
+    await expect(page.getByText(/Sending resumes in/i)).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByTestId('send-message-btn')).toBeDisabled();
+  });
+
+  test('role dashboards require sign-in', async ({ page }) => {
+    for (const path of [
+      '/app/participant',
+      '/app/mediator',
+      '/app/facilitator',
+      '/app/observer',
+      '/app/analyst',
+    ]) {
+      await page.goto(path);
+      await expect(page).toHaveURL(/\/sign-in/);
+    }
+  });
+
+  test('demo catalog requires sign-in', async ({ page }) => {
+    await page.goto('/app/demo/catalog');
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
 });

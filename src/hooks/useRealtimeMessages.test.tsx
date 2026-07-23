@@ -109,6 +109,11 @@ function renderWithAuth(ui: ReactElement, supabase: AuthContextValue['supabase']
     ensureAnonymousSession: async () => {},
     signIn: async () => ({ error: null }),
     signOut: async () => {},
+    profile: null,
+    roles: [],
+    initialized: true,
+    refreshProfile: async () => {},
+    refreshRoles: async () => {},
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -150,6 +155,11 @@ function renderRetryHarnessWithCachedWindow(
     ensureAnonymousSession: async () => {},
     signIn: async () => ({ error: null }),
     signOut: async () => {},
+    profile: null,
+    roles: [],
+    initialized: true,
+    refreshProfile: async () => {},
+    refreshRoles: async () => {},
   };
   return render(
     <QueryClientProvider client={queryClient}>

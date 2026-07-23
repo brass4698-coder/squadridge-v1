@@ -1,5 +1,8 @@
-import { ReactNode, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, type ReactNode } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import type { RoleKey } from '../../types/roles';
+import { ROLE_LABELS } from '../../types/roles';
+import { getDemoRoleOverride } from '../../demo/demoRoleSwitcher';
 
 interface NavItem {
   label: string;
@@ -7,118 +10,167 @@ interface NavItem {
   icon: ReactNode;
 }
 
-const facilitatorNav: NavItem[] = [
-  {
-    label: 'Dashboard',
-    href: '/f/dashboard',
-    icon: (
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="3" y="3" width="7" height="7" />
-        <rect x="14" y="3" width="7" height="7" />
-        <rect x="3" y="14" width="7" height="7" />
-        <rect x="14" y="14" width="7" height="7" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Sessions',
-    href: '/f/sessions',
-    icon: (
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Participants',
-    href: '/f/participants',
-    icon: (
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Ledger',
-    href: '/ledger',
-    icon: (
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Settings',
-    href: '/f/settings',
-    icon: (
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-      </svg>
-    ),
-  },
-];
+const iconDash = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+  </svg>
+);
+
+const iconChat = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const iconPeople = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const iconLedger = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+  </svg>
+);
+
+const iconSettings = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <circle cx="12" cy="7" r="4" />
+    <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+  </svg>
+);
+
+const NAV_BY_ROLE: Record<RoleKey | 'ops_moderator', NavItem[]> = {
+  facilitator: [
+    { label: 'Dashboard', href: '/app/facilitator', icon: iconDash },
+    { label: 'Sessions', href: '/sessions', icon: iconChat },
+    { label: 'Live control', href: '/sessions', icon: iconPeople },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  mediator: [
+    { label: 'Matters', href: '/app/mediator', icon: iconDash },
+    { label: 'Sessions', href: '/sessions', icon: iconChat },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  participant: [
+    { label: 'Home', href: '/app/participant', icon: iconDash },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  observer: [
+    { label: 'Outcomes', href: '/app/observer', icon: iconDash },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  analyst: [
+    { label: 'Metrics', href: '/app/analyst', icon: iconDash },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  institution_admin: [
+    { label: 'Institution', href: '/app/institution', icon: iconDash },
+    { label: 'Ledger', href: '/ledger', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  super_admin: [
+    { label: 'Admin', href: '/app/admin', icon: iconDash },
+    { label: 'Facilitator', href: '/app/facilitator', icon: iconChat },
+    { label: 'Ops', href: '/admin/rooms', icon: iconPeople },
+    { label: 'Demo catalog', href: '/app/demo/catalog', icon: iconLedger },
+    { label: 'Settings', href: '/settings', icon: iconSettings },
+  ],
+  ops_moderator: [
+    { label: 'Ops rooms', href: '/admin/rooms', icon: iconDash },
+    { label: 'Health', href: '/admin/health', icon: iconChat },
+    { label: 'Reports', href: '/admin/reports', icon: iconPeople },
+  ],
+};
+
+export type ShellRole = RoleKey | 'ops_moderator' | 'admin';
 
 interface AuthenticatedShellProps {
-  children: ReactNode;
-  role?: 'facilitator' | 'admin';
+  children?: ReactNode;
+  role?: ShellRole;
+}
+
+function resolveRole(role: ShellRole): RoleKey | 'ops_moderator' {
+  if (role === 'admin') return 'ops_moderator';
+  const demo = getDemoRoleOverride();
+  if (demo) return demo;
+  return role;
 }
 
 export function AuthenticatedShell({ children, role = 'facilitator' }: AuthenticatedShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const resolved = resolveRole(role);
+  const nav = NAV_BY_ROLE[resolved] ?? NAV_BY_ROLE.facilitator;
+  const badgeLabel =
+    resolved === 'ops_moderator'
+      ? 'Ops moderator'
+      : (ROLE_LABELS[resolved as RoleKey] ?? 'Workspace');
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
@@ -130,7 +182,6 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
-      {/* Sidebar */}
       <aside
         className={[
           'flex h-full shrink-0 flex-col border-r transition-all duration-200',
@@ -142,7 +193,6 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
         }}
         aria-label="Main navigation"
       >
-        {/* Logo / collapse toggle */}
         <div
           className="flex h-14 shrink-0 items-center justify-between border-b px-4"
           style={{ borderColor: 'var(--color-border)' }}
@@ -156,6 +206,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
             </span>
           )}
           <button
+            type="button"
             onClick={() => setSidebarOpen((v) => !v)}
             className="ml-auto rounded p-1.5 transition-opacity hover:opacity-70"
             style={{ color: 'var(--color-text-secondary)' }}
@@ -170,6 +221,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden
             >
               {sidebarOpen ? (
                 <>
@@ -187,11 +239,10 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
           </button>
         </div>
 
-        {/* Nav items */}
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {facilitatorNav.map((item) => (
+          {nav.map((item) => (
             <NavLink
-              key={item.href}
+              key={item.href + item.label}
               to={item.href}
               className={navLinkClass}
               title={!sidebarOpen ? item.label : undefined}
@@ -202,9 +253,9 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
           ))}
         </nav>
 
-        {/* Bottom: sign out */}
         <div className="border-t p-3" style={{ borderColor: 'var(--color-border)' }}>
           <button
+            type="button"
             onClick={() => navigate('/sign-in')}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: 'var(--color-text-secondary)' }}
@@ -219,6 +270,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
               strokeWidth="1.75"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden
             >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
@@ -229,9 +281,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="flex flex-1 flex-col overflow-y-auto">
-        {/* Top bar */}
         <div
           className="flex h-14 shrink-0 items-center justify-between border-b px-6"
           style={{
@@ -247,11 +297,11 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
               color: 'var(--color-accent)',
             }}
           >
-            {role === 'admin' ? 'Admin' : 'Facilitator'}
+            {badgeLabel}
           </span>
         </div>
 
-        <div className="flex-1 p-6">{children}</div>
+        <div className="flex-1 p-6">{children ?? <Outlet />}</div>
       </main>
     </div>
   );

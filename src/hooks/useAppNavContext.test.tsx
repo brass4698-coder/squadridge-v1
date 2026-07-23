@@ -59,6 +59,11 @@ function baseAuth(session: Session | null): AuthContextValue {
     ensureAnonymousSession: async () => {},
     signIn: async () => ({ error: null }),
     signOut: async () => {},
+    profile: null,
+    roles: [],
+    initialized: true,
+    refreshProfile: async () => {},
+    refreshRoles: async () => {},
   };
 }
 

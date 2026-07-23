@@ -16,7 +16,6 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import {
-  GrainOverlay,
   RequireAuth,
   RequireModerator,
   ScrollToTop,
@@ -27,7 +26,7 @@ import {
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { PublicShell } from './components/layout/PublicShell';
-import { AuthenticatedShell } from './components/layout/AuthenticatedShell';
+import { RoleWorkspaceShell } from './components/layout/RoleWorkspaceShell';
 
 // ── Existing pages (preserved) ───────────────────────────────────────────────
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
@@ -87,6 +86,16 @@ import { SessionBriefingPage } from './pages/v2/participant/SessionBriefingPage'
 import { WaitingRoomPage } from './pages/v2/participant/WaitingRoomPage';
 import { ParticipantRoomPage } from './pages/v2/participant/ParticipantRoomPage';
 import { SessionEndPage } from './pages/v2/participant/SessionEndPage';
+import {
+  AdminRoleDashboardPage,
+  AnalystDashboardPage,
+  FacilitatorRoleDashboardPage,
+  InstitutionDashboardPage,
+  MediatorDashboardPage,
+  ObserverDashboardPage,
+  ParticipantDashboardPage,
+} from './pages/dashboards';
+import { DemoCatalogPage } from './pages/demo/DemoCatalogPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -120,7 +129,6 @@ export default function AppV2() {
         <AuthProvider>
           <Toaster position="top-center" richColors closeButton className="font-sans" />
           <Routes>
-
             {/* Onboarding (unchanged) */}
             <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />
             <Route
@@ -143,16 +151,28 @@ export default function AppV2() {
             <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
             <Route path="/p/done/:token" element={<SessionEndPage />} />
 
-            {/* ── V2 Authenticated Shell ────────────────────────────────── */}
+            {/* ── V2 Authenticated Shell (role-aware) ───────────────────── */}
             <Route
               element={
                 <RequireAuth>
-                  <AuthenticatedShell />
+                  <RoleWorkspaceShell />
                 </RequireAuth>
               }
             >
-              {/* Facilitator Dashboard */}
+              {/* Facilitator Dashboard (legacy path) */}
               <Route path="/dashboard" element={<FacilitatorDashboardPage />} />
+
+              {/* Role workspaces — ROLE_DASHBOARD_MAP */}
+              <Route path="/app/facilitator" element={<FacilitatorRoleDashboardPage />} />
+              <Route path="/app/mediator" element={<MediatorDashboardPage />} />
+              <Route path="/app/participant" element={<ParticipantDashboardPage />} />
+              <Route path="/app/observer" element={<ObserverDashboardPage />} />
+              <Route path="/app/analyst" element={<AnalystDashboardPage />} />
+              <Route path="/app/institution" element={<InstitutionDashboardPage />} />
+              <Route path="/app/admin" element={<AdminRoleDashboardPage />} />
+              <Route path="/app/demo/catalog" element={<DemoCatalogPage />} />
+              <Route path="/app/settings" element={<Navigate to="/settings" replace />} />
+              <Route path="/app/profile" element={<Navigate to="/settings/profile" replace />} />
 
               {/* Sessions (legacy + v2 setup pages) */}
               <Route path="/sessions" element={<SessionsListPage />} />
@@ -161,7 +181,10 @@ export default function AppV2() {
               <Route path="/sessions/:sessionId/room" element={<LiveRoomPage />} />
 
               {/* Facilitator sub-pages */}
-              <Route path="/sessions/:sessionId/participants" element={<ParticipantsReviewPage />} />
+              <Route
+                path="/sessions/:sessionId/participants"
+                element={<ParticipantsReviewPage />}
+              />
               <Route path="/sessions/:sessionId/control" element={<SessionControlPage />} />
               <Route path="/sessions/:sessionId/outcome" element={<OutcomeWorkspacePage />} />
               <Route path="/sessions/:sessionId/release" element={<OutcomeReleasePage />} />
@@ -174,13 +197,15 @@ export default function AppV2() {
 
             {/* ── V2 Public Shell ──────────────────────────────────────── */}
             <Route element={<PublicShell />}>
-
               {/* Public marketing */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/use-cases" element={<UseCasesPage />} />
               <Route path="/request-access" element={<RequestAccessPage />} />
-              <Route path="/request-access/confirmed" element={<Navigate to="/request-access" replace />} />
+              <Route
+                path="/request-access/confirmed"
+                element={<Navigate to="/request-access" replace />}
+              />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
@@ -192,12 +217,18 @@ export default function AppV2() {
               <Route path="/ledger/:recordId" element={<LedgerRecordPage />} />
 
               {/* Legacy ledger routes → v2 ledger */}
-              <Route path="/ledger/:proposalId/legacy" element={<Navigate to="/ledger" replace />} />
+              <Route
+                path="/ledger/:proposalId/legacy"
+                element={<Navigate to="/ledger" replace />}
+              />
 
               {/* Redirects for legacy paths */}
               <Route path="/login" element={<Navigate to="/sign-in" replace />} />
               <Route path="/sign-up" element={<Navigate to="/sign-in" replace />} />
-              <Route path="/forgot-password" element={<Navigate to="/sign-in?reason=link" replace />} />
+              <Route
+                path="/forgot-password"
+                element={<Navigate to="/sign-in?reason=link" replace />}
+              />
               <Route path="/intent" element={<Navigate to="/find-squad" replace />} />
               <Route path="/match-setup" element={<Navigate to="/find-squad" replace />} />
               <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
@@ -266,7 +297,10 @@ export default function AppV2() {
               {isDemoSquadShortcutsEnabled() ? (
                 <>
                   <Route path="/session/demo-session-001" element={<DemoSessionPage />} />
-                  <Route path="/session/demo" element={<Navigate to="/session/demo-session-001" replace />} />
+                  <Route
+                    path="/session/demo"
+                    element={<Navigate to="/session/demo-session-001" replace />}
+                  />
                 </>
               ) : (
                 <>
@@ -281,7 +315,6 @@ export default function AppV2() {
               <Route path="/access-denied" element={<AccessDeniedPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
-
           </Routes>
         </AuthProvider>
       </DemoWalkthroughProvider>
