@@ -79,19 +79,52 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     if (!outcome) return;
     const storageKey = buildIdempotencyKey(['idem:release', outcome.id]);
     const idempotencyKey = rememberIdempotencyKey(storageKey, () =>
-      buildIdempotencyKey(['release', outcome.id, crypto.randomUUID()]),
+      buildIdempotencyKey([
+        'release',
+        outcome.id,
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : String(Date.now()),
+      ]),
     );
     const sha = await computeSha256(
-      JSON.stringify({ ...outcome, facilitator_notes: undefined, idempotency_key: idempotencyKey }),
+      JSON.stringify({ id: outcome.id, summary: outcome.summary, idempotency_key: idempotencyKey }),
     );
-    await supabase
-      .from('outcome_records')
-      .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
-      .eq('id', outcome.id);
-    await supabase
-      .from('sessions')
-      .update({ status: 'released', updated_at: new Date().toISOString() })
-      .eq('id', sessionId);
+
+    const { data: edgeData, error: edgeError } = await supabase.functions.invoke(
+      'release-outcome',
+      {
+        body: {
+          outcome_id: outcome.id,
+          ledger_sha: sha,
+          idempotency_key: idempotencyKey,
+        },
+      },
+    );
+
+    if (!edgeError && edgeData && typeof edgeData === 'object') {
+      clearIdempotencyKey(storageKey);
+      setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
+      return;
+    }
+
+    const { error: rpcError } = await supabase.rpc('release_outcome', {
+      p_outcome_id: outcome.id,
+      p_ledger_sha: sha,
+      p_idempotency_key: idempotencyKey,
+    });
+
+    if (rpcError) {
+      await supabase
+        .from('outcome_records')
+        .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
+        .eq('id', outcome.id);
+      await supabase
+        .from('sessions')
+        .update({ status: 'released', updated_at: new Date().toISOString() })
+        .eq('id', sessionId);
+    }
+
     clearIdempotencyKey(storageKey);
     setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
   }

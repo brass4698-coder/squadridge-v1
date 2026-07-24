@@ -80,4 +80,22 @@ test.describe('critical path smoke', () => {
     await page.getByTestId('sim-next').click();
     await expect(page.getByRole('heading', { name: /Access barrier/i })).toBeVisible();
   });
+
+  test('participant invite path token funnel reaches verify', async ({ page }) => {
+    await page.goto('/p/invite/demo-token');
+    await expect(page.getByRole('heading', { name: /invited to participate/i })).toBeVisible();
+    await page.getByRole('button', { name: /Accept|Continue|Begin/i }).click();
+    await expect(page).toHaveURL(/\/p\/verify\/demo-token/);
+    await expect(page.getByTestId('verify-next-hint')).toBeVisible();
+  });
+
+  test('demo simulation Slow down step is reachable', async ({ page }) => {
+    await page.goto('/demo/simulation');
+    for (let i = 0; i < 5; i += 1) {
+      await page.getByTestId('sim-next').click();
+    }
+    await expect(page.getByRole('heading', { name: /Harmony room/i })).toBeVisible();
+    await page.getByTestId('sim-slow-down').click();
+    await expect(page.getByText(/Slow down — breath/i)).toBeVisible();
+  });
 });

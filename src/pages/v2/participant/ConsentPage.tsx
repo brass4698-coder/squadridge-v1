@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
 
 const disclosures = [
   {
@@ -30,8 +31,7 @@ const disclosures = [
 ];
 
 export function ConsentPage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') ?? 'demo-token';
+  const token = useParticipantToken();
   const [accepted, setAccepted] = useState(false);
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export function ConsentPage() {
   function proceed() {
     if (!checked) return;
     setAccepted(true);
-    setTimeout(() => navigate(`/p/briefing?token=${token}`), 500);
+    setTimeout(() => navigate(`/p/briefing/${token}`), 500);
   }
 
   return (
@@ -64,7 +64,9 @@ export function ConsentPage() {
           className="mb-8 text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          Please read the following carefully. These are the conditions under which your participation in this session takes place. They are not legal boilerplate — they describe what is actually happening.
+          Please read the following carefully. These are the conditions under which your
+          participation in this session takes place. They are not legal boilerplate — they describe
+          what is actually happening.
         </p>
 
         <dl className="mb-8 flex flex-col gap-5">
@@ -122,7 +124,8 @@ export function ConsentPage() {
         </button>
 
         <p className="mt-4 text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          Your confirmation is recorded. You may review these terms again from the session briefing page.
+          Your confirmation is recorded. You may review these terms again from the session briefing
+          page.
         </p>
       </div>
     </div>

@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import {
   InterventionRail,
   type InterventionParticipantState,
 } from '../../../components/pacing/InterventionRail';
+import { UnsyncedBanner } from '../../../components/ui/UnsyncedBanner';
 import { logPacingIntervention } from '../../../lib/pacing/logPacingIntervention';
 import { SLOW_DOWN_COOLDOWN_MS } from '../../../hooks/useSlowDown';
 import type { PaceSignalKind } from '../../../lib/pacing/paceSignals';
@@ -46,6 +47,27 @@ export function SessionControlPage() {
   >([]);
 
   const sessionKey = sessionId ?? 'unknown-session';
+
+  // Tick down intervention cooldowns so the rail stays truthful in-session.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setParticipants((prev) => {
+        let changed = false;
+        const next = prev.map((p) => {
+          if (p.cooldownRemainingMs <= 0) return p;
+          changed = true;
+          const remaining = Math.max(0, p.cooldownRemainingMs - 1000);
+          return {
+            ...p,
+            cooldownRemainingMs: remaining,
+            optedIntoBreak: remaining > 0 ? p.optedIntoBreak : false,
+          };
+        });
+        return changed ? next : prev;
+      });
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const statusLabel: Record<RoomStatus, string> = {
     waiting: 'Waiting',
@@ -114,6 +136,8 @@ export function SessionControlPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <UnsyncedBanner />
+
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>

@@ -14,3 +14,4 @@ export * from './useSquadTyping';
 export * from './useTranslation';
 export * from './useUserPreferences';
 export * from './useWaitlistForm';
+export * from './useParticipantToken';

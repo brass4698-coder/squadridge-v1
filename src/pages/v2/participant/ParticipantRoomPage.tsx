@@ -4,6 +4,7 @@ import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { SlowDownOverlay } from '../../../components/pacing/SlowDownOverlay';
 import { SendCooldownBanner } from '../../../components/pacing/SendCooldownBanner';
 import { PaceSuggestionChip } from '../../../components/pacing/PaceSuggestionChip';
+import { UnsyncedBanner } from '../../../components/ui/UnsyncedBanner';
 import { useSlowDown } from '../../../hooks/useSlowDown';
 import { usePaceSignals } from '../../../hooks/usePaceSignals';
 import { logPacingIntervention } from '../../../lib/pacing/logPacingIntervention';
@@ -176,6 +177,8 @@ export function ParticipantRoomPage() {
         This dialogue is private. Nothing said here will be shared publicly without explicit
         approval.
       </div>
+
+      <UnsyncedBanner />
 
       {roomPaused ? (
         <div

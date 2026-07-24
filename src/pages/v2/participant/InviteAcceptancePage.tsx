@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
 
 export function InviteAcceptancePage() {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token') ?? 'demo-token';
+  const token = useParticipantToken();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function accept() {
     setLoading(true);
     // Replace with real token validation
-    setTimeout(() => navigate(`/p/verify?token=${token}`), 800);
+    setTimeout(() => navigate(`/p/verify/${token}`), 800);
   }
 
   return (
@@ -45,7 +45,9 @@ export function InviteAcceptancePage() {
           className="mb-6 text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          A facilitator has extended a formal invitation for you to join a protected dialogue session on SquadRidge. Before you can enter, you will complete a short verification process.
+          A facilitator has extended a formal invitation for you to join a protected dialogue
+          session on SquadRidge. Before you can enter, you will complete a short verification
+          process.
         </p>
 
         <div
@@ -73,8 +75,17 @@ export function InviteAcceptancePage() {
             'Your identity is protected within the room.',
             'You may leave at any time.',
           ].map((item) => (
-            <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              <span className="mt-0.5 text-base leading-none" style={{ color: 'var(--color-success)' }}>✓</span>
+            <li
+              key={item}
+              className="flex items-start gap-3 text-sm"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              <span
+                className="mt-0.5 text-base leading-none"
+                style={{ color: 'var(--color-success)' }}
+              >
+                ✓
+              </span>
               {item}
             </li>
           ))}
