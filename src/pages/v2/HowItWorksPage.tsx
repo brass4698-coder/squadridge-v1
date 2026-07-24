@@ -61,6 +61,58 @@ export function HowItWorksPage() {
       </header>
 
       <section
+        className="scroll-mt-20 border-b border-line bg-surface-sunken/40 py-14 md:py-16"
+        aria-labelledby="boundary-visual-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+            <div className="max-w-[28rem]">
+              <SectionLabel>Boundary model</SectionLabel>
+              <h2
+                id="boundary-visual-h"
+                className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
+              >
+                The room. The gate. The record.
+              </h2>
+              <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary md:text-base">
+                Private written dialogue stays enclosed. Only an approved outcome passes the
+                facilitator release gate. The public integrity record shows the sealed instrument —
+                never the room transcript.
+              </p>
+              <ul className="mt-6 m-0 list-none space-y-2 p-0 text-sm leading-relaxed text-ink-secondary">
+                <li>
+                  <span className="font-medium text-ink">The Room</span> — invite-only written
+                  deliberation
+                </li>
+                <li>
+                  <span className="font-medium text-ink">The Gate</span> — facilitator-governed
+                  release
+                </li>
+                <li>
+                  <span className="font-medium text-ink">The Record</span> — approved outcomes only
+                </li>
+              </ul>
+            </div>
+            <figure className="m-0 min-w-0 overflow-hidden rounded-[var(--sr-radius-lg)] border border-line bg-[var(--sr-bg-sunken)] shadow-[var(--sr-shadow-sm)]">
+              <img
+                src="/assets/how-it-works-room-gate-record.png"
+                alt="Diagram: documents in a private room pass through a glowing release gate to become a single verified approved record"
+                width={768}
+                height={1152}
+                className="block h-auto w-full"
+                decoding="async"
+                loading="lazy"
+              />
+              <figcaption className="border-t border-line px-4 py-3 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                Private session rooms · facilitator-governed release · approved outcomes only
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section
         className="scroll-mt-20 border-b border-line py-16 md:py-20"
         aria-labelledby="spine-h"
         data-scroll-section
