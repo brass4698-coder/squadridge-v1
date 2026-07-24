@@ -266,6 +266,23 @@ export const demoSteps: DemoStep[] = [
     ],
   },
   {
+    id: 'demo_simulation',
+    path: '/demo/simulation?demo=1',
+    title: 'Full-flow simulation',
+    description:
+      'Illustrative role → access → room → assist → public ledger (no PII) + private proposal.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'sim1',
+        content:
+          'Choose a demo role. This never mutates production identity. Room dialogue stays off the public ledger.',
+        selector: '[data-testid="demo-simulation"]',
+      },
+    ],
+  },
+  {
     id: 'slow_down_room',
     path: '/p/room/demo-token?demo=1',
     title: 'Slow down',

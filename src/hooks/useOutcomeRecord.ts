@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import type { OutcomeRecord, OutcomeApproval } from '../lib/supabaseTypes';
+import {
+  buildIdempotencyKey,
+  clearIdempotencyKey,
+  rememberIdempotencyKey,
+} from '../lib/idempotency';
 
 export function useOutcomeRecord(sessionId: string | undefined) {
   const [outcome, setOutcome] = useState<OutcomeRecord | null>(null);
@@ -28,9 +33,16 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     setLoading(false);
   }, [sessionId]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
-  async function saveDraft(fields: { summary: string; agreed_terms?: string; pending_items?: string; facilitator_notes?: string }) {
+  async function saveDraft(fields: {
+    summary: string;
+    agreed_terms?: string;
+    pending_items?: string;
+    facilitator_notes?: string;
+  }) {
     if (!sessionId) return;
     if (outcome) {
       const { data } = await supabase
@@ -41,7 +53,9 @@ export function useOutcomeRecord(sessionId: string | undefined) {
         .single();
       if (data) setOutcome(data);
     } else {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase
         .from('outcome_records')
@@ -58,12 +72,18 @@ export function useOutcomeRecord(sessionId: string | undefined) {
       .from('outcome_records')
       .update({ status: 'pending_approval', updated_at: new Date().toISOString() })
       .eq('id', outcome.id);
-    setOutcome((prev) => prev ? { ...prev, status: 'pending_approval' } : prev);
+    setOutcome((prev) => (prev ? { ...prev, status: 'pending_approval' } : prev));
   }
 
   async function publishToLedger() {
     if (!outcome) return;
-    const sha = await computeSha256(JSON.stringify({ ...outcome, facilitator_notes: undefined }));
+    const storageKey = buildIdempotencyKey(['idem:release', outcome.id]);
+    const idempotencyKey = rememberIdempotencyKey(storageKey, () =>
+      buildIdempotencyKey(['release', outcome.id, crypto.randomUUID()]),
+    );
+    const sha = await computeSha256(
+      JSON.stringify({ ...outcome, facilitator_notes: undefined, idempotency_key: idempotencyKey }),
+    );
     await supabase
       .from('outcome_records')
       .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
@@ -72,10 +92,19 @@ export function useOutcomeRecord(sessionId: string | undefined) {
       .from('sessions')
       .update({ status: 'released', updated_at: new Date().toISOString() })
       .eq('id', sessionId);
-    setOutcome((prev) => prev ? { ...prev, status: 'published', ledger_sha: sha } : prev);
+    clearIdempotencyKey(storageKey);
+    setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
   }
 
-  return { outcome, approvals, loading, saveDraft, submitForRelease, publishToLedger, refetch: fetch };
+  return {
+    outcome,
+    approvals,
+    loading,
+    saveDraft,
+    submitForRelease,
+    publishToLedger,
+    refetch: fetch,
+  };
 }
 
 async function computeSha256(input: string): Promise<string> {

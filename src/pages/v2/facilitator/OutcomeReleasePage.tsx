@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import {
+  buildIdempotencyKey,
+  clearIdempotencyKey,
+  rememberIdempotencyKey,
+} from '../../../lib/idempotency';
 
 type ApprovalStatus = 'pending' | 'approved' | 'rejected';
 
@@ -27,9 +32,17 @@ export function OutcomeReleasePage() {
   const allApproved = approvers.every((a) => a.status === 'approved');
 
   function handlePublish() {
+    if (published) return;
+    const storageKey = buildIdempotencyKey(['idem:release-ui', sessionId ?? 'unknown']);
+    rememberIdempotencyKey(storageKey, () =>
+      buildIdempotencyKey(['release-ui', sessionId, crypto.randomUUID()]),
+    );
     setPublished(true);
     setShowPublishModal(false);
-    setTimeout(() => navigate('/ledger'), 1200);
+    setTimeout(() => {
+      clearIdempotencyKey(storageKey);
+      navigate('/ledger');
+    }, 1200);
   }
 
   return (

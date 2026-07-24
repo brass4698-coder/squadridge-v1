@@ -2,20 +2,19 @@
 // SquadRidge Invite helpers
 // ============================================================
 import { supabase } from './supabase';
-import type {
-  InviteValidationResult,
-  CreateInviteParams,
-  Invite,
-} from '../types/invites';
+import type { InviteValidationResult, CreateInviteParams, Invite } from '../types/invites';
+import { buildIdempotencyKey, clearIdempotencyKey, rememberIdempotencyKey } from './idempotency';
+import { logError, safeErrorMessage } from './log';
 
-export async function validateInviteToken(
-  token: string
-): Promise<InviteValidationResult> {
+export async function validateInviteToken(token: string): Promise<InviteValidationResult> {
   const { data, error } = await supabase.rpc('validate_invite_token', {
     p_token: token,
   });
   if (error) {
-    console.error('[invites] validate error', error);
+    logError('invites.validate_failed', {
+      feature: 'invites',
+      error_message: safeErrorMessage(error),
+    });
     return { valid: false, reason: 'not_found' };
   }
   return data as InviteValidationResult;
@@ -24,20 +23,47 @@ export async function validateInviteToken(
 export async function acceptInvite(
   token: string,
   userId: string,
-  displayName: string
+  displayName: string,
 ): Promise<{ success: boolean; dashboard?: string; error?: string }> {
+  const storageKey = `idem:accept-invite:${token}:${userId}`;
+  rememberIdempotencyKey(storageKey, () => buildIdempotencyKey(['accept-invite', token, userId]));
+
   const { data, error } = await supabase.rpc('accept_invite', {
     p_token: token,
     p_user_id: userId,
     p_display_name: displayName,
   });
   if (error) return { success: false, error: error.message };
+
+  clearIdempotencyKey(storageKey);
   return data as { success: boolean; dashboard: string };
 }
 
 export async function createInvite(
-  params: CreateInviteParams
-): Promise<{ success: boolean; token?: string; invite_id?: string; error?: string }> {
+  params: CreateInviteParams,
+): Promise<{
+  success: boolean;
+  token?: string;
+  invite_id?: string;
+  error?: string;
+  idempotency_key?: string;
+}> {
+  const storageKey = buildIdempotencyKey([
+    'idem:create-invite',
+    params.email,
+    params.role_key,
+    params.institution_id,
+    params.workspace_id,
+  ]);
+  const idempotencyKey = rememberIdempotencyKey(storageKey, () =>
+    buildIdempotencyKey(['invite', params.email, params.role_key, crypto.randomUUID()]),
+  );
+
+  const metadata = {
+    ...(params.metadata ?? {}),
+    idempotency_key: idempotencyKey,
+  };
+
   const { data, error } = await supabase.rpc('create_invite', {
     p_email: params.email,
     p_invite_type: params.invite_type,
@@ -45,14 +71,17 @@ export async function createInvite(
     p_institution_id: params.institution_id ?? null,
     p_workspace_id: params.workspace_id ?? null,
     p_expires_hours: params.expires_hours ?? 72,
-    p_metadata: params.metadata ?? {},
+    p_metadata: metadata,
   });
-  if (error) return { success: false, error: error.message };
-  return data as { success: boolean; token: string; invite_id: string };
+  if (error) return { success: false, error: error.message, idempotency_key: idempotencyKey };
+
+  clearIdempotencyKey(storageKey);
+  const result = data as { success: boolean; token: string; invite_id: string };
+  return { ...result, idempotency_key: idempotencyKey };
 }
 
 export async function revokeInvite(
-  inviteId: string
+  inviteId: string,
 ): Promise<{ success: boolean; error?: string }> {
   const { data, error } = await supabase.rpc('revoke_invite', {
     p_invite_id: inviteId,
@@ -67,7 +96,10 @@ export async function listInvites(): Promise<Invite[]> {
     .select('*')
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('[invites] listInvites error', error);
+    logError('invites.list_failed', {
+      feature: 'invites',
+      error_message: safeErrorMessage(error),
+    });
     return [];
   }
   return (data ?? []) as Invite[];

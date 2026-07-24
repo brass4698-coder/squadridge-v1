@@ -21,6 +21,13 @@ const CATALOG: CatalogEntry[] = [
   { group: 'Marketing', label: 'Security', href: '/security' },
   { group: 'Marketing', label: 'Request access', href: '/request-access' },
   { group: 'Marketing', label: 'Ledger index', href: '/ledger' },
+  { group: 'Role workspaces', label: 'Facilitator', href: '/app/facilitator' },
+  { group: 'Role workspaces', label: 'Mediator', href: '/app/mediator' },
+  { group: 'Role workspaces', label: 'Participant', href: '/app/participant' },
+  { group: 'Role workspaces', label: 'Observer', href: '/app/observer' },
+  { group: 'Role workspaces', label: 'Analyst', href: '/app/analyst' },
+  { group: 'Role workspaces', label: 'Institution', href: '/app/institution' },
+  { group: 'Role workspaces', label: 'Super admin', href: '/app/admin' },
   { group: 'Facilitator', label: 'Dashboard', href: '/dashboard' },
   { group: 'Facilitator', label: 'Sessions', href: '/sessions' },
   { group: 'Facilitator', label: 'Session control', href: '/sessions/sess-001/control' },
@@ -33,20 +40,28 @@ const CATALOG: CatalogEntry[] = [
   { group: 'Ops', label: 'CSI', href: '/admin/csi' },
   {
     group: 'Demo',
+    label: 'Cinematic full-flow simulation',
+    href: '/demo/simulation',
+    note: 'Role → access → room → assist → public ledger + private proposal',
+  },
+  {
+    group: 'Demo',
     label: 'Offline squad demo',
     href: '/session/demo-session-001',
     note: 'Requires demo flag',
   },
   { group: 'UI primitives', label: 'StatusBadge (in dashboards)', href: '/dashboard' },
+  { group: 'UI primitives', label: 'ConfirmModal / Slow down overlay', href: '/p/room/demo-token' },
 ];
 
 /**
  * Auth-gated / DEV demo catalog — illustrative surfaces for diligence.
+ * Route is RoleProtectedRoute(super_admin) + empty roles allowed in DEV/demo.
  * Never implies production identity impersonation.
  */
 export function DemoCatalogPage() {
   const [role, setRole] = useState<RoleKey | null>(() => getDemoRoleOverride());
-  const demoEnabled = isDemoSquadShortcutsEnabled() || import.meta.env.DEV;
+  const demoEnabled = isDemoSquadShortcutsEnabled();
 
   function applyRole(next: RoleKey | '') {
     if (!next) {
@@ -58,14 +73,15 @@ export function DemoCatalogPage() {
     setRole(next);
   }
 
-  if (!demoEnabled && !import.meta.env.DEV) {
+  if (!demoEnabled) {
     return (
       <div className="mx-auto max-w-xl">
         <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
           Demo catalog unavailable
         </h1>
         <p className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-          Enable `VITE_ENABLE_DEMO_SQUAD` in non-production environments, or use local DEV.
+          Enable `VITE_ENABLE_DEMO_SQUAD` in non-production environments, or use local DEV. Catalog
+          is also gated to super_admin (or empty roles in DEV).
         </p>
       </div>
     );
@@ -190,7 +206,12 @@ export function DemoCatalogPage() {
       ))}
 
       <p className="mt-8 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-        Tip: append <code>?demo=1</code> to enter the existing walkthrough where scripted.
+        Tip: open{' '}
+        <Link to="/demo/simulation" className="underline-offset-2 hover:underline">
+          /demo/simulation
+        </Link>{' '}
+        for the cinematic full flow, or append <code>?demo=1</code> to enter the existing
+        walkthrough where scripted.
       </p>
     </div>
   );

@@ -16,6 +16,7 @@ export * from './auth/AccountPageShell';
 export * from './auth/AuthIssueBanner';
 export * from './auth/RequireAuth';
 export * from './auth/RequireModerator';
+export * from './auth/RoleProtectedRoute';
 export * from './layout/AccountMenu';
 export * from './layout/AppHeaderNav';
 export * from './layout/AppLayout';

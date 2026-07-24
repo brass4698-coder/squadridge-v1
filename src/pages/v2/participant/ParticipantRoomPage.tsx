@@ -54,12 +54,15 @@ export function ParticipantRoomPage() {
   const [input, setInput] = useState('');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [sentAtById, setSentAtById] = useState<Record<string, number>>({});
+  const [roomPaused, setRoomPaused] = useState(false);
   const navigate = useNavigate();
   const slowDown = useSlowDown();
   const pace = usePaceSignals();
 
+  const round = { current: 1, of: 3, approvalsRemaining: 2 };
+
   function send() {
-    if (!input.trim() || slowDown.sendBlocked) return;
+    if (!input.trim() || slowDown.sendBlocked || roomPaused) return;
     const id = `m${Date.now()}`;
     const msg: Message = {
       id,
@@ -120,13 +123,26 @@ export function ParticipantRoomPage() {
             className="text-xs font-semibold uppercase tracking-widest"
             style={{ color: 'var(--color-accent)' }}
           >
-            Protected Session · Live
+            Protected Session · {roomPaused ? 'Paused' : 'Live'}
           </p>
           <h1 className="text-base font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             Northern Watershed Consultation
           </h1>
+          <p className="mt-0.5 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+            Round {round.current} of {round.of} · {round.approvalsRemaining} approvals remaining
+            after dialogue
+          </p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setRoomPaused((p) => !p)}
+            className="rounded border px-3 py-2 text-xs font-medium transition-opacity hover:opacity-70"
+            style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
+            title="Simulates facilitator room pause (distinct from Slow down)"
+          >
+            {roomPaused ? 'Resume (demo)' : 'Pause (demo)'}
+          </button>
           <button
             type="button"
             data-testid="slow-down-btn"
@@ -160,6 +176,21 @@ export function ParticipantRoomPage() {
         This dialogue is private. Nothing said here will be shared publicly without explicit
         approval.
       </div>
+
+      {roomPaused ? (
+        <div
+          role="status"
+          className="border-b px-6 py-3 text-center text-sm"
+          style={{
+            borderColor: 'var(--color-border)',
+            backgroundColor: 'var(--color-pending-strip)',
+            color: 'var(--color-warning)',
+          }}
+        >
+          Room paused by facilitator. You can keep reading. Sending resumes when the session is live
+          again. (Slow down is a personal cooldown—different from this room pause.)
+        </div>
+      ) : null}
 
       {/* Messages */}
       <main
@@ -248,7 +279,7 @@ export function ParticipantRoomPage() {
               id="participant-input"
               rows={2}
               value={input}
-              disabled={slowDown.sendBlocked}
+              disabled={slowDown.sendBlocked || roomPaused}
               onChange={(e) => {
                 const next = e.target.value;
                 pace.onComposerChange(next, input);
@@ -261,9 +292,11 @@ export function ParticipantRoomPage() {
                 }
               }}
               placeholder={
-                slowDown.sendBlocked
-                  ? 'Sending paused — take a breath…'
-                  : 'Write your contribution… (Enter to send, Shift+Enter for new line)'
+                roomPaused
+                  ? 'Room paused — sending is closed until resume…'
+                  : slowDown.sendBlocked
+                    ? 'Sending paused — take a breath…'
+                    : 'Write your contribution… (Enter to send, Shift+Enter for new line)'
               }
               className="flex-1 resize-none rounded border px-4 py-2.5 text-sm outline-none transition-colors disabled:opacity-60"
               style={{
@@ -275,7 +308,7 @@ export function ParticipantRoomPage() {
             <button
               type="button"
               onClick={send}
-              disabled={!input.trim() || slowDown.sendBlocked}
+              disabled={!input.trim() || slowDown.sendBlocked || roomPaused}
               data-testid="send-message-btn"
               className="shrink-0 rounded px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
               style={{ backgroundColor: 'var(--color-accent)' }}
