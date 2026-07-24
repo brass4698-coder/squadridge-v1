@@ -1,9 +1,10 @@
 import { cn } from '../../lib/cn';
+import type { WorkspaceRoleAccent } from '../../lib/workspaceRole';
 
 type ChipProps = {
   children: string;
   className?: string;
-  tone?: 'default' | 'brand' | 'muted' | 'warning';
+  tone?: 'default' | 'brand' | 'muted' | 'warning' | WorkspaceRoleAccent;
 };
 
 const TONE: Record<NonNullable<ChipProps['tone']>, string> = {
@@ -11,6 +12,10 @@ const TONE: Record<NonNullable<ChipProps['tone']>, string> = {
   brand: 'border-brand/30 bg-brand-soft text-brand',
   muted: 'border-line bg-surface-sunken text-ink-faint',
   warning: 'border-sem-warning/40 bg-sem-warning-soft text-sem-warning',
+  facilitator: 'sr-chip-role-facilitator',
+  participant: 'sr-chip-role-participant',
+  moderator: 'sr-chip-role-moderator',
+  mediator: 'sr-chip-role-mediator',
 };
 
 function Chip({ children, className, tone = 'default' }: ChipProps) {
@@ -27,8 +32,14 @@ function Chip({ children, className, tone = 'default' }: ChipProps) {
   );
 }
 
-export function RoleChip({ label }: { label: string }) {
-  return <Chip tone="brand">{label}</Chip>;
+export function RoleChip({
+  label,
+  accent,
+}: {
+  label: string;
+  accent?: WorkspaceRoleAccent | null;
+}) {
+  return <Chip tone={accent ?? 'brand'}>{label}</Chip>;
 }
 
 export function MatterChip({ label }: { label: string }) {

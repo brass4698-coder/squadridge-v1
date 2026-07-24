@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GovernedEntryLayout } from '../../components/shell/GovernedEntryLayout';
 import { FormField } from '../../components/ui/FormField';
+import { FormPanel } from '../../components/ui/FormPanel';
 import { Input } from '../../components/ui/Input';
 import { copyForInviteReason } from '../../lib/inviteInvalidCopy';
 import {
@@ -53,52 +54,60 @@ export function EnterCredentialPage() {
           open signup.
         </p>
 
-        <form className="mt-8 space-y-4" onSubmit={(e) => void onValidate(e)}>
-          <FormField id="credential" label="Credential or invitation token">
-            <Input
-              id="credential"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder="Paste invitation hash or token"
-              autoComplete="off"
-              required
-              className="h-11 font-mono text-sm"
-            />
-          </FormField>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="submit"
-              className="btn-institutional btn-institutional--primary"
-              disabled={busy}
-            >
-              {busy ? 'Validating…' : 'Validate credential'}
-            </button>
-            <button
-              type="button"
-              className="btn-institutional btn-institutional--ghost"
-              onClick={async () => {
-                try {
-                  const text = await navigator.clipboard.readText();
-                  setValue(text.trim());
-                } catch {
-                  /* paste permission denied */
-                }
-              }}
-            >
-              Paste from clipboard
-            </button>
-          </div>
-        </form>
-
-        <p className="mt-4 text-sm text-ink-faint">
-          Prefer camera handoff?{' '}
-          <Link to="/enter/qr" className="text-brand">
-            Scan invitation QR
-          </Link>
-        </p>
+        <FormPanel
+          className="mt-8"
+          eyebrow="Credential"
+          title="Validate access"
+          description="Paste the invitation hash or token issued for your room."
+          footer={
+            <>
+              Prefer camera handoff?{' '}
+              <Link to="/enter/qr" className="text-brand underline-offset-2 hover:underline">
+                Scan invitation QR
+              </Link>
+            </>
+          }
+        >
+          <form className="space-y-4" onSubmit={(e) => void onValidate(e)}>
+            <FormField id="credential" label="Credential or invitation token" instrument>
+              <Input
+                id="credential"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Paste invitation hash or token"
+                autoComplete="off"
+                required
+                className="font-mono text-sm"
+              />
+            </FormField>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="submit"
+                className="btn-institutional btn-institutional--primary"
+                disabled={busy}
+              >
+                {busy ? 'Validating…' : 'Validate credential'}
+              </button>
+              <button
+                type="button"
+                className="btn-institutional btn-institutional--ghost"
+                onClick={async () => {
+                  try {
+                    const text = await navigator.clipboard.readText();
+                    setValue(text.trim());
+                  } catch {
+                    /* paste permission denied */
+                  }
+                }}
+              >
+                Paste from clipboard
+              </button>
+            </div>
+          </form>
+        </FormPanel>
 
         {result?.ok ? (
-          <div className="mt-8 rounded-lg border border-line bg-surface-elevated p-5" role="status">
+          <div className="sr-mode-gate mt-8 rounded-[var(--sr-radius-xl)] border p-5" role="status">
             <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
               Access confirmed
             </p>
@@ -140,7 +149,7 @@ export function EnterCredentialPage() {
 
         {result && !result.ok && errorCopy ? (
           <div
-            className="mt-8 rounded-lg border border-sem-danger/40 bg-sem-danger-soft p-5"
+            className="mt-8 rounded-[var(--sr-radius-xl)] border border-sem-danger/40 bg-sem-danger-soft p-5"
             role="alert"
           >
             <p className="m-0 font-medium text-ink">{errorCopy.title}</p>

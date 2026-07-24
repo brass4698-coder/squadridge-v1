@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AuthenticatedShell } from '../../components/layout/AuthenticatedShell';
+import { FormField } from '../../components/ui/FormField';
+import { FormPanel } from '../../components/ui/FormPanel';
+import { Input } from '../../components/ui/Input';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useParticipants } from '../../hooks/useParticipants';
 import { useSession } from '../../hooks/useSessions';
@@ -49,7 +52,7 @@ export function ParticipantInvitePage() {
     <AuthenticatedShell>
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
+          <p className="mb-1 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             Invite participants
           </p>
           <h1 className="text-xl font-semibold text-ink">
@@ -61,67 +64,61 @@ export function ParticipantInvitePage() {
           </p>
         </div>
 
-        <form
-          onSubmit={(e) => void handleAddParticipant(e)}
-          className="mb-8 rounded-lg border border-line bg-surface-elevated p-6"
+        <FormPanel
+          className="mb-8"
+          eyebrow="New participant"
+          title="Generate invite link"
+          description="Codename is shown in-room. Email is hashed for your records only."
+          data-demo="session-invite"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="codename"
-                className="mb-1 block text-xs font-medium text-ink-secondary"
-              >
-                Codename <span aria-hidden>*</span>
-              </label>
-              <input
-                id="codename"
-                required
-                value={codename}
-                onChange={(e) => setCodename(e.target.value)}
-                placeholder="Participant A"
-                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
-              />
+          <form onSubmit={(e) => void handleAddParticipant(e)} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField id="codename" label="Codename" instrument>
+                <Input
+                  id="codename"
+                  required
+                  value={codename}
+                  onChange={(e) => setCodename(e.target.value)}
+                  placeholder="Participant A"
+                />
+              </FormField>
+              <FormField id="email" label="Email (optional, hashed only)" instrument>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="for your records only"
+                />
+              </FormField>
             </div>
-            <div>
-              <label htmlFor="email" className="mb-1 block text-xs font-medium text-ink-secondary">
-                Email (optional, hashed only)
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="for your records only"
-                className="w-full rounded border border-line bg-surface px-3 py-2.5 text-sm text-ink"
-              />
-            </div>
-          </div>
-          {error ? (
-            <p className="mt-3 text-sm text-sem-danger" role="alert">
-              {error}
-            </p>
-          ) : null}
-          <button type="submit" className="btn-pill btn-pill--primary mt-4 text-sm">
-            Add participant &amp; generate link
-          </button>
-          {lastLink ? (
-            <div className="mt-4 flex gap-2">
-              <input
-                readOnly
-                value={lastLink}
-                className="flex-1 rounded border border-line bg-surface-sunken px-3 py-2 font-mono text-xs text-ink-secondary"
-                aria-label="Latest invite link"
-              />
-              <button
-                type="button"
-                onClick={() => copyLink(lastLink)}
-                className="rounded border border-line px-3 py-2 text-xs font-medium text-ink"
-              >
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-            </div>
-          ) : null}
-        </form>
+            {error ? (
+              <p className="text-sm text-sem-danger" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <button type="submit" className="btn-institutional btn-institutional--primary text-sm">
+              Add participant &amp; generate link
+            </button>
+            {lastLink ? (
+              <div className="flex gap-2">
+                <Input
+                  readOnly
+                  value={lastLink}
+                  className="flex-1 font-mono text-xs"
+                  aria-label="Latest invite link"
+                />
+                <button
+                  type="button"
+                  onClick={() => copyLink(lastLink)}
+                  className="btn-institutional btn-institutional--ghost shrink-0"
+                >
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            ) : null}
+          </form>
+        </FormPanel>
 
         <section aria-labelledby="participant-list-heading">
           <div className="mb-4 flex items-center justify-between gap-4">
@@ -148,11 +145,11 @@ export function ParticipantInvitePage() {
                 return (
                   <li
                     key={p.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-elevated p-4"
+                    className="sr-form-tile flex flex-wrap items-center justify-between gap-3 !p-4"
                   >
                     <div>
                       <p className="font-medium text-ink">{p.codename}</p>
-                      <p className="text-xs text-ink-faint font-mono">{link}</p>
+                      <p className="font-mono text-xs text-ink-faint">{link}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <StatusBadge variant={p.verification_status}>

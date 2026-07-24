@@ -57,6 +57,7 @@ import { InstitutionAdminDashboardPage } from './pages/dashboards/InstitutionAdm
 import { MediatorDashboardPage } from './pages/dashboards/MediatorDashboardPage';
 import { AnalystDashboardPage } from './pages/dashboards/AnalystDashboardPage';
 import { ParticipantDashboardPage } from './pages/dashboards/ParticipantDashboardPage';
+import { ModeratorDashboardPage } from './pages/dashboards/ModeratorDashboardPage';
 import { ObserverDashboardPage } from './pages/dashboards/ObserverDashboardPage';
 import { AccessPendingPage } from './pages/v2/AccessPendingPage';
 // Phase 5 — decks gallery + dedicated dark top-nav shell
@@ -97,6 +98,7 @@ import { ParticipantsReviewPage } from './pages/v2/facilitator/ParticipantsRevie
 import { SessionControlPage } from './pages/v2/facilitator/SessionControlPage';
 import { OutcomeWorkspacePage } from './pages/v2/facilitator/OutcomeWorkspacePage';
 import { OutcomeReleasePage } from './pages/v2/facilitator/OutcomeReleasePage';
+import { PilotGuidePage } from './pages/v2/PilotGuidePage';
 
 // ── New v2 pages — Phase 4 (participant flow) ────────────────────────────────
 import { InviteAcceptancePage } from './pages/v2/participant/InviteAcceptancePage';
@@ -301,8 +303,18 @@ export default function AppV2() {
                 <Route
                   path="/app/participant"
                   element={
-                    <RoleProtectedRoute allowed={['super_admin', 'participant']}>
+                    <RoleProtectedRoute allowed={['super_admin', 'participant', 'facilitator']}>
                       <ParticipantDashboardPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/app/moderator"
+                  element={
+                    <RoleProtectedRoute
+                      allowed={['super_admin', 'institution_admin', 'facilitator']}
+                    >
+                      <ModeratorDashboardPage />
                     </RoleProtectedRoute>
                   }
                 />
@@ -346,6 +358,7 @@ export default function AppV2() {
                   }
                 >
                   <Route path="/app/sessions" element={<SessionsListPage />} />
+                  <Route path="/app/pilot-guide" element={<PilotGuidePage />} />
                   <Route
                     path="/app/sessions/new"
                     element={<Navigate to="/app/sessions/new/setup" replace />}

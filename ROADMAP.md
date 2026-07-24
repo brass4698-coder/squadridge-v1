@@ -97,8 +97,9 @@ Track P0/P1 items here before claiming pilot impact or differentiation. Mark com
 
 ### 8. Pre-registered pilot metrics
 
-- [ ] Metrics defined before cohort starts (verification rate, time-to-release, session completion)
-- [ ] Facilitator rubric + optional 7-day participant follow-up survey template
+- [x] Metrics template defined ([`docs/operations/pilot-metrics-preregistration.md`](docs/operations/pilot-metrics-preregistration.md))
+- [ ] Metrics filled before cohort starts (verification rate, time-to-release, session completion)
+- [ ] Facilitator rubric + optional 7-day participant follow-up survey (template in metrics doc)
 - [ ] Results stored per [evidence-collection.md](docs/operations/evidence-collection.md); no public “lives saved” claims
 
 **Acceptance:** Partner pilot closeout memo cites pre-registered metrics only.

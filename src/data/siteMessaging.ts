@@ -12,13 +12,13 @@ export const SITE_NOT = [
   'Not a legal instrument or operator-proof E2E encryption (today)',
 ] as const;
 
-/** Ordered by go-to-market priority — mediation practice first. */
+/** Ordered by go-to-market priority. */
 export const TARGET_AUDIENCES = [
-  'Professional mediators and dispute-resolution practitioners (primary)',
-  'Restorative and de-escalation facilitation teams',
-  'NGO and peacebuilding program teams',
-  'Ombuds and institutional governance teams',
-  'Municipal, civic, and multi-agency coordination operators',
+  'Foundations and philanthropic program teams',
+  'NGO and peacebuilding facilitators',
+  'Boards and executive teams',
+  'HR, compliance, and ombuds offices',
+  'Professional mediators and dispute-resolution practitioners',
   'Track II dialogue facilitators (later)',
 ] as const;
 
@@ -37,9 +37,16 @@ export const PILOT_FIT_WEAK = [
 ] as const;
 
 export const CTA = {
+  /** Sole primary conversion label — use everywhere a request CTA appears. */
   primaryLabel: 'Request pilot access',
   primaryHref: '/request-access',
-  secondarySecurity: 'Read the security overview',
+  /** Sole secondary request label — diligence / briefing path. */
+  secondaryBriefingLabel: 'Request briefing',
+  secondaryBriefingHref: '/contact',
+  /** Exploration CTAs (not request synonyms). */
+  secondaryExploreLabel: 'See how release controls work',
+  secondaryExploreHref: '#stage-gate',
+  secondarySecurity: 'Inspect security boundary',
   secondarySecurityHref: '/security',
   secondaryProcess: 'See how it works',
   secondaryProcessHref: '/how-it-works',
@@ -50,7 +57,9 @@ export const CTA = {
   pilotHeadline: 'Request pilot access',
   pilotBody:
     'We review pilot applications manually and respond with an honest fit assessment, typically within 5–7 business days.',
-  briefingHeadline: 'Request a practice briefing',
+  pilotValueLine:
+    'For foundations, NGOs, and facilitators handling high-stakes matters — not open signup.',
+  briefingHeadline: 'Request briefing',
   briefingBody:
     'For diligence conversations, security review, or partnership exploration with mediators and facilitation teams before a formal application.',
 } as const;

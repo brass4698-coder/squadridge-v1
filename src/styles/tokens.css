@@ -15,62 +15,50 @@
  */
 
 :root {
-  /* ── Surfaces — deep indigo / navy (Phase 6) ────────────────────────
-     Palette shift from the near-neutral #0F1117 → deep indigo/navy for
-     a more spatial, "futuristic legal-tech" feel:
-       #08091f near-black indigo bg · #141833 navy surface · #25294a line.
-     Pairs with an electric-blue radial glow on the body (see globals.css
-     body::before) and a restrained violet accent surface tint. Values
-     preserve WCAG AA on ink pairings — the deeper indigo base actually
-     buys more contrast headroom than the previous slate-neutral.
-     ──────────────────────────────────────────────────────────────── */
+  /* ── Surfaces — deep navy vault (Spotify-like shell, SquadRidge navy) ─
+     Near-black navy canvas; elevated cards as charcoal-navy panels.
+     Accent remains teal only — no Spotify green, no purple neon. */
   --sr-bg: #08091f;
   --sr-bg-elevated: #141833;
   --sr-bg-secondary: #10132a;
   --sr-bg-sunken: #05061a;
-  /* Surface tinted with accent — for selected cards, active sidebar items */
-  --sr-bg-accent: color-mix(in oklch, #14b8a6 10%, #141833);
-  /* Restrained violet-tinted surface — for hover previews, futuristic accents */
-  --sr-bg-accent-alt: color-mix(in oklch, #8b5cf6 10%, #141833);
+  --sr-bg-accent: color-mix(in oklch, #14b8a6 12%, #141833);
+  /* Warm ridge stone tint — not violet — for secondary surface accents */
+  --sr-bg-accent-alt: color-mix(in oklch, #8e7a68 10%, #141833);
 
   /* ── Lines ──────────────────────────────────────────────────────── */
   --sr-line: #25294a;
   --sr-line-strong: #363a5e;
   --sr-divider: #1a1e3d;
-  /* Alpha-blended border — adapts to surrounding surface automatically */
   --sr-border-alpha: oklch(from #f9fafb l c h / 0.1);
 
-  /* ── Ink — four levels (gray-50 → gray-500) ─────────────────────── */
+  /* ── Ink — four levels ──────────────────────────────────────────── */
   --sr-ink: #f9fafb;
   --sr-ink-secondary: #9ca3af;
   --sr-ink-faint: #6b7280;
   --sr-ink-subtle: #4b5563;
 
-  /* ── Primary accent — teal for CTAs (kept from Phase 5) ─────────── */
+  /* ── Primary accent — SquadRidge teal (definite brand, not Spotify green) */
   --sr-primary: #14b8a6;
   --sr-primary-hover: #2dd4bf;
   --sr-primary-pressed: #0d9488;
-  --sr-primary-soft: oklch(from #14b8a6 l c h / 0.14);
-  --sr-primary-ring: oklch(from #14b8a6 l c h / 0.5);
+  --sr-primary-soft: oklch(from #14b8a6 l c h / 0.16);
+  --sr-primary-ring: oklch(from #14b8a6 l c h / 0.45);
   --sr-on-primary: #04120f;
 
   /* ── Brand mark (logo SVGs) — deep teal + ridge stone ───────────── */
   --sr-brand-mark: #01696f;
   --sr-brand-ridge: #8e7a68;
 
-  /* ── Secondary accent — restrained violet (Phase 6) ──────────────
-     Used for the futuristic-edge highlights: hover glows on decorative
-     cards, badge borders, subtle background tints. Never a primary CTA
-     colour — teal owns that. */
-  --sr-accent-alt: #8b5cf6;
-  --sr-accent-alt-hover: #a78bfa;
-  --sr-accent-alt-soft: oklch(from #8b5cf6 l c h / 0.14);
-  --sr-accent-alt-ring: oklch(from #8b5cf6 l c h / 0.45);
+  /* ── Secondary accent — warm ridge stone (not purple) ───────────── */
+  --sr-accent-alt: #8e7a68;
+  --sr-accent-alt-hover: #a8927c;
+  --sr-accent-alt-soft: oklch(from #8e7a68 l c h / 0.14);
+  --sr-accent-alt-ring: oklch(from #8e7a68 l c h / 0.4);
 
-  /* ── Gradient transition — electric blue (Phase 6) ───────────────
-     Used by the radial background glow. Distinct from --sr-info so
-     each has a semantic home (info: alerts / callouts; glow: bg only). */
-  --sr-glow: #3b82f6;
+  /* ── Atmosphere glow — teal bloom only (header / hero) ──────────── */
+  --sr-glow: #14b8a6;
+  --sr-glow-secondary: color-mix(in oklch, #141833 70%, #14b8a6);
 
   /* ── Semantic — Tailwind-500 values for consistency ─────────────── */
   --sr-success: #22c55e;
@@ -81,6 +69,20 @@
   --sr-danger-soft: oklch(from #ef4444 l c h / 0.14);
   --sr-info: #3b82f6;
   --sr-info-soft: oklch(from #3b82f6 l c h / 0.12);
+
+  /* ── Workspace role accents (dashboards / tour) — soft, professional ─ */
+  --sr-role-facilitator: var(--sr-primary);
+  --sr-role-facilitator-soft: var(--sr-primary-soft);
+  --sr-role-facilitator-ink: var(--sr-primary);
+  --sr-role-participant: var(--sr-info);
+  --sr-role-participant-soft: var(--sr-info-soft);
+  --sr-role-participant-ink: var(--sr-info);
+  --sr-role-moderator: #c4a574;
+  --sr-role-moderator-soft: oklch(from #c4a574 l c h / 0.14);
+  --sr-role-moderator-ink: #d4b896;
+  --sr-role-mediator: var(--sr-accent-alt);
+  --sr-role-mediator-soft: var(--sr-accent-alt-soft);
+  --sr-role-mediator-ink: var(--sr-accent-alt-hover);
 
   /* ── Focus ──────────────────────────────────────────────────────── */
   --sr-focus: var(--sr-primary);
@@ -113,12 +115,13 @@
     box-shadow var(--sr-duration-normal) var(--sr-ease-spring),
     opacity var(--sr-duration-normal) var(--sr-ease-spring);
 
-  /* ── Radius (Phase 5: bumped card default to 16px per spec) ────── */
-  --sr-radius-xs: 0.25rem; /*  4px — chips, badges */
+  /* ── Radius — Spotify-like soft cards ───────────────────────────── */
+  --sr-radius-xs: 0.375rem; /*  6px — chips */
   --sr-radius-sm: 0.5rem; /*  8px — inputs, small buttons */
-  --sr-radius-md: 0.75rem; /* 12px — small panels */
-  --sr-radius-lg: 1rem; /* 16px — cards, modals, sheets (default) */
-  --sr-radius-xl: 1.25rem; /* 20px — hero cards, dialogs */
+  --sr-radius-md: 0.75rem; /* 12px — controls */
+  --sr-radius-lg: 1rem; /* 16px — cards */
+  --sr-radius-xl: 1.25rem; /* 20px — hero panels */
+  --sr-radius-2xl: 1.5rem; /* 24px — major shells */
   --sr-radius-full: 9999px; /* pill — buttons, avatars, badges */
 
   /* ── 8pt spacing grid — canonical values (Phase 5) ──────────────── */
@@ -150,6 +153,12 @@
   --sr-glass-border: oklch(from var(--sr-ink) l c h / 0.08);
   --sr-glass-highlight: oklch(from var(--sr-ink) l c h / 0.04);
   --sr-glass-blur: 12px;
+
+  /* ── Form / vault instrument surfaces ───────────────────────────── */
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg-sunken) 88%, transparent);
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 14%, transparent);
+  --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 8%, transparent);
+  --sr-form-atmosphere-b: color-mix(in oklch, var(--sr-bg-elevated) 55%, transparent);
 
   /* ── Typography — single source for font stacks ─────────────────── */
   --sr-font-body: 'Inter', system-ui, sans-serif;
@@ -219,18 +228,25 @@
   --sr-glass-bg: oklch(from var(--sr-bg-elevated) l c h / 0.85);
   --sr-glass-border: oklch(from #14181f l c h / 0.08);
   --sr-glass-highlight: oklch(from #14181f l c h / 0.03);
+
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg-sunken) 92%, transparent);
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 10%, transparent);
+  --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 6%, transparent);
+  --sr-form-atmosphere-b: color-mix(in oklch, var(--sr-bg-elevated) 70%, transparent);
 }
 
 /* ── Institutional marketing — civic-grade confidentiality (light) ───
-   Warm mineral neutrals, deep ink-teal action, rare integrity green.
-   App chrome stays on :root dark; this theme is PublicShell marketing. */
+   Warm mineral / parchment canvas, cream elevated panels, deep ink-teal
+   (#0E5E63) action, muted bronze/slate secondary, clay warnings.
+   App chrome stays on :root dark; this theme is PublicShell marketing.
+   .theme-light remains for printable ledger / paper surfaces. */
 body[data-theme='institutional'] {
   --sr-bg: #f5f3ee;
   --sr-bg-elevated: #fbfaf7;
   --sr-bg-secondary: #f0eee8;
   --sr-bg-sunken: #ebe8e1;
   --sr-bg-accent: color-mix(in oklch, #0e5e63 8%, #fbfaf7);
-  --sr-bg-accent-alt: color-mix(in oklch, #5f6a67 6%, #fbfaf7);
+  --sr-bg-accent-alt: color-mix(in oklch, #8e7a68 6%, #fbfaf7);
 
   --sr-line: #ddd8ce;
   --sr-line-strong: #c9c2b6;
@@ -249,11 +265,40 @@ body[data-theme='institutional'] {
   --sr-primary-ring: oklch(from #0e5e63 l c h / 0.35);
   --sr-on-primary: #f7faf9;
 
+  --sr-brand-mark: #0e5e63;
+  --sr-brand-ridge: #8e7a68;
+
+  --sr-success: #2f7754;
+  --sr-success-soft: oklch(from #2f7754 l c h / 0.08);
   --sr-warning: #a15a37;
   --sr-warning-soft: oklch(from #a15a37 l c h / 0.12);
+  --sr-danger: #9a4338;
+  --sr-danger-soft: oklch(from #9a4338 l c h / 0.08);
+  --sr-info: #3d5a82;
+  --sr-info-soft: oklch(from #3d5a82 l c h / 0.08);
 
-  --sr-accent-alt: #5f6a67;
-  --sr-glow: transparent;
+  /* Muted bronze — secondary only, sparingly */
+  --sr-accent-alt: #8e7a68;
+  --sr-accent-alt-hover: #a8927c;
+  --sr-accent-alt-soft: oklch(from #8e7a68 l c h / 0.12);
+  --sr-accent-alt-ring: oklch(from #8e7a68 l c h / 0.35);
+
+  --sr-role-facilitator: var(--sr-primary);
+  --sr-role-facilitator-soft: var(--sr-primary-soft);
+  --sr-role-facilitator-ink: var(--sr-primary);
+  --sr-role-participant: var(--sr-info);
+  --sr-role-participant-soft: var(--sr-info-soft);
+  --sr-role-participant-ink: var(--sr-info);
+  --sr-role-moderator: #a15a37;
+  --sr-role-moderator-soft: oklch(from #a15a37 l c h / 0.1);
+  --sr-role-moderator-ink: #8a4a2e;
+  --sr-role-mediator: var(--sr-accent-alt);
+  --sr-role-mediator-soft: var(--sr-accent-alt-soft);
+  --sr-role-mediator-ink: var(--sr-accent-alt);
+
+  /* Atmosphere: soft mineral wash — not neon cyber glow */
+  --sr-glow: color-mix(in oklch, #0e5e63 18%, transparent);
+  --sr-glow-secondary: color-mix(in oklch, #8e7a68 12%, transparent);
 
   --sr-shadow-xs: 0 1px 2px oklch(0.2 0.02 80 / 0.06);
   --sr-shadow-sm: 0 1px 2px oklch(0.2 0.02 80 / 0.05), 0 4px 12px oklch(0.2 0.02 80 / 0.06);
@@ -264,36 +309,39 @@ body[data-theme='institutional'] {
   --sr-glass-border: var(--sr-line);
   --sr-glass-blur: 12px;
 
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg-sunken) 92%, transparent);
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 8%, transparent);
+  --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 5%, transparent);
+  --sr-form-atmosphere-b: color-mix(in oklch, #8e7a68 4%, transparent);
+
+  --space-section: 5.5rem;
+  --space-section-lg: 7rem;
   --sr-shell-max: 72rem;
   --sr-measure-prose: 40rem;
   --sr-measure-wide: 42rem;
   --sr-measure-narrow: 36rem;
 
-  /* Marketing display — larger hierarchy for high-DPI comfort */
   --sr-font-display: 'Instrument Serif', 'IBM Plex Serif', Georgia, serif;
   --sr-font-body: 'Inter', 'Public Sans', system-ui, sans-serif;
   --sr-font-heading: 'Inter', 'Public Sans', system-ui, sans-serif;
 
-  --sr-text-display: clamp(2.625rem, 4.5vw, 3.5rem);
-  --sr-text-h1: clamp(1.875rem, 2.6vw, 2.375rem);
-  --sr-text-h2: clamp(1.5rem, 2vw, 1.875rem);
-  --sr-text-h3: 1.25rem;
-  --sr-text-eyebrow: 0.75rem;
-  --sr-text-lead: 1.125rem;
-  --sr-text-meta: 0.8125rem;
+  --sr-text-display: clamp(2.25rem, 3.8vw, 3rem);
+  --sr-text-h1: clamp(1.75rem, 2.4vw, 2.125rem);
+  --sr-text-h2: clamp(1.375rem, 1.8vw, 1.625rem);
+  --sr-text-h3: 1.125rem;
+  --sr-text-eyebrow: 0.6875rem;
+  --sr-text-lead: 1.0625rem;
+  --sr-text-meta: 0.75rem;
 
-  /* Floor for caps labels / nav microcopy (was ~11px) */
   --text-label: 0.75rem;
   --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-body: 1.0625rem;
   --text-base: 1.0625rem;
 
-  --space-section: 6rem;
-  --space-section-lg: 7.5rem;
-
   --sr-radius-lg: 0.5rem;
   --sr-radius-xl: 0.625rem;
+  --sr-radius-2xl: 0.75rem;
 
   /* Governed modes — room enclosed, gate tinted, ledger flat */
   --sr-mode-room-bg: #ebe8e1;
@@ -309,7 +357,6 @@ body[data-theme='institutional'] {
   --sr-ease-governed: cubic-bezier(0.25, 0.1, 0.25, 1);
   --sr-duration-governed: 200ms;
 
-  /* Light marketing surface helpers (override dark :root alphas) */
   --color-border-subtle: oklch(from #1f2423 l c h / 0.1);
   --color-border-medium: oklch(from #1f2423 l c h / 0.16);
   --color-surface-raised: #fbfaf7;
@@ -321,6 +368,7 @@ body[data-theme='institutional'] {
   --color-badge-published-text: var(--sr-verify-ink);
 }
 
+/* No cyber header bloom on parchment marketing */
 body[data-theme='institutional']::before {
   display: none;
 }

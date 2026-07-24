@@ -30,7 +30,7 @@ export function MatterThroughNav() {
               ) : null}
               <a
                 href={`#${s.id}`}
-                className="sr-interactive rounded-sm border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-raised)] px-3 py-1.5 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-ink-secondary no-underline transition-colors hover:border-[hsla(0,0%,100%,0.22)] hover:text-ink"
+                className="sr-interactive rounded-sm border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-raised)] px-3 py-1.5 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-ink-secondary no-underline transition-colors hover:border-line-strong hover:text-ink"
               >
                 {s.label}
               </a>

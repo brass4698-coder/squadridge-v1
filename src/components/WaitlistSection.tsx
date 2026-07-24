@@ -1,4 +1,7 @@
 import type { FormEvent } from 'react';
+import { FormField } from './ui/FormField';
+import { FormPanel } from './ui/FormPanel';
+import { Input } from './ui/Input';
 import { useWaitlistForm } from '../hooks';
 
 const ROLE_CHIPS = [
@@ -20,17 +23,15 @@ function RoleRadios({
 }) {
   return (
     <fieldset className="mt-6 border-0 p-0">
-      <legend className="mb-3 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+      <legend className="mb-3 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
         Role
       </legend>
       <div className="space-y-2">
         {ROLE_CHIPS.map((role) => (
           <label
             key={role}
-            className={`flex cursor-pointer items-center gap-3 rounded border px-4 py-3 transition-colors ${
-              roleHint === role
-                ? 'border-teal/50 bg-[#0f1724]'
-                : 'border-[#2d3f55] bg-[#0a1018] hover:border-slate-600'
+            className={`sr-form-tile focus-ring flex cursor-pointer flex-row items-center gap-3 !p-3 ${
+              roleHint === role ? 'border-brand/40 bg-surface-accent' : ''
             }`}
           >
             <input
@@ -42,12 +43,12 @@ function RoleRadios({
               className="peer sr-only"
             />
             <span
-              className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-slate-500 bg-[#070b12] peer-checked:border-teal peer-checked:bg-teal/15 peer-checked:[&_.waitlist-radio-dot]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-[#070b12]"
+              className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface-sunken peer-checked:border-brand peer-checked:bg-brand/15 peer-checked:[&_.waitlist-radio-dot]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40"
               aria-hidden
             >
-              <span className="waitlist-radio-dot h-1.5 w-1.5 rounded-full bg-teal opacity-0 transition-opacity" />
+              <span className="waitlist-radio-dot h-1.5 w-1.5 rounded-full bg-brand opacity-0 transition-opacity" />
             </span>
-            <span className="font-sans text-[0.9rem] leading-snug text-landing-body">{role}</span>
+            <span className="text-sm leading-snug text-ink">{role}</span>
           </label>
         ))}
       </div>
@@ -68,34 +69,18 @@ export function WaitlistSection() {
     externalUrl,
   } = useWaitlistForm();
 
-  const titleClass =
-    'text-left font-heading text-xl font-semibold leading-snug tracking-tight text-landing-ink md:text-2xl';
-
-  const inputClass =
-    'waitlist-email-input w-full min-w-0 flex-1 rounded-none border-0 bg-transparent py-2 px-0 font-sans text-[0.95rem] font-normal text-[#e2e8f0] placeholder:text-landing-muted/60 outline-none disabled:opacity-50';
-
-  function Shell({ children }: { children: React.ReactNode }) {
-    return <div className="border border-[#2a3548] bg-[#080d14] p-6 md:p-8">{children}</div>;
-  }
-
   const introBlocks = (
     <>
-      <p className="mb-0 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
-        Request access
-      </p>
-      <h2 id="waitlist-heading" className={`mt-3 ${titleClass}`}>
-        Request pilot access
-      </h2>
-      <div className="mt-6 border border-[#2d3f55] bg-[#0a1018] px-4 py-3">
-        <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
+      <div className="mt-2 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/70 px-4 py-3">
+        <p className="mb-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint">
           Priority note
         </p>
-        <p className="mb-0 mt-2 font-sans text-[0.85rem] leading-relaxed text-landing-body">
+        <p className="mb-0 mt-2 text-sm leading-relaxed text-ink-secondary">
           We prioritize pilots where the facilitator, participant profile, and risk model are
           already defined.
         </p>
       </div>
-      <p className="mt-6 font-sans text-[0.95rem] leading-relaxed text-landing-body">
+      <p className="mt-6 text-sm leading-relaxed text-ink-secondary">
         Leave your role and contact email. We will only reach out when there is a facilitator-led
         pilot or walkthrough that fits your background.
       </p>
@@ -105,28 +90,41 @@ export function WaitlistSection() {
   if (externalUrl) {
     return (
       <section id="waitlist" className="scroll-mt-8 text-left" aria-labelledby="waitlist-heading">
-        <Shell>
-          {introBlocks}
+        <FormPanel
+          eyebrow="Request access"
+          title="Request pilot access"
+          titleId="waitlist-heading"
+          description={introBlocks}
+        >
           <RoleRadios roleHint={roleHint} onChange={setRoleHint} name="waitlist-role-external" />
           <div className="mt-8">
             <a
               href={externalUrl}
-              className="focus-ring btn-primary inline-flex min-h-[44px] items-center justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold no-underline"
+              className="btn-institutional btn-institutional--primary inline-flex min-h-[44px] items-center justify-center no-underline"
               rel={/^https?:/i.test(externalUrl) ? 'noopener noreferrer' : undefined}
               target={/^https?:/i.test(externalUrl) ? '_blank' : undefined}
             >
               Request pilot access
             </a>
           </div>
-        </Shell>
+        </FormPanel>
       </section>
     );
   }
 
   return (
     <section id="waitlist" className="scroll-mt-8 text-left" aria-labelledby="waitlist-heading">
-      <Shell>
-        {introBlocks}
+      <FormPanel
+        eyebrow="Request access"
+        title="Request pilot access"
+        titleId="waitlist-heading"
+        description={introBlocks}
+        footer={
+          !configured
+            ? 'Operators: configure Supabase in .env or set VITE_WAITLIST_FORM_URL.'
+            : undefined
+        }
+      >
         <form
           onSubmit={(e: FormEvent<HTMLFormElement>) => void handleSubmit(e)}
           className="mt-0 border-0 bg-transparent p-0 shadow-none"
@@ -143,67 +141,38 @@ export function WaitlistSection() {
             defaultValue=""
           />
           <RoleRadios roleHint={roleHint} onChange={setRoleHint} name="waitlist-role" />
-          <div className="mt-8 border border-[#2d3f55] bg-[#0a1018] p-5 sm:p-6">
-            <div className="flex flex-col gap-4">
-              <div>
-                <p
-                  id="waitlist-email-heading"
-                  className="mb-0 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-slate-500"
-                >
-                  Email
-                </p>
-                <label
-                  id="waitlist-email-label"
-                  htmlFor="waitlist-email"
-                  className="mt-1 block font-sans text-[0.8rem] text-slate-500"
-                >
-                  Contact email
-                </label>
-              </div>
-              <div className="min-w-0 border-b border-[#3d4f63] pb-1 transition-colors focus-within:border-teal/50">
-                <input
-                  id="waitlist-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  inputMode="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@organization.com"
-                  className={inputClass}
-                  disabled={status === 'loading'}
-                  aria-invalid={status === 'error'}
-                  aria-labelledby="waitlist-email-heading waitlist-email-label"
-                />
-              </div>
-              <button
-                id="waitlist-join-btn"
-                type="submit"
-                className="focus-ring btn-primary w-full min-h-[44px] justify-center px-6 py-2.5 font-heading text-[0.95rem] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={status === 'loading' || !configured}
-              >
-                {status === 'loading' ? 'Sending...' : 'Request pilot access'}
-              </button>
-            </div>
+          <div className="mt-8 space-y-4">
+            <FormField id="waitlist-email" label="Contact email" instrument>
+              <Input
+                id="waitlist-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@organization.com"
+                disabled={status === 'loading'}
+                invalid={status === 'error'}
+              />
+            </FormField>
+            <button
+              id="waitlist-join-btn"
+              type="submit"
+              className="btn-institutional btn-institutional--primary w-full min-h-[44px] justify-center disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={status === 'loading' || !configured}
+            >
+              {status === 'loading' ? 'Sending...' : 'Request pilot access'}
+            </button>
           </div>
         </form>
-        {!configured ? (
-          <p
-            className="mt-6 font-sans text-fluid-small leading-relaxed text-amber/90"
-            role="status"
-          >
-            Operators: configure Supabase in{' '}
-            <code className="rounded bg-navy-dark px-1.5 py-0.5">.env</code> or set{' '}
-            <code className="rounded bg-navy-dark px-1.5 py-0.5">VITE_WAITLIST_FORM_URL</code>.
-          </p>
-        ) : null}
         {feedback ? (
           <p
-            className={`mt-4 border px-4 py-3 font-sans text-fluid-small ${
+            className={`mt-4 rounded-[var(--sr-radius-md)] border px-4 py-3 text-sm ${
               status === 'error'
-                ? 'border-amber/30 bg-amber/[0.07] text-amber'
-                : 'border-[#2d4f55] bg-[#0f1724] text-landing-body'
+                ? 'border-sem-warning/40 bg-sem-warning-soft text-ink'
+                : 'border-line bg-surface-sunken text-ink-secondary'
             }`}
             role="status"
             aria-live="polite"
@@ -211,7 +180,7 @@ export function WaitlistSection() {
             {feedback}
           </p>
         ) : null}
-      </Shell>
+      </FormPanel>
     </section>
   );
 }

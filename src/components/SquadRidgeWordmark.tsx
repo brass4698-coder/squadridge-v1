@@ -4,7 +4,7 @@ import { SquadLogo } from './SquadLogo';
 export type SquadRidgeWordmarkProps = HTMLAttributes<HTMLSpanElement> & {
   /** Accessible name when the wordmark is the sole brand signal. Omit when decorative. */
   alt?: string;
-  /** Show the “Facilitator Led Rooms” line under the name. */
+  /** Show the “Private Deliberation Infrastructure” line under the name. */
   showTagline?: boolean;
   /** Visual weight for dense nav vs. hero/sign-in. */
   size?: 'sm' | 'md' | 'lg';
@@ -12,22 +12,23 @@ export type SquadRidgeWordmarkProps = HTMLAttributes<HTMLSpanElement> & {
 
 const sizeClasses = {
   sm: {
-    name: 'font-heading text-sm font-semibold tracking-tight',
-    tagline: 'text-[0.65rem] font-medium tracking-wide',
+    name: 'font-heading text-sm font-semibold tracking-[0.04em]',
+    tagline: 'text-[0.55rem] font-medium tracking-[0.18em]',
   },
   md: {
-    name: 'font-heading text-base font-semibold tracking-tight',
-    tagline: 'text-xs font-medium tracking-wide',
+    name: 'font-heading text-base font-semibold tracking-[0.04em]',
+    tagline: 'text-[0.65rem] font-medium tracking-[0.2em]',
   },
   lg: {
-    name: 'font-heading text-lg font-semibold tracking-tight sm:text-xl',
-    tagline: 'text-sm font-medium tracking-wide',
+    name: 'font-heading text-lg font-semibold tracking-[0.04em] sm:text-xl',
+    tagline: 'text-xs font-medium tracking-[0.2em] sm:text-sm',
   },
 } as const;
 
 /**
  * SquadRidge wordmark — CSS typography so it tracks theme ink and product fonts.
- * Brand SVG exports with the same copy live at `/assets/squadridge-wordmark.svg`.
+ * Two-tone lockup: SQUAD in brand teal, RIDGE in ridge stone.
+ * Export SVGs live at `/assets/squadridge-wordmark.svg` and `/assets/squadridge-lockup.svg`.
  */
 export function SquadRidgeWordmark({
   alt,
@@ -46,9 +47,14 @@ export function SquadRidgeWordmark({
         : { 'aria-hidden': true as const })}
       {...rest}
     >
-      <span className={classes.name}>SquadRidge</span>
+      <span className={`${classes.name} uppercase`}>
+        <span className="text-[color:var(--sr-brand-mark)]">Squad</span>
+        <span className="text-[color:var(--sr-brand-ridge)]">Ridge</span>
+      </span>
       {showTagline ? (
-        <span className={`mt-1 ${classes.tagline}`}>Facilitator Led Rooms</span>
+        <span className={`mt-1 uppercase text-ink-secondary ${classes.tagline}`}>
+          Private Deliberation Infrastructure
+        </span>
       ) : null}
     </span>
   );
@@ -64,7 +70,10 @@ export type SquadRidgeLockupProps = HTMLAttributes<HTMLSpanElement> & {
 
 const markSize = { sm: 28, md: 34, lg: 44 } as const;
 
-/** Icon + wordmark lockup for nav, sign-in, and hero brand anchors. */
+/**
+ * Icon + wordmark lockup for nav, sign-in, and hero brand anchors.
+ * Pass `showTagline` only for hero/sign-in moments — omit in nav so the header stays one row.
+ */
 export function SquadRidgeLockup({
   alt,
   className,
@@ -80,7 +89,11 @@ export function SquadRidgeLockup({
 
   if (markOnly) {
     return (
-      <span className={className} {...a11y} {...rest}>
+      <span
+        className={['inline-flex shrink-0 items-center', className].filter(Boolean).join(' ')}
+        {...a11y}
+        {...rest}
+      >
         <SquadLogo size={markSize[size]} aria-hidden />
       </span>
     );
@@ -88,7 +101,9 @@ export function SquadRidgeLockup({
 
   return (
     <span
-      className={['inline-flex items-center gap-2.5', className].filter(Boolean).join(' ')}
+      className={['inline-flex shrink-0 items-center gap-2.5 leading-none', className]
+        .filter(Boolean)
+        .join(' ')}
       {...a11y}
       {...rest}
     >

@@ -1,109 +1,153 @@
-import type { UseCaseCardProps } from '../components/shared/UseCaseCard';
+import type { UseCaseCardProps, SecondaryUseCaseProps } from '../components/shared/UseCaseCard';
 
-export const flagshipUseCaseId = 'civil-mediation';
+/** Shared process spine — shown once at page level, echoed lightly in each lane. */
+export const USE_CASE_ARCHITECTURE_LINE = 'Private room → facilitator gate → approved record';
 
-export const useCases: UseCaseCardProps[] = [
+export const USE_CASE_PROCESS_TIE_IN =
+  'Private session rooms · facilitator-governed release · approved outcomes only.';
+
+/** Intake track query values for `/request-access?track=`. */
+export type BuyerTrackParam = 'foundations' | 'peacebuilding' | 'hr';
+
+export const BUYER_TRACK_INTAKE: Record<
+  BuyerTrackParam,
+  { orgType: string; matterType: string; label: string }
+> = {
+  foundations: {
+    label: 'Philanthropy & foundations',
+    orgType: 'Foundation / philanthropy',
+    matterType: 'Internal deliberation / decision memo',
+  },
+  peacebuilding: {
+    label: 'Peacebuilding & mediation',
+    orgType: 'Peacebuilding / Track II',
+    matterType: 'Peacebuilding / cross-party dialogue',
+  },
+  hr: {
+    label: 'HR, compliance & ombuds',
+    orgType: 'HR / compliance / ombuds',
+    matterType: 'HR / ombuds inquiry',
+  },
+};
+
+/** Three equal primary buyer tracks — same visual weight on /use-cases. */
+export const primaryUseCases: UseCaseCardProps[] = [
   {
-    sector: 'Civil mediators & conflict resolution · Flagship',
-    title: 'Community land-use mediation',
+    id: 'philanthropy',
+    track: 'foundations',
+    sector: 'Philanthropy & Foundations',
+    title: 'Board and grantee deliberation under scrutiny.',
     context:
-      'Parties to a contested land-use question need structured dialogue without a discoverable trail — while institutions still need a credible outcome they can cite.',
-    inTheRoom:
-      'Structured written rounds under facilitator control. Each party states its position and responds at its own pace. No faces, voices, or transcripts leave the room.',
+      'Contested funding or governance questions draw public and political scrutiny — informal notes and forwarded threads become the story.',
+    ordinaryToolsFail: [
+      'Email threads sprawl and get forwarded beyond the intended circle',
+      'Chat channels create discoverable trails with no release authority',
+      'Video calls leave informal notes that cannot be cited with integrity',
+    ],
+    processChange: [
+      'Verified participants deliberate in a facilitator-led written room',
+      'Positions and dissent stay inside; the facilitator holds the release gate',
+      'Only an approved decision memo can leave the room',
+    ],
+    processTieIn: USE_CASE_PROCESS_TIE_IN,
     releasedRecord:
-      'A Joint Statement of Principles, approved by every party, published to the ledger with a verification anchor.',
+      'An approved decision memo or principles statement — privately anchored or optionally public — with a short verification anchor. Dialogue and attribution stay off the record. Full integrity detail lives on Ledger and Security.',
     whySquadridge:
-      'A protected room for parties and a verifiable record for institutions — without exposing who said what, and without replacing your professional judgment.',
+      'Funders and boards get process evidence without publishing the deliberation that produced it.',
+    ctaLabel: 'Request a foundations pilot',
+    ctaHref: '/request-access?track=foundations',
+  },
+  {
+    id: 'peacebuilding',
+    track: 'peacebuilding',
+    sector: 'Peacebuilding & Mediation',
+    title: 'High-stakes mediation with a releasable agreement.',
+    context:
+      'Attribution-sensitive parties need structured written dialogue without collapsing a fragile process — institutions still need a credible outcome they can cite.',
+    ordinaryToolsFail: [
+      'Open chat and shared docs collapse privacy and process control',
+      'Transcripts become weapons between parties',
+      'Verbal sessions leave no verifiable instrument institutions can cite',
+    ],
+    processChange: [
+      'Structured written rounds under facilitator control',
+      'Each party responds at its own pace — no faces, voices, or auto-exported transcripts',
+      'Designated parties approve what may leave; the facilitator signs off release',
+    ],
+    processTieIn: USE_CASE_PROCESS_TIE_IN,
+    releasedRecord:
+      'A joint statement or agreement text — released only on facilitator sign-off — with a short integrity anchor, not room dialogue. Crypto and verification detail live on Ledger and Security.',
+    whySquadridge:
+      'A protected room for parties and a verifiable record for institutions — without exposing who said what.',
     recordSampleId: 'SQR-2024-0147',
-    ctaLabel: 'Request access as a mediator',
-    ctaHref: '/request-access',
+    ctaLabel: 'Request a peacebuilding pilot',
+    ctaHref: '/request-access?track=peacebuilding',
   },
   {
-    sector: 'Restorative & de-escalation processes',
-    title: 'Facilitated strategy session with a releasable agreement',
+    id: 'hr-compliance',
+    track: 'hr',
+    sector: 'HR, Compliance & Ombuds',
+    title: 'Sensitive workplace or institutional inquiry.',
     context:
-      'A restorative or de-escalation process needs a protected written room — tensions are high, attribution is sensitive, and agreed next steps may need to exist outside the room.',
-    inTheRoom:
-      'Structured written rounds under a trained facilitator. Parties engage without real-time confrontation; dialogue stays private.',
+      'Ombuds, HR, or compliance leads need structured fact-finding without exposing contributors or creating a discoverable transcript that invites retaliation.',
+    ordinaryToolsFail: [
+      'Ticket systems and email produce sprawling, discoverable trails',
+      'Anonymous forms lack facilitator process control',
+      'Open docs invite oversharing and discovery risk',
+    ],
+    processChange: [
+      'Verified contributors submit written accounts in structured rounds',
+      'The investigator facilitates; contributors are verified by role, not named on the record',
+      'Only approved conclusions can leave the room',
+    ],
+    processTieIn: USE_CASE_PROCESS_TIE_IN,
     releasedRecord:
-      'A facilitator-approved agreement summary or action plan on the ledger — verifiable integrity, no transcript, no participant attribution.',
+      'An approved findings or ombuds summary — conclusions only — optionally anchored for integrity. Individual accounts stay inside the room. Verification detail lives on Ledger and Security.',
     whySquadridge:
-      'Supports de-escalation through structure and time-bound written dialogue — not monitoring, scoring, or surveillance of communities.',
-    ctaLabel: 'See how it works',
-    ctaHref: '/how-it-works',
-  },
-  {
-    sector: 'City community safety',
-    title: 'Municipal coordination — action commitments record',
-    context:
-      'A city community safety office convenes verified partners from violence interruption, youth services, and neighborhood coalitions. They need a protected room to negotiate priorities, then a record funders and council can verify.',
-    inTheRoom:
-      'Structured written coordination under facilitator oversight. Partners propose interventions and signal support privately — no transcript, no surveillance analytics, no public attribution.',
-    releasedRecord:
-      'An Action Commitments Record: prioritized interventions, lead organizations, timelines, and org count — with a verification anchor. Room dialogue never publishes.',
-    whySquadridge:
-      'Traceable institutional decisions without turning dialogue into monitoring. Partners coordinate safely; the city releases only what everyone approved.',
-    recordSampleId: 'SQR-2026-0312',
-    ctaLabel: 'Request a municipal briefing',
-    ctaHref: '/request-access',
-  },
-  {
-    sector: 'NGOs & peacebuilding teams',
-    title: 'Sensitive internal deliberation',
-    context:
-      'A contested advocacy position must be worked through without putting staff or community members at risk. Contributors argue freely; the organisation still needs a record funders can trust.',
-    inTheRoom:
-      'Structured written deliberation among verified staff and partners. Contributions stay inside the room; identities are never disclosed publicly.',
-    releasedRecord:
-      'A verifiable record of the agreed position — evidence of process for funders, with no transcript that could be turned against the room.',
-    whySquadridge:
-      'Staff are not put at risk by participation; the funder gets evidence of process without a weaponizable transcript.',
-    ctaLabel: 'Talk to us',
-    ctaHref: '/request-access',
-  },
-  {
-    sector: 'Cross-border & Track II dialogue',
-    title: 'Civil-society dialogue across a conflict line',
-    context:
-      'Civil-society groups from parties in conflict need a facilitated exchange where meeting in person or on camera is unsafe or impossible.',
-    inTheRoom:
-      'Facilitator-led written exchange between verified representatives — structured rounds, facilitator control, no calls.',
-    releasedRecord:
-      'A shareable communiqué or statement of common ground, released only on facilitator sign-off and anchored so readers can confirm it is unaltered.',
-    whySquadridge:
-      'Parties speak freely knowing nothing is recorded for public release; the communiqué is verifiable without revealing who said what.',
-    ctaLabel: 'Request pilot access',
-    ctaHref: '/request-access',
-  },
-  {
-    sector: 'Implementation & monitoring',
-    title: 'Post-agreement implementation check-ins',
-    context:
-      'After an agreement is reached, parties need accountability without exposing internal reporting. Periodic check-ins must produce a credible public checkpoint.',
-    inTheRoom:
-      'Periodic written progress reports from verified parties, organised into a protected thread the facilitator moderates.',
-    releasedRecord:
-      "A verified implementation-status update on the ledger — a credible, tamper-evident checkpoint — without exposing the parties' internal reporting.",
-    whySquadridge:
-      'Creates a tamper-evident record of implementation without exposing which party reported what.',
-    ctaLabel: 'See how it works',
-    ctaHref: '/how-it-works',
-  },
-  {
-    sector: 'Ombuds, HR & internal investigations',
-    title: 'Sensitive workplace or institutional inquiry',
-    context:
-      'A workplace complaint or institutional inquiry requires structured fact-finding — and a defensible anonymized record — without exposing contributors or creating a discoverable transcript.',
-    inTheRoom:
-      'Verified contributors submit written accounts in structured rounds. The ombuds or investigator facilitates; contributors are verified by role, not exposed by name.',
-    releasedRecord:
-      "A verified findings summary — the ombuds' approved conclusions, anchored and tamper-evident — without any individual's account attached.",
-    whySquadridge:
-      'Contributors speak without creating a discoverable transcript; investigators release only approved conclusions.',
-    ctaLabel: 'Request pilot access',
-    ctaHref: '/request-access',
+      'Contributors speak without creating a weaponizable transcript; investigators release only approved conclusions.',
+    ctaLabel: 'Request an HR pilot',
+    ctaHref: '/request-access?track=hr',
   },
 ];
 
-/** Secondary contexts — shown after the flagship on marketing pages. */
-export const secondaryUseCases = useCases.slice(1);
+/** Secondary contexts — calm treatment below the three primary tracks. */
+export const secondaryUseCases: SecondaryUseCaseProps[] = [
+  {
+    id: 'ngos',
+    sector: 'NGOs & civil society',
+    title: 'Sensitive internal deliberation',
+    scenario:
+      'An NGO works through a contested advocacy or partner decision without putting staff or community members at risk if notes leak.',
+    sameProcessAs: 'Foundations',
+    sameProcessContext: 'civil-society internal deliberation and decision memos',
+    ctaLabel: 'Request pilot access',
+    ctaHref: '/request-access?track=foundations',
+  },
+  {
+    id: 'corporations',
+    sector: 'Corporations & executive teams',
+    title: 'Board and C-suite conflict under confidentiality',
+    scenario:
+      'A board or executive team resolves a high-stakes internal dispute where email CC chains create liability and confusion about what was decided.',
+    sameProcessAs: 'HR',
+    sameProcessContext: 'institutional inquiry and executive confidentiality',
+    ctaLabel: 'Request pilot access',
+    ctaHref: '/request-access?track=hr',
+  },
+];
+
+/** Flat list for landing teasers and deep links (primary first, then secondary). */
+export const useCases: UseCaseCardProps[] = [
+  ...primaryUseCases,
+  ...secondaryUseCases.map((s) => ({
+    id: s.id,
+    sector: s.sector,
+    title: s.title,
+    context: s.scenario,
+    ordinaryToolsFail: [] as string[],
+    processChange: [] as string[],
+    releasedRecord: `Uses the same process as ${s.sameProcessAs} for ${s.sameProcessContext}.`,
+    ctaLabel: s.ctaLabel,
+    ctaHref: s.ctaHref,
+  })),
+];

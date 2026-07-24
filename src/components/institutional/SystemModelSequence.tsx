@@ -90,7 +90,7 @@ export function SystemModelSequence() {
         </div>
       </div>
 
-      <ol className="m-0 flex max-w-[42rem] list-none flex-col gap-14 p-0 md:gap-20">
+      <ol className="m-0 flex max-w-[42rem] list-none flex-col gap-10 p-0 md:gap-12">
         {STAGES.map((stage, index) => {
           const Icon = stage.Icon;
           return (
@@ -101,14 +101,14 @@ export function SystemModelSequence() {
               ref={(el) => {
                 stageRefs.current[index] = el;
               }}
-              className="scroll-mt-28"
+              className="sr-vault-card scroll-mt-28 px-5 py-6 md:px-7 md:py-8"
             >
               <header className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center border border-[color:var(--color-border-subtle)] text-ink-faint">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface-sunken text-ink-faint">
                     <Icon className="size-3.5" aria-hidden />
                   </span>
-                  <span className="font-mono text-xs tabular-nums text-[color:var(--color-text-muted)]">
+                  <span className="font-mono text-xs tabular-nums text-ink-faint">
                     Stage {stage.num}
                   </span>
                   <StatusBadge variant={stage.badgeVariant}>{stage.chipLabel}</StatusBadge>
@@ -119,7 +119,7 @@ export function SystemModelSequence() {
                 {stage.label}
               </h3>
 
-              <div className="mt-8 flex flex-col gap-4">
+              <div className="mt-8 grid gap-3 sm:grid-cols-1">
                 <ControlCell term="What exists" desc={stage.exists} />
                 <ControlCell term="Who controls it" desc={stage.controls} />
                 <ControlCell term="Never public" desc={stage.withheld} accent />
@@ -143,20 +143,22 @@ function ControlCell({
 }) {
   return (
     <div
-      className={`flex flex-col gap-3 rounded-md border px-5 py-5 ${
+      className={`flex flex-col gap-3 rounded-[var(--sr-radius-md)] border px-5 py-5 ${
         accent
-          ? 'border-[hsla(168,30%,40%,0.35)] bg-[hsla(168,25%,35%,0.08)]'
-          : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-raised)]'
+          ? 'border-brand/35 border-l-[3px] border-l-brand bg-brand-soft/50'
+          : 'border-line bg-surface-elevated'
       }`}
     >
       <p
         className={`m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] ${
-          accent ? 'text-brand' : 'text-[color:var(--color-text-muted)]'
+          accent ? 'text-brand' : 'text-ink-faint'
         }`}
       >
         {term}
       </p>
-      <p className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink' : 'text-ink-secondary'}`}>
+      <p
+        className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink font-medium' : 'text-ink-secondary'}`}
+      >
         {desc}
       </p>
     </div>

@@ -14,7 +14,14 @@ const desktopNav = [
   { label: 'Security', href: '/security' },
 ];
 
-const publicNav = [...desktopNav, { label: 'About', href: '/about' }];
+const publicNav = [
+  { label: 'How it works', href: '/how-it-works' },
+  { label: 'Use cases', href: '/use-cases' },
+  { label: 'Ledger', href: '/ledger' },
+  { label: 'Security', href: '/security' },
+  { label: 'About', href: '/about' },
+  { label: 'FAQ', href: '/faq' },
+];
 
 const footerColumns = [
   {
@@ -38,7 +45,7 @@ const footerColumns = [
   {
     title: 'Access',
     links: [
-      { label: 'Request access', href: '/request-access' },
+      { label: 'Request pilot access', href: '/request-access' },
       { label: 'Contact', href: '/contact' },
       { label: 'Sign in', href: '/sign-in' },
     ],
@@ -71,7 +78,6 @@ function isPublicMarketingRoute(pathname: string): boolean {
 export function PublicShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const isPublicMarketing = isPublicMarketingRoute(pathname);
-  const isSecurityRoute = pathname === '/security' || pathname.startsWith('/security/');
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuId = useId();
   const { showDemoChrome } = useDemoWalkthrough();
@@ -88,17 +94,6 @@ export function PublicShell({ children }: { children: ReactNode }) {
   }, [isPublicMarketing]);
 
   useEffect(() => {
-    if (isSecurityRoute) {
-      document.body.setAttribute('data-security-surface', 'warm-dark');
-      return () => {
-        document.body.removeAttribute('data-security-surface');
-      };
-    }
-    document.body.removeAttribute('data-security-surface');
-    return undefined;
-  }, [isSecurityRoute]);
-
-  useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
@@ -113,38 +108,36 @@ export function PublicShell({ children }: { children: ReactNode }) {
 
   return (
     <DemoLayout>
-      <div
-        className={
-          isPublicMarketing
-            ? 'relative flex min-h-screen flex-col bg-surface text-ink'
-            : 'theme-light flex min-h-screen flex-col bg-surface'
-        }
-      >
+      <div className="sr-page-glow relative flex min-h-screen flex-col bg-surface text-ink">
         <header
           className={
             isPublicMarketing
               ? 'nav-frosted sticky top-0 z-40 border-b border-line'
-              : 'sticky top-0 z-40 border-b border-line bg-surface'
+              : 'sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md'
           }
         >
-          <div className={`${publicShellInnerClass} flex h-14 items-center gap-4`}>
-            <Link to="/" className="shrink-0 text-ink" aria-label="SquadRidge home">
-              <SquadRidgeLockup size="sm" />
+          <div className={`${publicShellInnerClass} flex h-16 items-center gap-4`}>
+            <Link
+              to="/"
+              className="inline-flex h-full shrink-0 items-center text-ink no-underline"
+              aria-label="SquadRidge home"
+            >
+              <SquadRidgeLockup size="sm" showTagline={false} />
             </Link>
 
             <nav
-              className="ml-6 hidden flex-1 items-center gap-7 nav:flex"
+              className="ml-6 hidden h-full flex-1 items-center gap-1 nav:flex"
               aria-label="Public navigation"
             >
               {desktopNav.map((item) => (
                 <NavLink
-                  key={item.href}
+                  key={item.label}
                   to={item.href}
                   className={({ isActive }) =>
-                    'border-b-2 pb-0.5 text-[length:var(--text-body)] tracking-normal no-underline transition-colors ' +
+                    'inline-flex items-center rounded-[var(--sr-radius-md)] px-3.5 py-2 text-[length:var(--text-body)] leading-none tracking-normal no-underline transition-colors ' +
                     (isActive
-                      ? 'border-brand font-medium text-ink'
-                      : 'border-transparent text-ink-secondary hover:text-ink')
+                      ? 'bg-surface-accent font-medium text-ink'
+                      : 'text-ink-secondary hover:bg-surface-elevated hover:text-ink')
                   }
                 >
                   {item.label}
@@ -152,22 +145,22 @@ export function PublicShell({ children }: { children: ReactNode }) {
               ))}
             </nav>
 
-            <div className="ml-auto flex shrink-0 items-center gap-3">
+            <div className="ml-auto flex h-full shrink-0 items-center gap-3">
               <Link
                 to="/sign-in"
-                className="hidden text-[length:var(--text-body)] text-ink-secondary no-underline transition-colors hover:text-ink nav:inline"
+                className="hidden h-10 items-center rounded-[var(--sr-radius-md)] px-3.5 text-[length:var(--text-body)] leading-none text-ink-secondary no-underline transition-colors hover:text-ink nav:inline-flex"
               >
                 Sign in
               </Link>
               <Link
                 to="/request-access"
-                className="btn-institutional btn-institutional--primary hidden min-h-10 nav:inline-flex"
+                className="btn-institutional btn-institutional--primary hidden h-10 min-h-10 items-center nav:inline-flex"
               >
-                Request access
+                Request pilot access
               </Link>
               <button
                 type="button"
-                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-sm border border-line text-ink-secondary hover:text-ink nav:hidden"
+                className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-[var(--sr-radius-md)] border border-line text-ink-secondary hover:text-ink nav:hidden"
                 aria-expanded={mobileOpen}
                 aria-controls={menuId}
                 aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
@@ -195,10 +188,10 @@ export function PublicShell({ children }: { children: ReactNode }) {
               >
                 {publicNav.map((item) => (
                   <NavLink
-                    key={item.href}
+                    key={item.label}
                     to={item.href}
                     className={({ isActive }) =>
-                      'rounded-sm px-3 py-3 text-sm ' +
+                      'rounded-xl px-3 py-3 text-sm ' +
                       (isActive
                         ? 'bg-surface-accent text-ink'
                         : 'text-ink-secondary hover:text-ink')
@@ -209,7 +202,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                 ))}
                 <Link
                   to="/sign-in"
-                  className="rounded-sm px-3 py-3 text-sm text-ink-secondary hover:text-ink"
+                  className="rounded-xl px-3 py-3 text-sm text-ink-secondary hover:text-ink"
                 >
                   Sign in
                 </Link>
@@ -217,7 +210,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                   to="/request-access"
                   className="btn-institutional btn-institutional--primary mt-2 w-full"
                 >
-                  Request access
+                  Request pilot access
                 </Link>
               </nav>
             </div>
@@ -236,16 +229,11 @@ export function PublicShell({ children }: { children: ReactNode }) {
         </main>
 
         <footer
-          className={
-            isPublicMarketing
-              ? 'relative z-10 border-t border-[color:var(--color-border-subtle)] bg-surface-sunken/40 px-0 py-14'
-              : 'border-t border-[color:var(--color-border-subtle)] bg-surface py-12'
-          }
+          className="relative z-10 border-t border-line bg-surface-elevated/60 px-0 py-14"
+          data-scroll-section
         >
-          <div
-            className="mx-auto w-full px-[var(--space-4)]"
-            style={{ maxWidth: 'var(--content-max)' }}
-          >
+          {' '}
+          <div className={publicShellInnerClass}>
             <div className="grid gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)] md:gap-14">
               <div>
                 <SquadRidgeLockup size="sm" className="mb-4 text-ink" alt="SquadRidge" />
@@ -263,7 +251,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                         <li key={item.href}>
                           <Link
                             to={item.href}
-                            className="text-sm text-ink-secondary transition-colors hover:text-ink"
+                            className="text-sm text-ink-secondary transition-colors hover:text-brand"
                           >
                             {item.label}
                           </Link>
@@ -274,7 +262,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                 ))}
               </div>
             </div>
-            <p className="mt-12 border-t border-[color:var(--color-border-subtle)] pt-6 text-xs text-ink-faint">
+            <p className="mt-12 border-t border-line pt-6 text-xs text-ink-faint">
               &copy; {new Date().getFullYear()} SquadRidge.
             </p>
           </div>

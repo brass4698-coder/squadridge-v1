@@ -1,31 +1,90 @@
 import { Link } from 'react-router-dom';
-import { CONFIDENTIALITY_POINTS, VERIFICATION_POINTS } from '../../data/institutionalHome';
 import { LedgerProvenancePanel, TrustBoundarySchematic } from '../../components/institutional';
-import { CTABlock, ShellWidth } from '../../components/shared';
+import {
+  CTABlock,
+  MarketingPageHero,
+  MarketingSection,
+  ProseMeasure,
+  SectionLabel,
+  ShellWidth,
+} from '../../components/shared';
 import { CTA } from '../../data/siteMessaging';
-import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 
 const NOT_CLAIMED = [
   {
-    short: 'Not E2E today',
-    line: 'Session content is not end-to-end encrypted against the operator. Transport is TLS. Room-level E2EE is on the roadmap.',
+    label: 'Not E2E today',
+    body: 'Session content is not end-to-end encrypted against the operator. Transport uses TLS. Room-level E2EE is on the roadmap.',
   },
   {
-    short: 'Not anonymity',
-    line: 'We do not guarantee anonymity. We protect identity inside the session context and control what is released.',
+    label: 'Not full ZKP',
+    body: 'We do not claim platform-wide zero-knowledge proofs. Prefer the private room, facilitator release, and approved outcomes model.',
   },
   {
-    short: 'Not legal privilege',
-    line: 'SquadRidge is process infrastructure, not a legal instrument. Counsel decides privilege for your matter.',
+    label: 'Not anonymity',
+    body: 'We do not guarantee anonymity. Identity is protected inside the session context; release controls what leaves.',
   },
   {
-    short: 'Not whistleblower tooling',
-    line: 'If your threat model includes state-level adversaries, assess accordingly before piloting.',
+    label: 'Not legal privilege',
+    body: 'Process infrastructure, not a legal instrument. Counsel decides privilege for your matter.',
   },
   {
-    short: 'Not surveillance',
-    line: 'Not predictive policing, continuous monitoring, or early-warning product claims — facilitation only.',
+    label: 'Not whistleblower tooling',
+    body: 'If your threat model includes state-level adversaries, assess that risk before piloting.',
   },
+  {
+    label: 'Not surveillance',
+    body: 'Not predictive policing, continuous monitoring, or early-warning product claims — facilitation only.',
+  },
+] as const;
+
+const ROOM_VS_RECORD = [
+  {
+    mode: 'private' as const,
+    title: 'Private session',
+    summary: 'Stays inside the room',
+    points: [
+      {
+        label: 'Stays private',
+        body: 'Written rounds, drafts, prompts, and private signals to the facilitator.',
+      },
+      { label: 'Access', body: 'Invite-only entry after facilitator-defined verification.' },
+      {
+        label: 'Never auto-published',
+        body: 'Raw dialogue does not appear on the ledger or in public exports.',
+      },
+    ],
+  },
+  {
+    mode: 'record' as const,
+    title: 'Released record',
+    summary: 'Leaves only after approval',
+    points: [
+      {
+        label: 'What is released',
+        body: 'Approved outcome text plus limited metadata — not a transcript.',
+      },
+      {
+        label: 'What is verifiable',
+        body: 'A verification anchor confirms the published file is unaltered since release.',
+      },
+      {
+        label: 'Who authorises',
+        body: 'Designated approvals and an explicit facilitator release action.',
+      },
+    ],
+  },
+] as const;
+
+const ANCHOR_PROVES = [
+  'The released record is unaltered since publication',
+  'It was issued through the SquadRidge release process',
+  'Listed metadata matches the anchored file',
+] as const;
+
+const ANCHOR_DOES_NOT = [
+  'What was said inside the private room',
+  'Who each participant is',
+  'External endorsement of the substance',
 ] as const;
 
 const SAFEGUARDS = [
@@ -61,137 +120,139 @@ const SAFEGUARDS = [
 
 /**
  * Security — limits lead. Architecture second. Safeguards as a docket, not a feature grid.
- * Visual tone: calm institutional trust / peace-tech — not cyber-SaaS.
  */
 export function SecurityPage() {
   return (
     <div className="sr-security-page">
-      <header className="border-b border-line pt-16 pb-14 md:pt-20" data-demo="security-hero">
-        <div className={publicShellInnerClass}>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] lg:gap-16">
-            <div>
-              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
-                Security · Documented limits
-              </p>
-              <h1 className="mt-4 font-display text-display font-medium text-ink">
-                Verified, not exposed.
-              </h1>
-              <p className="mt-5 max-w-prose text-base leading-relaxed text-ink-secondary">
-                The room and the record are different objects. Trust comes from access boundaries
-                and release gates — not continuous monitoring or overclaimed cryptography.
-              </p>
-            </div>
-            <TrustBoundarySchematic className="w-full" />
-          </div>
-        </div>
-      </header>
-
-      {/* Limits first — the distinctive trust move */}
+      <div data-demo="security-hero">
+        <MarketingPageHero
+          label="Security"
+          title="Privacy boundaries you can explain"
+          lead="The room and the record are different objects. Trust comes from verification before entry, facilitator authority over release, and record integrity — not continuous monitoring or overclaimed cryptography."
+          aside={<TrustBoundarySchematic className="w-full" />}
+          meta={
+            <p className="text-sm text-ink-faint">
+              Documented limits first. Safeguards second.{' '}
+              <a
+                href="#reviewers"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                Jump to limits
+              </a>
+            </p>
+          }
+        />
+      </div>
       <section
         id="reviewers"
-        className="sr-security-limits scroll-mt-20 border-b border-line py-14 md:py-16"
+        data-demo="security-limits"
+        className="sr-security-limits scroll-mt-20 border-b border-line bg-surface-sunken/60 py-12 text-left md:py-16"
         aria-labelledby="limits-h"
       >
         <ShellWidth>
-          <div className="mb-8 flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8">
-            <h2 id="limits-h" className="font-display text-h2 font-medium text-ink">
-              What we do not claim
+          <div className="mb-8 max-w-measure">
+            <SectionLabel>Documented limits</SectionLabel>
+            <h2 id="limits-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              What we do not do
             </h2>
-            <p className="max-w-sm text-sm text-ink-faint">
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Read this before the safeguards. Accurate expectations are part of the product.
             </p>
           </div>
-          <ol className="divide-y divide-line overflow-hidden rounded-lg border border-line">
-            {NOT_CLAIMED.map((item, i) => (
-              <li
-                key={item.short}
-                className="sr-security-limit-row grid gap-3 px-5 py-5 md:grid-cols-[8rem_minmax(0,1fr)] md:gap-8"
-              >
-                <div className="font-mono text-xs text-ink-faint">
-                  <span className="text-ink-subtle">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="sr-security-limit-label mt-1 block font-medium uppercase tracking-[0.08em]">
-                    {item.short}
-                  </span>
-                </div>
-                <p className="text-sm leading-relaxed text-ink-secondary">{item.line}</p>
+          <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {NOT_CLAIMED.map((item) => (
+              <li key={item.label} className="sr-security-limit-row bg-surface-elevated px-5 py-5">
+                <p className="m-0 text-sm font-semibold text-ink">{item.label}</p>
+                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
               </li>
             ))}
-          </ol>
+          </ul>
         </ShellWidth>
       </section>
-
-      <section className="border-b border-line py-16 md:py-20">
+      <MarketingSection id="room-and-record" density="default">
         <ShellWidth>
-          <h2 className="font-display text-h2 font-medium text-ink">Two layers</h2>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-line bg-line lg:grid-cols-2">
-            <div className="sr-security-layer-private p-6 md:p-8">
-              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-                Private session
-              </p>
-              <ul className="mt-6 space-y-5">
-                {CONFIDENTIALITY_POINTS.map((p) => (
-                  <li key={p.title}>
-                    <h3 className="text-sm font-semibold text-ink">{p.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink-secondary">{p.body}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="sr-security-layer-record p-6 md:p-8">
-              <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-                Released record
-              </p>
-              <ul className="mt-6 space-y-5">
-                {VERIFICATION_POINTS.map((p) => (
-                  <li key={p.title}>
-                    <h3 className="text-sm font-semibold text-ink">{p.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-ink-secondary">{p.body}</p>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-8 text-sm text-ink-faint">
-                <Link to="/how-it-works" className="text-brand underline-offset-4 hover:underline">
-                  Process overview
-                </Link>
-              </p>
-            </div>
+          <div className="mb-10 max-w-measure">
+            <SectionLabel>Architecture</SectionLabel>
+            <h2 id="layers-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              Private session vs released record
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              Separation is structural, not a policy toggle. What stays private, what can be
+              released, and what outsiders can verify are different questions.
+            </p>
           </div>
+          <div className="sr-vault-card grid gap-px overflow-hidden bg-line lg:grid-cols-2">
+            {ROOM_VS_RECORD.map((layer) => (
+              <div
+                key={layer.title}
+                className={
+                  layer.mode === 'private'
+                    ? 'sr-security-layer-private p-6 md:p-8'
+                    : 'sr-security-layer-record p-6 md:p-8'
+                }
+              >
+                <p className="m-0 text-sm font-semibold text-ink">{layer.title}</p>
+                <p className="mt-1 text-sm text-ink-faint">{layer.summary}</p>
+                <ul className="mt-6 m-0 list-none space-y-5 p-0">
+                  {layer.points.map((p) => (
+                    <li key={p.label}>
+                      <h3 className="m-0 text-sm font-semibold text-ink">{p.label}</h3>
+                      <p className="mt-1.5 mb-0 text-sm leading-relaxed text-ink-secondary">
+                        {p.body}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="mt-6 text-sm text-ink-faint">
+            <Link
+              to={CTA.secondaryProcessHref}
+              className="text-brand underline-offset-4 hover:underline"
+            >
+              {CTA.secondaryProcess}
+            </Link>
+          </p>
         </ShellWidth>
-      </section>
-
-      <section
-        id="verification-anchor"
-        className="scroll-mt-20 border-b border-line bg-surface-secondary/50 py-16"
-      >
+      </MarketingSection>
+      <MarketingSection id="verification-anchor" tone="sunken" density="compact">
         <ShellWidth>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-14">
             <div>
-              <h2 className="font-display text-h2 font-medium text-ink">
-                What the anchor proves — and does not.
+              <SectionLabel>Verification anchor</SectionLabel>
+              <h2 id="anchor-h" className="mt-0 font-display text-h2 font-medium text-ink">
+                What the anchor proves — and does not
               </h2>
-              <p className="mt-4 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-secondary">
                 A verification anchor is a cryptographic hash of the released record at the moment
                 of release. Anyone with the record can recompute it.
               </p>
               <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 <div className="sr-security-proves border p-5">
-                  <p className="sr-security-proves-label font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em]">
-                    Proves
-                  </p>
-                  <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
-                    <li>Record unaltered since release</li>
-                    <li>Issued through SquadRidge process</li>
-                    <li>Listed metadata matches the file</li>
+                  <p className="sr-security-proves-label m-0 text-sm font-semibold">Proves</p>
+                  <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
+                    {ANCHOR_PROVES.map((line) => (
+                      <li key={line} className="flex gap-2">
+                        <span aria-hidden className="text-ink-faint">
+                          ·
+                        </span>
+                        <span>{line}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
                 <div className="sr-security-nonprove border border-line p-5">
-                  <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.1em] text-ink-faint">
-                    Does not prove
-                  </p>
-                  <ul className="mt-3 space-y-2 text-sm text-ink-secondary">
-                    <li>What was said in the room</li>
-                    <li>Who each participant is</li>
-                    <li>External endorsement of substance</li>
+                  <p className="m-0 text-sm font-semibold text-ink-faint">Does not prove</p>
+                  <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
+                    {ANCHOR_DOES_NOT.map((line) => (
+                      <li key={line} className="flex gap-2">
+                        <span aria-hidden className="text-ink-faint">
+                          ·
+                        </span>
+                        <span>{line}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -199,63 +260,95 @@ export function SecurityPage() {
             <LedgerProvenancePanel />
           </div>
         </ShellWidth>
-      </section>
-
-      <section className="border-b border-line py-16">
+      </MarketingSection>
+      <MarketingSection id="safeguards" density="compact">
         <ShellWidth>
-          <h2 className="font-display text-h2 font-medium text-ink">Operational safeguards</h2>
-          <ol className="mt-10">
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Operations</SectionLabel>
+            <h2 id="safeguards-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              Operational safeguards
+            </h2>
+          </ProseMeasure>
+          <ol className="m-0 list-none p-0">
             {SAFEGUARDS.map((s, i) => (
               <li
                 key={s.heading}
-                className="grid gap-2 border-t border-line py-5 md:grid-cols-[3rem_12rem_minmax(0,1fr)] md:gap-8"
+                className="grid gap-2 border-t border-line py-5 md:grid-cols-[3rem_minmax(10rem,12rem)_minmax(0,1fr)] md:gap-8"
               >
                 <span className="font-mono text-xs text-ink-faint">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <h3 className="text-sm font-semibold text-ink">{s.heading}</h3>
-                <p className="text-sm leading-relaxed text-ink-secondary">{s.body}</p>
+                <h3 className="m-0 text-sm font-semibold text-ink">{s.heading}</h3>
+                <p className="m-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+                  {s.body}
+                </p>
               </li>
             ))}
           </ol>
         </ShellWidth>
-      </section>
-
-      <section className="border-b border-line py-12">
+      </MarketingSection>
+      <MarketingSection id="reviewer-appendix" tone="bordered" density="compact">
         <ShellWidth>
-          <details className="max-w-measure overflow-hidden rounded-lg border border-line bg-surface-elevated">
-            <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-ink">
-              Technical appendix — engineers & auditors
-            </summary>
-            <div className="space-y-3 border-t border-line px-5 py-5 text-sm leading-relaxed text-ink-secondary">
-              <p>Transport: TLS 1.2+ (not message-level E2E against the operator).</p>
-              <p>
-                v2 session storage: facilitator-led messages in Postgres as access-controlled
-                plaintext. Legacy squad chat uses application-layer AES-GCM with operator-readable
-                keys.
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:gap-16">
+            <div className="max-w-measure">
+              <SectionLabel>For reviewers</SectionLabel>
+              <h2 id="appendix-h" className="mt-0 font-display text-h2 font-medium text-ink">
+                Technical appendix
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+                Concise notes for engineers and auditors. Full threat model is available on request
+                during diligence.
               </p>
-              <p>
-                Verification anchor: SHA-256 of canonicalised released record at facilitator
-                sign-off.
-              </p>
-              <p>Approvals must be recorded before release. Audit events are metadata-only.</p>
+              <dl className="mt-8 m-0 space-y-4 border-t border-line pt-6">
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Transport</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    TLS 1.2+ — not message-level E2E against the operator.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Session storage</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    Facilitator-led messages in Postgres as access-controlled plaintext. Legacy
+                    squad chat uses application-layer AES-GCM with operator-readable keys.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Verification anchor</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    SHA-256 of the canonicalised released record at facilitator sign-off.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Audit events</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    Approvals must be recorded before release. Audit logs are metadata-only — not
+                    message bodies.
+                  </dd>
+                </div>
+              </dl>
             </div>
-          </details>
-          <a
-            href="mailto:security@squadridge.com"
-            className="btn-institutional btn-institutional--ghost mt-8 inline-flex"
-          >
-            security@squadridge.com
-          </a>
+            <aside className="h-fit border border-line bg-surface-elevated p-6">
+              <p className="m-0 text-sm font-semibold text-ink">Security contact</p>
+              <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
+                Responsible disclosure and diligence questions.
+              </p>
+              <a
+                href="mailto:security@squadridge.com"
+                className="btn-institutional btn-institutional--ghost mt-6 inline-flex"
+              >
+                security@squadridge.com
+              </a>
+            </aside>
+          </div>
         </ShellWidth>
-      </section>
-
+      </MarketingSection>
       <CTABlock
-        headline="Review the trust model you can explain to parties."
+        headline={CTA.pilotHeadline}
         body={CTA.pilotBody}
         secondaryLabel={CTA.secondaryLedger}
         secondaryHref={CTA.secondaryLedgerHref}
-      />
+      />{' '}
     </div>
   );
 }

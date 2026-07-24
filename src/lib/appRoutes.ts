@@ -21,4 +21,5 @@ export const appRoutes = {
   outcomeNew: '/app/outcomes/new',
   outcome: (id: string) => `/app/outcomes/${encodeURIComponent(id)}`,
   settings: '/app/settings',
+  pilotGuide: '/app/pilot-guide',
 } as const;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
+import { FormPanel } from '../../../components/ui/FormPanel';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { participantRoute } from '../../../lib/participantRoutes';
@@ -53,17 +54,17 @@ export function InviteAcceptancePage() {
     return (
       <TokenShell>
         <div
-          className="flex flex-1 flex-col items-center justify-center px-6 py-16"
+          className="sr-form-atmosphere flex flex-1 flex-col items-center justify-center px-6 py-16"
           role="status"
           aria-live="polite"
           aria-busy="true"
         >
-          <div className="sr-glass-strong w-full max-w-md rounded-xl p-10 text-center">
+          <FormPanel className="w-full max-w-md text-center">
             <p className="text-app-body text-ink-secondary">
               <span className="sr-only">Loading invitation.</span>
               <span aria-hidden="true">Verifying invitation…</span>
             </p>
-          </div>
+          </FormPanel>
         </div>
       </TokenShell>
     );
@@ -73,30 +74,34 @@ export function InviteAcceptancePage() {
     const { copy } = status;
     return (
       <TokenShell>
-        <div className="flex flex-1 flex-col items-center justify-center px-6 py-16" role="alert">
-          <div className="sr-glass-strong w-full max-w-md rounded-xl p-10 text-center">
-            <p className="mb-3 text-app-meta font-semibold uppercase tracking-widest text-brand">
-              Invitation
-            </p>
-            <h1 className="mb-3 text-page-title text-ink">{copy.title}</h1>
-            <p className="mb-8 text-app-body leading-relaxed text-ink-secondary">{copy.body}</p>
+        <div
+          className="sr-form-atmosphere flex flex-1 flex-col items-center justify-center px-6 py-16"
+          role="alert"
+        >
+          <FormPanel
+            className="w-full max-w-md text-center"
+            eyebrow="Invitation"
+            title={copy.title}
+            titleAs="h1"
+            description={copy.body}
+          >
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
               <Link
                 to={copy.primaryAction.href}
-                className="inline-flex items-center justify-center rounded-md bg-brand px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="btn-institutional btn-institutional--primary inline-flex items-center justify-center no-underline"
               >
                 {copy.primaryAction.label}
               </Link>
               {copy.secondaryAction ? (
                 <Link
                   to={copy.secondaryAction.href}
-                  className="inline-flex items-center justify-center rounded-md border border-line px-5 py-2.5 text-sm font-medium text-ink-secondary transition-opacity hover:opacity-70"
+                  className="btn-institutional btn-institutional--ghost inline-flex items-center justify-center no-underline"
                 >
                   {copy.secondaryAction.label}
                 </Link>
               ) : null}
             </div>
-          </div>
+          </FormPanel>
         </div>
       </TokenShell>
     );
@@ -106,22 +111,17 @@ export function InviteAcceptancePage() {
 
   return (
     <TokenShell>
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
-        <div className="sr-glass-strong w-full max-w-md rounded-xl p-10">
-          <p className="mb-4 text-app-meta font-semibold uppercase tracking-widest text-brand">
-            Session invitation
-          </p>
-
-          <h1 className="mb-3 text-page-title text-ink">You have been invited to participate</h1>
-
-          <p className="mb-6 text-app-body leading-relaxed text-ink-secondary">
-            A facilitator has invited you to a private written dialogue session. Before you can
-            enter, you will complete a short verification step. Your facilitator confirms
-            participation — this is not automated identity proof.
-          </p>
-
-          <div className="mb-8 rounded-lg border border-line bg-surface-secondary p-5">
-            <p className="mb-1 text-app-meta font-semibold uppercase tracking-wider text-ink-secondary">
+      <div className="sr-form-atmosphere flex flex-1 flex-col items-center justify-center px-6 py-16">
+        <FormPanel
+          className="w-full max-w-md"
+          eyebrow="Session invitation"
+          title="You have been invited to participate"
+          titleAs="h1"
+          description="A facilitator has invited you to a private written dialogue session. Before you can enter, you will complete a short verification step. Your facilitator confirms participation — this is not automated identity proof."
+          footer="This invitation link is single-use and expires after verification is complete."
+        >
+          <div className="mb-8 rounded-[var(--sr-radius-lg)] border border-line bg-surface-secondary p-5">
+            <p className="mb-1 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint">
               Session
             </p>
             <p className="text-app-body font-medium text-ink">
@@ -140,7 +140,9 @@ export function InviteAcceptancePage() {
               'You may leave at any time.',
             ].map((item) => (
               <li key={item} className="flex items-start gap-3 text-app-body text-ink-secondary">
-                <span className="mt-0.5 text-base leading-none text-sem-success">✓</span>
+                <span className="mt-0.5 text-base leading-none text-sem-success" aria-hidden>
+                  ✓
+                </span>
                 {item}
               </li>
             ))}
@@ -149,11 +151,7 @@ export function InviteAcceptancePage() {
           <Button className="w-full" size="lg" onClick={accept} loading={accepting}>
             Accept invitation &amp; continue
           </Button>
-
-          <p className="mt-4 text-center text-app-meta text-ink-secondary">
-            This invitation link is single-use and expires after verification is complete.
-          </p>
-        </div>
+        </FormPanel>
       </div>
     </TokenShell>
   );

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ActivityQueue } from '../../components/dashboard/ActivityQueue';
 import { KpiCard } from '../../components/dashboard/KpiCard';
 import { ProgressRing } from '../../components/dashboard/ProgressRing';
+import { RoleWorkspaceFrame } from '../../components/dashboard/RoleWorkspaceFrame';
 import { TrustBoundaryExplainer } from '../../components/dashboard/TrustBoundaryExplainer';
 import { BarChartPanel } from '../../components/dashboard/BarChartPanel';
 import { OperationalPageHeader, StatusRail, useShellContext } from '../../components/shell';
@@ -44,7 +45,7 @@ export function ParticipantDashboardPage() {
   }, [setContext, current, scopeLabel]);
 
   return (
-    <div>
+    <RoleWorkspaceFrame role="participant" demoId="participant-dashboard">
       <OperationalPageHeader
         title="Participant Workspace"
         summary="Review your invited matters, complete written rounds, and inspect approved outcomes."
@@ -63,6 +64,7 @@ export function ParticipantDashboardPage() {
             ? { label: 'Continue current room', href: appRoutes.sessions }
             : { label: 'Enter credential', href: '/enter/credential' }
         }
+        roleAccent="participant"
       />
       <StatusRail
         items={[
@@ -145,6 +147,6 @@ export function ParticipantDashboardPage() {
           }))}
         />
       </div>
-    </div>
+    </RoleWorkspaceFrame>
   );
 }

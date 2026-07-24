@@ -9,6 +9,7 @@ export function ProductEvidenceCluster() {
   return (
     <section
       className="border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/30 py-16 md:py-20"
+      data-scroll-section
       aria-labelledby="evidence-h"
     >
       <div className={`${publicShellInnerClass} md:py-2`}>

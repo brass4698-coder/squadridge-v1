@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FormField } from '../components/ui/FormField';
+import { FormPanel } from '../components/ui/FormPanel';
 import { Input } from '../components/ui/Input';
 import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
 import { GovernedEntryLayout } from '../components/shell/GovernedEntryLayout';
@@ -14,33 +15,72 @@ import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
 
-const ROLE_CARDS = [
-  {
-    title: 'Participant access',
-    body: 'Enter via invitation credential or magic link for a specific room.',
-    href: '/enter/credential',
-  },
-  {
-    title: 'Facilitator console',
-    body: 'Role-scoped workspace for rooms, pacing, and release gate.',
-    href: '/sign-in?next=%2Fapp%2Ffacilitator',
-    scrollToForm: true,
-  },
-  {
-    title: 'Institutional reviewer',
-    body: 'Inspect documented limits and public records — or sign in when credentialed.',
-    href: '/security#reviewers',
-  },
-  {
-    title: 'Demo workspace',
-    body: 'Read-only guided walkthrough with sample matters. Explicitly separate from pilot access.',
-    href: '/sign-in?demo=1',
-    demo: true,
-  },
-] as const;
+function AuthStateBanner({ reason }: { reason: string }) {
+  if (reason === 'expired') {
+    return (
+      <div
+        className="mb-8 overflow-hidden rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated"
+        role="status"
+      >
+        <div className="border-b border-line bg-surface-sunken/50 px-5 py-4 md:px-6">
+          <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+            Session ended
+          </p>
+          <h2 className="mt-2 mb-0 font-display text-h3 font-medium text-ink">
+            Sign in again to continue
+          </h2>
+        </div>
+        <div className="space-y-3 px-5 py-5 text-sm leading-relaxed text-ink-secondary md:px-6">
+          <p className="m-0">
+            Your session ended for safety after a period of inactivity or an expired credential.
+            Request a fresh magic link below.
+          </p>
+          <ul className="m-0 list-none space-y-2 border-t border-line pt-4 p-0">
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Private room content was not exposed by this timeout.</span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Nothing was auto-published to the ledger.</span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Release still requires facilitator approval.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
+  if (reason === 'signed-out') {
+    return (
+      <p
+        className="mb-6 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
+        role="status"
+      >
+        You signed out successfully. Sign in again when you are ready.
+      </p>
+    );
+  }
+
+  if (reason === 'link') {
+    return (
+      <p
+        className="mb-6 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
+        role="status"
+      >
+        No password to reset — request a fresh magic link below.
+      </p>
+    );
+  }
+
+  return null;
+}
 
 /**
- * Governed entry hub — role routing before operational dashboards.
+ * Minimal controlled-entry sign-in — verified / invite-linked access.
  */
 export function SignInPage() {
   const navigate = useNavigate();
@@ -63,6 +103,7 @@ export function SignInPage() {
 
   const configured = isSupabaseConfigured();
   const isSignup = intent === 'signup';
+  const isExpired = reason === 'expired';
 
   const redirected = useRef(false);
   const autoDemoStarted = useRef(false);
@@ -89,7 +130,6 @@ export function SignInPage() {
     navigate(destination, { replace: true });
   }, [initialized, loading, session, profile, roles, nextRaw, navigate, startWalkthrough]);
 
-  // Explicit demo only — never silent DEV auto-demo.
   useEffect(() => {
     if (!wantDemo || !isDemoLoginEnabled() || !configured) return;
     if (!initialized || loading || session || autoDemoStarted.current) return;
@@ -125,19 +165,37 @@ export function SignInPage() {
     pendingGuidedTour.current = true;
   }
 
+  /* Expired / signed-out: never show a bare Loading skeleton — designed state first. */
+  if ((!initialized || loading) && isExpired) {
+    return (
+      <GovernedEntryLayout title="Session ended">
+        <div className="mx-auto max-w-lg">
+          <AuthStateBanner reason="expired" />
+          <p className="m-0 text-sm text-ink-secondary" role="status">
+            Preparing a secure sign-in form…
+          </p>
+        </div>
+      </GovernedEntryLayout>
+    );
+  }
+
   if (!initialized || loading) {
     return (
-      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
-        <RouteSkeleton label="Checking session" />
-      </div>
+      <GovernedEntryLayout title="Verified access">
+        <div className="mx-auto max-w-lg">
+          <RouteSkeleton label="Checking session" />
+        </div>
+      </GovernedEntryLayout>
     );
   }
 
   if (session) {
     return (
-      <div className="mx-auto flex min-h-dvh w-full items-center justify-center px-6 py-12">
-        <RouteSkeleton label="Signing you in" />
-      </div>
+      <GovernedEntryLayout title="Verified access">
+        <div className="mx-auto max-w-lg">
+          <RouteSkeleton label="Signing you in" />
+        </div>
+      </GovernedEntryLayout>
     );
   }
 
@@ -153,110 +211,55 @@ export function SignInPage() {
   }
 
   return (
-    <GovernedEntryLayout title="Governed entry">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
+    <GovernedEntryLayout title="Verified access only">
+      <div className="mx-auto grid max-w-lg gap-8">
+        {reason === 'expired' || reason === 'link' || reason === 'signed-out' ? (
+          <AuthStateBanner reason={reason} />
+        ) : null}
+
         <div>
           <h1 className="font-display text-display font-medium tracking-tight text-ink">
-            Enter a governed room
+            {isExpired ? 'Sign in again' : 'Sign in'}
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-secondary">
-            Role-linked access for pilot rooms and verified parties — not open signup. Choose your
-            path, then continue with a magic link or invitation credential.
+          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
+            Invite-linked accounts for pilot rooms and verified parties — not open signup.
           </p>
-
-          <div className="mt-6">
+          <div className="mt-5">
             <InviteOnlyNotice />
           </div>
-
-          <ul className="mt-10 m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
-            {ROLE_CARDS.map((card) => (
-              <li key={card.title}>
-                {'demo' in card && card.demo ? (
-                  <button
-                    type="button"
-                    disabled={!isDemoLoginEnabled() || demoBusy}
-                    onClick={() => void handleDemo()}
-                    className="flex h-full w-full flex-col rounded-lg border border-line bg-surface-elevated p-4 text-left transition-colors hover:border-brand/40"
-                  >
-                    <span className="font-medium text-ink">{card.title}</span>
-                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
-                  </button>
-                ) : 'scrollToForm' in card && card.scrollToForm ? (
-                  <button
-                    type="button"
-                    onClick={() => formRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex h-full w-full flex-col rounded-lg border border-line bg-surface-elevated p-4 text-left transition-colors hover:border-brand/40"
-                  >
-                    <span className="font-medium text-ink">{card.title}</span>
-                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
-                  </button>
-                ) : (
-                  <Link
-                    to={card.href}
-                    className="flex h-full flex-col rounded-lg border border-line bg-surface-elevated p-4 no-underline transition-colors hover:border-brand/40"
-                  >
-                    <span className="font-medium text-ink">{card.title}</span>
-                    <span className="mt-2 text-sm text-ink-secondary">{card.body}</span>
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          <nav className="mt-8 flex flex-wrap gap-4 text-sm" aria-label="Secondary entry">
-            <Link to="/enter/credential" className="text-brand">
-              Enter invitation credential
-            </Link>
-            <Link to="/enter/qr" className="text-brand">
-              Scan invitation QR
-            </Link>
-            <Link to="/request-access" className="text-brand">
-              Request pilot access
-            </Link>
-          </nav>
         </div>
 
-        <div className="rounded-lg border border-line bg-surface-elevated p-6 md:p-8">
-          <h2 className="m-0 font-display text-lg font-medium text-ink">
-            {isSignup ? 'Create your account' : 'Magic-link sign-in'}
-          </h2>
-          <p className="mt-2 text-sm text-ink-secondary">
-            Invitation-linked accounts only. We email a one-time link — no password stored here.
-          </p>
-
-          {reason === 'link' || reason === 'expired' || reason === 'signed-out' ? (
-            <p
-              className="mt-4 rounded-md border border-line bg-surface-sunken px-3 py-2 text-sm text-ink-secondary"
-              role="status"
-            >
-              {reason === 'signed-out'
-                ? 'You signed out successfully.'
-                : reason === 'expired'
-                  ? 'Your session ended for safety. Request a fresh link below.'
-                  : 'No password to reset — request a fresh magic link below.'}
-            </p>
-          ) : null}
-
+        <FormPanel
+          eyebrow="Entry"
+          title={isSignup ? 'Create your account' : 'Magic-link sign-in'}
+          description="We email a one-time link to an invitation-linked work address."
+          footer="Need access? Request a confidential pilot intake — do not expect instant self-serve."
+        >
           {sent ? (
-            <p className="mt-6 text-sm text-ink" role="status">
+            <p className="text-sm text-ink" role="status">
               Check your inbox for the sign-in link. It expires in about an hour.
             </p>
           ) : (
             <form
               ref={formRef}
-              className="mt-6 space-y-4"
+              className="space-y-4"
               onSubmit={(e) => void handleSubmit(e)}
               noValidate
             >
               {error ? (
                 <p
-                  className="rounded-md border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
+                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
                   role="alert"
                 >
                   {error}
                 </p>
               ) : null}
-              <FormField id="signin-email" label="Work email">
+              <FormField
+                id="signin-email"
+                label="Work email"
+                hint="Must match an invited or approved pilot address."
+                instrument
+              >
                 <Input
                   id="signin-email"
                   type="email"
@@ -265,7 +268,6 @@ export function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@organization.org"
-                  className="h-11"
                 />
               </FormField>
               <button
@@ -273,14 +275,30 @@ export function SignInPage() {
                 className="btn-institutional btn-institutional--primary w-full"
                 disabled={busy}
               >
-                {busy ? 'Sending…' : 'Send sign-in link'}
+                {busy ? 'Sending…' : isExpired ? 'Send a fresh sign-in link' : 'Send sign-in link'}
               </button>
-              <p className="text-xs text-ink-faint">
-                Pilot access · Demo mode · Reviewer walkthrough are separate paths above.
-              </p>
             </form>
           )}
-        </div>
+        </FormPanel>
+
+        <nav className="flex flex-col gap-2 text-sm" aria-label="Other entry paths">
+          <Link to="/enter/credential" className="text-brand">
+            Enter invitation credential
+          </Link>
+          <Link to="/request-access" className="text-brand">
+            Request pilot access
+          </Link>
+          {isDemoLoginEnabled() ? (
+            <button
+              type="button"
+              disabled={demoBusy}
+              onClick={() => void handleDemo()}
+              className="w-fit text-left text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
+            >
+              {demoBusy ? 'Starting demo…' : 'Open demo walkthrough'}
+            </button>
+          ) : null}
+        </nav>
       </div>
     </GovernedEntryLayout>
   );

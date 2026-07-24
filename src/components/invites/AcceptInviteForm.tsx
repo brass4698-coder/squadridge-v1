@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { Button } from '../ui/Button';
 import { FormField } from '../ui/FormField';
+import { FormPanel } from '../ui/FormPanel';
 import { Input } from '../ui/Input';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { INVITE_COMPLETE_PATH } from '../../lib/completePendingInvite';
@@ -63,72 +64,74 @@ export function AcceptInviteForm({ token, validation }: Props) {
 
   if (sent) {
     return (
-      <div
-        className="rounded-lg border p-5"
-        style={{ borderColor: 'var(--sr-line)', background: 'var(--sr-bg-secondary)' }}
-        role="status"
+      <FormPanel
+        eyebrow="Invite"
+        title="Check your inbox"
+        description={
+          <>
+            Sign-in link sent to <strong className="text-ink">{lockedEmail}</strong>. After you open
+            it, we&apos;ll activate your {roleLabel ? `${roleLabel} ` : ''}access and route you to
+            your dashboard.
+          </>
+        }
       >
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
-          Check your inbox for a sign-in link sent to{' '}
-          <strong style={{ color: 'var(--sr-ink)' }}>{lockedEmail}</strong>. After you open it,
-          we&apos;ll activate your {roleLabel ? `${roleLabel} ` : ''}access and route you to your
-          dashboard.
+        <p className="text-sm text-ink-secondary" role="status">
+          The link expires in about an hour.
         </p>
-      </div>
+      </FormPanel>
     );
   }
 
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4" noValidate>
-      <FormField id="invite-email" label="Invited email">
-        <Input
-          id="invite-email"
-          type="email"
-          value={lockedEmail}
-          readOnly
-          aria-readonly="true"
-          className="opacity-80"
-        />
-      </FormField>
+    <FormPanel
+      eyebrow="Invite"
+      title="Accept invitation"
+      description={
+        roleLabel ? (
+          <>
+            Role: <span className="text-ink">{roleLabel}</span>
+          </>
+        ) : undefined
+      }
+      footer="SquadRidge uses passwordless sign-in. No password is stored on our side."
+    >
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4" noValidate>
+        <FormField id="invite-email" label="Invited email" instrument>
+          <Input
+            id="invite-email"
+            type="email"
+            value={lockedEmail}
+            readOnly
+            aria-readonly="true"
+            className="opacity-80"
+          />
+        </FormField>
 
-      {roleLabel ? (
-        <p className="text-sm" style={{ color: 'var(--sr-ink-secondary)' }}>
-          Role: <span style={{ color: 'var(--sr-ink)' }}>{roleLabel}</span>
-        </p>
-      ) : null}
+        <FormField id="invite-display-name" label="Display name" instrument>
+          <Input
+            id="invite-display-name"
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            required
+            autoComplete="name"
+            placeholder="How you appear in sessions"
+          />
+        </FormField>
 
-      <FormField id="invite-display-name" label="Display name">
-        <Input
-          id="invite-display-name"
-          type="text"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          required
-          autoComplete="name"
-          placeholder="How you appear in sessions"
-        />
-      </FormField>
+        {error ? (
+          <p
+            role="alert"
+            className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm text-ink"
+          >
+            {error}
+          </p>
+        ) : null}
 
-      {error ? (
-        <p
-          role="alert"
-          className="rounded-lg border px-3 py-2 text-sm"
-          style={{
-            borderColor: 'color-mix(in oklch, var(--sr-danger) 30%, transparent)',
-            background: 'var(--sr-danger-soft)',
-            color: 'var(--sr-ink)',
-          }}
-        >
-          {error}
-        </p>
-      ) : null}
-
-      <Button type="submit" className="w-full" size="lg" loading={loading}>
-        Email me a sign-in link
-      </Button>
-      <p className="text-xs leading-relaxed" style={{ color: 'var(--sr-ink-faint)' }}>
-        SquadRidge uses passwordless sign-in. No password is stored on our side.
-      </p>
-    </form>
+        <Button type="submit" className="w-full" size="lg" loading={loading}>
+          Email me a sign-in link
+        </Button>
+      </form>
+    </FormPanel>
   );
 }

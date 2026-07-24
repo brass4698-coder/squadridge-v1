@@ -30,7 +30,11 @@ You can also call `startWalkthrough()` from `useDemoWalkthrough()` (see
 ## Script steps (summary)
 
 Welcome → How it works → Security → Ledger → Facilitator dashboard → Sessions →
+**Configure** (new session) → **Invite** → **Verify** (participant review) →
 Session control (seeded live room) → Outcome draft → Release gate → Tour complete.
+
+In-app pilot ops (live facilitators, not the demo tour): `/app/pilot-guide` with the
+interactive Configure → Verify → Facilitate → Release walkthrough.
 
 ## Removing the tour
 

@@ -16,7 +16,13 @@ export {
 export { StageCard, type StageCardProps } from './StageCard';
 export { StepCard, type StepCardProps } from './StepCard';
 export { WorkflowSection, type WorkflowSectionProps } from './WorkflowSection';
-export { UseCaseCard, type UseCaseCardProps } from './UseCaseCard';
+export {
+  UseCaseCard,
+  SecondaryUseCaseRow,
+  type UseCaseCardProps,
+  type SecondaryUseCaseProps,
+} from './UseCaseCard';
+export { ProcessDoctrine } from './ProcessDoctrine';
 export { RecordCard, RecordCardCompact, type RecordCardProps } from './RecordCard';
 export {
   VerificationAnchorBadge,

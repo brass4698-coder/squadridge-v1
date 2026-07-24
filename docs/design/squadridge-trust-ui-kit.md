@@ -6,20 +6,33 @@ Concrete design kit for marketing + product surfaces. Aesthetic target: **civic-
 
 ---
 
-## Palette (institutional marketing)
+## Palette
+
+**App chrome (`:root`)** — deep navy vault for signed-in operations.
 
 | Role | Token | Value |
 | ---- | ----- | ----- |
-| Background | `--sr-bg` | `#F5F3EE` warm mineral |
-| Surface | `--sr-bg-elevated` | `#FBFAF7` |
+| Background | `--sr-bg` | `#08091F` deep navy |
+| Surface / cards | `--sr-bg-elevated` | `#141833` charcoal-navy |
+| Primary (app) | `--sr-primary` | `#14B8A6` teal |
+
+**Marketing (`body[data-theme='institutional']`)** — warm mineral / parchment. Restored light institutional system; not Spotify-dark.
+
+| Role | Token | Value |
+| ---- | ----- | ----- |
+| Canvas | `--sr-bg` | `#F5F3EE` warm mineral |
+| Elevated panels | `--sr-bg-elevated` | `#FBFAF7` cream |
 | Sunken / room | `--sr-bg-sunken` | `#EBE8E1` |
 | Ink | `--sr-ink` | `#1F2423` |
-| Secondary | `--sr-ink-secondary` | `#5F6A67` |
-| Primary action | `--sr-primary` | `#0E5E63` deep ink-teal |
-| Integrity | `--sr-verify` | `#3D7A67` (anchors, approvals complete only) |
-| Caution | `--sr-warning` | `#A15A37` clay (documented limits) |
+| Secondary ink | `--sr-ink-secondary` | `#5F6A67` |
+| Primary | `--sr-primary` | `#0E5E63` deep ink-teal |
+| Secondary accent | `--sr-accent-alt` | `#8E7A68` muted bronze (sparingly) |
+| Warning | `--sr-warning` | `#A15A37` clay |
+| Verify | `--sr-verify` | `#3D7A67` integrity only |
 
-App chrome (`:root`) remains dark for signed-in operations. Marketing routes set `data-theme="institutional"` via `PublicShell`.
+Utilities: `.sr-page-glow` (soft mineral wash on institutional), `.sr-vault-card`, `.sr-shell-sidebar`, `.sr-shell-panel`, `.sr-form-atmosphere` / `.sr-form-panel`.
+
+Do **not** use Spotify green, purple neon, or near-black full-page backgrounds on PublicShell marketing. Printable ledger may still use `.theme-light` where required.
 
 ---
 
@@ -90,10 +103,10 @@ Labels above fields; focus via `--sr-focus-ring` (teal). Validation reads as ope
 
 ## Homepage direction
 
-1. Hero: copy + system model diagram (room → gate → ledger modes)
-2. Single process module (no duplicate framing)
-3. Boundary table with honesty micro-summary
-4. Evidence sequence using three modes
-5. Mediation flagship + teaser contexts
-6. Ledger specimen + plain-language anchor note
-7. Pilot intake as the funnel end (`#pilot`)
+1. Hero: private deliberation infrastructure + room → gate → ledger diagram
+2. Why overview (+ safer than chat/email)
+3. Privacy boundaries (doctrine + table)
+4. Facilitator governance (process stages + evidence)
+5. Buyer-track teasers
+6. Ledger specimen (public integrity registry)
+7. Pilot intake (`#pilot`)

@@ -5,6 +5,7 @@ import { ActivityQueue } from '../../components/dashboard/ActivityQueue';
 import { BarChartPanel } from '../../components/dashboard/BarChartPanel';
 import { FunnelChartPanel } from '../../components/dashboard/FunnelChartPanel';
 import { KpiCard } from '../../components/dashboard/KpiCard';
+import { RoleWorkspaceFrame } from '../../components/dashboard/RoleWorkspaceFrame';
 import { OperationalPageHeader, StatusRail, useShellContext } from '../../components/shell';
 import { FacilitatorWalkthrough } from '../../components/facilitator/FacilitatorWalkthrough';
 import { WorkflowNotificationsBanner } from '../../components/session/WorkflowNotificationsBanner';
@@ -68,7 +69,7 @@ export function FacilitatorDashboardPage() {
   const participantsToday = matters.reduce((s, m) => s + m.verified_participant_count, 0);
 
   return (
-    <div data-demo="facilitator-dashboard">
+    <RoleWorkspaceFrame role="facilitator" demoId="facilitator-dashboard">
       <OperationalPageHeader
         title="Facilitator Workspace"
         summary="Manage active rooms, verify participation, govern pacing, and release only approved outcomes."
@@ -79,6 +80,7 @@ export function FacilitatorDashboardPage() {
         stateLabel="Configure → Verify → Facilitate → Release"
         lastUpdated={formatUpdated()}
         primaryAction={{ label: 'Open release queue', href: appRoutes.releaseGate }}
+        roleAccent="facilitator"
       />
       <StatusRail
         items={[
@@ -92,6 +94,12 @@ export function FacilitatorDashboardPage() {
       />
 
       <FacilitatorWalkthrough />
+      <p className="mb-6 -mt-4 text-sm text-ink-faint">
+        Full preflight and abort criteria:{' '}
+        <Link to={appRoutes.pilotGuide} className="text-brand">
+          Pilot readiness guide
+        </Link>
+      </p>
       <WorkflowNotificationsBanner />
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -183,6 +191,6 @@ export function FacilitatorDashboardPage() {
           New session
         </Link>
       </p>
-    </div>
+    </RoleWorkspaceFrame>
   );
 }

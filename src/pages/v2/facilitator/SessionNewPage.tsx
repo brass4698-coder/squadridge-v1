@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
+import { FormField } from '../../../components/ui/FormField';
+import { FormPanel } from '../../../components/ui/FormPanel';
+import { Input } from '../../../components/ui/Input';
+import { Select } from '../../../components/ui/Select';
+import { Textarea } from '../../../components/ui/Textarea';
 import { useSessions } from '../../../hooks/useSessions';
 import { appRoutes } from '../../../lib/appRoutes';
 import {
@@ -102,42 +107,24 @@ export function SessionNewPage() {
     }
   }
 
-  const inputClass = 'w-full rounded border px-3 py-2.5 text-sm outline-none focus:ring-2';
-  const inputStyle = {
-    backgroundColor: 'var(--color-surface)',
-    borderColor: 'var(--color-border)',
-    color: 'var(--color-text-primary)',
-  };
-  const labelClass = 'mb-1.5 block text-xs font-medium';
-  const labelStyle = { color: 'var(--color-text-secondary)' };
-
   return (
     <AuthenticatedShell>
       <div className="mx-auto max-w-xl">
-        {/* Header */}
         <div className="mb-8">
-          <p
-            className="mb-1 text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
+          <p className="mb-1 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             New session
           </p>
-          <h1
-            className="text-xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Configure session
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          <h1 className="text-xl font-semibold tracking-tight text-ink">Configure session</h1>
+          <p className="mt-1 text-sm text-ink-secondary">
             Set eligibility criteria and session parameters before inviting participants.
           </p>
         </div>
 
         <div className="mb-8">
-          <p className={labelClass} style={labelStyle}>
+          <p className="mb-1.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint">
             Session template
           </p>
-          <p className="mb-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+          <p className="mb-2 text-xs text-ink-secondary">
             Pilot default: NGO internal deliberation with a private anchored decision memo. Public
             ledger publish is optional.
           </p>
@@ -157,31 +144,24 @@ export function SessionNewPage() {
                       ? 'Not pilot focus — available after first private releases'
                       : undefined
                   }
-                  className="rounded-lg border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{
-                    borderColor: selected ? 'var(--color-accent)' : 'var(--color-border)',
-                    backgroundColor: 'var(--color-surface)',
-                  }}
+                  className={`sr-form-tile focus-ring disabled:cursor-not-allowed disabled:opacity-50 ${
+                    selected ? 'border-brand/50 shadow-sr-sm' : ''
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p
-                      className="text-sm font-medium"
-                      style={{ color: 'var(--color-text-primary)' }}
-                    >
-                      {template.label}
-                    </p>
+                    <p className="text-sm font-medium text-ink">{template.label}</p>
                     {template.pilotFocus === 'primary' ? (
-                      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-brand">
+                      <span className="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-wide text-brand">
                         Pilot default
                       </span>
                     ) : null}
                     {deferred ? (
-                      <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-ink-secondary">
+                      <span className="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-wide text-ink-secondary">
                         Later
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                  <p className="mt-1 text-xs text-ink-secondary">
                     {deferred
                       ? 'Not pilot focus. Use NGO deliberation or community mediation for first runs.'
                       : template.audience}
@@ -195,178 +175,145 @@ export function SessionNewPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* Title */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Session title <span aria-hidden>*</span>
-            </label>
-            <input
-              required
-              className={inputClass}
-              style={inputStyle}
-              placeholder="e.g. Q1 community safety coordination — March 2026"
-              value={form.title}
-              onChange={(e) => set('title', e.target.value)}
-            />
-          </div>
+        <FormPanel
+          className="mb-8"
+          eyebrow="Parameters"
+          title="Session configuration"
+          description="Eligibility and policies for this governed room."
+          data-demo="session-new"
+        >
+          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-5">
+            <FormField id="session-title" label="Session title" instrument>
+              <Input
+                id="session-title"
+                required
+                placeholder="e.g. Q1 community safety coordination — March 2026"
+                value={form.title}
+                onChange={(e) => set('title', e.target.value)}
+              />
+            </FormField>
 
-          {/* Conflict type */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Conflict type <span aria-hidden>*</span>
-            </label>
-            <select
-              required
-              className={inputClass}
-              style={inputStyle}
-              value={form.conflictType}
-              onChange={(e) => set('conflictType', e.target.value)}
+            <FormField id="conflict-type" label="Conflict type" instrument>
+              <Select
+                id="conflict-type"
+                required
+                value={form.conflictType}
+                onChange={(e) => set('conflictType', e.target.value)}
+              >
+                <option value="">Select…</option>
+                {CONFLICT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+
+            <FormField id="language" label="Primary language" instrument>
+              <Select
+                id="language"
+                value={form.language}
+                onChange={(e) => set('language', e.target.value)}
+              >
+                {LANGUAGE_OPTIONS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+
+            <FormField
+              id="max-participants"
+              label="Maximum participants"
+              hint="Recommended: 2–4 for structured dialogue."
+              instrument
             >
-              <option value="">Select…</option>
-              {CONFLICT_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
+              <Input
+                id="max-participants"
+                type="number"
+                min={2}
+                max={10}
+                value={form.maxParticipants}
+                onChange={(e) => set('maxParticipants', e.target.value)}
+              />
+            </FormField>
 
-          {/* Language */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Primary language
-            </label>
-            <select
-              className={inputClass}
-              style={inputStyle}
-              value={form.language}
-              onChange={(e) => set('language', e.target.value)}
-            >
-              {LANGUAGE_OPTIONS.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </div>
+            <FormField id="eligibility" label="Eligibility notes (internal)" instrument>
+              <Textarea
+                id="eligibility"
+                rows={3}
+                placeholder="Any screening criteria or context notes for this session…"
+                value={form.eligibilityNotes}
+                onChange={(e) => set('eligibilityNotes', e.target.value)}
+              />
+            </FormField>
 
-          {/* Max participants */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Maximum participants
-            </label>
-            <input
-              type="number"
-              min={2}
-              max={10}
-              className={inputClass}
-              style={inputStyle}
-              value={form.maxParticipants}
-              onChange={(e) => set('maxParticipants', e.target.value)}
-            />
-            <p className="mt-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              Recommended: 2–4 for structured dialogue.
-            </p>
-          </div>
+            <div className="rounded-[var(--sr-radius-lg)] border border-line bg-surface-sunken/60 p-5">
+              <p className="mb-4 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
+                Session policies
+              </p>
+              <div className="flex flex-col gap-4">
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 accent-brand"
+                    checked={form.identityVerification}
+                    onChange={(e) => set('identityVerification', e.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-ink">Require identity verification</p>
+                    <p className="text-xs text-ink-secondary">
+                      Participants must complete document upload before entering the room.
+                    </p>
+                  </div>
+                </label>
 
-          {/* Eligibility notes */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Eligibility notes (internal)
-            </label>
-            <textarea
-              rows={3}
-              className={inputClass}
-              style={inputStyle}
-              placeholder="Any screening criteria or context notes for this session…"
-              value={form.eligibilityNotes}
-              onChange={(e) => set('eligibilityNotes', e.target.value)}
-            />
-          </div>
-
-          {/* Toggles */}
-          <div
-            className="rounded-lg border p-5"
-            style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
-          >
-            <p
-              className="mb-4 text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              Session policies
-            </p>
-            <div className="flex flex-col gap-4">
-              {/* Identity verification */}
-              <label className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 accent-[var(--color-accent)]"
-                  checked={form.identityVerification}
-                  onChange={(e) => set('identityVerification', e.target.checked)}
-                />
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    Require identity verification
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    Participants must complete document upload before entering the room.
-                  </p>
-                </div>
-              </label>
-
-              {/* Outcome public — off by default for NGO pilot */}
-              <label className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 accent-[var(--color-accent)]"
-                  checked={form.outcomePublic}
-                  onChange={(e) => set('outcomePublic', e.target.checked)}
-                />
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    Also publish to the public ledger
-                  </p>
-                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    Leave unchecked for a private partner-shared anchored record (recommended for
-                    first pilots). When checked, approved outcome text appears at /ledger —
-                    identities stay private either way.
-                  </p>
-                </div>
-              </label>
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 accent-brand"
+                    checked={form.outcomePublic}
+                    onChange={(e) => set('outcomePublic', e.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-ink">
+                      Also publish to the public ledger
+                    </p>
+                    <p className="text-xs text-ink-secondary">
+                      Leave unchecked for a private partner-shared anchored record (recommended for
+                      first pilots). When checked, approved outcome text appears at /ledger —
+                      identities stay private either way.
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
-          </div>
 
-          {error ? (
-            <p className="text-sm" style={{ color: 'var(--color-danger)' }} role="alert">
-              {error}
-            </p>
-          ) : null}
+            {error ? (
+              <p className="text-sm text-sem-danger" role="alert">
+                {error}
+              </p>
+            ) : null}
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => navigate(appRoutes.sessions)}
-              className="flex-1 rounded border py-3 text-sm font-medium transition-opacity hover:opacity-70"
-              style={{
-                borderColor: 'var(--color-border)',
-                color: 'var(--color-text-primary)',
-                backgroundColor: 'transparent',
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-accent)' }}
-            >
-              {saving ? 'Creating…' : 'Create session'}
-            </button>
-          </div>
-        </form>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate(appRoutes.sessions)}
+                className="btn-institutional btn-institutional--ghost flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="btn-institutional btn-institutional--primary flex-1 disabled:opacity-50"
+              >
+                {saving ? 'Creating…' : 'Create session'}
+              </button>
+            </div>
+          </form>
+        </FormPanel>
       </div>
     </AuthenticatedShell>
   );

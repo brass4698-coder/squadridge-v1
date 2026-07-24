@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/cn';
+import type { WorkspaceRoleAccent } from '../../lib/workspaceRole';
 
 export type OperationalPageHeaderProps = {
   title: string;
@@ -11,6 +12,7 @@ export type OperationalPageHeaderProps = {
   stateLabel?: string;
   lastUpdated?: string | null;
   primaryAction?: { label: string; href: string } | null;
+  roleAccent?: WorkspaceRoleAccent;
   className?: string;
 };
 
@@ -27,15 +29,31 @@ export function OperationalPageHeader({
   stateLabel,
   lastUpdated,
   primaryAction,
+  roleAccent,
   className,
 }: OperationalPageHeaderProps) {
   return (
-    <header className={cn('mb-8 border-b border-line pb-6', className)}>
+    <header
+      className={cn(
+        'mb-8 border-b border-line pb-6',
+        roleAccent && 'sr-role-header-accent',
+        roleAccent && `sr-role-${roleAccent}`,
+        className,
+      )}
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 max-w-3xl">
           {(roleLabel || stateLabel) && (
             <p className="mb-2 flex flex-wrap gap-2 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-              {roleLabel ? <span>{roleLabel}</span> : null}
+              {roleLabel ? (
+                <span
+                  className={cn(
+                    roleAccent && `rounded-sm border px-1.5 py-0.5 sr-chip-role-${roleAccent}`,
+                  )}
+                >
+                  {roleLabel}
+                </span>
+              ) : null}
               {roleLabel && stateLabel ? <span aria-hidden>·</span> : null}
               {stateLabel ? <span>{stateLabel}</span> : null}
             </p>

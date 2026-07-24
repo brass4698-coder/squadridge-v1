@@ -15,6 +15,8 @@ Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It co
 |---|--------|----------------|
 | 1 | Deployed commit recorded in pilot kickoff doc | Unknown build |
 | 2 | `npm run check:all` green on that commit | Any prod-readiness failure |
+| 2b | Facilitator completes `/app/pilot-guide` walkthrough (or scripted tour on staging) | Facilitator unfamiliar with spine |
+| 2c | Metrics pre-registered in [`pilot-metrics-preregistration.md`](./pilot-metrics-preregistration.md) | Closeout cites unregistered claims |
 | 3 | `supabase db push` + `supabase test db` green (includes `v2_session_lifecycle`) | Migration or pgTAP failure |
 | 4 | Partner MOU states **operator-readable v2 room content** (not Signal-grade E2E) | Partner expects server-blind encryption |
 | 5 | Facilitator account active (`profile.status = active`, `facilitator` role) | Pending or suspended facilitator |

@@ -1,36 +1,46 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FormField } from '../../components/ui/FormField';
+import { FormPanel } from '../../components/ui/FormPanel';
 import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
+import { Textarea } from '../../components/ui/Textarea';
 import { useAccessRequest } from '../../hooks/useAccessRequest';
 import { CTA, PILOT_FIT_STRONG, PILOT_FIT_WEAK } from '../../data/siteMessaging';
+import { BUYER_TRACK_INTAKE, type BuyerTrackParam } from '../../data/useCases';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { SectionLabel } from '../../components/SectionLabel';
 
+function resolveBuyerTrack(raw: string | null): BuyerTrackParam | null {
+  if (raw === 'foundations' || raw === 'peacebuilding' || raw === 'hr') return raw;
+  return null;
+}
+
 const ORG_TYPES = [
-  'Mediation practice / ADR center',
-  'Ombuds office',
-  'City / community safety office',
-  'Government or public institution',
+  'Foundation / philanthropy',
   'NGO / civil society',
-  'Academic institution',
+  'Mediation practice / ADR center',
+  'Corporation / board / executive office',
+  'HR / compliance / ombuds',
+  'Government or public institution',
+  'Peacebuilding / Track II',
   'Other',
 ];
 
 const MATTER_TYPES = [
+  'Internal deliberation / decision memo',
   'Mediation & dispute resolution',
-  'Restorative / de-escalation',
-  'City community safety',
-  'Ombuds / institutional inquiry',
-  'Regional consultation',
+  'Board or executive conflict',
+  'HR / ombuds inquiry',
+  'Peacebuilding / cross-party dialogue',
   'Other',
 ];
 
 const ROLE_OPTIONS = [
   'Professional mediator / facilitator',
-  'Program lead',
-  'Ombuds / investigator',
-  'Executive / sponsor',
+  'Program lead / foundation officer',
+  'Ombuds / HR / compliance',
+  'Executive / board sponsor',
   'Institutional convener',
   'Other',
 ];
@@ -38,9 +48,6 @@ const ROLE_OPTIONS = [
 const SENSITIVITY = ['Standard', 'Elevated', 'High'];
 const PUBLIC_RECORD = ['Likely needed', 'Optional', 'Internal-only preferred', 'Unsure'];
 const TIMEFRAMES = ['Within 30 days', '1–3 months', '3–6 months', 'Exploratory only'];
-
-const SELECT_CLASS =
-  'focus-ring w-full border border-line bg-surface-elevated px-3 py-2.5 text-sm text-ink';
 
 const TRUST_RAIL = [
   'Manual review',
@@ -56,14 +63,16 @@ const TRUST_RAIL = [
 export function RequestAccessPage() {
   const [searchParams] = useSearchParams();
   const prefilledEmail = searchParams.get('email')?.trim() ?? '';
+  const buyerTrack = resolveBuyerTrack(searchParams.get('track'));
+  const trackDefaults = buyerTrack ? BUYER_TRACK_INTAKE[buyerTrack] : null;
   const { submit, loading, error, submitted } = useAccessRequest();
   const [form, setForm] = useState({
     name: '',
     organisation: '',
     email: prefilledEmail,
     role: '',
-    orgType: '',
-    matterType: '',
+    orgType: trackDefaults?.orgType ?? '',
+    matterType: trackDefaults?.matterType ?? '',
     participants: '',
     region: '',
     sensitivity: '',
@@ -71,6 +80,7 @@ export function RequestAccessPage() {
     painPoints: '',
     timeframe: '',
     phone: '',
+    buyerTrack: buyerTrack ?? '',
   });
 
   function set(key: keyof typeof form, value: string) {
@@ -81,6 +91,7 @@ export function RequestAccessPage() {
     e.preventDefault();
     const detailBlock = [
       form.painPoints.trim(),
+      form.buyerTrack ? `Buyer track: ${form.buyerTrack}` : '',
       `Role in process: ${form.role}`,
       `Organization type: ${form.orgType}`,
       `Matter type: ${form.matterType}`,
@@ -105,17 +116,16 @@ export function RequestAccessPage() {
 
   if (submitted) {
     return (
-      <div className="flex min-h-[70vh] items-start py-20">
+      <div className="sr-form-atmosphere flex min-h-[70vh] items-start py-20">
         <div className={publicShellInnerClass}>
-          <div className="max-w-lg border border-line bg-surface-elevated p-8 text-left">
-            <p className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
-              Intake
-            </p>
-            <h1 className="mt-3 font-display text-h2 font-medium text-ink">Submission received</h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Manual review. Expect a response within 5–7 business days — not an automated approval.
-            </p>
-            <div className="mt-6 space-y-3 text-sm text-ink-secondary">
+          <FormPanel
+            className="max-w-lg"
+            eyebrow="Intake"
+            title="Submission received"
+            description="Manual review. Expect a response within 5–7 business days — not an automated approval."
+            footer="We reduce exposure by design. We do not claim full platform zero-knowledge or Signal-grade E2E today."
+          >
+            <div className="space-y-3 text-sm text-ink-secondary">
               <p className="m-0 font-medium text-ink">Possible next steps from the review team</p>
               <ul className="m-0 list-disc space-y-1 pl-5">
                 <li>Additional diligence required</li>
@@ -128,26 +138,26 @@ export function RequestAccessPage() {
                 Return home
               </Link>
               <Link to="/contact" className="btn-institutional btn-institutional--primary">
-                Request a briefing
+                Request briefing
               </Link>
             </div>
-          </div>
+          </FormPanel>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="border-b border-line pb-20">
-      <header className="border-b border-line py-14 md:py-16">
+    <div className="sr-form-atmosphere border-b border-line pb-20">
+      <header className="scroll-mt-20 border-b border-line py-14 md:py-16" data-scroll-section>
         <div className={publicShellInnerClass}>
-          <SectionLabel>Pilot intake</SectionLabel>
+          <SectionLabel>Confidential pilot intake</SectionLabel>
           <h1 className="mt-3 max-w-2xl font-display text-display font-medium tracking-tight text-ink">
             Request pilot access
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-secondary">
-            Manual application review for facilitators and institutions. Co-designed pilot scope —
-            not self-serve signup.
+            Confidential application for facilitators and institutions. Manual review within 5–7
+            business days — co-designed pilot scope, not self-serve signup.
           </p>
         </div>
       </header>
@@ -159,25 +169,38 @@ export function RequestAccessPage() {
           <section>
             <h2 className="font-display text-h3 font-medium text-ink">Who this is for</h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
-              Mediation practices, ombuds offices, institutional conveners, and city community
-              safety teams preparing a governed written room with optional public release.
+              Foundations, NGOs, boards and executive teams, HR/ombuds offices, and peacebuilding
+              facilitators preparing a governed written room with optional public or private
+              anchored release.
             </p>
           </section>
 
           <section className="grid gap-8 sm:grid-cols-2">
             <div>
               <h3 className="text-sm font-semibold text-ink">Strong fit</h3>
-              <ul className="mt-3 m-0 list-disc space-y-2 pl-5 text-sm text-ink-secondary">
+              <ul className="mt-3 m-0 list-none space-y-2.5 p-0 text-sm text-ink-secondary">
                 {PILOT_FIT_STRONG.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item} className="flex gap-2.5">
+                    <span
+                      aria-hidden
+                      className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                    />
+                    <span>{item}</span>
+                  </li>
                 ))}
               </ul>
             </div>
             <div>
               <h3 className="text-sm font-semibold text-ink">Likely not a fit</h3>
-              <ul className="mt-3 m-0 list-disc space-y-2 pl-5 text-sm text-ink-secondary">
+              <ul className="mt-3 m-0 list-none space-y-2.5 p-0 text-sm text-ink-secondary">
                 {PILOT_FIT_WEAK.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item} className="flex gap-2.5">
+                    <span
+                      aria-hidden
+                      className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                    />
+                    <span>{item}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -199,19 +222,32 @@ export function RequestAccessPage() {
             </ol>
           </section>
 
-          <section>
-            <h2 className="font-display text-h3 font-medium text-ink">Pilot application</h2>
-            <form className="mt-6 space-y-4" onSubmit={(e) => void handleSubmit(e)}>
+          <FormPanel
+            eyebrow="Application"
+            title="Pilot application"
+            description="Share matter context and sensitivity so review can stay deliberate."
+            footer="A human reviews fit before any invitations are issued."
+          >
+            <form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
               {error ? (
                 <p
-                  className="rounded-md border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
+                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
                   role="alert"
                 >
                   {error}
                 </p>
               ) : null}
+              {trackDefaults ? (
+                <p className="m-0 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-3 py-2 text-sm text-ink-secondary">
+                  Prefilling for <span className="font-medium text-ink">{trackDefaults.label}</span>{' '}
+                  track.
+                </p>
+              ) : null}
+              {form.buyerTrack ? (
+                <input type="hidden" name="buyerTrack" value={form.buyerTrack} readOnly />
+              ) : null}
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="name" label="Name">
+                <FormField id="name" label="Name" instrument>
                   <Input
                     id="name"
                     required
@@ -219,7 +255,7 @@ export function RequestAccessPage() {
                     onChange={(e) => set('name', e.target.value)}
                   />
                 </FormField>
-                <FormField id="organisation" label="Organization">
+                <FormField id="organisation" label="Organization" instrument>
                   <Input
                     id="organisation"
                     required
@@ -229,7 +265,12 @@ export function RequestAccessPage() {
                 </FormField>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="email" label="Work email">
+                <FormField
+                  id="email"
+                  label="Work email"
+                  hint="Used only for intake review — not shared with other applicants."
+                  instrument
+                >
                   <Input
                     id="email"
                     type="email"
@@ -238,7 +279,7 @@ export function RequestAccessPage() {
                     onChange={(e) => set('email', e.target.value)}
                   />
                 </FormField>
-                <FormField id="phone" label="Contact phone (optional)">
+                <FormField id="phone" label="Contact phone (optional)" instrument>
                   <Input
                     id="phone"
                     value={form.phone}
@@ -246,11 +287,10 @@ export function RequestAccessPage() {
                   />
                 </FormField>
               </div>
-              <FormField id="role" label="Role in process">
-                <select
+              <FormField id="role" label="Role in process" instrument>
+                <Select
                   id="role"
                   required
-                  className={SELECT_CLASS}
                   value={form.role}
                   onChange={(e) => set('role', e.target.value)}
                 >
@@ -260,14 +300,13 @@ export function RequestAccessPage() {
                       {o}
                     </option>
                   ))}
-                </select>
+                </Select>
               </FormField>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="orgType" label="Organization type">
-                  <select
+                <FormField id="orgType" label="Organization type" instrument>
+                  <Select
                     id="orgType"
                     required
-                    className={SELECT_CLASS}
                     value={form.orgType}
                     onChange={(e) => set('orgType', e.target.value)}
                   >
@@ -277,13 +316,12 @@ export function RequestAccessPage() {
                         {o}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </FormField>
-                <FormField id="matterType" label="Matter type / use case">
-                  <select
+                <FormField id="matterType" label="Matter type / use case" instrument>
+                  <Select
                     id="matterType"
                     required
-                    className={SELECT_CLASS}
                     value={form.matterType}
                     onChange={(e) => set('matterType', e.target.value)}
                   >
@@ -293,11 +331,11 @@ export function RequestAccessPage() {
                         {o}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </FormField>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="participants" label="Estimated participants">
+                <FormField id="participants" label="Estimated participants" instrument>
                   <Input
                     id="participants"
                     required
@@ -306,7 +344,7 @@ export function RequestAccessPage() {
                     placeholder="e.g. 6–12"
                   />
                 </FormField>
-                <FormField id="region" label="Region / operating geography">
+                <FormField id="region" label="Region / operating geography" instrument>
                   <Input
                     id="region"
                     required
@@ -316,11 +354,15 @@ export function RequestAccessPage() {
                 </FormField>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="sensitivity" label="Sensitivity level">
-                  <select
+                <FormField
+                  id="sensitivity"
+                  label="Sensitivity level"
+                  hint="Helps reviewers scope diligence — not a public classification."
+                  instrument
+                >
+                  <Select
                     id="sensitivity"
                     required
-                    className={SELECT_CLASS}
                     value={form.sensitivity}
                     onChange={(e) => set('sensitivity', e.target.value)}
                   >
@@ -330,13 +372,17 @@ export function RequestAccessPage() {
                         {o}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </FormField>
-                <FormField id="publicRecord" label="Whether a public record may be needed">
-                  <select
+                <FormField
+                  id="publicRecord"
+                  label="Whether a public record may be needed"
+                  hint="Private anchored memos are the pilot default; public ledger is optional."
+                  instrument
+                >
+                  <Select
                     id="publicRecord"
                     required
-                    className={SELECT_CLASS}
                     value={form.publicRecord}
                     onChange={(e) => set('publicRecord', e.target.value)}
                   >
@@ -346,14 +392,13 @@ export function RequestAccessPage() {
                         {o}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </FormField>
               </div>
-              <FormField id="timeframe" label="Desired pilot timeframe">
-                <select
+              <FormField id="timeframe" label="Desired pilot timeframe" instrument>
+                <Select
                   id="timeframe"
                   required
-                  className={SELECT_CLASS}
                   value={form.timeframe}
                   onChange={(e) => set('timeframe', e.target.value)}
                 >
@@ -363,14 +408,13 @@ export function RequestAccessPage() {
                       {o}
                     </option>
                   ))}
-                </select>
+                </Select>
               </FormField>
-              <FormField id="pain" label="Current tools or process pain points">
-                <textarea
+              <FormField id="pain" label="Current tools or process pain points" instrument>
+                <Textarea
                   id="pain"
                   required
                   rows={4}
-                  className={SELECT_CLASS}
                   value={form.painPoints}
                   onChange={(e) => set('painPoints', e.target.value)}
                 />
@@ -383,7 +427,7 @@ export function RequestAccessPage() {
                 {loading ? 'Submitting…' : CTA.primaryLabel}
               </button>
             </form>
-          </section>
+          </FormPanel>
 
           <section>
             <h2 className="font-display text-h3 font-medium text-ink">
@@ -403,11 +447,14 @@ export function RequestAccessPage() {
           <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
             Trust rail
           </p>
-          <ul className="mt-3 m-0 list-none space-y-2 p-0">
+          <ul
+            className="sr-evidence-rail mt-3 m-0 list-none space-y-2 p-0"
+            aria-label="Intake trust signals"
+          >
             {TRUST_RAIL.map((item) => (
               <li
                 key={item}
-                className="rounded-sm border border-line bg-surface-sunken px-3 py-2 text-xs font-medium text-ink-secondary"
+                className="rounded-[var(--sr-radius-sm)] border border-line bg-surface-sunken/80 px-3 py-2 font-mono text-[length:var(--text-label)] uppercase tracking-[0.08em] text-ink-secondary"
               >
                 {item}
               </li>

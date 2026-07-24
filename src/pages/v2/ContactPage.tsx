@@ -20,13 +20,13 @@ export function ContactPage() {
         actions={
           <>
             <a
-              href="mailto:hello@squadridge.org"
+              href="mailto:hello@squadridge.com"
               className="btn-institutional btn-institutional--primary"
             >
-              hello@squadridge.org
+              hello@squadridge.com
             </a>
-            <Link to="/request-access" className="btn-institutional btn-institutional--ghost">
-              Submit pilot intake
+            <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--ghost">
+              {CTA.primaryLabel}
             </Link>
           </>
         }
@@ -46,16 +46,15 @@ export function ContactPage() {
 
       <MarketingSection tone="bordered" density="compact">
         <ShellWidth>
-          <EvaluatorPath current="apply" />
+          <EvaluatorPath current="trust" />
         </ShellWidth>
       </MarketingSection>
 
       <CTABlock
-        headline={CTA.briefingHeadline}
-        body={CTA.briefingBody}
-        primaryLabel={CTA.primaryLabel}
-        secondaryLabel="Read the security overview"
-        secondaryHref="/security"
+        headline={CTA.pilotHeadline}
+        body={CTA.pilotBody}
+        secondaryLabel={CTA.secondarySecurity}
+        secondaryHref={CTA.secondarySecurityHref}
       />
     </div>
   );

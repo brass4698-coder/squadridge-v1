@@ -11,7 +11,7 @@ export function SettingsIndexPage() {
       <li>
         <Link
           to={`${base}/profile`}
-          className="sr-interactive block rounded-lg border border-line bg-surface-elevated p-5 no-underline"
+          className="sr-vault-card sr-vault-card--interactive block p-5 no-underline"
         >
           <h2 className="font-display text-lg font-medium text-ink">Profile &amp; keys</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
@@ -22,7 +22,7 @@ export function SettingsIndexPage() {
       <li>
         <Link
           to={`${base}/safety`}
-          className="sr-interactive block rounded-lg border border-line bg-surface-elevated p-5 no-underline"
+          className="sr-vault-card sr-vault-card--interactive block p-5 no-underline"
         >
           <h2 className="font-display text-lg font-medium text-ink">Safety center</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
@@ -33,7 +33,7 @@ export function SettingsIndexPage() {
       <li>
         <Link
           to={`${base}/notifications`}
-          className="sr-interactive block rounded-lg border border-line bg-surface-elevated p-5 no-underline"
+          className="sr-vault-card sr-vault-card--interactive block p-5 no-underline"
         >
           <h2 className="font-display text-lg font-medium text-ink">Notifications</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-secondary">

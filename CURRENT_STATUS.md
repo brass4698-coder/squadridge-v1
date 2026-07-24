@@ -41,9 +41,10 @@ This is **not** a multi-role case/matter SaaS rebuild, not a marketing redesign,
 - v2 metadata-only session audit trail + export UI
 - Session resolution workflow (template-gated) with participant support
 - Public ledger UI at `/ledger` with illustrative sample labeling when no live records exist
-- Facilitator walkthrough (in-app)
+- Facilitator walkthrough (in-app at `/app/pilot-guide` + dashboard) and scripted demo tour (Configure → Invite → Verify → Facilitate → Release)
 - Threat model, public-claims audit, and platform-description aligned with engineering reality
 - Design token system v2 (`src/styles/tokens.css`) + `AGENTS.md` for contributors
+- Pilot metrics pre-registration template ([`docs/operations/pilot-metrics-preregistration.md`](docs/operations/pilot-metrics-preregistration.md))
 
 ## Pilot-Ready With Care
 
@@ -145,4 +146,7 @@ Before any real pilot, confirm:
 - AI agent context: [`AGENTS.md`](AGENTS.md)
 - Security source of truth: [`docs/security/threat-model.md`](docs/security/threat-model.md)
 - Pilot runbook: [`docs/operations/pilot-runbook.md`](docs/operations/pilot-runbook.md)
+- v2 pilot checklist: [`docs/operations/v2-pilot-checklist.md`](docs/operations/v2-pilot-checklist.md)
+- Metrics pre-registration: [`docs/operations/pilot-metrics-preregistration.md`](docs/operations/pilot-metrics-preregistration.md)
+- In-app pilot guide: `/app/pilot-guide` (facilitator walkthrough + preflight)
 - Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)

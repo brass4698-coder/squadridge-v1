@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { AcceptInviteForm } from '../components/invites/AcceptInviteForm';
+import { FormPanel } from '../components/ui/FormPanel';
 import { TokenShell } from '../components/layout/TokenShell';
 import { validateInviteToken } from '../lib/invites';
 import { copyForInviteReason } from '../lib/inviteInvalidCopy';
@@ -46,15 +47,17 @@ export function StaffInviteAcceptPage() {
   if (!token) {
     return (
       <TokenShell>
-        <div className="mx-auto max-w-md px-6 py-16 text-center">
-          <p style={{ color: 'var(--sr-ink-secondary)' }}>Invitation link is missing a token.</p>
-          <Link
-            to="/sign-in"
-            className="mt-4 inline-block text-sm"
-            style={{ color: 'var(--sr-primary)' }}
+        <div className="sr-form-atmosphere mx-auto flex min-h-[50vh] max-w-md items-center px-6 py-16">
+          <FormPanel
+            className="w-full text-center"
+            eyebrow="Invitation"
+            title="Missing token"
+            description="Invitation link is missing a token."
           >
-            Go to sign in
-          </Link>
+            <Link to="/sign-in" className="text-sm text-brand">
+              Go to sign in
+            </Link>
+          </FormPanel>
         </div>
       </TokenShell>
     );
@@ -63,8 +66,12 @@ export function StaffInviteAcceptPage() {
   if (status.kind === 'loading') {
     return (
       <TokenShell>
-        <div className="mx-auto flex max-w-md flex-col px-6 py-16" role="status" aria-live="polite">
-          <p style={{ color: 'var(--sr-ink-secondary)' }}>Verifying invitation…</p>
+        <div
+          className="sr-form-atmosphere mx-auto flex max-w-md flex-col px-6 py-16"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="text-ink-secondary">Verifying invitation…</p>
         </div>
       </TokenShell>
     );
@@ -74,19 +81,20 @@ export function StaffInviteAcceptPage() {
     const { copy } = status;
     return (
       <TokenShell>
-        <div className="mx-auto max-w-md px-6 py-16 text-center">
-          <h1 className="text-h3" style={{ color: 'var(--sr-ink)' }}>
-            {copy.title}
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
-            {copy.body}
-          </p>
-          <Link
-            to={copy.primaryAction.href}
-            className="btn-pill btn-pill--primary mt-8 inline-flex text-sm"
+        <div className="sr-form-atmosphere mx-auto flex min-h-[50vh] max-w-md items-center px-6 py-16">
+          <FormPanel
+            className="w-full text-center"
+            eyebrow="Invitation"
+            title={copy.title}
+            description={copy.body}
           >
-            {copy.primaryAction.label}
-          </Link>
+            <Link
+              to={copy.primaryAction.href}
+              className="btn-institutional btn-institutional--primary mt-2 inline-flex text-sm no-underline"
+            >
+              {copy.primaryAction.label}
+            </Link>
+          </FormPanel>
         </div>
       </TokenShell>
     );
@@ -94,17 +102,12 @@ export function StaffInviteAcceptPage() {
 
   return (
     <TokenShell>
-      <div className="mx-auto w-full max-w-md px-6 py-12">
-        <p
-          className="text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--sr-primary)' }}
-        >
+      <div className="sr-form-atmosphere mx-auto w-full max-w-md px-6 py-12">
+        <p className="font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-brand">
           Invitation
         </p>
-        <h1 className="mt-2 text-h2" style={{ color: 'var(--sr-ink)' }}>
-          Accept your invite
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--sr-ink-secondary)' }}>
+        <h1 className="mt-2 font-display text-h2 font-medium text-ink">Accept your invite</h1>
+        <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
           Confirm your display name and we&apos;ll email you a one-time link to activate access.
         </p>
         <div className="mt-8">

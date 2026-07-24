@@ -1,6 +1,7 @@
 export { LandingHero } from './LandingHero';
 export { TrustStrip } from './TrustStrip';
 export { AudiencePathStrip } from './AudiencePathStrip';
+export { WhyOverview } from './WhyOverview';
 export { MatterThroughNav } from './MatterThroughNav';
 export { PrivacyByBoundary } from './PrivacyByBoundary';
 export { RoomGateRecordDiagram } from './RoomGateRecordDiagram';

@@ -10,7 +10,9 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
 export function RecordSpecimen() {
   return (
     <section
+      data-demo="landing-ledger"
       className="border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/45 py-16 md:py-20"
+      data-scroll-section
       aria-labelledby="record-specimen-h"
     >
       <div className={publicShellInnerClass}>
@@ -21,15 +23,19 @@ export function RecordSpecimen() {
               id="record-specimen-h"
               className="mt-0 font-display text-[1.625rem] font-medium leading-tight tracking-tight text-ink md:text-[1.875rem]"
             >
-              The released instrument.
+              The public integrity record.
             </h2>
             <p className="mt-5 mb-0 text-sm leading-relaxed text-ink-secondary">
-              Approved text, limited metadata, verification anchor. Room dialogue never appears
-              here.
+              Approved text, limited metadata, verification anchor. Proves an outcome was released
+              at a time — not what was said in the room.
             </p>
             <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary">
               Anyone can recompute this anchor from the published outcome to confirm it has not been
               altered.
+            </p>
+            <p className="mt-4 mb-0 rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
+              How to verify: download the published outcome text → compute SHA-256 → compare to the
+              listed anchor.
             </p>
             <Link
               to="/ledger"

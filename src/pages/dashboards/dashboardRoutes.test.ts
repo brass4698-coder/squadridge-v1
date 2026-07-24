@@ -17,6 +17,7 @@ const MOUNTED_APP_ROUTES = new Set<string>([
   '/app/mediator',
   '/app/analyst',
   '/app/participant',
+  '/app/moderator',
   '/app/observer',
   '/app/executive',
   '/app/release-gate',

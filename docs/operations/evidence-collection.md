@@ -17,7 +17,9 @@
 
 ## Artifacts
 
-- Use [`../business/impact-reporting-template.md`](../business/impact-reporting-template.md) for quarterly drafts.  
+- Use [`../business/impact-reporting-template.md`](../business/impact-reporting-template.md) for quarterly drafts.
+- Pre-register metrics before day one: [`pilot-metrics-preregistration.md`](./pilot-metrics-preregistration.md).
+- In-app facilitator preflight: `/app/pilot-guide`.
 - For counterfactual language, see [`prevented-incident-methodology.md`](prevented-incident-methodology.md).
 
 ## Roles

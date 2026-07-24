@@ -30,11 +30,11 @@ const SECTIONS = [
   },
   {
     heading: '6. Your rights',
-    body: `You have the right to request access to, correction of, or deletion of your personal data. To exercise these rights, contact us at privacy@squadridge.app. We will respond within 30 days.`,
+    body: `You have the right to request access to, correction of, or deletion of your personal data. To exercise these rights, contact us at privacy@squadridge.com. We will respond within 30 days.`,
   },
   {
     heading: '7. Contact',
-    body: `For privacy-related queries: privacy@squadridge.app`,
+    body: `For privacy-related queries: privacy@squadridge.com`,
   },
 ];
 
@@ -52,9 +52,14 @@ export function PrivacyPage() {
               {SITE_THESIS_SHORT} This policy describes what we collect, how session room content
               differs from released ledger records, and what we do not do with your data.
             </p>
-            <ul className="mt-4 flex flex-col gap-1 text-xs text-ink-faint">
+            <ul className="mt-4 m-0 flex list-none flex-col gap-1.5 p-0 text-xs text-ink-faint">
               {SITE_NOT.map((line) => (
-                <li key={line}>· {line}</li>
+                <li key={line} className="flex gap-2">
+                  <span aria-hidden className="text-ink-faint">
+                    ·
+                  </span>
+                  <span>{line}</span>
+                </li>
               ))}
             </ul>
             <p className="mt-4 text-sm text-ink-secondary">

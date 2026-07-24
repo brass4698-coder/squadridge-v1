@@ -20,7 +20,7 @@ export function ParticipantsReviewPage() {
 
   return (
     <AuthenticatedShell>
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-2xl" data-demo="session-participants">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">

@@ -55,8 +55,12 @@ export function AppTopShell({ children }: AppTopShellProps) {
 
       <header className="nav-frosted sticky top-0 z-40" data-scrolled={scrolled ? 'true' : 'false'}>
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-          <Link to="/" className="text-ink" aria-label="SquadRidge home">
-            <SquadRidgeLockup size="sm" />
+          <Link
+            to="/"
+            className="inline-flex h-full shrink-0 items-center text-ink no-underline"
+            aria-label="SquadRidge home"
+          >
+            <SquadRidgeLockup size="sm" showTagline={false} />
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">

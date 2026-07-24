@@ -38,7 +38,7 @@ const SECTIONS = [
   },
   {
     heading: '8. Contact',
-    body: `For legal queries: legal@squadridge.app`,
+    body: `For legal queries: legal@squadridge.com`,
   },
 ];
 

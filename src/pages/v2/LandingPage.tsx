@@ -8,19 +8,21 @@ import {
   ProductEvidenceCluster,
   RecordSpecimen,
   UseCaseGrid,
+  WhyOverview,
 } from '../../components/landing';
 
 /**
- * Homepage — category claim, audience paths, room→gate→record proof stack.
+ * Homepage — what it is → who → privacy → facilitator governance → ledger → intake.
  */
 export function LandingPage() {
   return (
     <div className="sr-align-content">
       <LandingHero />
-      <MatterThroughNav />
-      <ProcessStagePanel />
+      <WhyOverview />
       <PrivacyByBoundary />
       <BoundarySection />
+      <MatterThroughNav />
+      <ProcessStagePanel />
       <ProductEvidenceCluster />
       <UseCaseGrid />
       <RecordSpecimen />

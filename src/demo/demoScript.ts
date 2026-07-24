@@ -70,6 +70,18 @@ export const demoSteps: DemoStep[] = [
         selector: '[data-demo="landing-hero"]',
       },
       {
+        id: 'welcome-why',
+        content:
+          'Scroll for the institutional framing — who it serves, and why chat or email is the wrong vessel for high-stakes conflict.',
+        selector: '[data-demo="landing-why"]',
+      },
+      {
+        id: 'welcome-ledger',
+        content:
+          'Further down: a specimen of the public integrity record. Dialogue never appears here — only approved release text.',
+        selector: '[data-demo="landing-ledger"]',
+      },
+      {
         id: 'welcome-nav',
         content:
           'Use Next to walk the product spine. Back returns to the previous step. Skip exits anytime.',
@@ -90,6 +102,12 @@ export const demoSteps: DemoStep[] = [
           'Mediators control the lifecycle. The platform automates verification status, session controls, and ledger publish — not the dialogue itself.',
         selector: '[data-demo="how-it-works-spine"]',
       },
+      {
+        id: 'hiw-guarantees',
+        content:
+          'Scroll the spine: Room guarantees stay fixed — no auto-publish, verification before entry, facilitator-controlled release.',
+        selector: '[data-demo="how-it-works-guarantees"]',
+      },
     ],
   },
   {
@@ -105,6 +123,12 @@ export const demoSteps: DemoStep[] = [
         content:
           'Trust claims stay honest: the room and the record are separate by design. Read this surface before you pilot.',
         selector: '[data-demo="security-hero"]',
+      },
+      {
+        id: 'security-not',
+        content:
+          'Scroll to “What we do not do” — the distinctive trust move for technical and executive reviewers alike.',
+        selector: '[data-demo="security-limits"]',
       },
     ],
   },
@@ -126,23 +150,55 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'facilitator_dashboard',
-    path: '/app?demo=1',
-    title: 'Facilitator workspace',
-    description: 'Your operating home after sign-in.',
+    path: '/app/facilitator?demo=1',
+    title: 'Facilitator dashboard',
+    description: 'Teal-coded room operations command center.',
     inMainScript: true,
     envModes: mockAll,
     overlaySteps: [
       {
         id: 'dash-header',
         content:
-          'You are signed in as the demo facilitator. Seeded sessions appear here so you can practice Configure → Verify → Facilitate → Release.',
+          'Facilitator view (teal): manage rooms, verification, pacing, and release. Seeded sessions let you practice Configure → Verify → Facilitate → Release.',
         selector: '[data-demo="facilitator-dashboard"]',
       },
       {
         id: 'dash-new',
         content:
-          'New session starts a fresh room. For this tour we open a seeded live session next.',
+          'Use the role switcher in the header to preview Participant and Moderator dashboards — each has its own color language.',
         selector: '[data-demo="nav-sessions"]',
+      },
+    ],
+  },
+  {
+    id: 'participant_dashboard',
+    path: '/app/participant?demo=1',
+    title: 'Participant dashboard',
+    description: 'Blue-coded invitee workspace.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'participant-home',
+        content:
+          'Participant view (blue): your rooms, required actions, and approved outcomes only — never the full transcript of other parties.',
+        selector: '[data-demo="participant-dashboard"]',
+      },
+    ],
+  },
+  {
+    id: 'moderator_dashboard',
+    path: '/app/moderator?demo=1',
+    title: 'Moderator dashboard',
+    description: 'Clay-coded safety oversight.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'moderator-home',
+        content:
+          'Moderator view (clay): calm safety and process integrity signals. Release still belongs to the facilitator — this lane does not auto-publish.',
+        selector: '[data-demo="moderator-dashboard"]',
       },
     ],
   },
@@ -157,8 +213,56 @@ export const demoSteps: DemoStep[] = [
       {
         id: 'sessions-table',
         content:
-          'Each row is a deliberation room with a lifecycle status. Open a live session to enter the control surface.',
+          'Back in the facilitator spine: each row is a deliberation room with a lifecycle status. Next we walk Configure → Invite → Verify before the live room.',
         selector: '[data-demo="sessions-list"]',
+      },
+    ],
+  },
+  {
+    id: 'session_configure',
+    path: '/app/sessions/new/setup?demo=1',
+    title: 'Configure',
+    description: 'Template and eligibility for a new room.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'configure-setup',
+        content:
+          'Pilot default is NGO internal deliberation with a private anchored memo. Public ledger publish stays optional.',
+        selector: '[data-demo="session-new"]',
+      },
+    ],
+  },
+  {
+    id: 'session_invite',
+    path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/invite?demo=1`,
+    title: 'Invite',
+    description: 'Issue participant invite links.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'invite-panel',
+        content:
+          'Each participant gets a unique /p/invite token. Treat links as bearer secrets — do not post them in open channels.',
+        selector: '[data-demo="session-invite"]',
+      },
+    ],
+  },
+  {
+    id: 'session_verify',
+    path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/participants?demo=1`,
+    title: 'Verify',
+    description: 'Approve participants before opening the room.',
+    inMainScript: true,
+    envModes: mockAll,
+    overlaySteps: [
+      {
+        id: 'verify-review',
+        content:
+          'Facilitator review is the gate. You cannot open the live room until required participants are verified.',
+        selector: '[data-demo="session-participants"]',
       },
     ],
   },
@@ -212,7 +316,7 @@ export const demoSteps: DemoStep[] = [
   },
   {
     id: 'tour_complete',
-    path: '/app?demo=1&tour=done',
+    path: '/app/facilitator?demo=1&tour=done',
     title: 'Tour complete',
     description: 'Explore freely, or exit to the public site.',
     inMainScript: true,

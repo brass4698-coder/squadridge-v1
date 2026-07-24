@@ -46,6 +46,7 @@ export function MarketingSection({
   return (
     <section
       id={id}
+      data-scroll-section
       className={cn(
         'scroll-mt-20 text-left',
         padY,

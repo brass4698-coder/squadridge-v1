@@ -5,6 +5,7 @@ import { FunnelChartPanel } from '../../components/dashboard/FunnelChartPanel';
 import { HeatmapPanel } from '../../components/dashboard/HeatmapPanel';
 import { KpiCard } from '../../components/dashboard/KpiCard';
 import { ProgressRing } from '../../components/dashboard/ProgressRing';
+import { RoleWorkspaceFrame } from '../../components/dashboard/RoleWorkspaceFrame';
 import { OperationalPageHeader, StatusRail, useShellContext } from '../../components/shell';
 import { useDemoGovernance } from '../../demo/DemoGovernanceContext';
 import { formatUpdated, portfolioHeatmap } from '../../data/governanceDashboard';
@@ -46,7 +47,7 @@ export function MediatorDashboardPage() {
   }, [setContext, scopeLabel, drafts]);
 
   return (
-    <div>
+    <RoleWorkspaceFrame role="mediator" demoId="mediator-dashboard">
       <OperationalPageHeader
         title="Inquiry Workspace"
         summary="Manage verified contributors, review structured submissions, and prepare defensible summaries for governed release."
@@ -61,6 +62,7 @@ export function MediatorDashboardPage() {
         stateLabel="Room → gate"
         lastUpdated={formatUpdated()}
         primaryAction={{ label: 'Review findings draft', href: appRoutes.releaseGate }}
+        roleAccent="mediator"
       />
       <StatusRail
         items={[
@@ -155,6 +157,6 @@ export function MediatorDashboardPage() {
             }))}
         />
       </div>
-    </div>
+    </RoleWorkspaceFrame>
   );
 }

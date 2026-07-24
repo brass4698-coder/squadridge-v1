@@ -5,12 +5,13 @@ import { appRoutes } from '../../lib/appRoutes';
 import { getHighestPriorityRole, hasAnyRole } from '../../lib/roles';
 import { ROLE_LABELS, type RoleKey } from '../../types/roles';
 import { isDemoUser } from '../../lib/demoLogin';
+import { workspaceRoleFromPath } from '../../lib/workspaceRole';
 import { DemoBanner } from '../demo/DemoBanner';
 import { DemoLayout } from '../../demo/DemoLayout';
 import { useDemoWalkthrough } from '../../demo/DemoWalkthroughContext';
 import { DemoGovernanceProvider } from '../../demo/DemoGovernanceContext';
 import { SquadLogo } from '../SquadLogo';
-import { SquadRidgeWordmark } from '../SquadRidgeWordmark';
+import { SquadRidgeLockup } from '../SquadRidgeWordmark';
 import { UserAvatarMenu } from './UserAvatarMenu';
 import {
   DemoModePill,
@@ -26,6 +27,7 @@ interface NavItem {
   label: string;
   href: string;
   icon: ReactNode;
+  demoId?: string;
 }
 
 function IconGrid() {
@@ -229,7 +231,13 @@ function buildNav(role: RoleKey | null, isAdmin: boolean): NavItem[] {
 
   // facilitator / mediator default operational nav
   items.push(
-    { label: 'Rooms / sessions', href: appRoutes.sessions, icon: <IconRooms /> },
+    {
+      label: 'Rooms / sessions',
+      href: appRoutes.sessions,
+      icon: <IconRooms />,
+      demoId: 'nav-sessions',
+    },
+    { label: 'Pilot guide', href: appRoutes.pilotGuide, icon: <IconInsights /> },
     { label: 'Participants / parties', href: appRoutes.participants, icon: <IconPeople /> },
     { label: 'Release gate', href: appRoutes.releaseGate, icon: <IconGate /> },
     { label: 'Published records', href: appRoutes.appLedger, icon: <IconLedger /> },
@@ -245,15 +253,17 @@ function buildNav(role: RoleKey | null, isAdmin: boolean): NavItem[] {
 function ShellHeaderBar() {
   const { session, roles } = useAuth();
   const shell = useShellContext();
+  const location = useLocation();
   const best = getHighestPriorityRole(roles);
   const roleLabel = shell.roleLabel || (best ? ROLE_LABELS[best] : 'Member');
   const demo = isDemoUser(session);
+  const roleAccent = workspaceRoleFromPath(location.pathname);
 
   return (
-    <div className="flex h-14 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-elevated px-4 md:px-6">
+    <div className="flex h-14 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-elevated/80 px-4 backdrop-blur-sm md:px-6">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         {demo ? <DemoModePill /> : null}
-        <RoleChip label={roleLabel} />
+        <RoleChip label={roleLabel} accent={roleAccent} />
         {shell.matterLabel ? <MatterChip label={shell.matterLabel} /> : null}
         <StateChip label={shell.stateLabel} />
         {shell.lastUpdated ? (
@@ -267,7 +277,7 @@ function ShellHeaderBar() {
         {shell.primaryAction ? (
           <Link
             to={shell.primaryAction.href}
-            className="hidden rounded-sm border border-brand/40 bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand no-underline sm:inline-flex"
+            className="hidden rounded-[var(--sr-radius-md)] border border-brand/40 bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand no-underline sm:inline-flex"
           >
             {shell.primaryAction.label}
           </Link>
@@ -312,33 +322,34 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-      isActive ? 'bg-brand-soft text-brand' : 'text-ink-secondary hover:bg-line hover:text-ink',
+      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+      isActive
+        ? 'bg-brand-soft text-brand'
+        : 'text-ink-secondary hover:bg-surface-elevated hover:text-ink',
     ].join(' ');
 
   return (
     <DemoGovernanceProvider>
       <ShellContextProvider>
         <DemoLayout>
-          <div className="flex h-screen overflow-hidden bg-surface">
+          <div className="flex h-screen overflow-hidden bg-surface sr-shell-main">
             <aside
               className={[
-                'flex h-full shrink-0 flex-col border-r border-line bg-surface transition-all duration-200',
+                'sr-shell-sidebar m-2 flex h-[calc(100%-1rem)] shrink-0 flex-col rounded-[var(--sr-radius-xl)] border border-line transition-all duration-200',
                 sidebarOpen ? 'w-56' : 'w-14',
               ].join(' ')}
               aria-label="Main navigation"
             >
-              <div className="flex h-14 shrink-0 items-center border-b border-line px-3">
+              <div className="flex h-14 shrink-0 items-center gap-2 border-b border-line px-3">
                 {sidebarOpen ? (
                   <>
-                    <span className="flex min-w-0 items-center gap-2 text-ink" aria-hidden>
-                      <SquadLogo size={28} aria-hidden />
-                      <SquadRidgeWordmark size="sm" />
+                    <span className="inline-flex min-w-0 flex-1 items-center text-ink" aria-hidden>
+                      <SquadRidgeLockup size="sm" showTagline={false} />
                     </span>
                     <button
                       type="button"
                       onClick={() => setSidebarOpen(false)}
-                      className="ml-auto rounded p-1.5 text-ink-secondary transition-opacity hover:opacity-70"
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-opacity hover:opacity-70"
                       aria-label="Collapse sidebar"
                     >
                       <span aria-hidden>×</span>
@@ -348,7 +359,7 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
                   <button
                     type="button"
                     onClick={() => setSidebarOpen(true)}
-                    className="mx-auto rounded p-1 transition-opacity hover:opacity-80"
+                    className="mx-auto inline-flex size-8 items-center justify-center rounded-full transition-opacity hover:opacity-80"
                     aria-label="Expand sidebar"
                   >
                     <SquadLogo size={28} aria-hidden />
@@ -364,6 +375,7 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
                     className={navLinkClass}
                     title={!sidebarOpen ? item.label : undefined}
                     end={item.href === '/app' || item.href === overviewHref(best)}
+                    data-demo={item.demoId}
                   >
                     <span className="shrink-0">{item.icon}</span>
                     {sidebarOpen ? <span>{item.label}</span> : null}
@@ -382,7 +394,10 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
               </div>
             </aside>
 
-            <main className="flex flex-1 flex-col overflow-y-auto" data-scroll-root>
+            <main
+              className="sr-shell-panel m-2 ml-0 flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain bg-surface-secondary"
+              data-scroll-root
+            >
               <DemoBanner />
               <ShellHeaderBar />
               <div

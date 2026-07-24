@@ -37,18 +37,22 @@ export function LedgerIndexPage() {
 
   return (
     <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index">
-      <header className="border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/50">
+      <header
+        className="scroll-mt-20 border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/50"
+        data-scroll-section
+      >
         <div className={`${publicShellInnerClass} py-10 md:py-14`}>
           <TrustLabel variant="ledger" />
           <div className="mt-4 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <h1 className="font-display text-display font-medium tracking-tight text-ink">
-                Released records
+                Public integrity registry
               </h1>
               <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-                Public approved outcomes only — each with a verification anchor. Session dialogue
-                and participant identities are never published. Private NGO releases do not appear
-                here.
+                A calm archive of approved outcomes — each with a verification anchor. The ledger
+                proves that a specific approved text existed at a point in time. It does not publish
+                room dialogue, participant identities, or unapproved drafts. Private NGO releases do
+                not appear here.
               </p>
               <ul className="mt-5 m-0 flex list-none flex-wrap gap-2 p-0">
                 {[
@@ -104,7 +108,7 @@ export function LedgerIndexPage() {
         </div>
       </header>
 
-      <section className="py-10 md:py-14">
+      <section className="scroll-mt-20 py-10 md:py-14" data-scroll-section>
         <div className={publicShellInnerClass}>
           {loading ? (
             <p className="py-8 font-mono text-sm text-ink-secondary" role="status">
@@ -157,12 +161,13 @@ export function LedgerIndexPage() {
           </div>
 
           <aside className="mt-12 max-w-2xl border-l-2 border-line pl-4 text-sm leading-relaxed text-ink-faint">
-            <p className="m-0 font-medium text-ink-secondary">What never becomes public</p>
+            <p className="m-0 font-medium text-ink-secondary">What the ledger is — and is not</p>
             <p className="mt-2 mb-0">
-              Session transcripts, participant identities, unapproved drafts, and private NGO
-              releases stay off this ledger. Facilitator sign-off publishes the approved instrument.
-              Integrity anchors confirm the released text has not been altered — not the substance
-              of outcomes.
+              Think archival registry, not a blockchain explorer or live feed. Integrity anchors
+              confirm the released text has not been altered since publication. They do not prove
+              what was said in the room, who each participant is, or external endorsement of
+              substance. Session transcripts, unapproved drafts, and private NGO releases stay off
+              this surface.
             </p>
           </aside>
         </div>
