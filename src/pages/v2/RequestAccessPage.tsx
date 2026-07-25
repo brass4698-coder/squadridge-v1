@@ -6,6 +6,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { useAccessRequest } from '../../hooks/useAccessRequest';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { CTA, PILOT_FIT_STRONG, PILOT_FIT_WEAK } from '../../data/siteMessaging';
 import { BUYER_TRACK_INTAKE, type BuyerTrackParam } from '../../data/useCases';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
@@ -49,6 +50,15 @@ const ROLE_OPTIONS = [
 const SENSITIVITY = ['Standard', 'Elevated', 'High'];
 const PUBLIC_RECORD = ['Likely needed', 'Optional', 'Internal-only preferred', 'Unsure'];
 const TIMEFRAMES = ['Within 30 days', '1–3 months', '3–6 months', 'Exploratory only'];
+const ORG_SIZES = ['1–10 people', '11–50', '51–250', '251–1,000', '1,000+', 'Prefer not to say'];
+const MEDIATION_VOLUME = [
+  'Fewer than 5 matters / year',
+  '5–20 matters / year',
+  '20–50 matters / year',
+  '50+ matters / year',
+  'Not primarily mediation volume',
+];
+const FACILITATOR_COUNTS = ['1', '2–5', '6–15', '16+', 'Not yet staffed'];
 
 const AFTER_SUBMIT_STEPS = [
   {
@@ -84,7 +94,10 @@ type FormState = {
   email: string;
   role: string;
   orgType: string;
+  orgSize: string;
   matterType: string;
+  mediationVolume: string;
+  facilitatorCount: string;
   participants: string;
   region: string;
   sensitivity: string;
@@ -103,7 +116,10 @@ const REQUIRED_KEYS: FormKey[] = [
   'email',
   'role',
   'orgType',
+  'orgSize',
   'matterType',
+  'mediationVolume',
+  'facilitatorCount',
   'participants',
   'region',
   'sensitivity',
@@ -116,6 +132,7 @@ const REQUIRED_KEYS: FormKey[] = [
  * Institutional pilot intake console.
  */
 export function RequestAccessPage() {
+  usePageTitle('Request pilot access');
   const [searchParams] = useSearchParams();
   const prefilledEmail = searchParams.get('email')?.trim() ?? '';
   const buyerTrack = resolveBuyerTrack(searchParams.get('track'));
@@ -127,7 +144,10 @@ export function RequestAccessPage() {
     email: prefilledEmail,
     role: '',
     orgType: trackDefaults?.orgType ?? '',
+    orgSize: '',
     matterType: trackDefaults?.matterType ?? '',
+    mediationVolume: '',
+    facilitatorCount: '',
     participants: '',
     region: '',
     sensitivity: '',
@@ -159,7 +179,16 @@ export function RequestAccessPage() {
   }
 
   const contactKeys: FormKey[] = ['name', 'organisation', 'email', 'role'];
-  const matterKeys: FormKey[] = ['orgType', 'matterType', 'participants', 'region', 'sensitivity'];
+  const matterKeys: FormKey[] = [
+    'orgType',
+    'orgSize',
+    'matterType',
+    'mediationVolume',
+    'facilitatorCount',
+    'participants',
+    'region',
+    'sensitivity',
+  ];
   const scopeKeys: FormKey[] = ['publicRecord', 'timeframe', 'painPoints'];
 
   const sectionStatus = [
@@ -184,7 +213,10 @@ export function RequestAccessPage() {
       form.buyerTrack ? `Buyer track: ${form.buyerTrack}` : '',
       `Role in process: ${form.role}`,
       `Organization type: ${form.orgType}`,
+      `Organization size: ${form.orgSize}`,
       `Matter type: ${form.matterType}`,
+      `Mediation / matter volume: ${form.mediationVolume}`,
+      `Facilitators available: ${form.facilitatorCount}`,
       `Estimated participants: ${form.participants}`,
       `Region / geography: ${form.region}`,
       `Sensitivity level: ${form.sensitivity}`,
@@ -238,7 +270,7 @@ export function RequestAccessPage() {
   }
 
   return (
-    <div className="sr-form-atmosphere border-b border-line pb-20">
+    <div className="sr-form-atmosphere border-b border-line pb-20" data-page="request-access">
       <header className="scroll-mt-20 border-b border-line py-14 md:py-16" data-scroll-section>
         <div className={publicShellInnerClass}>
           <SectionLabel>Confidential pilot intake</SectionLabel>
@@ -504,6 +536,29 @@ export function RequestAccessPage() {
                       </Select>
                     </FormField>
                     <FormField
+                      id="orgSize"
+                      label="Organization size"
+                      error={fieldInvalid('orgSize') ? 'Select an organization size.' : undefined}
+                    >
+                      <Select
+                        id="orgSize"
+                        name="orgSize"
+                        required
+                        value={form.orgSize}
+                        onChange={(e) => set('orgSize', e.target.value)}
+                        onBlur={() => markTouched('orgSize')}
+                      >
+                        <option value="">Select…</option>
+                        {ORG_SIZES.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
                       id="matterType"
                       label="Matter type"
                       error={fieldInvalid('matterType') ? 'Select a matter type.' : undefined}
@@ -524,12 +579,64 @@ export function RequestAccessPage() {
                         ))}
                       </Select>
                     </FormField>
+                    <FormField
+                      id="mediationVolume"
+                      label="Mediation / matter volume"
+                      hint="Approximate annual volume for the unit that would pilot."
+                      error={
+                        fieldInvalid('mediationVolume')
+                          ? 'Select mediation or matter volume.'
+                          : undefined
+                      }
+                    >
+                      <Select
+                        id="mediationVolume"
+                        name="mediationVolume"
+                        required
+                        value={form.mediationVolume}
+                        onChange={(e) => set('mediationVolume', e.target.value)}
+                        onBlur={() => markTouched('mediationVolume')}
+                      >
+                        <option value="">Select…</option>
+                        {MEDIATION_VOLUME.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
+                      id="facilitatorCount"
+                      label="Facilitators available"
+                      hint="People who would run governed rooms in a pilot."
+                      error={
+                        fieldInvalid('facilitatorCount')
+                          ? 'Select facilitator capacity.'
+                          : undefined
+                      }
+                    >
+                      <Select
+                        id="facilitatorCount"
+                        name="facilitatorCount"
+                        required
+                        value={form.facilitatorCount}
+                        onChange={(e) => set('facilitatorCount', e.target.value)}
+                        onBlur={() => markTouched('facilitatorCount')}
+                      >
+                        <option value="">Select…</option>
+                        {FACILITATOR_COUNTS.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                    <FormField
                       id="participants"
-                      label="Participants"
-                      hint="Estimated number for the pilot room."
+                      label="Participants per room"
+                      hint="Estimated number for a typical pilot room."
                       error={
                         fieldInvalid('participants') ? 'Enter estimated participants.' : undefined
                       }
@@ -544,6 +651,8 @@ export function RequestAccessPage() {
                         placeholder="e.g. 6–12"
                       />
                     </FormField>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
                       id="region"
                       label="Region"
@@ -559,29 +668,31 @@ export function RequestAccessPage() {
                         onBlur={() => markTouched('region')}
                       />
                     </FormField>
-                  </div>
-                  <FormField
-                    id="sensitivity"
-                    label="Sensitivity level"
-                    hint="Helps reviewers scope diligence — not a public classification."
-                    error={fieldInvalid('sensitivity') ? 'Select a sensitivity level.' : undefined}
-                  >
-                    <Select
+                    <FormField
                       id="sensitivity"
-                      name="sensitivity"
-                      required
-                      value={form.sensitivity}
-                      onChange={(e) => set('sensitivity', e.target.value)}
-                      onBlur={() => markTouched('sensitivity')}
+                      label="Sensitivity level"
+                      hint="Helps reviewers scope diligence — not a public classification."
+                      error={
+                        fieldInvalid('sensitivity') ? 'Select a sensitivity level.' : undefined
+                      }
                     >
-                      <option value="">Select…</option>
-                      {SENSITIVITY.map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormField>
+                      <Select
+                        id="sensitivity"
+                        name="sensitivity"
+                        required
+                        value={form.sensitivity}
+                        onChange={(e) => set('sensitivity', e.target.value)}
+                        onBlur={() => markTouched('sensitivity')}
+                      >
+                        <option value="">Select…</option>
+                        {SENSITIVITY.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
                 </div>
               </fieldset>
 

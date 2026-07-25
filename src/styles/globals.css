@@ -636,6 +636,19 @@ button:focus-visible,
     transform: translateY(1px) scale(0.985);
   }
 
+  .btn-institutional:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--sr-bg),
+      0 0 0 4px var(--sr-primary);
+  }
+
+  .btn-institutional--ghost:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--sr-bg),
+      0 0 0 4px color-mix(in oklch, var(--sr-ink) 35%, transparent);
+  }
+
   /* Shared marketing CTA row — consistent wrap + gap across hero / intake / CTABlock */
   .sr-cta-row {
     display: flex;
@@ -693,18 +706,18 @@ button:focus-visible,
 
   /* Soften page glow on parchment marketing — mineral wash, not neon */
   body[data-theme='institutional'] .sr-page-glow::before {
-    height: min(18rem, 36vh);
-    opacity: 0.55;
+    height: min(14rem, 28vh);
+    opacity: 0.4;
     background:
       radial-gradient(
-        ellipse 60% 70% at 15% 0%,
-        color-mix(in oklch, var(--sr-primary) 6%, transparent),
-        transparent 70%
+        ellipse 55% 60% at 12% 0%,
+        color-mix(in oklch, var(--sr-primary) 4%, transparent),
+        transparent 72%
       ),
       radial-gradient(
-        ellipse 50% 55% at 90% 5%,
-        color-mix(in oklch, var(--sr-accent-alt) 5%, transparent),
-        transparent 65%
+        ellipse 45% 50% at 92% 8%,
+        color-mix(in oklch, var(--sr-ink) 3%, transparent),
+        transparent 68%
       );
   }
 

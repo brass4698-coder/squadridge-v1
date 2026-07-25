@@ -6,6 +6,10 @@ export const SITE_THESIS =
 export const SITE_THESIS_SHORT =
   'The room is private. The process is governed. The released outcome is credible.';
 
+/** Niche positioning — one line; do not restate the full room→gate→record spine beside it. */
+export const SITE_NICHE =
+  'Built for the narrow class of matters where email is too exposed, chat is too loose, and institutions still need an outcome they can cite.';
+
 export const SITE_NOT = [
   'Not a collaboration app or open chat platform',
   'Not surveillance, predictive policing, or early-warning monitoring',
@@ -55,8 +59,24 @@ export const CTA = {
   secondaryLedger: 'Browse the ledger',
   secondaryLedgerHref: '/ledger',
   pilotHeadline: 'Request pilot access',
+  /** Default close — prefer route-scoped bodies below when closing a page. */
   pilotBody:
-    'We review pilot applications manually and respond with an honest fit assessment, typically within 5–7 business days.',
+    'We review applications manually and respond with an honest fit assessment, typically within 5–7 business days.',
+  /** Route-scoped closes — same button, different reason to act. */
+  closeHowItWorks:
+    'Ready to run Configure → Release on a real matter? Apply for a scoped private pilot — not open signup.',
+  closeSecurity:
+    'For diligence, security review, or partnership exploration before a formal application.',
+  closeUseCases:
+    'If one of these tracks matches your matter, request a private pilot briefing. Manual review. Invite-only.',
+  closeAbout:
+    'Early pilots are invite-only. Tell us the matter class and facilitation context — we respond with fit, not automation.',
+  closeFaq:
+    'Still evaluating fit? Submit a pilot intake — we answer with scope and honesty, typically within 5–7 business days.',
+  closeContact:
+    'Prefer a conversation first? After briefing, most partners continue through pilot intake for role-scoped access.',
+  closeLedger:
+    'Seen how an approved outcome looks in the archive? Request a pilot when you are ready to run the room that produces one.',
   pilotValueLine:
     'For foundations, NGOs, and facilitators handling high-stakes matters — not open signup.',
   briefingHeadline: 'Request briefing',

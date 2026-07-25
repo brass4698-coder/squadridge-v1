@@ -52,7 +52,7 @@ export function ContactPage() {
 
       <CTABlock
         headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
+        body={CTA.closeContact}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
       />

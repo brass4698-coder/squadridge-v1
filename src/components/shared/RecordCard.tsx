@@ -80,7 +80,10 @@ export function RecordCard(props: RecordCardProps) {
 
   if (href) {
     return (
-      <Link to={href} className="block">
+      <Link
+        to={href}
+        className="block rounded-[var(--sr-radius-lg)] no-underline outline-none transition-[transform,box-shadow] duration-[var(--sr-duration-governed)] ease-[var(--sr-ease-governed)] hover:-translate-y-px focus-visible:shadow-[0_0_0_2px_var(--sr-bg),0_0_0_4px_var(--sr-primary)]"
+      >
         <RecordCardInner {...inner} />
       </Link>
     );
@@ -145,7 +148,7 @@ export function RecordCardCompact({
     return (
       <Link
         to={href}
-        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        className="block outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--sr-primary)]"
       >
         {content}
       </Link>

@@ -25,8 +25,9 @@ export function WhyOverview() {
               The room and the record are separate by design.
             </h2>
             <p className="mt-4 mb-0 text-base leading-relaxed text-ink-secondary">
-              Invite-only written process — not a chat product. Dialogue stays in a
-              facilitator-governed session; only approved outcome text can leave.
+              Most tools collapse deliberation and disclosure into one channel. SquadRidge keeps
+              them apart: dialogue stays in a facilitator-governed session; only approved outcome
+              text can leave.
             </p>
             <p className="mt-4 mb-0">
               <a

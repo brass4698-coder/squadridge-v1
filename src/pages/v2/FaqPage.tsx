@@ -23,7 +23,7 @@ export function FaqPage() {
 
       <CTABlock
         headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
+        body={CTA.closeFaq}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
       />

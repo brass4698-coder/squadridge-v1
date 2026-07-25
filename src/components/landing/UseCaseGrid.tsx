@@ -15,16 +15,16 @@ export function UseCaseGrid() {
     >
       <div className={publicShellInnerClass}>
         <div className="max-w-[30rem]">
-          <SectionLabel className="!mb-2">Who this serves</SectionLabel>
+          <SectionLabel className="!mb-2">Buyer tracks</SectionLabel>
           <h2
             id="use-cases-h"
             className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
-            Who SquadRidge serves
+            Where the model is already a fit
           </h2>
           <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-            Foundations, peacebuilders, and HR teams — same privacy-first deliberation
-            infrastructure, different sensitive decisions.
+            A tight niche — contested funding, attribution-sensitive dialogue, sensitive inquiries —
+            with room to extend into adjacent institutional environments.
           </p>
         </div>
 

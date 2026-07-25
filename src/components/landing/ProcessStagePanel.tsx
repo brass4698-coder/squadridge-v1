@@ -3,6 +3,7 @@ import { StatusBadge, type StatusBadgeVariant } from '../StatusBadge';
 import { SystemModelSequence } from '../institutional/SystemModelSequence';
 import { SectionLabel } from '../SectionLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
+import { USE_CASE_ARCHITECTURE_LINE } from '../../data/useCases';
 
 const STATES: {
   num: string;
@@ -52,11 +53,11 @@ export function ProcessStagePanel() {
             id="process-stages-h"
             className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
-            Private room → facilitator gate → approved record
+            {USE_CASE_ARCHITECTURE_LINE}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-            One matter, three governed states — never by automation. Only approved outcome text can
-            become the record.
+            One matter, three governed states — never by automation. This is the only spine on the
+            homepage; interior pages show how it operates in practice.
           </p>
         </div>
 

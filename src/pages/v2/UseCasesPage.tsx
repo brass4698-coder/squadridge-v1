@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { primaryUseCases, secondaryUseCases } from '../../data/useCases';
+import {
+  primaryUseCases,
+  secondaryUseCases,
+  USE_CASE_ARCHITECTURE_LINE,
+} from '../../data/useCases';
 import { CTA } from '../../data/siteMessaging';
 import {
   CTABlock,
@@ -27,11 +31,11 @@ export function UseCasesPage() {
   }, [hash]);
 
   return (
-    <div>
+    <div data-page="use-cases">
       <MarketingPageHero
         label="Buyer tracks"
-        title="Who SquadRidge serves"
-        lead="Foundations, peacebuilders, and HR teams run sensitive decisions on one spine: private room, facilitator gate, approved record."
+        title="Where the model fits"
+        lead="Foundations, peacebuilders, and HR teams — one governed process, many environments. The niche is tight; the applications compound."
         slim
       />
 
@@ -47,11 +51,11 @@ export function UseCasesPage() {
               id="backbone-h"
               className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
             >
-              Private room → facilitator gate → approved record
+              {USE_CASE_ARCHITECTURE_LINE}
             </h2>
             <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
-              The room stays private. Only an approved record can leave — so institutions can cite
-              an outcome without publishing the deliberation that produced it.
+              Stated once here as buyer context. The homepage shows the interactive model; Security
+              holds the threat bounds.
             </p>
           </div>
           <div className="mt-10 md:mt-12">
@@ -111,8 +115,8 @@ export function UseCasesPage() {
       </section>
 
       <CTABlock
-        headline="Request a private pilot briefing"
-        body="Manual review. Invite-only. No open self-serve."
+        headline={CTA.pilotHeadline}
+        body={CTA.closeUseCases}
         secondaryLabel={CTA.secondaryProcess}
         secondaryHref={CTA.secondaryProcessHref}
       />

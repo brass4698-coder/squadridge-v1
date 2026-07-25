@@ -9,6 +9,7 @@ import {
   ShellWidth,
 } from '../../components/shared';
 import { CTA } from '../../data/siteMessaging';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const NOT_CLAIMED = [
   {
@@ -122,8 +123,10 @@ const SAFEGUARDS = [
  * Security — limits lead. Architecture second. Safeguards as a docket, not a feature grid.
  */
 export function SecurityPage() {
+  usePageTitle('Security');
+
   return (
-    <div className="sr-security-page">
+    <div className="sr-security-page" data-page="security">
       <div data-demo="security-hero">
         <MarketingPageHero
           label="Security"
@@ -316,14 +319,29 @@ export function SecurityPage() {
                 <div>
                   <dt className="text-sm font-semibold text-ink">Verification anchor</dt>
                   <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    SHA-256 of the canonicalised released record at facilitator sign-off.
+                    SHA-256 (`ledger_sha`) of the canonicalised approved instrument at facilitator
+                    sign-off. This is an integrity hash of the released text — not a Merkle tree of
+                    room messages, and not a public timestamping authority or on-chain notarisation
+                    in the current pilot. Semaphore Merkle groups, where used, apply to identity
+                    verification cohorts — not to ledger anchoring.
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-semibold text-ink">Audit events</dt>
+                  <dt className="text-sm font-semibold text-ink">Export &amp; citation</dt>
                   <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    Approvals must be recorded before release. Audit logs are metadata-only — not
-                    message bodies.
+                    Released dossiers support copyable citation text and verification against the
+                    listed anchor. Machine-readable citation APIs and bulk export formats for
+                    institutional CMS integration are diligence-scoped — not a public self-serve API
+                    today.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Audit log access</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    Approvals must be recorded before release. Session audit trails are
+                    metadata-only (lifecycle events — not message bodies). Pilot partners receive
+                    export of the audit trail after close under the MOU; there is no public audit
+                    feed.
                   </dd>
                 </div>
               </dl>
@@ -345,9 +363,9 @@ export function SecurityPage() {
       </MarketingSection>
       <CTABlock
         headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
-        secondaryLabel={CTA.secondaryLedger}
-        secondaryHref={CTA.secondaryLedgerHref}
+        body={CTA.closeSecurity}
+        secondaryLabel={CTA.secondaryBriefingLabel}
+        secondaryHref={CTA.secondaryBriefingHref}
       />{' '}
     </div>
   );

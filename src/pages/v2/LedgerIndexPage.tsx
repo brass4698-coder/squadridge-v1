@@ -2,11 +2,13 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sampleRecords } from '../../data/sampleRecords';
 import { useLedger } from '../../hooks/useLedger';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
 import { CapsLabel, RecordCardCompact } from '../../components/shared';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
+import { CTA } from '../../data/siteMessaging';
 
 const TRUST_STRIP =
   'Approved outcomes only · Verification anchors · No transcript · No auto-publish';
@@ -15,6 +17,7 @@ const TRUST_STRIP =
  * Ledger index — calm institutional archive of approved outcomes.
  */
 export function LedgerIndexPage() {
+  usePageTitle('Outcome ledger');
   const [query, setQuery] = useState('');
   const { entries, loading, error, refetch } = useLedger(query);
   const { session } = useAuth();
@@ -39,7 +42,7 @@ export function LedgerIndexPage() {
   }, [query, sampleCards]);
 
   return (
-    <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index">
+    <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index" data-page="ledger">
       {/* 1. Registry header */}
       <header
         className="scroll-mt-20 border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/40"
@@ -197,6 +200,24 @@ export function LedgerIndexPage() {
               </li>
             </ul>
           </aside>
+
+          <div className="mt-12 max-w-measure border-t border-line pt-8">
+            <p className="m-0 text-sm leading-relaxed text-ink-secondary">{CTA.closeLedger}</p>
+            <div className="sr-cta-row mt-5">
+              <Link
+                to={CTA.primaryHref}
+                className="btn-institutional btn-institutional--primary text-sm"
+              >
+                {CTA.primaryLabel}
+              </Link>
+              <Link
+                to={CTA.secondaryProcessHref}
+                className="text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
+              >
+                {CTA.secondaryProcess}
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

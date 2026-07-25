@@ -222,7 +222,7 @@ export function AboutPage() {
       </MarketingSection>
       <CTABlock
         headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
+        body={CTA.closeAbout}
         secondaryLabel={CTA.secondaryProcess}
         secondaryHref={CTA.secondaryProcessHref}
       />{' '}

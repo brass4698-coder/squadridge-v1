@@ -1,5 +1,6 @@
 import { CapsLabel } from './CapsLabel';
 import { FigureFrame } from './FigureFrame';
+import { GovernedPanel } from '../motion';
 
 const STAGES = [
   {
@@ -7,6 +8,7 @@ const STAGES = [
     label: 'Private room',
     line: 'Deliberation stays inside',
     src: '/assets/usecases-private-room.png',
+    href: '#primary-tracks-h',
   },
   {
     step: '02',
@@ -14,17 +16,19 @@ const STAGES = [
     line: 'Release is governed',
     src: '/assets/usecases-facilitator-gate.png',
     accent: true,
+    href: '#primary-tracks-h',
   },
   {
     step: '03',
     label: 'Approved record',
     line: 'Only the approved record leaves',
     src: '/assets/usecases-approved-record.png',
+    href: '#primary-tracks-h',
   },
 ] as const;
 
 /**
- * Canonical room → gate → record strip for marketing.
+ * Canonical room → gate → record strip — use once per journey (Use cases page).
  * Light product-native illustrations; teal only on the gate connector.
  */
 export function UseCasesBackboneStrip({
@@ -42,33 +46,42 @@ export function UseCasesBackboneStrip({
         {STAGES.map((stage, i) => (
           <li key={stage.step} className="contents">
             {i > 0 ? <Connector accent={i === 1} /> : null}
-            <div className="flex flex-col items-center px-5 py-7 text-center md:px-4 md:py-9">
-              <div
+            <GovernedPanel delay={i * 0.05} className="min-w-0">
+              <a
+                href={stage.href}
                 className={
-                  'relative flex size-24 items-center justify-center rounded-full border bg-[var(--sr-bg)] md:size-28 ' +
-                  (stage.accent ? 'border-[color:var(--color-border-strong)]' : 'border-line')
+                  'sr-backbone-stage group flex flex-col items-center rounded-[var(--sr-radius-md)] px-5 py-7 text-center no-underline outline-none transition-[background-color,box-shadow] duration-[var(--sr-duration-governed)] ease-[var(--sr-ease-governed)] hover:bg-surface-elevated/80 focus-visible:bg-surface-elevated focus-visible:shadow-[inset_0_0_0_1px_var(--color-border-strong)] md:px-4 md:py-9'
                 }
               >
-                <img
-                  src={stage.src}
-                  alt=""
-                  aria-hidden
-                  width={128}
-                  height={128}
-                  className="block h-auto w-[74%] select-none"
-                  decoding="async"
-                  loading="lazy"
-                  draggable={false}
-                />
-              </div>
-              <div className="mt-4 flex items-baseline justify-center gap-2">
-                <CapsLabel className="tracking-[var(--tracking-caps)]">{stage.step}</CapsLabel>
-                <span className="font-display text-base font-medium leading-none text-ink md:text-lg">
-                  {stage.label}
-                </span>
-              </div>
-              <p className="mt-1.5 mb-0 text-sm leading-snug text-ink-secondary">{stage.line}</p>
-            </div>
+                <div
+                  className={
+                    'relative flex size-24 items-center justify-center rounded-full border bg-[var(--sr-bg)] transition-[border-color,transform] duration-[var(--sr-duration-governed)] ease-[var(--sr-ease-governed)] group-hover:scale-[1.02] md:size-28 ' +
+                    (stage.accent
+                      ? 'border-[color:var(--color-border-strong)] group-hover:border-brand/50'
+                      : 'border-line group-hover:border-[color:var(--color-border-strong)]')
+                  }
+                >
+                  <img
+                    src={stage.src}
+                    alt=""
+                    aria-hidden
+                    width={128}
+                    height={128}
+                    className="block h-auto w-[74%] select-none"
+                    decoding="async"
+                    loading="lazy"
+                    draggable={false}
+                  />
+                </div>
+                <div className="mt-4 flex items-baseline justify-center gap-2">
+                  <CapsLabel className="tracking-[var(--tracking-caps)]">{stage.step}</CapsLabel>
+                  <span className="font-display text-base font-medium leading-none text-ink md:text-lg">
+                    {stage.label}
+                  </span>
+                </div>
+                <p className="mt-1.5 mb-0 text-sm leading-snug text-ink-secondary">{stage.line}</p>
+              </a>
+            </GovernedPanel>
           </li>
         ))}
       </ol>

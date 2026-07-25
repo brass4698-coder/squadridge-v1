@@ -1,46 +1,42 @@
 import { Link } from 'react-router-dom';
-import { howItWorksVignette } from '../../data/howItWorksVignette';
+import { FACILITATOR_WORKSPACE, howItWorksVignette } from '../../data/howItWorksVignette';
 import { PRODUCT_MECHANICS } from '../../data/institutionalHome';
-import { SITE_THESIS } from '../../data/siteMessaging';
 import { CTA } from '../../data/siteMessaging';
+import { USE_CASE_ARCHITECTURE_LINE } from '../../data/useCases';
 import { InstitutionalSplit } from '../../components/institutional';
-import { CapsLabel, CTABlock, UseCasesBackboneStrip } from '../../components/shared';
+import { CapsLabel, CTABlock } from '../../components/shared';
 import { ContentColumn } from '../../components/ContentColumn';
 import { ProcessStep } from '../../components/ProcessStep';
 import { SectionLabel } from '../../components/SectionLabel';
+import { GovernedPanel } from '../../components/motion';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const ROOM_GUARANTEES = [
   {
     title: 'No auto-publishing',
-    body: 'Room dialogue never becomes a public record by timer, webhook, or default setting.',
+    body: 'Dialogue never becomes a public record by timer, webhook, or default.',
   },
   {
     title: 'Verification before entry',
-    body: 'Participants complete facilitator-defined verification before the room opens to them.',
+    body: 'Facilitator-defined verification completes before the room opens.',
   },
   {
-    title: 'Facilitator-controlled release',
-    body: 'Only designated approvals and an explicit release action can publish an outcome.',
-  },
-  {
-    title: 'Approved text only',
-    body: 'The released instrument is drafted and approved — not an export of the chat thread.',
-  },
-  {
-    title: 'Identity stays off the ledger',
-    body: 'Contact details and attribution are not written onto the public integrity record.',
+    title: 'Deliberate release only',
+    body: 'Designated approvals plus an explicit release action — nothing else.',
   },
 ] as const;
 
 /**
- * How it works — procedural source of truth: spine + guarantees + room/record split.
+ * How it works — operational path source of truth (not another spine illustration).
  */
 export function HowItWorksPage() {
+  usePageTitle('How it works');
+
   return (
-    <div>
+    <div data-page="how-it-works">
       <header
-        className="scroll-mt-20 border-b border-line pt-16 pb-12 md:pt-20 md:pb-14"
+        className="sr-section-enter scroll-mt-20 border-b border-line pt-16 pb-12 md:pt-20 md:pb-14"
         data-demo="how-it-works-spine"
         data-scroll-section
       >
@@ -51,40 +47,18 @@ export function HowItWorksPage() {
               <h1 className="mt-0 max-w-[16ch] font-display text-display font-medium text-ink">
                 Configure. Verify. Facilitate. Release.
               </h1>
+              <p className="mt-4 mb-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                {USE_CASE_ARCHITECTURE_LINE}
+              </p>
             </div>
             <p className="max-w-prose text-base leading-relaxed text-ink-secondary">
-              {SITE_THESIS} Transitions are gated. You cannot skip verification or publish without
-              recorded approvals. Process authority stays with the facilitator.
+              Transitions are gated. You cannot skip verification or publish without recorded
+              approvals. Process authority stays with the facilitator — the operational path below
+              is what pilot partners evaluate.
             </p>
           </div>
         </div>
       </header>
-
-      <section
-        className="scroll-mt-20 border-b border-line py-16 md:py-20"
-        aria-labelledby="boundary-visual-h"
-        data-scroll-section
-      >
-        <div className={publicShellInnerClass}>
-          <div className="max-w-measure">
-            <SectionLabel className="!mb-2">Boundary model</SectionLabel>
-            <h2
-              id="boundary-visual-h"
-              className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
-            >
-              Private room → facilitator gate → approved record
-            </h2>
-            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
-              Private written dialogue stays enclosed. Only an approved outcome passes the
-              facilitator release gate. The integrity record shows the approved instrument — never
-              the room transcript.
-            </p>
-          </div>
-          <div className="mt-10 md:mt-12">
-            <UseCasesBackboneStrip />
-          </div>
-        </div>
-      </section>
 
       <section
         className="scroll-mt-20 border-b border-line py-16 md:py-20"
@@ -111,17 +85,18 @@ export function HowItWorksPage() {
                     Release: 'Publish only approved outcome text',
                   };
                   return (
-                    <ProcessStep
-                      key={step.step}
-                      number={step.step}
-                      phase={step.title}
-                      title={titles[step.title] ?? step.title}
-                    >
-                      <p className="m-0 leading-relaxed">{step.body}</p>
-                      {index < PRODUCT_MECHANICS.length - 1 ? (
-                        <CapsLabel className="mt-3">Gate → next stage</CapsLabel>
-                      ) : null}
-                    </ProcessStep>
+                    <GovernedPanel key={step.step} delay={index * 0.04}>
+                      <ProcessStep
+                        number={step.step}
+                        phase={step.title}
+                        title={titles[step.title] ?? step.title}
+                      >
+                        <p className="m-0 leading-relaxed">{step.body}</p>
+                        {index < PRODUCT_MECHANICS.length - 1 ? (
+                          <CapsLabel className="mt-3">Gate → next stage</CapsLabel>
+                        ) : null}
+                      </ProcessStep>
+                    </GovernedPanel>
                   );
                 })}
               </div>
@@ -143,6 +118,16 @@ export function HowItWorksPage() {
                   </li>
                 ))}
               </ul>
+              <p className="mt-5 mb-0 border-t border-line pt-4 text-xs leading-relaxed text-ink-faint">
+                Full threat bounds and technical appendix live on{' '}
+                <Link
+                  to="/security"
+                  className="text-ink-secondary no-underline underline-offset-4 hover:text-ink hover:underline"
+                >
+                  Security
+                </Link>
+                .
+              </p>
             </aside>
           </div>
         </div>
@@ -166,14 +151,15 @@ export function HowItWorksPage() {
 
           <div className="flex flex-col gap-0">
             {howItWorksVignette.steps.map((step, index) => (
-              <ProcessStep
-                key={step.label}
-                number={String(index + 1).padStart(2, '0')}
-                phase={step.stage}
-                title={step.title}
-              >
-                <p className="m-0 leading-relaxed">{step.body}</p>
-              </ProcessStep>
+              <GovernedPanel key={step.title} delay={Math.min(index * 0.03, 0.12)}>
+                <ProcessStep
+                  number={String(index + 1).padStart(2, '0')}
+                  phase={step.stage}
+                  title={step.title}
+                >
+                  <p className="m-0 leading-relaxed">{step.body}</p>
+                </ProcessStep>
+              </GovernedPanel>
             ))}
           </div>
 
@@ -188,6 +174,42 @@ export function HowItWorksPage() {
             </Link>
           </p>
         </ContentColumn>
+      </section>
+
+      <section
+        id="for-facilitators"
+        className="scroll-mt-20 border-b border-line py-16 md:py-20"
+        aria-labelledby="facilitators-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel>For facilitators</SectionLabel>
+            <h2
+              id="facilitators-h"
+              className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
+            >
+              The session room is the product surface
+            </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Buyers are usually mediation centres, HR / ombuds offices, foundations, and municipal
+              conveners — not end participants. The live control surface is where process authority
+              lives; the ledger only receives what you deliberately release.
+            </p>
+          </div>
+          <ul className="mt-10 m-0 grid list-none gap-6 p-0 md:grid-cols-3 md:gap-8">
+            {FACILITATOR_WORKSPACE.map((item, i) => (
+              <GovernedPanel key={item.title} delay={i * 0.05}>
+                <li className="border-t border-line pt-5 list-none">
+                  <h3 className="m-0 text-sm font-semibold text-ink">{item.title}</h3>
+                  <p className="mt-2.5 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    {item.body}
+                  </p>
+                </li>
+              </GovernedPanel>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className="scroll-mt-20 bg-surface-sunken/40 py-16 md:py-20" data-scroll-section>
@@ -209,9 +231,9 @@ export function HowItWorksPage() {
 
       <CTABlock
         headline={CTA.pilotHeadline}
-        body={CTA.pilotBody}
-        secondaryLabel={CTA.secondaryLedger}
-        secondaryHref={CTA.secondaryLedgerHref}
+        body={CTA.closeHowItWorks}
+        secondaryLabel={CTA.secondaryUseCases}
+        secondaryHref={CTA.secondaryUseCasesHref}
       />
     </div>
   );

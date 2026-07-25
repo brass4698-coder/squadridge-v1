@@ -1,20 +1,24 @@
 import { Link } from 'react-router-dom';
 
 const PATHS = [
-  { label: 'Philanthropy & foundations', href: '/use-cases#philanthropy', detail: 'Primary track' },
+  {
+    label: 'Philanthropy & foundations',
+    href: '/use-cases#philanthropy',
+    detail: 'Board & grantee matters',
+  },
   {
     label: 'Facilitators & peacebuilders',
     href: '/use-cases#peacebuilding',
-    detail: 'Primary track',
+    detail: 'Cross-party dialogue',
   },
-  { label: 'HR / ombuds', href: '/use-cases#hr-compliance', detail: 'Primary track' },
-  { label: 'NGOs & coalitions', href: '/use-cases#ngos', detail: 'Additional track' },
+  { label: 'HR / ombuds', href: '/use-cases#hr-compliance', detail: 'Sensitive inquiries' },
+  { label: 'NGOs & coalitions', href: '/use-cases#ngos', detail: 'Internal deliberation' },
   {
     label: 'Boards & executive teams',
     href: '/use-cases#corporations',
-    detail: 'Additional track',
+    detail: 'Confidential disputes',
   },
-  { label: 'Security reviewers', href: '/security#reviewers', detail: 'Inspect the boundary' },
+  { label: 'Security reviewers', href: '/security#reviewers', detail: 'Documented limits' },
 ] as const;
 
 /**

@@ -9,13 +9,16 @@ import {
   UseCaseGrid,
   WhyOverview,
 } from '../../components/landing';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 /**
  * Homepage — promise → scenario → boundary → process → diligence → buyer proof → intake.
  */
 export function LandingPage() {
+  usePageTitle('Private deliberation infrastructure');
+
   return (
-    <div className="sr-align-content">
+    <div className="sr-align-content" data-page="landing">
       <LandingHero />
       <IllustrativeScenarioStrip />
       <WhyOverview />

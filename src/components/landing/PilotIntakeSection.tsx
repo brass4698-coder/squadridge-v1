@@ -29,7 +29,8 @@ export function PilotIntakeSection() {
             {CTA.pilotValueLine}
           </p>
           <p className="mt-3 mb-0 max-w-[32rem] text-sm leading-relaxed text-ink-secondary">
-            {CTA.pilotBody}
+            Tell us the matter class and facilitation context. We respond with scope and fit —
+            typically within 5–7 business days.
           </p>
 
           <div className="mt-10 rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-5 py-6 md:px-7 md:py-7">
