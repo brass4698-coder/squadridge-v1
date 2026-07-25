@@ -171,6 +171,11 @@ export function OutcomeReviewPage() {
             ) : null}
           </section>
 
+          <p className="mb-6 text-xs leading-relaxed text-ink-secondary">
+            Your decision is recorded against this exact wording. If the facilitator changes it,
+            every approval resets and you will be asked again.
+          </p>
+
           {decided ? (
             <div
               className={`mb-6 rounded border-l-4 px-4 py-3 text-sm ${

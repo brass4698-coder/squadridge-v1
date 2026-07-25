@@ -1057,6 +1057,7 @@ export type Database = {
           id: string;
           outcome_id: string;
           participant_id: string | null;
+          reviewed_content_sha: string | null;
           status: string;
         };
         Insert: {
@@ -1068,6 +1069,7 @@ export type Database = {
           id?: string;
           outcome_id: string;
           participant_id?: string | null;
+          reviewed_content_sha?: string | null;
           status?: string;
         };
         Update: {
@@ -1079,6 +1081,7 @@ export type Database = {
           id?: string;
           outcome_id?: string;
           participant_id?: string | null;
+          reviewed_content_sha?: string | null;
           status?: string;
         };
         Relationships: [
@@ -1101,6 +1104,10 @@ export type Database = {
       outcome_records: {
         Row: {
           agreed_terms: string | null;
+          attested_content_sha: string | null;
+          authorship_attested_at: string | null;
+          authorship_attested_by: string | null;
+          authorship_statement: string | null;
           created_at: string;
           facilitator_notes: string | null;
           id: string;
@@ -1118,6 +1125,10 @@ export type Database = {
         };
         Insert: {
           agreed_terms?: string | null;
+          attested_content_sha?: string | null;
+          authorship_attested_at?: string | null;
+          authorship_attested_by?: string | null;
+          authorship_statement?: string | null;
           created_at?: string;
           facilitator_notes?: string | null;
           id?: string;
@@ -1135,6 +1146,10 @@ export type Database = {
         };
         Update: {
           agreed_terms?: string | null;
+          attested_content_sha?: string | null;
+          authorship_attested_at?: string | null;
+          authorship_attested_by?: string | null;
+          authorship_statement?: string | null;
           created_at?: string;
           facilitator_notes?: string | null;
           id?: string;
@@ -2351,6 +2366,18 @@ export type Database = {
         Args: { p_session_id: string; p_stage: string };
         Returns: Json;
       };
+      facilitator_attest_outcome_authorship: {
+        Args: { p_outcome_id: string; p_statement?: string };
+        Returns: Json;
+      };
+      facilitator_get_outcome_notes: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
+      facilitator_get_release_readiness: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
       facilitator_seed_outcome_approvals: {
         Args: { p_outcome_id: string };
         Returns: Json;
@@ -2559,6 +2586,12 @@ export type Database = {
       outcome_contains_verbatim_room_content: {
         Args: { p_outcome_id: string };
         Returns: boolean;
+      };
+      outcome_content_sha: {
+        Args: {
+          p_outcome: Database['public']['Tables']['outcome_records']['Row'];
+        };
+        Returns: string;
       };
       participant_acknowledge_pause: {
         Args: { p_token: string };

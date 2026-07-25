@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(7);
+SELECT plan(8);
 
 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 VALUES (
@@ -95,6 +95,15 @@ SELECT is(
     )->>'error',
     'INVALID_TRANSITION',
     'ended session cannot reopen to live'
+);
+
+SELECT is(
+    (public.facilitator_attest_outcome_authorship(
+        'dddddddd-dddd-dddd-dddd-dddddddddddd'::uuid,
+        'Facilitator-authored decision memo.'
+    )->>'ok')::boolean,
+    TRUE,
+    'facilitator attests authorship before private release'
 );
 
 SELECT is(

@@ -139,7 +139,7 @@ export function LedgerRecordPage() {
 function SampleDossier({ record }: { record: LedgerRecordDetail }) {
   const specimen = getSpecimenById(record.id);
   const year = specimen ? Number(specimen.releasedAt.slice(0, 4)) : new Date().getFullYear();
-  const citation = `${record.org}. (${year}). ${record.title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  const citation = `ILLUSTRATIVE SPECIMEN (not a citable record). ${record.org}. (${year}). ${record.title}. SquadRidge Outcome Ledger citation format.`;
 
   return (
     <ReleasedRecordDossier
@@ -148,7 +148,7 @@ function SampleDossier({ record }: { record: LedgerRecordDetail }) {
         verificationAnchor: specimen?.verificationAnchor ?? record.verificationAnchor,
       }}
       citation={citation}
-      illustrativeNotice="Shows the structure of a released record only; the session that produced it is never public."
+      illustrativeNotice="Designed to show the structure, metadata, and verification surface of a released record. No facilitated session produced this text, the anchor is illustrative, and no organisation named here has released anything through SquadRidge."
     />
   );
 }

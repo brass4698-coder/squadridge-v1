@@ -1341,6 +1341,30 @@ a.sr-link-accent:hover,
     border: 1px dashed var(--sr-line);
   }
 
+  /* Specimen material reads as a deliberate register state, not a missing record. */
+  .sr-specimen-notice {
+    border-radius: var(--sr-radius-md);
+    border: 1px dashed var(--sr-line-strong);
+    background: var(--sr-bg-secondary);
+    padding: var(--sr-space-5);
+  }
+
+  .sr-specimen-surface {
+    position: relative;
+  }
+
+  .sr-specimen-surface::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--sr-ink-faint) 6%, transparent) 0 1px,
+      transparent 1px 16px
+    );
+  }
+
   .sr-ledger-card.sr-registry-card:hover,
   a:hover .sr-ledger-card.sr-registry-card {
     background: var(--sr-surface-hover, var(--sr-bg-hover));

@@ -2,6 +2,7 @@ import { useCallback, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../StatusBadge';
 import { RecordAnchorBadge, VerificationAnchorBadge } from '../shared/VerificationAnchorBadge';
+import { SpecimenNotice } from '../shared/SpecimenNotice';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 import type { LedgerRecordDetail, RelatedLedgerRecord } from '../../data/sampleRecords';
 
@@ -139,6 +140,7 @@ export function ReleasedRecordDossier({
   illustrativeNotice,
 }: ReleasedRecordDossierProps) {
   const printPage = () => window.print();
+  const isSpecimen = record.variant === 'sample';
 
   return (
     <div className="sr-ledger-dark sr-dossier pb-20" data-page="ledger-record">
@@ -163,7 +165,7 @@ export function ReleasedRecordDossier({
           </nav>
 
           <div className="flex flex-wrap items-center gap-2">
-            {record.variant === 'sample' ? (
+            {isSpecimen ? (
               <StatusBadge variant="illustrative">Illustrative</StatusBadge>
             ) : (
               <StatusBadge variant="published">Published</StatusBadge>
@@ -180,7 +182,9 @@ export function ReleasedRecordDossier({
           </h1>
 
           <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-secondary">
-            Approved outcome text only. The private session that produced it is not public.
+            {isSpecimen
+              ? 'Specimen of an approved outcome record. No private session produced this text.'
+              : 'Approved outcome text only. The private session that produced it is not public.'}
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -189,10 +193,8 @@ export function ReleasedRecordDossier({
             </span>
           </div>
 
-          {illustrativeNotice ? (
-            <p className="mt-4 mb-0 max-w-measure text-xs leading-relaxed text-ink-secondary">
-              {illustrativeNotice}
-            </p>
+          {isSpecimen ? (
+            <SpecimenNotice className="mt-6 max-w-measure">{illustrativeNotice}</SpecimenNotice>
           ) : null}
 
           <div className="mt-8">
@@ -275,9 +277,13 @@ export function ReleasedRecordDossier({
             <p className="mt-2 mb-0 max-w-measure text-sm text-ink-secondary">
               Not a transcript of the private room.
             </p>
-            <article className="sr-dossier-instrument mt-6">
+            <article
+              className={`sr-dossier-instrument mt-6${isSpecimen ? ' sr-specimen-surface' : ''}`}
+            >
               <header className="sr-dossier-instrument__header flex flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
-                <DossierLabel>Released instrument</DossierLabel>
+                <DossierLabel>
+                  {isSpecimen ? 'Specimen instrument' : 'Released instrument'}
+                </DossierLabel>
                 <RecordAnchorBadge recordId={record.id} />
               </header>
               <div className="px-5 py-8 md:px-10 md:py-10">
@@ -403,19 +409,24 @@ function TrustToolsPanel({
   verifyHref?: string;
   onPrint: () => void;
 }) {
+  const isSpecimen = record.variant === 'sample';
+
   return (
     <div className="sr-dossier-tools overflow-hidden">
       <div className="border-b border-line px-5 py-4">
         <DossierLabel>Trust tools</DossierLabel>
         <h2 className="mt-2 mb-0 font-heading text-base font-medium text-ink">Verify &amp; cite</h2>
         <p className="mt-2 mb-0 text-xs leading-relaxed text-ink-secondary">
-          Confirms the released payload has not been altered — not that the substance is true,
-          binding, or endorsed.
+          {isSpecimen
+            ? 'Shows the verification surface a released record carries. This specimen has no released instrument behind it, so the anchor resolves to nothing and the citation is not usable.'
+            : 'Confirms the released payload has not been altered — not that the substance is true, binding, or endorsed.'}
         </p>
       </div>
 
       <div className="border-b border-line px-5 py-4">
-        <DossierLabel>Anchor hash</DossierLabel>
+        <DossierLabel>
+          {isSpecimen ? 'Specimen anchor (not verifiable)' : 'Anchor hash'}
+        </DossierLabel>
         <code className="mt-2 block break-all rounded-[var(--sr-radius-sm)] border border-line px-3 py-2.5 font-mono text-[0.65rem] leading-relaxed">
           {record.verificationAnchor}
         </code>
@@ -429,7 +440,7 @@ function TrustToolsPanel({
       </div>
 
       <div className="border-b border-line px-5 py-4">
-        <DossierLabel>Citation</DossierLabel>
+        <DossierLabel>{isSpecimen ? 'Citation format (specimen)' : 'Citation'}</DossierLabel>
         <code className="mt-2 block break-words rounded-[var(--sr-radius-sm)] border border-line px-3 py-2.5 font-mono text-[0.65rem] leading-relaxed">
           {citation}
         </code>

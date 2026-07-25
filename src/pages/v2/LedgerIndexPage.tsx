@@ -7,6 +7,7 @@ import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
 import {
   CapsLabel,
   GlossTerm,
+  NoLiveReleasesPanel,
   RecordCardCompact,
   specimenToRecordCardProps,
 } from '../../components/shared';
@@ -163,14 +164,13 @@ export function LedgerIndexPage() {
           ) : null}
 
           <div>
+            {!hasLive && !loading && !error ? <NoLiveReleasesPanel className="mb-10" /> : null}
             <div className="mb-6 max-w-measure">
-              <CapsLabel id="specimens-h">
-                {hasLive ? 'Illustrative specimens' : 'Illustrative released records'}
-              </CapsLabel>
+              <CapsLabel id="specimens-h">Illustrative specimens</CapsLabel>
               <p className="mt-1.5 mb-0 text-sm text-ink-secondary">
-                {hasLive
-                  ? 'Designed preview dossiers — not live releases. Room content is never published.'
-                  : 'No live public releases in this environment yet. Specimens show the dossier format used for institutional verification.'}
+                Designed dossiers that show the released-record format used for institutional
+                verification. Their anchors are illustrative and do not resolve against a released
+                instrument. Room content is never published.
               </p>
             </div>
             <ul className="m-0 flex list-none flex-col gap-3 p-0">

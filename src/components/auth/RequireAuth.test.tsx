@@ -45,7 +45,10 @@ function renderProtectedRoute(initialEntry = '/protected') {
           }
         />
         <Route path="/sign-in" element={<div data-testid="sign-in-page">sign-in</div>} />
-        <Route path="/settings/profile" element={<div data-testid="profile-page">profile</div>} />
+        <Route
+          path="/app/settings/profile"
+          element={<div data-testid="profile-page">profile</div>}
+        />
       </Routes>
     </MemoryRouter>,
   );

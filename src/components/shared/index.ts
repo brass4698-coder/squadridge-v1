@@ -55,5 +55,6 @@ export {
   type TrustLabelProps,
   type TrustLabelVariant,
 } from './TrustLabel';
+export { SpecimenNotice, NoLiveReleasesPanel, type SpecimenNoticeProps } from './SpecimenNotice';
 export { EmptyState as TrustEmptyState, type SharedEmptyStateProps } from './EmptyState';
 export { SkeletonCard, type SkeletonCardProps } from './SkeletonCard';

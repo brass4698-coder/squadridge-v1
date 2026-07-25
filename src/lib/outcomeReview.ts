@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { parseDialogueStage, type DialogueStage } from './dialogueStages';
+import { parseReleaseBlockReason, type ReleaseReadiness } from './releaseIntegrity';
 
 export async function facilitatorAdvanceDialogueStage(
   sessionId: string,
@@ -42,6 +43,10 @@ export interface ParticipantOutcomeReview {
   approval_status?: 'pending' | 'approved' | 'rejected';
   dispute_note?: string | null;
   can_decide?: boolean;
+  /** Hash of the exact text shown here; the decision is bound to it. */
+  content_sha?: string;
+  reviewed_content_sha?: string | null;
+  decision_matches_current_text?: boolean;
 }
 
 export async function participantGetOutcomeReview(
@@ -78,6 +83,91 @@ export async function facilitatorSeedOutcomeApprovals(
   const row = data as { ok?: boolean; error?: string };
   if (!row?.ok) return { ok: false, error: row?.error ?? 'SEED_FAILED' };
   return { ok: true };
+}
+
+export async function facilitatorAttestOutcomeAuthorship(
+  outcomeId: string,
+  statement?: string,
+): Promise<{ ok: boolean; error?: string; content_sha?: string }> {
+  const { data, error } = await supabase.rpc('facilitator_attest_outcome_authorship', {
+    p_outcome_id: outcomeId,
+    p_statement: statement ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  const row = data as { ok?: boolean; error?: string; content_sha?: string };
+  if (!row?.ok) {
+    return {
+      ok: false,
+      error:
+        row?.error === 'ALREADY_RELEASED'
+          ? 'This instrument is already released.'
+          : row?.error === 'SUMMARY_REQUIRED'
+            ? 'Add a decision memo summary before attesting authorship.'
+            : (row?.error ?? 'ATTESTATION_FAILED'),
+    };
+  }
+  return { ok: true, content_sha: row.content_sha };
+}
+
+interface ReleaseReadinessRow {
+  ok?: boolean;
+  error?: string;
+  outcome_id?: string;
+  content_sha?: string;
+  outcome_status?: string;
+  session_status?: string;
+  outcome_public?: boolean;
+  authorship_attested?: boolean;
+  authorship_attested_at?: string | null;
+  authorship_statement?: string | null;
+  approvals_total?: number;
+  approvals_approved?: number;
+  approvals_rejected?: number;
+  approvals_stale?: number;
+  verbatim_conflict?: boolean;
+  can_release?: boolean;
+  blocking_reason?: string | null;
+}
+
+export async function facilitatorGetReleaseReadiness(
+  outcomeId: string,
+): Promise<ReleaseReadiness | null> {
+  const { data, error } = await supabase.rpc('facilitator_get_release_readiness', {
+    p_outcome_id: outcomeId,
+  });
+  if (error) return null;
+  const row = data as ReleaseReadinessRow | null;
+  if (!row?.ok) return null;
+
+  return {
+    ok: true,
+    outcomeId: row.outcome_id,
+    contentSha: row.content_sha,
+    outcomeStatus: row.outcome_status,
+    sessionStatus: row.session_status,
+    outcomePublic: row.outcome_public,
+    authorshipAttested: row.authorship_attested === true,
+    authorshipAttestedAt: row.authorship_attested_at ?? null,
+    authorshipStatement: row.authorship_statement ?? null,
+    approvalsTotal: row.approvals_total ?? 0,
+    approvalsApproved: row.approvals_approved ?? 0,
+    approvalsRejected: row.approvals_rejected ?? 0,
+    approvalsStale: row.approvals_stale ?? 0,
+    verbatimConflict: row.verbatim_conflict === true,
+    canRelease: row.can_release === true,
+    blockingReason: parseReleaseBlockReason(row.blocking_reason),
+  };
+}
+
+/** Facilitator notes are not selectable by API roles — read them through this RPC. */
+export async function facilitatorGetOutcomeNotes(outcomeId: string): Promise<string | null> {
+  const { data, error } = await supabase.rpc('facilitator_get_outcome_notes', {
+    p_outcome_id: outcomeId,
+  });
+  if (error) return null;
+  const row = data as { ok?: boolean; facilitator_notes?: string | null };
+  if (!row?.ok) return null;
+  return row.facilitator_notes ?? null;
 }
 
 export async function facilitatorSetApprovalStatus(

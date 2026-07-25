@@ -114,9 +114,11 @@ SELECT is(
     'room messaging blocked until facilitator opens session'
 );
 
--- 7. Open room
+-- 7. Open room and advance to a posting stage
+-- (sessions default to dialogue_stage 'preparation', which keeps participant posting closed).
 UPDATE public.sessions
-SET status = 'live'
+SET status = 'live',
+    dialogue_stage = 'story'
 WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 
 SELECT is(

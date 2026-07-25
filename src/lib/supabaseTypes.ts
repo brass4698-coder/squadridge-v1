@@ -129,6 +129,10 @@ export interface Database {
           timestamp_authority: string | null;
           timestamped_at: string | null;
           timestamp_status: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
+          authorship_attested_at: string | null;
+          authorship_attested_by: string | null;
+          attested_content_sha: string | null;
+          authorship_statement: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -172,6 +176,8 @@ export interface Database {
           participant_id: string | null;
           dispute_note: string | null;
           approval_source: 'facilitator' | 'participant';
+          /** Hash of the instrument text this approval was given against (DB-stamped). */
+          reviewed_content_sha: string | null;
         };
         Insert: Omit<Database['public']['Tables']['outcome_approvals']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['outcome_approvals']['Insert']>;
@@ -367,6 +373,18 @@ export interface Database {
         Args: { p_outcome_id: string };
         Returns: boolean;
       };
+      facilitator_attest_outcome_authorship: {
+        Args: { p_outcome_id: string; p_statement?: string | null };
+        Returns: Json;
+      };
+      facilitator_get_release_readiness: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
+      facilitator_get_outcome_notes: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
     };
     Enums: Record<string, never>;
   };
@@ -375,6 +393,16 @@ export interface Database {
 export type Session = Database['public']['Tables']['sessions']['Row'];
 export type Participant = Database['public']['Tables']['participants']['Row'];
 export type OutcomeRecord = Database['public']['Tables']['outcome_records']['Row'];
+
+/**
+ * Shape returned to browser clients. `facilitator_notes` and `authorship_attested_by`
+ * are not granted to the `anon` / `authenticated` roles — notes come from
+ * `facilitator_get_outcome_notes` instead. See the release-provenance migration.
+ */
+export type OutcomeRecordClient = Omit<
+  OutcomeRecord,
+  'facilitator_notes' | 'authorship_attested_by'
+>;
 export type OutcomeApproval = Database['public']['Tables']['outcome_approvals']['Row'];
 export type AccessRequest = Database['public']['Tables']['access_requests']['Row'];
 export type SessionMessage = Database['public']['Tables']['session_messages']['Row'];

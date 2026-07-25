@@ -71,6 +71,22 @@ const NEVER_DO = [
   },
 ] as const;
 
+/** Stage honesty: what a reader can check, and the numbers we refuse to imply. */
+const STAGE = [
+  {
+    title: 'No traction claims on this site',
+    body: 'You will not find organisation counts, partner logos, testimonials, or outcome statistics here, because there are none we can source. When there are, they will arrive with a citation.',
+  },
+  {
+    title: 'The public register is empty on purpose',
+    body: 'Every ledger entry today is a labelled specimen. A live entry requires a real session, real approvals, and an organisation choosing publication over a private anchored record.',
+  },
+  {
+    title: 'What is real is the mechanism',
+    body: 'Verification before entry, staged facilitation, approvals bound to the exact released wording, and a documented account of what the architecture does not protect against.',
+  },
+] as const;
+
 const FIT = [
   'Parties need a protected space; institutions still need a credible outcome record.',
   'Multi-party matters where process control and an auditable release path matter.',
@@ -188,6 +204,33 @@ export function AboutPage() {
               </li>
             ))}
           </ul>
+        </ShellWidth>
+      </MarketingSection>
+      <MarketingSection id="stage" tone="sunken" density="compact">
+        <ShellWidth>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <ProseMeasure>
+              <SectionLabel>Stage</SectionLabel>
+              <h2 id="stage-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+                Where this actually is
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+                Early, invite-only, and reviewed by hand. We would rather be told the fit is wrong
+                than run a session that should not have happened, so the intake asks about the
+                matter before it asks about the organisation.
+              </p>
+            </ProseMeasure>
+            <ul className="m-0 grid list-none gap-px self-start overflow-hidden border border-line bg-line p-0">
+              {STAGE.map((item) => (
+                <li key={item.title} className="bg-surface-elevated px-5 py-5">
+                  <p className="m-0 text-sm font-semibold text-ink">{item.title}</p>
+                  <p className="mt-1.5 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    {item.body}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </ShellWidth>
       </MarketingSection>
       <MarketingSection id="fit" density="compact">

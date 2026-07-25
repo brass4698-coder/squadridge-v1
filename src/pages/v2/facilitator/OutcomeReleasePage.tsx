@@ -13,16 +13,29 @@ import {
 } from '../../../lib/approvalCounts';
 import { appRoutes } from '../../../lib/appRoutes';
 import { ApprovalCount } from '../../../components/motion';
+import {
+  describeReleaseBlock,
+  shortContentSha,
+  staleApprovalNotice,
+} from '../../../lib/releaseIntegrity';
 
 export function OutcomeReleasePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { session, loading: sessionLoading } = useSession(sessionId);
-  const { outcome, approvals, loading, setApprovalStatus, publishToLedger } =
-    useOutcomeRecord(sessionId);
+  const {
+    outcome,
+    approvals,
+    readiness,
+    loading,
+    setApprovalStatus,
+    attestAuthorship,
+    publishToLedger,
+  } = useOutcomeRecord(sessionId);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [published, setPublished] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attesting, setAttesting] = useState(false);
 
   const counts = countApprovalsByStatus(approvals);
   const allApproved = allApprovalsComplete(approvals);
@@ -30,6 +43,21 @@ export function OutcomeReleasePage() {
   const instrumentPreview = [outcome?.summary, outcome?.agreed_terms, outcome?.pending_items]
     .filter(Boolean)
     .join('\n\n');
+  const attested = readiness?.authorshipAttested === true;
+  const blockingCopy = describeReleaseBlock(readiness?.blockingReason);
+  const staleNotice = staleApprovalNotice(readiness);
+  const releaseBlocked = readiness ? !readiness.canRelease : !allApproved || counts.rejected > 0;
+
+  async function handleAttest() {
+    setError(null);
+    setAttesting(true);
+    try {
+      await attestAuthorship();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not record the attestation');
+    }
+    setAttesting(false);
+  }
 
   async function handlePublish() {
     setError(null);
@@ -124,6 +152,72 @@ export function OutcomeReleasePage() {
             </pre>
           </section>
         ) : null}
+
+        <section className="sr-evidence-frame mb-8 p-5" aria-labelledby="provenance-h">
+          <h2
+            id="provenance-h"
+            className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint"
+          >
+            Provenance
+          </h2>
+          <dl className="m-0 grid gap-3 sm:grid-cols-2">
+            <div>
+              <dt className="text-xs text-ink-secondary">Instrument hash</dt>
+              <dd className="mt-1 mb-0 font-mono text-xs text-ink">
+                {shortContentSha(readiness?.contentSha)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-secondary">Approvals bound to this text</dt>
+              <dd className="mt-1 mb-0 font-mono text-xs text-ink">
+                {readiness
+                  ? `${readiness.approvalsApproved - readiness.approvalsStale} / ${readiness.approvalsTotal}`
+                  : '—'}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-4 border-t border-line pt-4">
+            {attested ? (
+              <>
+                <p className="m-0 text-sm text-ink">
+                  <span className="sr-verify">
+                    <span className="sr-verify-dot" aria-hidden />
+                    Authorship attested
+                  </span>{' '}
+                  for this exact text.
+                </p>
+                {readiness?.authorshipStatement ? (
+                  <p className="mt-1 mb-0 text-xs leading-relaxed text-ink-secondary">
+                    “{readiness.authorshipStatement}”
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <p className="m-0 text-sm text-ink-secondary">
+                  Attest that this instrument is your own wording of the outcome — not a verbatim
+                  transcript. The attestation is recorded against the hash above and is cleared
+                  automatically if you edit the text.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void handleAttest()}
+                  disabled={attesting || !outcome}
+                  className="btn-pill mt-3 min-h-[44px] w-full border border-line text-sm text-ink disabled:opacity-40"
+                >
+                  {attesting ? 'Recording…' : 'Record authorship attestation'}
+                </button>
+              </>
+            )}
+          </div>
+
+          {staleNotice ? (
+            <p className="mt-3 mb-0 text-xs text-sem-danger" role="status">
+              {staleNotice}
+            </p>
+          ) : null}
+        </section>
 
         <div
           className={`mb-6 rounded border-l-4 px-4 py-3 text-sm ${
@@ -223,14 +317,21 @@ export function OutcomeReleasePage() {
         ) : null}
 
         {!published ? (
-          <button
-            type="button"
-            disabled={!allApproved || counts.rejected > 0}
-            onClick={() => setShowPublishModal(true)}
-            className="btn-pill btn-pill--primary min-h-[44px] w-full text-sm disabled:opacity-40"
-          >
-            {outcomePublic ? 'Publish to ledger' : 'Release private record'}
-          </button>
+          <>
+            <button
+              type="button"
+              disabled={releaseBlocked}
+              onClick={() => setShowPublishModal(true)}
+              className="btn-pill btn-pill--primary min-h-[44px] w-full text-sm disabled:opacity-40"
+            >
+              {outcomePublic ? 'Publish to ledger' : 'Release private record'}
+            </button>
+            {blockingCopy ? (
+              <p className="mt-3 text-center text-xs leading-relaxed text-ink-secondary">
+                {blockingCopy}
+              </p>
+            ) : null}
+          </>
         ) : (
           <p className="rounded bg-brand-soft py-3 text-center text-sm font-medium text-brand">
             {outcomePublic
@@ -240,8 +341,10 @@ export function OutcomeReleasePage() {
         )}
 
         <p className="mt-4 text-center font-mono text-[length:var(--text-label)] leading-relaxed text-ink-faint">
-          Release is irreversible for this instrument. Participant identities are not disclosed on
-          the record; room content remains operator-readable under your MOU.
+          Release is irreversible for this instrument. The verification anchor is a SHA-256 hash of
+          this text — it proves the record is unaltered, not when it was written. Participant
+          identities are not disclosed on the record; room content remains operator-readable under
+          your MOU.
         </p>
       </div>
 

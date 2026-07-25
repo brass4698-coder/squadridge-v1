@@ -156,6 +156,28 @@ Lifecycle spine remains **Configure → Verify → Facilitate → Release**. Dia
 | AI advisory only | `ai/pipeline.ts`, facilitator pacing RPCs |
 | Staged dialogue | `dialogueStages.ts` + session RPCs |
 | Role split | Facilitator dashboard / control pages; mediator dashboards as navigation shells |
+| Release provenance binding | `outcome_approvals.reviewed_content_sha`, `facilitator_attest_outcome_authorship`, `facilitator_get_release_readiness` |
+
+---
+
+## 9. Deployment-track compliance surface (acknowledgment, not legal advice)
+
+Each deployment track sits inside a different existing legal and professional regime. We have
+**not** obtained legal review for any of them, and nothing in the product decides a compliance
+question. This section exists so a pilot conversation starts with the obligation named rather than
+discovered later. Every pilot needs the counterparty's own counsel or compliance function to
+decide how their regime applies.
+
+| Track | Regime the deploying organisation already sits in | What that implies for a pilot |
+| ----- | ------------------------------------------------- | ----------------------------- |
+| **Workplace / HR grievance** | Anti-retaliation and recordkeeping duties attach to complaints an employer is on notice of. A facilitated room can constitute notice. | Agree in the MOU who is on notice, what the employer must preserve, and whether an anchored memo is a business record. Do not position the room as a way to avoid a formal complaint process. |
+| **Ombuds / informal channel** | IOA-style practice standards expect independence, informality, and no formal record of identifying content. | Confirm the ombuds office's own confidentiality policy governs. The platform is not a privileged channel and does not create one (§1). |
+| **NGO internal deliberation** | Donor, safeguarding, and internal governance policies; often data-protection duties for staff and beneficiary data. | Decide up front whether the record stays private. Public publication should be a deliberate governance decision, not a default. |
+| **Cross-organisation / community** | No single owning regime; participants may be subject to different ones simultaneously. | Name the lead convenor, the retention rule, and the release decision-maker before the first session. |
+
+Cross-cutting, and true of every track: room content is operator-readable (threat model §5), the
+released record is permanent by design, and a verification anchor proves integrity of the text —
+never who said what, and not the time of release until RFC 3161 is live.
 
 ---
 

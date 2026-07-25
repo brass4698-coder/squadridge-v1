@@ -8,7 +8,8 @@ export function OutcomeWorkspacePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const importState = location.state as { agreedTermsImport?: string } | null;
-  const { outcome, loading, saveDraft, submitForRelease } = useOutcomeRecord(sessionId);
+  const { outcome, facilitatorNotes, loading, saveDraft, submitForRelease } =
+    useOutcomeRecord(sessionId);
   const [form, setForm] = useState({
     summary: '',
     agreedTerms: '',
@@ -24,9 +25,9 @@ export function OutcomeWorkspacePage() {
       summary: outcome.summary ?? '',
       agreedTerms: outcome.agreed_terms ?? '',
       pendingItems: outcome.pending_items ?? '',
-      facilitatorNotes: outcome.facilitator_notes ?? '',
+      facilitatorNotes,
     });
-  }, [outcome]);
+  }, [outcome, facilitatorNotes]);
 
   useEffect(() => {
     if (!importState?.agreedTermsImport) return;
@@ -94,6 +95,11 @@ export function OutcomeWorkspacePage() {
       >
         Write the outcome in your own words. There is no import from the room; anything said in
         dialogue stays in the room unless you deliberately summarise it here.
+        <p className="mt-2 mb-0">
+          Approvals are bound to the exact text they were given for. Editing the summary, agreed
+          terms, or pending items after review opens resets every approval and clears your
+          authorship attestation.
+        </p>
       </div>
 
       {loading ? (

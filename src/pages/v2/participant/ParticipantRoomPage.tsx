@@ -189,6 +189,12 @@ export function ParticipantRoomPage() {
               : 'Take care with tone'}
           </p>
           <p className="mt-1 text-ink-secondary">{warningMessage}</p>
+          {localWarning ? (
+            <p className="mt-1 text-xs text-ink-faint">
+              Advisory suggestion from a keyword check that runs in your browser. Nothing was sent
+              to the facilitator, and you can post as written.
+            </p>
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {pacing?.acknowledge_required ? (
               <button

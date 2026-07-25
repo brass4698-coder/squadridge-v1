@@ -16,10 +16,65 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 
 const SECURITY_SECTIONS = [
   { id: 'reviewers', label: 'Limits' },
+  { id: 'live-vs-planned', label: 'Status' },
   { id: 'room-and-record', label: 'Architecture' },
   { id: 'verification-anchor', label: 'Anchor' },
   { id: 'safeguards', label: 'Safeguards' },
   { id: 'reviewer-appendix', label: 'Appendix' },
+] as const;
+
+/** Every row is either shipped in the product today or explicitly not built yet. */
+const TRUST_STATUS = [
+  {
+    label: 'SHA-256 verification anchor on release',
+    status: 'live',
+    body: 'Release computes a hash of the canonical approved text and stores it with the record. Anyone holding the text can recompute it.',
+  },
+  {
+    label: 'Approvals bound to the exact released text',
+    status: 'live',
+    body: 'Each approval carries the hash of the wording it was given for. Editing the instrument resets every approval and blocks release until parties review the new version.',
+  },
+  {
+    label: 'Facilitator authorship attestation',
+    status: 'live',
+    body: 'Release requires a recorded attestation that the instrument is facilitator-authored, bound to the same hash and cleared automatically by any later edit.',
+  },
+  {
+    label: 'Metadata-only audit trail',
+    status: 'live',
+    body: 'Lifecycle events — verification, room open, approvals, release, failed release attempts — are logged without message bodies.',
+  },
+  {
+    label: 'RFC 3161 trusted timestamping',
+    status: 'planned',
+    body: 'Database columns and typed interfaces exist; release does not contact a Time Stamp Authority. Until it does, an anchor proves integrity, never time.',
+  },
+  {
+    label: 'Operator-blind room encryption',
+    status: 'planned',
+    body: 'Room content is readable by the operator today. Encrypting rooms so that we cannot read them requires per-participant key distribution and is a separate programme, not a setting.',
+  },
+] as const;
+
+/** Precise, checkable statement of who can read room content. */
+const OPERATOR_ACCESS = [
+  {
+    heading: 'Inside the room',
+    body: 'Written messages are stored as plaintext in Postgres. Direct API access is restricted by row-level security to the facilitator of that session; participants reach their room only through token-scoped functions.',
+  },
+  {
+    heading: 'Operator and infrastructure',
+    body: 'Staff with service-role or database access can read room content. There is no cryptographic barrier between us and the room — assume operator-readable and cover it in your MOU.',
+  },
+  {
+    heading: 'Facilitator-only fields',
+    body: 'Facilitator notes are excluded from the columns published clients may read, so they cannot leak through the ledger API alongside a released record.',
+  },
+  {
+    heading: 'What never leaves',
+    body: 'Room dialogue is never published, exported to the ledger, or importable into an outcome. The release path only accepts facilitator-authored text.',
+  },
 ] as const;
 
 const NOT_CLAIMED = [
@@ -196,6 +251,66 @@ export function SecurityPage() {
           </ul>
         </ShellWidth>
       </section>
+      <MarketingSection
+        id="live-vs-planned"
+        tone="sunken"
+        density="compact"
+        className="scroll-mt-28"
+      >
+        <ShellWidth>
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Implementation status</SectionLabel>
+            <h2 id="status-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              Live today, and what is not
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              A trust feature is either running in the product or it is not. Planned items below
+              have schema, design, or interfaces in the repository — none of them are doing work
+              during a release today, and none should be counted in diligence as if they were.
+            </p>
+          </ProseMeasure>
+          <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
+            {TRUST_STATUS.map((item) => (
+              <li key={item.label} className="bg-surface-elevated px-5 py-5">
+                {item.status === 'live' ? (
+                  <span className="sr-verify font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)]">
+                    <span className="sr-verify-dot" aria-hidden />
+                    Live
+                  </span>
+                ) : (
+                  <span className="font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                    Planned · not live
+                  </span>
+                )}
+                <p className="mt-2 mb-0 text-sm font-semibold text-ink">{item.label}</p>
+                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </ShellWidth>
+      </MarketingSection>
+      <MarketingSection id="operator-access" density="compact">
+        <ShellWidth>
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Operator access</SectionLabel>
+            <h2 id="operator-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              Who can read the room
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              The uncomfortable answer, stated plainly, because a facilitator has to be able to
+              explain it to the people in the room before they type anything.
+            </p>
+          </ProseMeasure>
+          <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
+            {OPERATOR_ACCESS.map((item) => (
+              <li key={item.heading} className="bg-surface-elevated px-5 py-5">
+                <p className="m-0 text-sm font-semibold text-ink">{item.heading}</p>
+                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+              </li>
+            ))}
+          </ul>
+        </ShellWidth>
+      </MarketingSection>
       <MarketingSection id="room-and-record" density="default" className="scroll-mt-28">
         <ShellWidth>
           <div className="mb-10 max-w-measure">
@@ -405,6 +520,16 @@ export function SecurityPage() {
                     future TSA path; release does not request a token today. Semaphore Merkle
                     groups, where used, apply to identity verification cohorts — not to ledger
                     anchoring.
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-semibold text-ink">Release preconditions</dt>
+                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
+                    Release is refused unless the session has ended, every approval is recorded
+                    against the current instrument hash, a facilitator authorship attestation covers
+                    that same hash, and no approved text repeats a room message verbatim. Revising
+                    the instrument resets approvals and clears the attestation, and each refused
+                    attempt is written to the session audit trail.
                   </dd>
                 </div>
                 <div>

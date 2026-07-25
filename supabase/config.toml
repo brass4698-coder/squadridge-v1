@@ -39,7 +39,7 @@ health_timeout = "2m"
 # server_version;` on the remote database to check.
 major_version = 17
 # Latest migration timestamp applied by `supabase db reset` (not a CLI-parsed key — documentation only):
-# schema_version = "20260718071000"
+# schema_version = "20260725230500"
 
 [db.pooler]
 enabled = false
@@ -414,6 +414,9 @@ verify_jwt = true
 
 [functions.serve-deck]
 verify_jwt = true
+# Gated briefing assets bundled with the function (read via Deno.readFile).
+# Requires CLI >= 2.7.0 and a running Docker daemon at deploy time.
+static_files = ["./functions/serve-deck/static/*"]
 
 # Experimental features may be deprecated any time
 [experimental]

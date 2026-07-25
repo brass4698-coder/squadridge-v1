@@ -6,7 +6,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(12);
+SELECT plan(14);
 
 -- Seed facilitator auth user
 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
@@ -191,12 +191,8 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.outcome_approvals (outcome_id, approver_label, status)
-VALUES
-    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Participant A', 'approved'),
-    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Participant B', 'approved');
-
 -- 9. release_outcome rejects verbatim room content
+-- Approvals are seeded after the text is final: any later edit resets them by design.
 INSERT INTO public.session_messages (session_id, sender_label, sender_role, body)
 VALUES (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
@@ -209,11 +205,25 @@ UPDATE public.outcome_records
 SET summary = 'This exact message must never appear in the public record verbatim.'
 WHERE id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
 
+INSERT INTO public.outcome_approvals (outcome_id, approver_label, status)
+VALUES
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Participant A', 'approved'),
+    ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Participant B', 'approved');
+
 SET LOCAL ROLE authenticated;
 SELECT set_config(
     'request.jwt.claims',
     '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}',
     true
+);
+
+SELECT is(
+    (public.facilitator_attest_outcome_authorship(
+        'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid,
+        'Facilitator-authored for pgTAP.'
+    )->>'ok')::boolean,
+    TRUE,
+    'authorship attestation recorded before release attempt'
 );
 
 SELECT is(
@@ -223,16 +233,30 @@ SELECT is(
 );
 
 -- 10. release_outcome succeeds with facilitator-authored content
+-- Rewriting the summary resets approvals and clears the attestation, so both are redone.
 RESET ROLE;
 UPDATE public.outcome_records
 SET summary = 'Parties agreed to reconvene within ninety days for implementation review.'
 WHERE id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+
+UPDATE public.outcome_approvals
+SET status = 'approved'
+WHERE outcome_id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
 
 SET LOCAL ROLE authenticated;
 SELECT set_config(
     'request.jwt.claims',
     '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}',
     true
+);
+
+SELECT is(
+    (public.facilitator_attest_outcome_authorship(
+        'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'::uuid,
+        'Facilitator-authored for pgTAP.'
+    )->>'ok')::boolean,
+    TRUE,
+    'authorship attestation re-recorded after the instrument was revised'
 );
 
 SELECT is(
@@ -249,9 +273,34 @@ SELECT is(
 );
 
 -- 12. Direct session release blocked without RPC flag
+-- release_outcome sets the transaction-local app.allow_session_release flag, which
+-- persists for the remainder of this pgTAP transaction — clear it, and use a fresh
+-- ended session (the released one above is a no-op for the transition guard).
 RESET ROLE;
+SELECT set_config('app.allow_session_release', '', true);
+
+INSERT INTO public.sessions (
+    id,
+    facilitator_id,
+    title,
+    conflict_type,
+    language,
+    max_participants,
+    status
+)
+VALUES (
+    'ffffffff-ffff-ffff-ffff-ffffffffffff',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'pgTAP guard test',
+    'Community & civic',
+    'English',
+    2,
+    'ended'
+)
+ON CONFLICT (id) DO NOTHING;
+
 SELECT throws_ok(
-    $$UPDATE public.sessions SET status = 'released' WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'$$,
+    $$UPDATE public.sessions SET status = 'released' WHERE id = 'ffffffff-ffff-ffff-ffff-ffffffffffff'$$,
     'P0001',
     NULL,
     'direct update to released status is blocked by trigger'

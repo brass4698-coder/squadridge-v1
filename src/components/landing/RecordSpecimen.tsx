@@ -43,6 +43,11 @@ export function RecordSpecimen() {
           </div>
           <div className="min-w-0">
             <RecordCard {...card} />
+            <p className="mt-3 mb-0 text-xs leading-relaxed text-ink-faint">
+              Illustrative specimen — not a live release. The register lists an entry only after a
+              facilitator releases an approved outcome and the releasing organisation opts into
+              publication.
+            </p>
           </div>
         </div>
       </div>

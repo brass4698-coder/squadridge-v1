@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(9);
 
 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 VALUES (
@@ -61,11 +61,11 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- 1. Messaging blocked without consent
+-- 1. Messaging blocked without a verification document (document gate runs first)
 SELECT is(
     public.participant_send_message('securtok000000000000000001', 'hello')->>'error',
-    'CONSENT_REQUIRED',
-    'participant_send_message requires consent'
+    'DOCUMENT_REQUIRED',
+    'participant_send_message requires document when identity verification required'
 );
 
 -- 2. Consent blocked without document when identity required
@@ -87,21 +87,46 @@ SELECT is(
     'participant_register_verification_document succeeds with valid path'
 );
 
--- 4. Consent succeeds after document
+-- 4. Messaging still blocked without consent once the document exists
+SELECT is(
+    public.participant_send_message('securtok000000000000000001', 'hello')->>'error',
+    'CONSENT_REQUIRED',
+    'participant_send_message requires consent'
+);
+
+-- 5. Consent succeeds after document
 SELECT is(
     (public.record_participant_consent('securtok000000000000000001')->>'valid')::boolean,
     TRUE,
     'record_participant_consent succeeds after document submitted'
 );
 
--- 5. Messaging succeeds after consent
+-- 6. Messaging succeeds after consent, once the dialogue stage allows posting
+-- (sessions default to 'preparation', which keeps participant posting closed).
+UPDATE public.sessions
+SET dialogue_stage = 'story'
+WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+
 SELECT is(
     (public.participant_send_message('securtok000000000000000001', 'hello')->>'valid')::boolean,
     TRUE,
     'participant_send_message succeeds when verified and consented'
 );
 
--- 6. Profile status self-update blocked
+-- 7. Profile status self-update blocked
+INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
+VALUES (
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    'authenticated',
+    'authenticated',
+    'self@example.test',
+    '',
+    now(),
+    now(),
+    now()
+)
+ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO public.profiles (id, email, status, onboarding_completed)
 VALUES (
     'dddddddd-dddd-dddd-dddd-dddddddddddd',
@@ -118,7 +143,7 @@ SELECT throws_ok(
     'profile status self-update is blocked'
 );
 
--- 7. Facilitator cannot verify without materials when identity required
+-- 8. Facilitator cannot verify without materials when identity required
 UPDATE public.participants
 SET document_submitted = false,
     verification_status = 'pending',
@@ -144,7 +169,7 @@ SELECT is(
     'facilitator verify blocked without stored verification material'
 );
 
--- 8. submit_access_request rate limit structure exists
+-- 9. submit_access_request rate limit structure exists
 RESET ROLE;
 SELECT has_function(
     'public',
