@@ -61,7 +61,8 @@ export type ReleasedRecordDossierProps = {
     outcomeType: string;
     processType: string;
     visibilityClass: string;
-    participantCount: number;
+    /** Omit when count is not public (typical for live releases). */
+    participantCount?: number;
     verificationAnchor: string;
     generatedAt: string;
     outcomeSummary: string[];
@@ -166,10 +167,14 @@ export function ReleasedRecordDossier({
               <MetaCell label="Record type" value={record.outcomeType} />
               <MetaCell label="Process type" value={record.processType} />
               <MetaCell label="Visibility" value={record.visibilityClass} />
-              <MetaCell
-                label="Verified parties (count)"
-                value={`${record.participantCount} — identities not public`}
-              />
+              {typeof record.participantCount === 'number' ? (
+                <MetaCell
+                  label="Verified parties (count)"
+                  value={`${record.participantCount} — identities not public`}
+                />
+              ) : (
+                <MetaCell label="Participants" value="Identities not public" />
+              )}
               <MetaCell label="Publication mode" value="Facilitator-governed · no auto-publish" />
             </dl>
           </section>

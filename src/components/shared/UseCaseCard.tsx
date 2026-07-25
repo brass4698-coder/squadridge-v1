@@ -25,8 +25,6 @@ export interface SecondaryUseCaseProps {
   sector: string;
   title: string;
   scenario: string;
-  /** Primary track this extends — shown as a quiet cue only */
-  sameProcessAs: string;
   ctaLabel: string;
   ctaHref: string;
 }
@@ -113,15 +111,14 @@ export function UseCaseCard({
 }
 
 /**
- * Adjacent context — sector, scenario, quiet track cue, text link.
- * Intentionally lighter than primary lanes.
+ * Adjacent context — sector, scenario, text link.
+ * Intentionally lighter than primary lanes; CTA implies the primary-track mapping.
  */
 export function SecondaryUseCaseRow({
   id,
   sector,
   title,
   scenario,
-  sameProcessAs,
   ctaLabel,
   ctaHref,
 }: SecondaryUseCaseProps) {
@@ -133,10 +130,9 @@ export function SecondaryUseCaseRow({
         </p>
         <h3 className="mt-2 mb-0 text-base font-semibold leading-snug text-ink">{title}</h3>
         <p className="mt-2.5 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">{scenario}</p>
-        <p className="mt-3 mb-0 text-xs text-ink-faint">Same spine as {sameProcessAs}</p>
         <Link
           to={ctaHref}
-          className="mt-3 inline-flex w-fit text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
+          className="mt-4 inline-flex w-fit text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
         >
           {ctaLabel}
         </Link>

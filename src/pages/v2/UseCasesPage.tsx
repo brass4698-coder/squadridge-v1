@@ -99,7 +99,7 @@ export function UseCasesPage() {
               id="adjacent-h"
               className="mt-0 font-display text-h3 font-medium tracking-tight text-ink"
             >
-              Same spine, different environments
+              Also a natural fit
             </h2>
           </div>
           <ul className="mt-8 m-0 grid list-none gap-8 p-0 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-8">

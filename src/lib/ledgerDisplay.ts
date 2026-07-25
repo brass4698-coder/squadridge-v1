@@ -4,7 +4,7 @@ import type { RecordCardProps } from '../components/shared/RecordCard';
 export function ledgerEntryToCard(entry: LedgerEntry): RecordCardProps {
   const anchorLabel = entry.ledger_sha
     ? `SQR-${entry.ledger_sha.slice(0, 8).toUpperCase()}`
-    : entry.id.slice(0, 8).toUpperCase();
+    : `SQR-${entry.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
 
   return {
     id: anchorLabel,
@@ -18,7 +18,8 @@ export function ledgerEntryToCard(entry: LedgerEntry): RecordCardProps {
           day: 'numeric',
         })
       : '—',
-    participantCount: 0,
+    // Participant counts are not exposed on public ledger entries today.
+    participantCount: undefined,
     variant: 'live',
     href: `/ledger/${entry.id}`,
   };

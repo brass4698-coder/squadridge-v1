@@ -238,8 +238,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
               <div>
                 <SquadRidgeLockup size="sm" className="mb-4 text-ink" alt="SquadRidge" />
                 <p className="max-w-sm text-sm leading-relaxed text-ink-secondary">
-                  Private session rooms · facilitator-governed release · approved outcomes only. Not
-                  a chat product.
+                  Private deliberation rooms. Approved outcomes only.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">

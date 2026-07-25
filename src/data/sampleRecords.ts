@@ -48,7 +48,7 @@ export const sampleRecords: RecordCardProps[] = [
     anchorStatus: 'verified',
   },
   {
-    id: 'rec-002',
+    id: 'SQR-2024-0203',
     title: 'Urban Housing Policy — Consensus Principles',
     summary: 'Consensus principles for stakeholder consultation on urban housing policy revisions.',
     org: 'City Planning Consortium',
@@ -58,7 +58,7 @@ export const sampleRecords: RecordCardProps[] = [
     anchorStatus: 'verified',
   },
   {
-    id: 'rec-003',
+    id: 'SQR-2024-0118',
     title: 'Coastal Zone Dialogue — Working Principles',
     summary: 'Working principles for coastal zone management agreed through facilitated dialogue.',
     org: 'Coastal Authority',
@@ -68,7 +68,7 @@ export const sampleRecords: RecordCardProps[] = [
     anchorStatus: 'verified',
   },
   {
-    id: 'rec-004',
+    id: 'SQR-2023-1209',
     title: 'Regional Trade Framework — Recommendation',
     summary:
       'Formal recommendation on trade facilitation measures following structured party consultation.',
@@ -79,6 +79,13 @@ export const sampleRecords: RecordCardProps[] = [
     anchorStatus: 'verified',
   },
 ];
+
+/** Legacy specimen IDs → current catalog IDs (deep links / bookmarks). */
+const SAMPLE_ID_ALIASES: Record<string, string> = {
+  'rec-002': 'SQR-2024-0203',
+  'rec-003': 'SQR-2024-0118',
+  'rec-004': 'SQR-2023-1209',
+};
 
 const DETAIL_EXTENSIONS: Record<string, Omit<LedgerRecordDetail, keyof RecordCardProps>> = {
   'SQR-2026-0312': {
@@ -189,7 +196,7 @@ Session dialogue is permanently confidential to the participating parties. Parti
       },
     ],
   },
-  'rec-002': {
+  'SQR-2024-0203': {
     region: 'Western Europe',
     sessionDate: 'February 3, 2024',
     releasedDate: 'February 7, 2024',
@@ -232,7 +239,7 @@ Session dialogue remains private to participants. This instrument does not discl
     ],
     relatedRecords: [],
   },
-  'rec-003': {
+  'SQR-2024-0118': {
     region: 'East Asia',
     sessionDate: 'January 18, 2024',
     releasedDate: 'January 22, 2024',
@@ -272,7 +279,7 @@ Only this approved outcome text has been released. The session that produced it 
     scopeDoesNot: ['Transcript', 'Participant list', 'Internal drafts'],
     relatedRecords: [],
   },
-  'rec-004': {
+  'SQR-2023-1209': {
     region: 'South-East Asia',
     sessionDate: 'December 9, 2023',
     releasedDate: 'December 14, 2023',
@@ -328,7 +335,8 @@ export const sampleRecordDetails: LedgerRecordDetail[] = sampleRecords.map((card
 });
 
 export function getSampleRecordById(id: string): LedgerRecordDetail | undefined {
-  return sampleRecordDetails.find((r) => r.id === id);
+  const resolved = SAMPLE_ID_ALIASES[id] ?? id;
+  return sampleRecordDetails.find((r) => r.id === resolved);
 }
 
 /** Primary sample shown on the homepage preview. */

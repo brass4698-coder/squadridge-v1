@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../StatusBadge';
-import { VerificationAnchorBadge } from './VerificationAnchorBadge';
+import { VerificationAnchorBadge, RecordAnchorBadge } from './VerificationAnchorBadge';
 import { MetaField } from '../landing/MetaField';
+import { CapsLabel } from './CapsLabel';
 
 export interface RecordCardProps {
   id: string;
@@ -9,7 +10,8 @@ export interface RecordCardProps {
   summary: string;
   org: string;
   date: string;
-  participantCount: number;
+  /** Omit when count is unknown (public live entries). */
+  participantCount?: number;
   variant: 'sample' | 'live';
   anchorStatus?: 'verified' | 'withdrawn';
   href?: string;
@@ -38,7 +40,7 @@ function RecordCardInner({
             {variant === 'sample' ? (
               <StatusBadge variant="illustrative">Illustrative</StatusBadge>
             ) : (
-              <StatusBadge variant="live">Live</StatusBadge>
+              <StatusBadge variant="live">Published</StatusBadge>
             )}
             <VerificationAnchorBadge anchorId={id} status={anchorStatus} />
           </div>
@@ -46,9 +48,7 @@ function RecordCardInner({
       </header>
 
       <div className="flex flex-col gap-4 px-5 py-7 md:px-7 md:py-8">
-        <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-[color:var(--color-text-muted)]">
-          Released outcome
-        </p>
+        <CapsLabel>Released outcome</CapsLabel>
         <h3 className="font-display m-0 text-xl font-medium leading-snug tracking-tight text-ink md:text-[1.375rem]">
           {title}
         </h3>
@@ -56,31 +56,21 @@ function RecordCardInner({
       </div>
 
       <div className="grid grid-cols-1 border-t border-[color:var(--color-border-subtle)] sm:grid-cols-2">
-        <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-secondary/60 px-5 py-5 sm:border-r md:px-7 md:py-6">
+        <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/40 px-5 py-5 sm:border-r md:px-7 md:py-6">
           <MetaField label="Organisation" value={org} />
         </div>
-        <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-secondary/60 px-5 py-5 md:px-7 md:py-6">
+        <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/40 px-5 py-5 md:px-7 md:py-6">
           <MetaField label="Released" value={date} />
         </div>
-        <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-secondary/60 px-5 py-5 sm:border-b-0 sm:border-r md:px-7 md:py-6">
-          <MetaField label="Participants" value={`${participantCount} verified`} />
-        </div>
-        <div className="bg-surface-secondary/60 px-5 py-5 md:px-7 md:py-6">
+        {typeof participantCount === 'number' ? (
+          <div className="border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/40 px-5 py-5 sm:border-b-0 sm:border-r md:px-7 md:py-6">
+            <MetaField label="Participants" value={`${participantCount} verified`} />
+          </div>
+        ) : null}
+        <div className="bg-surface-sunken/40 px-5 py-5 md:px-7 md:py-6">
           <MetaField label="Anchor" value={id} mono />
         </div>
       </div>
-
-      {variant === 'sample' ? (
-        <footer className="flex flex-col gap-2 border-t border-sem-warning/30 bg-sem-warning-soft px-5 py-4 md:px-7">
-          <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-sem-warning">
-            Notice
-          </p>
-          <p className="m-0 text-sm leading-snug text-ink-secondary">
-            Illustrative sample. Shows the structure of a released record only; the session that
-            produced it is never public.
-          </p>
-        </footer>
-      ) : null}
     </article>
   );
 }
@@ -99,6 +89,10 @@ export function RecordCard(props: RecordCardProps) {
   return <RecordCardInner {...inner} />;
 }
 
+/**
+ * Archival index entry — sealed filing row for the public ledger.
+ * Hierarchy: catalog ID → title → metadata → anchor state.
+ */
 export function RecordCardCompact({
   id,
   title,
@@ -110,30 +104,49 @@ export function RecordCardCompact({
   href,
 }: RecordCardProps) {
   const content = (
-    <article className="bg-surface-elevated px-5 py-4 transition-colors hover:bg-surface-sunken/40">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <article
+      className={
+        variant === 'sample'
+          ? 'bg-surface-elevated/70 px-5 py-5 transition-colors hover:bg-surface-sunken/30 md:px-6'
+          : 'bg-surface-elevated px-5 py-5 transition-colors hover:bg-surface-sunken/40 md:px-6'
+      }
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
         <div className="min-w-0 flex-1">
-          <p className="mb-2 font-mono text-xs text-ink-faint">{id}</p>
-          <h2 className="font-display m-0 text-sm font-medium text-ink">{title}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <RecordAnchorBadge recordId={id} />
+            {variant === 'sample' ? (
+              <StatusBadge variant="illustrative">Illustrative</StatusBadge>
+            ) : (
+              <StatusBadge variant="live">Published</StatusBadge>
+            )}
+          </div>
+          <h2 className="font-display mt-3 mb-0 text-base font-medium leading-snug tracking-tight text-ink md:text-lg">
+            {title}
+          </h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
             <MetaField label="Organisation" value={org} />
             <MetaField label="Released" value={date} />
-            <MetaField label="Participants" value={`${participantCount} verified`} />
+            {typeof participantCount === 'number' ? (
+              <MetaField label="Participants" value={`${participantCount} verified`} />
+            ) : (
+              <MetaField label="Scope" value="Approved text only" />
+            )}
           </div>
         </div>
-        <VerificationAnchorBadge anchorId={id} status={anchorStatus} />
+        <div className="shrink-0 sm:pt-0.5">
+          <VerificationAnchorBadge anchorId={id} status={anchorStatus} />
+        </div>
       </div>
-      {variant === 'sample' ? (
-        <p className="mt-4 border-t border-line pt-3 text-xs text-ink-faint">
-          Illustrative example. Session room content is never published.
-        </p>
-      ) : null}
     </article>
   );
 
   if (href) {
     return (
-      <Link to={href} className="block">
+      <Link
+        to={href}
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+      >
         {content}
       </Link>
     );

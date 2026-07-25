@@ -46,7 +46,6 @@ function liveEntryToDossier(entry: NonNullable<ReturnType<typeof useLedgerRecord
       outcomeType: 'Released outcome record',
       processType: entry.session?.conflict_type ?? 'Facilitated written session',
       visibilityClass: 'Public release',
-      participantCount: 0,
       verificationAnchor: entry.ledger_sha ?? entry.id,
       generatedAt: entry.published_at ?? new Date().toISOString(),
       outcomeSummary:

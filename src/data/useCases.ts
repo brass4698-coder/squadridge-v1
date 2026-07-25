@@ -65,7 +65,6 @@ export const primaryUseCases: UseCaseCardProps[] = [
     releasedRecord:
       'Joint statement or agreement text with an integrity anchor — not room dialogue.',
     whySquadridge: 'Parties stay protected; institutions get a citable approved record.',
-    recordSampleId: 'SQR-2024-0147',
     ctaLabel: 'Request a peacebuilding pilot',
     ctaHref: '/request-access?track=peacebuilding',
   },
@@ -97,7 +96,6 @@ export const secondaryUseCases: SecondaryUseCaseProps[] = [
     title: 'Sensitive internal deliberation',
     scenario:
       'Contested advocacy or partner decisions without putting staff or community members at risk if notes leak.',
-    sameProcessAs: 'Foundations',
     ctaLabel: 'Request pilot access',
     ctaHref: '/request-access?track=foundations',
   },
@@ -107,7 +105,6 @@ export const secondaryUseCases: SecondaryUseCaseProps[] = [
     title: 'Board and C-suite conflict under confidentiality',
     scenario:
       'High-stakes internal disputes where email CC chains create liability about what was decided.',
-    sameProcessAs: 'HR',
     ctaLabel: 'Request pilot access',
     ctaHref: '/request-access?track=hr',
   },
@@ -122,7 +119,7 @@ export const useCases: UseCaseCardProps[] = [
     title: s.title,
     context: s.scenario,
     bullets: [] as string[],
-    releasedRecord: `Same spine as ${s.sameProcessAs}.`,
+    releasedRecord: 'Approved outcome only — dialogue stays inside.',
     ctaLabel: s.ctaLabel,
     ctaHref: s.ctaHref,
   })),
