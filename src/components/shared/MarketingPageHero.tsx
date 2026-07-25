@@ -48,9 +48,7 @@ export function MarketingPageHero({
                 {typeof lead === 'string' ? <p>{lead}</p> : lead}
               </div>
             ) : null}
-            {actions ? (
-              <div className="mt-8 flex flex-wrap items-center gap-3">{actions}</div>
-            ) : null}
+            {actions ? <div className="sr-cta-row mt-8">{actions}</div> : null}
             {meta ? <div className="mt-10">{meta}</div> : null}
           </div>
           {aside ? <div className="min-w-0 lg:justify-self-end">{aside}</div> : null}

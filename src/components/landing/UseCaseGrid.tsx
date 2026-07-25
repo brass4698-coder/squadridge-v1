@@ -9,7 +9,7 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
 export function UseCaseGrid() {
   return (
     <section
-      className="border-b border-[color:var(--color-border-subtle)] py-14 md:py-16"
+      className="border-b border-line py-16 md:py-20"
       data-scroll-section
       aria-labelledby="use-cases-h"
     >
@@ -18,7 +18,7 @@ export function UseCaseGrid() {
           <SectionLabel className="!mb-2">Who this serves</SectionLabel>
           <h2
             id="use-cases-h"
-            className="mt-0 font-display text-[1.5rem] font-medium leading-tight tracking-tight text-ink md:text-[1.625rem]"
+            className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
             Who SquadRidge serves
           </h2>
@@ -35,7 +35,7 @@ export function UseCaseGrid() {
                 to={`/use-cases#${uc.id}`}
                 className="sr-vault-card sr-vault-card--interactive flex h-full flex-col p-6 no-underline md:p-7"
               >
-                <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-brand">
+                <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
                   {uc.sector}
                 </p>
                 <h3 className="mt-3 mb-0 text-base font-semibold leading-snug tracking-tight text-ink">
@@ -44,7 +44,7 @@ export function UseCaseGrid() {
                 <p className="mt-3 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">
                   {uc.context}
                 </p>
-                <span className="mt-6 font-mono text-[length:var(--text-label)] tracking-[var(--tracking-caps)] text-[color:var(--color-text-muted)]">
+                <span className="mt-6 font-mono text-[length:var(--text-label)] tracking-[var(--tracking-caps)] text-ink-faint">
                   View track →
                 </span>
               </Link>
@@ -72,7 +72,7 @@ export function UseCaseGrid() {
 
         <Link
           to="/use-cases"
-          className="mt-8 inline-flex text-sm font-medium text-brand no-underline underline-offset-4 hover:underline"
+          className="mt-8 inline-flex text-sm font-medium text-ink-secondary no-underline underline-offset-4 hover:text-ink hover:underline"
         >
           All buyer tracks →
         </Link>

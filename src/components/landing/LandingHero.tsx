@@ -3,14 +3,15 @@ import { ArrowRight } from 'lucide-react';
 import { SectionLabel } from '../SectionLabel';
 import { TrustStrip } from './TrustStrip';
 import { AudiencePathStrip } from './AudiencePathStrip';
+import { FigureFrame } from '../shared/FigureFrame';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 import { CTA } from '../../data/siteMessaging';
 
 const TRUST_RAIL = [
   'Private session room',
   'Facilitator-governed release',
-  'Approved outcomes only',
-  'Verifiable public record',
+  'Approved record only',
+  'Verifiable integrity anchor',
 ] as const;
 
 /**
@@ -19,7 +20,7 @@ const TRUST_RAIL = [
 export function LandingHero() {
   return (
     <section
-      className="sr-section-enter scroll-mt-20 border-b border-line pt-24 pb-20 md:pt-32 md:pb-28"
+      className="sr-section-enter scroll-mt-20 border-b border-line pt-24 pb-16 md:pt-32 md:pb-20"
       data-scroll-section
     >
       <div className={publicShellInnerClass}>
@@ -27,7 +28,7 @@ export function LandingHero() {
           <div className="sr-align-content min-w-0 max-w-[36rem]">
             <SectionLabel className="!mb-2">Private deliberation infrastructure</SectionLabel>
             <p className="mb-5 m-0 max-w-[28rem] text-left font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-              Invite-only · Private written room · Approved outcomes only
+              Invite-only · Private written room · Approved record only
             </p>
             <h1
               className="mt-0 max-w-[22ch] text-left font-display text-display font-medium leading-[1.05] tracking-tight text-ink"
@@ -35,21 +36,14 @@ export function LandingHero() {
             >
               Facilitator-led written rooms for resolving high-stakes internal conflict
             </h1>
-            <p className="mt-5 mb-0 max-w-[32rem] text-sm font-medium leading-relaxed text-ink md:text-[length:var(--sr-text-lead)]">
-              Built with peacebuilders, foundations, and ombuds in mind.
-            </p>
-            <p className="mt-4 max-w-[32rem] text-left text-[length:var(--sr-text-lead)] leading-[1.65] text-ink-secondary">
-              For foundations, NGOs, boards, executive teams, HR and ombuds offices, and
-              facilitators who need a private written room — and a governed way to release only what
-              was approved.
+            <p className="mt-5 max-w-[32rem] text-left text-[length:var(--sr-text-lead)] leading-[1.6] text-ink-secondary">
+              The safest way to produce a releasable outcome from a sensitive internal process —
+              without turning the room into the record.
             </p>
             <p className="mt-6 text-base font-semibold leading-relaxed tracking-tight text-ink">
               No transcript. No open feed. No auto-publish.
             </p>
-            <p className="mt-8 mb-0 max-w-[30rem] text-sm leading-relaxed text-ink-secondary">
-              Reduce reputational risk while still creating a verifiable integrity record.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-start gap-3">
+            <div className="sr-cta-row mt-8 justify-start">
               <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
                 {CTA.primaryLabel}
                 <ArrowRight className="size-3.5" aria-hidden />
@@ -68,7 +62,7 @@ export function LandingHero() {
             <p className="mt-4 mb-0">
               <a
                 href="#why"
-                className="text-sm font-medium text-brand no-underline underline-offset-4 hover:underline"
+                className="text-sm font-medium text-ink-secondary no-underline underline-offset-4 hover:text-ink hover:underline"
               >
                 Why SquadRidge →
               </a>
@@ -79,7 +73,7 @@ export function LandingHero() {
             </div>
           </div>
 
-          <div className="min-w-0 overflow-hidden rounded-[var(--sr-radius-lg)] border border-line bg-[var(--sr-bg-sunken)] shadow-[var(--sr-shadow-sm)]">
+          <FigureFrame shadowed>
             <img
               src="/assets/landing-hero-release.png"
               alt="Private documents become a verified released record through a controlled release gate"
@@ -89,7 +83,7 @@ export function LandingHero() {
               decoding="async"
               fetchPriority="high"
             />
-          </div>
+          </FigureFrame>
         </div>
       </div>
     </section>

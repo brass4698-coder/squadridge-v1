@@ -1,52 +1,79 @@
-import { useEffect, useState, type CSSProperties } from 'react';
-import type { DemoOverlayStep } from './demoScript';
+import { useEffect, useId, useState, type CSSProperties } from 'react';
+import type { DemoStep, DemoTip, DemoTipPlacement } from './demoScript';
 import { resolveObserverRoot, scrollAllRootsToTop } from './scrollRoot';
 
 type Props = {
-  steps: DemoOverlayStep[] | undefined;
-  /** Increment to re-measure spotlight when layout changes */
-  layoutKey?: number;
+  step: DemoStep | null;
+  tip: DemoTip | null;
+  tipIndex: number;
+  tipCount: number;
+  stepIndex: number;
+  stepCount: number;
+  tipOrdinal: number;
+  tipTotal: number;
+  sheetMinimized: boolean;
+  onMinimizeSheet: () => void;
+  onExpandSheet: () => void;
+  /** Re-measure when layout / tip changes */
+  layoutKey?: string;
 };
 
 type SpotlightRect = { top: number; left: number; width: number; height: number };
 
-/** Quiet tour surface — readable, not loud. */
-const TOUR_PANEL = 'sr-tour-bubble';
-
-const HEADER_SAFE = 96;
+const HEADER_SAFE = 88;
 const FOOTER_SAFE = 118;
-const BUBBLE_ESTIMATE = 120;
+const BUBBLE_ESTIMATE = 110;
 
 function clampBubbleTop(top: number): number {
   const maxTop = window.innerHeight - FOOTER_SAFE - BUBBLE_ESTIMATE;
   return Math.min(Math.max(top, HEADER_SAFE), Math.max(HEADER_SAFE, maxTop));
 }
 
-function positionForRect(rect: SpotlightRect | null): CSSProperties {
+function resolvePlacement(
+  rect: SpotlightRect,
+  preferred: DemoTipPlacement | undefined,
+): 'above' | 'below' {
+  if (preferred === 'above' || preferred === 'below') return preferred;
+  const spaceBelow = window.innerHeight - (rect.top + rect.height) - FOOTER_SAFE;
+  return spaceBelow >= BUBBLE_ESTIMATE + 8 ? 'below' : 'above';
+}
+
+function positionForRect(
+  rect: SpotlightRect | null,
+  placement: DemoTipPlacement | undefined,
+): { style: CSSProperties; place: 'above' | 'below' } {
   if (!rect) {
     return {
-      top: `${HEADER_SAFE}px`,
-      left: '50%',
-      transform: 'translateX(-50%)',
+      place: 'below',
+      style: {
+        top: `${HEADER_SAFE}px`,
+        left: '50%',
+        transform: 'translateX(-50%)',
+      },
     };
   }
 
+  const place = resolvePlacement(rect, placement);
   const centerX = Math.min(Math.max(rect.left + rect.width / 2, 180), window.innerWidth - 180);
-  const spaceBelow = window.innerHeight - (rect.top + rect.height) - FOOTER_SAFE;
-  const preferBelow = spaceBelow >= BUBBLE_ESTIMATE + 8;
 
-  if (preferBelow) {
+  if (place === 'below') {
     return {
-      top: `${clampBubbleTop(rect.top + rect.height + 10)}px`,
-      left: `${centerX}px`,
-      transform: 'translateX(-50%)',
+      place,
+      style: {
+        top: `${clampBubbleTop(rect.top + rect.height + 10)}px`,
+        left: `${centerX}px`,
+        transform: 'translateX(-50%)',
+      },
     };
   }
 
   return {
-    top: `${clampBubbleTop(rect.top - BUBBLE_ESTIMATE - 10)}px`,
-    left: `${centerX}px`,
-    transform: 'translateX(-50%)',
+    place,
+    style: {
+      top: `${clampBubbleTop(rect.top - BUBBLE_ESTIMATE - 10)}px`,
+      left: `${centerX}px`,
+      transform: 'translateX(-50%)',
+    },
   };
 }
 
@@ -59,174 +86,222 @@ function measureSelector(selector: string): SpotlightRect | null {
   return { top: r.top, left: r.left, width: r.width, height };
 }
 
+function scrollTargetIntoView(selector: string): void {
+  const el = document.querySelector(selector);
+  if (!el || !(el instanceof HTMLElement)) return;
+  const root = resolveObserverRoot();
+  el.scrollIntoView({
+    block: 'center',
+    inline: 'nearest',
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+  });
+  // Ensure nested scroll roots also settle.
+  if (root && root !== document.documentElement) {
+    const r = el.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    if (r.top < rootRect.top + 40 || r.bottom > rootRect.bottom - 40) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }
+}
+
 /**
- * Guided tour bubbles + soft spotlight.
- * Bubbles reveal as their targets enter the scroll viewport — pages always start at the top.
+ * Guided tour surfaces: persistent side sheet + optional single anchored callout/spotlight.
+ * One tip at a time — advanced by tour Next/Back, not scroll stacking.
  */
-export function DemoOverlay({ steps, layoutKey = 0 }: Props) {
-  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
-  const [rects, setRects] = useState<Record<string, SpotlightRect | null>>({});
+export function DemoOverlay({
+  step,
+  tip,
+  tipIndex,
+  tipCount,
+  stepIndex,
+  stepCount,
+  tipOrdinal,
+  tipTotal,
+  sheetMinimized,
+  onMinimizeSheet,
+  onExpandSheet,
+  layoutKey = '0',
+}: Props) {
+  const titleId = useId();
+  const [rect, setRect] = useState<SpotlightRect | null>(null);
+  const [exiting, setExiting] = useState(false);
+  const [displayTip, setDisplayTip] = useState<DemoTip | null>(tip);
 
-  // New demo step: stay at the top; clear prior reveals.
+  // Reset scroll when the route step changes.
   useEffect(() => {
-    setRevealed({});
-    setRects({});
     scrollAllRootsToTop();
-  }, [layoutKey]);
+  }, [step?.id]);
 
-  // Reveal free-floating tips (no selector) shortly after the step loads.
+  // Calm tip swap: brief exit, then enter next tip.
   useEffect(() => {
-    if (!steps?.length) return;
-    const orphans = steps.filter((s) => !s.selector);
-    if (!orphans.length) return;
+    if (!tip) {
+      setDisplayTip(null);
+      return;
+    }
+    if (!displayTip || displayTip.id === tip.id) {
+      setDisplayTip(tip);
+      setExiting(false);
+      return;
+    }
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      setDisplayTip(tip);
+      setExiting(false);
+      return;
+    }
+    setExiting(true);
     const id = window.setTimeout(() => {
-      setRevealed((prev) => {
-        const next = { ...prev };
-        for (const s of orphans) next[s.id] = true;
-        return next;
-      });
-    }, 280);
+      setDisplayTip(tip);
+      setExiting(false);
+    }, 200);
     return () => window.clearTimeout(id);
-  }, [steps, layoutKey]);
+  }, [tip, displayTip]);
 
-  // IntersectionObserver: pop bubbles as targets scroll into view.
+  // Scroll target into view and keep rect measured.
   useEffect(() => {
-    if (!steps?.length) return;
+    if (!displayTip?.target || exiting) {
+      setRect(null);
+      return;
+    }
 
-    const withSelectors = steps.filter((s) => s.selector);
-    if (!withSelectors.length) return;
+    const selector = displayTip.target;
+    const update = () => setRect(measureSelector(selector));
 
-    let cancelled = false;
-    const observers: IntersectionObserver[] = [];
+    const tScroll = window.setTimeout(() => scrollTargetIntoView(selector), 40);
+    const t1 = window.setTimeout(update, 80);
+    const t2 = window.setTimeout(update, 360);
 
-    const attach = () => {
-      if (cancelled) return;
-      const root = resolveObserverRoot();
-
-      for (const step of withSelectors) {
-        const el = document.querySelector(step.selector!);
-        if (!el) continue;
-
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              setRevealed((prev) => (prev[step.id] ? prev : { ...prev, [step.id]: true }));
-            }
-          },
-          {
-            root,
-            threshold: 0.18,
-            rootMargin: '0px 0px -12% 0px',
-          },
-        );
-        io.observe(el);
-        observers.push(io);
-      }
-    };
-
-    // Targets may mount after route paint.
-    const t1 = window.setTimeout(attach, 60);
-    const t2 = window.setTimeout(attach, 400);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      observers.forEach((o) => o.disconnect());
-    };
-  }, [steps, layoutKey]);
-
-  // Keep rects in sync while revealed bubbles are visible.
-  useEffect(() => {
-    if (!steps?.length) return;
-
-    const update = () => {
-      const next: Record<string, SpotlightRect | null> = {};
-      for (const step of steps) {
-        if (!revealed[step.id] || !step.selector) {
-          next[step.id] = null;
-          continue;
-        }
-        next[step.id] = measureSelector(step.selector);
-      }
-      setRects(next);
-    };
-
-    update();
-    const id = window.setTimeout(update, 120);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
     return () => {
-      window.clearTimeout(id);
+      window.clearTimeout(tScroll);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
-  }, [steps, revealed, layoutKey]);
+  }, [displayTip?.id, displayTip?.target, exiting, layoutKey]);
 
-  if (!steps?.length) return null;
+  if (!step || !displayTip) return null;
 
-  const visibleSteps = steps.filter((s) => revealed[s.id]);
-  if (!visibleSteps.length) return null;
-
-  // First revealed selector gets the soft spotlight ring.
-  const spotlightStep = visibleSteps.find((s) => s.selector && rects[s.id]);
-  const spotlightRect = spotlightStep ? rects[spotlightStep.id] : null;
+  const showSpotlight = Boolean(displayTip.target);
+  const showCalloutBubble = displayTip.type === 'callout' && Boolean(displayTip.target);
+  const { style: calloutStyle, place } = positionForRect(rect, displayTip.placement);
+  const enterClass = exiting ? 'sr-demo-surface-exit' : 'sr-demo-surface-enter';
+  const tipLabel = tipCount > 1 ? `Tip ${tipIndex + 1} of ${tipCount}` : 'Guide';
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[45]" aria-live="polite">
-      {spotlightRect ? (
+      {displayTip.blockInteraction ? (
+        <div className="pointer-events-auto absolute inset-0 bg-surface/40" aria-hidden />
+      ) : null}
+
+      {showSpotlight && rect ? (
         <div
-          className="absolute rounded-md ring-1 ring-[color:var(--sr-primary)]/40 ring-offset-2 ring-offset-[#0c1220]/50 transition-opacity duration-300"
+          className={`absolute rounded-md ring-1 ring-brand/40 ring-offset-2 ring-offset-surface transition-opacity ${enterClass}`}
           style={{
-            top: `${spotlightRect.top - 3}px`,
-            left: `${spotlightRect.left - 3}px`,
-            width: `${spotlightRect.width + 6}px`,
-            height: `${spotlightRect.height + 6}px`,
+            top: `${rect.top - 3}px`,
+            left: `${rect.left - 3}px`,
+            width: `${rect.width + 6}px`,
+            height: `${rect.height + 6}px`,
           }}
           aria-hidden
         />
       ) : null}
 
-      {visibleSteps.map((step, index) => {
-        const rect = step.selector ? (rects[step.id] ?? null) : null;
-        const style = positionForRect(rect);
-        // Stack free-floating / overlapping tips slightly so they don't fully collide.
-        if (!rect && index > 0) {
-          const baseTop = Number.parseFloat(String(style.top ?? HEADER_SAFE)) || HEADER_SAFE;
-          style.top = `${baseTop + index * 72}px`;
-        }
-
-        const preferBelow =
-          rect &&
-          window.innerHeight - (rect.top + rect.height) - FOOTER_SAFE >= BUBBLE_ESTIMATE + 8;
-
-        return (
-          <div
-            key={step.id}
-            className={`pointer-events-none absolute z-[46] w-[min(88vw,340px)] sr-demo-bubble-enter rounded-lg px-3.5 py-2.5 ${TOUR_PANEL}`}
-            style={style}
-            role="note"
-          >
+      {showCalloutBubble ? (
+        <div
+          className="pointer-events-none absolute z-[46] w-[min(88vw,280px)]"
+          style={calloutStyle}
+        >
+          <div className={`sr-tour-bubble rounded-lg px-3.5 py-2.5 ${enterClass}`}>
             {rect ? (
               <div
                 className={
-                  preferBelow
-                    ? 'absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[6px] border-b-[6px] border-x-transparent border-b-[#0c1220]/82'
-                    : 'absolute -bottom-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[6px] border-t-[6px] border-x-transparent border-t-[#0c1220]/82'
+                  place === 'below'
+                    ? 'absolute -top-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[6px] border-b-[6px] border-x-transparent border-b-[color:var(--sr-tour-surface)]'
+                    : 'absolute -bottom-1.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-[6px] border-t-[6px] border-x-transparent border-t-[color:var(--sr-tour-surface)]'
                 }
                 aria-hidden
               />
             ) : null}
-            <p className="mb-1 font-mono text-[0.6rem] font-medium uppercase tracking-[0.12em] sr-tour-bubble__label">
-              Hint
+            <p className="mb-0.5 font-mono text-[0.6rem] font-medium uppercase tracking-[0.12em] sr-tour-bubble__label">
+              {tipLabel}
             </p>
-            <p className="m-0 font-sans text-[0.8rem] leading-snug text-slate-200/95">
-              {step.content}
+            <p className="m-0 font-sans text-[0.8rem] font-medium leading-snug text-ink">
+              {displayTip.title}
             </p>
           </div>
-        );
-      })}
+        </div>
+      ) : null}
+
+      {sheetMinimized ? (
+        <button
+          type="button"
+          className="pointer-events-auto absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-[47] rounded-lg border border-line bg-surface-elevated px-3 py-2 font-sans text-xs font-semibold text-ink shadow-md transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--sr-focus)] sm:bottom-auto sm:top-[5.5rem]"
+          onClick={onExpandSheet}
+        >
+          Show guide
+        </button>
+      ) : (
+        <aside
+          className={`pointer-events-auto sr-tour-sheet fixed z-[47] flex flex-col ${enterClass}`}
+          aria-labelledby={titleId}
+          role="complementary"
+        >
+          <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
+            <div className="min-w-0">
+              <p className="m-0 font-mono text-[0.6rem] font-medium uppercase tracking-[0.12em] text-brand">
+                Step {stepIndex + 1} of {stepCount}
+                {tipTotal > 0 ? (
+                  <span className="text-ink-faint">
+                    {' '}
+                    · {tipOrdinal}/{tipTotal}
+                  </span>
+                ) : null}
+              </p>
+              <h2
+                id={titleId}
+                className="mt-1 m-0 truncate font-sans text-sm font-semibold text-ink"
+              >
+                {step.title}
+              </h2>
+              {step.description ? (
+                <p className="mt-0.5 mb-0 text-xs leading-snug text-ink-secondary">
+                  {step.description}
+                </p>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              className="shrink-0 rounded-md border border-line bg-transparent px-2 py-1 font-sans text-xs font-medium text-ink-secondary transition-colors hover:border-line-strong hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--sr-focus)]"
+              onClick={onMinimizeSheet}
+              aria-label="Hide guide panel"
+            >
+              Hide
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-3">
+            <p className="m-0 font-mono text-[0.6rem] font-medium uppercase tracking-[0.12em] text-ink-faint">
+              {displayTip.title}
+            </p>
+            <p className="mt-2 mb-0 font-sans text-sm leading-relaxed text-ink-secondary">
+              {displayTip.body}
+            </p>
+            {tipCount > 1 ? (
+              <p className="mt-3 mb-0 font-mono text-[0.65rem] text-ink-faint">
+                Tip {tipIndex + 1} of {tipCount} on this screen · Next continues
+              </p>
+            ) : (
+              <p className="mt-3 mb-0 font-mono text-[0.65rem] text-ink-faint">
+                Next continues the tour
+              </p>
+            )}
+          </div>
+        </aside>
+      )}
     </div>
   );
 }

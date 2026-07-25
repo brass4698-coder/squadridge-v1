@@ -12,16 +12,16 @@ export function PilotIntakeSection() {
   return (
     <section
       id="pilot"
-      className="scroll-mt-20 py-20 md:py-28"
+      className="scroll-mt-20 border-t border-line py-16 md:py-24"
       data-scroll-section
       aria-labelledby="pilot-h"
     >
       <div className={publicShellInnerClass}>
         <div className="mx-auto max-w-[40rem]">
-          <SectionLabel className="!mb-3">Pilot intake</SectionLabel>
+          <SectionLabel className="!mb-2">Pilot intake</SectionLabel>
           <h2
             id="pilot-h"
-            className="mt-0 max-w-[18ch] font-display text-[1.75rem] font-medium leading-tight tracking-tight text-ink md:text-[2rem]"
+            className="mt-0 max-w-[18ch] font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
             {CTA.pilotHeadline}
           </h2>
@@ -32,8 +32,8 @@ export function PilotIntakeSection() {
             {CTA.pilotBody}
           </p>
 
-          <div className="mt-10 border border-line bg-surface-elevated px-5 py-6 md:px-7 md:py-7">
-            <p className="mb-5 m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+          <div className="mt-10 rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-5 py-6 md:px-7 md:py-7">
+            <p className="mb-5 m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
               How intake works
             </p>
             <IntakeSteps
@@ -45,8 +45,8 @@ export function PilotIntakeSection() {
             />
           </div>
 
-          <div className="mt-8 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/50 px-5 py-5">
-            <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+          <div className="mt-8 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-5 py-5">
+            <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
               Strong fit signals
             </p>
             <ul className="mt-3 mb-0 list-none space-y-2 p-0 text-sm leading-relaxed text-ink-secondary">
@@ -58,7 +58,7 @@ export function PilotIntakeSection() {
             </ul>
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="sr-cta-row mt-10">
             <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
               {CTA.primaryLabel}
               <ArrowRight className="size-3.5" aria-hidden />

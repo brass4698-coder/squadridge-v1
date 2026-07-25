@@ -43,7 +43,7 @@ export function CTABlock({
           {body ? (
             <p className="text-sm leading-relaxed text-ink-secondary md:text-base">{body}</p>
           ) : null}
-          <div className={cn('flex flex-wrap gap-3', isCenter && 'justify-center')}>
+          <div className={cn('sr-cta-row', isCenter && 'justify-center')}>
             <Link to={primaryHref} className="btn-institutional btn-institutional--primary">
               {primaryLabel}
               <ArrowRight className="size-3.5" aria-hidden />

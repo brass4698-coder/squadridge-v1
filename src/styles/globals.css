@@ -160,21 +160,45 @@ body[data-theme='flat']::before {
   }
 }
 
-/* Demo walkthrough — quiet bubble entrance (opacity only; position uses inline transform) */
-@keyframes sr-demo-bubble-in {
+/* Demo walkthrough — calm opacity + scale (position stays on outer wrapper) */
+@keyframes sr-demo-surface-in {
   from {
     opacity: 0;
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
+@keyframes sr-demo-surface-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.sr-demo-surface-enter {
+  animation: sr-demo-surface-in 300ms var(--sr-ease-spring) both;
+}
+
+.sr-demo-surface-exit {
+  animation: sr-demo-surface-out 200ms var(--sr-ease-out) both;
+}
+
+/* Legacy alias used by older demo CSS references */
 .sr-demo-bubble-enter {
-  animation: sr-demo-bubble-in 320ms ease-out both;
+  animation: sr-demo-surface-in 300ms var(--sr-ease-spring) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sr-demo-surface-enter,
+  .sr-demo-surface-exit,
   .sr-demo-bubble-enter {
     animation: none;
   }
@@ -612,6 +636,20 @@ button:focus-visible,
     transform: translateY(1px) scale(0.985);
   }
 
+  /* Shared marketing CTA row — consistent wrap + gap across hero / intake / CTABlock */
+  .sr-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .sr-cta-row {
+      gap: 0.875rem;
+    }
+  }
+
   body[data-theme='institutional'] .section-label {
     color: var(--sr-ink-faint);
     font-weight: 500;
@@ -630,8 +668,15 @@ button:focus-visible,
     border-bottom-color: var(--sr-line);
   }
 
-  body[data-theme='institutional'] a:not(.btn-institutional):not(.btn-pill) {
+  body[data-theme='institutional'] a:not(.btn-institutional):not(.btn-pill):not(.no-underline) {
     text-decoration-color: color-mix(in oklch, var(--sr-primary) 45%, transparent);
+  }
+
+  /* Nav / chrome links must never look concatenated via underlines */
+  body[data-theme='institutional'] nav a,
+  body[data-theme='institutional'] header a.no-underline,
+  body[data-theme='institutional'] .sr-cta-row a.btn-institutional {
+    text-decoration: none;
   }
 
   body[data-theme='institutional'] .text-brand {
@@ -971,22 +1016,22 @@ button:focus-visible,
     border-bottom: 1px solid color-mix(in oklch, var(--sr-primary) 28%, var(--sr-line));
     background: linear-gradient(
       105deg,
-      color-mix(in oklch, var(--sr-primary) 16%, #0c1220) 0%,
-      #0c1220 55%,
-      color-mix(in oklch, var(--sr-info) 10%, #0c1220) 100%
+      color-mix(in oklch, var(--sr-primary) 16%, var(--sr-bg)) 0%,
+      var(--sr-bg) 55%,
+      color-mix(in oklch, var(--sr-info) 10%, var(--sr-bg)) 100%
     );
-    color: #e8eef5;
+    color: var(--sr-ink);
   }
 
   .sr-tour-footer {
-    border-top: 1px solid color-mix(in oklch, var(--sr-primary) 22%, #1e293b);
-    background: color-mix(in oklch, #0c1220 92%, var(--sr-primary));
+    border-top: 1px solid color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line));
+    background: color-mix(in oklch, var(--sr-bg) 92%, var(--sr-primary));
     backdrop-filter: blur(10px);
   }
 
   .sr-tour-progress {
     height: 2px;
-    background: color-mix(in oklch, #94a3b8 18%, transparent);
+    background: color-mix(in oklch, var(--sr-ink-faint) 18%, transparent);
     overflow: hidden;
   }
 
@@ -1001,15 +1046,40 @@ button:focus-visible,
   }
 
   .sr-tour-bubble {
+    --sr-tour-surface: color-mix(in oklch, var(--sr-bg-elevated) 88%, var(--sr-primary));
     border: 1px solid color-mix(in oklch, var(--sr-primary) 28%, transparent);
-    background: color-mix(in oklch, #0c1220 88%, var(--sr-primary));
-    color: #e2e8f0;
+    background: var(--sr-tour-surface);
+    color: var(--sr-ink);
     box-shadow: var(--sr-shadow-md);
     backdrop-filter: blur(8px);
   }
 
   .sr-tour-bubble__label {
-    color: color-mix(in oklch, var(--sr-primary) 70%, #99f6e4);
+    color: color-mix(in oklch, var(--sr-primary) 70%, var(--sr-ink-secondary));
+  }
+
+  /* Side sheet — non-blocking explanation tied to the current screen */
+  .sr-tour-sheet {
+    top: 4.75rem;
+    right: 0.75rem;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    width: min(22rem, calc(100vw - 1.5rem));
+    border: 1px solid color-mix(in oklch, var(--sr-primary) 22%, var(--sr-line));
+    border-radius: var(--sr-radius-lg);
+    background: color-mix(in oklch, var(--sr-bg-elevated) 94%, var(--sr-primary));
+    box-shadow: var(--sr-shadow-md);
+    backdrop-filter: blur(10px);
+  }
+
+  @media (max-width: 639px) {
+    .sr-tour-sheet {
+      top: auto;
+      right: 0.5rem;
+      left: 0.5rem;
+      bottom: calc(5.5rem + env(safe-area-inset-bottom));
+      width: auto;
+      max-height: min(42vh, 20rem);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

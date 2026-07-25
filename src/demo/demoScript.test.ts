@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { DEMO_MAIN_STEPS, locationMatchesStep, pathsEqual } from './demoScript';
+import {
+  DEMO_MAIN_STEPS,
+  locationMatchesStep,
+  pathsEqual,
+  resolveStepTips,
+  type DemoStep,
+} from './demoScript';
 
 describe('pathsEqual', () => {
   it('matches same path and query', () => {
@@ -50,5 +56,39 @@ describe('locationMatchesStep', () => {
     expect(ids.indexOf('session_configure')).toBeLessThan(ids.indexOf('session_invite'));
     expect(ids.indexOf('session_invite')).toBeLessThan(ids.indexOf('session_verify'));
     expect(ids.indexOf('session_verify')).toBeLessThan(ids.indexOf('session_control'));
+  });
+});
+
+describe('resolveStepTips', () => {
+  it('returns typed tips for every main step', () => {
+    for (const step of DEMO_MAIN_STEPS) {
+      const tips = resolveStepTips(step);
+      expect(tips.length).toBeGreaterThan(0);
+      for (const tip of tips) {
+        expect(tip.id).toBeTruthy();
+        expect(tip.title).toBeTruthy();
+        expect(tip.body).toBeTruthy();
+        expect(['sheet', 'callout', 'modal', 'inline']).toContain(tip.type);
+        if (tip.type === 'callout') {
+          expect(tip.target).toBeTruthy();
+        }
+        expect(tip.blockInteraction).toBe(false);
+      }
+    }
+  });
+
+  it('maps legacy overlaySteps when tips are absent', () => {
+    const legacy: DemoStep = {
+      id: 'legacy',
+      path: '/x',
+      title: 'Legacy',
+      envModes: { local: 'mock' },
+      overlaySteps: [{ id: 'a', content: 'Hello', selector: '[data-demo="x"]' }],
+    };
+    const tips = resolveStepTips(legacy);
+    expect(tips).toHaveLength(1);
+    expect(tips[0]?.type).toBe('callout');
+    expect(tips[0]?.target).toBe('[data-demo="x"]');
+    expect(tips[0]?.body).toBe('Hello');
   });
 });

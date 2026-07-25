@@ -23,6 +23,9 @@ export {
   type SecondaryUseCaseProps,
 } from './UseCaseCard';
 export { ProcessDoctrine } from './ProcessDoctrine';
+export { UseCasesBackboneStrip } from './UseCasesBackboneStrip';
+export { CapsLabel } from './CapsLabel';
+export { FigureFrame } from './FigureFrame';
 export { RecordCard, RecordCardCompact, type RecordCardProps } from './RecordCard';
 export {
   VerificationAnchorBadge,

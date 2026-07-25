@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
+import { CapsLabel } from '../shared/CapsLabel';
 
 /**
  * Bulletproof label/value pair — never uses dt/dd (avoids UA + reset collisions).
@@ -18,9 +19,7 @@ export function MetaField({
 }) {
   return (
     <div className={cn('flex min-w-0 flex-col gap-2', className)}>
-      <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-[color:var(--color-text-muted)]">
-        {label}
-      </p>
+      <CapsLabel>{label}</CapsLabel>
       <p
         className={cn(
           'm-0 break-words text-sm leading-snug text-ink',

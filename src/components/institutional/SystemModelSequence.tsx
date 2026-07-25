@@ -115,7 +115,7 @@ export function SystemModelSequence() {
                 </div>
               </header>
 
-              <h3 className="font-display mt-0 mb-0 text-[1.5rem] font-medium tracking-tight text-ink md:text-[1.625rem]">
+              <h3 className="mt-0 mb-0 font-display text-h3 font-medium tracking-tight text-ink">
                 {stage.label}
               </h3>
 
@@ -145,20 +145,18 @@ function ControlCell({
     <div
       className={`flex flex-col gap-3 rounded-[var(--sr-radius-md)] border px-5 py-5 ${
         accent
-          ? 'border-brand/35 border-l-[3px] border-l-brand bg-brand-soft/50'
+          ? 'border-line border-l-2 border-l-[color:var(--color-border-strong)] bg-surface-sunken/40'
           : 'border-line bg-surface-elevated'
       }`}
     >
       <p
-        className={`m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] ${
-          accent ? 'text-brand' : 'text-ink-faint'
+        className={`m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] ${
+          accent ? 'text-ink' : 'text-ink-faint'
         }`}
       >
         {term}
       </p>
-      <p
-        className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink font-medium' : 'text-ink-secondary'}`}
-      >
+      <p className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink' : 'text-ink-secondary'}`}>
         {desc}
       </p>
     </div>

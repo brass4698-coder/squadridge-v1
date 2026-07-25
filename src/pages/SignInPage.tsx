@@ -165,15 +165,38 @@ export function SignInPage() {
     pendingGuidedTour.current = true;
   }
 
-  /* Expired / signed-out: never show a bare Loading skeleton — designed state first. */
+  /* Expired / signed-out: never show a bare Loading skeleton — designed state + form affordance. */
   if ((!initialized || loading) && isExpired) {
     return (
       <GovernedEntryLayout title="Session ended">
         <div className="mx-auto max-w-lg">
           <AuthStateBanner reason="expired" />
-          <p className="m-0 text-sm text-ink-secondary" role="status">
-            Preparing a secure sign-in form…
-          </p>
+          <FormPanel
+            eyebrow="Entry"
+            title="Sign in with magic link"
+            description="Preparing a secure form…"
+            footer="Private room content was not exposed. Nothing auto-published. Release still needs facilitator approval."
+          >
+            <div className="space-y-4" aria-busy="true" aria-live="polite">
+              <p className="m-0 text-sm text-ink-secondary" role="status">
+                Checking session…
+              </p>
+              <div className="space-y-2">
+                <div className="h-3 w-24 rounded-sm bg-surface-sunken" aria-hidden />
+                <div
+                  className="h-10 w-full rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/60"
+                  aria-hidden
+                />
+              </div>
+              <button
+                type="button"
+                className="btn-institutional btn-institutional--primary w-full"
+                disabled
+              >
+                Send a fresh sign-in link
+              </button>
+            </div>
+          </FormPanel>
         </div>
       </GovernedEntryLayout>
     );

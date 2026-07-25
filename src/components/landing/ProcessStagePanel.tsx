@@ -27,7 +27,7 @@ const STATES: {
   },
   {
     num: '03',
-    label: 'Public ledger',
+    label: 'Approved record',
     badge: 'Published',
     variant: 'published',
     href: '#stage-record',
@@ -41,7 +41,7 @@ export function ProcessStagePanel() {
   return (
     <section
       id="system-model"
-      className="scroll-mt-20 border-b border-[color:var(--color-border-subtle)] bg-surface-sunken/35 py-20 md:py-28"
+      className="scroll-mt-20 border-b border-line bg-surface-sunken/40 py-16 md:py-20"
       data-scroll-section
       aria-labelledby="process-stages-h"
     >
@@ -52,16 +52,15 @@ export function ProcessStagePanel() {
             id="process-stages-h"
             className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
-            Three governed states. One matter.
+            Private room → facilitator gate → approved record
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-ink-secondary">
-            System model: private session room, facilitator release gate, then public ledger. The
-            same document moves through private, governed, and published control — never by
-            automation.
+          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
+            One matter, three governed states — never by automation. Only approved outcome text can
+            become the record.
           </p>
         </div>
 
-        <ol className="m-0 mt-12 grid list-none gap-4 p-0 sm:grid-cols-3 sm:gap-5">
+        <ol className="m-0 mt-10 grid list-none gap-4 p-0 sm:grid-cols-3 sm:gap-5">
           {STATES.map((state, index) => (
             <li key={state.num} className="relative">
               {index < STATES.length - 1 ? (
@@ -86,18 +85,13 @@ export function ProcessStagePanel() {
           ))}
         </ol>
 
-        <p className="mt-12 mb-0 max-w-[36rem] text-sm leading-relaxed text-ink-secondary">
-          For each stage: what exists, who controls it, and what{' '}
-          <span className="font-semibold text-brand">never becomes public</span>.
-        </p>
-
-        <div className="mt-8 md:mt-10">
+        <div className="mt-10 md:mt-12">
           <SystemModelSequence />
         </div>
 
         <Link
           to="/how-it-works"
-          className="mt-10 inline-flex items-center gap-1.5 text-sm font-medium text-brand no-underline transition-colors hover:text-ink"
+          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
         >
           See the full process →
         </Link>

@@ -126,7 +126,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
             </Link>
 
             <nav
-              className="ml-6 hidden h-full flex-1 items-center gap-1 nav:flex"
+              className="ml-6 hidden h-full flex-1 items-center gap-2 nav:flex lg:gap-2.5"
               aria-label="Public navigation"
             >
               {desktopNav.map((item) => (
@@ -134,7 +134,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                   key={item.label}
                   to={item.href}
                   className={({ isActive }) =>
-                    'inline-flex items-center rounded-[var(--sr-radius-md)] px-3.5 py-2 text-[length:var(--text-body)] leading-none tracking-normal no-underline transition-colors ' +
+                    'inline-flex items-center rounded-[var(--sr-radius-md)] px-3 py-2 text-sm leading-none tracking-normal no-underline transition-colors lg:px-3.5 ' +
                     (isActive
                       ? 'bg-surface-accent font-medium text-ink'
                       : 'text-ink-secondary hover:bg-surface-elevated hover:text-ink')
@@ -145,10 +145,10 @@ export function PublicShell({ children }: { children: ReactNode }) {
               ))}
             </nav>
 
-            <div className="ml-auto flex h-full shrink-0 items-center gap-3">
+            <div className="ml-auto flex h-full shrink-0 items-center gap-2 border-l border-line pl-4 sm:gap-3 sm:pl-5">
               <Link
                 to="/sign-in"
-                className="hidden h-10 items-center rounded-[var(--sr-radius-md)] px-3.5 text-[length:var(--text-body)] leading-none text-ink-secondary no-underline transition-colors hover:text-ink nav:inline-flex"
+                className="hidden h-10 items-center rounded-[var(--sr-radius-md)] px-3.5 text-sm leading-none text-ink-secondary no-underline transition-colors hover:text-ink nav:inline-flex"
               >
                 Sign in
               </Link>
@@ -191,7 +191,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                     key={item.label}
                     to={item.href}
                     className={({ isActive }) =>
-                      'rounded-xl px-3 py-3 text-sm ' +
+                      'rounded-xl px-3 py-3 text-sm no-underline ' +
                       (isActive
                         ? 'bg-surface-accent text-ink'
                         : 'text-ink-secondary hover:text-ink')
@@ -202,7 +202,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                 ))}
                 <Link
                   to="/sign-in"
-                  className="rounded-xl px-3 py-3 text-sm text-ink-secondary hover:text-ink"
+                  className="rounded-xl px-3 py-3 text-sm text-ink-secondary no-underline hover:text-ink"
                 >
                   Sign in
                 </Link>

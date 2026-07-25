@@ -1,8 +1,10 @@
 # Guided demo walkthrough
 
 The live product tour is an **App.v2 institutional spine**: public story → facilitator
-workspace → seeded session control → outcome → release gate. Chrome includes directional
-bubbles, a spotlight ring, and **Back / Next / Skip** controls.
+workspace → seeded session control → outcome → release gate.
+
+Chrome includes a **side sheet** (primary explanation), optional **anchored callout** +
+spotlight, progress (step + tip ordinal), and **Back / Next / Exit tour** controls.
 
 Implementation lives in **`src/demo/`**.
 
@@ -14,24 +16,37 @@ Implementation lives in **`src/demo/`**.
    in `src/demo/demoScript.ts`.
 
 You can also call `startWalkthrough()` from `useDemoWalkthrough()` (see
-`src/pages/admin/AdminDemoPage.tsx`).
+`src/pages/admin/AdminDemoPage.tsx`), or open any spine route with `?demo=1`
+(e.g. `http://localhost:5173/?demo=1`).
+
+## Interaction model
+
+| Surface | When |
+| ------- | ---- |
+| Side sheet | Primary tip copy for the current screen (Hide collapses to “Show guide”) |
+| Callout + spotlight | Short anchored hint when a tip has `type: 'callout'` and a `target` |
+| Exit modal | Blocking confirm only when leaving the tour |
+| Footer Back / Next / Exit | Always labeled; Next advances tips before routes |
+
+Tips are **linear**: Next walks tips on the current route, then navigates to the next
+scripted path. Tip index resumes via `sessionStorage` (`demoWalkthroughTip`).
 
 ## Chrome
 
 | Control | Behavior |
 | ------- | -------- |
-| Direction bubble | Overlay copy + optional spotlight on `data-demo` / selector targets |
-| **← Back** | Previous scripted step |
-| **Next →** | Next scripted step (Space also advances when not typing) |
-| **Skip** | Clears tour flag and returns to `/` |
+| Progress bar | Tip ordinal across the full script |
+| **Back** | Previous tip, or last tip of previous step |
+| **Next** / Space | Next tip, or next scripted step |
+| **Exit tour** | Confirm, then clear tour flag and return to `/` |
 
 `DemoLayout` is mounted from `PublicShell` and `AuthenticatedShell`.
 
 ## Script steps (summary)
 
-Welcome → How it works → Security → Ledger → Facilitator dashboard → Sessions →
-**Configure** (new session) → **Invite** → **Verify** (participant review) →
-Session control (seeded live room) → Outcome draft → Release gate → Tour complete.
+Welcome → How it works → Security → Ledger → Facilitator dashboard → Participant →
+Moderator → Sessions → **Configure** → **Invite** → **Verify** → Session control →
+Outcome draft → Release gate → Tour complete.
 
 In-app pilot ops (live facilitators, not the demo tour): `/app/pilot-guide` with the
 interactive Configure → Verify → Facilitate → Release walkthrough.

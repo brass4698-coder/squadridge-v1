@@ -28,15 +28,26 @@ export function FormField({
     if (!isValidElement(child)) return child;
     const el = child as ReactElement<{
       id?: string;
+      invalid?: boolean;
       'aria-describedby'?: string;
       'aria-invalid'?: boolean | 'true' | 'false';
     }>;
     const existing = el.props['aria-describedby'];
-    return cloneElement(el, {
+    // Only set aria-invalid when there is an explicit error — never on pristine fields.
+    const next: {
+      id: string;
+      'aria-describedby'?: string;
+      invalid?: boolean;
+      'aria-invalid'?: true;
+    } = {
       id: el.props.id ?? id,
-      'aria-invalid': error ? true : el.props['aria-invalid'],
       'aria-describedby': [existing, describedBy].filter(Boolean).join(' ') || undefined,
-    });
+    };
+    if (error) {
+      next.invalid = true;
+      next['aria-invalid'] = true;
+    }
+    return cloneElement(el, next);
   });
 
   return (

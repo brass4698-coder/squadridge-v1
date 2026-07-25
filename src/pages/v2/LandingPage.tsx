@@ -1,9 +1,8 @@
 import {
   BoundarySection,
+  IllustrativeScenarioStrip,
   LandingHero,
-  MatterThroughNav,
   PilotIntakeSection,
-  PrivacyByBoundary,
   ProcessStagePanel,
   ProductEvidenceCluster,
   RecordSpecimen,
@@ -12,19 +11,18 @@ import {
 } from '../../components/landing';
 
 /**
- * Homepage — what it is → who → privacy → facilitator governance → ledger → intake.
+ * Homepage — promise → scenario → boundary → process → diligence → buyer proof → intake.
  */
 export function LandingPage() {
   return (
     <div className="sr-align-content">
       <LandingHero />
+      <IllustrativeScenarioStrip />
       <WhyOverview />
-      <PrivacyByBoundary />
-      <BoundarySection />
-      <MatterThroughNav />
       <ProcessStagePanel />
-      <ProductEvidenceCluster />
+      <BoundarySection />
       <UseCaseGrid />
+      <ProductEvidenceCluster />
       <RecordSpecimen />
       <PilotIntakeSection />
     </div>

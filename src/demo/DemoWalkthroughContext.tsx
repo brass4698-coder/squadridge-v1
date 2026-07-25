@@ -13,6 +13,7 @@ import {
   DEMO_FIRST_WALKTHROUGH_PATH,
   DEMO_WALKTHROUGH_STORAGE_KEY,
   type DemoStep,
+  type DemoTip,
 } from './demoScript';
 
 export type DemoWalkthroughContextValue = {
@@ -22,8 +23,19 @@ export type DemoWalkthroughContextValue = {
   currentStepIndex: number;
   currentStep: DemoStep | null;
   currentStepTitle: string | null;
+  /** Linear tips for the current route step. */
+  currentTips: DemoTip[];
+  /** Index within `currentTips` (0-based). */
+  tipIndex: number;
+  currentTip: DemoTip | null;
+  /** Global progress across all tips in the main script (1-based display helpers). */
+  tipOrdinal: number;
+  tipTotal: number;
   canGoNext: boolean;
   canGoBack: boolean;
+  /** Sheet minimized by the user (tips still advance; callout may remain). */
+  sheetMinimized: boolean;
+  setSheetMinimized: (value: boolean) => void;
   startWalkthrough: () => void;
   goNext: () => void;
   goBack: () => void;
@@ -44,8 +56,15 @@ function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughCo
     currentStepIndex: -1,
     currentStep: null,
     currentStepTitle: null,
+    currentTips: [],
+    tipIndex: 0,
+    currentTip: null,
+    tipOrdinal: 0,
+    tipTotal: 0,
     canGoNext: false,
     canGoBack: false,
+    sheetMinimized: false,
+    setSheetMinimized: () => {},
     startWalkthrough: () => {
       sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
       navigate(DEMO_FIRST_WALKTHROUGH_PATH);
@@ -102,7 +121,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
+        <div className="flex min-h-dvh items-center justify-center bg-surface font-sans text-sm text-ink-faint">
           Loading demo…
         </div>
       }

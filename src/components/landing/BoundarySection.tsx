@@ -4,33 +4,32 @@ import { SectionLabel } from '../SectionLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
 /**
- * Table-led trust section — dense, honest, reviewer-friendly.
+ * Sole homepage home for documented limits — diligence table + honest layer claims.
  */
 export function BoundarySection() {
   return (
     <section
-      className="sr-section-enter border-b border-[color:var(--color-border-subtle)] py-16 md:py-20"
+      id="documented-limits"
+      className="sr-section-enter scroll-mt-24 border-b border-line py-16 md:py-20"
       data-scroll-section
       aria-labelledby="boundary-h"
     >
       <div className={publicShellInnerClass}>
-        <div className="mb-10 flex max-w-[40rem] flex-col gap-4 md:mb-12">
+        <div className="mb-8 flex max-w-[40rem] flex-col gap-3 md:mb-10">
           <SectionLabel className="!mb-0">Security · documented limits</SectionLabel>
-          <p className="m-0 max-w-[36rem] rounded-[var(--sr-radius-md)] border border-brand/25 bg-brand-soft/40 px-4 py-3 font-display text-lg font-medium leading-snug tracking-tight text-ink md:text-xl">
-            Private by default, auditable when justified, tamper-evident when published.
-          </p>
           <h2
             id="boundary-h"
-            className="mt-0 font-display text-[1.5rem] font-medium leading-tight tracking-tight text-ink md:text-[1.75rem]"
+            className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
           >
-            Inspect the boundary — not a feature list.
+            What each layer protects — and what we refuse to overclaim.
           </h2>
           <p className="mb-0 max-w-[32rem] text-sm leading-relaxed text-ink-secondary">
-            Each layer states what the architecture protects and what we refuse to overclaim.
+            Not full platform zero-knowledge. Not Signal-grade E2E today. Invite-only entry,
+            facilitator release, and a verifiable integrity record — not continuous monitoring.
           </p>
           <Link
             to="/security#reviewers"
-            className="mt-1 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-brand no-underline transition-colors hover:text-ink"
+            className="mt-1 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
           >
             For security reviewers →
           </Link>
