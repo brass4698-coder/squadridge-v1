@@ -26,7 +26,7 @@ function AuthStateBanner({ reason }: { reason: string }) {
           <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
             Session ended
           </p>
-          <h2 className="mt-2 mb-0 font-display text-h3 font-medium text-ink">
+          <h2 className="mt-2 mb-0 font-heading text-h3 font-semibold text-ink">
             Sign in again to continue
           </h2>
         </div>
@@ -241,7 +241,7 @@ export function SignInPage() {
         ) : null}
 
         <div>
-          <h1 className="font-display text-display font-medium tracking-tight text-ink">
+          <h1 className="font-heading text-display font-semibold tracking-tight text-ink">
             {isExpired ? 'Sign in again' : 'Sign in'}
           </h1>
           <p className="mt-4 text-base leading-relaxed text-ink-secondary">

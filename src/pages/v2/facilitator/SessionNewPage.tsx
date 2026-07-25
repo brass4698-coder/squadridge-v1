@@ -14,6 +14,14 @@ import {
   getSessionTemplate,
   type SessionTemplateId,
 } from '../../../lib/sessionTemplates';
+import {
+  capacityAboveRecommendedWarning,
+  DEFAULT_MAX_PARTICIPANTS,
+  MAX_ROOM_PARTICIPANTS,
+  MIN_ROOM_PARTICIPANTS,
+  parseMaxParticipantsInput,
+  RECOMMENDED_MAX_PARTICIPANTS,
+} from '../../../lib/roomCapacity';
 
 const CONFLICT_TYPES = [
   'Labour / employment',
@@ -48,6 +56,9 @@ function formFromTemplate(id: SessionTemplateId) {
       language: 'English',
       maxParticipants: '2',
       eligibilityNotes: '',
+      issueGoal: '',
+      riskNotes: '',
+      disclosureBoundaries: '',
       outcomePublic: false,
       identityVerification: true,
     };
@@ -58,6 +69,9 @@ function formFromTemplate(id: SessionTemplateId) {
     language: template.language,
     maxParticipants: String(template.maxParticipants),
     eligibilityNotes: template.eligibilityNotes,
+    issueGoal: '',
+    riskNotes: '',
+    disclosureBoundaries: '',
     outcomePublic: template.outcomePublic,
     identityVerification: template.identityVerification,
   };
@@ -82,6 +96,12 @@ export function SessionNewPage() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  const parsedMaxParticipants = parseMaxParticipantsInput(
+    form.maxParticipants,
+    DEFAULT_MAX_PARTICIPANTS,
+  );
+  const capacityWarning = capacityAboveRecommendedWarning(parsedMaxParticipants);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -92,11 +112,15 @@ export function SessionNewPage() {
         title: form.title,
         conflict_type: form.conflictType,
         language: form.language,
-        max_participants: parseInt(form.maxParticipants, 10) || 2,
+        max_participants: parsedMaxParticipants,
         eligibility_notes: form.eligibilityNotes || null,
+        issue_goal: form.issueGoal.trim() || null,
+        risk_notes: form.riskNotes.trim() || null,
+        disclosure_boundaries: form.disclosureBoundaries.trim() || null,
         identity_verification_required: form.identityVerification,
         outcome_public: form.outcomePublic,
         status: 'setup',
+        dialogue_stage: 'preparation',
         template_id: templateId || null,
         setup_config: template?.setupConfig ?? {},
       });
@@ -116,7 +140,8 @@ export function SessionNewPage() {
           </p>
           <h1 className="text-xl font-semibold tracking-tight text-ink">Configure session</h1>
           <p className="mt-1 text-sm text-ink-secondary">
-            Set eligibility criteria and session parameters before inviting participants.
+            Capture the issue brief, eligibility, and disclosure boundaries before inviting
+            participants. This is intake — not an open chat room.
           </p>
         </div>
 
@@ -226,20 +251,61 @@ export function SessionNewPage() {
             <FormField
               id="max-participants"
               label="Maximum participants"
-              hint="Recommended: 2–4 for structured dialogue."
+              hint={`Recommended 4–${RECOMMENDED_MAX_PARTICIPANTS} for high-stakes dialogue. Hard ceiling ${MAX_ROOM_PARTICIPANTS}. Above ${RECOMMENDED_MAX_PARTICIPANTS} is for co-facilitated institutional cases.`}
               instrument
             >
               <Input
                 id="max-participants"
                 type="number"
-                min={2}
-                max={10}
+                min={MIN_ROOM_PARTICIPANTS}
+                max={MAX_ROOM_PARTICIPANTS}
                 value={form.maxParticipants}
                 onChange={(e) => set('maxParticipants', e.target.value)}
               />
             </FormField>
+            {capacityWarning ? (
+              <p className="text-sm text-sem-warning" role="status">
+                {capacityWarning}
+              </p>
+            ) : null}
 
-            <FormField id="eligibility" label="Eligibility notes (internal)" instrument>
+            <FormField
+              id="issue-goal"
+              label="Issue goal"
+              hint="What a successful outcome looks like for this room."
+              instrument
+            >
+              <Textarea
+                id="issue-goal"
+                rows={2}
+                required
+                placeholder="e.g. Agree a private decision memo the board can act on without naming speakers."
+                value={form.issueGoal}
+                onChange={(e) => set('issueGoal', e.target.value)}
+              />
+            </FormField>
+
+            <FormField
+              id="risk-notes"
+              label="Risk notes"
+              hint="Known tension, escalation factors, or crisis boundaries (facilitator-facing)."
+              instrument
+            >
+              <Textarea
+                id="risk-notes"
+                rows={2}
+                placeholder="e.g. Two parties have a recent public dispute; pause early if personal attacks appear."
+                value={form.riskNotes}
+                onChange={(e) => set('riskNotes', e.target.value)}
+              />
+            </FormField>
+
+            <FormField
+              id="eligibility"
+              label="Participant criteria"
+              hint="Who belongs in this room — standing, role, or organisational representation."
+              instrument
+            >
               <Textarea
                 id="eligibility"
                 rows={3}
@@ -249,7 +315,22 @@ export function SessionNewPage() {
               />
             </FormField>
 
-            <div className="rounded-[var(--sr-radius-lg)] border border-line bg-surface-sunken/60 p-5">
+            <FormField
+              id="disclosure-boundaries"
+              label="Disclosure boundaries"
+              hint="What must stay in the room vs what may enter an approved record."
+              instrument
+            >
+              <Textarea
+                id="disclosure-boundaries"
+                rows={2}
+                placeholder="e.g. No names or attributions on any released text; operational details stay private."
+                value={form.disclosureBoundaries}
+                onChange={(e) => set('disclosureBoundaries', e.target.value)}
+              />
+            </FormField>
+
+            <div className="rounded-[var(--sr-radius-lg)] bg-surface-secondary/80 p-5 shadow-sr-sm">
               <p className="mb-4 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
                 Session policies
               </p>

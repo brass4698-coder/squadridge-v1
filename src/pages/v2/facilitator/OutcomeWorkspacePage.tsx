@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useOutcomeRecord } from '../../../hooks/useOutcomeRecord';
-import { useParticipants } from '../../../hooks/useParticipants';
 import { appRoutes } from '../../../lib/appRoutes';
 
 export function OutcomeWorkspacePage() {
@@ -9,9 +8,7 @@ export function OutcomeWorkspacePage() {
   const navigate = useNavigate();
   const location = useLocation();
   const importState = location.state as { agreedTermsImport?: string } | null;
-  const { outcome, loading, saveDraft, submitForRelease, seedApprovals, approvals } =
-    useOutcomeRecord(sessionId);
-  const { participants } = useParticipants(sessionId);
+  const { outcome, loading, saveDraft, submitForRelease } = useOutcomeRecord(sessionId);
   const [form, setForm] = useState({
     summary: '',
     agreedTerms: '',
@@ -71,15 +68,6 @@ export function OutcomeWorkspacePage() {
         facilitator_notes: form.facilitatorNotes || undefined,
       });
       await submitForRelease();
-      if (approvals.length === 0) {
-        const labels = [
-          ...participants
-            .filter((p) => p.verification_status === 'verified')
-            .map((p) => p.codename),
-          'Facilitator',
-        ];
-        await seedApprovals(labels);
-      }
       navigate(appRoutes.sessionRelease(sessionId ?? ''));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submit failed');
@@ -93,15 +81,15 @@ export function OutcomeWorkspacePage() {
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
           Outcome workspace
         </p>
-        <h1 className="text-xl font-semibold text-ink">Draft the public record</h1>
+        <h1 className="text-xl font-semibold text-ink">Draft the releasable instrument</h1>
         <p className="mt-1 text-sm text-ink-secondary">
-          Only facilitator-authored fields may be published. The session room and the public record
-          are separate by design — room dialogue cannot be copied into this document.
+          Only facilitator-authored fields may leave the room. Submitting opens participant review —
+          parties must approve or dispute before you can release.
         </p>
       </div>
 
       <div
-        className="mb-6 rounded-lg border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
+        className="mb-6 rounded-lg bg-surface-secondary px-4 py-3 text-sm text-ink-secondary shadow-sr-sm"
         role="note"
       >
         Write the outcome in your own words. There is no import from the room; anything said in

@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
+import { FormField } from '../../../components/ui/FormField';
 import { FormPanel } from '../../../components/ui/FormPanel';
+import { Textarea } from '../../../components/ui/Textarea';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { participantRoute } from '../../../lib/participantRoutes';
-import { validateParticipantToken } from '../../../lib/participantToken';
-import type { ParticipantTokenContext } from '../../../lib/participantToken';
+import {
+  recordParticipantReason,
+  validateParticipantToken,
+  type ParticipantTokenContext,
+} from '../../../lib/participantToken';
 import {
   copyForParticipantTokenError,
   type ParticipantInvalidCopy,
@@ -21,7 +26,9 @@ export function InviteAcceptancePage() {
   const token = useParticipantToken();
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status>({ kind: 'loading' });
+  const [reason, setReason] = useState('');
   const [accepting, setAccepting] = useState(false);
+  const [reasonError, setReasonError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +42,7 @@ export function InviteAcceptancePage() {
         return;
       }
       setStatus({ kind: 'valid', ctx: result });
+      if (result.participation_reason) setReason(result.participation_reason);
     })();
 
     return () => {
@@ -42,9 +50,27 @@ export function InviteAcceptancePage() {
     };
   }, [token]);
 
-  function accept() {
+  async function accept() {
     if (!token || status.kind !== 'valid') return;
+    const trimmed = reason.trim();
+    if (trimmed.length < 8) {
+      setReasonError(
+        'Share a short reason — your relationship to this matter (at least a sentence).',
+      );
+      return;
+    }
+    setReasonError(null);
     setAccepting(true);
+    const result = await recordParticipantReason(token, trimmed);
+    if (!result.valid) {
+      setReasonError(
+        result.error === 'REASON_REQUIRED'
+          ? 'Share a short reason for being in this room.'
+          : (result.error ?? 'Could not save your reason.'),
+      );
+      setAccepting(false);
+      return;
+    }
     navigate(participantRoute('verify', token));
   }
 
@@ -117,10 +143,10 @@ export function InviteAcceptancePage() {
           eyebrow="Session invitation"
           title="You have been invited to participate"
           titleAs="h1"
-          description="A facilitator has invited you to a private written dialogue session. Before you can enter, you will complete a short verification step. Your facilitator confirms participation — this is not automated identity proof."
+          description="Entry is invite-only. Confirm why you are here for this matter, then continue verification. Your facilitator confirms participation — this is not automated identity proof."
           footer="This invitation link is single-use and expires after verification is complete."
         >
-          <div className="mb-8 rounded-[var(--sr-radius-lg)] border border-line bg-surface-secondary p-5">
+          <div className="mb-6 rounded-[var(--sr-radius-lg)] bg-surface-elevated p-5 shadow-sr-card">
             <p className="mb-1 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint">
               Session
             </p>
@@ -130,13 +156,35 @@ export function InviteAcceptancePage() {
             {ctx.codename ? (
               <p className="mt-1 text-app-meta text-ink-secondary">Your codename: {ctx.codename}</p>
             ) : null}
+            {ctx.conflict_type ? (
+              <p className="mt-1 text-app-meta text-ink-secondary">
+                Matter type: {ctx.conflict_type}
+              </p>
+            ) : null}
           </div>
 
-          <ul className="mb-8 space-y-2">
+          <FormField
+            id="participation-reason"
+            label="Why are you in this room?"
+            hint="Your relationship to the matter — not a biography. Visible to the facilitator."
+            error={reasonError ?? undefined}
+            instrument
+          >
+            <Textarea
+              id="participation-reason"
+              rows={3}
+              required
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. Representing the watershed stewardship partner named in the invitation."
+            />
+          </FormField>
+
+          <ul className="mb-8 mt-6 space-y-2">
             {[
-              'Your participation is confidential.',
+              'Your participation is confidential to this room.',
               'Only the approved outcome document may become public.',
-              'Your identity is protected within the session room.',
+              'Rooms are limited to 12 participants and run under facilitator oversight.',
               'You may leave at any time.',
             ].map((item) => (
               <li key={item} className="flex items-start gap-3 text-app-body text-ink-secondary">
@@ -148,7 +196,7 @@ export function InviteAcceptancePage() {
             ))}
           </ul>
 
-          <Button className="w-full" size="lg" onClick={accept} loading={accepting}>
+          <Button className="w-full" size="lg" onClick={() => void accept()} loading={accepting}>
             Accept invitation &amp; continue
           </Button>
         </FormPanel>

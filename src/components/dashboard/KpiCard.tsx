@@ -21,7 +21,7 @@ export function KpiCard({
       <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
         {label}
       </p>
-      <p className="m-0 font-display text-2xl font-medium tabular-nums text-ink">{value}</p>
+      <p className="m-0 font-heading text-2xl font-medium tabular-nums text-ink">{value}</p>
       {hint ? <p className="m-0 text-xs text-ink-faint">{hint}</p> : null}
     </div>
   );

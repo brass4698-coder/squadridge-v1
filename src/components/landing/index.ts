@@ -1,10 +1,6 @@
 export { LandingHero } from './LandingHero';
-export { TrustStrip } from './TrustStrip';
-export { AudiencePathStrip } from './AudiencePathStrip';
 export { IllustrativeScenarioStrip } from './IllustrativeScenarioStrip';
 export { WhyOverview } from './WhyOverview';
-export { MatterThroughNav } from './MatterThroughNav';
-export { GovernedStatesRail } from './GovernedStatesRail';
 export { ProcessStagePanel } from './ProcessStagePanel';
 export { BoundarySection } from './BoundarySection';
 export { ProductEvidenceCluster } from './ProductEvidenceCluster';

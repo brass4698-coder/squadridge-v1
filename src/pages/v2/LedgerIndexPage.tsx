@@ -1,10 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { sampleRecords } from '../../data/sampleRecords';
+import { ledgerSpecimens } from '../../data/ledgerSpecimens';
 import { useLedger } from '../../hooks/useLedger';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
-import { CapsLabel, RecordCardCompact } from '../../components/shared';
+import {
+  CapsLabel,
+  GlossTerm,
+  RecordCardCompact,
+  specimenToRecordCardProps,
+} from '../../components/shared';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
@@ -14,7 +19,7 @@ const TRUST_STRIP =
   'Approved outcomes only · Verification anchors · No transcript · No auto-publish';
 
 /**
- * Ledger index — calm institutional archive of approved outcomes.
+ * Ledger index — continuous dark integrity register (Apple/security-grade).
  */
 export function LedgerIndexPage() {
   usePageTitle('Outcome ledger');
@@ -24,7 +29,7 @@ export function LedgerIndexPage() {
 
   const liveCards = useMemo(() => entries.map(ledgerEntryToCard), [entries]);
   const sampleCards = useMemo(
-    () => sampleRecords.map((rec) => ({ ...rec, href: `/ledger/${rec.id}` })),
+    () => ledgerSpecimens.map((s) => specimenToRecordCardProps(s, `/ledger/${s.id}`)),
     [],
   );
 
@@ -42,21 +47,30 @@ export function LedgerIndexPage() {
   }, [query, sampleCards]);
 
   return (
-    <div className="sr-mode-ledger min-h-[50vh]" data-demo="ledger-index" data-page="ledger">
-      {/* 1. Registry header */}
-      <header
-        className="scroll-mt-20 border-b border-[color:var(--sr-mode-ledger-border)] bg-surface-sunken/40"
-        data-scroll-section
-      >
-        <div className={`${publicShellInnerClass} py-10 md:py-12`}>
+    <div className="sr-ledger-dark min-h-[50vh]" data-demo="ledger-index" data-page="ledger">
+      {/* 1. Registry header — same canvas, no cream band */}
+      <header className="scroll-mt-20" data-scroll-section>
+        <div className={`${publicShellInnerClass} pb-12 pt-16 md:pb-16 md:pt-24`}>
           <CapsLabel>Public integrity registry</CapsLabel>
-          <h1 className="mt-3 font-display text-display font-medium tracking-tight text-ink">
+          <h1 className="mt-3 font-sans text-[length:var(--sr-text-display)] font-semibold tracking-[-0.02em] text-ink">
             Outcome ledger
           </h1>
           <p className="mt-4 mb-0 max-w-measure text-base leading-relaxed text-ink-secondary">
-            A calm archive of approved outcomes — each with a verification anchor. The ledger
-            anchors that a specific approved text existed at a point in time. Room dialogue and
-            private NGO releases do not appear here.
+            A calm archive of approved outcomes — each with a{' '}
+            <GlossTerm term="verification-anchor" />. The ledger anchors that a specific approved
+            text existed at a point in time. Room dialogue and private NGO releases do not appear
+            here.
+          </p>
+          <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-faint">
+            How a private mediation becomes a publicly verifiable outcome — without publishing the
+            conversation. Process detail on{' '}
+            <Link
+              to={CTA.secondaryProcessHref}
+              className="text-ink-secondary underline-offset-4 hover:underline"
+            >
+              How it works
+            </Link>
+            .
           </p>
           <p className="mt-5 mb-0 max-w-measure font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
             {TRUST_STRIP}
@@ -64,10 +78,10 @@ export function LedgerIndexPage() {
         </div>
       </header>
 
-      {/* 2. Archive control bar */}
-      <div className="border-b border-line bg-surface-elevated" data-scroll-section>
+      {/* 2. Browse — same elevation as canvas, hairline only */}
+      <div className="border-y border-line" data-scroll-section>
         <div
-          className={`${publicShellInnerClass} flex flex-col gap-3 py-4 sm:flex-row sm:items-end sm:justify-between sm:gap-8`}
+          className={`${publicShellInnerClass} flex flex-col gap-3 py-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8`}
         >
           <div>
             <CapsLabel>Browse records</CapsLabel>
@@ -83,13 +97,13 @@ export function LedgerIndexPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Title, organisation, or record ID…"
-              className="w-full border border-line bg-surface-sunken/40 px-4 py-2.5 font-mono text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-line-strong focus:bg-surface-elevated"
+              className="w-full rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-4 py-2.5 font-mono text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-line-strong focus:shadow-[var(--sr-focus-ring)]"
             />
           </label>
         </div>
         {error ? (
-          <div className={`${publicShellInnerClass} pb-4`}>
-            <div className="flex flex-wrap items-center gap-3 border border-sem-danger/30 bg-sem-danger-soft px-4 py-3 text-sm text-ink">
+          <div className={`${publicShellInnerClass} pb-6`}>
+            <div className="flex flex-wrap items-center gap-3 rounded-[var(--sr-radius-md)] border border-sem-danger/30 bg-sem-danger-soft px-4 py-3 text-sm text-ink">
               <p className="m-0">
                 Could not load published records. Illustrative specimens remain available.
               </p>
@@ -105,7 +119,7 @@ export function LedgerIndexPage() {
         ) : null}
       </div>
 
-      <section className="scroll-mt-20 py-12 md:py-16" data-scroll-section>
+      <section className="scroll-mt-20 py-16 md:py-24" data-scroll-section>
         <div className={publicShellInnerClass}>
           {loading ? (
             <p className="py-6 font-mono text-sm text-ink-secondary" role="status">
@@ -113,10 +127,9 @@ export function LedgerIndexPage() {
             </p>
           ) : null}
 
-          {/* 3. Published records */}
           {hasLive ? (
             <div className="mb-16 md:mb-20">
-              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                 <div>
                   <CapsLabel id="published-h">Published records</CapsLabel>
                   <p className="mt-1.5 mb-0 text-sm text-ink-secondary">
@@ -126,30 +139,31 @@ export function LedgerIndexPage() {
                 {session ? (
                   <Link
                     to={appRoutes.appLedger}
-                    className="shrink-0 text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
+                    className="shrink-0 text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-brand hover:underline"
                   >
                     Workspace ledger
                   </Link>
                 ) : (
                   <Link
                     to="/sign-in?next=%2Fapp%2Fledger"
-                    className="shrink-0 text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-ink hover:underline"
+                    className="shrink-0 text-sm text-ink-secondary no-underline underline-offset-4 transition-colors hover:text-brand hover:underline"
                   >
                     Sign in for workspace view
                   </Link>
                 )}
               </div>
-              <div className="divide-y divide-line overflow-hidden rounded-[var(--sr-radius-md)] border border-line shadow-[var(--sr-shadow-sm)]">
+              <ul className="m-0 flex list-none flex-col gap-3 p-0">
                 {liveCards.map((rec) => (
-                  <RecordCardCompact key={rec.href} {...rec} />
+                  <li key={rec.href}>
+                    <RecordCardCompact {...rec} />
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ) : null}
 
-          {/* 4. Illustrative specimens */}
           <div>
-            <div className="mb-5 max-w-measure">
+            <div className="mb-6 max-w-measure">
               <CapsLabel id="specimens-h">
                 {hasLive ? 'Illustrative specimens' : 'Illustrative released records'}
               </CapsLabel>
@@ -159,18 +173,19 @@ export function LedgerIndexPage() {
                   : 'No live public releases in this environment yet. Specimens show the dossier format used for institutional verification.'}
               </p>
             </div>
-            <div className="divide-y divide-line overflow-hidden rounded-[var(--sr-radius-md)] border border-line border-dashed bg-surface-sunken/20">
+            <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {filteredSamples.map((rec) => (
-                <RecordCardCompact key={rec.id} {...rec} href={`/ledger/${rec.id}`} />
+                <li key={rec.id}>
+                  <RecordCardCompact {...rec} href={`/ledger/${rec.id}`} />
+                </li>
               ))}
-            </div>
+            </ul>
             {filteredSamples.length === 0 ? (
               <p className="mt-6 text-sm text-ink-faint">No specimens match that search.</p>
             ) : null}
           </div>
 
-          {/* 5. Ledger doctrine */}
-          <aside className="mt-14 max-w-measure border-t border-line pt-8 md:mt-16">
+          <aside className="mt-16 max-w-measure border-t border-line pt-10 md:mt-20">
             <CapsLabel>What the ledger is — and is not</CapsLabel>
             <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
               An archival registry, not a feed. Integrity anchors confirm the released text has not
@@ -201,7 +216,7 @@ export function LedgerIndexPage() {
             </ul>
           </aside>
 
-          <div className="mt-12 max-w-measure border-t border-line pt-8">
+          <div className="mt-12 max-w-measure border-t border-line pt-10">
             <p className="m-0 text-sm leading-relaxed text-ink-secondary">{CTA.closeLedger}</p>
             <div className="sr-cta-row mt-5">
               <Link

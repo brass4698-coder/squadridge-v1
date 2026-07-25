@@ -91,7 +91,7 @@ export function IncidentDialoguePanel({
         <p className="font-mono text-app-meta uppercase tracking-[0.14em] text-brand">Dialogue</p>
         <h2
           id="incident-dialogue-heading"
-          className="font-display text-page-title font-semibold text-ink"
+          className="font-heading text-page-title font-semibold text-ink"
         >
           Scoped questions
         </h2>

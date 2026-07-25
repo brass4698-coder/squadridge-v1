@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -30,7 +30,7 @@
   --color-badge-published: hsla(168, 50%, 40%, 0.18);
   --color-badge-published-text: hsla(168, 70%, 65%, 1);
 
-  /* Typography — aliases to token source of truth in tokens.css */
+  /* Typography â€” aliases to token source of truth in tokens.css */
   --font-body: var(--sr-font-body);
   --font-mono: var(--sr-font-mono);
 
@@ -46,10 +46,8 @@
   --text-3xl: 2.5rem;
   --text-4xl: 3.25rem;
 
-  --tracking-caps: 0.1em;
-
-  --leading-body: 1.6; /* Phase 5: 1.6 body per spec */
-  --leading-heading: 1.18;
+  --leading-body: 1.6;
+  --leading-heading: 1.15;
 
   /* Spacing scale (aligned with --sr-space-*) */
   --space-1: 4px;
@@ -74,12 +72,13 @@
   --radius-md: 8px;
   --radius-full: 9999px;
 
-  /* Shadow */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+  /* Shadow â€” elevated cards (token-backed) */
+  --shadow-card: var(--sr-shadow-card);
 
   /* Transition */
-  --transition-fast: 150ms ease-in-out;
-  --transition-base: 200ms ease-in-out;
+  --transition-fast: 150ms var(--sr-ease-out, ease-out);
+  --transition-base: 180ms var(--sr-ease-out, ease-out);
+  --tracking-caps: 0.08em;
 }
 
 *,
@@ -97,49 +96,25 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Marketing: comfortable root scale for high-DPI / institutional reading */
-html:has(body[data-theme='institutional']) {
-  font-size: 17px;
-}
-
-@media (min-width: 1280px) {
-  html:has(body[data-theme='institutional']) {
-    font-size: 18px;
-  }
-}
-
 body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: var(--leading-body);
-  /* Modern depth: subtle teal glow at top-center over the near-black bg.
-     `fixed` so it doesn't scroll away, `pointer-events: none` so it never
-     eats clicks. Behind everything via z-index -1. Overrideable per-page
-     with `body[data-theme='flat']`. */
+  color-scheme: dark;
   position: relative;
   min-height: 100vh;
 }
 
+/* Ambient glow disabled by default (tokens set --sr-glow transparent). */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  /* Soft teal header bloom — Spotify Help–like atmosphere, SquadRidge teal only */
-  background:
-    radial-gradient(
-      ellipse 85% 50% at 18% -8%,
-      color-mix(in oklch, var(--sr-glow) 16%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 70% 45% at 88% -5%,
-      color-mix(in oklch, var(--sr-glow-secondary, var(--sr-glow)) 12%, transparent),
-      transparent 55%
-    );
+  display: none;
 }
 
 body[data-theme='flat']::before {
@@ -160,7 +135,7 @@ body[data-theme='flat']::before {
   }
 }
 
-/* Demo walkthrough — calm opacity + scale (position stays on outer wrapper) */
+/* Demo walkthrough â€” calm opacity + scale (position stays on outer wrapper) */
 @keyframes sr-demo-surface-in {
   from {
     opacity: 0;
@@ -180,6 +155,17 @@ body[data-theme='flat']::before {
   to {
     opacity: 0;
     transform: scale(0.98);
+  }
+}
+
+@keyframes sr-walkthrough-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -210,9 +196,10 @@ h3,
 h4,
 h5,
 h6 {
+  font-family: var(--sr-font-heading);
   line-height: var(--leading-heading);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -223,9 +210,25 @@ a {
 a:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: none;
+  box-shadow: var(--sr-focus-ring);
   border-radius: var(--radius-sm);
+}
+
+/* Soft underline fade-in for prose links */
+a.sr-link-accent,
+.prose a:not(.btn-institutional):not(.btn-pill):not(.no-underline) {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+  transition:
+    color var(--sr-duration-normal) var(--sr-ease-out),
+    text-decoration-color var(--sr-duration-normal) var(--sr-ease-out);
+}
+
+a.sr-link-accent:hover,
+.prose a:not(.btn-institutional):not(.btn-pill):not(.no-underline):hover {
+  text-decoration-color: color-mix(in oklch, var(--sr-primary) 55%, transparent);
 }
 
 /* Utility: visually hidden but accessible */
@@ -259,7 +262,7 @@ button:focus-visible,
     -webkit-backdrop-filter: blur(calc(var(--sr-glass-blur) * 1.5));
   }
 
-  /* ── Page / section soft header glow (marketing + app) ──────────── */
+  /* â”€â”€ Page / section soft header glow (marketing + app) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .sr-page-glow {
     position: relative;
     isolation: isolate;
@@ -290,12 +293,12 @@ button:focus-visible,
     z-index: 1;
   }
 
-  /* Elevated vault card — Spotify Help–like panel on dark canvas */
+  /* Elevated vault card â€” soft shadow, no heavy boxed border */
   .sr-vault-card {
     border-radius: var(--sr-radius-xl);
-    border: 1px solid var(--sr-line);
+    border: none;
     background: var(--sr-bg-elevated);
-    box-shadow: var(--sr-shadow-sm);
+    box-shadow: var(--sr-shadow-card);
   }
 
   .sr-vault-card--lg {
@@ -304,21 +307,27 @@ button:focus-visible,
 
   .sr-vault-card--interactive {
     transition:
-      border-color var(--sr-duration-normal) var(--sr-ease-out),
+      background-color var(--sr-duration-normal) var(--sr-ease-out),
       box-shadow var(--sr-duration-normal) var(--sr-ease-out),
-      background-color var(--sr-duration-normal) var(--sr-ease-out);
+      transform var(--sr-duration-normal) var(--sr-ease-out);
   }
 
   .sr-vault-card--interactive:hover {
-    border-color: color-mix(in oklch, var(--sr-primary) 35%, var(--sr-line));
-    box-shadow: var(--sr-shadow-md);
+    background: var(--sr-bg-hover);
+    box-shadow: var(--sr-shadow-card-hover);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sr-vault-card--interactive:hover {
+      transform: translateY(-2px);
+    }
   }
 
   .sr-vault-card--interactive:focus-visible {
     box-shadow: var(--sr-focus-ring);
   }
 
-  /* Calm sidebar chrome — quiet elevated rail */
+  /* Calm sidebar chrome â€” quiet elevated rail */
   .sr-shell-sidebar {
     background: color-mix(in oklch, var(--sr-bg-sunken) 55%, var(--sr-bg));
     border-color: var(--sr-line);
@@ -330,12 +339,12 @@ button:focus-visible,
 
   .sr-shell-panel {
     border-radius: var(--sr-radius-xl);
-    border: 1px solid var(--sr-line);
+    border: none;
     background: var(--sr-bg-elevated);
-    box-shadow: var(--sr-shadow-xs);
+    box-shadow: var(--sr-shadow-card);
   }
 
-  /* ── Vault instrument forms ─────────────────────────────────────── */
+  /* â”€â”€ Vault instrument forms â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .sr-form-atmosphere {
     position: relative;
     isolation: isolate;
@@ -411,6 +420,12 @@ button:focus-visible,
 
   .sr-form-control:hover:not(:disabled):not(:focus-visible) {
     border-color: var(--sr-line-strong);
+  }
+
+  .sr-form-control:focus-visible {
+    outline: none;
+    border-color: var(--sr-line-strong);
+    box-shadow: var(--sr-focus-ring);
   }
 
   .sr-form-control--invalid {
@@ -531,7 +546,7 @@ button:focus-visible,
     color: var(--sr-ink-faint);
   }
 
-  /* ── Phase 5: pill CTA ─────────────────────────────────────────── */
+  /* â”€â”€ Phase 5: pill CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .btn-pill {
     display: inline-flex;
     align-items: center;
@@ -554,13 +569,12 @@ button:focus-visible,
 
   .btn-pill--primary:hover {
     background: var(--sr-primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px oklch(from var(--sr-primary) l c h / 0.32);
+    box-shadow: var(--sr-shadow-sm);
   }
 
   .btn-pill--primary:active {
     background: var(--sr-primary-pressed);
-    transform: translateY(0);
+    transform: scale(0.98);
   }
 
   .btn-pill--ghost {
@@ -581,7 +595,7 @@ button:focus-visible,
     box-shadow: none;
   }
 
-  /* ── Institutional CTAs (quiet, soft-rounded — not full pills) ───── */
+  /* â”€â”€ Institutional CTAs (quiet, soft-rounded â€” not full pills) â”€â”€â”€â”€â”€ */
   .btn-institutional {
     display: inline-flex;
     align-items: center;
@@ -610,13 +624,12 @@ button:focus-visible,
 
   .btn-institutional--primary:hover {
     background: var(--sr-primary-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px color-mix(in oklch, var(--sr-primary) 22%, transparent);
+    box-shadow: none;
   }
 
   .btn-institutional--primary:active {
     background: var(--sr-primary-pressed);
-    transform: translateY(1px) scale(0.985);
+    transform: scale(0.98);
     box-shadow: none;
   }
 
@@ -649,7 +662,7 @@ button:focus-visible,
       0 0 0 4px color-mix(in oklch, var(--sr-ink) 35%, transparent);
   }
 
-  /* Shared marketing CTA row — consistent wrap + gap across hero / intake / CTABlock */
+  /* Shared marketing CTA row â€” consistent wrap + gap across hero / intake / CTABlock */
   .sr-cta-row {
     display: flex;
     flex-wrap: wrap;
@@ -663,10 +676,11 @@ button:focus-visible,
     }
   }
 
-  body[data-theme='institutional'] .section-label {
+  body[data-theme='institutional'] .section-label,
+  body[data-theme='ledger-dark'] .section-label {
     color: var(--sr-ink-faint);
     font-weight: 500;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.08em;
   }
 
   body[data-theme='institutional'] .btn-pill--primary:hover {
@@ -674,11 +688,64 @@ button:focus-visible,
     box-shadow: none;
   }
 
+  /* Marketing sticky nav: light frost at rest, near-solid after scroll.
+     Overrides base .nav-frosted scrolled shadow â€” hairline border only. */
   body[data-theme='institutional'] .nav-frosted {
-    background: var(--sr-glass-bg);
-    backdrop-filter: blur(var(--sr-glass-blur)) saturate(120%);
-    -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(120%);
+    background: color-mix(in oklch, var(--sr-bg) 82%, transparent);
+    backdrop-filter: blur(var(--sr-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur));
+    border-bottom-color: color-mix(in oklch, var(--sr-line) 35%, transparent);
+    box-shadow: none;
+    transition:
+      background var(--sr-duration-governed) var(--sr-ease-governed),
+      border-color var(--sr-duration-governed) var(--sr-ease-governed);
+  }
+
+  body[data-theme='institutional'] .nav-frosted[data-scrolled='true'] {
+    background: color-mix(in oklch, var(--sr-bg-elevated) 96%, transparent);
     border-bottom-color: var(--sr-line);
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body[data-theme='institutional'] .nav-frosted {
+      transition: none;
+    }
+  }
+
+  /* Ledger-dark sticky nav â€” same frost pattern on continuous dark canvas */
+  body[data-theme='ledger-dark'] .nav-frosted {
+    background: color-mix(in oklch, var(--sr-bg) 78%, transparent);
+    backdrop-filter: blur(var(--sr-glass-blur));
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur));
+    border-bottom-color: color-mix(in oklch, var(--sr-line) 60%, transparent);
+    box-shadow: none;
+    transition:
+      background var(--sr-duration-governed) var(--sr-ease-governed),
+      border-color var(--sr-duration-governed) var(--sr-ease-governed);
+  }
+
+  body[data-theme='ledger-dark'] .nav-frosted[data-scrolled='true'] {
+    background: color-mix(in oklch, var(--sr-bg-elevated) 92%, transparent);
+    border-bottom-color: var(--sr-line);
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body[data-theme='ledger-dark'] .nav-frosted {
+      transition: none;
+    }
+  }
+
+  body[data-theme='ledger-dark'] nav a,
+  body[data-theme='ledger-dark'] header a.no-underline,
+  body[data-theme='ledger-dark'] .sr-cta-row a.btn-institutional {
+    text-decoration: none;
+  }
+
+  body[data-theme='ledger-dark'] .sr-dossier-boundary .sr-mode-ledger,
+  body[data-theme='ledger-dark'] .sr-dossier-boundary .sr-mode-room {
+    background: var(--sr-bg-elevated);
   }
 
   body[data-theme='institutional'] a:not(.btn-institutional):not(.btn-pill):not(.no-underline) {
@@ -701,42 +768,32 @@ button:focus-visible,
   }
 
   body[data-theme='institutional'] .btn-institutional--primary:hover {
-    box-shadow: 0 2px 8px color-mix(in oklch, var(--sr-primary) 14%, transparent);
+    background: var(--sr-primary-hover);
+    box-shadow: none;
   }
 
-  /* Soften page glow on parchment marketing — mineral wash, not neon */
-  body[data-theme='institutional'] .sr-page-glow::before {
-    height: min(14rem, 28vh);
-    opacity: 0.4;
-    background:
-      radial-gradient(
-        ellipse 55% 60% at 12% 0%,
-        color-mix(in oklch, var(--sr-primary) 4%, transparent),
-        transparent 72%
-      ),
-      radial-gradient(
-        ellipse 45% 50% at 92% 8%,
-        color-mix(in oklch, var(--sr-ink) 3%, transparent),
-        transparent 68%
-      );
+  /* No decorative page glow on unified dark marketing */
+  body[data-theme='institutional'] .sr-page-glow::before,
+  body[data-theme='ledger-dark'] .sr-page-glow::before {
+    display: none;
   }
 
   body[data-theme='institutional'] .sr-form-atmosphere::before {
     opacity: 0.18;
   }
 
-  /* Spotify-like content card — elevated charcoal panel */
+  /* Spotify-like content card â€” elevated charcoal panel */
   .sr-surface-card {
     border-radius: var(--sr-radius-xl);
-    border: 1px solid var(--sr-line);
+    border: none;
     background: var(--sr-bg-elevated);
-    box-shadow: var(--sr-shadow-sm);
+    box-shadow: var(--sr-shadow-card);
   }
 
   .sr-surface-card--soft {
     border-radius: var(--sr-radius-2xl, var(--sr-radius-xl));
-    border: 1px solid var(--sr-line);
-    background: color-mix(in oklch, var(--sr-bg-elevated) 92%, transparent);
+    border: none;
+    background: var(--sr-bg-elevated);
     box-shadow: var(--sr-shadow-md);
   }
 
@@ -750,7 +807,7 @@ button:focus-visible,
     color: var(--sr-primary-hover);
   }
 
-  /* ── Marketing alignment system (left-first) ─────────────────────── */
+  /* â”€â”€ Marketing alignment system (left-first) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   body[data-theme='institutional'] {
     text-align: left;
   }
@@ -779,7 +836,22 @@ button:focus-visible,
     text-align: left;
   }
 
-  /* ── Institutional visuals: grid atmosphere, document-grade frames ─ */
+  /* Marketing vault cards: tonal panels, not white SaaS slabs */
+  body[data-theme='institutional'] .sr-vault-card,
+  body[data-theme='ledger-dark'] .sr-vault-card {
+    border-radius: var(--sr-radius-lg);
+    background: var(--sr-bg-elevated);
+    box-shadow: var(--sr-shadow-card);
+    border: none;
+  }
+
+  body[data-theme='institutional'] .sr-vault-card--interactive:hover,
+  body[data-theme='ledger-dark'] .sr-vault-card--interactive:hover {
+    background: var(--sr-bg-hover);
+    box-shadow: var(--sr-shadow-card-hover);
+  }
+
+  /* â”€â”€ Institutional visuals: grid atmosphere, document-grade frames â”€ */
   .institutional-visual-frame {
     background: var(--sr-bg-elevated);
   }
@@ -810,7 +882,7 @@ button:focus-visible,
     }
   }
 
-  /* /security stays on warm parchment institutional — no dark cyber override */
+  /* /security uses unified dark tokens */
   .sr-security-page .institutional-grid-backdrop {
     opacity: 0.28;
   }
@@ -861,7 +933,7 @@ button:focus-visible,
     background: var(--sr-bg-secondary);
   }
 
-  /* ── Trust UI: governed modes + evidence frames ─────────────────── */
+  /* â”€â”€ Trust UI: governed modes + evidence frames â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .sr-mode-room {
     background: var(--sr-mode-room-bg, var(--sr-bg-sunken));
     border-color: var(--sr-mode-room-border, var(--sr-line));
@@ -876,6 +948,90 @@ button:focus-visible,
   .sr-mode-ledger {
     background: var(--sr-mode-ledger-bg, var(--sr-bg-elevated));
     border-color: var(--sr-mode-ledger-border, var(--sr-line-strong));
+  }
+
+  /* â”€â”€ Process artifact: How it works as civic instrument â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  .sr-process-artifact {
+    background: color-mix(in oklch, var(--sr-bg-sunken) 55%, var(--sr-bg));
+  }
+
+  .sr-process-artifact > header,
+  .sr-process-artifact > section:not([class*='bg-']) {
+    background: transparent;
+  }
+
+  .sr-process-spine {
+    position: relative;
+    padding-left: 0;
+  }
+
+  @media (min-width: 640px) {
+    .sr-process-spine {
+      border-left: 1px solid var(--sr-line);
+      padding-left: 1.75rem;
+      margin-left: 2rem;
+    }
+
+    .sr-process-spine::before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      top: 0.35rem;
+      bottom: 0.35rem;
+      width: 1px;
+      background: linear-gradient(
+        to bottom,
+        var(--sr-mode-gate-border, var(--sr-line-strong)),
+        var(--sr-line) 40%,
+        var(--sr-line)
+      );
+      opacity: 0.85;
+    }
+
+    .sr-process-spine__item {
+      position: relative;
+    }
+
+    .sr-process-spine__item::before {
+      content: '';
+      position: absolute;
+      left: calc(-1.75rem - 3px);
+      top: 0.55rem;
+      width: 7px;
+      height: 7px;
+      border-radius: 9999px;
+      border: 1px solid var(--sr-mode-gate-border, var(--sr-line-strong));
+      background: var(--sr-bg);
+    }
+
+    .sr-process-spine--quiet {
+      border-left-color: color-mix(in oklch, var(--sr-line) 70%, transparent);
+    }
+
+    .sr-process-spine--quiet::before {
+      display: none;
+    }
+
+    .sr-process-spine--quiet .sr-process-spine__item::before,
+    .sr-process-spine--quiet > li::before {
+      display: none;
+    }
+  }
+
+  .sr-trust-commitment {
+    border: 1px solid var(--sr-line);
+    border-left: 2px solid var(--sr-mode-gate-border, var(--sr-line-strong));
+    background: color-mix(in oklch, var(--sr-bg-elevated) 88%, var(--sr-bg));
+    padding: 1.25rem 1.35rem;
+  }
+
+  .sr-room-record-split {
+    overflow: hidden;
+    border-radius: var(--sr-radius-md);
+  }
+
+  .sr-room-record-split > article {
+    border-radius: 0;
   }
 
   /* Authenticated shell surface grammar (room / gate / record / portfolio) */
@@ -900,7 +1056,7 @@ button:focus-visible,
     background: var(--sr-bg);
   }
 
-  /* Per-role dashboard accents — distinctive but restrained */
+  /* Per-role dashboard accents â€” distinctive but restrained */
   .sr-role-frame {
     position: relative;
     border-radius: var(--sr-radius-lg);
@@ -1024,7 +1180,7 @@ button:focus-visible,
     color: var(--sr-role-mediator-ink);
   }
 
-  /* Guided tour chrome — tokenized, calmer than amber SaaS */
+  /* Guided tour chrome â€” tokenized, calmer than amber SaaS */
   .sr-tour-banner {
     border-bottom: 1px solid color-mix(in oklch, var(--sr-primary) 28%, var(--sr-line));
     background: linear-gradient(
@@ -1071,7 +1227,7 @@ button:focus-visible,
     color: color-mix(in oklch, var(--sr-primary) 70%, var(--sr-ink-secondary));
   }
 
-  /* Side sheet — non-blocking explanation tied to the current screen */
+  /* Side sheet â€” non-blocking explanation tied to the current screen */
   .sr-tour-sheet {
     top: 4.75rem;
     right: 0.75rem;
@@ -1109,6 +1265,230 @@ button:focus-visible,
     border: 1px solid var(--sr-line);
     border-radius: var(--sr-radius-lg);
     background: var(--sr-bg-elevated);
+  }
+
+  /* â”€â”€ Registry / civic-instrument primitives (ledger + marketing) â”€â”€â”€ */
+  .sr-verify {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--sr-verify-ink, var(--sr-primary));
+    font-weight: 600;
+  }
+
+  .sr-verify-dot {
+    display: inline-block;
+    width: 0.375rem;
+    height: 0.375rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--sr-verify, var(--sr-primary));
+  }
+
+  @keyframes srVerifyDotPulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+      opacity: 1;
+    }
+    50% {
+      box-shadow: 0 0 0 4px var(--sr-verify-soft);
+      opacity: 0.92;
+    }
+  }
+
+  .sr-verify-dot--pulse {
+    animation: srVerifyDotPulse var(--sr-duration-pulse, 2.8s) var(--sr-ease-out) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sr-verify-dot--pulse {
+      animation: none;
+    }
+  }
+
+  .sr-surface-published {
+    background: var(
+      --sr-surface-published,
+      color-mix(in oklch, var(--sr-primary) 4%, var(--sr-bg-elevated))
+    );
+  }
+
+  .sr-surface-illustrative {
+    background: var(--sr-surface-illustrative, var(--sr-bg-elevated));
+  }
+
+  /* Elevated ledger cards â€” fill + soft shadow, not heavy boxed chrome */
+  .sr-ledger-card {
+    border-radius: var(--sr-radius-lg);
+    background: var(--sr-bg-elevated);
+    box-shadow: var(--sr-shadow-card);
+    border: none;
+    transition:
+      background-color var(--sr-duration-normal) var(--sr-ease-out),
+      box-shadow var(--sr-duration-normal) var(--sr-ease-out),
+      transform var(--sr-duration-normal) var(--sr-ease-out);
+  }
+
+  .sr-ledger-card--published {
+    background: var(--sr-surface-published, var(--sr-bg-elevated));
+    box-shadow: var(--sr-shadow-card);
+  }
+
+  .sr-ledger-card--illustrative {
+    background: var(--sr-surface-illustrative, var(--sr-bg-elevated));
+    box-shadow: none;
+    border: 1px dashed var(--sr-line);
+  }
+
+  .sr-ledger-card.sr-registry-card:hover,
+  a:hover .sr-ledger-card.sr-registry-card {
+    background: var(--sr-surface-hover, var(--sr-bg-hover));
+    box-shadow: var(--sr-shadow-card-hover);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sr-ledger-card.sr-registry-card:hover,
+    a:hover .sr-ledger-card.sr-registry-card {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sr-ledger-card {
+      transition: none;
+    }
+  }
+
+  /* Continuous dark ledger canvas â€” kills creamâ†”black jump cuts */
+  .sr-ledger-dark {
+    background: var(--sr-bg);
+    color: var(--sr-ink);
+    min-height: 50vh;
+  }
+
+  body[data-theme='ledger-dark'] .sr-page-glow::before,
+  body[data-theme='ledger-dark'] .sr-marketing-surface::before {
+    display: none;
+  }
+
+  body[data-theme='ledger-dark'] .sr-mode-ledger {
+    background: transparent;
+    border-color: var(--sr-line);
+  }
+
+  .sr-meta-label {
+    margin: 0;
+    font-family: var(--sr-font-mono);
+    font-size: var(--sr-meta-label-size, 0.6875rem);
+    font-weight: 500;
+    letter-spacing: var(--sr-meta-label-tracking, 0.12em);
+    text-transform: uppercase;
+    color: var(--sr-ink-faint);
+  }
+
+  .sr-meta-value {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--sr-ink);
+    overflow-wrap: break-word;
+  }
+
+  .sr-meta-value--mono {
+    font-family: var(--sr-font-mono);
+    font-weight: 450;
+    color: var(--sr-ink-secondary);
+  }
+
+  .sr-registry-pad {
+    padding: var(--sr-registry-pad, var(--sr-space-4));
+  }
+
+  .sr-registry-card {
+    padding: var(--sr-registry-pad, var(--sr-space-4));
+    transition: background-color var(--sr-duration-normal) var(--sr-ease-out);
+  }
+
+  .sr-registry-card:hover {
+    background: color-mix(in oklch, var(--sr-bg-sunken) 35%, transparent);
+  }
+
+  /* Released-record dossier â€” layered elevation on dark register */
+  .sr-dossier {
+    --sr-dossier-plane: var(--sr-bg-elevated);
+    --sr-dossier-inset: var(--sr-bg-secondary);
+    --sr-dossier-instrument: var(--sr-surface-hover, var(--sr-bg-elevated));
+    --sr-dossier-label: var(--sr-ink-secondary);
+    background: var(--sr-bg);
+    color: var(--sr-ink);
+  }
+
+  .sr-dossier .sr-dossier-label {
+    color: var(--sr-dossier-label);
+  }
+
+  .sr-dossier-module {
+    border: 1px solid var(--sr-line);
+    border-radius: var(--sr-radius-md);
+    background: var(--sr-dossier-plane);
+  }
+
+  .sr-dossier-module--inset {
+    background: var(--sr-dossier-inset);
+  }
+
+  .sr-dossier-instrument {
+    overflow: hidden;
+    border: 1px solid var(--sr-line-strong);
+    border-radius: var(--sr-radius-lg);
+    background: var(--sr-dossier-instrument);
+    box-shadow: none;
+  }
+
+  .sr-dossier-instrument__header {
+    border-bottom: 1px solid var(--sr-line);
+    background: color-mix(in oklch, var(--sr-dossier-inset) 80%, transparent);
+  }
+
+  .sr-dossier-instrument__body {
+    font-variant-ligatures: none;
+    font-feature-settings: 'tnum' 1;
+    color: var(--sr-ink);
+  }
+
+  .sr-dossier-tools {
+    border: 1px solid var(--sr-line);
+    border-radius: var(--sr-radius-md);
+    background: var(--sr-dossier-plane);
+  }
+
+  .sr-dossier-tools code {
+    background: var(--sr-dossier-inset);
+    color: var(--sr-ink-secondary);
+  }
+
+  .sr-dossier-boundary {
+    border: 1px solid var(--sr-line);
+    border-radius: var(--sr-radius-md);
+    background: transparent;
+  }
+
+  .sr-dossier-boundary__cell--focus {
+    background: color-mix(in oklch, var(--sr-dossier-instrument) 88%, var(--sr-primary));
+  }
+
+  @media print {
+    .sr-dossier-instrument {
+      break-inside: avoid;
+      box-shadow: none !important;
+      border-color: #000 !important;
+    }
+
+    aside[aria-label='Verification and citation tools'] {
+      display: none !important;
+    }
   }
 
   .sr-evidence-rail {
@@ -1184,7 +1564,7 @@ button:focus-visible,
     }
   }
 
-  /* ── Phase 5: frosted nav shell ────────────────────────────────── */
+  /* â”€â”€ Phase 5: frosted nav shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .nav-frosted {
     background: color-mix(in oklch, var(--sr-bg) 78%, transparent);
     backdrop-filter: blur(16px) saturate(140%);
@@ -1197,7 +1577,7 @@ button:focus-visible,
     box-shadow: 0 4px 20px oklch(0 0 0 / 0.3);
   }
 
-  /* ── Calm Apple-like motion (purpose only; respect reduced-motion) ─ */
+  /* â”€â”€ Calm Apple-like motion (purpose only; respect reduced-motion) â”€ */
   @keyframes srFadeRise {
     from {
       opacity: 0;
@@ -1230,7 +1610,7 @@ button:focus-visible,
     animation: srFadeRise var(--sr-duration-governed, 200ms) var(--sr-ease-out) both;
   }
 
-  /* Native <details> open — continuity without fighting the element */
+  /* Native <details> open â€” continuity without fighting the element */
   details[open] > .sr-details-body {
     animation: srFadeRise var(--sr-duration-governed, 200ms) var(--sr-ease-out) both;
   }
@@ -1253,7 +1633,7 @@ button:focus-visible,
     }
   }
 
-  /* ── Phase 5: fade-in-up entrance ──────────────────────────────── */
+  /* â”€â”€ Phase 5: fade-in-up entrance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -1280,7 +1660,7 @@ button:focus-visible,
     }
   }
 
-  /* ── Interaction grammar: restrained hover / press / section enter ─ */
+  /* â”€â”€ Interaction grammar: restrained hover / press / section enter â”€ */
   .sr-interactive {
     transition:
       border-color 160ms var(--sr-ease-out, ease),
@@ -1321,7 +1701,7 @@ button:focus-visible,
     }
   }
 
-  /* Centered circular scroll orb — near-invisible at rest; usable on hover/focus/open */
+  /* Centered circular scroll orb â€” near-invisible at rest; usable on hover/focus/open */
   .sr-scroll-orb {
     --sr-orb-size: 1.5rem;
     --sr-orb-action: 1.75rem;
@@ -1519,9 +1899,9 @@ button:focus-visible,
   }
 
   /* ── Phase 10: marketing display type ──────────────────────────────
-     Oversized IBM Plex Serif display headline for marketing surfaces.
+     High-contrast Inter display headline for marketing surfaces.
      Fluid clamp so it stays massive on desktop without wrapping badly
-     on mobile. Serif conveys institutional gravitas per design-system. */
+     on mobile. --sr-font-display maps to Inter in tokens.css. */
   .hero-display {
     font-family: var(--sr-font-display);
     font-size: clamp(2.4rem, 5.4vw + 0.5rem, 4.5rem);
@@ -1531,7 +1911,7 @@ button:focus-visible,
   }
 
   /* Gradient-swept emphasis word inside the hero headline. The sweep is a
-     slow background-position drift — calm, not a flash. The global
+     slow background-position drift â€” calm, not a flash. The global
      reduced-motion block above zeroes the animation duration, leaving a
      static gradient (still readable, still on-brand). */
   @keyframes gradientSweep {
@@ -1560,7 +1940,7 @@ button:focus-visible,
     animation: gradientSweep 9s var(--sr-ease-standard) infinite alternate;
   }
 
-  /* ── Phase 10: glassmorphic CTA ────────────────────────────────────
+  /* â”€â”€ Phase 10: glassmorphic CTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      Frosted, semi-transparent primary action with a soft accent border
      glow. Sits on the dark hero; falls back gracefully where
      backdrop-filter is unsupported because --sr-glass-bg is opaque-ish. */
@@ -1587,7 +1967,7 @@ button:focus-visible,
     transform: translateY(0);
   }
 
-  /* ── Phase 10: anchor shimmer ──────────────────────────────────────
+  /* â”€â”€ Phase 10: anchor shimmer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      Subtle holographic sweep across verification-anchor IDs so they read
      "cryptographic artifact" rather than plain mono text. Slow (7s) and
      low-contrast; reduced-motion zeroes it to a static two-tone. */
@@ -1615,9 +1995,9 @@ button:focus-visible,
     animation: anchorShimmer 7s var(--sr-ease-standard) infinite;
   }
 
-  /* ── Phase 10: ambient hero drift ──────────────────────────────────
+  /* â”€â”€ Phase 10: ambient hero drift â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      A slow-moving accent bloom behind the hero. One element, one very
-     slow transform loop — cheap to composite, calm to watch. Global
+     slow transform loop â€” cheap to composite, calm to watch. Global
      reduced-motion block freezes it into a static glow. */
   @keyframes ambientDrift {
     from {
@@ -1644,7 +2024,7 @@ button:focus-visible,
     will-change: transform;
   }
 
-  /* ── Phase 10: scroll-triggered reveal ─────────────────────────────
+  /* â”€â”€ Phase 10: scroll-triggered reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      CSS scroll-driven animation (no JS, no CLS risk). Elements rise and
      fade as they enter the viewport. Progressive enhancement: browsers
      without animation-timeline support simply render the element static,
@@ -1668,5 +2048,5 @@ button:focus-visible,
     }
   }
 
-  /* Respect the existing reduced-motion block above — no override. */
+  /* Respect the existing reduced-motion block above â€” no override. */
 }

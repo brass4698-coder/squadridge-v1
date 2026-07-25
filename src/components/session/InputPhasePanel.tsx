@@ -167,7 +167,7 @@ export function InputPhasePanel({
         }`}
       >
         {/* Privacy notice */}
-        <div className="flex items-center gap-2 border-b border-white/[0.04] px-4 py-2.5 bg-white/[0.01]">
+        <div className="flex items-center gap-2 border-b border-line px-4 py-2.5 bg-surface-hover/40">
           <Shield className="size-3.5 text-brand/60" />
           <p className="font-sans text-[0.72rem] text-ink-faint">
             Your response is encrypted and invisible to other participants until reveal.
@@ -190,7 +190,7 @@ export function InputPhasePanel({
         />
 
         {/* Character counter */}
-        <div className="flex items-center justify-between border-t border-white/[0.04] px-4 py-2">
+        <div className="flex items-center justify-between border-t border-line px-4 py-2">
           <span
             className={`font-mono text-[0.68rem] tabular-nums ${
               charWarning ? 'text-sem-danger' : charOk ? 'text-ink-faint' : 'text-amber-light'

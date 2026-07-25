@@ -42,7 +42,7 @@ export function MarketingPageHero({
         >
           <div className="min-w-0 max-w-measure text-left">
             <SectionLabel text={label} />
-            <h1 className="font-display text-display font-medium text-ink">{title}</h1>
+            <h1 className="font-heading text-display font-semibold text-ink">{title}</h1>
             {lead ? (
               <div className="mt-6 text-base leading-relaxed text-ink-secondary md:text-[length:var(--sr-text-lead,1.0625rem)]">
                 {typeof lead === 'string' ? <p>{lead}</p> : lead}

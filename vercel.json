@@ -30,5 +30,12 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/pitch-deck-hub/:file([^/]+\\.(html|css|js|json|txt))",
+      "destination": "/decks",
+      "permanent": false
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

@@ -106,7 +106,7 @@ export function StaffInviteAcceptPage() {
         <p className="font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-brand">
           Invitation
         </p>
-        <h1 className="mt-2 font-display text-h2 font-medium text-ink">Accept your invite</h1>
+        <h1 className="mt-2 font-heading text-h2 font-semibold text-ink">Accept your invite</h1>
         <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
           Confirm your display name and we&apos;ll email you a one-time link to activate access.
         </p>

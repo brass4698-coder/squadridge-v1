@@ -76,7 +76,7 @@ function LedgerPublicRecordHeader({
   slug: string;
 }) {
   return (
-    <header className="border-b border-white/[0.08] pb-8">
+    <header className="border-b border-line pb-8">
       <div className="mb-3">
         <TrustLabel variant="ledger" />
       </div>
@@ -114,7 +114,7 @@ function LedgerMissionPublicationBlock({ missionLine }: { missionLine: React.Rea
     'The session remains private. Only the outcome approved for release is published here, giving downstream partners a citable record without exposing participant identity, raw discussion, or attribution risk.';
   return (
     <section
-      className="mt-8 border border-white/[0.08] bg-[#070b10]/60 px-4 py-4 sm:px-5 sm:py-5"
+      className="mt-8 border border-line bg-surface/60 px-4 py-4 sm:px-5 sm:py-5"
       aria-labelledby="ledger-mission-heading"
     >
       <div className={`space-y-4 ${ledgerReadCol}`}>
@@ -143,16 +143,16 @@ function LedgerVerificationStrip({
 }) {
   return (
     <section
-      className="mt-8 overflow-hidden border border-white/[0.1] bg-[#060910]/90"
+      className="mt-8 overflow-hidden border border-line-strong bg-surface/90"
       aria-label="Verification identifiers for this record"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] bg-[#080d14] px-4 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-secondary px-4 py-2">
         <h2 className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle">
           Verification
         </h2>
         <TrustLabel variant="ledger" />
       </div>
-      <div className="grid divide-y divide-white/[0.08] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="grid divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <div className="px-4 py-3.5">
           <p className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
             Public slug
@@ -202,7 +202,7 @@ function LedgerMachineReadablePanel({ fields }: { fields: MachineFields }) {
   ];
   return (
     <section
-      className="mt-10 border border-white/[0.09] bg-[#05080e]/80 p-4"
+      className="mt-10 border border-line bg-surface/80 p-4"
       aria-labelledby="ledger-machine-heading"
     >
       <h2
@@ -213,7 +213,7 @@ function LedgerMachineReadablePanel({ fields }: { fields: MachineFields }) {
       </h2>
       <dl className="mt-4 space-y-2">
         {rows.map(({ k, label }) => (
-          <div key={k} className="border border-white/[0.07] bg-[#060910]/70 px-3 py-2.5">
+          <div key={k} className="border border-line bg-surface/70 px-3 py-2.5">
             <dt className="font-heading text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle">
               {label}
             </dt>
@@ -236,7 +236,7 @@ function LedgerPrivacyConstraintsList() {
   ];
   return (
     <section
-      className="mt-10 border border-white/[0.08] bg-[#070b10]/50 px-4 py-4 sm:px-5"
+      className="mt-10 border border-line bg-surface/50 px-4 py-4 sm:px-5"
       aria-labelledby="privacy-constraints-h"
     >
       <h2
@@ -295,7 +295,7 @@ function LedgerCitationBlock({
       >
         Cite this record
       </h2>
-      <div className="mt-3 border border-white/[0.1] bg-[#060910] p-4">
+      <div className="mt-3 border border-line-strong bg-surface p-4">
         <pre className="m-0 max-w-full overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] leading-relaxed text-ink-secondary">
           {line}
         </pre>
@@ -303,7 +303,7 @@ function LedgerCitationBlock({
           <button
             type="button"
             onClick={copy}
-            className="inline-flex min-h-[40px] items-center gap-2 rounded border border-white/[0.12] bg-[#0d141f] px-3 py-2 font-sans text-[0.8rem] text-ink-secondary transition-colors hover:border-white/[0.2] hover:text-ink"
+            className="inline-flex min-h-[40px] items-center gap-2 rounded border border-line-strong bg-surface-elevated px-3 py-2 font-sans text-[0.8rem] text-ink-secondary transition-colors hover:border-line-strong hover:text-ink"
           >
             {copied ? (
               <Check className="size-4 text-teal-light" aria-hidden strokeWidth={2.5} />
@@ -334,7 +334,7 @@ function LedgerReleasedOrderCards({ items }: { items: string[] }) {
       <ul className="mt-6 space-y-3">
         {items.map((line, i) => (
           <li key={i}>
-            <article className="border border-white/[0.1] border-l-2 border-l-white/[0.18] bg-[#070b12]/55 px-4 py-3.5">
+            <article className="border border-line-strong border-l-2 border-l-line-strong bg-surface/55 px-4 py-3.5">
               <p className="mb-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-subtle">
                 Order {(i + 1).toString().padStart(2, '0')}
               </p>
@@ -365,10 +365,10 @@ function LedgerClassificationRow({ segments }: { segments: readonly string[] }) 
 
 function LedgerDetailFooterNav() {
   const cell =
-    'flex flex-1 flex-col gap-2 rounded border border-white/[0.1] bg-[#070b10]/80 px-4 py-4 transition-colors hover:border-white/[0.18]';
+    'flex flex-1 flex-col gap-2 rounded border border-line-strong bg-surface/80 px-4 py-4 transition-colors hover:border-line-strong';
   return (
     <nav
-      className="mt-14 flex flex-col gap-3 border-t border-white/10 pt-10 md:flex-row md:gap-4"
+      className="mt-14 flex flex-col gap-3 border-t border-line pt-10 md:flex-row md:gap-4"
       aria-label="Next actions for this ledger record"
     >
       <Link to="/security" className={cell}>
@@ -436,8 +436,8 @@ function LedgerProposalDetailRoute({
         <div className="relative z-[1] mx-auto w-full max-w-copy px-gutter py-16">
           <p className="font-sans text-sm text-ink-muted">Loading proposal…</p>
           <div className="vault-frost mt-8 animate-pulse p-8">
-            <div className="h-6 w-2/3 rounded bg-[#1e2a3d]" />
-            <div className="mt-4 h-4 w-full rounded bg-[#1e2a3d]/80" />
+            <div className="h-6 w-2/3 rounded bg-surface-hover" />
+            <div className="mt-4 h-4 w-full rounded bg-surface-hover/80" />
           </div>
         </div>
       </div>
@@ -576,7 +576,7 @@ function LedgerOutcomeRecordSections({ outcome }: { outcome: OutcomeExtras }) {
     );
   }
   return (
-    <div className="mt-10 max-w-[min(100%,38rem)] space-y-6 border-t border-white/[0.08] pt-8">
+    <div className="mt-10 max-w-[min(100%,38rem)] space-y-6 border-t border-line pt-8">
       <h2 className="break-words font-heading text-[1.05rem] font-bold text-ink md:text-section-title">
         Session outcome (structured)
       </h2>
@@ -743,7 +743,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
   return (
     <div className="relative min-h-dvh bg-navy pb-20 pt-4 md:pt-5">
       <div className="relative z-[1] mx-auto w-full max-w-6xl px-gutter py-8 md:py-10">
-        <div className="flex flex-col gap-4 border-b border-[#1a2236]/90 pb-8 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-4 border-b border-line pb-8 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
               Ledger
@@ -801,7 +801,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
         ) : null}
 
         <div
-          className="mt-6 rounded-lg border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+          className="mt-6 rounded-lg border border-line bg-surface-hover/40 px-4 py-3"
           role="search"
           aria-label="Filter ledger entries"
         >
@@ -813,7 +813,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search title or summary"
-                className="block w-full rounded-md border border-white/[0.08] bg-[#070b13] px-3 py-2 font-sans text-sm text-ink placeholder:text-ink-subtle focus:border-teal/60 focus:outline-none"
+                className="block w-full rounded-md border border-line bg-surface-secondary px-3 py-2 font-sans text-sm text-ink placeholder:text-ink-subtle focus:border-teal/60 focus:outline-none"
               />
             </label>
             <div className="flex items-center gap-2 md:shrink-0">
@@ -823,7 +823,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'title')}
-                className="rounded-md border border-white/[0.08] bg-[#070b13] px-2 py-1.5 font-sans text-sm text-ink focus:border-teal/60 focus:outline-none"
+                className="rounded-md border border-line bg-surface-secondary px-2 py-1.5 font-sans text-sm text-ink focus:border-teal/60 focus:outline-none"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
@@ -840,7 +840,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 className={`rounded-full border px-2.5 py-0.5 font-mono text-[0.7rem] transition-colors ${
                   activeTag === null
                     ? 'border-teal/60 bg-teal/15 text-teal-light'
-                    : 'border-white/10 bg-white/[0.02] text-ink-secondary hover:border-teal/30 hover:text-ink'
+                    : 'border-line bg-surface-hover/40 text-ink-secondary hover:border-teal/30 hover:text-ink'
                 }`}
               >
                 All tags
@@ -854,7 +854,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                   className={`rounded-full border px-2.5 py-0.5 font-mono text-[0.7rem] transition-colors ${
                     activeTag === tag
                       ? 'border-teal/60 bg-teal/15 text-teal-light'
-                      : 'border-white/10 bg-white/[0.02] text-ink-secondary hover:border-teal/30 hover:text-ink'
+                      : 'border-line bg-surface-hover/40 text-ink-secondary hover:border-teal/30 hover:text-ink'
                   }`}
                 >
                   {tag}
@@ -891,7 +891,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
               <div className="hidden overflow-x-auto overscroll-x-contain md:block">
                 <table className="w-full min-w-[52rem] border-collapse text-left">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.04]">
+                    <tr className="border-b border-line bg-surface-hover">
                       <th className="px-4 py-3 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-ink-subtle">
                         Date
                       </th>
@@ -963,7 +963,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 </table>
               </div>
 
-              <div className="divide-y divide-white/10 md:hidden">
+              <div className="divide-y divide-line md:hidden">
                 {configured && listQuery.isPending ? (
                   <LedgerPageSkeletonCards count={3} />
                 ) : showDb ? (
@@ -1052,7 +1052,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 date should reflect when you accessed the ledger.
               </p>
               <div
-                className="mt-4 rounded-xl border border-white/[0.12] bg-[#070b10]/80 p-4 shadow-inner"
+                className="mt-4 rounded-xl border border-line-strong bg-surface/80 p-4 shadow-inner"
                 role="region"
                 aria-labelledby="ledger-citation-label"
               >
@@ -1069,7 +1069,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 </div>
               </div>
               <div
-                className="mt-6 flex flex-col gap-3 border-t border-white/[0.1] pt-6"
+                className="mt-6 flex flex-col gap-3 border-t border-line-strong pt-6"
                 role="group"
                 aria-label="Copy citation to clipboard"
               >
@@ -1077,7 +1077,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                   type="button"
                   onClick={copyCitation}
                   aria-describedby="ledger-citation-text"
-                  className="inline-flex min-h-[44px] w-full max-w-xs shrink-0 items-center justify-center rounded-xl border-2 border-white/[0.14] bg-[#0f1623] px-6 py-2.5 font-heading text-[0.85rem] font-semibold text-teal-light shadow-[0_2px_12px_rgba(0,0,0,0.35)] transition-[border-color,background-color] hover:border-teal/35 hover:bg-white/[0.04] sm:w-auto"
+                  className="inline-flex min-h-[44px] w-full max-w-xs shrink-0 items-center justify-center rounded-xl border-2 border-line-strong bg-surface-elevated px-6 py-2.5 font-heading text-[0.85rem] font-semibold text-teal-light shadow-sr-md transition-[border-color,background-color] hover:border-teal/35 hover:bg-surface-hover sm:w-auto"
                 >
                   {citeCopied ? 'Copied' : 'Copy citation'}
                 </button>
@@ -1087,7 +1087,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
         </div>
 
         <section
-          className="mt-14 w-full border-t border-white/[0.12] pt-12"
+          className="mt-14 w-full border-t border-line-strong pt-12"
           aria-labelledby="ledger-cta-heading"
         >
           <h2 id="ledger-cta-heading" className="sr-only">
@@ -1103,7 +1103,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 className="w-full sm:w-fit"
               />
             </div>
-            <span className="hidden h-10 w-px shrink-0 bg-white/[0.14] sm:block" aria-hidden />
+            <span className="hidden h-10 w-px shrink-0 bg-line-strong sm:block" aria-hidden />
             <div className="flex min-h-[44px] items-center sm:pl-10 lg:pl-14">
               <Link
                 to="/"
@@ -1219,7 +1219,7 @@ function LedgerDemoRowDesktop({
   demo: boolean;
 }) {
   return (
-    <tr className="border-b border-white/10 align-top">
+    <tr className="border-b border-line align-top">
       <td className="whitespace-nowrap px-4 py-4 font-mono text-xs text-ink-muted">{date}</td>
       <td className="min-w-[8rem] px-4 py-4 align-top font-medium break-words text-ink">{topic}</td>
       <td className="min-w-[12rem] px-4 py-4 align-top break-words text-ink-secondary">
@@ -1230,7 +1230,7 @@ function LedgerDemoRowDesktop({
           {tags.map((t) => (
             <span
               key={t}
-              className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
+              className="rounded border border-line-strong bg-surface-secondary px-2 py-0.5 text-[0.65rem] text-ink-muted"
             >
               {t}
             </span>
@@ -1294,7 +1294,7 @@ function LedgerDemoCard({
         {tags.map((t) => (
           <span
             key={t}
-            className="rounded border border-[#2d3f55]/80 bg-[#0b0f14] px-2 py-0.5 text-[0.65rem] text-ink-muted"
+            className="rounded border border-line-strong bg-surface-secondary px-2 py-0.5 text-[0.65rem] text-ink-muted"
           >
             {t}
           </span>

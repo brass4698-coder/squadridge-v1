@@ -20,7 +20,7 @@ export function SafetyCenterPage() {
       </p>
 
       <section
-        className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5"
+        className="rounded-xl border border-line bg-surface-elevated p-5"
         aria-labelledby="safety-status"
       >
         <h2 id="safety-status" className="font-heading text-section-title text-slate-100">
@@ -63,7 +63,7 @@ export function SafetyCenterPage() {
         </Link>
       </section>
 
-      <section className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5">
+      <section className="rounded-xl border border-line bg-surface-elevated p-5">
         <h2 className="font-heading text-section-title text-slate-100">Policies &amp; tools</h2>
         <ul className="mt-3 list-none space-y-3 font-sans text-[0.9rem]">
           <li>

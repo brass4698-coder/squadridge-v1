@@ -14,7 +14,7 @@ export function IncidentRoomListPage() {
         <p className="font-mono text-app-meta uppercase tracking-[0.14em] text-brand">
           Incident dialogue
         </p>
-        <h1 className="font-display text-page-title font-semibold text-ink md:text-h3">
+        <h1 className="font-heading text-page-title font-semibold text-ink md:text-h3">
           Structured rooms for high-sensitivity dialogue
         </h1>
         <p className="mt-3 text-app-body leading-relaxed text-ink-secondary">

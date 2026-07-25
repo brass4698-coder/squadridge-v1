@@ -5,10 +5,10 @@ import { BarChartPanel } from '../../components/dashboard/BarChartPanel';
 import { KpiCard } from '../../components/dashboard/KpiCard';
 import { OperationalPageHeader, StatusRail, useShellContext } from '../../components/shell';
 import { LineChartCard } from '../../components/charts/LineChartCard';
-import { RecordCardCompact } from '../../components/shared';
+import { RecordCardCompact, specimenToRecordCardProps } from '../../components/shared';
 import { useDemoGovernance } from '../../demo/DemoGovernanceContext';
 import { formatUpdated, weeklyResolutionTrend } from '../../data/governanceDashboard';
-import { sampleRecords } from '../../data/sampleRecords';
+import { ledgerSpecimens } from '../../data/ledgerSpecimens';
 import { useLedger } from '../../hooks/useLedger';
 import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
 import { appRoutes } from '../../lib/appRoutes';
@@ -22,7 +22,7 @@ export function AppLedgerDashboardPage() {
   const [query, setQuery] = useState('');
   const { entries, loading } = useLedger(query);
   const liveCards = useMemo(() => entries.map(ledgerEntryToCard), [entries]);
-  const samples = sampleRecords.map((rec) => ({ ...rec, href: `/ledger/${rec.id}` }));
+  const samples = ledgerSpecimens.map((s) => specimenToRecordCardProps(s, `/ledger/${s.id}`));
   const cards = liveCards.length > 0 ? liveCards : samples;
 
   useEffect(() => {

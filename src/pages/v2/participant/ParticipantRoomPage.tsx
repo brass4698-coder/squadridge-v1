@@ -1,24 +1,123 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import { ParticipantResolutionPanel } from '../../../components/participant/ParticipantResolutionPanel';
+import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { useParticipantMessages } from '../../../hooks/useParticipantMessages';
 import { useParticipantSession } from '../../../hooks/useParticipantSession';
-import { ParticipantResolutionPanel } from '../../../components/participant/ParticipantResolutionPanel';
+import { analyzeToneLocal } from '../../../lib/ai/pipeline';
+import {
+  DIALOGUE_STAGE_CONFIGS,
+  parseDialogueStage,
+  stageAllowsParticipantPost,
+} from '../../../lib/dialogueStages';
 import { participantRoute } from '../../../lib/participantRoutes';
+import {
+  participantAcknowledgePause,
+  participantGetPacing,
+  participantRequestSlowDown,
+  pacingCopy,
+  type ParticipantPacingState,
+} from '../../../lib/sessionPacing';
 
 export function ParticipantRoomPage() {
   const token = useParticipantToken();
   const { ctx } = useParticipantSession(token ?? '');
   const { messages, status, error, send } = useParticipantMessages(token ?? undefined);
   const [input, setInput] = useState('');
+  const [draftReady, setDraftReady] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [pacing, setPacing] = useState<ParticipantPacingState | null>(null);
+  const [localWarning, setLocalWarning] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const dialogueStage = parseDialogueStage(
+    pacing?.dialogue_stage ?? ctx?.dialogue_stage ?? 'preparation',
+  );
+  const stageConfig = DIALOGUE_STAGE_CONFIGS[dialogueStage];
+  const stageAllowsPost =
+    pacing?.participant_posting_allowed ??
+    ctx?.participant_posting_allowed ??
+    stageAllowsParticipantPost(dialogueStage);
+
+  const refreshPacing = useCallback(async () => {
+    if (!token) return;
+    const next = await participantGetPacing(token);
+    if (next.valid) setPacing(next);
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    void refreshPacing();
+    const id = window.setInterval(() => void refreshPacing(), 3000);
+    return () => window.clearInterval(id);
+  }, [token, refreshPacing]);
 
   async function sendMessage() {
     if (!input.trim() || !token) return;
+    setSendError(null);
+
+    if (!draftReady) {
+      setDraftReady(true);
+      setSendError(null);
+      return;
+    }
+
+    const tone = analyzeToneLocal(input);
+    if (tone.tensionLevel > 0.5 && tone.suggestion) {
+      setLocalWarning(tone.suggestion);
+    } else {
+      setLocalWarning(null);
+    }
+
+    if (!stageAllowsPost) {
+      setSendError('This stage is facilitator-led. Posting opens when the facilitator advances.');
+      return;
+    }
+
+    if (pacing?.posting_blocked) {
+      setSendError(
+        pacing.acknowledge_required
+          ? 'Acknowledge the pause before posting again.'
+          : 'Posting is temporarily limited while the room slows down.',
+      );
+      return;
+    }
+
     const result = await send(input);
-    if (result.ok) setInput('');
+    if (result.ok) {
+      setInput('');
+      setDraftReady(false);
+      void refreshPacing();
+    } else {
+      const code = result.error ?? '';
+      if (code === 'ROOM_PAUSED' || code === 'PAUSE_ACK_REQUIRED') {
+        setSendError('The room is paused. Acknowledge when you are ready to continue.');
+      } else if (code === 'POSTING_RESTRICTED') {
+        setSendError(
+          'Posting is temporarily limited. Take a breath, then try a shorter contribution.',
+        );
+      } else if (code === 'STAGE_POSTING_CLOSED') {
+        setSendError('This stage does not accept participant posts yet.');
+      } else {
+        setSendError(code || 'Could not send. Check your connection and try again.');
+      }
+      void refreshPacing();
+    }
+  }
+
+  async function onSlowDown() {
+    if (!token) return;
+    const next = await participantRequestSlowDown(token);
+    if (next.valid) setPacing(next);
+  }
+
+  async function onAcknowledge() {
+    if (!token) return;
+    const next = await participantAcknowledgePause(token);
+    if (next.valid) setPacing(next);
   }
 
   function leave() {
@@ -28,40 +127,46 @@ export function ParticipantRoomPage() {
 
   if (!token) return null;
 
+  const roomPaused = pacing?.session_status === 'paused' || pacing?.pacing_mode === 'paused';
+  const warningMessage =
+    localWarning ||
+    pacing?.warning_message ||
+    (pacing?.pacing_mode && pacing.pacing_mode !== 'normal'
+      ? pacingCopy(pacing.pacing_mode).body
+      : null);
+  const postingBlocked = Boolean(pacing?.posting_blocked) || roomPaused || !stageAllowsPost;
+
   return (
-    <div className="flex h-screen flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
-      {/* Header */}
-      <div
-        className="flex items-center justify-between border-b px-6 py-4"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
-      >
+    <div className="flex h-screen flex-col bg-surface">
+      <div className="flex items-center justify-between border-b border-line bg-surface-elevated px-6 py-4">
         <div>
-          <p
-            className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--color-accent)' }}
-          >
-            Protected Session · Live
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand">
+            Protected session · {roomPaused ? 'Paused' : 'Live'} · {stageConfig.label}
           </p>
           <h1 className="text-base font-semibold text-ink">
             {ctx?.session_title ?? 'Protected session'}
           </h1>
         </div>
         <button
+          type="button"
           onClick={() => setConfirmLeave(true)}
-          className="rounded border px-4 py-2 text-sm transition-opacity hover:opacity-70"
-          style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
+          className="min-h-[44px] rounded border border-line px-4 py-2 text-sm text-ink-secondary transition-opacity hover:opacity-70"
         >
-          Leave Session
+          Leave session
         </button>
       </div>
 
+      <div className="border-b border-line bg-surface-elevated px-6 py-3">
+        <DialogueStageMap current={dialogueStage} compact className="mx-auto max-w-2xl" />
+        <p className="mx-auto mt-2 max-w-2xl text-xs text-ink-secondary">
+          {stageConfig.participantPrompt}
+        </p>
+      </div>
+
       <div
-        className="border-b px-6 py-2 text-center text-xs"
-        style={{
-          borderColor: 'var(--color-border)',
-          backgroundColor: 'var(--color-surface)',
-          color: 'var(--color-text-secondary)',
-        }}
+        className="border-b border-line bg-surface-elevated px-6 py-2 text-center text-xs text-ink-secondary"
+        role="status"
+        aria-live="polite"
       >
         {error
           ? `Sync issue: ${error}`
@@ -72,16 +177,58 @@ export function ParticipantRoomPage() {
               : 'Connected — messages refresh automatically'}
       </div>
 
+      {warningMessage ? (
+        <div
+          className="border-b border-sem-warning/40 bg-sem-warning-soft px-6 py-3 text-sm text-ink"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="font-medium">
+            {pacing?.pacing_mode && pacing.pacing_mode !== 'normal'
+              ? pacingCopy(pacing.pacing_mode).title
+              : 'Take care with tone'}
+          </p>
+          <p className="mt-1 text-ink-secondary">{warningMessage}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {pacing?.acknowledge_required ? (
+              <button
+                type="button"
+                onClick={() => void onAcknowledge()}
+                className="btn-institutional btn-institutional--primary min-h-[44px] text-sm"
+              >
+                I am ready to continue
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => void onSlowDown()}
+              className="btn-institutional btn-institutional--ghost min-h-[44px] text-sm"
+            >
+              Slow down
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-end border-b border-line bg-surface-elevated px-6 py-2">
+          <button
+            type="button"
+            onClick={() => void onSlowDown()}
+            className="min-h-[44px] text-sm font-medium text-brand underline-offset-2 hover:underline"
+          >
+            Slow down
+          </button>
+        </div>
+      )}
+
       <ParticipantResolutionPanel token={token} />
 
-      {/* Messages */}
       <main
         className="flex-1 overflow-y-auto px-6 py-6"
         aria-label="Session dialogue"
         aria-live="polite"
         aria-atomic="false"
       >
-        <div className="mx-auto max-w-2xl flex flex-col gap-4">
+        <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((msg) => {
             const isYou = msg.sender_role === 'participant' && msg.sender_label === ctx?.codename;
             const isFacilitator = msg.sender_role === 'facilitator';
@@ -107,7 +254,7 @@ export function ParticipantRoomPage() {
                       ? 'bg-brand text-brand-on'
                       : isFacilitator
                         ? 'border border-brand/30 bg-brand-soft text-ink'
-                        : 'border border-line bg-surface-elevated text-ink'
+                        : 'bg-surface-elevated text-ink shadow-sr-xs'
                   }`}
                 >
                   {msg.body}
@@ -118,45 +265,53 @@ export function ParticipantRoomPage() {
         </div>
       </main>
 
-      {/* Input */}
-      <div
-        className="border-t p-4"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
-      >
+      <div className="border-t border-line bg-surface-elevated p-4">
+        {sendError ? (
+          <p className="mx-auto mb-2 max-w-2xl text-sm text-sem-danger" role="alert">
+            {sendError}
+          </p>
+        ) : null}
         <div className="mx-auto flex max-w-2xl gap-3">
           <label htmlFor="participant-input" className="sr-only">
-            Your message
+            Your contribution
           </label>
           <textarea
             id="participant-input"
             rows={2}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            disabled={postingBlocked}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setDraftReady(false);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                void sendMessage();
               }
             }}
-            placeholder="Write your contribution… (Enter to send, Shift+Enter for new line)"
-            className="flex-1 resize-none rounded border px-4 py-2.5 text-sm outline-none transition-colors"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-bg)',
-              color: 'var(--color-text-primary)',
-            }}
+            placeholder={
+              !stageAllowsPost
+                ? 'Facilitator-led stage — posting opens when the process advances'
+                : postingBlocked
+                  ? 'Posting paused — wait for pacing to clear or acknowledge the pause'
+                  : draftReady
+                    ? 'Review your draft, then confirm send'
+                    : 'Draft your contribution… (Enter reviews, then confirms)'
+            }
+            className="flex-1 resize-none rounded border border-line bg-surface px-4 py-2.5 text-sm text-ink outline-none disabled:opacity-60"
           />
           <button
+            type="button"
             onClick={() => void sendMessage()}
-            disabled={!input.trim()}
-            className="shrink-0 rounded px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-            style={{ backgroundColor: 'var(--color-accent)' }}
+            disabled={!input.trim() || postingBlocked}
+            className="btn-institutional btn-institutional--primary shrink-0 disabled:opacity-40"
           >
-            Send
+            {draftReady ? 'Confirm send' : 'Review'}
           </button>
         </div>
-        <p className="mt-2 text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          Private · Not recorded · Only the approved outcome may be published
+        <p className="mt-2 text-center text-xs text-ink-secondary">
+          Staged contributions · Draft before send · Only the approved outcome may leave the room
         </p>
       </div>
 
@@ -164,7 +319,7 @@ export function ParticipantRoomPage() {
         <ConfirmModal
           title="Leave this session?"
           body="You will exit the room. Your previous contributions remain in the session record for facilitator reference only and will not be published. You may not be able to re-enter."
-          confirmLabel="Leave Session"
+          confirmLabel="Leave session"
           cancelLabel="Stay"
           dangerous
           onConfirm={leave}

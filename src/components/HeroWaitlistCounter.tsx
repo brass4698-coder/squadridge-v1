@@ -19,7 +19,7 @@ export function HeroWaitlistCounter() {
         {CAPABILITIES.map((item) => (
           <li
             key={item}
-            className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 font-sans text-[0.78rem] font-medium text-landing-body"
+            className="inline-flex items-center rounded-full border border-line bg-surface-hover/40 px-3 py-1.5 font-sans text-[0.78rem] font-medium text-landing-body"
           >
             {item}
           </li>

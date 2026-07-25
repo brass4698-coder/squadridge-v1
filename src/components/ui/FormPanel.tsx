@@ -41,7 +41,7 @@ export function FormPanel({
             <TitleTag
               id={titleId}
               className={cn(
-                'm-0 font-display text-lg font-medium tracking-tight text-ink',
+                'm-0 font-heading text-lg font-medium tracking-tight text-ink',
                 titleAs === 'h1' && 'text-page-title',
                 eyebrow && 'mt-2',
               )}

@@ -98,8 +98,13 @@ export function OutcomeReleasePage() {
           <h1 className="text-xl font-semibold text-ink">Approve &amp; release</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-secondary">
             {outcomePublic
-              ? 'All parties must approve before the outcome is published to the public ledger. Room dialogue is never published.'
-              : 'All parties must approve before the outcome is released as a private anchored record for partners and funders. It will not appear on the public ledger. Room dialogue stays in the room.'}
+              ? 'All parties must approve via their review links before the outcome is published to the public ledger. Room dialogue is never published.'
+              : 'All parties must approve via their review links before the outcome is released as a private anchored record. It will not appear on the public ledger. Room dialogue stays in the room.'}
+          </p>
+          <p className="mt-2 text-xs text-ink-secondary">
+            Share each participant&apos;s invite token URL with{' '}
+            <span className="font-mono text-ink-faint">/p/review/&lt;token&gt;</span> after you
+            submit the draft. You may only mark the Facilitator row from this console.
           </p>
           <p className="mt-2 font-mono text-xs text-ink-faint">
             {outcomePublic ? 'Visibility: public ledger' : 'Visibility: private anchored record'}
@@ -171,7 +176,7 @@ export function OutcomeReleasePage() {
             {approvals.map((a) => (
               <li
                 key={a.id}
-                className="flex min-h-[44px] items-center justify-between gap-3 rounded border border-line bg-surface-elevated px-5 py-4"
+                className="flex min-h-[44px] items-center justify-between gap-3 rounded-lg bg-surface-elevated px-5 py-4 shadow-sr-sm"
               >
                 <p className="text-sm font-medium text-ink">{a.approver_label}</p>
                 <div className="flex flex-wrap items-center justify-end gap-2">
@@ -187,13 +192,23 @@ export function OutcomeReleasePage() {
                     {a.status}
                   </StatusBadge>
                   {a.status === 'pending' ? (
-                    <button
-                      type="button"
-                      onClick={() => void setApprovalStatus(a.id, 'approved')}
-                      className="min-h-[44px] px-2 text-xs font-medium text-brand hover:underline"
-                    >
-                      Mark approved
-                    </button>
+                    a.approval_source === 'participant' || a.participant_id ? (
+                      <span className="max-w-[12rem] text-right text-xs text-ink-faint">
+                        Waiting on participant review link
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void setApprovalStatus(a.id, 'approved').catch((err: unknown) => {
+                            setError(err instanceof Error ? err.message : 'Update failed');
+                          });
+                        }}
+                        className="min-h-[44px] px-2 text-xs font-medium text-brand hover:underline"
+                      >
+                        Mark approved
+                      </button>
+                    )
                   ) : null}
                 </div>
               </li>

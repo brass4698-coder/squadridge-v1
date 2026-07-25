@@ -22,6 +22,17 @@ export interface Database {
           updated_at: string;
           template_id: string | null;
           setup_config: Json;
+          dialogue_stage:
+            | 'preparation'
+            | 'opening'
+            | 'story'
+            | 'framing'
+            | 'options'
+            | 'review'
+            | 'outcome_ready';
+          issue_goal: string | null;
+          risk_notes: string | null;
+          disclosure_boundaries: string | null;
         };
         Insert: {
           facilitator_id: string;
@@ -35,12 +46,34 @@ export interface Database {
           status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
           template_id?: string | null;
           setup_config?: Json;
+          dialogue_stage?:
+            | 'preparation'
+            | 'opening'
+            | 'story'
+            | 'framing'
+            | 'options'
+            | 'review'
+            | 'outcome_ready';
+          issue_goal?: string | null;
+          risk_notes?: string | null;
+          disclosure_boundaries?: string | null;
         };
         Update: {
           status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
           updated_at?: string;
           template_id?: string | null;
           setup_config?: Json;
+          dialogue_stage?:
+            | 'preparation'
+            | 'opening'
+            | 'story'
+            | 'framing'
+            | 'options'
+            | 'review'
+            | 'outcome_ready';
+          issue_goal?: string | null;
+          risk_notes?: string | null;
+          disclosure_boundaries?: string | null;
         };
       };
       participants: {
@@ -58,6 +91,7 @@ export interface Database {
           admitted_at: string | null;
           left_at: string | null;
           created_at: string;
+          participation_reason: string | null;
         };
         Insert: {
           session_id: string;
@@ -70,12 +104,14 @@ export interface Database {
           consented_at?: string | null;
           admitted_at?: string | null;
           left_at?: string | null;
+          participation_reason?: string | null;
         };
         Update: {
           verification_status?: 'pending' | 'verified' | 'denied';
           invite_used?: boolean;
           admitted_at?: string | null;
           left_at?: string | null;
+          participation_reason?: string | null;
         };
       };
       outcome_records: {
@@ -89,6 +125,10 @@ export interface Database {
           status: 'draft' | 'pending_approval' | 'approved' | 'published';
           published_at: string | null;
           ledger_sha: string | null;
+          timestamp_token: string | null;
+          timestamp_authority: string | null;
+          timestamped_at: string | null;
+          timestamp_status: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
           created_at: string;
           updated_at: string;
         };
@@ -101,6 +141,10 @@ export interface Database {
           status: 'draft' | 'pending_approval' | 'approved' | 'published';
           published_at?: string | null;
           ledger_sha?: string | null;
+          timestamp_token?: string | null;
+          timestamp_authority?: string | null;
+          timestamped_at?: string | null;
+          timestamp_status?: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
         };
         Update: {
           summary?: string;
@@ -110,6 +154,10 @@ export interface Database {
           status?: 'draft' | 'pending_approval' | 'approved' | 'published';
           published_at?: string | null;
           ledger_sha?: string | null;
+          timestamp_token?: string | null;
+          timestamp_authority?: string | null;
+          timestamped_at?: string | null;
+          timestamp_status?: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
           updated_at?: string;
         };
       };
@@ -121,6 +169,9 @@ export interface Database {
           status: 'pending' | 'approved' | 'rejected';
           approved_at: string | null;
           created_at: string;
+          participant_id: string | null;
+          dispute_note: string | null;
+          approval_source: 'facilitator' | 'participant';
         };
         Insert: Omit<Database['public']['Tables']['outcome_approvals']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['outcome_approvals']['Insert']>;

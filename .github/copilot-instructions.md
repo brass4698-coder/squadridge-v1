@@ -119,7 +119,7 @@ Roadmap / non‑shipped work:
 The repository includes structured demo surfaces:
 
 - `/investors` — public investor mini‑page (sanitized, link‑safe, no gated decks or sensitive scenarios).
-- `/pitch-deck-hub` — moderator‑only interactive pitch hub (uses content also available as static HTML under `public/pitch-deck-hub/`).
+- `/pitch-deck-hub` — invite/super_admin interactive pitch hub (HTML assets gated via `serve-deck`, not public static files).
 - `/demo` → `/admin/demo-hub` — moderator‑only presenter hub for scenario selection and tour control.
 - `?notes=1` — presenter notes overlay on tour URLs (desktop only).
 - `/session/demo-session-001` — static offline demo session page with seeded messages and scripted interventions.

@@ -121,8 +121,8 @@ port = 54324
 # sender_name = "Admin"
 
 [storage]
-# SquadRidge does not use Storage yet (message blobs / avatars stay out of Storage API).
-enabled = false
+# Private participant-verification docs (see 20260712_001_auth_security_hardening).
+enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
@@ -410,6 +410,9 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.ingest-message]
+verify_jwt = true
+
+[functions.serve-deck]
 verify_jwt = true
 
 # Experimental features may be deprecated any time

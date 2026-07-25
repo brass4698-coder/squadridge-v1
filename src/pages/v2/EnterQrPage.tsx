@@ -130,7 +130,7 @@ export function EnterQrPage() {
   return (
     <GovernedEntryLayout title="QR handoff">
       <div className="mx-auto max-w-xl">
-        <h1 className="font-display text-h2 font-medium text-ink">Scan invitation QR</h1>
+        <h1 className="font-heading text-h2 font-semibold text-ink">Scan invitation QR</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
           Secure mobile handoff for invitation credentials. Camera processing stays on this device;
           the credential is single-purpose and does not expose room dialogue.

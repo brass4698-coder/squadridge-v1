@@ -6,13 +6,13 @@ export interface HowItWorksVignetteStep {
 }
 
 /**
- * End-to-end operational vignette — facilitator path from setup to verification.
+ * End-to-end operational vignette — nested under spine stages as accordions.
  * Keep honest: release is deliberate; room dialogue never auto-publishes.
  */
 export const howItWorksVignette = {
-  eyebrow: 'Day in the life',
+  eyebrow: 'Worked example',
   heading: 'One mediation, start to finish',
-  lede: 'You are mediating a contested land-use matter. Here is the operational path SquadRidge holds — from facilitator setup through an anchored outcome outsiders can verify.',
+  lede: 'A contested land-use matter. Same spine — nested under each stage below.',
   outcome:
     'A Joint Statement of Principles on the public ledger, with a verification anchor anyone can check — without naming who said what in the room.',
   steps: [
@@ -26,7 +26,7 @@ export const howItWorksVignette = {
       label: '2',
       stage: 'Configure',
       title: 'Participant invitation',
-      body: 'You issue unique invite credentials for each party (codenames, not public identities). Invite links are bearer secrets with a time bound — handed off through channels the parties already trust.',
+      body: 'You issue unique invite credentials for each party (codenames for the room — not public identities). Invite links are bearer secrets: whoever holds the link can attempt entry, within a time bound — hand them off through channels the parties already trust.',
     },
     {
       label: '3',
@@ -62,12 +62,15 @@ export const howItWorksVignette = {
       label: '8',
       stage: 'Release',
       title: 'Verification anchor generation',
-      body: 'At release, the platform records a SHA-256 integrity hash of the canonicalised approved text (ledger_sha). Outside parties can recompute the hash against the published instrument — they cannot recover room dialogue or participant identities from it.',
+      body: 'At release, the platform records a SHA-256 integrity hash (ledger_sha) of the canonicalised approved text — normalised into a fixed byte form so the same text always hashes the same way. Outside parties can recompute the hash against the published instrument; they cannot recover room dialogue or participant identities from it.',
     },
   ] satisfies HowItWorksVignetteStep[],
 };
 
-/** Facilitator workspace answers — honest product surface, not marketing gloss. */
+/**
+ * @deprecated Absorbed into privatePublicItems / Boundary section on How it works.
+ * Kept for any residual imports; prefer the room ↔ record split.
+ */
 export const FACILITATOR_WORKSPACE = [
   {
     title: 'Capturing emerging consensus',

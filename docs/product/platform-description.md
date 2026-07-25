@@ -275,7 +275,7 @@ Each template includes ground rules (written-only, no attribution on public reco
 
 ### What the anchor proves
 
-- The released record **has not been altered** since release (recompute hash and compare).
+- The released record **has not been altered** since release (recompute SHA-256 and compare to `ledger_sha`).
 - The record was **issued through SquadRidge’s release process** — not pasted from an external doc without audit trail.
 - Organisation, date, and included metadata are **as on file** at release time.
 
@@ -285,6 +285,11 @@ Each template includes ground rules (written-only, no attribution on public reco
 - Who each participant was.
 - That any external party **endorses** the substance.
 - That the outcome is **legally binding** or factually true — only that the release process was followed.
+- **Independent proof of when** the hash was created. Platform `published_at` is operational metadata. **RFC 3161** trusted timestamping (TSA token beside `ledger_sha`) is **scaffolded in schema, not live** — see [`institutional-credibility-research.md`](institutional-credibility-research.md). Do not claim court-admissible timestamps until a production TSA path ships.
+
+### Confidentiality precedent (honest framing)
+
+Confidentiality architecture is **aligned with established ombuds practice standards** (IOA: independence, impartiality, informality, confidentiality) as a professional benchmark for room≠record. SquadRidge is **not** an IOA-certified ombuds office and does **not** invent legal privilege. Details and sources: [`institutional-credibility-research.md`](institutional-credibility-research.md).
 
 ### Pilot honesty on ledger content
 
@@ -450,6 +455,8 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | [`docs/product/civic-early-warning-response-model.md`](civic-early-warning-response-model.md) | End-to-end civic early-warning → proposal vision (labeled vs shipped) |
 | [`docs/product/impact-roadmap.md`](impact-roadmap.md) | Impact and differentiation strategy (90-day + 12-month) |
 | [`ROADMAP.md`](../../ROADMAP.md) | Phase A actionable checklist |
+| [`docs/product/platform-evolution-action-plan.md`](platform-evolution-action-plan.md) | MVP → pilot → institutional execution plan |
+| [`docs/product/institutional-credibility-research.md`](institutional-credibility-research.md) | IOA / RFC 3161 research (claims honesty) |
 | [`docs/product/ridge-protocol-spec.md`](ridge-protocol-spec.md) | Ridge Protocol round choreography (B1) |
 | [`docs/product-one-pager.md`](../product-one-pager.md) | Short spoken pitch (30s / 2min) |
 | [`docs/security/threat-model.md`](../security/threat-model.md) | Engineering and security review |

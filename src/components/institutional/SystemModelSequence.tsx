@@ -1,10 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
-import { BadgeCheck, Lock, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { StatusBadge, type StatusBadgeVariant } from '../StatusBadge';
 
 /**
- * Technical control model — three clearly separated sub-sections per stage.
+ * Governed sequence walkthrough — one active stage panel; tabs/rail persist.
+ * Prefer this over parallel process UIs on the marketing homepage.
  */
+
+export interface SystemModelSequenceProps {
+  /**
+   * Interactive stepped walkthrough (homepage).
+   * When false, renders a quiet stacked list for secondary contexts.
+   */
+  interactive?: boolean;
+}
 
 interface Stage {
   id: string;
@@ -13,10 +21,14 @@ interface Stage {
   label: string;
   chipLabel: string;
   badgeVariant: StatusBadgeVariant;
-  Icon: LucideIcon;
+  modeClass: string;
+  meaning: string;
   exists: string;
   controls: string;
   withheld: string;
+  /** Secondary diligence lines inside Details disclosure */
+  details: string[];
+  footer: string;
 }
 
 const STAGES: Stage[] = [
@@ -25,109 +37,282 @@ const STAGES: Stage[] = [
     anchorId: 'stage-room',
     num: '01',
     label: 'Private room',
-    chipLabel: 'Private',
+    chipLabel: 'Enclosed',
     badgeVariant: 'private',
-    Icon: Lock,
-    exists: 'Verified parties exchange structured written rounds.',
-    controls: 'You set who enters, the pace, and when it ends.',
-    withheld: 'Dialogue, drafts, and identities stay inside the room.',
+    modeClass: 'sr-mode-room',
+    meaning:
+      'Verified parties exchange structured written rounds inside a facilitator-governed session.',
+    exists: 'Structured written rounds, participant verification, session pacing.',
+    controls: 'Facilitator controls entry, pace, and when the room closes.',
+    withheld: 'Dialogue, drafts, and identities.',
+    details: [
+      'Invite-verified participants only — soft enclosure, not a public forum.',
+      'Pace holds (pause / slow down) stay inside the room.',
+      'Ending the room drafts toward the release gate — it does not publish.',
+    ],
+    footer: 'VERIFIED ×4 · LIVE',
   },
   {
     id: 'gate',
     anchorId: 'stage-gate',
     num: '02',
     label: 'Release gate',
-    chipLabel: 'Governed',
+    chipLabel: 'Threshold',
     badgeVariant: 'governed',
-    Icon: ShieldCheck,
-    exists: 'Recorded approvals and a facilitator-drafted outcome.',
-    controls: 'Nothing leaves the room without your explicit release.',
-    withheld: 'Unapproved content — there is no auto-publish.',
+    modeClass: 'sr-mode-gate',
+    meaning:
+      'Nothing leaves the room until approvals are recorded and release is explicitly triggered.',
+    exists: 'Facilitator-drafted outcome, approval chain, release decision.',
+    controls: 'Facilitator and designated approval flow.',
+    withheld: 'Unapproved content or automatic publication.',
+    details: [
+      'Highest structure in the path — threshold elevated above room and ledger.',
+      'Approvals are recorded before any public instrument exists.',
+      'Release requires an explicit facilitator action — never timed or automatic.',
+    ],
+    footer: 'APPROVALS 3/3 · RELEASE Explicit click',
   },
   {
     id: 'record',
     anchorId: 'stage-record',
     num: '03',
-    label: 'Public record',
+    label: 'Public ledger',
     chipLabel: 'Published',
     badgeVariant: 'published',
-    Icon: BadgeCheck,
-    exists: 'Approved outcome, limited metadata, and a verification anchor.',
-    controls: 'Anyone can recompute the anchor to confirm integrity.',
-    withheld: 'No transcript. No attribution.',
+    modeClass: 'sr-mode-ledger',
+    meaning:
+      'Only approved outcome text, limited metadata, and a verification anchor become public.',
+    exists: 'Released outcome, limited metadata, integrity anchor.',
+    controls: 'Public can verify integrity, but cannot see private room content.',
+    withheld: 'Transcript, attribution, identities.',
+    details: [
+      'Flatter, open composition — integrity cues only, no decorative chrome.',
+      'Tamper-evident hash: recompute SHA-256 of published text to confirm.',
+      'The ledger anchors release integrity, not what was said in the room.',
+    ],
+    footer: 'ANCHOR VERIFIED · sha256:7c3a…e91f',
   },
 ];
 
-export function SystemModelSequence() {
+export function SystemModelSequence({ interactive = true }: SystemModelSequenceProps) {
+  if (!interactive) {
+    return <StaticSequence />;
+  }
+  return <WalkthroughSequence />;
+}
+
+function WalkthroughSequence() {
   const [active, setActive] = useState(0);
-  const stageRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const tabIds = useId();
+  const panelId = `${tabIds}-panel`;
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const stage = STAGES[active];
+
+  const select = (index: number) => {
+    setActive(index);
+  };
 
   useEffect(() => {
-    const els = stageRefs.current.filter((el): el is HTMLLIElement => el !== null);
-    if (els.length === 0 || typeof IntersectionObserver === 'undefined') return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const index = Number((entry.target as HTMLElement).dataset.index);
-            if (!Number.isNaN(index)) setActive(index);
-          }
-        }
-      },
-      { rootMargin: '-35% 0px -45% 0px', threshold: 0 },
-    );
-
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const applyHash = () => {
+      const hash = window.location.hash.replace(/^#/, '');
+      const index = STAGES.findIndex((s) => s.anchorId === hash);
+      if (index >= 0) setActive(index);
+    };
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
   }, []);
 
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let next: number | null = null;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      next = (index + 1) % STAGES.length;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      next = (index - 1 + STAGES.length) % STAGES.length;
+    } else if (event.key === 'Home') {
+      next = 0;
+    } else if (event.key === 'End') {
+      next = STAGES.length - 1;
+    }
+    if (next === null) return;
+    event.preventDefault();
+    select(next);
+    tabRefs.current[next]?.focus();
+  };
+
   return (
-    <div className="grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] lg:gap-20">
-      <div className="hidden lg:block">
-        <div className="sticky top-28 self-start">
-          <StickyNav active={active} />
-        </div>
-      </div>
+    <div className="sr-governed-walkthrough overflow-hidden rounded-[var(--sr-radius-lg)] border border-line bg-[color:var(--sr-bg-sunken)]">
+      {/* Deep-link targets for #stage-room / #stage-gate / #stage-record */}
+      {STAGES.map((s) => (
+        <span key={`anchor-${s.id}`} id={s.anchorId} className="sr-only" aria-hidden />
+      ))}
 
-      <ol className="m-0 flex max-w-[42rem] list-none flex-col gap-10 p-0 md:gap-12">
-        {STAGES.map((stage, index) => {
-          const Icon = stage.Icon;
+      {/* Desktop / tablet: persistent top tab rail */}
+      <div
+        role="tablist"
+        aria-label="Governed sequence stages"
+        className="hidden border-b border-line sm:grid sm:grid-cols-3"
+      >
+        {STAGES.map((s, index) => {
+          const isActive = index === active;
           return (
-            <li
-              key={stage.id}
-              id={stage.anchorId}
-              data-index={index}
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              id={`${tabIds}-tab-${s.id}`}
+              aria-selected={isActive}
+              aria-controls={panelId}
+              tabIndex={isActive ? 0 : -1}
               ref={(el) => {
-                stageRefs.current[index] = el;
+                tabRefs.current[index] = el;
               }}
-              className="sr-vault-card scroll-mt-28 px-5 py-6 md:px-7 md:py-8"
+              onClick={() => select(index)}
+              onKeyDown={(e) => onTabKeyDown(e, index)}
+              className={`flex flex-col gap-2 border-r border-line px-4 py-4 text-left last:border-r-0 transition-colors duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--sr-primary)] ${
+                isActive
+                  ? 'bg-[color:var(--sr-bg-elevated)]'
+                  : 'bg-transparent hover:bg-[color:var(--sr-bg-elevated)]/50'
+              }`}
             >
-              <header className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface-sunken text-ink-faint">
-                    <Icon className="size-3.5" aria-hidden />
-                  </span>
-                  <span className="font-mono text-xs tabular-nums text-ink-faint">
-                    Stage {stage.num}
-                  </span>
-                  <StatusBadge variant={stage.badgeVariant}>{stage.chipLabel}</StatusBadge>
-                </div>
-              </header>
-
-              <h3 className="mt-0 mb-0 font-display text-h3 font-medium tracking-tight text-ink">
-                {stage.label}
-              </h3>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-1">
-                <ControlCell term="What exists" desc={stage.exists} />
-                <ControlCell term="Who controls it" desc={stage.controls} />
-                <ControlCell term="Never public" desc={stage.withheld} accent />
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-mono text-xs tabular-nums text-ink-faint">{s.num}</span>
+                <StatusBadge variant={s.badgeVariant}>{s.chipLabel}</StatusBadge>
               </div>
-            </li>
+              <span
+                className={`text-sm font-semibold tracking-tight ${
+                  isActive ? 'text-ink' : 'text-ink-secondary'
+                }`}
+              >
+                {s.label}
+              </span>
+            </button>
           );
         })}
-      </ol>
+      </div>
+
+      {/* Mobile: stacked accordion headers; only one open */}
+      <div className="sm:hidden">
+        {STAGES.map((s, index) => {
+          const isActive = index === active;
+          return (
+            <div key={s.id} className="border-b border-line last:border-b-0">
+              <button
+                type="button"
+                aria-expanded={isActive}
+                aria-controls={`${panelId}-mobile-${s.id}`}
+                id={`${tabIds}-acc-${s.id}`}
+                onClick={() => select(index)}
+                className={`flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left transition-colors duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--sr-primary)] ${
+                  isActive ? 'bg-[color:var(--sr-bg-elevated)]' : 'bg-transparent'
+                }`}
+              >
+                <span className="flex min-w-0 items-baseline gap-3">
+                  <span className="font-mono text-xs tabular-nums text-ink-faint">{s.num}</span>
+                  <span
+                    className={`truncate text-sm font-semibold tracking-tight ${
+                      isActive ? 'text-ink' : 'text-ink-secondary'
+                    }`}
+                  >
+                    {s.label}
+                  </span>
+                </span>
+                <StatusBadge variant={s.badgeVariant}>{s.chipLabel}</StatusBadge>
+              </button>
+              {isActive ? (
+                <div
+                  id={`${panelId}-mobile-${s.id}`}
+                  role="region"
+                  aria-labelledby={`${tabIds}-acc-${s.id}`}
+                  className="border-t border-line bg-[color:var(--sr-bg-elevated)] px-4 pb-5 pt-4 motion-safe:animate-[sr-walkthrough-in_160ms_ease-out] motion-reduce:animate-none"
+                >
+                  <StagePanelBody stage={s} />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop panel — fixed min-height to reduce layout jump */}
+      <div
+        id={panelId}
+        role="tabpanel"
+        aria-labelledby={`${tabIds}-tab-${stage.id}`}
+        className={`hidden min-h-[22rem] border-t-0 bg-[color:var(--sr-bg-elevated)] px-5 py-6 sm:block md:min-h-[20rem] md:px-7 md:py-7 ${stage.modeClass}`}
+      >
+        <div
+          key={stage.id}
+          className="motion-safe:animate-[sr-walkthrough-in_160ms_ease-out] motion-reduce:animate-none"
+        >
+          <StagePanelBody stage={stage} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StagePanelBody({ stage }: { stage: Stage }) {
+  return (
+    <div className="flex flex-col gap-5">
+      {/* 1. Step number + state chip */}
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="font-mono text-xs tabular-nums text-ink-faint">Stage {stage.num}</span>
+        <StatusBadge variant={stage.badgeVariant}>{stage.chipLabel}</StatusBadge>
+      </header>
+
+      {/* 2. Stage title */}
+      <h3 className="m-0 font-heading text-h3 font-semibold tracking-tight text-ink">
+        {stage.label}
+      </h3>
+
+      {/* 3. Meaning */}
+      <p className="m-0 max-w-prose text-sm leading-relaxed text-ink-secondary">{stage.meaning}</p>
+
+      {/* 4. Rows */}
+      <div className="grid gap-0 border-t border-line">
+        <ControlCell term="What exists" desc={stage.exists} />
+        <ControlCell term="Who controls it" desc={stage.controls} />
+        <ControlCell term="Never public" desc={stage.withheld} accent />
+      </div>
+
+      {/* 5. Optional Details disclosure */}
+      <details className="group border-t border-line pt-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none focus-visible:text-ink [&::-webkit-details-marker]:hidden">
+          <span>Details</span>
+          <span
+            aria-hidden
+            className="font-mono text-sm leading-none text-ink-faint transition-transform duration-150 ease-[var(--sr-ease-governed)] group-open:rotate-45 motion-reduce:transition-none"
+          >
+            +
+          </span>
+        </summary>
+        <ul className="mt-3 mb-0 list-none space-y-2 p-0">
+          {stage.details.map((line) => (
+            <li key={line} className="flex gap-2.5 text-sm leading-relaxed text-ink-secondary">
+              <span
+                aria-hidden
+                className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-ink-faint"
+              />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      {/* 6. Footer state token */}
+      <footer className="border-t border-line pt-4">
+        <p
+          className={
+            stage.id === 'record'
+              ? 'sr-verify m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)]'
+              : 'm-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint'
+          }
+        >
+          {stage.id === 'record' ? <span className="sr-verify-dot" aria-hidden /> : null}
+          {stage.footer}
+        </p>
+      </footer>
     </div>
   );
 }
@@ -143,65 +328,45 @@ function ControlCell({
 }) {
   return (
     <div
-      className={`flex flex-col gap-3 rounded-[var(--sr-radius-md)] border px-5 py-5 ${
+      className={`flex flex-col gap-1.5 border-b border-line px-0 py-3.5 last:border-b-0 ${
         accent
-          ? 'border-line border-l-2 border-l-[color:var(--color-border-strong)] bg-surface-sunken/40'
-          : 'border-line bg-surface-elevated'
+          ? 'border-l-2 border-l-[color:var(--sr-mode-gate-border,var(--sr-line-strong))] pl-4'
+          : ''
       }`}
     >
-      <p
-        className={`m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] ${
-          accent ? 'text-ink' : 'text-ink-faint'
-        }`}
-      >
-        {term}
-      </p>
-      <p className={`m-0 text-sm leading-[1.65] ${accent ? 'text-ink' : 'text-ink-secondary'}`}>
-        {desc}
-      </p>
+      <p className={`sr-meta-label ${accent ? 'text-ink' : ''}`}>{term}</p>
+      <p className={`sr-meta-value ${accent ? '' : 'font-normal text-ink-secondary'}`}>{desc}</p>
     </div>
   );
 }
 
-function StickyNav({ active }: { active: number }) {
+/** Quiet stacked fallback when interactive rail is not desired. */
+function StaticSequence() {
   return (
-    <nav aria-hidden>
-      <p className="mb-5 m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-[color:var(--color-text-muted)]">
-        Stages
-      </p>
-      <ol className="m-0 flex list-none flex-col gap-0 border-l border-[color:var(--color-border-subtle)] p-0">
-        {STAGES.map((stage, index) => {
-          const isActive = index === active;
-          return (
-            <li key={stage.id}>
-              <div
-                className={`border-l-2 py-3 pl-4 transition-colors ${
-                  isActive ? '-ml-px border-brand' : 'border-transparent'
-                }`}
-              >
-                <span className="block font-mono text-[length:var(--text-label)] tabular-nums text-[color:var(--color-text-muted)]">
-                  {stage.num}
-                </span>
-                <span
-                  className={`mt-1 block text-sm font-medium ${
-                    isActive ? 'text-ink' : 'text-ink-secondary'
-                  }`}
-                >
-                  {stage.label}
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-      <div className="mt-8 border-t border-[color:var(--color-border-subtle)] pt-5">
-        <div className="flex flex-col gap-2">
-          <p className="m-0 font-mono text-[length:var(--text-label)] font-semibold uppercase tracking-[var(--tracking-caps)] text-brand">
-            Never public
+    <ol className="sr-process-spine m-0 flex max-w-[42rem] list-none flex-col gap-0 p-0">
+      {STAGES.map((stage) => (
+        <li
+          key={stage.id}
+          id={stage.anchorId}
+          className="sr-process-spine__item scroll-mt-28 border-b border-line py-8 last:border-b-0 last:pb-0 first:pt-0"
+        >
+          <header className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-2">
+            <span className="font-mono text-xs tabular-nums text-ink-faint">Stage {stage.num}</span>
+            <StatusBadge variant={stage.badgeVariant}>{stage.chipLabel}</StatusBadge>
+          </header>
+          <h3 className="mt-0 mb-0 font-heading text-h3 font-semibold tracking-tight text-ink">
+            {stage.label}
+          </h3>
+          <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+            {stage.meaning}
           </p>
-          <p className="m-0 text-xs leading-relaxed text-ink-faint">{STAGES[active].withheld}</p>
-        </div>
-      </div>
-    </nav>
+          <div className="mt-6 grid gap-0 border-t border-line">
+            <ControlCell term="What exists" desc={stage.exists} />
+            <ControlCell term="Who controls it" desc={stage.controls} />
+            <ControlCell term="Never public" desc={stage.withheld} accent />
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }

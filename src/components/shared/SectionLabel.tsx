@@ -50,7 +50,7 @@ export function MarketingSection({
       className={cn(
         'scroll-mt-20 text-left',
         padY,
-        tone === 'sunken' && 'bg-surface-sunken/60',
+        tone === 'sunken' && 'bg-surface-secondary/80',
         tone === 'bordered' && 'border-y border-line',
         className,
       )}
@@ -94,7 +94,7 @@ export function SectionIntro({
   return (
     <div className={cn(wide ? 'max-w-measure' : 'max-w-prose', className)}>
       <SectionLabel text={label} />
-      <h2 className="font-display text-h2 font-medium tracking-tight text-ink">{title}</h2>
+      <h2 className="font-heading text-h2 font-semibold tracking-[-0.02em] text-ink">{title}</h2>
       {lead ? (
         <div className="mt-4 text-[length:var(--sr-text-lead,1.0625rem)] leading-relaxed text-ink-secondary [&_p]:mt-0">
           {typeof lead === 'string' ? <p>{lead}</p> : lead}

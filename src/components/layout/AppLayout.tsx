@@ -168,7 +168,7 @@ export function AppLayout() {
             </div>
 
             {showDevFooterLinks ? (
-              <div className="mt-8 border-t border-white/[0.06] pt-6">
+              <div className="mt-8 border-t border-line pt-6">
                 <p className="mb-3 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-slate-600">
                   Development
                 </p>
@@ -198,7 +198,7 @@ export function AppLayout() {
               <div className="mt-8 flex max-w-md flex-col items-center gap-3 sm:max-w-none sm:flex-row sm:items-center sm:gap-4 lg:mx-auto">
                 <Link
                   to="/"
-                  className="inline-flex min-h-[44px] min-w-[140px] items-center justify-center rounded-lg border border-[#2d3f55] bg-[#141c2e] px-5 py-2.5 font-heading text-[0.85rem] font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[color,background-color,border-color] hover:border-teal/45 hover:bg-[#1a2436] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/60"
+                  className="inline-flex min-h-[44px] min-w-[140px] items-center justify-center rounded-lg border border-line-strong bg-surface-hover px-5 py-2.5 font-heading text-[0.85rem] font-semibold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-[color,background-color,border-color] hover:border-teal/45 hover:bg-surface-hover hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/60"
                 >
                   Start over
                 </Link>

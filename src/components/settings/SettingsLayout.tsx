@@ -14,7 +14,7 @@ const base = appRoutes.settings;
 export function SettingsLayout() {
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <h1 className="font-display text-h2 font-medium text-ink">Settings</h1>
+      <h1 className="font-heading text-h2 font-semibold text-ink">Settings</h1>
       <p className="mt-1 text-sm text-ink-secondary">
         Account, trust, and notification preferences for your governed workspace.
       </p>

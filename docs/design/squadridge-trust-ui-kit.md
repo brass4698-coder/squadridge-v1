@@ -2,37 +2,29 @@
 
 Concrete design kit for marketing + product surfaces. Aesthetic target: **civic-grade confidentiality** — not cybersecurity neon, not generic SaaS.
 
-**Implemented in:** `src/styles/tokens.css` (`body[data-theme='institutional']`), `src/styles/globals.css` (`.sr-mode-*`, `.sr-evidence-*`, buttons), landing evidence components.
+**Implemented in:** `src/styles/tokens.css` (unified `:root` + theme scope aliases), `src/styles/globals.css` (`.sr-mode-*`, `.sr-evidence-*`, `.sr-surface-card`, buttons), landing evidence components.
 
 ---
 
 ## Palette
 
-**App chrome (`:root`)** — deep navy vault for signed-in operations.
+**One cool near-black elevation system** for app chrome and marketing. Theme attributes (`institutional`, `ledger-dark`) are layout/scope aliases — they do **not** switch to a cream parchment light theme.
 
 | Role | Token | Value |
 | ---- | ----- | ----- |
-| Background | `--sr-bg` | `#08091F` deep navy |
-| Surface / cards | `--sr-bg-elevated` | `#141833` charcoal-navy |
-| Primary (app) | `--sr-primary` | `#14B8A6` teal |
+| Canvas | `--sr-bg` | `#0A0B0D` near-black |
+| Elevated panels | `--sr-bg-elevated` | `#14161A` |
+| Secondary / sunken | `--sr-bg-secondary` | `#101114` |
+| Hover | `--sr-bg-hover` | `#1B1E23` |
+| Ink | `--sr-ink` | `#F5F5F7` |
+| Secondary ink | `--sr-ink-secondary` | `#A1A1A6` |
+| Interactive accent | `--sr-primary` | `#1F8A7A` teal |
+| Verification accent | `--sr-verify` | `#3FE0C5` (badges/dots only) |
+| Lines | `--sr-line` | `rgba(255,255,255,0.08)` |
 
-**Marketing (`body[data-theme='institutional']`)** — warm mineral / parchment. Restored light institutional system; not Spotify-dark.
+Utilities: `.sr-surface-card` / `.sr-surface-card--soft` (elevated fill + soft shadow), `.sr-mode-*`, `.sr-evidence-*`, `.sr-vault-card`, `.sr-shell-sidebar`, `.sr-shell-panel`.
 
-| Role | Token | Value |
-| ---- | ----- | ----- |
-| Canvas | `--sr-bg` | `#F5F3EE` warm mineral |
-| Elevated panels | `--sr-bg-elevated` | `#FBFAF7` cream |
-| Sunken / room | `--sr-bg-sunken` | `#EBE8E1` |
-| Ink | `--sr-ink` | `#1F2423` |
-| Secondary ink | `--sr-ink-secondary` | `#5F6A67` |
-| Primary | `--sr-primary` | `#0E5E63` deep ink-teal |
-| Secondary accent | `--sr-accent-alt` | `#8E7A68` muted bronze (sparingly) |
-| Warning | `--sr-warning` | `#A15A37` clay |
-| Verify | `--sr-verify` | `#3D7A67` integrity only |
-
-Utilities: `.sr-page-glow` (soft mineral wash on institutional), `.sr-vault-card`, `.sr-shell-sidebar`, `.sr-shell-panel`, `.sr-form-atmosphere` / `.sr-form-panel`.
-
-Do **not** use Spotify green, purple neon, or near-black full-page backgrounds on PublicShell marketing. Printable ledger may still use `.theme-light` where required.
+Prefer **elevation** (`bg-surface-elevated` + `shadow-sr-card`) over hard boxed `border border-line` chrome on trust panels. Do **not** use Spotify green, purple neon, or warm cream marketing canvases.
 
 ---
 
@@ -40,13 +32,12 @@ Do **not** use Spotify green, purple neon, or near-black full-page backgrounds o
 
 | Context | Face | Token |
 | ------- | ---- | ----- |
-| Marketing headlines only | Instrument Serif | `--sr-font-display` |
-| Body / UI / controls | Inter (+ Public Sans fallback) | `--sr-font-body` / `--sr-font-heading` |
-| Metadata, IDs, anchors | IBM Plex Mono | `--sr-font-mono` |
+| Body / UI / headings | Inter | `--sr-font-body` / `--sr-font-heading` / `--sr-font-display` |
+| Metadata, IDs, anchors, labels | IBM Plex Mono | `--sr-font-mono` |
 
-Rules: serif only at page/section display sizes. Product workflows stay sans + tabular nums.
+Rules: no display serif default (Instrument Serif / IBM Plex Serif retired from the token stack). Product workflows stay sans + mono tabular nums.
 
-Comfortable marketing scale (everyone, not a toggle): root `17px` / `18px` ≥1280px via `html:has(body[data-theme='institutional'])`. Labels floor at `--text-label: 0.75rem`; body ~`--text-body: 1.0625rem`; display uses larger `clamp()`.
+Comfortable marketing scale: root `17px` / `18px` ≥1280px via institutional scope where applied. Labels floor at `--text-label`; body ~`--text-body`; display uses larger `clamp()`.
 
 ---
 
@@ -54,9 +45,9 @@ Comfortable marketing scale (everyone, not a toggle): root `17px` / `18px` ≥12
 
 | State | Class | Feel |
 | ----- | ----- | ---- |
-| Private room | `.sr-mode-room` | Enclosed, sunken, soft perimeter |
+| Private room | `.sr-mode-room` | Enclosed, secondary fill, soft perimeter |
 | Release gate | `.sr-mode-gate` | Accent-tinted, elevated threshold |
-| Public ledger | `.sr-mode-ledger` | Flatter, open, integrity marks |
+| Public ledger | `.sr-mode-ledger` | Flatter canvas, integrity marks |
 
 Evidence layout primitives: `.sr-evidence-frame`, `.sr-evidence-rail`, `.sr-evidence-pane`, `.sr-integrity-mark`, `.sr-approval-count`, `.sr-threshold-elevate`.
 
@@ -67,46 +58,29 @@ Evidence layout primitives: `.sr-evidence-frame`, `.sr-evidence-rail`, `.sr-evid
 ### Buttons
 - Primary: solid `--sr-primary`, low shadow, 1px press on active — no gradient/glow
 - Ghost: surface + quiet border
-- Irreversible: same structure; clay/warning only when necessary
+- Irreversible: same structure; warning only when necessary
 
 ### Badges
-Keep sparse: Verified · Pending · Released · Not public · Documented limit. Border + type over saturated fills. Use `StatusBadge` variants.
+Keep sparse: Verified · Pending · Released · Not public · Documented limit. Border + type over saturated fills. Use `StatusBadge` variants. Verification accent only on verified / live / released.
 
 ### Record / instrument cards
-Title → metadata block → status row → anchor footer. Prefer `.sr-evidence-frame` + `.sr-mode-ledger`.
+Title → metadata block → status row → anchor footer. Prefer `.sr-evidence-frame` + elevated surface shadows.
 
 ### Forms
-Labels above fields; focus via `--sr-focus-ring` (teal). Validation reads as operational notes.
+Labels above fields; focus via `--sr-focus-ring` (verify soft ring on inputs). Validation reads as operational notes.
 
 ---
 
 ## Motion
 
-- 160–220ms (`--sr-duration-governed`)
-- Ease: `--sr-ease-governed` / `--sr-ease-spring` (procedural settle, no bounce)
-- Utilities: `.sr-press`, `.sr-lift`, `.sr-fade-rise`, `details[open] > .sr-details-body`
-- React: `GovernedPanel`, `ApprovalCount` in `src/components/motion/`
-- Celebrate verification/release with restraint only; respect `prefers-reduced-motion`
+Governed ease (`--sr-ease-governed`); respect `prefers-reduced-motion`. Motion for hierarchy and feedback, not spectacle.
 
 ---
 
-## Trust UI checklist
+## Checklist
 
-1. Can a user tell private room vs release gate vs public record at a glance?
-2. Are irreversible actions visually heavier than routine actions?
-3. Do verified / approved / published feel structurally different?
-4. Are security claims backed by boundaries and integrity marks, not icon theater?
-5. Is decoration subordinate to content and state?
-6. Does the UI feel like governed infrastructure, not a collab chat product?
-
----
-
-## Homepage direction
-
-1. Hero: private deliberation infrastructure + room → gate → ledger diagram
-2. Why overview (+ safer than chat/email)
-3. Privacy boundaries (doctrine + table)
-4. Facilitator governance (process stages + evidence)
-5. Buyer-track teasers
-6. Ledger specimen (public integrity registry)
-7. Pilot intake (`#pilot`)
+- [ ] Tokens only — no raw hex in components
+- [ ] Interactive teal ≠ verification cyan
+- [ ] Inter + IBM Plex Mono only
+- [ ] Elevated cards over boxed chrome on trust surfaces
+- [ ] Theme aliases left intact for route switching

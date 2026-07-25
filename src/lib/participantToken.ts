@@ -11,10 +11,18 @@ export interface ParticipantTokenContext {
   document_submitted?: boolean;
   consented_at?: string | null;
   admitted_at?: string | null;
+  participation_reason?: string | null;
   session_title?: string;
   session_status?: string;
   session_language?: string;
+  conflict_type?: string;
+  max_participants?: number;
+  outcome_public?: boolean;
   identity_verification_required?: boolean;
+  dialogue_stage?: string;
+  issue_goal?: string | null;
+  disclosure_boundaries?: string | null;
+  participant_posting_allowed?: boolean;
 }
 
 export interface ParticipantMessageRow {
@@ -36,11 +44,34 @@ export function demoParticipantContext(): ParticipantTokenContext {
     document_submitted: true,
     consented_at: new Date().toISOString(),
     admitted_at: new Date().toISOString(),
+    participation_reason: 'Representing a watershed stewardship partner for this consultation.',
     session_title: 'Northern Watershed Consultation',
     session_status: 'live',
     session_language: 'English',
+    conflict_type: 'Environmental',
+    max_participants: 8,
+    outcome_public: true,
     identity_verification_required: false,
+    dialogue_stage: 'story',
+    issue_goal: 'Agree a joint water-allocation statement parties can stand behind.',
+    disclosure_boundaries: 'Room dialogue stays private; only approved summary may leave.',
+    participant_posting_allowed: true,
   };
+}
+
+export async function recordParticipantReason(
+  token: string,
+  reason: string,
+): Promise<ParticipantTokenContext> {
+  if (isDemoParticipantToken(token)) {
+    return { ...demoParticipantContext(), participation_reason: reason.trim() };
+  }
+  const { data, error } = await supabase.rpc('record_participant_reason', {
+    p_token: token,
+    p_reason: reason,
+  });
+  if (error) return { valid: false, error: error.message };
+  return data as ParticipantTokenContext;
 }
 
 export async function validateParticipantToken(token: string): Promise<ParticipantTokenContext> {

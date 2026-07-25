@@ -268,7 +268,7 @@ export function SessionSetupPage() {
                   id="maxParticipants"
                   type="number"
                   min="2"
-                  max="100"
+                  max="12"
                   value={form.maxParticipants}
                   onChange={(e) => update('maxParticipants', e.target.value)}
                   className={inputCls}

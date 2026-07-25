@@ -1,6 +1,10 @@
 /**
  * Optional analytics path: local tone heuristic + `sentiment_metrics` when `VITE_ENABLE_AI=true`.
  * Translation runs client-side (`useTranslation` / translation worker); interventions use `interventions` regardless.
+ *
+ * Advisory only: private nudge to the author (suggestion) and optional heat signal for facilitators.
+ * Never autonomous mute, ban, or release — facilitator pacing RPCs remain human-controlled.
+ * @see docs/product/institutional-credibility-research.md §5
  */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';

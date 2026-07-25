@@ -29,8 +29,8 @@ const LENS_COLORS: Record<StakeholderLensId, string> = {
   government: 'border-l-trust-blue text-trust-blue',
   political: 'border-l-amber text-amber-light',
   public: 'border-l-teal text-teal',
-  media: 'border-l-[#a855f7] text-[#a855f7]',
-  peace: 'border-l-[#ec4899] text-[#ec4899]',
+  media: 'border-l-sem-info text-sem-info',
+  peace: 'border-l-brand text-brand',
 };
 
 interface AnalysisPhasePanelProps {
@@ -108,11 +108,11 @@ export function AnalysisPhasePanel({
 
       {/* Synthesis statement */}
       {analysis.synthesisStatement ? (
-        <div className="rounded-xl border border-dashed border-white/[0.1] bg-white/[0.01] px-5 py-4">
+        <div className="rounded-xl border border-dashed border-line-strong bg-surface-hover/20 px-5 py-4">
           <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-ink-subtle">
             Synthesis
           </p>
-          <p className="mt-2 font-display text-[1.05rem] leading-relaxed text-ink italic">
+          <p className="mt-2 font-heading text-[1.05rem] leading-relaxed text-ink italic">
             {analysis.synthesisStatement}
           </p>
         </div>
@@ -205,7 +205,7 @@ function AnalysisProcessing() {
                 ? 'scale-125 bg-brand'
                 : idx < currentLens
                   ? 'bg-brand/40'
-                  : 'bg-white/10'
+                  : 'bg-surface-hover'
             }`}
           />
         ))}
@@ -341,7 +341,7 @@ function ProposalCard({ proposal }: { proposal: RankedProposal }) {
               {proposal.sourceParticipants.map((p) => (
                 <span
                   key={p}
-                  className="rounded-full border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 font-mono text-[0.62rem] text-ink-subtle"
+                  className="rounded-full border border-line bg-surface-hover/40 px-2 py-0.5 font-mono text-[0.62rem] text-ink-subtle"
                 >
                   {p}
                 </span>

@@ -1,24 +1,154 @@
-/**
- * Auto-generated Supabase Database types.
- * Source: linked project via `npx supabase gen types typescript --project-id <ref>`
- * Local (preferred when Docker is up): `npx supabase gen types typescript --local`
- *
- * Import:
- *   import type { Database } from '@/types/supabase'
- *
- * Do not hand-edit table shapes — regenerate after migrations.
- */
-
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: '14.5';
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          created_at: string;
+          description: string;
+          email: string;
+          full_name: string;
+          id: string;
+          organisation: string | null;
+          organization: string | null;
+          review_notes: string | null;
+          reviewed_by: string | null;
+          role_requested: string | null;
+          status: string;
+          updated_at: string | null;
+          use_case: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          email: string;
+          full_name: string;
+          id?: string;
+          organisation?: string | null;
+          organization?: string | null;
+          review_notes?: string | null;
+          reviewed_by?: string | null;
+          role_requested?: string | null;
+          status?: string;
+          updated_at?: string | null;
+          use_case: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          email?: string;
+          full_name?: string;
+          id?: string;
+          organisation?: string | null;
+          organization?: string | null;
+          review_notes?: string | null;
+          reviewed_by?: string | null;
+          role_requested?: string | null;
+          status?: string;
+          updated_at?: string | null;
+          use_case?: string;
+        };
+        Relationships: [];
+      };
+      app_preferences: {
+        Row: {
+          created_at: string;
+          density: string | null;
+          last_dashboard: string | null;
+          theme: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          density?: string | null;
+          last_dashboard?: string | null;
+          theme?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          density?: string | null;
+          last_dashboard?: string | null;
+          theme?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'app_preferences_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      audit_events: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          event_type: string;
+          id: string;
+          metadata: Json;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type: string;
+          event_type: string;
+          id?: string;
+          metadata?: Json;
+        };
+        Update: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          event_type?: string;
+          id?: string;
+          metadata?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'audit_events_actor_user_id_fkey';
+            columns: ['actor_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       conflict_severity_snapshots: {
         Row: {
           component_scores: Json;
@@ -123,6 +253,66 @@ export type Database = {
           },
         ];
       };
+      deck_access_grants: {
+        Row: {
+          audience_scopes: string[];
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          invite_token: string;
+          issued_by: string | null;
+          label: string | null;
+          metadata: Json;
+          redeemed_at: string | null;
+          revoked_at: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          audience_scopes?: string[];
+          created_at?: string;
+          email: string;
+          expires_at: string;
+          id?: string;
+          invite_token: string;
+          issued_by?: string | null;
+          label?: string | null;
+          metadata?: Json;
+          redeemed_at?: string | null;
+          revoked_at?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          audience_scopes?: string[];
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          invite_token?: string;
+          issued_by?: string | null;
+          label?: string | null;
+          metadata?: Json;
+          redeemed_at?: string | null;
+          revoked_at?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'deck_access_grants_issued_by_fkey';
+            columns: ['issued_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'deck_access_grants_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       demo_session_claims: {
         Row: {
           anon_user_id: string;
@@ -210,51 +400,240 @@ export type Database = {
           },
         ];
       };
-      financial_projections: {
+      incident_items: {
         Row: {
-          arr_usd: number;
-          burn_rate_usd: number | null;
+          author_id: string;
+          body: string;
+          content_warning: string | null;
           created_at: string;
           id: string;
-          mau: number;
-          notes: string | null;
-          period_end: string;
-          period_label: string;
-          period_start: string;
-          revenue_usd: number;
-          runway_months: number | null;
-          scenario: string;
+          lane: string;
+          moderation_note: string | null;
+          moderation_state: string;
+          moderator_id: string | null;
+          room_id: string;
+          source_type: string;
+          source_url: string | null;
+          title: string;
+          updated_at: string;
+          verification_status: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          content_warning?: string | null;
+          created_at?: string;
+          id?: string;
+          lane: string;
+          moderation_note?: string | null;
+          moderation_state?: string;
+          moderator_id?: string | null;
+          room_id: string;
+          source_type?: string;
+          source_url?: string | null;
+          title: string;
+          updated_at?: string;
+          verification_status?: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          content_warning?: string | null;
+          created_at?: string;
+          id?: string;
+          lane?: string;
+          moderation_note?: string | null;
+          moderation_state?: string;
+          moderator_id?: string | null;
+          room_id?: string;
+          source_type?: string;
+          source_url?: string | null;
+          title?: string;
+          updated_at?: string;
+          verification_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'incident_items_room_id_fkey';
+            columns: ['room_id'];
+            isOneToOne: false;
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_messages: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          id: string;
+          is_facilitator: boolean;
+          moderation_state: string;
+          thread_id: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          id?: string;
+          is_facilitator?: boolean;
+          moderation_state?: string;
+          thread_id: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          is_facilitator?: boolean;
+          moderation_state?: string;
+          thread_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'incident_messages_thread_id_fkey';
+            columns: ['thread_id'];
+            isOneToOne: false;
+            referencedRelation: 'incident_threads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_room_participants: {
+        Row: {
+          joined_at: string;
+          role: string;
+          room_id: string;
+          user_id: string;
+        };
+        Insert: {
+          joined_at?: string;
+          role?: string;
+          room_id: string;
+          user_id: string;
+        };
+        Update: {
+          joined_at?: string;
+          role?: string;
+          room_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'incident_room_participants_room_id_fkey';
+            columns: ['room_id'];
+            isOneToOne: false;
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_rooms: {
+        Row: {
+          closed_at: string | null;
+          created_at: string;
+          description: string;
+          facilitator_id: string;
+          id: string;
+          severity_tier: string;
+          slug: string;
+          status: string;
+          title: string;
           updated_at: string;
         };
         Insert: {
-          arr_usd?: number;
-          burn_rate_usd?: number | null;
+          closed_at?: string | null;
           created_at?: string;
+          description?: string;
+          facilitator_id: string;
           id?: string;
-          mau?: number;
-          notes?: string | null;
-          period_end: string;
-          period_label: string;
-          period_start: string;
-          revenue_usd?: number;
-          runway_months?: number | null;
-          scenario: string;
+          severity_tier?: string;
+          slug: string;
+          status?: string;
+          title: string;
           updated_at?: string;
         };
         Update: {
-          arr_usd?: number;
-          burn_rate_usd?: number | null;
+          closed_at?: string | null;
+          created_at?: string;
+          description?: string;
+          facilitator_id?: string;
+          id?: string;
+          severity_tier?: string;
+          slug?: string;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      incident_threads: {
+        Row: {
+          created_at: string;
+          id: string;
+          item_id: string | null;
+          room_id: string;
+          status: string;
+          topic: string;
+          updated_at: string;
+        };
+        Insert: {
           created_at?: string;
           id?: string;
-          mau?: number;
-          notes?: string | null;
-          period_end?: string;
-          period_label?: string;
-          period_start?: string;
-          revenue_usd?: number;
-          runway_months?: number | null;
-          scenario?: string;
+          item_id?: string | null;
+          room_id: string;
+          status?: string;
+          topic: string;
           updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          item_id?: string | null;
+          room_id?: string;
+          status?: string;
+          topic?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'incident_threads_item_id_fkey';
+            columns: ['item_id'];
+            isOneToOne: false;
+            referencedRelation: 'incident_items';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'incident_threads_room_id_fkey';
+            columns: ['room_id'];
+            isOneToOne: false;
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      institutions: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          slug: string;
+          status: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          slug: string;
+          status?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          slug?: string;
+          status?: string;
         };
         Relationships: [];
       };
@@ -283,6 +662,86 @@ export type Database = {
             columns: ['squad_id'];
             isOneToOne: false;
             referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      invites: {
+        Row: {
+          auth_user_id: string | null;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          institution_id: string | null;
+          invite_type: string;
+          issued_by: string | null;
+          metadata: Json;
+          revoked_at: string | null;
+          role_key: string;
+          token: string;
+          used_at: string | null;
+          workspace_id: string | null;
+        };
+        Insert: {
+          auth_user_id?: string | null;
+          created_at?: string;
+          email: string;
+          expires_at: string;
+          id?: string;
+          institution_id?: string | null;
+          invite_type: string;
+          issued_by?: string | null;
+          metadata?: Json;
+          revoked_at?: string | null;
+          role_key: string;
+          token: string;
+          used_at?: string | null;
+          workspace_id?: string | null;
+        };
+        Update: {
+          auth_user_id?: string | null;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          institution_id?: string | null;
+          invite_type?: string;
+          issued_by?: string | null;
+          metadata?: Json;
+          revoked_at?: string | null;
+          role_key?: string;
+          token?: string;
+          used_at?: string | null;
+          workspace_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'invites_auth_user_id_fkey';
+            columns: ['auth_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'invites_institution_id_fkey';
+            columns: ['institution_id'];
+            isOneToOne: false;
+            referencedRelation: 'institutions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'invites_issued_by_fkey';
+            columns: ['issued_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'invites_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'workspaces';
             referencedColumns: ['id'];
           },
         ];
@@ -546,7 +1005,7 @@ export type Database = {
       moderation_audit_log: {
         Row: {
           action: string;
-          actor_user_id: string;
+          actor_user_id: string | null;
           created_at: string;
           id: string;
           metadata: Json;
@@ -555,7 +1014,7 @@ export type Database = {
         };
         Insert: {
           action: string;
-          actor_user_id?: string;
+          actor_user_id?: string | null;
           created_at?: string;
           id?: string;
           metadata?: Json;
@@ -564,7 +1023,7 @@ export type Database = {
         };
         Update: {
           action?: string;
-          actor_user_id?: string;
+          actor_user_id?: string | null;
           created_at?: string;
           id?: string;
           metadata?: Json;
@@ -588,31 +1047,235 @@ export type Database = {
         };
         Relationships: [];
       };
+      outcome_approvals: {
+        Row: {
+          approval_source: string;
+          approved_at: string | null;
+          approver_label: string;
+          created_at: string;
+          dispute_note: string | null;
+          id: string;
+          outcome_id: string;
+          participant_id: string | null;
+          status: string;
+        };
+        Insert: {
+          approval_source?: string;
+          approved_at?: string | null;
+          approver_label: string;
+          created_at?: string;
+          dispute_note?: string | null;
+          id?: string;
+          outcome_id: string;
+          participant_id?: string | null;
+          status?: string;
+        };
+        Update: {
+          approval_source?: string;
+          approved_at?: string | null;
+          approver_label?: string;
+          created_at?: string;
+          dispute_note?: string | null;
+          id?: string;
+          outcome_id?: string;
+          participant_id?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'outcome_approvals_outcome_id_fkey';
+            columns: ['outcome_id'];
+            isOneToOne: false;
+            referencedRelation: 'outcome_records';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'outcome_approvals_participant_id_fkey';
+            columns: ['participant_id'];
+            isOneToOne: false;
+            referencedRelation: 'participants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      outcome_records: {
+        Row: {
+          agreed_terms: string | null;
+          created_at: string;
+          facilitator_notes: string | null;
+          id: string;
+          ledger_sha: string | null;
+          pending_items: string | null;
+          published_at: string | null;
+          session_id: string;
+          status: string;
+          summary: string;
+          timestamp_authority: string | null;
+          timestamp_status: string | null;
+          timestamp_token: string | null;
+          timestamped_at: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          agreed_terms?: string | null;
+          created_at?: string;
+          facilitator_notes?: string | null;
+          id?: string;
+          ledger_sha?: string | null;
+          pending_items?: string | null;
+          published_at?: string | null;
+          session_id: string;
+          status?: string;
+          summary: string;
+          timestamp_authority?: string | null;
+          timestamp_status?: string | null;
+          timestamp_token?: string | null;
+          timestamped_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          agreed_terms?: string | null;
+          created_at?: string;
+          facilitator_notes?: string | null;
+          id?: string;
+          ledger_sha?: string | null;
+          pending_items?: string | null;
+          published_at?: string | null;
+          session_id?: string;
+          status?: string;
+          summary?: string;
+          timestamp_authority?: string | null;
+          timestamp_status?: string | null;
+          timestamp_token?: string | null;
+          timestamped_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'outcome_records_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      participant_pacing: {
+        Row: {
+          acknowledge_required: boolean;
+          acknowledged_at: string | null;
+          participant_id: string;
+          posting_blocked_until: string | null;
+          updated_at: string;
+          warning_level: string;
+          warning_message: string | null;
+        };
+        Insert: {
+          acknowledge_required?: boolean;
+          acknowledged_at?: string | null;
+          participant_id: string;
+          posting_blocked_until?: string | null;
+          updated_at?: string;
+          warning_level?: string;
+          warning_message?: string | null;
+        };
+        Update: {
+          acknowledge_required?: boolean;
+          acknowledged_at?: string | null;
+          participant_id?: string;
+          posting_blocked_until?: string | null;
+          updated_at?: string;
+          warning_level?: string;
+          warning_message?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'participant_pacing_participant_id_fkey';
+            columns: ['participant_id'];
+            isOneToOne: true;
+            referencedRelation: 'participants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      participants: {
+        Row: {
+          admitted_at: string | null;
+          codename: string;
+          consented_at: string | null;
+          created_at: string;
+          document_submitted: boolean;
+          email_hash: string | null;
+          id: string;
+          invite_expires_at: string;
+          invite_token: string;
+          invite_used: boolean;
+          left_at: string | null;
+          participation_reason: string | null;
+          session_id: string;
+          updated_at: string;
+          verification_status: string;
+        };
+        Insert: {
+          admitted_at?: string | null;
+          codename: string;
+          consented_at?: string | null;
+          created_at?: string;
+          document_submitted?: boolean;
+          email_hash?: string | null;
+          id?: string;
+          invite_expires_at?: string;
+          invite_token: string;
+          invite_used?: boolean;
+          left_at?: string | null;
+          participation_reason?: string | null;
+          session_id: string;
+          updated_at?: string;
+          verification_status?: string;
+        };
+        Update: {
+          admitted_at?: string | null;
+          codename?: string;
+          consented_at?: string | null;
+          created_at?: string;
+          document_submitted?: boolean;
+          email_hash?: string | null;
+          id?: string;
+          invite_expires_at?: string;
+          invite_token?: string;
+          invite_used?: boolean;
+          left_at?: string | null;
+          participation_reason?: string | null;
+          session_id?: string;
+          updated_at?: string;
+          verification_status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'participants_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
-          /** Pseudonymous in-room handle (phase1). Not the invite `display_name`. */
+          avatar_url: string | null;
           callsign: string;
           created_at: string;
-          /** Invite-only / auth shell (20260704 reconcile). */
           display_name: string | null;
           email: string | null;
-          avatar_url: string | null;
           era_affiliation: string | null;
           id: string;
           language: string | null;
           last_dashboard: string | null;
-          /** Invite onboarding flag (boolean). Prefer over renaming to onboarded_at. */
           onboarding_completed: boolean | null;
-          /** Phase1 timestamp when operator identity onboarding finished. */
           onboarding_completed_at: string | null;
           primary_role: string | null;
           region_hint: string | null;
-          /**
-           * Phase1 role lane (`role_archetype`), not a column named `role`.
-           * CHECK: strategist|analyst|policy|mediator|field|other
-           */
           role_archetype: string | null;
-          /** Required (and 8–100 chars) when role_archetype = 'other'. */
           role_other_detail: string | null;
           status: string | null;
           tags: string[];
@@ -620,11 +1283,11 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          avatar_url?: string | null;
           callsign?: string;
           created_at?: string;
           display_name?: string | null;
           email?: string | null;
-          avatar_url?: string | null;
           era_affiliation?: string | null;
           id: string;
           language?: string | null;
@@ -641,11 +1304,11 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          avatar_url?: string | null;
           callsign?: string;
           created_at?: string;
           display_name?: string | null;
           email?: string | null;
-          avatar_url?: string | null;
           era_affiliation?: string | null;
           id?: string;
           language?: string | null;
@@ -693,6 +1356,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      roles: {
+        Row: {
+          description: string | null;
+          id: string;
+          key: string;
+          label: string;
+        };
+        Insert: {
+          description?: string | null;
+          id?: string;
+          key: string;
+          label: string;
+        };
+        Update: {
+          description?: string | null;
+          id?: string;
+          key?: string;
+          label?: string;
+        };
+        Relationships: [];
+      };
       sentiment_metrics: {
         Row: {
           id: string;
@@ -721,6 +1405,347 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      session_analysis: {
+        Row: {
+          analysis_json: Json;
+          created_at: string | null;
+          id: string;
+          ranked_proposals: Json;
+          squad_id: string;
+        };
+        Insert: {
+          analysis_json?: Json;
+          created_at?: string | null;
+          id?: string;
+          ranked_proposals?: Json;
+          squad_id: string;
+        };
+        Update: {
+          analysis_json?: Json;
+          created_at?: string | null;
+          id?: string;
+          ranked_proposals?: Json;
+          squad_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_analysis_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: true;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_audit_events: {
+        Row: {
+          actor_id: string | null;
+          actor_role: string | null;
+          created_at: string;
+          event_type: string;
+          id: string;
+          metadata: Json;
+          session_id: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          actor_role?: string | null;
+          created_at?: string;
+          event_type: string;
+          id?: string;
+          metadata?: Json;
+          session_id: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          actor_role?: string | null;
+          created_at?: string;
+          event_type?: string;
+          id?: string;
+          metadata?: Json;
+          session_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_audit_events_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_inputs: {
+        Row: {
+          encrypted_content: string;
+          id: string;
+          is_final: boolean | null;
+          squad_id: string;
+          submitted_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          encrypted_content: string;
+          id?: string;
+          is_final?: boolean | null;
+          squad_id: string;
+          submitted_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          encrypted_content?: string;
+          id?: string;
+          is_final?: boolean | null;
+          squad_id?: string;
+          submitted_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_inputs_squad_id_fkey';
+            columns: ['squad_id'];
+            isOneToOne: false;
+            referencedRelation: 'squads';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'session_inputs_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_messages: {
+        Row: {
+          body: string;
+          id: string;
+          sender_label: string;
+          sender_role: string;
+          sent_at: string;
+          session_id: string;
+        };
+        Insert: {
+          body: string;
+          id?: string;
+          sender_label: string;
+          sender_role: string;
+          sent_at?: string;
+          session_id: string;
+        };
+        Update: {
+          body?: string;
+          id?: string;
+          sender_label?: string;
+          sender_role?: string;
+          sent_at?: string;
+          session_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_messages_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_resolution_items: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          owner_org: string | null;
+          proposed_by_label: string | null;
+          rank_order: number | null;
+          session_id: string;
+          status: string;
+          support_count: number;
+          target_days: number | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          owner_org?: string | null;
+          proposed_by_label?: string | null;
+          rank_order?: number | null;
+          session_id: string;
+          status?: string;
+          support_count?: number;
+          target_days?: number | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          owner_org?: string | null;
+          proposed_by_label?: string | null;
+          rank_order?: number | null;
+          session_id?: string;
+          status?: string;
+          support_count?: number;
+          target_days?: number | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_resolution_items_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_resolution_supports: {
+        Row: {
+          created_at: string;
+          id: string;
+          item_id: string;
+          participant_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          item_id: string;
+          participant_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          item_id?: string;
+          participant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_resolution_supports_item_id_fkey';
+            columns: ['item_id'];
+            isOneToOne: false;
+            referencedRelation: 'session_resolution_items';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'session_resolution_supports_participant_id_fkey';
+            columns: ['participant_id'];
+            isOneToOne: false;
+            referencedRelation: 'participants';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_room_pacing: {
+        Row: {
+          pacing_mode: string;
+          posting_restricted_until: string | null;
+          session_id: string;
+          updated_at: string;
+          updated_by: string | null;
+          warning_message: string | null;
+        };
+        Insert: {
+          pacing_mode?: string;
+          posting_restricted_until?: string | null;
+          session_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          warning_message?: string | null;
+        };
+        Update: {
+          pacing_mode?: string;
+          posting_restricted_until?: string | null;
+          session_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          warning_message?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_room_pacing_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: true;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'session_room_pacing_updated_by_fkey';
+            columns: ['updated_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      sessions: {
+        Row: {
+          conflict_type: string;
+          created_at: string;
+          dialogue_stage: string;
+          disclosure_boundaries: string | null;
+          eligibility_notes: string | null;
+          facilitator_id: string;
+          id: string;
+          identity_verification_required: boolean;
+          issue_goal: string | null;
+          language: string;
+          max_participants: number;
+          outcome_public: boolean;
+          risk_notes: string | null;
+          setup_config: Json;
+          status: string;
+          template_id: string | null;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          conflict_type: string;
+          created_at?: string;
+          dialogue_stage?: string;
+          disclosure_boundaries?: string | null;
+          eligibility_notes?: string | null;
+          facilitator_id: string;
+          id?: string;
+          identity_verification_required?: boolean;
+          issue_goal?: string | null;
+          language?: string;
+          max_participants?: number;
+          outcome_public?: boolean;
+          risk_notes?: string | null;
+          setup_config?: Json;
+          status?: string;
+          template_id?: string | null;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          conflict_type?: string;
+          created_at?: string;
+          dialogue_stage?: string;
+          disclosure_boundaries?: string | null;
+          eligibility_notes?: string | null;
+          facilitator_id?: string;
+          id?: string;
+          identity_verification_required?: boolean;
+          issue_goal?: string | null;
+          language?: string;
+          max_participants?: number;
+          outcome_public?: boolean;
+          risk_notes?: string | null;
+          setup_config?: Json;
+          status?: string;
+          template_id?: string | null;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       squad_members: {
         Row: {
@@ -760,9 +1785,16 @@ export type Database = {
           archived_at: string | null;
           archived_encryption_key_snapshot: string | null;
           created_at: string;
+          current_phase: string | null;
           expires_at: string;
           id: string;
+          input_duration_ms: number | null;
+          max_participants: number | null;
           message_encryption_key: string | null;
+          min_participants: number | null;
+          negotiation_duration_ms: number | null;
+          phase_started_at: string | null;
+          session_question: string | null;
           status: string | null;
           topic: string;
         };
@@ -770,9 +1802,16 @@ export type Database = {
           archived_at?: string | null;
           archived_encryption_key_snapshot?: string | null;
           created_at?: string;
+          current_phase?: string | null;
           expires_at: string;
           id?: string;
+          input_duration_ms?: number | null;
+          max_participants?: number | null;
           message_encryption_key?: string | null;
+          min_participants?: number | null;
+          negotiation_duration_ms?: number | null;
+          phase_started_at?: string | null;
+          session_question?: string | null;
           status?: string | null;
           topic: string;
         };
@@ -780,9 +1819,16 @@ export type Database = {
           archived_at?: string | null;
           archived_encryption_key_snapshot?: string | null;
           created_at?: string;
+          current_phase?: string | null;
           expires_at?: string;
           id?: string;
+          input_duration_ms?: number | null;
+          max_participants?: number | null;
           message_encryption_key?: string | null;
+          min_participants?: number | null;
+          negotiation_duration_ms?: number | null;
+          phase_started_at?: string | null;
+          session_question?: string | null;
           status?: string | null;
           topic?: string;
         };
@@ -848,7 +1894,29 @@ export type Database = {
           user_id?: string;
           workspace_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'user_roles_granted_by_fkey';
+            columns: ['granted_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_roles_role_key_fkey';
+            columns: ['role_key'];
+            isOneToOne: false;
+            referencedRelation: 'roles';
+            referencedColumns: ['key'];
+          },
+          {
+            foreignKeyName: 'user_roles_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       users: {
         Row: {
@@ -867,6 +1935,44 @@ export type Database = {
           status?: string | null;
         };
         Relationships: [];
+      };
+      verification_requests: {
+        Row: {
+          document_type: string | null;
+          id: string;
+          participant_id: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          storage_path: string | null;
+          submitted_at: string;
+        };
+        Insert: {
+          document_type?: string | null;
+          id?: string;
+          participant_id: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          storage_path?: string | null;
+          submitted_at?: string;
+        };
+        Update: {
+          document_type?: string | null;
+          id?: string;
+          participant_id?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          storage_path?: string | null;
+          submitted_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'verification_requests_participant_id_fkey';
+            columns: ['participant_id'];
+            isOneToOne: false;
+            referencedRelation: 'participants';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       verified_attributes: {
         Row: {
@@ -921,6 +2027,85 @@ export type Database = {
         };
         Relationships: [];
       };
+      workflow_notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          event_type: string;
+          id: string;
+          read_at: string | null;
+          session_id: string | null;
+          title: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          event_type: string;
+          id?: string;
+          read_at?: string | null;
+          session_id?: string | null;
+          title: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          event_type?: string;
+          id?: string;
+          read_at?: string | null;
+          session_id?: string | null;
+          title?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workflow_notifications_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      workspaces: {
+        Row: {
+          created_at: string;
+          id: string;
+          institution_id: string;
+          name: string;
+          slug: string;
+          status: string;
+          type: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          institution_id: string;
+          name: string;
+          slug: string;
+          status?: string;
+          type?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          institution_id?: string;
+          name?: string;
+          slug?: string;
+          status?: string;
+          type?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workspaces_institution_id_fkey';
+            columns: ['institution_id'];
+            isOneToOne: false;
+            referencedRelation: 'institutions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       zk_proof_submissions: {
         Row: {
           attribute_scope: string;
@@ -935,7 +2120,7 @@ export type Database = {
         Insert: {
           attribute_scope: string;
           created_at?: string;
-          expires_at?: string;
+          expires_at: string;
           id?: string;
           issuer_group_id?: string | null;
           nullifier_hash: string;
@@ -1081,15 +2266,128 @@ export type Database = {
       };
     };
     Functions: {
+      _log_session_audit_event_internal: {
+        Args: {
+          p_actor_id?: string;
+          p_actor_role?: string;
+          p_event_type: string;
+          p_metadata?: Json;
+          p_session_id: string;
+        };
+        Returns: undefined;
+      };
+      _participant_room_gate: {
+        Args: { p_require_live?: boolean; p_token: string };
+        Returns: Json;
+      };
+      accept_invite: {
+        Args: { p_display_name: string; p_token: string; p_user_id: string };
+        Returns: Json;
+      };
+      advance_session_phase: {
+        Args: { p_next_phase: string; p_squad_id: string };
+        Returns: undefined;
+      };
+      approve_access_request_and_issue_invite: {
+        Args: {
+          p_institution_id?: string;
+          p_request_id: string;
+          p_review_notes?: string;
+          p_role_key: string;
+          p_workspace_id?: string;
+        };
+        Returns: Json;
+      };
+      auth_user_has_role_keys: {
+        Args: { p_role_keys: string[] };
+        Returns: boolean;
+      };
+      auth_user_is_incident_room_moderator: {
+        Args: { p_room_id: string };
+        Returns: boolean;
+      };
+      auth_user_is_incident_room_participant: {
+        Args: { p_room_id: string };
+        Returns: boolean;
+      };
+      auth_user_is_incident_room_staff: {
+        Args: { p_room_id: string };
+        Returns: boolean;
+      };
+      auth_user_is_moderator: { Args: never; Returns: boolean };
+      auth_user_is_platform_moderator: { Args: never; Returns: boolean };
       auth_user_is_squad_member: {
         Args: { p_squad_id: string };
         Returns: boolean;
       };
+      cleanup_expired_messages: { Args: never; Returns: number };
+      cleanup_expired_squads: { Args: never; Returns: number };
+      cleanup_expired_zk_proofs: { Args: never; Returns: number };
+      count_final_inputs: { Args: { p_squad_id: string }; Returns: number };
       create_demo_session_claim: { Args: never; Returns: string };
       create_demo_squad: { Args: never; Returns: string };
+      create_invite: {
+        Args: {
+          p_email: string;
+          p_expires_hours?: number;
+          p_institution_id?: string;
+          p_invite_type: string;
+          p_metadata?: Json;
+          p_role_key: string;
+          p_workspace_id?: string;
+        };
+        Returns: Json;
+      };
+      dialogue_stage_allows_participant_post: {
+        Args: { p_stage: string };
+        Returns: boolean;
+      };
+      dialogue_stage_rank: { Args: { p_stage: string }; Returns: number };
+      export_session_audit_trail: {
+        Args: { p_session_id: string };
+        Returns: Json;
+      };
+      facilitator_advance_dialogue_stage: {
+        Args: { p_session_id: string; p_stage: string };
+        Returns: Json;
+      };
+      facilitator_seed_outcome_approvals: {
+        Args: { p_outcome_id: string };
+        Returns: Json;
+      };
+      facilitator_set_approval_status: {
+        Args: { p_approval_id: string; p_status: string };
+        Returns: Json;
+      };
+      facilitator_set_participant_verification: {
+        Args: { p_participant_id: string; p_status: string };
+        Returns: Json;
+      };
+      facilitator_set_room_pacing: {
+        Args: {
+          p_message?: string;
+          p_mode: string;
+          p_restrict_minutes?: number;
+          p_session_id: string;
+        };
+        Returns: Json;
+      };
       finalize_demo_session_claim: {
         Args: { p_claim_code: string; p_consent_token: string };
         Returns: Json;
+      };
+      get_default_dashboard_for_user: {
+        Args: { p_user_id?: string };
+        Returns: string;
+      };
+      get_effective_user_roles: {
+        Args: { p_user_id?: string };
+        Returns: {
+          granted_at: string;
+          institution_id: string;
+          role_key: string;
+          workspace_id: string;
+        }[];
       };
       get_my_messages_review_status: {
         Args: { p_message_ids: string[] };
@@ -1113,9 +2411,67 @@ export type Database = {
           user_id: string;
         }[];
       };
+      get_waitlist_count: { Args: never; Returns: number };
+      grant_role_to_user: {
+        Args: {
+          p_institution_id?: string;
+          p_role_key: string;
+          p_target_user_id: string;
+          p_workspace_id?: string;
+        };
+        Returns: Json;
+      };
+      has_deck_access: { Args: never; Returns: boolean };
+      incident_text_contains_contact_info: {
+        Args: { p_text: string };
+        Returns: boolean;
+      };
+      issue_deck_invite: {
+        Args: {
+          p_audience_scopes?: string[];
+          p_email: string;
+          p_expires_hours?: number;
+          p_label?: string;
+        };
+        Returns: Json;
+      };
       issue_demo_claim_consent: {
         Args: { p_claim_code: string };
         Returns: Json;
+      };
+      list_session_resolutions_for_participant: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      list_users_with_roles: {
+        Args: { p_limit?: number; p_offset?: number };
+        Returns: {
+          created_at: string;
+          display_name: string;
+          email: string;
+          onboarding_completed: boolean;
+          primary_role: string;
+          roles: Json;
+          status: string;
+          user_id: string;
+        }[];
+      };
+      log_session_audit_event: {
+        Args: {
+          p_actor_role?: string;
+          p_event_type: string;
+          p_metadata?: Json;
+          p_session_id: string;
+        };
+        Returns: undefined;
+      };
+      log_ttl_purge: {
+        Args: {
+          p_deleted_count: number;
+          p_metadata?: Json;
+          p_target_type: string;
+        };
+        Returns: undefined;
       };
       matchmaking_cancel_waiting: {
         Args: { p_pool_key: string };
@@ -1174,7 +2530,7 @@ export type Database = {
         Returns: undefined;
       };
       moderator_flag_and_archive: {
-        Args: { p_target_type: string; p_target_id: string; p_reason: string };
+        Args: { p_reason: string; p_target_id: string; p_target_type: string };
         Returns: undefined;
       };
       moderator_flag_message: {
@@ -1185,7 +2541,85 @@ export type Database = {
         Args: { p_justification: string; p_message_id: string };
         Returns: undefined;
       };
-      auth_user_is_moderator: { Args: never; Returns: boolean };
+      notify_facilitator_workflow: {
+        Args: {
+          p_body: string;
+          p_event_type: string;
+          p_session_id: string;
+          p_title: string;
+        };
+        Returns: undefined;
+      };
+      outcome_anchor_payload: {
+        Args: {
+          p_outcome: Database['public']['Tables']['outcome_records']['Row'];
+        };
+        Returns: string;
+      };
+      outcome_contains_verbatim_room_content: {
+        Args: { p_outcome_id: string };
+        Returns: boolean;
+      };
+      participant_acknowledge_pause: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_get_outcome_review: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_get_pacing: { Args: { p_token: string }; Returns: Json };
+      participant_list_messages: { Args: { p_token: string }; Returns: Json };
+      participant_mark_document_submitted: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_record_contact_hash: {
+        Args: { p_email: string; p_token: string };
+        Returns: Json;
+      };
+      participant_register_verification_document: {
+        Args: {
+          p_byte_size: number;
+          p_document_type: string;
+          p_storage_path: string;
+          p_token: string;
+        };
+        Returns: Json;
+      };
+      participant_request_slow_down: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      participant_review_outcome: {
+        Args: { p_decision: string; p_dispute_note?: string; p_token: string };
+        Returns: Json;
+      };
+      participant_send_message: {
+        Args: { p_body: string; p_token: string };
+        Returns: Json;
+      };
+      participant_support_resolution: {
+        Args: { p_item_id: string; p_token: string };
+        Returns: Json;
+      };
+      record_participant_consent: { Args: { p_token: string }; Returns: Json };
+      record_participant_reason: {
+        Args: { p_reason: string; p_token: string };
+        Returns: Json;
+      };
+      redeem_deck_invite: { Args: { p_token: string }; Returns: Json };
+      release_outcome: { Args: { p_outcome_id: string }; Returns: Json };
+      revoke_invite: { Args: { p_invite_id: string }; Returns: Json };
+      revoke_role_from_user: {
+        Args: {
+          p_institution_id?: string;
+          p_role_key: string;
+          p_target_user_id: string;
+          p_workspace_id?: string;
+        };
+        Returns: Json;
+      };
       run_expired_data_cleanup: {
         Args: never;
         Returns: {
@@ -1195,6 +2629,7 @@ export type Database = {
           messages_deleted: number;
           ran_at: string;
           squads_deleted: number;
+          zk_proofs_deleted: number;
         };
         SetofOptions: {
           from: '*';
@@ -1203,8 +2638,26 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      submit_access_request: {
+        Args: {
+          p_description: string;
+          p_email: string;
+          p_full_name: string;
+          p_organisation?: string;
+          p_use_case: string;
+        };
+        Returns: Json;
+      };
+      sweep_matchmaking_queue: { Args: never; Returns: number };
+      transition_session_status: {
+        Args: { p_session_id: string; p_status: string };
+        Returns: Json;
+      };
+      uuid_generate_v4: { Args: never; Returns: string };
+      validate_invite_token: { Args: { p_token: string }; Returns: Json };
+      validate_participant_token: { Args: { p_token: string }; Returns: Json };
+      verify_outcome_anchor: { Args: { p_outcome_id: string }; Returns: Json };
       waitlist_signup_count: { Args: never; Returns: number };
-      get_waitlist_count: { Args: never; Returns: number };
     };
     Enums: {
       [_ in never]: never;
@@ -1331,6 +2784,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

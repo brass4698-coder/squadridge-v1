@@ -37,7 +37,7 @@ export function LedgerVerifyPage() {
 
   return (
     <div className="sr-mode-ledger min-h-[60vh]">
-      <MarketingSection tone="plain" density="comfortable">
+      <MarketingSection tone="default" density="default">
         <ShellWidth>
           <nav aria-label="Breadcrumb" className="mb-6 font-mono text-xs text-ink-secondary">
             <Link to="/ledger" className="hover:underline">
@@ -56,7 +56,7 @@ export function LedgerVerifyPage() {
           <p className="mb-2 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-ink-faint">
             Integrity check
           </p>
-          <h1 className="mb-3 font-display text-h1 text-ink">Verify outcome anchor</h1>
+          <h1 className="mb-3 font-heading text-h1 text-ink">Verify outcome anchor</h1>
           <p className="mb-8 max-w-prose text-base text-ink-secondary">
             Recomputes the SHA-256 of the approved outcome text and compares it to the stored
             verification anchor. This confirms the released instrument has not been altered — not

@@ -25,11 +25,13 @@ create table if not exists public.sessions (
 
 alter table public.sessions enable row level security;
 
+drop policy if exists "Facilitator owns their sessions" on public.sessions;
 create policy "Facilitator owns their sessions"
   on public.sessions for all
   using (facilitator_id = auth.uid())
   with check (facilitator_id = auth.uid());
 
+drop policy if exists "Public can read released sessions" on public.sessions;
 create policy "Public can read released sessions"
   on public.sessions for select
   using (status = 'released' and outcome_public = true);
@@ -55,6 +57,7 @@ create table if not exists public.participants (
 
 alter table public.participants enable row level security;
 
+drop policy if exists "Facilitator manages participants in their sessions" on public.participants;
 create policy "Facilitator manages participants in their sessions"
   on public.participants for all
   using (
@@ -85,6 +88,7 @@ create table if not exists public.verification_requests (
 
 alter table public.verification_requests enable row level security;
 
+drop policy if exists "Facilitator reviews verification in their sessions" on public.verification_requests;
 create policy "Facilitator reviews verification in their sessions"
   on public.verification_requests for all
   using (
@@ -115,6 +119,7 @@ create table if not exists public.outcome_records (
 
 alter table public.outcome_records enable row level security;
 
+drop policy if exists "Facilitator manages outcomes in their sessions" on public.outcome_records;
 create policy "Facilitator manages outcomes in their sessions"
   on public.outcome_records for all
   using (
@@ -130,6 +135,7 @@ create policy "Facilitator manages outcomes in their sessions"
     )
   );
 
+drop policy if exists "Public can read published outcomes" on public.outcome_records;
 create policy "Public can read published outcomes"
   on public.outcome_records for select
   using (status = 'published');
@@ -149,6 +155,7 @@ create table if not exists public.outcome_approvals (
 
 alter table public.outcome_approvals enable row level security;
 
+drop policy if exists "Facilitator manages approvals in their sessions" on public.outcome_approvals;
 create policy "Facilitator manages approvals in their sessions"
   on public.outcome_approvals for all
   using (
@@ -177,10 +184,12 @@ create table if not exists public.access_requests (
 alter table public.access_requests enable row level security;
 
 -- Anonymous inserts allowed (public form); only admins can read
+drop policy if exists "Anyone can submit access request" on public.access_requests;
 create policy "Anyone can submit access request"
   on public.access_requests for insert
   with check (true);
 
+drop policy if exists "Admins can read access requests" on public.access_requests;
 create policy "Admins can read access requests"
   on public.access_requests for select
   using (auth.role() = 'service_role');
@@ -199,6 +208,7 @@ create table if not exists public.session_messages (
 
 alter table public.session_messages enable row level security;
 
+drop policy if exists "Facilitator can read and write messages in their sessions" on public.session_messages;
 create policy "Facilitator can read and write messages in their sessions"
   on public.session_messages for all
   using (
@@ -208,6 +218,17 @@ create policy "Facilitator can read and write messages in their sessions"
     )
   );
 
--- Realtime
-alter publication supabase_realtime add table public.session_messages;
-alter publication supabase_realtime add table public.participants;
+-- Realtime (idempotent — publication may already include these on replay)
+do $$
+begin
+  alter publication supabase_realtime add table public.session_messages;
+exception
+  when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.participants;
+exception
+  when duplicate_object then null;
+end $$;

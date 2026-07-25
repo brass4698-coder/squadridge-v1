@@ -55,6 +55,7 @@ export function ContactPage() {
         body={CTA.closeContact}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
+        statusLine={CTA.pilotStatusLine}
       />
     </div>
   );

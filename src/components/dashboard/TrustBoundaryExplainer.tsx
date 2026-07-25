@@ -22,7 +22,7 @@ export function TrustBoundaryExplainer({ className }: { className?: string }) {
       className={`rounded-lg border border-line bg-surface-sunken/50 p-5 ${className ?? ''}`}
       aria-labelledby="trust-boundary-h"
     >
-      <h3 id="trust-boundary-h" className="m-0 font-display text-base font-medium text-ink">
+      <h3 id="trust-boundary-h" className="m-0 font-heading text-base font-medium text-ink">
         Privacy by boundary, not by broadcast
       </h3>
       <ol className="mt-4 m-0 list-none space-y-4 p-0">

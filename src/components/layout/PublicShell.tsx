@@ -46,6 +46,7 @@ const footerColumns = [
     title: 'Access',
     links: [
       { label: 'Request pilot access', href: '/request-access' },
+      { label: 'Briefings', href: '/briefings' },
       { label: 'Contact', href: '/contact' },
       { label: 'Sign in', href: '/sign-in' },
     ],
@@ -63,6 +64,7 @@ const PUBLIC_MARKETING_PREFIXES = [
   '/privacy',
   '/terms',
   '/request-access',
+  '/briefings',
   '/sign-in',
   '/enter',
   '/access-pending',
@@ -75,14 +77,29 @@ function isPublicMarketingRoute(pathname: string): boolean {
   );
 }
 
+/** Public ledger journey — continuous dark register (same unified dark palette). */
+function isLedgerRoute(pathname: string): boolean {
+  return pathname === '/ledger' || pathname.startsWith('/ledger/');
+}
+
+const NAV_SCROLL_THRESHOLD_PX = 32;
+
 export function PublicShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  const isLedger = isLedgerRoute(pathname);
   const isPublicMarketing = isPublicMarketingRoute(pathname);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const menuId = useId();
   const { showDemoChrome } = useDemoWalkthrough();
 
   useEffect(() => {
+    if (isLedger) {
+      document.body.setAttribute('data-theme', 'ledger-dark');
+      return () => {
+        document.body.removeAttribute('data-theme');
+      };
+    }
     if (isPublicMarketing) {
       document.body.setAttribute('data-theme', 'institutional');
       return () => {
@@ -91,7 +108,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
     }
     document.body.removeAttribute('data-theme');
     return undefined;
-  }, [isPublicMarketing]);
+  }, [isLedger, isPublicMarketing]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -106,15 +123,25 @@ export function PublicShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > NAV_SCROLL_THRESHOLD_PX);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <DemoLayout>
       <div className="sr-page-glow relative flex min-h-screen flex-col bg-surface text-ink">
         <header
           className={
             isPublicMarketing
-              ? 'nav-frosted sticky top-0 z-40 border-b border-line'
+              ? 'nav-frosted sticky top-0 z-40 border-b'
               : 'sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md'
           }
+          data-scrolled={scrolled ? 'true' : 'false'}
         >
           <div className={`${publicShellInnerClass} flex h-16 items-center gap-4`}>
             <Link
@@ -126,7 +153,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
             </Link>
 
             <nav
-              className="ml-6 hidden h-full flex-1 items-center gap-2 nav:flex lg:gap-2.5"
+              className="ml-6 hidden h-full flex-1 items-center gap-1 nav:flex lg:gap-1.5"
               aria-label="Public navigation"
             >
               {desktopNav.map((item) => (
@@ -134,7 +161,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
                   key={item.label}
                   to={item.href}
                   className={({ isActive }) =>
-                    'inline-flex items-center rounded-[var(--sr-radius-md)] px-3 py-2 text-sm leading-none tracking-normal no-underline transition-colors lg:px-3.5 ' +
+                    'inline-flex items-center rounded-[var(--sr-radius-md)] px-3 py-2 text-sm leading-none tracking-normal no-underline transition-[background-color,color] duration-normal ease-out lg:px-3.5 ' +
                     (isActive
                       ? 'bg-surface-accent font-medium text-ink'
                       : 'text-ink-secondary hover:bg-surface-elevated hover:text-ink')
@@ -145,7 +172,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
               ))}
             </nav>
 
-            <div className="ml-auto flex h-full shrink-0 items-center gap-2 border-l border-line pl-4 sm:gap-3 sm:pl-5">
+            <div className="ml-auto flex h-full shrink-0 items-center gap-2 border-l border-line pl-5 sm:gap-3 sm:pl-6">
               <Link
                 to="/sign-in"
                 className="hidden h-10 items-center rounded-[var(--sr-radius-md)] px-3.5 text-sm leading-none text-ink-secondary no-underline transition-colors hover:text-ink nav:inline-flex"

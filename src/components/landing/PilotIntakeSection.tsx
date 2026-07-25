@@ -21,7 +21,7 @@ export function PilotIntakeSection() {
           <SectionLabel className="!mb-2">Pilot intake</SectionLabel>
           <h2
             id="pilot-h"
-            className="mt-0 max-w-[18ch] font-display text-h2 font-medium leading-tight tracking-tight text-ink"
+            className="mt-0 max-w-[18ch] font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
           >
             {CTA.pilotHeadline}
           </h2>
@@ -33,7 +33,7 @@ export function PilotIntakeSection() {
             typically within 5–7 business days.
           </p>
 
-          <div className="mt-10 rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-5 py-6 md:px-7 md:py-7">
+          <div className="mt-10 border-y border-line py-6">
             <p className="mb-5 m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
               How intake works
             </p>
@@ -46,7 +46,7 @@ export function PilotIntakeSection() {
             />
           </div>
 
-          <div className="mt-8 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-5 py-5">
+          <div className="mt-8 border-l border-line pl-5">
             <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
               Strong fit signals
             </p>

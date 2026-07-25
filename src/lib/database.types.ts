@@ -693,6 +693,17 @@ export interface Database {
           updated_at: string;
           template_id: string | null;
           setup_config: Json;
+          dialogue_stage?:
+            | 'preparation'
+            | 'opening'
+            | 'story'
+            | 'framing'
+            | 'options'
+            | 'review'
+            | 'outcome_ready';
+          issue_goal?: string | null;
+          risk_notes?: string | null;
+          disclosure_boundaries?: string | null;
         };
         Insert: {
           facilitator_id: string;
@@ -774,6 +785,10 @@ export interface Database {
           status: 'draft' | 'pending_approval' | 'approved' | 'published';
           published_at: string | null;
           ledger_sha: string | null;
+          timestamp_token: string | null;
+          timestamp_authority: string | null;
+          timestamped_at: string | null;
+          timestamp_status: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
           created_at: string;
           updated_at: string;
         };
@@ -786,6 +801,10 @@ export interface Database {
           status?: 'draft' | 'pending_approval' | 'approved' | 'published';
           published_at?: string | null;
           ledger_sha?: string | null;
+          timestamp_token?: string | null;
+          timestamp_authority?: string | null;
+          timestamped_at?: string | null;
+          timestamp_status?: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
         };
         Update: Partial<Database['public']['Tables']['outcome_records']['Insert']> & {
           updated_at?: string;

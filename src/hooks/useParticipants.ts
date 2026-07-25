@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 // TODO(supabase-types): see useAccessRequest.
 import { supabase } from '../lib/supabase';
 import type { Participant } from '../lib/supabaseTypes';
+import { isRoomAtCapacity, roomCapacityErrorMessage } from '../lib/roomCapacity';
 
 export function useParticipants(sessionId: string | undefined) {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -72,12 +73,22 @@ export function useParticipants(sessionId: string | undefined) {
     );
   }
 
-  async function addParticipant(input: {
-    codename: string;
-    invite_token: string;
-    email_hash?: string | null;
-  }) {
+  async function addParticipant(
+    input: {
+      codename: string;
+      invite_token: string;
+      email_hash?: string | null;
+      participation_reason?: string | null;
+    },
+    maxParticipants?: number,
+  ) {
     if (!sessionId) throw new Error('No session');
+    if (
+      typeof maxParticipants === 'number' &&
+      isRoomAtCapacity(participants.length, maxParticipants)
+    ) {
+      throw new Error(roomCapacityErrorMessage(maxParticipants));
+    }
     const { data, error: err } = await supabase
       .from('participants')
       .insert({
@@ -85,10 +96,17 @@ export function useParticipants(sessionId: string | undefined) {
         codename: input.codename,
         invite_token: input.invite_token,
         email_hash: input.email_hash ?? null,
+        participation_reason: input.participation_reason?.trim() || null,
       })
       .select()
       .single();
-    if (err) throw err;
+    if (err) {
+      const msg = err.message ?? '';
+      if (msg.includes('ROOM_FULL')) {
+        throw new Error(roomCapacityErrorMessage(maxParticipants ?? 12));
+      }
+      throw err;
+    }
     const row = data as Participant;
     setParticipants((prev) => [...prev, row]);
     return row;

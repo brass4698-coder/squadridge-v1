@@ -25,7 +25,7 @@ SquadRidge aims to be **infrastructure for timely, de-escalating contact** acros
 - Roadmap and partner archetypes: [strategic-positioning-early-warning.md](strategic-positioning-early-warning.md)  
 - Messaging for decks: [messaging-framework.md](messaging-framework.md)  
 - CSI math and storage: [conflict-severity-index.md](../product/conflict-severity-index.md)  
-- Pitches: [Pitch Deck Hub](../../src/pitch-deck-hub/initialState.ts) and static [conflict-prevention-thesis.html](../../public/pitch-deck-hub/conflict-prevention-thesis.html)  
+- Pitches: [Pitch Deck Hub](../../src/pitch-deck-hub/initialState.ts) and gated [conflict-prevention-thesis.html](../../supabase/functions/serve-deck/static/conflict-prevention-thesis.html)  
 
 ## What we will not assert externally without evidence
 

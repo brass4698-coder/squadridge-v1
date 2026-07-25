@@ -118,7 +118,7 @@ export function RevealPhasePanel({
           </div>
         </div>
         {timeRemainingMs !== null ? (
-          <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] px-3 py-1.5 font-mono text-[0.85rem] font-bold tabular-nums text-ink">
+          <div className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 font-mono text-[0.85rem] font-bold tabular-nums text-ink">
             <Clock className="size-3.5 opacity-50" />
             {formatCountdown(timeRemainingMs)}
           </div>
@@ -151,7 +151,7 @@ export function RevealPhasePanel({
 
       {/* Post-reveal CTA */}
       {allRevealed ? (
-        <div className="flex items-center gap-2 rounded-lg border border-dashed border-white/[0.08] bg-white/[0.01] px-4 py-3 text-center">
+        <div className="flex items-center gap-2 rounded-lg border border-dashed border-line bg-surface-hover/40 px-4 py-3 text-center">
           <p className="mx-auto font-sans text-[0.85rem] text-ink-secondary italic">
             Negotiation begins shortly. Consider how these perspectives could be synthesized.
           </p>
@@ -168,10 +168,10 @@ const ACCENT_COLORS = [
   'border-l-amber',
   'border-l-trust-blue',
   'border-l-sem-success',
-  'border-l-[#a855f7]',
-  'border-l-[#ec4899]',
-  'border-l-[#f97316]',
-  'border-l-[#06b6d4]',
+  'border-l-sem-info',
+  'border-l-brand',
+  'border-l-sem-warning',
+  'border-l-verify',
 ];
 
 function RevealCard({ label, body, index }: { label: string; body: string; index: number }) {
@@ -181,8 +181,8 @@ function RevealCard({ label, body, index }: { label: string; body: string; index
     <article
       className={`card-lift rounded-xl border border-line bg-surface-elevated ${accent} border-l-[3px] overflow-hidden`}
     >
-      <div className="flex items-center gap-2 border-b border-white/[0.04] px-4 py-2.5 bg-white/[0.01]">
-        <span className="inline-flex size-6 items-center justify-center rounded-full bg-white/[0.05] text-ink-faint">
+      <div className="flex items-center gap-2 border-b border-line px-4 py-2.5 bg-surface-hover/40">
+        <span className="inline-flex size-6 items-center justify-center rounded-full bg-surface-hover/40 text-ink-faint">
           <User className="size-3.5" />
         </span>
         <span className="font-mono text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-ink-faint">

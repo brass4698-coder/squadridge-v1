@@ -25,7 +25,7 @@ export function VerificationAnchorBadge({ anchorId, status }: VerificationAnchor
 
 export function RecordAnchorBadge({ recordId }: { recordId: string }) {
   return (
-    <span className="inline-flex items-center border border-line bg-surface-sunken px-2 py-0.5 font-mono text-[length:var(--text-label)] font-medium tracking-wider text-ink-faint">
+    <span className="inline-flex items-center rounded-full border border-line bg-transparent px-2 py-0.5 font-mono text-[length:var(--text-label)] font-medium tracking-wider text-ink-secondary">
       {recordId}
     </span>
   );

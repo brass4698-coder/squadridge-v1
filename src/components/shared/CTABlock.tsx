@@ -12,6 +12,10 @@ export interface CTABlockProps {
   secondaryLabel?: string;
   secondaryHref?: string;
   /**
+   * Honest pilot-status line (invite-only / scoped). Do not invent metrics.
+   */
+  statusLine?: string;
+  /**
    * Alignment. Default left.
    * `center` is only valid for short headline-only bands (no long body) —
    * see docs/design/alignment-system.md.
@@ -26,6 +30,7 @@ export function CTABlock({
   primaryHref = '/request-access',
   secondaryLabel,
   secondaryHref,
+  statusLine,
   align = 'left',
 }: CTABlockProps) {
   // Force left when explanatory body is present — centering long copy is forbidden.
@@ -41,7 +46,9 @@ export function CTABlock({
               isCenter ? 'sr-align-cta-center mx-auto' : 'sr-align-cta',
             )}
           >
-            <h2 className="font-display text-h2 font-medium tracking-tight text-ink">{headline}</h2>
+            <h2 className="font-heading text-h2 font-semibold tracking-tight text-ink">
+              {headline}
+            </h2>
             {body ? (
               <p className="text-sm leading-relaxed text-ink-secondary md:text-base">{body}</p>
             ) : null}
@@ -56,6 +63,9 @@ export function CTABlock({
                 </Link>
               ) : null}
             </div>
+            {statusLine ? (
+              <p className="m-0 text-xs leading-relaxed text-ink-faint">{statusLine}</p>
+            ) : null}
           </div>
         </GovernedPanel>
       </ShellWidth>

@@ -133,7 +133,7 @@ export function NotificationsSettingsPage() {
         {TOGGLES.map((t) => (
           <li
             key={t.key}
-            className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#0c121c] p-4 sm:flex-row sm:items-start sm:justify-between"
+            className="flex flex-col gap-3 rounded-xl border border-line bg-surface-elevated p-4 sm:flex-row sm:items-start sm:justify-between"
           >
             <div className="min-w-0 flex-1">
               <p className="font-heading text-[0.95rem] font-semibold text-slate-100">{t.title}</p>

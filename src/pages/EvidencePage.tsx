@@ -785,14 +785,14 @@ function EvidenceDomainSection({ domain, index }: { domain: EvidenceDomain; inde
           </div>
 
           <div className="mt-4 flex items-start gap-3">
-            <span className="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.02] text-brand">
+            <span className="mt-1 inline-flex size-10 shrink-0 items-center justify-center rounded-md border border-line bg-surface-hover/40 text-brand">
               {domain.icon}
             </span>
             <div className="min-w-0">
               <p className="m-0 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-brand-hover">
                 {domain.label}
               </p>
-              <h2 className="mt-1.5 font-display text-[clamp(1.2rem,1.6vw,1.45rem)] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">
+              <h2 className="mt-1.5 font-heading text-[clamp(1.2rem,1.6vw,1.45rem)] font-semibold leading-[1.2] tracking-[-0.02em] text-ink">
                 {domain.title}
               </h2>
             </div>
@@ -912,7 +912,7 @@ export function EvidencePage() {
               </span>
             </div>
 
-            <h1 className="mt-4 font-display text-[clamp(2.15rem,4.2vw,3.5rem)] font-semibold leading-[1.04] tracking-[-0.035em] text-ink">
+            <h1 className="mt-4 font-heading text-[clamp(2.15rem,4.2vw,3.5rem)] font-semibold leading-[1.04] tracking-[-0.035em] text-ink">
               The research behind every design decision.
             </h1>
 
@@ -932,7 +932,7 @@ export function EvidencePage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 to="/trust"
-                className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-[6px] border border-white/[0.08] bg-white/[0.02] px-5 py-2.5 font-sans text-sm font-medium text-ink-secondary transition-all hover:border-brand/40 hover:text-ink no-underline"
+                className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-[6px] border border-line bg-surface-hover/40 px-5 py-2.5 font-sans text-sm font-medium text-ink-secondary transition-all hover:border-brand/40 hover:text-ink no-underline"
               >
                 <ShieldCheck aria-hidden className="size-4" />
                 Trust & Safety
@@ -1025,7 +1025,7 @@ export function EvidencePage() {
                 </p>
                 <span aria-hidden className="h-px flex-1 bg-line-divider" />
               </div>
-              <h2 className="mt-4 font-display text-[clamp(1.3rem,2vw,1.65rem)] font-semibold leading-[1.15] tracking-[-0.02em] text-ink">
+              <h2 className="mt-4 font-heading text-[clamp(1.3rem,2vw,1.65rem)] font-semibold leading-[1.15] tracking-[-0.02em] text-ink">
                 The gap this fills.
               </h2>
               <div className="mt-5 space-y-4 max-w-[48rem] font-sans text-[0.92rem] leading-[1.75] text-ink-secondary">

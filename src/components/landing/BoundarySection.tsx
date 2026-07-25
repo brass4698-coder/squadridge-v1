@@ -19,7 +19,7 @@ export function BoundarySection() {
           <SectionLabel className="!mb-0">Security · documented limits</SectionLabel>
           <h2
             id="boundary-h"
-            className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
+            className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
           >
             What each layer protects — and what we refuse to overclaim.
           </h2>

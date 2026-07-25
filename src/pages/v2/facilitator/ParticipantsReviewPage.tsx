@@ -46,13 +46,18 @@ export function ParticipantsReviewPage() {
             <p className="text-sm text-ink-secondary">No participants invited yet.</p>
           ) : (
             participants.map((p) => (
-              <div key={p.id} className="rounded-lg border border-line bg-surface-elevated p-5">
+              <div key={p.id} className="rounded-lg bg-surface-elevated p-5 shadow-sr-card">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold text-ink">{p.codename}</p>
                     <p className="text-xs text-ink-secondary">
                       Invited {new Date(p.created_at).toLocaleString()}
                     </p>
+                    {p.participation_reason ? (
+                      <p className="mt-1 text-xs text-ink-secondary">
+                        Reason: {p.participation_reason}
+                      </p>
+                    ) : null}
                   </div>
                   <StatusBadge variant={p.verification_status}>{p.verification_status}</StatusBadge>
                 </div>

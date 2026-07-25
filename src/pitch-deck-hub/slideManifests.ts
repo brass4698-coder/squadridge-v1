@@ -1,5 +1,6 @@
 /**
- * Parallel manifest for static HTML decks in `public/pitch-deck-hub/`.
+ * Parallel manifest for HTML decks gated via Edge Function `serve-deck`
+ * (`supabase/functions/serve-deck/static/`).
  * Rendering source-of-truth remains the `.html` files; manifests help outlines, diffs, and reviews.
  */
 export type HubSlideLayout =
@@ -129,7 +130,7 @@ export const policyGovernmentManifest = m(
   ],
 );
 
-/** Static HTML: `public/pitch-deck-hub/conflict-prevention-thesis.html` — policy / prevention narrative with shipped-vs-roadmap split. */
+/** Static HTML: `serve-deck/static/conflict-prevention-thesis.html` — policy / prevention narrative with shipped-vs-roadmap split. */
 export const conflictPreventionThesisManifest = m(
   'conflict-prevention-thesis',
   'Conflict Prevention Thesis',

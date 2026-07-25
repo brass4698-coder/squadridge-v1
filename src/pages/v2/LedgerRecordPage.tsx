@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import { getSampleRecordById, type LedgerRecordDetail } from '../../data/sampleRecords';
+import { getSpecimenById } from '../../data/ledgerSpecimens';
 import { useLedgerRecord } from '../../hooks/useLedger';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import {
   ReleasedRecordDossier,
   type ReleasedRecordDossierProps,
@@ -80,10 +82,11 @@ export function LedgerRecordPage() {
   const { recordId } = useParams<{ recordId: string }>();
   const { entry, loading } = useLedgerRecord(recordId);
   const sample = recordId ? getSampleRecordById(recordId) : undefined;
+  usePageTitle(sample?.title ?? entry?.session?.title ?? 'Released record');
 
   if (loading) {
     return (
-      <div className="sr-mode-ledger min-h-[40vh]">
+      <div className="sr-ledger-dark min-h-[40vh]">
         <div className={`${publicShellInnerClass} py-16`}>
           <p className="font-mono text-sm text-ink-secondary" role="status">
             Loading released record…
@@ -106,12 +109,12 @@ export function LedgerRecordPage() {
 
   if (!sample) {
     return (
-      <div className="sr-mode-ledger min-h-[40vh]">
+      <div className="sr-ledger-dark min-h-[40vh]">
         <MarketingSection density="spacious" className="!pt-16">
           <ShellWidth>
             <div className="max-w-measure">
               <SectionLabel text="Record not found" />
-              <h1 className="font-display text-h2 font-medium text-ink">
+              <h1 className="font-sans text-h2 font-semibold tracking-[-0.02em] text-ink">
                 No public record matches that ID.
               </h1>
               <p className="mt-4 text-sm text-ink-secondary">
@@ -134,12 +137,16 @@ export function LedgerRecordPage() {
 }
 
 function SampleDossier({ record }: { record: LedgerRecordDetail }) {
-  const year = new Date(record.releasedDate).getFullYear() || new Date().getFullYear();
+  const specimen = getSpecimenById(record.id);
+  const year = specimen ? Number(specimen.releasedAt.slice(0, 4)) : new Date().getFullYear();
   const citation = `${record.org}. (${year}). ${record.title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${record.id}. Accessed: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
 
   return (
     <ReleasedRecordDossier
-      record={record}
+      record={{
+        ...record,
+        verificationAnchor: specimen?.verificationAnchor ?? record.verificationAnchor,
+      }}
       citation={citation}
       illustrativeNotice="Shows the structure of a released record only; the session that produced it is never public."
     />

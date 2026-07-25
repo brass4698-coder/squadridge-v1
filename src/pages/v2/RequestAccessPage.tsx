@@ -259,8 +259,8 @@ export function RequestAccessPage() {
               <Link to="/" className="btn-institutional btn-institutional--ghost">
                 Return home
               </Link>
-              <Link to="/contact" className="btn-institutional btn-institutional--primary">
-                Request briefing
+              <Link to="/briefings" className="btn-institutional btn-institutional--primary">
+                Briefing overview
               </Link>
             </div>
           </FormPanel>
@@ -274,7 +274,7 @@ export function RequestAccessPage() {
       <header className="scroll-mt-20 border-b border-line py-14 md:py-16" data-scroll-section>
         <div className={publicShellInnerClass}>
           <SectionLabel>Confidential pilot intake</SectionLabel>
-          <h1 className="mt-3 max-w-2xl font-display text-display font-medium tracking-tight text-ink">
+          <h1 className="mt-3 max-w-2xl font-heading text-display font-semibold tracking-tight text-ink">
             Request pilot access
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-secondary">
@@ -284,7 +284,14 @@ export function RequestAccessPage() {
           </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-faint">
             For foundations, NGOs, boards and executive teams, HR/ombuds offices, and peacebuilding
-            facilitators.
+            facilitators. Investor and partner materials are invite-only — see{' '}
+            <Link to="/briefings" className="text-brand underline-offset-2 hover:underline">
+              briefings
+            </Link>
+            .
+          </p>
+          <p className="mt-4 mb-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+            {CTA.pilotStatusLine}
           </p>
         </div>
       </header>
@@ -294,7 +301,7 @@ export function RequestAccessPage() {
       >
         <div className="min-w-0 space-y-10">
           <section aria-labelledby="after-submit-heading">
-            <h2 id="after-submit-heading" className="font-display text-h3 font-medium text-ink">
+            <h2 id="after-submit-heading" className="font-heading text-h3 font-semibold text-ink">
               What happens after submission
             </h2>
             <ol className="mt-4 m-0 grid list-none gap-4 p-0 sm:grid-cols-3">
@@ -419,7 +426,7 @@ export function RequestAccessPage() {
               ) : null}
 
               <fieldset id="section-contact" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-display text-base font-medium text-ink">
+                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
                   Contact
                 </legend>
                 <div className="space-y-4">
@@ -509,7 +516,7 @@ export function RequestAccessPage() {
               </fieldset>
 
               <fieldset id="section-matter" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-display text-base font-medium text-ink">
+                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
                   Matter context
                 </legend>
                 <div className="space-y-4">
@@ -697,7 +704,7 @@ export function RequestAccessPage() {
               </fieldset>
 
               <fieldset id="section-scope" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-display text-base font-medium text-ink">
+                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
                   Pilot scope
                 </legend>
                 <div className="space-y-4">

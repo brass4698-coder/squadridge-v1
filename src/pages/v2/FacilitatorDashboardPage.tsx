@@ -103,10 +103,13 @@ export function FacilitatorDashboardPage() {
       <WorkflowNotificationsBanner />
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <KpiCard label="Active rooms" value={activeRooms || metrics.live} />
+        <KpiCard label="Active rooms" value={activeRooms || Number(metrics.kpis[0]?.value ?? 0)} />
         <KpiCard label="Awaiting verification" value={awaitingVerification} />
         <KpiCard label="Release drafts pending" value={draftsPending} />
-        <KpiCard label="Outcomes released" value={releasedMonth || metrics.released} />
+        <KpiCard
+          label="Outcomes released"
+          value={releasedMonth || Number(metrics.kpis[2]?.value ?? 0)}
+        />
         <KpiCard label="Rooms paused / stalled" value={paused} />
         <KpiCard label="Participants engaged" value={participantsToday} />
       </div>

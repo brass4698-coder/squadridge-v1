@@ -48,7 +48,7 @@ export function EnterCredentialPage() {
   return (
     <GovernedEntryLayout title="Invitation credential">
       <div className="mx-auto max-w-xl">
-        <h1 className="font-display text-h2 font-medium text-ink">Enter invitation credential</h1>
+        <h1 className="font-heading text-h2 font-semibold text-ink">Enter invitation credential</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
           Invitation credentials are issued for specific rooms, roles, and pilot scopes — not for
           open signup.

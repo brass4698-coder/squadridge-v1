@@ -33,24 +33,23 @@ Build components for a high-trust, privacy-first, conflict-resolution platform. 
 
 ## Theme and visual system
 
-- Default product shell uses deep indigo/navy surfaces from `--sr-bg` and `--sr-bg-elevated` in `tokens.css` — never hardcode hex in components.
-- Primary actions use `--sr-primary` (teal); all interactive states must be tokenized and contrast-checked.
-- Warning colors use `--sr-warning` only with sufficient contrast and paired text/icon support.
+- **One cool near-black elevation system** for app + marketing — tokens in `tokens.css` (`--sr-bg`, `--sr-bg-elevated`, `--sr-bg-secondary`, `--sr-bg-hover`). Never hardcode hex in components.
+- `body[data-theme='institutional']` / `ledger-dark` are **scope aliases** that inherit the same palette (cream parchment is retired). Keep aliases so route theme switching still works.
+- Interactive accent: `--sr-primary` (teal `#1F8A7A`) for buttons, links, active nav.
+- **Verification accent** (`--sr-verify` / `#3FE0C5`) is reserved for badges, dots, and verified / released states — never as a fill or primary action color.
+- Prefer elevated surfaces (`bg-surface-elevated` + `shadow-sr-card` / `shadow-sr-sm`) over hard `border border-line` boxed chrome on trust panels.
 - Dark surfaces must preserve readability for dense operational views, not just look visually dramatic.
 
 ## Typography
 
-- Use tokenized fonts from `src/styles/tokens.css`: Inter for body/UI, IBM Plex Sans for headings, IBM Plex Serif for marketing display, IBM Plex Mono for ledger/code.
-- Do not hardcode `font-family` in components — use Tailwind `font-sans`, `font-display`, `font-heading`, or `font-mono`.
-- Use fluid type with `clamp()` only where scaling materially improves layout, such as page headings or responsive section headers (`--sr-text-display`, `--sr-text-h1`, etc.).
+- Use tokenized fonts from `src/styles/tokens.css`:
+  - **Inter** for body, UI, and headings (`font-sans`, `font-heading`, `font-display` — all map to Inter).
+  - **IBM Plex Mono** for labels, ledger metadata, anchors, and code (`font-mono`).
+- Do not hardcode `font-family` in components — use Tailwind font utilities.
+- Do not introduce Instrument Serif, IBM Plex Serif, or other display serifs as defaults.
+- Use fluid type with `clamp()` only where scaling materially improves layout (`--sr-text-display`, `--sr-text-h1`, etc.).
 - Do not use oversized marketing typography in product UI (`/app/*` chrome uses the compact app scale).
-- Maintain a clear type hierarchy for:
-  - page titles
-  - section headings
-  - body
-  - labels
-  - metadata
-  - button text
+- Maintain a clear type hierarchy for page titles, section headings, body, labels, metadata, and button text.
 
 ## Spacing and layout
 
@@ -137,7 +136,7 @@ Do not ship components with missing or ambiguous states.
 
 - Verify contrast for all text, controls, icons, and data visual marks.
 - Verify keyboard access and visible focus states.
-- Verify components in dark theme and any light/admin/demo variants.
+- Verify components in the unified dark theme (and any admin/demo variants).
 - Verify reduced-motion behavior.
 - Verify mobile readability and target sizing.
 - Verify warning, trend, and status components still make sense without color perception.

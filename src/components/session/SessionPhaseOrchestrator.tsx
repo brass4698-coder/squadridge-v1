@@ -70,7 +70,7 @@ export function SessionPhaseOrchestrator({
           <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-brand">
             Session question
           </p>
-          <p className="mt-2 font-display text-[1.15rem] leading-snug text-ink italic">
+          <p className="mt-2 font-heading text-[1.15rem] leading-snug text-ink italic">
             {sessionQuestion}
           </p>
         </div>
@@ -114,7 +114,7 @@ export function SessionPhaseOrchestrator({
         </div>
 
         {/* Description + readiness strip */}
-        <div className="border-t border-white/[0.04] bg-white/[0.01] px-5 py-3">
+        <div className="border-t border-line bg-surface-hover/20 px-5 py-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="font-sans text-[0.82rem] text-ink-secondary">{config.description}</p>
             {phase === 'waiting' ? (
@@ -159,7 +159,7 @@ function PhaseTimer({
             ? 'border-amber/40 bg-amber/[0.08] text-amber animate-pulse'
             : isWarning
               ? 'border-amber/25 bg-amber/[0.04] text-amber-light'
-              : 'border-white/[0.06] bg-white/[0.02] text-ink'
+              : 'border-line bg-surface-hover/40 text-ink'
       }`}
       role="timer"
       aria-live="polite"
@@ -202,7 +202,7 @@ function PhaseProgressBar({ currentPhase }: { currentPhase: SessionPhase }) {
                   ? 'border-brand bg-brand/20 text-brand shadow-[0_0_12px_rgba(26,158,158,0.3)]'
                   : isCompleted
                     ? 'border-brand/60 bg-brand/10 text-brand/70'
-                    : 'border-white/10 bg-white/[0.02] text-ink-subtle'
+                    : 'border-line bg-surface-hover/40 text-ink-subtle'
               }`}
               aria-label={`${PHASE_CONFIGS[p].label}${isActive ? ' (current)' : isCompleted ? ' (completed)' : ''}`}
             >
@@ -216,7 +216,7 @@ function PhaseProgressBar({ currentPhase }: { currentPhase: SessionPhase }) {
             {idx < SESSION_PHASES.length - 1 ? (
               <div
                 className={`mx-1 h-[2px] flex-1 rounded-full transition-all duration-700 ${
-                  isCompleted ? 'bg-brand/50' : 'bg-white/[0.06]'
+                  isCompleted ? 'bg-brand/50' : 'bg-surface-hover'
                 }`}
               />
             ) : null}
@@ -244,7 +244,7 @@ function ReadinessPill({
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[0.72rem] font-semibold tabular-nums ${
         ready
           ? 'border-brand/30 bg-brand/[0.06] text-brand'
-          : 'border-white/10 bg-white/[0.02] text-ink-faint'
+          : 'border-line bg-surface-hover/40 text-ink-faint'
       }`}
     >
       <span

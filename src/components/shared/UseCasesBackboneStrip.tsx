@@ -15,7 +15,6 @@ const STAGES = [
     label: 'Facilitator gate',
     line: 'Release is governed',
     src: '/assets/usecases-facilitator-gate.png',
-    accent: true,
     href: '#primary-tracks-h',
   },
   {
@@ -56,7 +55,7 @@ export function UseCasesBackboneStrip({
                 <div
                   className={
                     'relative flex size-24 items-center justify-center rounded-full border bg-[var(--sr-bg)] transition-[border-color,transform] duration-[var(--sr-duration-governed)] ease-[var(--sr-ease-governed)] group-hover:scale-[1.02] md:size-28 ' +
-                    (stage.accent
+                    (i === 1
                       ? 'border-[color:var(--color-border-strong)] group-hover:border-brand/50'
                       : 'border-line group-hover:border-[color:var(--color-border-strong)]')
                   }
@@ -75,7 +74,7 @@ export function UseCasesBackboneStrip({
                 </div>
                 <div className="mt-4 flex items-baseline justify-center gap-2">
                   <CapsLabel className="tracking-[var(--tracking-caps)]">{stage.step}</CapsLabel>
-                  <span className="font-display text-base font-medium leading-none text-ink md:text-lg">
+                  <span className="font-heading text-base font-medium leading-none text-ink md:text-lg">
                     {stage.label}
                   </span>
                 </div>

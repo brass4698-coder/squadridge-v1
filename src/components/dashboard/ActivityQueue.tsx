@@ -24,7 +24,7 @@ export function ActivityQueue({
     >
       <h3
         id={`queue-${title.replace(/\s+/g, '-').toLowerCase()}`}
-        className="m-0 border-b border-line px-4 py-3 font-display text-base font-medium text-ink"
+        className="m-0 border-b border-line px-4 py-3 font-heading text-base font-medium text-ink"
       >
         {title}
       </h3>

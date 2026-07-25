@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { TokenShell } from '../../../components/layout/TokenShell';
+import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { participantRoute } from '../../../lib/participantRoutes';
 
 export function SessionEndPage() {
+  const token = useParticipantToken();
+
   return (
     <TokenShell>
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
@@ -16,7 +20,7 @@ export function SessionEndPage() {
           className="mb-2 text-xs font-semibold uppercase tracking-widest"
           style={{ color: 'var(--color-accent)' }}
         >
-          Session Complete
+          Session complete
         </p>
         <h1
           className="mb-3 text-2xl font-semibold tracking-tight"
@@ -28,8 +32,8 @@ export function SessionEndPage() {
           className="mb-8 max-w-sm text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          The session has closed. Your contributions were protected throughout. If an outcome
-          document is produced and approved, you will be notified before it is published.
+          The room has closed. When the facilitator opens draft review, use your review link to
+          approve or dispute the instrument before any release.
         </p>
 
         <div
@@ -41,10 +45,10 @@ export function SessionEndPage() {
           </h2>
           <ul className="flex flex-col gap-3">
             {[
-              'The facilitator will produce a draft outcome document, if applicable.',
-              'All designated approvers will be asked to review and sign off.',
-              'Only an approved, final document will be released to the public ledger.',
-              'The room dialogue — including your contributions — remains permanently private.',
+              'The facilitator drafts an outcome in their own words — not a transcript.',
+              'You review and approve or dispute that draft before release.',
+              'Only an approved instrument may leave the room (public or private anchor).',
+              'Room dialogue — including your contributions — remains private.',
             ].map((item) => (
               <li
                 key={item}
@@ -60,13 +64,23 @@ export function SessionEndPage() {
           </ul>
         </div>
 
-        <Link
-          to="/ledger"
-          className="text-sm underline transition-opacity hover:opacity-70"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          View the public ledger
-        </Link>
+        <div className="flex flex-col items-center gap-3">
+          {token ? (
+            <Link
+              to={participantRoute('review', token)}
+              className="btn-institutional btn-institutional--primary inline-flex min-h-[44px] items-center justify-center no-underline"
+            >
+              Open outcome review
+            </Link>
+          ) : null}
+          <Link
+            to="/ledger"
+            className="text-sm underline transition-opacity hover:opacity-70"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            View the public ledger
+          </Link>
+        </div>
       </div>
     </TokenShell>
   );

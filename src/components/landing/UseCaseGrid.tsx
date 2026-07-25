@@ -4,27 +4,23 @@ import { SectionLabel } from '../SectionLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
 /**
- * Buyer-track teasers — homepage scannable index into /use-cases (three equal primaries).
+ * Buyer-track teasers — homepage scannable index into /use-cases.
  */
 export function UseCaseGrid() {
   return (
-    <section
-      className="border-b border-line py-16 md:py-20"
-      data-scroll-section
-      aria-labelledby="use-cases-h"
-    >
+    <section className="py-16 md:py-20" data-scroll-section aria-labelledby="use-cases-h">
       <div className={publicShellInnerClass}>
-        <div className="max-w-[30rem]">
-          <SectionLabel className="!mb-2">Buyer tracks</SectionLabel>
+        <div className="max-w-[32rem]">
+          <SectionLabel className="!mb-2">Who buys this first</SectionLabel>
           <h2
             id="use-cases-h"
-            className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
+            className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
           >
-            Where the model is already a fit
+            Sensitive decisions. Private rooms. Citable outcomes.
           </h2>
           <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-            A tight niche — contested funding, attribution-sensitive dialogue, sensitive inquiries —
-            with room to extend into adjacent institutional environments.
+            Three primary tracks where facilitators need a protected written room and an approved
+            record the institution can still stand behind.
           </p>
         </div>
 
@@ -33,18 +29,18 @@ export function UseCaseGrid() {
             <li key={uc.id}>
               <Link
                 to={`/use-cases#${uc.id}`}
-                className="sr-vault-card sr-vault-card--interactive flex h-full flex-col p-6 no-underline md:p-7"
+                className="sr-interactive flex h-full flex-col rounded-[var(--sr-radius-lg)] bg-surface-elevated p-6 no-underline shadow-sr-card transition-[background-color,box-shadow,transform] hover:bg-surface-hover hover:shadow-sr-card-hover md:p-7"
               >
-                <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.08em] text-ink-faint">
                   {uc.sector}
                 </p>
-                <h3 className="mt-3 mb-0 text-base font-semibold leading-snug tracking-tight text-ink">
+                <h3 className="mt-3 mb-0 text-base font-semibold leading-snug tracking-[-0.02em] text-ink">
                   {uc.title}
                 </h3>
                 <p className="mt-3 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">
                   {uc.context}
                 </p>
-                <span className="mt-6 font-mono text-[length:var(--text-label)] tracking-[var(--tracking-caps)] text-ink-faint">
+                <span className="mt-6 font-mono text-[length:var(--text-label)] tracking-[0.08em] text-ink-faint">
                   View track →
                 </span>
               </Link>
@@ -74,7 +70,7 @@ export function UseCaseGrid() {
           to="/use-cases"
           className="mt-8 inline-flex text-sm font-medium text-ink-secondary no-underline underline-offset-4 hover:text-ink hover:underline"
         >
-          All buyer tracks →
+          Review the five bounded contexts →
         </Link>
       </div>
     </section>

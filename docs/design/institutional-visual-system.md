@@ -10,22 +10,21 @@ Pasteable kit (tokens, components, motion, checklist): [`squadridge-trust-ui-kit
 
 ## Color system
 
-Applied via `body[data-theme='institutional']` in [`src/styles/tokens.css`](../../src/styles/tokens.css):
+Unified cool near-black palette in [`src/styles/tokens.css`](../../src/styles/tokens.css). `body[data-theme='institutional']` is a **scope alias** (same colors as `:root`; cream parchment retired):
 
 | Token | Role | Value |
 | ----- | ---- | ----- |
-| `--sr-bg` | Canvas | `#F5F3EE` warm mineral |
-| `--sr-bg-elevated` | Cards, panels | `#FBFAF7` |
-| `--sr-bg-secondary` | Lifted panels | `#F0EEE8` |
-| `--sr-bg-sunken` | Recessed / room | `#EBE8E1` |
-| `--sr-line` | Borders, grid | `#DDD8CE` |
-| `--sr-ink` | Primary text | `#1F2423` |
-| `--sr-ink-secondary` | Body / metadata | `#5F6A67` |
-| `--sr-primary` | Action (ink-teal) | `#0E5E63` |
-| `--sr-verify` | Integrity only | `#3D7A67` |
-| `--sr-warning` | Documented limits | `#A15A37` clay |
+| `--sr-bg` | Canvas | `#0A0B0D` near-black |
+| `--sr-bg-elevated` | Cards, panels | `#14161A` |
+| `--sr-bg-secondary` | Secondary / recessed | `#101114` |
+| `--sr-line` | Hairline borders | `rgba(255,255,255,0.08)` |
+| `--sr-ink` | Primary text | `#F5F5F7` |
+| `--sr-ink-secondary` | Body / metadata | `#A1A1A6` |
+| `--sr-primary` | Interactive accent | `#1F8A7A` |
+| `--sr-verify` | Integrity badges/dots only | `#3FE0C5` |
+| `--sr-warning` | Documented limits | `#FF9F0A` |
 
-**Rules:** No bright gradients, neon, or decorative blobs on marketing pages. Clay warning for documented limits and cautionary notices — not alarm red. Verification color is rare — ledger anchors and approval confirmations only. App chrome stays on dark `:root`; this theme is PublicShell marketing only.
+**Rules:** No bright gradients, neon, or decorative blobs on marketing pages. Prefer elevated fill + soft shadow over hard boxed chrome. Verification color is rare — ledger anchors and approval confirmations only. Keep theme aliases so PublicShell route switching continues to work.
 
 ## Governed visual modes
 
@@ -33,15 +32,15 @@ Recurring modes for the room → gate → ledger sequence (CSS: `.sr-mode-room`,
 
 | Mode | Feel | Surface |
 | ---- | ---- | ------- |
-| **Private room** | Soft, enclosed, subdued metadata | Warm sunken / inset perimeter |
-| **Release gate** | Highest structure, deliberate threshold | Ink-teal tint + elevate |
-| **Public ledger** | Flatter, open, integrity cues | Clean elevated panel, minimal chrome |
+| **Private room** | Soft, enclosed, subdued metadata | Secondary fill / soft perimeter |
+| **Release gate** | Highest structure, deliberate threshold | Teal tint + elevate |
+| **Public ledger** | Flatter, open, integrity cues | Clean elevated panel, soft shadow |
 
 ## Trust UI checklist
 
 - [ ] One accent for actions; verification color only on integrity states
 - [ ] Labels before icons; mono for metadata and anchors
-- [ ] Thin document rules over card shadows / floating chrome
+- [ ] Elevated surfaces (`shadow-sr-card`) over hard boxed chrome on trust panels
 - [ ] Gate surfaces tinted, not neon-bordered
 - [ ] Motion is procedural (`--sr-ease-governed`); no bounce
 - [ ] Evidence frames use `.sr-evidence-frame` / `.sr-evidence-rail`
@@ -49,11 +48,10 @@ Recurring modes for the room → gate → ledger sequence (CSS: `.sr-mode-room`,
 
 ## Typography
 
-- **Display / major headings (marketing only):** Instrument Serif (`font-display`)
-- **UI / body / controls:** Inter (`font-sans`) — legible, policy-grade
-- **Metadata / anchors:** IBM Plex Mono (`font-mono`) — audit cues, tabular nums for counts
+- **UI / body / headings:** Inter (`font-sans`, `font-heading`, `font-display`) — all map to Inter
+- **Metadata / anchors / labels:** IBM Plex Mono (`font-mono`) — audit cues, tabular nums for counts
 
-Do not overuse serif inside product workflows — controlled workflow, not editorial flourish.
+No display serif default. Controlled workflow typography, not editorial flourish.
 
 ## Spacing
 

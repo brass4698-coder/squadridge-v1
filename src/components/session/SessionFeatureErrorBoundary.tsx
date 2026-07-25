@@ -42,29 +42,29 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
     if (hasError && error) {
       return (
         <div
-          className="rounded-[10px] border border-amber/40 bg-[#1a1408] px-6 py-8 font-sans text-[0.9rem] leading-relaxed text-[#f5d7a3]"
+          className="rounded-[10px] border border-amber/40 bg-sem-warning-soft px-6 py-8 font-sans text-[0.9rem] leading-relaxed text-sem-warning"
           role="alert"
           aria-labelledby="session-feature-error-title"
         >
           <h2
             id="session-feature-error-title"
-            className="font-heading text-[1.1rem] font-semibold text-[#f5d7a3]"
+            className="font-heading text-[1.1rem] font-semibold text-sem-warning"
           >
             Chat could not load
           </h2>
-          <p className="mt-3 text-[#c4a574]">
+          <p className="mt-3 text-sem-warning">
             Something broke while showing messages or the composer. Your squad is still there — try
             again, or return to the session hub.
           </p>
           {import.meta.env.DEV ? (
-            <pre className="mt-4 max-h-28 overflow-auto rounded-md border border-[#2d3f55] bg-[#0b0f1a] p-3 font-mono text-[0.75rem] text-amber">
+            <pre className="mt-4 max-h-28 overflow-auto rounded-md border border-line-strong bg-surface p-3 font-mono text-[0.75rem] text-amber">
               {error.message}
             </pre>
           ) : null}
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               type="button"
-              className="inline-flex min-h-[44px] items-center justify-center border-0 bg-teal px-6 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity hover:opacity-90"
+              className="inline-flex min-h-[44px] items-center justify-center border-0 bg-teal px-6 font-heading text-[0.95rem] font-semibold text-surface transition-opacity hover:opacity-90"
               style={{ borderRadius: 8 }}
               onClick={this.handleRetry}
             >
@@ -72,7 +72,7 @@ export class SessionFeatureErrorBoundary extends Component<Props, State> {
             </button>
             <button
               type="button"
-              className="inline-flex min-h-[44px] items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-6 font-heading text-[0.95rem] font-medium text-[#a8b2c1] hover:border-[#3d4f63]"
+              className="inline-flex min-h-[44px] items-center justify-center border border-solid border-line-strong bg-transparent px-6 font-heading text-[0.95rem] font-medium text-ink-secondary hover:border-line-strong"
               style={{ borderRadius: 8 }}
               onClick={() => window.location.reload()}
             >

@@ -14,7 +14,7 @@ export function AccessPendingPage() {
           <p className="font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             Account status
           </p>
-          <h1 className="mt-3 font-display text-h1 font-medium tracking-tight text-ink">
+          <h1 className="mt-3 font-heading text-h1 font-semibold tracking-tight text-ink">
             Your access is pending review
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-ink-secondary">

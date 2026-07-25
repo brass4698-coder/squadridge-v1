@@ -35,7 +35,7 @@ export function IncidentStatusCards({ room, items }: IncidentStatusCardsProps) {
         </p>
         <h2
           id="incident-status-heading"
-          className="font-display text-page-title font-semibold text-ink"
+          className="font-heading text-page-title font-semibold text-ink"
         >
           At a glance
         </h2>

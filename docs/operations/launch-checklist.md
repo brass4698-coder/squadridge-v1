@@ -18,7 +18,7 @@ Run before major external comms or a diligence push.
 
 - [ ] Migration `20260427120000_conflict_severity_index.sql` applied in the target Supabase project.  
 - [ ] `npm run build` and `npm test` pass locally; CI green on `main`.  
-- [ ] `public/pitch-deck-hub/conflict-prevention-thesis.html` opens from a production build.
+- [ ] Gated briefing HTML (e.g. conflict-prevention-thesis) loads via `/decks` after grant — not via raw `/pitch-deck-hub/*.html`.
 
 ## Sign-off (optional)
 

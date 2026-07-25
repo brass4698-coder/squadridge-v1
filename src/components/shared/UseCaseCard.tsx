@@ -45,13 +45,11 @@ export function UseCaseCard({
   ctaHref,
 }: UseCaseCardProps) {
   return (
-    <article className="overflow-hidden rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated">
+    <article className="overflow-hidden border border-line sr-surface-illustrative">
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-        <div className="p-5 md:p-6 lg:p-7">
-          <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-            {sector}
-          </p>
-          <h3 className="mt-2.5 mb-0 font-display text-lg font-medium leading-snug text-ink md:text-xl">
+        <div className="sr-registry-pad">
+          <p className="sr-meta-label">{sector}</p>
+          <h3 className="mt-2.5 mb-0 font-heading text-lg font-medium leading-snug text-ink md:text-xl">
             {title}
           </h3>
           <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
@@ -60,9 +58,7 @@ export function UseCaseCard({
 
           {bullets && bullets.length > 0 ? (
             <div className="mt-5">
-              <p className="m-0 mb-2.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-                Where common tools fail
-              </p>
+              <p className="sr-meta-label mb-2.5">Where common tools fail</p>
               <ul className="m-0 list-none space-y-2 p-0">
                 {bullets.map((item) => (
                   <li
@@ -81,10 +77,8 @@ export function UseCaseCard({
           ) : null}
         </div>
 
-        <div className="flex flex-col border-t border-line bg-surface-sunken/40 p-5 md:p-6 lg:border-l lg:border-t-0 lg:p-7">
-          <p className="m-0 mb-2.5 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-            Approved record
-          </p>
+        <div className="flex flex-col border-t border-line bg-surface-sunken/40 sr-registry-pad lg:border-l lg:border-t-0">
+          <p className="sr-meta-label mb-2.5">Approved record</p>
           {recordSampleId ? (
             <div className="mb-2.5">
               <RecordAnchorBadge recordId={recordSampleId} />
@@ -125,9 +119,7 @@ export function SecondaryUseCaseRow({
   return (
     <li id={id} className="scroll-mt-20 list-none">
       <article className="flex h-full flex-col border-t border-line pt-5 md:pt-6">
-        <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-          {sector}
-        </p>
+        <p className="sr-meta-label">{sector}</p>
         <h3 className="mt-2 mb-0 text-base font-semibold leading-snug text-ink">{title}</h3>
         <p className="mt-2.5 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">{scenario}</p>
         <Link

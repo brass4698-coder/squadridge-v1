@@ -26,7 +26,8 @@ interface AppTopShellProps {
 }
 
 const NAV = [
-  { label: 'Decks', href: '/decks', authOnly: true, superAdminOnly: true },
+  { label: 'Decks', href: '/decks', authOnly: true, superAdminOnly: false },
+  { label: 'Briefings', href: '/briefings', authOnly: false, superAdminOnly: false },
   { label: 'Ledger', href: '/ledger', authOnly: false, superAdminOnly: false },
   { label: 'How it works', href: '/how-it-works', authOnly: false, superAdminOnly: false },
   { label: 'Security', href: '/security', authOnly: false, superAdminOnly: false },

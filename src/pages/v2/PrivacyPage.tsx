@@ -77,7 +77,7 @@ export function PrivacyPage() {
           <ProseMeasure className="flex flex-col gap-10 text-sm leading-relaxed text-ink-secondary">
             {SECTIONS.map((section) => (
               <section key={section.heading}>
-                <h2 className="font-display mb-3 text-base font-medium text-ink">
+                <h2 className="font-heading mb-3 text-base font-medium text-ink">
                   {section.heading}
                 </h2>
                 <p>{section.body}</p>

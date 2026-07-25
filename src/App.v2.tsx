@@ -28,6 +28,7 @@ import { ScrollExtremesControl } from './components/ScrollExtremesControl';
 import { AuthGate } from './components/auth/AuthGate';
 import { ActiveUserGate } from './components/auth/ActiveUserGate';
 import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
+import { DeckAccessGate } from './components/auth/DeckAccessGate';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { PublicShell } from './components/layout/PublicShell';
@@ -69,6 +70,7 @@ import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 import { LandingPage } from './pages/v2/LandingPage';
 import { HowItWorksPage } from './pages/v2/HowItWorksPage';
 import { RequestAccessPage } from './pages/v2/RequestAccessPage';
+import { BriefingsPage } from './pages/v2/BriefingsPage';
 import { AboutPage } from './pages/v2/AboutPage';
 import { FaqPage } from './pages/v2/FaqPage';
 import { PrivacyPage } from './pages/v2/PrivacyPage';
@@ -107,6 +109,7 @@ import { ConsentPage } from './pages/v2/participant/ConsentPage';
 import { SessionBriefingPage } from './pages/v2/participant/SessionBriefingPage';
 import { WaitingRoomPage } from './pages/v2/participant/WaitingRoomPage';
 import { ParticipantRoomPage } from './pages/v2/participant/ParticipantRoomPage';
+import { OutcomeReviewPage } from './pages/v2/participant/OutcomeReviewPage';
 import { SessionEndPage } from './pages/v2/participant/SessionEndPage';
 import { InviteInvalidPage } from './pages/v2/participant/InviteInvalidPage';
 
@@ -192,17 +195,18 @@ export default function AppV2() {
               <Route path="/p/briefing/:token" element={<SessionBriefingPage />} />
               <Route path="/p/waiting/:token" element={<WaitingRoomPage />} />
               <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
+              <Route path="/p/review/:token" element={<OutcomeReviewPage />} />
               <Route path="/p/done/:token" element={<SessionEndPage />} />
 
-              {/* ── Investor materials (super_admin only — pilot-first) ───── */}
+              {/* ── Investor / partner briefings (invite or super_admin) ── */}
               <Route
                 element={
                   <RequireAuth>
-                    <RoleProtectedRoute allowed={['super_admin']}>
+                    <DeckAccessGate>
                       <AppTopShell>
                         <Outlet />
                       </AppTopShell>
-                    </RoleProtectedRoute>
+                    </DeckAccessGate>
                   </RequireAuth>
                 }
               >
@@ -442,6 +446,7 @@ export default function AppV2() {
                   path="/request-access/confirmed"
                   element={<Navigate to="/request-access" replace />}
                 />
+                <Route path="/briefings" element={<BriefingsPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />

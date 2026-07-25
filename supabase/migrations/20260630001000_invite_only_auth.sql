@@ -4,6 +4,7 @@
 -- ============================================================
 
 -- ---- 1. profiles ----
+-- Phase1 already created profiles; IF NOT EXISTS skips column defs, so ALTER.
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique not null,
@@ -18,23 +19,25 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists display_name text;
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists status text;
+alter table public.profiles add column if not exists primary_role text;
+alter table public.profiles add column if not exists onboarding_completed boolean;
+alter table public.profiles add column if not exists last_dashboard text;
+alter table public.profiles add column if not exists updated_at timestamptz;
+
 alter table public.profiles enable row level security;
 
+-- Idempotent: phase1 already installed profiles_select_own / profiles_update_own.
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
   for select using (auth.uid() = id);
 
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update using (auth.uid() = id);
-
--- elevated read: super_admin / institution_admin can read users within their scope
-create policy "profiles_select_admin" on public.profiles
-  for select using (
-    exists (
-      select 1 from public.user_roles ur
-      where ur.user_id = auth.uid()
-        and ur.role_key in ('super_admin','institution_admin')
-    )
-  );
 
 -- auto-update updated_at
 create or replace function public.set_updated_at()
@@ -45,6 +48,7 @@ begin
 end;
 $$;
 
+drop trigger if exists trg_profiles_updated_at on public.profiles;
 create trigger trg_profiles_updated_at
   before update on public.profiles
   for each row execute procedure public.set_updated_at();
@@ -58,6 +62,7 @@ create table if not exists public.roles (
 );
 
 alter table public.roles enable row level security;
+drop policy if exists "roles_select_authenticated" on public.roles;
 create policy "roles_select_authenticated" on public.roles
   for select using (auth.uid() is not null);
 
@@ -86,10 +91,23 @@ create table if not exists public.user_roles (
 
 alter table public.user_roles enable row level security;
 
+drop policy if exists "user_roles_select_own" on public.user_roles;
 create policy "user_roles_select_own" on public.user_roles
   for select using (auth.uid() = user_id);
 
+drop policy if exists "user_roles_select_admin" on public.user_roles;
 create policy "user_roles_select_admin" on public.user_roles
+  for select using (
+    exists (
+      select 1 from public.user_roles ur
+      where ur.user_id = auth.uid()
+        and ur.role_key in ('super_admin','institution_admin')
+    )
+  );
+
+-- elevated read: must come AFTER user_roles exists (policy expr is validated at create)
+drop policy if exists "profiles_select_admin" on public.profiles;
+create policy "profiles_select_admin" on public.profiles
   for select using (
     exists (
       select 1 from public.user_roles ur
@@ -109,6 +127,7 @@ create table if not exists public.institutions (
 
 alter table public.institutions enable row level security;
 
+drop policy if exists "institutions_select_member" on public.institutions;
 create policy "institutions_select_member" on public.institutions
   for select using (
     exists (
@@ -136,6 +155,7 @@ create table if not exists public.workspaces (
 
 alter table public.workspaces enable row level security;
 
+drop policy if exists "workspaces_select_member" on public.workspaces;
 create policy "workspaces_select_member" on public.workspaces
   for select using (
     exists (
@@ -175,6 +195,7 @@ create table if not exists public.invites (
 alter table public.invites enable row level security;
 
 -- only admins or backend service role can create invites
+drop policy if exists "invites_select_admin" on public.invites;
 create policy "invites_select_admin" on public.invites
   for select using (
     exists (
@@ -184,12 +205,14 @@ create policy "invites_select_admin" on public.invites
     )
   );
 
+drop policy if exists "invites_select_by_email" on public.invites;
 create policy "invites_select_by_email" on public.invites
   for select using (
     email = (select email from public.profiles where id = auth.uid())
   );
 
 -- ---- 7. access_requests ----
+-- May already exist from v2 schema with a different shape; IF NOT EXISTS skips DDL.
 create table if not exists public.access_requests (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
@@ -205,13 +228,21 @@ create table if not exists public.access_requests (
   updated_at timestamptz not null default now()
 );
 
+alter table public.access_requests add column if not exists organization text;
+alter table public.access_requests add column if not exists role_requested text;
+alter table public.access_requests add column if not exists reviewed_by uuid;
+alter table public.access_requests add column if not exists review_notes text;
+alter table public.access_requests add column if not exists updated_at timestamptz;
+
 alter table public.access_requests enable row level security;
 
 -- public can insert (anon)
+drop policy if exists "access_requests_insert_public" on public.access_requests;
 create policy "access_requests_insert_public" on public.access_requests
   for insert with check (true);
 
 -- admins/facilitators can read and update
+drop policy if exists "access_requests_select_admin" on public.access_requests;
 create policy "access_requests_select_admin" on public.access_requests
   for select using (
     exists (
@@ -221,6 +252,7 @@ create policy "access_requests_select_admin" on public.access_requests
     )
   );
 
+drop policy if exists "access_requests_update_admin" on public.access_requests;
 create policy "access_requests_update_admin" on public.access_requests
   for update using (
     exists (
@@ -230,6 +262,7 @@ create policy "access_requests_update_admin" on public.access_requests
     )
   );
 
+drop trigger if exists trg_access_requests_updated_at on public.access_requests;
 create trigger trg_access_requests_updated_at
   before update on public.access_requests
   for each row execute procedure public.set_updated_at();
@@ -246,9 +279,11 @@ create table if not exists public.app_preferences (
 
 alter table public.app_preferences enable row level security;
 
+drop policy if exists "app_preferences_own" on public.app_preferences;
 create policy "app_preferences_own" on public.app_preferences
   for all using (auth.uid() = user_id);
 
+drop trigger if exists trg_app_preferences_updated_at on public.app_preferences;
 create trigger trg_app_preferences_updated_at
   before update on public.app_preferences
   for each row execute procedure public.set_updated_at();
@@ -266,6 +301,7 @@ create table if not exists public.audit_events (
 
 alter table public.audit_events enable row level security;
 
+drop policy if exists "audit_events_select_admin" on public.audit_events;
 create policy "audit_events_select_admin" on public.audit_events
   for select using (
     exists (
@@ -276,6 +312,7 @@ create policy "audit_events_select_admin" on public.audit_events
   );
 
 -- insert only via trusted RPC / service role
+drop policy if exists "audit_events_insert_service" on public.audit_events;
 create policy "audit_events_insert_service" on public.audit_events
   for insert with check (
     exists (

@@ -8,7 +8,7 @@ export function SessionSafetyStrip({ squadId }: { squadId: string }) {
   const [showVisibility, setShowVisibility] = useState(false);
 
   return (
-    <div className="space-y-2 rounded-lg border border-navy-light bg-[#0c121c] p-3">
+    <div className="space-y-2 rounded-lg border border-navy-light bg-surface-elevated p-3">
       <p className="font-sans text-[0.78rem] leading-snug text-slate-400">
         <span className="text-slate-200">Safety:</span> this space uses pseudonyms in-room; squad
         keys exist for support and safety — not Signal-grade encryption. Use reports for facilitator
@@ -37,7 +37,7 @@ export function SessionSafetyStrip({ squadId }: { squadId: string }) {
         </button>
       </div>
       {showVisibility ? (
-        <div className="rounded border border-[#1a2236] bg-[#0a0e14] p-3 font-sans text-[0.74rem] text-slate-400">
+        <div className="rounded border border-line bg-surface-secondary p-3 font-sans text-[0.74rem] text-slate-400">
           <p>
             <span className="font-medium text-slate-300">Participants</span> see pseudonyms and
             in-room text (after encryption/decrypt in-app).

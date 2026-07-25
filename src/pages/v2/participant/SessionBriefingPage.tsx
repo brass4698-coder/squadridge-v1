@@ -1,12 +1,17 @@
 import { useNavigate } from 'react-router-dom';
+import { FormPanel } from '../../../components/ui/FormPanel';
+import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
+import { useParticipantSession } from '../../../hooks/useParticipantSession';
 import { participantRoute } from '../../../lib/participantRoutes';
+import { MAX_ROOM_PARTICIPANTS } from '../../../lib/roomCapacity';
 
 const groundRules = [
   'All contributions within the room are confidential to participants.',
   'Speak from your own perspective. Avoid attributing views to others.',
   'The facilitator may pause the dialogue at any time to maintain process integrity.',
+  'If tension rises, use Slow down. The facilitator may ask the room to Pull back or pause.',
   'If you need to withdraw, do so quietly. You are not required to explain.',
   'No recording, screenshotting, or note-sharing outside the session without facilitator approval.',
 ];
@@ -14,6 +19,7 @@ const groundRules = [
 export function SessionBriefingPage() {
   const token = useParticipantToken();
   const navigate = useNavigate();
+  const { ctx, loading } = useParticipantSession(token ?? '');
 
   function enter() {
     if (!token) return;
@@ -22,86 +28,75 @@ export function SessionBriefingPage() {
 
   if (!token) return null;
 
+  if (loading) {
+    return (
+      <TokenShell>
+        <RouteSkeleton label="Loading briefing" />
+      </TokenShell>
+    );
+  }
+
+  const title = ctx?.session_title ?? 'Protected dialogue session';
+  const language = ctx?.session_language ?? '—';
+  const conflictType = ctx?.conflict_type ?? '—';
+  const maxParticipants = ctx?.max_participants ?? MAX_ROOM_PARTICIPANTS;
+  const outcome =
+    ctx?.outcome_public === false
+      ? 'Private anchored record'
+      : ctx?.outcome_public
+        ? 'Approved public record (optional publish)'
+        : 'Facilitator-approved outcome';
+
   return (
     <TokenShell>
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
-        <div className="w-full max-w-xl">
-          <p
-            className="mb-4 text-xs font-semibold uppercase tracking-widest"
-            style={{ color: 'var(--color-accent)' }}
-          >
-            Session Briefing
-          </p>
-          <h1
-            className="mb-3 text-2xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Northern Watershed Consultation
-          </h1>
-          <p
-            className="mb-8 text-sm leading-relaxed"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            You are about to enter a protected dialogue session. Read the details below before
-            proceeding.
-          </p>
-
-          <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="sr-form-atmosphere flex flex-1 flex-col items-center justify-center px-6 py-16">
+        <FormPanel
+          className="w-full max-w-xl"
+          eyebrow="Session briefing"
+          title={title}
+          titleAs="h1"
+          description="You are about to enter a protected written dialogue. Read the details below before proceeding."
+        >
+          <div className="mb-6 grid grid-cols-2 gap-3">
             {[
-              { label: 'Date', value: 'Jun 20, 2024' },
-              { label: 'Start time', value: '10:00 AM' },
-              { label: 'Facilitator', value: 'Regional Mediation Centre' },
-              { label: 'Outcome format', value: 'Joint Statement' },
-              { label: 'Max participants', value: '12' },
-              { label: 'Your role', value: 'Participant' },
+              { label: 'Matter type', value: conflictType },
+              { label: 'Language', value: language },
+              { label: 'Max participants', value: String(maxParticipants) },
+              { label: 'Outcome', value: outcome },
+              { label: 'Your codename', value: ctx?.codename ?? '—' },
+              {
+                label: 'Your reason',
+                value: ctx?.participation_reason?.trim() || 'Provided at invitation accept',
+              },
+              {
+                label: 'Issue goal',
+                value: ctx?.issue_goal?.trim() || 'Shared by facilitator at configure',
+              },
+              {
+                label: 'Disclosure boundaries',
+                value:
+                  ctx?.disclosure_boundaries?.trim() ||
+                  'Room dialogue stays private; only approved text may leave',
+              },
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-lg border p-4"
-                style={{
-                  borderColor: 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface)',
-                }}
+                className="rounded-[var(--sr-radius-md)] bg-surface-elevated p-4 shadow-sr-sm"
               >
-                <p
-                  className="mb-0.5 text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
+                <p className="mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
                   {item.label}
                 </p>
-                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                  {item.value}
-                </p>
+                <p className="text-sm font-medium text-ink">{item.value}</p>
               </div>
             ))}
           </div>
 
-          <section
-            className="mb-8 rounded-lg border p-6"
-            aria-labelledby="ground-rules-heading"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-            }}
-          >
-            <h2
-              id="ground-rules-heading"
-              className="mb-4 text-sm font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Ground rules
-            </h2>
-            <ul className="flex flex-col gap-3">
+          <section className="mb-8 rounded-[var(--sr-radius-lg)] bg-surface-elevated p-5 shadow-sr-card">
+            <h2 className="mb-3 text-sm font-semibold text-ink">Ground rules</h2>
+            <ul className="space-y-2">
               {groundRules.map((rule) => (
-                <li
-                  key={rule}
-                  className="flex items-start gap-3 text-sm"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
-                  <span
-                    className="mt-0.5 text-base leading-none"
-                    style={{ color: 'var(--color-accent)' }}
-                  >
+                <li key={rule} className="flex gap-2 text-sm leading-relaxed text-ink-secondary">
+                  <span className="text-brand" aria-hidden>
                     ·
                   </span>
                   {rule}
@@ -110,30 +105,17 @@ export function SessionBriefingPage() {
             </ul>
           </section>
 
-          <div
-            className="mb-8 rounded-lg border p-5"
-            style={{
-              borderColor: 'var(--color-pending-strip)',
-              backgroundColor: 'var(--color-pending-strip)',
-            }}
-          >
-            <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-              <strong>Outcome note:</strong> This session may produce a facilitator-authored
-              decision memo. If drafted and approved, it is released with a verification anchor —
-              often private for partners and funders, and only listed on the public ledger when the
-              facilitator enables that. The room itself — including all dialogue — remains
-              permanently private.
-            </p>
-          </div>
-
           <button
+            type="button"
             onClick={enter}
-            className="w-full rounded py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: 'var(--color-accent)' }}
+            className="btn-institutional btn-institutional--primary w-full"
           >
-            Enter Waiting Room →
+            Enter waiting room
           </button>
-        </div>
+          <p className="mt-4 text-center text-xs text-ink-faint">
+            Private room · Only the approved outcome may be published
+          </p>
+        </FormPanel>
       </div>
     </TokenShell>
   );

@@ -8,7 +8,7 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
 export function IllustrativeScenarioStrip() {
   return (
     <section
-      className="sr-section-enter border-b border-line bg-surface-sunken/40 py-12 md:py-14"
+      className="sr-section-enter py-12 md:py-14"
       data-scroll-section
       aria-labelledby="scenario-h"
     >
@@ -19,7 +19,7 @@ export function IllustrativeScenarioStrip() {
               <CapsLabel>Illustrative scenario</CapsLabel>
               <h2
                 id="scenario-h"
-                className="mt-2 mb-0 font-display text-h3 font-medium leading-snug tracking-tight text-ink"
+                className="mt-2 mb-0 font-heading text-h3 font-semibold leading-snug tracking-tight text-ink"
               >
                 Board dispute
               </h2>
@@ -36,7 +36,7 @@ export function IllustrativeScenarioStrip() {
           </div>
 
           <aside
-            className="rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-4 py-3.5"
+            className="rounded-[var(--sr-radius-md)] bg-surface-elevated px-4 py-3.5 shadow-sr-card"
             aria-label="Illustrative approved record"
           >
             <CapsLabel>What leaves the room</CapsLabel>
@@ -44,7 +44,7 @@ export function IllustrativeScenarioStrip() {
               Approved board outcome memo
             </p>
             <p className="mt-1.5 mb-0 font-mono text-[0.7rem] leading-relaxed text-ink-faint">
-              SHA-256 anchor · No transcript
+              SHA-256 integrity · No transcript
             </p>
             <a
               href="#record-specimen"

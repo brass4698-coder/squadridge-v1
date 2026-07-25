@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   primaryUseCases,
   secondaryUseCases,
@@ -35,7 +35,25 @@ export function UseCasesPage() {
       <MarketingPageHero
         label="Buyer tracks"
         title="Where the model fits"
-        lead="Foundations, peacebuilders, and HR teams — one governed process, many environments. The niche is tight; the applications compound."
+        lead={
+          <>
+            <p>
+              Private deliberation with facilitator-governed release — shown in a few serious
+              institutional settings.
+            </p>
+            <p className="mt-3 mb-0 text-sm text-ink-faint">
+              Same pattern throughout: room stays closed; only the approved outcome can leave. For
+              the process spine and room guarantees, see{' '}
+              <Link
+                to="/how-it-works"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                How it works
+              </Link>
+              .
+            </p>
+          </>
+        }
         slim
       />
 
@@ -49,13 +67,13 @@ export function UseCasesPage() {
             <SectionLabel className="!mb-2">Shared backbone</SectionLabel>
             <h2
               id="backbone-h"
-              className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
             >
               {USE_CASE_ARCHITECTURE_LINE}
             </h2>
             <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
-              Stated once here as buyer context. The homepage shows the interactive model; Security
-              holds the threat bounds.
+              Invite-only entry, facilitator authority, recorded approvals, and a released
+              instrument that excludes the room itself.
             </p>
           </div>
           <div className="mt-10 md:mt-12">
@@ -74,10 +92,14 @@ export function UseCasesPage() {
             <SectionLabel className="!mb-2">Primary tracks</SectionLabel>
             <h2
               id="primary-tracks-h"
-              className="mt-0 font-display text-h2 font-medium tracking-tight text-ink"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
             >
               Three institutional problems
             </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Each track uses the same architecture — different matter class, same release
+              discipline.
+            </p>
           </div>
           <div className="mt-10 flex flex-col gap-10 md:mt-12 md:gap-12">
             {primaryUseCases.map((uc, i) => (
@@ -101,7 +123,7 @@ export function UseCasesPage() {
             <SectionLabel className="!mb-2">Adjacent contexts</SectionLabel>
             <h2
               id="adjacent-h"
-              className="mt-0 font-display text-h3 font-medium tracking-tight text-ink"
+              className="mt-0 font-heading text-h3 font-semibold tracking-tight text-ink"
             >
               Also a natural fit
             </h2>
@@ -119,6 +141,7 @@ export function UseCasesPage() {
         body={CTA.closeUseCases}
         secondaryLabel={CTA.secondaryProcess}
         secondaryHref={CTA.secondaryProcessHref}
+        statusLine={CTA.pilotStatusLine}
       />
     </div>
   );

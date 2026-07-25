@@ -2,6 +2,11 @@ import { useEffect, useState, useCallback } from 'react';
 // TODO(supabase-types): see useAccessRequest.
 import { supabase } from '../lib/supabase';
 import type { Session } from '../lib/supabaseTypes';
+import {
+  clampMaxParticipants,
+  DEFAULT_MAX_PARTICIPANTS,
+  MAX_ROOM_PARTICIPANTS,
+} from '../lib/roomCapacity';
 
 export function useSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -33,12 +38,21 @@ export function useSessions() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
+    const maxParticipants = clampMaxParticipants(
+      payload.max_participants,
+      DEFAULT_MAX_PARTICIPANTS,
+    );
     const { data, error: err } = await supabase
       .from('sessions')
-      .insert({ ...payload, facilitator_id: user.id })
+      .insert({ ...payload, max_participants: maxParticipants, facilitator_id: user.id })
       .select()
       .single();
-    if (err) throw err;
+    if (err) {
+      if ((err.message ?? '').includes('max_participants')) {
+        throw new Error(`Maximum participants must be between 2 and ${MAX_ROOM_PARTICIPANTS}.`);
+      }
+      throw err;
+    }
     const row = data as Session;
     setSessions((prev) => [row, ...prev]);
     return row;

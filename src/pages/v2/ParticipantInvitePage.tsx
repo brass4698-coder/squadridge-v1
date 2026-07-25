@@ -10,6 +10,13 @@ import { useSession } from '../../hooks/useSessions';
 import { appRoutes } from '../../lib/appRoutes';
 import { buildParticipantInviteUrl } from '../../lib/participantRoutes';
 import { generateInviteToken, hashEmail } from '../../lib/participantToken';
+import {
+  inviteAboveRecommendedWarning,
+  isRoomAtCapacity,
+  MAX_ROOM_PARTICIPANTS,
+  RECOMMENDED_MAX_PARTICIPANTS,
+  roomCapacityErrorMessage,
+} from '../../lib/roomCapacity';
 
 export function ParticipantInvitePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -17,25 +24,37 @@ export function ParticipantInvitePage() {
   const { participants, loading, addParticipant } = useParticipants(sessionId);
   const [codename, setCodename] = useState('');
   const [email, setEmail] = useState('');
+  const [inviteReason, setInviteReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [lastLink, setLastLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const inviteWarning = inviteAboveRecommendedWarning(participants.length);
 
   async function handleAddParticipant(e: React.FormEvent) {
     e.preventDefault();
     if (!codename.trim()) return;
     setError(null);
+    const max = session?.max_participants ?? MAX_ROOM_PARTICIPANTS;
+    if (isRoomAtCapacity(participants.length, max)) {
+      setError(roomCapacityErrorMessage(max));
+      return;
+    }
     try {
       const token = generateInviteToken();
       const emailHash = email.trim() ? await hashEmail(email) : null;
-      const row = await addParticipant({
-        codename: codename.trim(),
-        invite_token: token,
-        email_hash: emailHash,
-      });
+      const row = await addParticipant(
+        {
+          codename: codename.trim(),
+          invite_token: token,
+          email_hash: emailHash,
+          participation_reason: inviteReason.trim() || null,
+        },
+        max,
+      );
       setLastLink(buildParticipantInviteUrl(row.invite_token));
       setCodename('');
       setEmail('');
+      setInviteReason('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not add participant');
     }
@@ -59,9 +78,16 @@ export function ParticipantInvitePage() {
             {sessionLoading ? 'Loading…' : (session?.title ?? 'Session')}
           </h1>
           <p className="mt-1 text-sm text-ink-secondary">
-            Add participants with a codename. Each receives a unique invite link for verification
-            and consent.
+            Add participants with a codename and a unique invite link. Recommended room size is 4–
+            {RECOMMENDED_MAX_PARTICIPANTS}; this session is limited to{' '}
+            {session?.max_participants ?? MAX_ROOM_PARTICIPANTS} people ({participants.length}{' '}
+            invited). Hard ceiling {MAX_ROOM_PARTICIPANTS}.
           </p>
+          {inviteWarning ? (
+            <p className="mt-2 text-sm text-sem-warning" role="status">
+              {inviteWarning}
+            </p>
+          ) : null}
         </div>
 
         <FormPanel
@@ -92,12 +118,32 @@ export function ParticipantInvitePage() {
                 />
               </FormField>
             </div>
+            <FormField
+              id="invite-reason"
+              label="Why this person is in the room (optional prefill)"
+              hint="Standing or relationship to the matter. Participant confirms or edits on accept."
+              instrument
+            >
+              <Input
+                id="invite-reason"
+                value={inviteReason}
+                onChange={(e) => setInviteReason(e.target.value)}
+                placeholder="e.g. Watershed stewardship partner named in the brief"
+              />
+            </FormField>
             {error ? (
               <p className="text-sm text-sem-danger" role="alert">
                 {error}
               </p>
             ) : null}
-            <button type="submit" className="btn-institutional btn-institutional--primary text-sm">
+            <button
+              type="submit"
+              disabled={isRoomAtCapacity(
+                participants.length,
+                session?.max_participants ?? MAX_ROOM_PARTICIPANTS,
+              )}
+              className="btn-institutional btn-institutional--primary text-sm disabled:opacity-50"
+            >
               Add participant &amp; generate link
             </button>
             {lastLink ? (

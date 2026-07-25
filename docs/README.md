@@ -38,6 +38,8 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Onboarding journey (product view)       | [product/onboarding-flow.md](product/onboarding-flow.md)               |
 | User journeys                           | [product/user-journeys.md](product/user-journeys.md)                   |
 | Feature specifications                  | [product/feature-specifications.md](product/feature-specifications.md) |
+| Institutional credibility research      | [product/institutional-credibility-research.md](product/institutional-credibility-research.md) |
+| **Platform evolution action plan** (MVP → pilot → institutional) | [product/platform-evolution-action-plan.md](product/platform-evolution-action-plan.md) |
 | Metrics                                 | [product/metrics-spec.md](product/metrics-spec.md)                     |
 | CSI (draft, not shipped)                | [product/csi-spec.md](product/csi-spec.md)                             |
 
@@ -49,7 +51,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Go-to-market                                                 | [business/go-to-market.md](business/go-to-market.md)                                                                              |
 | Partnership strategy                                         | [business/partnership-strategy.md](business/partnership-strategy.md)                                                              |
 | Pilot one-pager                                              | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md)                                                        |
-| Pitch Deck Hub (app + static HTML)                           | In-app `/pitch-deck-hub`; [`public/pitch-deck-hub/`](../public/pitch-deck-hub/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
+| Pitch Deck Hub (app + gated HTML)                            | In-app `/pitch-deck-hub` + `/decks`; assets in [`supabase/functions/serve-deck/static/`](../supabase/functions/serve-deck/static/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
 | Impact metrics                                               | [business/impact-metrics.md](business/impact-metrics.md)                                                                          |
 
 ## Technical

@@ -5,6 +5,7 @@ export type ParticipantStep =
   | 'briefing'
   | 'waiting'
   | 'room'
+  | 'review'
   | 'done';
 
 /** Path-segment token routes: `/p/{step}/{token}` */

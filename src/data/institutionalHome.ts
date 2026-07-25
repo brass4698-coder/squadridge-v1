@@ -43,22 +43,34 @@ export const PRODUCT_MECHANICS = [
   {
     step: '01',
     title: 'Configure',
+    summary: 'Set scope, invites, and release rules',
     body: 'You set session scope, participant invites, and verification requirements before dialogue begins.',
+    gateState: 'open' as const,
+    exitCondition: 'Scope, invites, and release posture are locked.',
   },
   {
     step: '02',
     title: 'Verify',
+    summary: 'Confirm eligibility before the room opens',
     body: 'Parties complete facilitator-defined verification. Approval is explicit before room access.',
+    gateState: 'gated' as const,
+    exitCondition: 'Required parties verified; facilitator opens the room.',
   },
   {
     step: '03',
     title: 'Facilitate',
+    summary: 'Run structured written rounds under control',
     body: 'Structured written dialogue under your control — pause, end, and oversight built into the workflow.',
+    gateState: 'sealed' as const,
+    exitCondition: 'Outcome drafted separately; designated approvals recorded.',
   },
   {
     step: '04',
     title: 'Release',
+    summary: 'Publish only approved outcome text',
     body: 'Approvals recorded, outcome drafted without room import, then published with a tamper-evident anchor.',
+    gateState: 'released' as const,
+    exitCondition: 'Approved record published — or kept as a private anchored memo.',
   },
 ] as const;
 

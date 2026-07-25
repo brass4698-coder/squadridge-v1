@@ -22,7 +22,7 @@ const COPY: Record<TrustLabelVariant, { label: string; Icon: typeof Lock; tone: 
   ledger: {
     label: 'Recorded and tamper-evident',
     Icon: Lock,
-    tone: 'text-ink-secondary',
+    tone: 'sr-verify',
   },
 };
 

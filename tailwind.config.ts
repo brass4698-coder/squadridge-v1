@@ -103,6 +103,7 @@ export default {
           secondary: 'var(--sr-bg-secondary)',
           sunken: 'var(--sr-bg-sunken)',
           accent: 'var(--sr-bg-accent)',
+          hover: 'var(--sr-bg-hover)',
           /** Legacy static fallback (onboarding) */
           legacy: '#0c1219',
         },
@@ -121,6 +122,12 @@ export default {
           soft: 'var(--sr-primary-soft)',
           ring: 'var(--sr-primary-ring)',
           on: 'var(--sr-on-primary)',
+        },
+        verify: {
+          DEFAULT: 'var(--sr-verify)',
+          soft: 'var(--sr-verify-soft)',
+          ink: 'var(--sr-verify-ink)',
+          ring: 'var(--sr-verify-ring)',
         },
         /** Semantic statuses — text/border/icon only, not decorative fills */
         sem: {
@@ -225,6 +232,8 @@ export default {
         'sr-sm': 'var(--sr-shadow-sm)',
         'sr-md': 'var(--sr-shadow-md)',
         'sr-lg': 'var(--sr-shadow-lg)',
+        'sr-card': 'var(--sr-shadow-card)',
+        'sr-card-hover': 'var(--sr-shadow-card-hover)',
         focus: 'var(--sr-focus-ring)',
       },
 

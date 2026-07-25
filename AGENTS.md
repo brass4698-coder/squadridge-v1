@@ -47,9 +47,9 @@ The longer civic early-warning → redacted ledger → proposal vision lives in
 
 - **Token source of truth**: `src/styles/tokens.css` — CSS custom properties with `--sr-` prefix
 - **Tailwind bridge**: `tailwind.config.ts` maps `--sr-*` vars to utility classes (`bg-surface`, `text-brand`, etc.)
-- **Default theme**: dark deep-indigo base for app chrome; marketing uses `body[data-theme='institutional']` (warm mineral light)
-- **Accent**: teal `--sr-primary` (bright in app; deep ink-teal `#0E5E63` on institutional marketing)
-- **Fonts (tokenized)**: Inter (body/UI), Instrument Serif (marketing display only), IBM Plex Mono (ledger/code) — see `--sr-font-*` in tokens.css. Kit: [`docs/design/squadridge-trust-ui-kit.md`](docs/design/squadridge-trust-ui-kit.md)
+- **Default theme**: cool near-black elevation stack for app + marketing (`:root`). `body[data-theme='institutional']` / `ledger-dark` are scope aliases that inherit the same palette (cream parchment retired)
+- **Accent**: interactive teal `--sr-primary` (`#1F8A7A`); verification punctuation `--sr-verify` (`#3FE0C5`) reserved for verified / released badges and dots only
+- **Fonts (tokenized)**: Inter for body/UI/headings (`--sr-font-body|heading|display`); IBM Plex Mono for labels/ledger/code — see `--sr-font-*` in tokens.css. Kit: [`docs/design/squadridge-trust-ui-kit.md`](docs/design/squadridge-trust-ui-kit.md)
 - **Motion**: `motion` (Framer) + `animate-step-in` utilities; respect `prefers-reduced-motion`
 - **Rules**: No raw hex in components; WCAG AA; calm de-escalation copy; no militarized iconography (flags, weapons)
 
@@ -126,8 +126,8 @@ These exist because past PRs broke things in predictable ways. Please follow the
   Always add a new timestamped file.
 - **RLS is mandatory** — every new table needs `alter table ... enable row level security`
   and at least one policy in the same migration.
-- **Tokenized fonts only** — Inter + Instrument Serif (marketing display) + IBM Plex Mono.
- Don't introduce a new family without updating `tailwind.config.ts`, `tokens.css`, and `index.html`.
+- **Tokenized fonts only** — Inter (UI + headings) + IBM Plex Mono (labels/ledger).
+  Don't introduce a new family without updating `tailwind.config.ts`, `tokens.css`, and `index.html`.
 - **TypeScript strict** — no `any`, no `@ts-ignore` without an explanatory comment.
 - **Test new utilities** — any new file in `src/utils/` or `src/lib/` needs a corresponding
   test in `src/test/`.

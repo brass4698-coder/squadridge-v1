@@ -66,8 +66,14 @@ export function OnboardingFooter({
   const hasQuote = Boolean(tagline?.trim());
   const finalizeClass =
     finalizeVariant === 'emphasis'
-      ? cn(finalizeBtnEmphasis, nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:shadow-none')
-      : cn(finalizeBtn, nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:text-white');
+      ? cn(
+          finalizeBtnEmphasis,
+          nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:shadow-none',
+        )
+      : cn(
+          finalizeBtn,
+          nextDisabled && 'cursor-not-allowed opacity-35 hover:scale-100 hover:text-white',
+        );
 
   return (
     <div
@@ -85,13 +91,15 @@ export function OnboardingFooter({
         >
           {isHero ? (
             <blockquote className="relative border-l-[5px] border-onboarding-accent bg-gradient-to-r from-onboarding-accent/[0.1] via-onboarding-accent/[0.04] to-transparent py-6 pr-5 pl-7 md:py-8 md:pl-9 md:pr-8">
-              <p className="font-display text-2xl font-semibold tracking-tight text-white italic leading-[1.25] md:text-[1.75rem] md:leading-snug lg:text-[2rem]">
+              <p className="font-heading text-2xl font-semibold tracking-tight text-white italic leading-[1.25] md:text-[1.75rem] md:leading-snug lg:text-[2rem]">
                 {tagline}
               </p>
             </blockquote>
           ) : (
             <blockquote className="border-l-[4px] border-onboarding-accent py-2 pl-6">
-              <p className="font-display text-lg font-semibold text-white/95 italic leading-snug md:text-xl">{tagline}</p>
+              <p className="font-heading text-lg font-semibold text-white/95 italic leading-snug md:text-xl">
+                {tagline}
+              </p>
             </blockquote>
           )}
         </motion.figure>

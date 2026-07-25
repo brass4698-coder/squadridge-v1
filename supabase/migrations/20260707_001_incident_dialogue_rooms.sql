@@ -1,68 +1,11 @@
 -- Incident Dialogue Ledger Room — structured, trauma-informed dialogue for
 -- high-sensitivity, document-heavy situations. Append-only migration.
+--
+-- NOTE (replay fix): RLS helper functions that reference incident_* tables are
+-- defined AFTER those tables below. Postgres validates SQL function bodies at
+-- CREATE time when check_function_bodies is on, so helpers cannot precede tables.
 
--- ── Helpers ─────────────────────────────────────────────────────────────────
-
-CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_participant(p_room_id uuid)
-    RETURNS boolean
-    LANGUAGE sql
-    STABLE
-    SECURITY DEFINER
-    SET search_path = public
-    AS $$
-    SELECT EXISTS (
-        SELECT 1
-        FROM public.incident_room_participants p
-        WHERE p.room_id = p_room_id
-          AND p.user_id = auth.uid()
-    );
-$$;
-
-CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_staff(p_room_id uuid)
-    RETURNS boolean
-    LANGUAGE sql
-    STABLE
-    SECURITY DEFINER
-    SET search_path = public
-    AS $$
-    SELECT EXISTS (
-        SELECT 1
-        FROM public.incident_room_participants p
-        WHERE p.room_id = p_room_id
-          AND p.user_id = auth.uid()
-          AND p.role IN ('facilitator', 'moderator')
-    );
-$$;
-
-CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_moderator(p_room_id uuid)
-    RETURNS boolean
-    LANGUAGE sql
-    STABLE
-    SECURITY DEFINER
-    SET search_path = public
-    AS $$
-    SELECT EXISTS (
-        SELECT 1
-        FROM public.incident_room_participants p
-        WHERE p.room_id = p_room_id
-          AND p.user_id = auth.uid()
-          AND p.role = 'moderator'
-    );
-$$;
-
-CREATE OR REPLACE FUNCTION public.auth_user_is_platform_moderator()
-    RETURNS boolean
-    LANGUAGE sql
-    STABLE
-    SECURITY DEFINER
-    SET search_path = public
-    AS $$
-    SELECT EXISTS (
-        SELECT 1
-        FROM public.moderators m
-        WHERE m.user_id = auth.uid()
-    );
-$$;
+-- ── Contact-info helpers (no table dependencies) ────────────────────────────
 
 -- Reject phone numbers, email addresses, and street-style home addresses in free text.
 CREATE OR REPLACE FUNCTION public.incident_text_contains_contact_info(p_text text)
@@ -230,18 +173,84 @@ CREATE TABLE IF NOT EXISTS public.incident_room_participants (
 CREATE INDEX IF NOT EXISTS incident_room_participants_user_idx
     ON public.incident_room_participants (user_id, room_id);
 
+-- ── RLS helpers (after tables — required for check_function_bodies) ─────────
+
+CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_participant(p_room_id uuid)
+    RETURNS boolean
+    LANGUAGE sql
+    STABLE
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.incident_room_participants p
+        WHERE p.room_id = p_room_id
+          AND p.user_id = auth.uid()
+    );
+$$;
+
+CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_staff(p_room_id uuid)
+    RETURNS boolean
+    LANGUAGE sql
+    STABLE
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.incident_room_participants p
+        WHERE p.room_id = p_room_id
+          AND p.user_id = auth.uid()
+          AND p.role IN ('facilitator', 'moderator')
+    );
+$$;
+
+CREATE OR REPLACE FUNCTION public.auth_user_is_incident_room_moderator(p_room_id uuid)
+    RETURNS boolean
+    LANGUAGE sql
+    STABLE
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.incident_room_participants p
+        WHERE p.room_id = p_room_id
+          AND p.user_id = auth.uid()
+          AND p.role = 'moderator'
+    );
+$$;
+
+CREATE OR REPLACE FUNCTION public.auth_user_is_platform_moderator()
+    RETURNS boolean
+    LANGUAGE sql
+    STABLE
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.moderators m
+        WHERE m.user_id = auth.uid()
+    );
+$$;
+
 -- ── updated_at triggers ─────────────────────────────────────────────────────
 
+DROP TRIGGER IF EXISTS trg_incident_rooms_updated_at ON public.incident_rooms;
 CREATE TRIGGER trg_incident_rooms_updated_at
     BEFORE UPDATE ON public.incident_rooms
     FOR EACH ROW
     EXECUTE PROCEDURE public.set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_incident_items_updated_at ON public.incident_items;
 CREATE TRIGGER trg_incident_items_updated_at
     BEFORE UPDATE ON public.incident_items
     FOR EACH ROW
     EXECUTE PROCEDURE public.set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_incident_threads_updated_at ON public.incident_threads;
 CREATE TRIGGER trg_incident_threads_updated_at
     BEFORE UPDATE ON public.incident_threads
     FOR EACH ROW
@@ -249,11 +258,13 @@ CREATE TRIGGER trg_incident_threads_updated_at
 
 -- ── doxxing prevention triggers ─────────────────────────────────────────────
 
+DROP TRIGGER IF EXISTS trg_incident_items_reject_contact_info ON public.incident_items;
 CREATE TRIGGER trg_incident_items_reject_contact_info
     BEFORE INSERT OR UPDATE OF body ON public.incident_items
     FOR EACH ROW
     EXECUTE FUNCTION public.incident_reject_contact_info();
 
+DROP TRIGGER IF EXISTS trg_incident_messages_reject_contact_info ON public.incident_messages;
 CREATE TRIGGER trg_incident_messages_reject_contact_info
     BEFORE INSERT OR UPDATE OF body ON public.incident_messages
     FOR EACH ROW
@@ -268,14 +279,17 @@ ALTER TABLE public.incident_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.incident_room_participants ENABLE ROW LEVEL SECURITY;
 
 -- incident_rooms
+DROP POLICY IF EXISTS "incident_rooms_select_participant" ON public.incident_rooms;
 CREATE POLICY "incident_rooms_select_participant" ON public.incident_rooms
     FOR SELECT TO authenticated
     USING (public.auth_user_is_incident_room_participant(id));
 
+DROP POLICY IF EXISTS "incident_rooms_insert_moderator" ON public.incident_rooms;
 CREATE POLICY "incident_rooms_insert_moderator" ON public.incident_rooms
     FOR INSERT TO authenticated
     WITH CHECK (public.auth_user_is_platform_moderator());
 
+DROP POLICY IF EXISTS "incident_rooms_update_staff" ON public.incident_rooms;
 CREATE POLICY "incident_rooms_update_staff" ON public.incident_rooms
     FOR UPDATE TO authenticated
     USING (

@@ -47,7 +47,7 @@ const DIFFERENT = [
 const NEVER_DO = [
   {
     title: 'Publish raw dialogue',
-    body: 'No public transcript of the room.',
+    body: 'No public transcript of the room — aligned with established ombuds practice standards on non-identifying records.',
   },
   {
     title: 'Host calls',
@@ -59,11 +59,11 @@ const NEVER_DO = [
   },
   {
     title: 'Overclaim protection',
-    body: 'No E2E or legal-privilege claims without sign-off.',
+    body: 'No E2E, legal-privilege, or IOA-certification claims without sign-off.',
   },
   {
     title: 'Replace judgment',
-    body: 'Automation does not decide outcomes.',
+    body: 'Automation does not decide outcomes. Tone signals stay advisory.',
   },
   {
     title: 'Sell surveillance',
@@ -93,24 +93,32 @@ export function AboutPage() {
               is unsafe, the process is unclear, or the outcome cannot be trusted outside the room.
             </p>
             <p className="mt-4 text-sm text-ink-faint">
-              SquadRidge is facilitation infrastructure for high-stakes written deliberation — a
-              private room, facilitator-governed release, and approved outcomes only.
+              People need a private room to resolve hard issues. The public needs a clear outcome,
+              not the conversation.
             </p>
           </>
         }
         aside={<ProtectedThresholdVisual className="w-full" />}
+        meta={
+          <p className="text-sm text-ink-faint">
+            Early pilots are invite-only — manual fit review, not open signup.
+          </p>
+        }
       />
       <MarketingSection id="thesis" tone="sunken" density="compact">
         <ShellWidth>
           <ProseMeasure className="mb-10">
             <SectionLabel>Product thesis</SectionLabel>
-            <h2 id="thesis-h" className="mt-0 font-display text-h2 font-medium text-ink">
+            <h2 id="thesis-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
               {SITE_THESIS_SHORT}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               There was no purpose-built path that combined participant protection, facilitator
               process control, and a credible route to a public outcome record. SquadRidge exists to
               close that gap — carefully, and without overclaiming what the stack can promise today.
+              Confidentiality architecture is aligned with established ombuds practice standards
+              (independence, impartiality, informality, confidentiality) as a professional benchmark
+              — we are not an IOA-certified ombuds office, and we do not invent legal privilege.
             </p>
           </ProseMeasure>
           <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-3">
@@ -128,7 +136,7 @@ export function AboutPage() {
           <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
             <ProseMeasure>
               <SectionLabel>Difference</SectionLabel>
-              <h2 id="different-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              <h2 id="different-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
                 Built for facilitators who need both privacy and a record
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
@@ -155,7 +163,7 @@ export function AboutPage() {
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-10">
             <div>
               <SectionLabel>Commitments</SectionLabel>
-              <h2 id="commitments-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              <h2 id="commitments-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
                 What we will never do
               </h2>
             </div>
@@ -187,7 +195,7 @@ export function AboutPage() {
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-16">
             <ProseMeasure>
               <SectionLabel>Fit</SectionLabel>
-              <h2 id="fit-h" className="mt-0 font-display text-h2 font-medium text-ink">
+              <h2 id="fit-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
                 When it may fit
               </h2>
               <ul className="mt-6 space-y-4">
@@ -225,7 +233,8 @@ export function AboutPage() {
         body={CTA.closeAbout}
         secondaryLabel={CTA.secondaryProcess}
         secondaryHref={CTA.secondaryProcessHref}
-      />{' '}
+        statusLine={CTA.pilotStatusLine}
+      />
     </div>
   );
 }

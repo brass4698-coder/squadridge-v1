@@ -1,14 +1,39 @@
 /** Public-site copy constants. See docs/design/full-site-visual-direction.md */
 
+/**
+ * One-line mission — optimize public copy around this sentence.
+ * Private room for hard issues; public clarity without the conversation.
+ */
+export const SITE_MISSION =
+  'People need a private room to resolve hard issues. The public needs a clear outcome, not the conversation.';
+
 export const SITE_THESIS =
-  'Privacy-first deliberation infrastructure for verified small-group problem-solving — a limited number of approved participants work through sensitive issues inside a facilitator-governed room, and only approved outcomes become a record that can be trusted outside the room.';
+  'SquadRidge is facilitator-led infrastructure for structured private deliberation: a small group of relevant people works through a sensitive issue in a controlled written room, and only an approved outcome can leave as a public record.';
 
-export const SITE_THESIS_SHORT =
-  'The room is private. The process is governed. The released outcome is credible.';
+export const SITE_THESIS_SHORT = 'Private room. Structured participation. Approved outcomes only.';
 
-/** Niche positioning — one line; do not restate the full room→gate→record spine beside it. */
+/** Canonical category — repeat sparingly as the product noun, not as a slogan. */
+export const SITE_CATEGORY = 'Private deliberation infrastructure';
+
+/** Hero / category lead — prefer SITE_MISSION; keep alias for existing imports. */
+export const SITE_CATEGORY_PROMISE = SITE_MISSION;
+
+/** Market gap — one line; do not restate the full room→gate→record spine beside it. */
 export const SITE_NICHE =
-  'Built for the narrow class of matters where email is too exposed, chat is too loose, and institutions still need an outcome they can cite.';
+  'Chat keeps the conversation private but leaves no trusted record. Public systems publish too much. SquadRidge separates the two.';
+
+/** Why this category matters now — precise, non-speculative. */
+export const SITE_WHY_NOW =
+  'Institutions still need decisions they can cite — even when publishing the deliberation would damage the process that produced them.';
+
+/** What a serious pilot partner can evaluate in the product today. */
+export const PARTNER_EVALUATION = [
+  'Facilitator-controlled entry and release',
+  'Recorded approval chain before publication',
+  'Metadata-only audit export after close',
+  'Approved record with SHA-256 integrity anchor — tamper-evident, recomputable today.',
+  'RFC 3161 trusted timestamping (planned) — independently verified time-of-release.',
+] as const;
 
 export const SITE_NOT = [
   'Not a collaboration app or open chat platform',
@@ -27,7 +52,7 @@ export const TARGET_AUDIENCES = [
 ] as const;
 
 export const PILOT_FIT_STRONG = [
-  'NGO or peacebuilding facilitator-led internal deliberation (2–6 staff/partners)',
+  'NGO or peacebuilding facilitator-led internal deliberation (recommended 4–8 participants; hard ceiling 12)',
   'Need for a private anchored decision memo — public ledger optional',
   'High attribution sensitivity — parties need a protected written room',
   'Willingness to operate within documented security boundaries (operator-readable rooms today)',
@@ -64,7 +89,7 @@ export const CTA = {
     'We review applications manually and respond with an honest fit assessment, typically within 5–7 business days.',
   /** Route-scoped closes — same button, different reason to act. */
   closeHowItWorks:
-    'Ready to run Configure → Release on a real matter? Apply for a scoped private pilot — not open signup.',
+    'If Configure → Release fits your matter class, request a scoped pilot evaluation — process walkthrough and security review, not open signup.',
   closeSecurity:
     'For diligence, security review, or partnership exploration before a formal application.',
   closeUseCases:
@@ -77,6 +102,10 @@ export const CTA = {
     'Prefer a conversation first? After briefing, most partners continue through pilot intake for role-scoped access.',
   closeLedger:
     'Seen how an approved outcome looks in the archive? Request a pilot when you are ready to run the room that produces one.',
+  closeBriefings:
+    'Need deck access for diligence? Request briefing access — materials stay gated until there is a clear review reason.',
+  /** Honest status — never invent organisation counts. */
+  pilotStatusLine: 'Invite-only · scoped private pilots · manual fit review',
   pilotValueLine:
     'For foundations, NGOs, and facilitators handling high-stakes matters — not open signup.',
   briefingHeadline: 'Request briefing',

@@ -2,6 +2,10 @@ import { useEffect, useState, useCallback } from 'react';
 // TODO(supabase-types): see useAccessRequest.
 import { supabase } from '../lib/supabase';
 import type { OutcomeRecord, OutcomeApproval } from '../lib/supabaseTypes';
+import {
+  facilitatorSeedOutcomeApprovals,
+  facilitatorSetApprovalStatus,
+} from '../lib/outcomeReview';
 
 export function useOutcomeRecord(sessionId: string | undefined) {
   const [outcome, setOutcome] = useState<OutcomeRecord | null>(null);
@@ -65,46 +69,35 @@ export function useOutcomeRecord(sessionId: string | undefined) {
 
   async function submitForRelease() {
     if (!outcome) return;
-    await supabase
-      .from('outcome_records')
-      .update({ status: 'pending_approval', updated_at: new Date().toISOString() })
-      .eq('id', outcome.id);
+    const seeded = await facilitatorSeedOutcomeApprovals(outcome.id);
+    if (!seeded.ok) {
+      throw new Error(seeded.error ?? 'Could not open participant review');
+    }
     setOutcome((prev) => (prev ? { ...prev, status: 'pending_approval' } : prev));
+    await fetch();
   }
 
-  async function seedApprovals(labels: string[]) {
-    if (!outcome) return;
-    const rows = labels.map((label) => ({
-      outcome_id: outcome.id,
-      approver_label: label,
-      status: 'pending' as const,
-    }));
-    const { data } = await supabase.from('outcome_approvals').insert(rows).select();
-    if (data) setApprovals(data as OutcomeApproval[]);
+  /** @deprecated Prefer submitForRelease which seeds participant-bound approvals. */
+  async function seedApprovals(_labels: string[]) {
+    await submitForRelease();
   }
 
   async function setApprovalStatus(approvalId: string, status: OutcomeApproval['status']) {
-    const patch = {
-      status,
-      approved_at: status === 'approved' ? new Date().toISOString() : null,
-    };
-    await supabase.from('outcome_approvals').update(patch).eq('id', approvalId);
-    setApprovals((prev) => prev.map((a) => (a.id === approvalId ? { ...a, ...patch } : a)));
-    if (status === 'approved' && sessionId) {
-      const approval = approvals.find((a) => a.id === approvalId);
-      await supabase.rpc('log_session_audit_event', {
-        p_session_id: sessionId,
-        p_event_type: 'approval_given',
-        p_actor_role: 'facilitator',
-        p_metadata: { approver_label: approval?.approver_label ?? approvalId },
-      });
-      await supabase.rpc('notify_facilitator_workflow', {
-        p_session_id: sessionId,
-        p_event_type: 'approval_given',
-        p_title: 'Approval recorded',
-        p_body: `${approval?.approver_label ?? 'An approver'} marked approved.`,
-      });
+    const result = await facilitatorSetApprovalStatus(approvalId, status);
+    if (!result.ok) {
+      throw new Error(result.error ?? 'Could not update approval');
     }
+    setApprovals((prev) =>
+      prev.map((a) =>
+        a.id === approvalId
+          ? {
+              ...a,
+              status,
+              approved_at: status === 'approved' ? new Date().toISOString() : null,
+            }
+          : a,
+      ),
+    );
   }
 
   async function publishToLedger() {

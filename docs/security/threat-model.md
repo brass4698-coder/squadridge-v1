@@ -102,6 +102,7 @@ These are **safe to treat as engineering facts** until code changes:
 - **Email sign-in is passwordless (magic link / OTP) only** in the web app (`signInWithOtp` in `AuthContext`). There is no in-app password field; recovery is “request a new link,” not password reset.
 - **Matchmaking `pool_key`** encodes sorted intent tags (truncated), stored next to `user_id` — see `src/lib/matchmakingPoolKey.ts` and `supabase/migrations/*matchmaking_queue.sql`.
 - **Matchmaking operations:** periodic sweep and queue metrics are documented in [`docs/technical/matchmaking-automation.md`](../technical/matchmaking-automation.md) (cron, `matchmaking_sweep_runs`, service-role-only stats RPC).
+- **Released outcome integrity uses SHA-256 (`ledger_sha`).** Recomputation proves the published instrument is unaltered since release. Optional RFC 3161 columns on `outcome_records` are a **schema scaffold only** — release does not request a Time Stamp Authority token today. Do not claim trusted time or court-admissible timestamps until a live TSA path is documented here.
 
 ---
 
@@ -155,6 +156,7 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | 2026-04-28 | Audit remediation Phase 0–2: `create_demo_squad` RPC (atomic, `20260428220000`); demo squad keys rotated and client-side key generation removed (`20260428210000`); demo claim consent token (`20260428230000`); issuer-managed anonymity group implemented (`20260428240000`, RFC §13.1); structured Edge logger (`supabase/functions/_shared/log.ts`); `VITE_SEMAPHORE_DEMO_GROUP` requires `VITE_ALLOW_DEMO_DECOYS_IN_PROD` for production builds. |
 | 2026-04-30 | §13.1: Client proof path now passes `issuer_group_id` to the Edge verifier when `VITE_ISSUER_GROUP_ID` / `VITE_ISSUER_MANIFEST_URL` / `VITE_ISSUER_SIGNING_KEY_BASE64URL` are configured (`src/lib/zk/issuerRegistry.ts`); RFC `rfc-issuer-managed-anonymity-group.md` status moved from Draft to Implemented v1. Manifest refresh cron remains deferred (RFC §4.3). New ledger publish workflow: squad-member draft inserts, member voting on `ledger_proposal_votes` with RLS-scoped insert, and a moderator-gated `publish-ledger-proposal` Edge Function that enforces a 2/3 participation + majority-approve threshold before flipping `status='published'`. |
 | 2026-07-17 | §4 trust boundaries: add `ingest-message` to the Edge TCB diagram. New §4.1 operator-visibility note aligned with ModDashboard amber callout (keys stored; audited `message_plaintext_decrypt_review`). |
+| 2026-07-25 | Ledger integrity: SHA-256 `ledger_sha` remains the shipped claim. Optional RFC 3161 columns (`timestamp_token` et al.) are schema scaffold only — no live TSA; do not claim trusted time or court-admissible timestamps. Ombuds IOA alignment is architectural language only (not certification/privilege). See [`institutional-credibility-research.md`](../product/institutional-credibility-research.md). |
 
 ---
 

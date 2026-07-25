@@ -1,4 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Badge, type BadgeProps } from './ui/Badge';
 import { cn } from '../lib/cn';
 
 export type StatusBadgeVariant =
@@ -7,36 +8,25 @@ export type StatusBadgeVariant =
   | 'governed'
   | 'live'
   | 'illustrative'
-  | 'anchor';
+  | 'anchor'
+  | 'released'
+  | 'verified';
 
-/** Token-led badge surfaces — verification color stays rare. */
-const styles: Record<StatusBadgeVariant, CSSProperties> = {
-  private: {
-    background: 'var(--color-badge-private, color-mix(in oklch, var(--sr-ink) 6%, transparent))',
-    color: 'var(--color-badge-private-text, var(--sr-ink-secondary))',
-  },
-  published: {
-    background: 'var(--color-badge-published, var(--sr-verify-soft, var(--sr-primary-soft)))',
-    color: 'var(--color-badge-published-text, var(--sr-verify-ink, var(--sr-primary)))',
-  },
-  governed: {
-    background: 'var(--sr-primary-soft)',
-    color: 'var(--sr-primary-hover)',
-  },
-  live: {
-    background: 'var(--sr-verify-soft, var(--sr-primary-soft))',
-    color: 'var(--sr-verify-ink, var(--sr-primary))',
-  },
-  illustrative: {
-    background: 'color-mix(in oklch, var(--sr-ink) 6%, transparent)',
-    color: 'var(--sr-ink-faint)',
-  },
-  anchor: {
-    background: 'var(--sr-verify-soft, var(--sr-primary-soft))',
-    color: 'var(--sr-verify-ink, var(--sr-primary))',
-  },
+const VARIANT_MAP: Record<StatusBadgeVariant, NonNullable<BadgeProps['variant']>> = {
+  private: 'private',
+  published: 'published',
+  governed: 'governed',
+  live: 'live',
+  illustrative: 'outlined',
+  anchor: 'verified',
+  released: 'released',
+  verified: 'verified',
 };
 
+/**
+ * Marketing / ledger status pill — thin wrapper over the canonical Badge.
+ * Verification accent reserved for anchor / live / verified / released.
+ */
 export function StatusBadge({
   variant,
   children,
@@ -47,14 +37,12 @@ export function StatusBadge({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded px-2 py-0.5 font-semibold uppercase text-[length:var(--text-label)] tracking-[var(--tracking-caps)]',
-        className,
-      )}
-      style={styles[variant]}
+    <Badge
+      variant={VARIANT_MAP[variant]}
+      showDot={variant === 'anchor' || variant === 'live' || variant === 'verified'}
+      className={cn(variant === 'illustrative' && 'border-dashed', className)}
     >
       {children}
-    </span>
+    </Badge>
   );
 }

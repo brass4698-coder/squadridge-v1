@@ -58,7 +58,7 @@ export function OperationalPageHeader({
               {stateLabel ? <span>{stateLabel}</span> : null}
             </p>
           )}
-          <h1 className="font-display text-h2 font-medium tracking-tight text-ink md:text-[1.75rem]">
+          <h1 className="font-heading text-h2 font-semibold tracking-tight text-ink md:text-[1.75rem]">
             {title}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-secondary md:text-base">

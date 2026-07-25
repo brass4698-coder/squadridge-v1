@@ -16,7 +16,7 @@ export function AccessDeniedPage() {
           <p className="mb-3 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
             403
           </p>
-          <h1 className="mb-3 font-display text-h1 font-medium text-ink">
+          <h1 className="mb-3 font-heading text-h1 font-semibold text-ink">
             You don&apos;t have access to this page
           </h1>
           <p className="mb-8 max-w-prose text-base leading-relaxed text-ink-secondary">

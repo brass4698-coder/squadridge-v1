@@ -36,11 +36,11 @@ if (existsSync(pubDir)) {
     if (!name.endsWith('.html')) continue;
     scanFile(join(pubDir, name), `public/${name}`);
   }
-  const pitchHub = join(pubDir, 'pitch-deck-hub');
+  const pitchHub = join(root, 'supabase', 'functions', 'serve-deck', 'static');
   if (existsSync(pitchHub)) {
     for (const name of readdirSync(pitchHub)) {
       if (!name.endsWith('.html')) continue;
-      scanFile(join(pitchHub, name), `public/pitch-deck-hub/${name}`);
+      scanFile(join(pitchHub, name), `supabase/functions/serve-deck/static/${name}`);
     }
   }
 }

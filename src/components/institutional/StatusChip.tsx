@@ -5,7 +5,7 @@ type Variant = 'neutral' | 'verified' | 'pending' | 'released' | 'private';
 const TO_BADGE: Record<Variant, StatusBadgeVariant | null> = {
   private: 'private',
   released: 'published',
-  verified: 'governed',
+  verified: 'anchor',
   pending: 'illustrative',
   neutral: null,
 };

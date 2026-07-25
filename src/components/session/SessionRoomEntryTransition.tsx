@@ -45,10 +45,10 @@ export function SessionRoomEntryTransition({ squadId }: { squadId: string }) {
 
   return (
     <div
-      className="session-entry-root pointer-events-none fixed inset-0 z-[300] flex items-center justify-center overflow-hidden bg-[#070b12]/95"
+      className="session-entry-root pointer-events-none fixed inset-0 z-[300] flex items-center justify-center overflow-hidden bg-surface/95"
       aria-hidden
     >
-      <div className="absolute inset-0 bg-[#070b12]/92 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-surface/90 backdrop-blur-[2px]" />
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[3px] animate-session-scan bg-gradient-to-r from-transparent via-teal-400/55 to-transparent shadow-[0_0_24px_rgba(45,212,191,0.35)]"
         style={{ animationDuration: '1.05s' }}

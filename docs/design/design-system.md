@@ -8,9 +8,11 @@ Implementation flows through **`src/styles/tokens.css`** (`--sr-*` variables) an
 
 ## Visual Identity
 
-- **Surfaces**: deep indigo/navy tokens (`--sr-bg`, `--sr-bg-elevated`, `--sr-line`) — see tokens.css Phase 6 palette.
-- **Accent**: teal `--sr-primary` for primary actions; restrained violet `--sr-accent-alt` for decorative highlights only.
+- **Surfaces**: cool near-black elevation stack (`--sr-bg`, `--sr-bg-elevated`, `--sr-bg-secondary`, `--sr-line`) — see `tokens.css`.
+- **Interactive accent**: teal `--sr-primary` for primary actions.
+- **Verification accent**: `--sr-verify` for badges/dots on verified / released states only — never as a fill.
 - **Semantic states**: `--sr-success`, `--sr-warning`, `--sr-danger`, `--sr-info` — always pair color with text, icon, or shape (WCAG AA).
+- **Theme aliases**: `institutional` / `ledger-dark` inherit the same palette (cream retired); keep for route scope switching.
 - **Avoid**: flags, militaristic symbols, weapons, or inflammatory visual metaphors.
 
 ## Typography
@@ -19,10 +21,10 @@ Fonts are tokenized in `tokens.css`:
 
 | Token | Stack | Use |
 |-------|-------|-----|
-| `--sr-font-body` | Inter | Body, forms, tables, metadata |
-| `--sr-font-heading` | IBM Plex Sans | Section headings, UI chrome |
-| `--sr-font-display` | IBM Plex Serif | Marketing hero, ledger display |
-| `--sr-font-mono` | IBM Plex Mono | Ledger, code, verification anchors |
+| `--sr-font-body` | Inter | Body, forms, tables |
+| `--sr-font-heading` | Inter | Section headings, UI chrome |
+| `--sr-font-display` | Inter | Marketing heroes (same face; larger scale) |
+| `--sr-font-mono` | IBM Plex Mono | Labels, ledger, code, verification anchors |
 
 Use Tailwind `font-sans`, `font-heading`, `font-display`, `font-mono`. App chrome (`/app/*`) uses the compact scale (`--sr-text-page-title` … `--sr-text-meta`); marketing uses `--sr-text-display` … `--sr-text-h3` with `clamp()` where responsive scaling helps.
 

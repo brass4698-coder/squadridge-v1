@@ -260,7 +260,7 @@ Investor-only surfaces (`/pitch-deck-hub`, `/financial-projections`, `/decks`) a
 - Incident handling: [`docs/operations/incidents.md`](docs/operations/incidents.md)
 - Metrics definition: [`docs/product/metrics-spec.md`](docs/product/metrics-spec.md)
 - Partner and fundraising support: [`docs/business/pilot-partner-one-pager.md`](docs/business/pilot-partner-one-pager.md), [`docs/business/data-room-index.md`](docs/business/data-room-index.md), [`docs/pitch/`](docs/pitch/)
-- **Pitch materials (super_admin only):** Interactive hub at `/pitch-deck-hub`; static HTML decks under `public/pitch-deck-hub/` — deferred until post-pilot; not linked from member nav.
+- **Pitch materials (invite / super_admin):** Interactive hub at `/pitch-deck-hub`; HTML decks are gated via Edge Function `serve-deck` (not public static files) — deferred until post-pilot; not linked from member nav.
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { homepageSampleRecord } from '../../data/sampleRecords';
-import { RecordCard } from '../shared/RecordCard';
+import { homepageSpecimen } from '../../data/ledgerSpecimens';
+import { RecordCard, specimenToRecordCardProps } from '../shared/RecordCard';
 import { TrustLabel } from '../shared/TrustLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
@@ -8,11 +8,13 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
  * Specimen-led section — released instrument; card carries the persuasion.
  */
 export function RecordSpecimen() {
+  const card = specimenToRecordCardProps(homepageSpecimen, `/ledger/${homepageSpecimen.id}`);
+
   return (
     <section
       id="record-specimen"
       data-demo="landing-ledger"
-      className="scroll-mt-24 border-b border-line bg-surface-sunken/40 py-16 md:py-20"
+      className="scroll-mt-24 py-16 md:py-20 lg:py-24"
       data-scroll-section
       aria-labelledby="record-specimen-h"
     >
@@ -22,14 +24,14 @@ export function RecordSpecimen() {
             <TrustLabel variant="ledger" className="mb-5" />
             <h2
               id="record-specimen-h"
-              className="mt-0 font-display text-h2 font-medium leading-tight tracking-tight text-ink"
+              className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
             >
               The approved record.
             </h2>
             <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary">
               Approved text, limited metadata, verification anchor — not what was said in the room.
             </p>
-            <p className="mt-4 mb-0 rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary">
+            <p className="mt-4 mb-0 rounded-[var(--sr-radius-md)] bg-surface-elevated px-4 py-3 font-mono text-xs leading-relaxed text-ink-secondary shadow-sr-card">
               Verify: download published text → SHA-256 → compare to listed anchor.
             </p>
             <Link
@@ -40,7 +42,7 @@ export function RecordSpecimen() {
             </Link>
           </div>
           <div className="min-w-0">
-            <RecordCard {...homepageSampleRecord} />
+            <RecordCard {...card} />
           </div>
         </div>
       </div>
