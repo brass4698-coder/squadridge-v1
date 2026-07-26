@@ -1,5 +1,10 @@
 /** Governed credential validation — demo hashes + invite token routing. */
 
+import { DEMO_GOVERNED_CREDENTIALS } from '../data/demoCredentials';
+
+/** @deprecated Use DEMO_GOVERNED_CREDENTIALS */
+export const DEMO_CREDENTIALS = DEMO_GOVERNED_CREDENTIALS;
+
 export type CredentialFailReason =
   | 'not_found'
   | 'expired'
@@ -32,35 +37,6 @@ export type CredentialValidation =
       message: string;
     };
 
-export const DEMO_CREDENTIALS = [
-  {
-    token: 'demo-facilitator-watershed',
-    label: 'Facilitator · North Watershed',
-    summary: {
-      accessType: 'Demo pilot room',
-      matterLabel: 'North Watershed Consultation',
-      role: 'Facilitator',
-      issuedBy: 'SquadRidge demo',
-      expiry: 'Session reset',
-      status: 'Valid (demo)',
-    },
-    continueHref: '/sign-in?demo=1&next=%2Fapp%2Ffacilitator',
-  },
-  {
-    token: 'demo-participant-harbor',
-    label: 'Participant · Harbor restorative',
-    summary: {
-      accessType: 'Demo participant invite',
-      matterLabel: 'Harbor District Restorative Circle',
-      role: 'Participant',
-      issuedBy: 'SquadRidge demo',
-      expiry: 'Session reset',
-      status: 'Valid (demo)',
-    },
-    continueHref: '/sign-in?demo=1&next=%2Fapp%2Fparticipant',
-  },
-] as const;
-
 const ERROR_TOKENS: Record<string, CredentialFailReason> = {
   'err-expired': 'expired',
   'err-redeemed': 'already_used',
@@ -75,7 +51,7 @@ export async function validateGovernedCredential(raw: string): Promise<Credentia
     return { ok: false, reason: 'not_found', message: 'Enter a credential to continue.' };
   }
 
-  const demo = DEMO_CREDENTIALS.find((c) => c.token === token);
+  const demo = DEMO_GOVERNED_CREDENTIALS.find((c) => c.token === token);
   if (demo) {
     return {
       ok: true,
@@ -150,3 +126,5 @@ export async function validateGovernedCredential(raw: string): Promise<Credentia
     message: 'Credential not recognized. Check the value or request a new invitation.',
   };
 }
+
+export { DEMO_GOVERNED_CREDENTIALS };

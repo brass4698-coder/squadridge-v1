@@ -30,13 +30,16 @@ export const SITE_NICHE =
 export const SITE_WHY_NOW =
   'Institutions still need decisions they can cite — even when publishing the deliberation would damage the process that produced them.';
 
-/** What a serious pilot partner can evaluate in the product today. */
+/**
+ * What a serious pilot partner can evaluate in the product today.
+ * Keep aligned with `src/data/implementationStatus.ts` — never list scaffolded items as live.
+ */
 export const PARTNER_EVALUATION = [
   'Facilitator-controlled entry and release',
   'Recorded approval chain before publication',
   'Metadata-only audit export after close',
-  'Approved record with SHA-256 integrity anchor — tamper-evident, recomputable today.',
-  'RFC 3161 trusted timestamping (planned) — independently verified time-of-release.',
+  'Approved record with SHA-256 integrity anchor — tamper-evident, recomputable today (LIVE).',
+  'RFC 3161 trusted timestamping — SCAFFOLDED only; not live until a verified TSA path stores a token.',
 ] as const;
 
 export const SITE_NOT = [
@@ -144,7 +147,7 @@ export const READINESS_LIVE_TODAY = [
   },
   {
     title: 'Documented security limits',
-    body: 'Operator-readable rooms today; no E2E-against-operator or platform-wide ZKP claims. Boundaries live on Security and in the threat model.',
+    body: 'Clear operator and encryption bounds for diligence — full detail on Security and in the threat model.',
   },
 ] as const;
 
@@ -185,7 +188,7 @@ export const TARGET_PILOT_PROFILES = [
   },
 ] as const;
 
-/** Honest go-to-market stages — plan language only; never claim completed cohorts. */
+/** Go-to-market stages — hopeful plan language; status banner on /roadmap carries honesty once. */
 export const LAUNCH_PLAN_STAGES = [
   {
     id: 'now',
@@ -196,23 +199,23 @@ export const LAUNCH_PLAN_STAGES = [
   {
     id: 'next-90',
     label: 'Next 90 days',
-    title: 'First pilot cohort (plan)',
-    body: 'Targeting a small first cohort of facilitator-led private pilots. This is an aspirational plan, not a claimed achievement — timing depends on fit and partner readiness.',
+    title: 'First pilot cohort',
+    body: 'We hope to begin a small first cohort of facilitator-led private pilots. Timing depends on partner fit and readiness.',
   },
   {
     id: 'expand',
     label: '6–12 months',
-    title: 'Sector expansion (plan)',
-    body: 'Plan to expand beyond the first matter classes into adjacent NGO and institutional contexts after the initial cohort proves operational fit.',
+    title: 'Sector expansion',
+    body: 'Looking ahead, we plan to grow beyond the first matter classes into adjacent NGO and institutional contexts once early pilots prove operational fit.',
   },
 ] as const;
 
 /**
  * Founder first-person note for /roadmap.
- * Replace `{{FOUNDER_NOTE}}` with real copy. Until then, the page shows a visible placeholder.
- * Do not invent biography or traction in this string.
+ * Honest pre-pilot posture — no invented biography or traction.
  */
-export const FOUNDER_NOTE = '{{FOUNDER_NOTE}}';
+export const FOUNDER_NOTE =
+  'I built SquadRidge for situations where conflict and sensitive conversations can’t be handled casually, especially when identities are fragile and the stakes are personal. A facilitator gathers a group of participants, each representing a different sector or perspective within the topic, to create a structured conversation that encourages balance, understanding, and de-escalation. SquadRidge gives people a careful, anonymous way to navigate hard issues across companies, universities, institutions, and community settings. We’re pre-pilot and moving intentionally, because this kind of work only matters if people trust it.';
 
 export function isFounderNotePlaceholder(note: string = FOUNDER_NOTE): boolean {
   return !note.trim() || note.includes('{{FOUNDER_NOTE}}');

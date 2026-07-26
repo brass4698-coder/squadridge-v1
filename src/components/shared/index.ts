@@ -7,6 +7,9 @@ export {
 } from './SectionLabel';
 export { ContentColumn } from '../ContentColumn';
 export { StatusBadge, type StatusBadgeVariant } from '../StatusBadge';
+export { ImplementationStatusBadge } from './ImplementationStatusBadge';
+export { HomeTrustStrip } from './HomeTrustStrip';
+export { SpineStageDiagram } from './SpineStageDiagram';
 export { MarketingPageHero, type MarketingPageHeroProps } from './MarketingPageHero';
 export {
   TrustBoundaryBlock,

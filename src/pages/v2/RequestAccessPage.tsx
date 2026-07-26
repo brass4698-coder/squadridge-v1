@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FormField } from '../../components/ui/FormField';
 import { FormPanel } from '../../components/ui/FormPanel';
+import { FormAlert } from '../../components/ui/FormAlert';
+import { FormProgress } from '../../components/ui/FormProgress';
+import { FormSection } from '../../components/ui/FormSection';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
@@ -12,7 +15,6 @@ import { BUYER_TRACK_INTAKE, type BuyerTrackParam } from '../../data/useCases';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { SectionLabel } from '../../components/SectionLabel';
 import { getPublicContactEmail } from '../../lib/env';
-import { cn } from '../../lib/cn';
 
 const DRAFT_STORAGE_KEY = 'sr.pilot-intake.draft.v1';
 
@@ -371,9 +373,28 @@ export function RequestAccessPage() {
             room. Manual review within 5–7 business days — co-designed pilot scope, not self-serve
             signup.
           </p>
+          <p className="mt-3 max-w-2xl rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-3 py-2.5 text-sm leading-relaxed text-ink-secondary">
+            We reduce exposure by design. We do not claim full platform zero-knowledge or
+            Signal-grade E2E today — rooms are operator-readable. Details on{' '}
+            <Link
+              to="/security#reviewers"
+              className="text-brand underline-offset-2 hover:underline"
+            >
+              Security
+            </Link>
+            .
+          </p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-faint">
             For foundations, NGOs, boards and executive teams, HR/ombuds offices, and peacebuilding
-            facilitators. Investor and partner materials are invite-only — see{' '}
+            facilitators. Need board or funder sign-off during review? Forward the{' '}
+            <a
+              href="/diligence/trust-diligence-packet.md"
+              className="text-brand underline-offset-2 hover:underline"
+              download
+            >
+              Trust &amp; Diligence Packet
+            </a>
+            . Investor materials are invite-only — see{' '}
             <Link to="/briefings" className="text-brand underline-offset-2 hover:underline">
               briefings
             </Link>
@@ -393,18 +414,14 @@ export function RequestAccessPage() {
             <h2 id="after-submit-heading" className="font-heading text-h3 font-semibold text-ink">
               What happens after submission
             </h2>
-            <ol className="mt-4 m-0 grid list-none gap-4 p-0 sm:grid-cols-3">
+            <ol className="sr-form-step-cards">
               {AFTER_SUBMIT_STEPS.map((step, i) => (
-                <li key={step.title} className="flex gap-3 sm:flex-col sm:gap-2">
-                  <span className="font-mono text-[length:var(--text-label)] text-ink-faint">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <p className="m-0 text-sm font-medium text-ink">{step.title}</p>
-                    <p className="mt-1 m-0 text-sm leading-relaxed text-ink-secondary">
-                      {step.body}
-                    </p>
-                  </div>
+                <li key={step.title} className="sr-form-step-card">
+                  <p className="sr-form-step-card__index m-0">{String(i + 1).padStart(2, '0')}</p>
+                  <p className="mt-2 mb-0 text-sm font-medium text-ink">{step.title}</p>
+                  <p className="mt-1.5 m-0 text-sm leading-relaxed text-ink-secondary">
+                    {step.body}
+                  </p>
                 </li>
               ))}
             </ol>
@@ -416,42 +433,36 @@ export function RequestAccessPage() {
             </p>
           </section>
 
-          <section
-            aria-labelledby="fit-heading"
-            className="rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/30 px-4 py-4 sm:px-5"
-          >
-            <h2 id="fit-heading" className="text-sm font-semibold text-ink">
-              Fit guidance
-            </h2>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2">
-              <div>
-                <h3 className="m-0 text-xs font-medium text-ink-secondary">Strong fit</h3>
-                <ul className="mt-2 m-0 list-none space-y-1.5 p-0 text-sm text-ink-secondary">
-                  {PILOT_FIT_STRONG.map((item) => (
-                    <li key={item} className="flex gap-2">
-                      <span
-                        aria-hidden
-                        className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
-                      />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="m-0 text-xs font-medium text-ink-secondary">Not a fit</h3>
-                <ul className="mt-2 m-0 list-none space-y-1.5 p-0 text-sm text-ink-secondary">
-                  {PILOT_FIT_WEAK.map((item) => (
-                    <li key={item} className="flex gap-2">
-                      <span
-                        aria-hidden
-                        className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-ink-faint"
-                      />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          <section aria-labelledby="fit-heading" className="sr-form-callout-grid">
+            <div>
+              <h2 id="fit-heading" className="m-0 text-sm font-semibold text-ink">
+                Strong fit
+              </h2>
+              <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
+                {PILOT_FIT_STRONG.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="m-0 text-sm font-semibold text-ink">Not a fit</h3>
+              <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
+                {PILOT_FIT_WEAK.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-ink-faint"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 
@@ -493,64 +504,35 @@ export function RequestAccessPage() {
               ) : null}
             </div>
 
-            <nav aria-label="Application sections" className="mb-6">
-              <ol className="m-0 flex list-none flex-wrap items-center gap-x-3 gap-y-2 p-0 text-sm">
-                {FORM_SECTIONS.map((section, i) => (
-                  <li key={section.id} className="flex items-center gap-3">
-                    {i > 0 ? (
-                      <span aria-hidden className="text-ink-faint">
-                        /
-                      </span>
-                    ) : null}
-                    <a
-                      href={`#section-${section.id}`}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 text-ink-secondary underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--sr-primary)]',
-                        sectionStatus[i] && 'text-ink',
-                      )}
-                    >
-                      <span
-                        aria-hidden
-                        className={cn(
-                          'inline-block h-1.5 w-1.5 rounded-full',
-                          sectionStatus[i] ? 'bg-brand' : 'bg-ink-faint',
-                        )}
-                      />
-                      {section.label}
-                      <span className="sr-only">
-                        {sectionStatus[i] ? ', complete' : ', incomplete'}
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+            <FormProgress
+              progress={completedSections / progressTotal}
+              steps={FORM_SECTIONS.map((section, i) => ({
+                id: section.id,
+                label: section.label,
+                complete: sectionStatus[i],
+                active: !sectionStatus[i] && (i === 0 || sectionStatus[i - 1]),
+              }))}
+            />
 
-            <form className="space-y-8" noValidate onSubmit={(e) => void handleSubmit(e)}>
-              {error ? (
-                <p
-                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
+            <form className="space-y-10" noValidate onSubmit={(e) => void handleSubmit(e)}>
+              {error ? <FormAlert variant="error">{error}</FormAlert> : null}
 
               {trackDefaults ? (
-                <p className="m-0 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-3 py-2 text-sm text-ink-secondary">
-                  Applying under:{' '}
+                <FormAlert title="Applying under track">
                   <span className="font-medium text-ink">{trackDefaults.label}</span>
-                </p>
+                </FormAlert>
               ) : null}
 
               {form.buyerTrack ? (
                 <input type="hidden" name="buyerTrack" value={form.buyerTrack} readOnly />
               ) : null}
 
-              <fieldset id="section-contact" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
-                  Contact
-                </legend>
+              <FormSection
+                id="section-contact"
+                title="Contact"
+                index={1}
+                complete={sectionComplete(contactKeys)}
+              >
                 <div className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
@@ -635,12 +617,14 @@ export function RequestAccessPage() {
                     </Select>
                   </FormField>
                 </div>
-              </fieldset>
+              </FormSection>
 
-              <fieldset id="section-matter" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
-                  Matter
-                </legend>
+              <FormSection
+                id="section-matter"
+                title="Matter"
+                index={2}
+                complete={sectionComplete(matterKeys)}
+              >
                 <div className="space-y-4">
                   <FormField
                     id="matterType"
@@ -715,144 +699,152 @@ export function RequestAccessPage() {
                     </FormField>
                   </div>
                 </div>
-              </fieldset>
+              </FormSection>
 
-              <details
-                id="section-additional"
-                className="rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/20 px-4 py-3"
-              >
-                <summary className="cursor-pointer list-none font-heading text-base font-medium text-ink [&::-webkit-details-marker]:hidden">
-                  <span className="inline-flex items-center gap-2">
+              <details id="section-additional" className="sr-form-details">
+                <summary>
+                  <span className="inline-flex flex-wrap items-center gap-2">
                     Additional context
                     <span className="font-mono text-[length:var(--text-label)] font-normal uppercase tracking-[var(--tracking-caps)] text-ink-faint">
                       Optional — for follow-up
                     </span>
                   </span>
                 </summary>
-                <p className="mt-2 mb-4 text-sm text-ink-secondary">
-                  Volume, sensitivity, and facilitator capacity can wait for human review. Fill only
-                  if useful now.
-                </p>
-                <div className="space-y-4 pb-2">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField id="orgType" label="Organization type">
-                      <Select
-                        id="orgType"
-                        name="orgType"
-                        value={form.orgType}
-                        onChange={(e) => set('orgType', e.target.value)}
-                      >
-                        <option value="">Select…</option>
-                        {ORG_TYPES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField id="orgSize" label="Organization size">
-                      <Select
-                        id="orgSize"
-                        name="orgSize"
-                        value={form.orgSize}
-                        onChange={(e) => set('orgSize', e.target.value)}
-                      >
-                        <option value="">Select…</option>
-                        {ORG_SIZES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField id="mediationVolume" label="Mediation / matter volume">
-                      <Select
-                        id="mediationVolume"
-                        name="mediationVolume"
-                        value={form.mediationVolume}
-                        onChange={(e) => set('mediationVolume', e.target.value)}
-                      >
-                        <option value="">Select…</option>
-                        {MEDIATION_VOLUME.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField id="facilitatorCount" label="Facilitators available">
-                      <Select
-                        id="facilitatorCount"
-                        name="facilitatorCount"
-                        value={form.facilitatorCount}
-                        onChange={(e) => set('facilitatorCount', e.target.value)}
-                      >
-                        <option value="">Select…</option>
-                        {FACILITATOR_COUNTS.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField id="region" label="Region">
-                      <Input
-                        id="region"
-                        name="region"
-                        value={form.region}
-                        onChange={(e) => set('region', e.target.value)}
-                      />
-                    </FormField>
-                    <FormField id="sensitivity" label="Sensitivity level">
-                      <Select
-                        id="sensitivity"
-                        name="sensitivity"
-                        value={form.sensitivity}
-                        onChange={(e) => set('sensitivity', e.target.value)}
-                      >
-                        <option value="">Select…</option>
-                        {SENSITIVITY.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                  <FormField
-                    id="publicRecord"
-                    label="Public record needed?"
-                    hint="Private anchored memos are the pilot default; public ledger is optional."
-                  >
-                    <Select
+                <div className="sr-form-details__body">
+                  <p className="mt-0 mb-4 text-sm text-ink-secondary">
+                    Volume, sensitivity, and facilitator capacity can wait for human review. Fill
+                    only if useful now.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField id="orgType" label="Organization type">
+                        <Select
+                          id="orgType"
+                          name="orgType"
+                          value={form.orgType}
+                          onChange={(e) => set('orgType', e.target.value)}
+                        >
+                          <option value="">Select…</option>
+                          {ORG_TYPES.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormField>
+                      <FormField id="orgSize" label="Organization size">
+                        <Select
+                          id="orgSize"
+                          name="orgSize"
+                          value={form.orgSize}
+                          onChange={(e) => set('orgSize', e.target.value)}
+                        >
+                          <option value="">Select…</option>
+                          {ORG_SIZES.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormField>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField id="mediationVolume" label="Mediation / matter volume">
+                        <Select
+                          id="mediationVolume"
+                          name="mediationVolume"
+                          value={form.mediationVolume}
+                          onChange={(e) => set('mediationVolume', e.target.value)}
+                        >
+                          <option value="">Select…</option>
+                          {MEDIATION_VOLUME.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormField>
+                      <FormField id="facilitatorCount" label="Facilitators available">
+                        <Select
+                          id="facilitatorCount"
+                          name="facilitatorCount"
+                          value={form.facilitatorCount}
+                          onChange={(e) => set('facilitatorCount', e.target.value)}
+                        >
+                          <option value="">Select…</option>
+                          {FACILITATOR_COUNTS.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormField>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField id="region" label="Region">
+                        <Input
+                          id="region"
+                          name="region"
+                          value={form.region}
+                          onChange={(e) => set('region', e.target.value)}
+                        />
+                      </FormField>
+                      <FormField id="sensitivity" label="Sensitivity level">
+                        <Select
+                          id="sensitivity"
+                          name="sensitivity"
+                          value={form.sensitivity}
+                          onChange={(e) => set('sensitivity', e.target.value)}
+                        >
+                          <option value="">Select…</option>
+                          {SENSITIVITY.map((o) => (
+                            <option key={o} value={o}>
+                              {o}
+                            </option>
+                          ))}
+                        </Select>
+                      </FormField>
+                    </div>
+                    <FormField
                       id="publicRecord"
-                      name="publicRecord"
-                      value={form.publicRecord}
-                      onChange={(e) => set('publicRecord', e.target.value)}
+                      label="Public record needed?"
+                      hint="Private anchored memos are the pilot default; public ledger is optional."
                     >
-                      <option value="">Select…</option>
-                      {PUBLIC_RECORD.map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormField>
+                      <Select
+                        id="publicRecord"
+                        name="publicRecord"
+                        value={form.publicRecord}
+                        onChange={(e) => set('publicRecord', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {PUBLIC_RECORD.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
                 </div>
               </details>
 
-              <div className="space-y-3 border-t border-line pt-6">
+              <div className="space-y-4 border-t border-line pt-6">
                 <p className="m-0 text-sm leading-relaxed text-ink-secondary">
                   Manual review only. No open invitations are issued before approval. Leaving this
-                  page keeps a draft in this browser tab until you submit or clear it.
+                  page keeps a draft in this browser tab until you submit or clear it. During the
+                  5–7 day window, share the{' '}
+                  <a
+                    href="/diligence/trust-diligence-packet.md"
+                    className="text-brand underline-offset-2 hover:underline"
+                    download
+                  >
+                    Trust &amp; Diligence Packet
+                  </a>{' '}
+                  with internal reviewers.
                 </p>
                 <button
                   type="submit"
-                  className="btn-institutional btn-institutional--primary"
+                  className="btn-institutional btn-institutional--primary btn-institutional--block sm:w-auto"
                   disabled={loading}
                 >
                   {loading ? 'Submitting…' : CTA.primaryLabel}
@@ -863,21 +855,29 @@ export function RequestAccessPage() {
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
-          <p className="m-0 text-xs font-medium text-ink-faint">Trust signals</p>
-          <ul className="mt-2 m-0 list-none space-y-1.5 p-0" aria-label="Intake trust signals">
-            {TRUST_RAIL.map((item) => (
-              <li
-                key={item}
-                className="border-l-2 border-brand/40 pl-2.5 text-xs leading-snug text-ink-secondary"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs leading-relaxed text-ink-faint">
-            We reduce exposure by design. We do not claim full platform zero-knowledge or
-            Signal-grade E2E today.
-          </p>
+          <div className="sr-form-panel !p-4 md:!p-5">
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-brand/80">
+              Trust signals
+            </p>
+            <ul className="mt-3 m-0 list-none space-y-2 p-0" aria-label="Intake trust signals">
+              {TRUST_RAIL.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-2 text-sm leading-snug text-ink-secondary"
+                >
+                  <span
+                    aria-hidden
+                    className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand shadow-[0_0_0_3px_color-mix(in_oklch,var(--sr-primary)_18%,transparent)]"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 mb-0 text-xs leading-relaxed text-ink-faint">
+              We reduce exposure by design. We do not claim full platform zero-knowledge or
+              Signal-grade E2E today.
+            </p>
+          </div>
         </aside>
       </div>
     </div>

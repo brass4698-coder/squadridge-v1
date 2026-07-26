@@ -1,4 +1,5 @@
 import { DEMO_PERSONA } from './demoPersona';
+import { DEV_PARTICIPANT_DEMO_TOKEN } from '../lib/participantDemo';
 
 /** `sessionStorage` key — tour active when set to `"1"` (with optional `?demo=1` in URL). */
 export const DEMO_WALKTHROUGH_STORAGE_KEY = 'demoWalkthrough';
@@ -107,6 +108,22 @@ function tip(
  * Order matches Back / Next / Exit chrome. Tips advance linearly before the next route.
  */
 export const demoSteps: DemoStep[] = [
+  {
+    id: 'role_select',
+    path: '/demo/start?demo=1',
+    title: 'Choose your role',
+    description: 'Each role sees a different workspace — pick the lens you want to explore.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'role-pick',
+        'Role-first tour',
+        'Facilitator, participant, moderator, program lead, ombuds, and executive each get a tailored path. Scenario presets change the fixture data on dashboards.',
+        { type: 'sheet' },
+      ),
+    ],
+  },
   {
     id: 'welcome',
     path: '/?demo=1',
@@ -364,6 +381,102 @@ export const demoSteps: DemoStep[] = [
         'Release gate',
         'Release is explicit. The platform does not auto-publish chat.',
         { target: '[data-demo="session-release"]' },
+      ),
+    ],
+  },
+  {
+    id: 'institution_dashboard',
+    path: '/app/institution?demo=1',
+    title: 'Program lead dashboard',
+    description: 'Institutional portfolio.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'institution-home',
+        'Program lead view',
+        'Portfolio heatmap, sensitivity mix, and release posture — metadata only, never room transcripts.',
+        { target: '[data-demo="institution-dashboard"]' },
+      ),
+    ],
+  },
+  {
+    id: 'mediator_dashboard',
+    path: '/app/mediator?demo=1',
+    title: 'Ombuds dashboard',
+    description: 'Inquiry desk workspace.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'mediator-home',
+        'Ombuds view',
+        'Confidential inquiries with elevated sensitivity. Parties remain pseudonymous in the written room.',
+        { target: '[data-demo="mediator-dashboard"]' },
+      ),
+    ],
+  },
+  {
+    id: 'executive_dashboard',
+    path: '/app/executive?demo=1',
+    title: 'Executive dashboard',
+    description: 'Governance summary.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'executive-home',
+        'Executive observer',
+        'Release posture and risk signals without access to deliberation content.',
+        { target: '[data-demo="executive-dashboard"]' },
+      ),
+    ],
+  },
+  {
+    id: 'participant_invite',
+    path: `/p/invite/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
+    title: 'Participant invite',
+    description: 'Accept invitation and share your reason.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'participant-invite',
+        'Invite acceptance',
+        'Bearer-token invite links are unique per participant. Share why you belong in this room — facilitators review before admission.',
+        { type: 'sheet' },
+      ),
+    ],
+  },
+  {
+    id: 'participant_room',
+    path: `/p/room/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
+    title: 'Private written room',
+    description: 'Structured dialogue — pseudonymous.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'participant-room',
+        'Written room',
+        'Codenames only. Dialogue stays here until an outcome is deliberately released — not auto-published.',
+        { type: 'sheet' },
+      ),
+    ],
+  },
+  {
+    id: 'participant_review',
+    path: `/p/review/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
+    title: 'Outcome review',
+    description: 'Approve release text — not the conversation.',
+    inMainScript: true,
+    envModes: mockAll,
+    tips: [
+      tip(
+        'participant-review',
+        'Self-review gate',
+        'Participants approve the outcome text that may leave the room. The transcript does not.',
+        { type: 'sheet' },
       ),
     ],
   },

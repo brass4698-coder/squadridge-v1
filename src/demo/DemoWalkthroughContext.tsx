@@ -9,12 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate, useSearchParams, type NavigateFunction } from 'react-router-dom';
-import {
-  DEMO_FIRST_WALKTHROUGH_PATH,
-  DEMO_WALKTHROUGH_STORAGE_KEY,
-  type DemoStep,
-  type DemoTip,
-} from './demoScript';
+import { DEMO_WALKTHROUGH_STORAGE_KEY, type DemoStep, type DemoTip } from './demoScript';
 
 export type DemoWalkthroughContextValue = {
   demoActive: boolean;
@@ -67,7 +62,7 @@ function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughCo
     setSheetMinimized: () => {},
     startWalkthrough: () => {
       sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
-      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+      navigate('/demo/start?demo=1');
     },
     goNext: () => {},
     goBack: () => {},
@@ -105,7 +100,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
       startWalkthrough: () => {
         sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
         setStorageActive(true);
-        navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+        navigate('/demo/start?demo=1');
       },
     };
   }, [navigate]);

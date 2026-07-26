@@ -6,7 +6,7 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 };
 
 const inputBaseClass =
-  'focus-ring sr-form-control h-11 w-full rounded-[var(--sr-radius-md)] border border-line bg-[var(--sr-form-control-bg)] px-3.5 text-sm text-ink placeholder:text-ink-faint';
+  'focus-ring sr-form-control h-12 w-full rounded-[var(--sr-radius-lg)] border border-line bg-[var(--sr-form-control-bg)] px-4 text-[0.9375rem] text-ink placeholder:text-ink-faint';
 
 function isExplicitlyInvalid(
   invalid: boolean | undefined,

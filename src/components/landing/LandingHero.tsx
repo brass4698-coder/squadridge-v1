@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { SectionLabel } from '../SectionLabel';
 import { FigureFrame } from '../shared/FigureFrame';
+import { HomeTrustStrip } from '../shared/HomeTrustStrip';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 import {
   CTA,
@@ -55,6 +56,7 @@ export function LandingHero() {
             <p className="mt-3 mb-0 max-w-[28rem] text-xs leading-relaxed text-ink-faint">
               {CTA.pilotStatusLine}
             </p>
+            <HomeTrustStrip />
           </div>
 
           <FigureFrame shadowed>

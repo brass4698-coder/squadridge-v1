@@ -49,7 +49,7 @@ export function ExecutiveGovernancePage() {
   }, [setContext, scopeLabel, sponsorPending]);
 
   return (
-    <div>
+    <div data-demo="executive-dashboard">
       <OperationalPageHeader
         title="Executive Governance View"
         summary="Review matters under governance, monitor release posture, and track overall process health."

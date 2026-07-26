@@ -29,7 +29,7 @@ export function GovernedEntryLayout({ children, title }: { children: ReactNode; 
           {TRUST.map((t) => (
             <li
               key={t}
-              className="rounded-[var(--sr-radius-sm)] border border-line bg-surface-elevated/80 px-2.5 py-1 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint backdrop-blur-sm"
+              className="rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated/90 px-3 py-1.5 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-secondary shadow-sr-sm backdrop-blur-sm"
             >
               {t}
             </li>

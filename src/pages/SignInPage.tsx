@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FormField } from '../components/ui/FormField';
 import { FormPanel } from '../components/ui/FormPanel';
+import { FormAlert } from '../components/ui/FormAlert';
 import { Input } from '../components/ui/Input';
 import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
 import { GovernedEntryNav } from '../components/auth/GovernedEntryNav';
@@ -59,27 +60,18 @@ function AuthStateBanner({ reason }: { reason: string }) {
 
   if (reason === 'signed-out') {
     return (
-      <p
-        className="mb-6 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
-        role="status"
-      >
+      <FormAlert className="mb-6" title="Signed out">
         You signed out successfully. Sign in again when you are ready.
-      </p>
+      </FormAlert>
     );
   }
 
   if (reason === 'link' || reason === 'invalid') {
     return (
-      <div
-        className="mb-6 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
-        role="status"
-      >
-        <p className="m-0 font-medium text-ink">Magic link expired or already used</p>
-        <p className="mt-2 mb-0">
-          Sign-in links are one-time and expire in about an hour. Request a fresh link below — no
-          password to reset.
-        </p>
-      </div>
+      <FormAlert className="mb-6" title="Magic link expired or already used">
+        Sign-in links are one-time and expire in about an hour. Request a fresh link below — no
+        password to reset.
+      </FormAlert>
     );
   }
 
@@ -264,27 +256,54 @@ export function SignInPage() {
 
   return (
     <GovernedEntryLayout title="Verified access only">
-      <div className="mx-auto grid max-w-lg gap-8">
-        {reason === 'expired' ||
-        reason === 'link' ||
-        reason === 'invalid' ||
-        reason === 'signed-out' ? (
-          <AuthStateBanner reason={reason} />
-        ) : null}
+      <div className="sr-governed-entry-grid">
+        <div className="min-w-0 space-y-6">
+          {reason === 'expired' ||
+          reason === 'link' ||
+          reason === 'invalid' ||
+          reason === 'signed-out' ? (
+            <AuthStateBanner reason={reason} />
+          ) : null}
 
-        <div>
-          <h1 className="font-heading text-display font-semibold tracking-tight text-ink">
-            {isExpired ? 'Sign in again' : 'Sign in'}
-          </h1>
-          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-            Invite-linked accounts for pilot rooms and verified parties — not open signup.
-          </p>
-          <div className="mt-5">
-            <InviteOnlyNotice />
+          <div>
+            <h1 className="font-heading text-display font-semibold tracking-tight text-ink">
+              {isExpired ? 'Sign in again' : 'Sign in'}
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-ink-secondary">
+              Invite-linked accounts for pilot rooms and verified parties — not open signup.
+            </p>
+            <div className="mt-5">
+              <InviteOnlyNotice />
+            </div>
           </div>
+
+          <GovernedEntryNav current="sign-in" nextPath={nextRaw} />
+
+          {isDemoLoginEnabled() ? (
+            <div className="border-t border-line pt-6">
+              <Link
+                to="/demo"
+                className="inline-block text-sm font-medium text-brand underline-offset-4 hover:underline"
+              >
+                Open demo hub — all roles & credentials
+              </Link>
+              <button
+                type="button"
+                disabled={demoBusy}
+                onClick={() => void handleDemo()}
+                className="mt-3 block w-fit text-left text-sm text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
+              >
+                {demoBusy ? 'Starting demo…' : 'Quick sign-in + facilitator tour'}
+              </button>
+              <p className="mt-2 mb-0 text-xs text-ink-faint">
+                Uses the seeded demo account when available — not a production pilot path.
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <FormPanel
+          className="md:sticky md:top-20"
           eyebrow="Entry"
           title={
             sent ? 'Check your email' : isSignup ? 'Create your account' : 'Magic-link sign-in'
@@ -298,10 +317,10 @@ export function SignInPage() {
         >
           {sent ? (
             <div className="space-y-4" role="status" aria-live="polite">
-              <p className="m-0 text-sm text-ink">
-                Check <span className="font-medium">{sentEmail}</span> for the sign-in link. If it
-                is not in your inbox, look in spam or promotions.
-              </p>
+              <FormAlert variant="success" title="Link sent">
+                Check <span className="font-medium text-ink">{sentEmail}</span> for the sign-in
+                link. If it is not in your inbox, look in spam or promotions.
+              </FormAlert>
               <ul className="m-0 list-none space-y-2 border-t border-line pt-4 p-0 text-sm text-ink-secondary">
                 <li className="flex gap-2.5">
                   <span
@@ -318,18 +337,11 @@ export function SignInPage() {
                   <span>Expired or already-used links will ask you to request a new one.</span>
                 </li>
               </ul>
-              {error ? (
-                <p
-                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
-              <div className="flex flex-wrap gap-3 pt-1">
+              {error ? <FormAlert variant="error">{error}</FormAlert> : null}
+              <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap">
                 <button
                   type="button"
-                  className="btn-institutional btn-institutional--primary"
+                  className="btn-institutional btn-institutional--primary sm:flex-1"
                   disabled={busy || cooldown > 0}
                   onClick={() => void handleResend()}
                 >
@@ -354,18 +366,11 @@ export function SignInPage() {
           ) : (
             <form
               ref={formRef}
-              className="space-y-4"
+              className="space-y-5"
               onSubmit={(e) => void handleSubmit(e)}
               noValidate
             >
-              {error ? (
-                <p
-                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
-                  role="alert"
-                >
-                  {error}
-                </p>
-              ) : null}
+              {error ? <FormAlert variant="error">{error}</FormAlert> : null}
               <FormField
                 id="signin-email"
                 label="Work email"
@@ -382,9 +387,20 @@ export function SignInPage() {
                   placeholder="you@organization.org"
                 />
               </FormField>
+              <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                Why magic links: one-time, time-bounded credentials avoid password reuse and
+                credential stuffing — better for invite-only institutional access than shared
+                passwords.{' '}
+                <Link
+                  to="/security#diligence-faq"
+                  className="text-brand underline-offset-2 hover:underline"
+                >
+                  Diligence FAQ
+                </Link>
+              </p>
               <button
                 type="submit"
-                className="btn-institutional btn-institutional--primary w-full"
+                className="btn-institutional btn-institutional--primary btn-institutional--block"
                 disabled={busy}
               >
                 {busy ? 'Sending…' : isExpired ? 'Send a fresh sign-in link' : 'Send sign-in link'}
@@ -392,24 +408,6 @@ export function SignInPage() {
             </form>
           )}
         </FormPanel>
-
-        <GovernedEntryNav current="sign-in" nextPath={nextRaw} />
-
-        {isDemoLoginEnabled() ? (
-          <div className="border-t border-line pt-6">
-            <button
-              type="button"
-              disabled={demoBusy}
-              onClick={() => void handleDemo()}
-              className="w-fit text-left text-sm text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
-            >
-              {demoBusy ? 'Starting demo…' : 'Open demo walkthrough'}
-            </button>
-            <p className="mt-2 mb-0 text-xs text-ink-faint">
-              Uses the seeded demo account when available — not a production pilot path.
-            </p>
-          </div>
-        ) : null}
       </div>
     </GovernedEntryLayout>
   );

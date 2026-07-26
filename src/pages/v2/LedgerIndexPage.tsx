@@ -7,6 +7,7 @@ import { ledgerEntryToCard } from '../../lib/ledgerDisplay';
 import {
   CapsLabel,
   GlossTerm,
+  ImplementationStatusBadge,
   NoLiveReleasesPanel,
   RecordCardCompact,
   specimenToRecordCardProps,
@@ -14,10 +15,14 @@ import {
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
+import { getClaim } from '../../data/implementationStatus';
 import { CTA } from '../../data/siteMessaging';
 
 const TRUST_STRIP =
   'Approved outcomes only · Verification anchors · No transcript · No auto-publish';
+
+const ANCHOR_CLAIM = getClaim('sha256_anchor');
+const RFC_CLAIM = getClaim('rfc3161_timestamp');
 
 /**
  * Ledger index — continuous dark integrity register (Apple/security-grade).
@@ -58,19 +63,58 @@ export function LedgerIndexPage() {
           </h1>
           <p className="mt-4 mb-0 max-w-measure text-base leading-relaxed text-ink-secondary">
             A calm archive of approved outcomes — each with a{' '}
-            <GlossTerm term="verification-anchor" />. The ledger anchors that a specific approved
-            text existed at a point in time. Room dialogue and private NGO releases do not appear
-            here.
+            <GlossTerm term="verification-anchor" />. Room dialogue and private NGO releases do not
+            appear here.
           </p>
+          <aside
+            className="mt-5 max-w-measure rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated/80 px-4 py-4"
+            aria-label="What the verification anchor proves"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <ImplementationStatusBadge status={ANCHOR_CLAIM.status} size="sm" />
+              <span className="text-sm font-medium text-ink">Verification anchor (SHA-256)</span>
+            </div>
+            <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
+              <span className="font-medium text-ink">Proves: </span>
+              integrity of the approved release text — anyone holding the file can recompute the
+              hash.
+            </p>
+            <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
+              <span className="font-medium text-ink">Does not prove: </span>
+              independently attested time, legal privilege, or court-admissible evidence of when.
+              RFC 3161 is{' '}
+              <ImplementationStatusBadge
+                status={RFC_CLAIM.status}
+                size="sm"
+                className="align-middle"
+              />{' '}
+              — not LIVE until a verified TSA token is stored on release.
+            </p>
+          </aside>
           <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-faint">
-            How a private mediation becomes a publicly verifiable outcome — without publishing the
-            conversation. Process detail on{' '}
+            Process detail on{' '}
             <Link
               to={CTA.secondaryProcessHref}
               className="text-ink-secondary underline-offset-4 hover:underline"
             >
               How it works
             </Link>
+            . Diligence samples (synthetic):{' '}
+            <a
+              href="/diligence/sample-approved-record.md"
+              className="text-brand underline-offset-2 hover:underline"
+              download
+            >
+              approved record
+            </a>
+            {' · '}
+            <a
+              href="/diligence/sample-audit-trail-export.md"
+              className="text-brand underline-offset-2 hover:underline"
+              download
+            >
+              audit-trail export
+            </a>
             .
           </p>
           <p className="mt-5 mb-0 max-w-measure font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">

@@ -31,9 +31,9 @@ export function FormPanel({
   return (
     <div className={cn('sr-form-panel', className)} {...props}>
       {eyebrow || title || description ? (
-        <header className="mb-6">
+        <header className="mb-7">
           {eyebrow ? (
-            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint">
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-brand/80">
               {eyebrow}
             </p>
           ) : null}
@@ -41,16 +41,16 @@ export function FormPanel({
             <TitleTag
               id={titleId}
               className={cn(
-                'm-0 font-heading text-lg font-medium tracking-tight text-ink',
+                'm-0 font-heading text-xl font-semibold tracking-tight text-ink',
                 titleAs === 'h1' && 'text-page-title',
-                eyebrow && 'mt-2',
+                eyebrow && 'mt-2.5',
               )}
             >
               {title}
             </TitleTag>
           ) : null}
           {description ? (
-            <div className="mt-2 text-sm leading-relaxed text-ink-secondary">{description}</div>
+            <div className="mt-2.5 text-sm leading-relaxed text-ink-secondary">{description}</div>
           ) : null}
         </header>
       ) : null}

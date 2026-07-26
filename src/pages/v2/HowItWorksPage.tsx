@@ -9,6 +9,7 @@ import {
   CTABlock,
   EvaluationPathCards,
   GlossTerm,
+  SpineStageDiagram,
   StickySpineNav,
   type EvaluationPath,
 } from '../../components/shared';
@@ -105,8 +106,9 @@ export function HowItWorksPage() {
             </h2>
             <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
               Each stage has an owner, a gate posture, and an exit condition. The approved record
-              appears only after Release — never as a live feed of the room. Room guarantees and the
-              private/public boundary are explained once in{' '}
+              appears only after Release — never as a live feed of the room. Select a stage below to
+              see Implementation Status badges and the matching Security safeguard. Room guarantees
+              are explained once in{' '}
               <a
                 href="#room-record"
                 className="text-ink-secondary underline-offset-4 hover:text-ink hover:underline"
@@ -115,6 +117,10 @@ export function HowItWorksPage() {
               </a>
               .
             </p>
+          </div>
+
+          <div className="mb-12">
+            <SpineStageDiagram />
           </div>
 
           <ol className="sr-process-spine m-0 list-none p-0">
@@ -179,6 +185,67 @@ export function HowItWorksPage() {
               Record format
             </Link>
           </p>
+        </div>
+      </section>
+
+      <section
+        id="non-consensus"
+        className="scroll-mt-20 border-b border-line py-14 md:py-16"
+        aria-labelledby="non-consensus-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel>Non-consensus path</SectionLabel>
+            <h2 id="non-consensus-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              What happens if a party never agrees to release
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              Evaluators ask this — so it is documented, not implied. Release is blocked until
+              required approvals and facilitator authorship attestation are recorded against the
+              current instrument hash. There is no timer, webhook, or operator override that
+              publishes room dialogue or an unsigned draft.
+            </p>
+            <ul className="mt-6 m-0 list-none space-y-3 p-0 text-sm leading-relaxed text-ink-secondary">
+              <li className="flex gap-2">
+                <span aria-hidden className="text-ink-faint">
+                  ·
+                </span>
+                <span>
+                  <span className="font-medium text-ink">Room may continue or close.</span> The
+                  facilitator can keep facilitating, pause, or archive the session under the MOU.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span aria-hidden className="text-ink-faint">
+                  ·
+                </span>
+                <span>
+                  <span className="font-medium text-ink">No public ledger row.</span> Private
+                  anchored memos (pilot default) also stay unpublished if approvals never complete.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span aria-hidden className="text-ink-faint">
+                  ·
+                </span>
+                <span>
+                  <span className="font-medium text-ink">Audit trail still records attempts.</span>{' '}
+                  Failed release attempts are metadata-only — not message bodies.
+                </span>
+              </li>
+            </ul>
+            <p className="mt-6 mb-0 text-sm text-ink-secondary">
+              Safeguard detail:{' '}
+              <Link
+                to="/security#safeguards"
+                className="text-brand underline-offset-2 hover:underline"
+              >
+                Security → Operational safeguards
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </section>
 

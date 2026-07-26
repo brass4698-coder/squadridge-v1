@@ -57,7 +57,7 @@ export function InstitutionAdminDashboardPage() {
   }, [setContext, scopeLabel, gate]);
 
   return (
-    <div>
+    <div data-demo="institution-dashboard">
       <OperationalPageHeader
         title="Program Oversight"
         summary="Track matters across your institution, monitor lifecycle state, and identify areas needing intervention."

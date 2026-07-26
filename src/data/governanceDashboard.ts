@@ -1,6 +1,15 @@
 /** Shared governance dashboard fixtures and types — demo-first, metadata only. */
 
-export type MatterType = 'mediation' | 'restorative' | 'community_safety' | 'ombuds' | 'regional';
+export type MatterType =
+  | 'mediation'
+  | 'restorative'
+  | 'community_safety'
+  | 'ombuds'
+  | 'regional'
+  | 'business'
+  | 'university'
+  | 'military'
+  | 'conflict';
 
 export type LifecycleStage =
   | 'intake'
@@ -20,7 +29,11 @@ export type DemoPresetId =
   | 'restorative'
   | 'community_safety'
   | 'ombuds'
-  | 'institutional';
+  | 'institutional'
+  | 'university'
+  | 'business'
+  | 'military'
+  | 'high_stakes';
 
 export type GovernanceMatter = {
   matter_id: string;
@@ -65,6 +78,26 @@ export const DEMO_PRESETS: {
   },
   { id: 'ombuds', label: 'Ombuds inquiry', scope: 'Institutional inquiry desk' },
   { id: 'institutional', label: 'Institutional review', scope: 'Multi-unit governance portfolio' },
+  {
+    id: 'university',
+    label: 'University / campus',
+    scope: 'Campus ombuds and conduct — parties anonymized in room',
+  },
+  {
+    id: 'business',
+    label: 'Business / board',
+    scope: 'Executive committee and JV wind-down deliberations',
+  },
+  {
+    id: 'military',
+    label: 'Military / unit readiness',
+    scope: 'Cross-unit assessment — ranks and units pseudonymous',
+  },
+  {
+    id: 'high_stakes',
+    label: 'High-stakes conflict',
+    scope: 'Track II dialogue and ceasefire working groups',
+  },
 ];
 
 const BASE_MATTERS: GovernanceMatter[] = [
@@ -212,6 +245,102 @@ const BASE_MATTERS: GovernanceMatter[] = [
     days_in_state: 20,
     stall_risk: false,
   },
+  {
+    matter_id: 'm-univ-conduct',
+    room_id: 'r-univ-conduct',
+    label: 'Campus Conduct Review — anonymized parties',
+    region: 'Metro',
+    institution: 'State University',
+    department: 'Student conduct',
+    matter_type: 'university',
+    sensitivity_level: 'high',
+    verified_participant_count: 7,
+    stage: 'active',
+    round_count: 3,
+    draft_status: 'none',
+    approvals_required: 0,
+    approvals_complete: 0,
+    release_mode: 'internal',
+    released_at: null,
+    anchor_hash: null,
+    public_record_id: null,
+    facilitator_id: 'fac-4',
+    escalation_flag: false,
+    days_in_state: 5,
+    stall_risk: false,
+  },
+  {
+    matter_id: 'm-jv-winddown',
+    room_id: 'r-jv-winddown',
+    label: 'Joint Venture Wind-Down — executive committee',
+    region: 'National',
+    institution: 'Meridian Holdings',
+    department: 'Board governance',
+    matter_type: 'business',
+    sensitivity_level: 'elevated',
+    verified_participant_count: 9,
+    stage: 'approvals',
+    round_count: 5,
+    draft_status: 'in_review',
+    approvals_required: 3,
+    approvals_complete: 2,
+    release_mode: 'internal',
+    released_at: null,
+    anchor_hash: null,
+    public_record_id: null,
+    facilitator_id: 'fac-5',
+    escalation_flag: false,
+    days_in_state: 6,
+    stall_risk: true,
+  },
+  {
+    matter_id: 'm-unit-readiness',
+    room_id: 'r-unit-readiness',
+    label: 'Cross-Unit Readiness Assessment',
+    region: 'Theater East',
+    institution: 'Defense Liaison Office',
+    department: 'Readiness review',
+    matter_type: 'military',
+    sensitivity_level: 'high',
+    verified_participant_count: 11,
+    stage: 'verified',
+    round_count: 1,
+    draft_status: 'none',
+    approvals_required: 0,
+    approvals_complete: 0,
+    release_mode: 'none',
+    released_at: null,
+    anchor_hash: null,
+    public_record_id: null,
+    facilitator_id: 'fac-6',
+    escalation_flag: true,
+    days_in_state: 2,
+    stall_risk: false,
+  },
+  {
+    matter_id: 'm-ceasefire-wg',
+    room_id: 'r-ceasefire-wg',
+    label: 'Cross-Border Ceasefire Working Group',
+    region: 'Border corridor',
+    institution: 'Peacebuilding Institute',
+    department: 'Track II dialogue',
+    matter_type: 'conflict',
+    sensitivity_level: 'high',
+    verified_participant_count: 8,
+    stage: 'active',
+    round_count: 4,
+    draft_status: 'draft',
+    approvals_required: 2,
+    approvals_complete: 0,
+    release_mode: 'public',
+    released_at: null,
+    anchor_hash: null,
+    public_record_id: null,
+    facilitator_id: 'fac-7',
+    escalation_flag: true,
+    days_in_state: 11,
+    stall_risk: true,
+  },
 ];
 
 const PRESET_FILTER: Record<DemoPresetId, (m: GovernanceMatter) => boolean> = {
@@ -220,6 +349,10 @@ const PRESET_FILTER: Record<DemoPresetId, (m: GovernanceMatter) => boolean> = {
   community_safety: (m) => m.matter_type === 'community_safety',
   ombuds: (m) => m.matter_type === 'ombuds',
   institutional: () => true,
+  university: (m) => m.matter_type === 'university' || m.matter_type === 'ombuds',
+  business: (m) => m.matter_type === 'business' || m.matter_type === 'mediation',
+  military: (m) => m.matter_type === 'military',
+  high_stakes: (m) => m.matter_type === 'conflict' || m.matter_type === 'restorative',
 };
 
 export function mattersForPreset(preset: DemoPresetId): GovernanceMatter[] {
@@ -297,6 +430,10 @@ export function useCaseBreakdown(matters: GovernanceMatter[]) {
     community_safety: 'Community safety',
     ombuds: 'Ombuds',
     regional: 'Regional',
+    business: 'Business / board',
+    university: 'University',
+    military: 'Military',
+    conflict: 'High-stakes conflict',
   };
   return Object.entries(map).map(([k, value]) => ({
     label: labels[k as MatterType] ?? k,

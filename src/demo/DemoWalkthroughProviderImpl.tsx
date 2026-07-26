@@ -8,7 +8,6 @@ import {
 import { runDemoActions } from './demoAutoActions';
 import {
   clearPersistedTipState,
-  DEMO_MAIN_STEPS,
   DEMO_WALKTHROUGH_STORAGE_KEY,
   locationMatchesStep,
   readPersistedTipState,
@@ -17,6 +16,7 @@ import {
   type DemoStep,
   type DemoTip,
 } from './demoScript';
+import { resolveDemoMainSteps } from './demoRolePaths';
 import { emitDemoPageView, emitDemoStepNav } from './demoTelemetry';
 
 function totalTipCount(steps: DemoStep[]): number {
@@ -54,15 +54,17 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   const demoActive = demoQuery || storageActive;
 
+  const mainSteps = resolveDemoMainSteps();
+
   const currentStepIndex = useMemo(() => {
-    return DEMO_MAIN_STEPS.findIndex((s) =>
+    return mainSteps.findIndex((s) =>
       locationMatchesStep(location.pathname, location.search, s.path),
     );
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, mainSteps]);
 
   const currentStep: DemoStep | null =
-    currentStepIndex >= 0 && currentStepIndex < DEMO_MAIN_STEPS.length
-      ? DEMO_MAIN_STEPS[currentStepIndex]!
+    currentStepIndex >= 0 && currentStepIndex < mainSteps.length
+      ? mainSteps[currentStepIndex]!
       : null;
 
   const currentTips: DemoTip[] = useMemo(() => resolveStepTips(currentStep), [currentStep]);
@@ -81,11 +83,11 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
   const currentTip: DemoTip | null =
     currentTips.length > 0 ? (currentTips[clampedTipIndex] ?? null) : null;
 
-  const tipTotal = useMemo(() => totalTipCount(DEMO_MAIN_STEPS), []);
-  const tipOrdinal = tipOrdinalFor(DEMO_MAIN_STEPS, currentStepIndex, clampedTipIndex);
+  const tipTotal = useMemo(() => totalTipCount(mainSteps), [mainSteps]);
+  const tipOrdinal = tipOrdinalFor(mainSteps, currentStepIndex, clampedTipIndex);
 
   const atLastTipOfStep = clampedTipIndex >= Math.max(0, currentTips.length - 1);
-  const atLastStep = currentStepIndex >= DEMO_MAIN_STEPS.length - 1;
+  const atLastStep = currentStepIndex >= mainSteps.length - 1;
 
   const canGoNext =
     demoActive && currentStepIndex >= 0 && !onboardingDemoTour && !(atLastStep && atLastTipOfStep);
@@ -126,11 +128,14 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
   const startWalkthrough = useCallback(() => {
     sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
     setStorageActive(true);
-    const first = DEMO_MAIN_STEPS[0];
+    const steps = resolveDemoMainSteps();
+    const first = steps.find((s) => s.id !== 'role_select') ?? steps[0];
     if (first) {
       writePersistedTipState(first.id, 0);
       navigate(first.path);
+      return;
     }
+    navigate('/demo/start?demo=1');
   }, [navigate]);
 
   const goNext = useCallback(() => {
@@ -146,7 +151,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       return;
     }
 
-    const next = DEMO_MAIN_STEPS[currentStepIndex + 1];
+    const next = mainSteps[currentStepIndex + 1];
     if (currentStep) emitDemoStepNav(currentStep.id, 'next');
     if (next) {
       writePersistedTipState(next.id, 0);
@@ -160,6 +165,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     onboardingDemoTour,
     canGoNext,
     atLastTipOfStep,
+    mainSteps,
   ]);
 
   const goBack = useCallback(() => {
@@ -173,7 +179,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       return;
     }
 
-    const prev = DEMO_MAIN_STEPS[currentStepIndex - 1];
+    const prev = mainSteps[currentStepIndex - 1];
     if (currentStep) emitDemoStepNav(currentStep.id, 'back');
     if (prev) {
       const prevTips = resolveStepTips(prev);
@@ -181,7 +187,7 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       writePersistedTipState(prev.id, lastTip);
       navigate(prev.path);
     }
-  }, [demoActive, currentStepIndex, currentStep, navigate, canGoBack, clampedTipIndex]);
+  }, [demoActive, currentStepIndex, currentStep, navigate, canGoBack, clampedTipIndex, mainSteps]);
 
   const exitDemo = useCallback(() => {
     cancelAutoActions();

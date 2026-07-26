@@ -3,6 +3,7 @@ import { LedgerProvenancePanel, TrustBoundarySchematic } from '../../components/
 import {
   CTABlock,
   GlossTerm,
+  ImplementationStatusBadge,
   MarketingPageHero,
   MarketingSection,
   PrivatePublicSplit,
@@ -11,6 +12,11 @@ import {
   ShellWidth,
   StickySpineNav,
 } from '../../components/shared';
+import {
+  claimsByIds,
+  IMPLEMENTATION_REGISTRY_VERSION,
+  TRUST_FEATURE_CLAIM_IDS,
+} from '../../data/implementationStatus';
 import { CTA } from '../../data/siteMessaging';
 import { usePageTitle } from '../../hooks/usePageTitle';
 
@@ -20,40 +26,34 @@ const SECURITY_SECTIONS = [
   { id: 'room-and-record', label: 'Architecture' },
   { id: 'verification-anchor', label: 'Anchor' },
   { id: 'safeguards', label: 'Safeguards' },
+  { id: 'diligence-packet', label: 'Packet' },
+  { id: 'diligence-faq', label: 'Diligence FAQ' },
   { id: 'reviewer-appendix', label: 'Appendix' },
 ] as const;
 
-/** Every row is either shipped in the product today or explicitly not built yet. */
-const TRUST_STATUS = [
+/** From Implementation Status Registry — never hardcode LIVE/PLANNED here. */
+const TRUST_STATUS = claimsByIds(TRUST_FEATURE_CLAIM_IDS);
+
+const DILIGENCE_FAQ = [
   {
-    label: 'SHA-256 verification anchor on release',
-    status: 'live',
-    body: 'Release computes a hash of the canonical approved text and stores it with the record. Anyone holding the text can recompute it.',
+    q: 'Can the operator read room messages today?',
+    a: 'Yes. v2 rooms store written dialogue as access-controlled plaintext. Staff with service-role or database access can read it. There is no cryptographic barrier against the operator. Cover this in your MOU — we do not claim Signal-grade E2E.',
   },
   {
-    label: 'Approvals bound to the exact released text',
-    status: 'live',
-    body: 'Each approval carries the hash of the wording it was given for. Editing the instrument resets every approval and blocks release until parties review the new version.',
+    q: 'Does the verification anchor prove when something was released?',
+    a: 'No. SHA-256 proves integrity of the approved text. RFC 3161 trusted timestamping is scaffolded (schema + optional client gate) and is not LIVE in the Implementation Status Registry until a verified TSA path stores a token on release.',
   },
   {
-    label: 'Facilitator authorship attestation',
-    status: 'live',
-    body: 'Release requires a recorded attestation that the instrument is facilitator-authored, bound to the same hash and cleared automatically by any later edit.',
+    q: 'Are you IOA-certified or a court instrument?',
+    a: 'No. Architecture aligns with IOA confidentiality practice as a professional benchmark. We are not an IOA-certified ombuds office and do not invent legal privilege or court-admissible timestamps.',
   },
   {
-    label: 'Metadata-only audit trail',
-    status: 'live',
-    body: 'Lifecycle events — verification, room open, approvals, release, failed release attempts — are logged without message bodies.',
+    q: 'What if parties never agree to release?',
+    a: 'Release stays blocked without required approvals and facilitator attestation. The room may close or archive with no public record. Nothing auto-publishes. See How it works → non-consensus path.',
   },
   {
-    label: 'RFC 3161 trusted timestamping',
-    status: 'planned',
-    body: 'Database columns and typed interfaces exist; release does not contact a Time Stamp Authority. Until it does, an anchor proves integrity, never time.',
-  },
-  {
-    label: 'Operator-blind room encryption',
-    status: 'planned',
-    body: 'Room content is readable by the operator today. Encrypting rooms so that we cannot read them requires per-participant key distribution and is a separate programme, not a setting.',
+    q: 'Where is operator-blind encryption on the roadmap?',
+    a: 'PLANNED. ADR 005 compares per-session key-share wrapping vs Double Ratchet / MLS while preserving facilitator-authored outcome drafting. Status stays Planned until exit criteria in that ADR are met.',
   },
 ] as const;
 
@@ -264,26 +264,20 @@ export function SecurityPage() {
               Live today, and what is not
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              A trust feature is either running in the product or it is not. Planned items below
-              have schema, design, or interfaces in the repository — none of them are doing work
-              during a release today, and none should be counted in diligence as if they were.
+              A trust feature is either running in the product or it is not. Rows below come from
+              the Implementation Status Registry (v{IMPLEMENTATION_REGISTRY_VERSION}) — the same
+              source Home, How it works, and Ledger badges use — so marketing copy cannot drift
+              ahead of shipped code.
             </p>
           </ProseMeasure>
           <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
             {TRUST_STATUS.map((item) => (
-              <li key={item.label} className="bg-surface-elevated px-5 py-5">
-                {item.status === 'live' ? (
-                  <span className="sr-verify font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)]">
-                    <span className="sr-verify-dot" aria-hidden />
-                    Live
-                  </span>
-                ) : (
-                  <span className="font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-                    Planned · not live
-                  </span>
-                )}
+              <li key={item.id} className="bg-surface-elevated px-5 py-5">
+                <ImplementationStatusBadge status={item.status} />
                 <p className="mt-2 mb-0 text-sm font-semibold text-ink">{item.label}</p>
-                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
+                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
+                  {item.summary}
+                </p>
               </li>
             ))}
           </ul>
@@ -473,6 +467,86 @@ export function SecurityPage() {
               </li>
             ))}
           </ol>
+        </ShellWidth>
+      </MarketingSection>
+      <MarketingSection id="diligence-packet" density="compact" className="scroll-mt-28">
+        <ShellWidth>
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Trust &amp; diligence packet</SectionLabel>
+            <h2 id="packet-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              Downloadable packet for board and funder sign-off
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              Version-controlled summary generated from the Implementation Status Registry: current
+              vs planned posture, threat-model bounds, residency, subprocessors, incident targets,
+              and deletion on pilot termination. Forward it during the 5–7 day manual review window.
+            </p>
+          </ProseMeasure>
+          <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
+            <li>
+              <a
+                href="/diligence/trust-diligence-packet.md"
+                className="btn-institutional btn-institutional--primary"
+                download
+              >
+                Download diligence packet (.md)
+              </a>
+            </li>
+            <li>
+              <a
+                href="/diligence/sample-approved-record.md"
+                className="btn-institutional btn-institutional--ghost"
+                download
+              >
+                Sample approved record
+              </a>
+            </li>
+            <li>
+              <a
+                href="/diligence/sample-audit-trail-export.md"
+                className="btn-institutional btn-institutional--ghost"
+                download
+              >
+                Sample audit-trail export
+              </a>
+            </li>
+          </ul>
+          <p className="mt-4 mb-0 text-xs text-ink-faint">
+            Samples are synthetic and labeled illustrative — not verifiable live releases.
+            Operator-blind design options: ADR 005 in the repository.
+          </p>
+        </ShellWidth>
+      </MarketingSection>
+      <MarketingSection id="diligence-faq" tone="sunken" density="compact" className="scroll-mt-28">
+        <ShellWidth>
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Diligence FAQ</SectionLabel>
+            <h2 id="diligence-faq-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              Objections answered inline
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              For evaluators who will not open a separate FAQ page. Limits stay above safeguards —
+              these answers do not soften them.
+            </p>
+          </ProseMeasure>
+          <dl className="m-0 space-y-0 border border-line">
+            {DILIGENCE_FAQ.map((item) => (
+              <div
+                key={item.q}
+                className="border-b border-line bg-surface-elevated px-5 py-5 last:border-b-0"
+              >
+                <dt className="text-sm font-semibold text-ink">{item.q}</dt>
+                <dd className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.a}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 mb-0 text-sm text-ink-secondary">
+            Broader product FAQ:{' '}
+            <Link to="/faq" className="text-brand underline-offset-2 hover:underline">
+              /faq
+            </Link>
+            .
+          </p>
         </ShellWidth>
       </MarketingSection>
       <MarketingSection

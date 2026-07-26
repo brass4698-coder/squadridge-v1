@@ -91,6 +91,8 @@ import { SessionsListPage } from './pages/v2/SessionsListPage';
 import { ParticipantInvitePage } from './pages/v2/ParticipantInvitePage';
 import { ReleaseGatePage } from './pages/v2/ReleaseGatePage';
 import { EnterCredentialPage } from './pages/v2/EnterCredentialPage';
+import { DemoHubPage } from './pages/demo/DemoHubPage';
+import { DemoStartPage } from './pages/demo/DemoStartPage';
 import { EnterQrPage } from './pages/v2/EnterQrPage';
 import { appRoutes } from './lib/appRoutes';
 import { ExecutiveGovernancePage } from './pages/dashboards/ExecutiveGovernancePage';
@@ -511,6 +513,8 @@ export default function AppV2() {
 
                 {/* Auth (existing pages, new shell) */}
                 <Route path="/sign-in" element={<SignInPage />} />
+                <Route path="/demo" element={<DemoHubPage />} />
+                <Route path="/demo/start" element={<DemoStartPage />} />
                 <Route path="/enter/credential" element={<EnterCredentialPage />} />
                 <Route path="/enter/qr" element={<EnterQrPage />} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />

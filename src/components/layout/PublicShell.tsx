@@ -5,6 +5,7 @@ import { SquadRidgeLockup } from '../SquadRidgeWordmark';
 import { SectionLabel } from '../SectionLabel';
 import { DemoLayout } from '../../demo/DemoLayout';
 import { useDemoWalkthrough } from '../../demo/DemoWalkthroughContext';
+import { allowsImmediatePublicPaint } from '../../lib/publicRoutes';
 import { publicShellInnerClass, shellListResetClass } from './publicShellTokens';
 
 const desktopNav = [
@@ -56,31 +57,8 @@ const footerColumns = [
   },
 ] as const;
 
-const PUBLIC_MARKETING_PREFIXES = [
-  '/how-it-works',
-  '/use-cases',
-  '/security',
-  '/ledger',
-  '/faq',
-  '/about',
-  '/contact',
-  '/privacy',
-  '/terms',
-  '/request-access',
-  '/briefings',
-  '/pricing',
-  '/roadmap',
-  '/pipeline',
-  '/sign-in',
-  '/enter',
-  '/access-pending',
-];
-
 function isPublicMarketingRoute(pathname: string): boolean {
-  if (pathname === '/') return true;
-  return PUBLIC_MARKETING_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
+  return allowsImmediatePublicPaint(pathname);
 }
 
 /** Public ledger journey — continuous dark register (same unified dark palette). */

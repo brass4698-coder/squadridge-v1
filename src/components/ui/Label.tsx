@@ -12,7 +12,7 @@ export function Label({ className, instrument, ...props }: LabelProps) {
       className={cn(
         instrument
           ? 'font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.12em] text-ink-faint'
-          : 'text-app-meta font-medium text-ink-secondary',
+          : 'text-sm font-medium text-ink',
         className,
       )}
       {...props}

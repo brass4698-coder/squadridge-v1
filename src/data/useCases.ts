@@ -1,7 +1,79 @@
 import type { UseCaseCardProps, SecondaryUseCaseProps } from '../components/shared/UseCaseCard';
+import { PILOT_FIT_STRONG, PILOT_FIT_WEAK } from './siteMessaging';
 
 /** Shared process spine — shown once at page level via the backbone illustration. */
 export const USE_CASE_ARCHITECTURE_LINE = 'Private room → facilitator gate → approved record';
+
+/** Re-export fit criteria so Use Cases stay coherent with Request Access. */
+export { PILOT_FIT_STRONG, PILOT_FIT_WEAK };
+
+export type UseCaseVignette = {
+  id: string;
+  sector: string;
+  /** Composite / anonymized outcome — not a live pilot claim. */
+  vignetteTitle: string;
+  participants: string;
+  timeline: string;
+  outcome: string;
+  /** Matching “Not a fit” lines for self-selection. */
+  notFitHints: readonly string[];
+};
+
+/**
+ * Anonymized composite vignettes — mirrors Strong fit / Not a fit on Request Access.
+ * Not traction metrics; not live pilots.
+ */
+export const USE_CASE_VIGNETTES: UseCaseVignette[] = [
+  {
+    id: 'philanthropy',
+    sector: 'Philanthropy & foundations',
+    vignetteTitle: 'Composite: contested grant principles memo',
+    participants: '6 verified participants (program officers + board liaison)',
+    timeline: '11 days Configure → Release · private anchored memo',
+    outcome:
+      'Approved principles statement with SHA-256 integrity anchor. Dialogue and attribution stayed inside the room.',
+    notFitHints: [PILOT_FIT_WEAK[0], PILOT_FIT_WEAK[3]],
+  },
+  {
+    id: 'peacebuilding',
+    sector: 'Peacebuilding & mediation',
+    vignetteTitle: 'Composite: cross-party process agreement',
+    participants: '8 codenamed participants · facilitator-led',
+    timeline: '3 weeks · high sensitivity · public ledger optional (not used)',
+    outcome:
+      'Joint process agreement text only. No transcript; parties retained anonymity on the record.',
+    notFitHints: [PILOT_FIT_WEAK[1], PILOT_FIT_WEAK[2]],
+  },
+  {
+    id: 'hr-compliance',
+    sector: 'HR, compliance & ombuds',
+    vignetteTitle: 'Composite: workplace inquiry findings summary',
+    participants: '5 participants (contributors + ombuds facilitator)',
+    timeline: '9 days · internal-only release',
+    outcome:
+      'Findings summary released internally. Individual accounts never left the written room.',
+    notFitHints: [PILOT_FIT_WEAK[0], PILOT_FIT_WEAK[3]],
+  },
+  {
+    id: 'ngos',
+    sector: 'NGOs & civil society',
+    vignetteTitle: 'Composite: partner advocacy decision memo',
+    participants: '7 staff + community liaison (pseudonymous in room)',
+    timeline: '2 weeks · NGO deliberation template',
+    outcome: 'Private decision memo for leadership. No public ledger publish — pilot default.',
+    notFitHints: [PILOT_FIT_WEAK[0], PILOT_FIT_WEAK[2]],
+  },
+  {
+    id: 'corporations',
+    sector: 'Corporations & executive teams',
+    vignetteTitle: 'Composite: JV wind-down executive committee',
+    participants: '9 executives · elevated sensitivity',
+    timeline: '16 days · approvals bound to final wording',
+    outcome:
+      'Internal board-facing outcome text. Email CC chains replaced by governed room + release gate.',
+    notFitHints: [PILOT_FIT_WEAK[1], PILOT_FIT_WEAK[3]],
+  },
+];
 
 /** Intake track query values for `/request-access?track=`. */
 export type BuyerTrackParam = 'foundations' | 'peacebuilding' | 'hr';

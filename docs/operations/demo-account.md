@@ -1,68 +1,104 @@
 # Demo account operations
 
-The "Try the Demo" button on `/sign-in` (added in Phase 5) signs the user in
-as a pre-seeded Supabase account with example sessions, participants, and
-outcome records. This doc covers how to create / refresh / rotate that
-account.
+The demo system uses **one Supabase account** plus **synthetic fixtures** for multi-role walkthroughs. Nothing here is live pilot traction.
 
-## One-time setup
+**Interactive hub:** [`/demo`](http://localhost:5173/demo) (dev or `VITE_ENABLE_DEMO_LOGIN=true`)
 
-1. Copy the service role key from the Supabase dashboard into `.env.local`
-   (already gitignored — do **not** commit):
+---
 
-   ```
-   SUPABASE_URL=https://<project-ref>.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=eyJhbG...   # dashboard → Settings → API
-   DEMO_EMAIL=demo@squadridge.com          # optional; matches src/lib/demoLogin.ts default
-   DEMO_PASSWORD=SquadRidgeDemo2026!       # optional; matches default; rotate for prod
-   ```
+## Supabase demo login
 
-2. Run the seed:
+| Field | Default |
+| ----- | ------- |
+| Email | `demo@squadridge.com` |
+| Password | `SquadRidgeDemo2026!` |
 
-   ```bash
-   node --env-file=.env.local scripts/seedDemo.mjs
-   ```
+Override with `VITE_DEMO_EMAIL` / `VITE_DEMO_PASSWORD`. Seed via:
 
-3. Set the same `DEMO_EMAIL` / `DEMO_PASSWORD` as `VITE_DEMO_EMAIL` /
-   `VITE_DEMO_PASSWORD` in your **frontend** env (or leave them unset to
-   use the defaults) so the client's `signInWithDemo` call matches the
-   seeded credentials.
+```bash
+node --env-file=.env.local scripts/seedDemo.mjs
+```
 
-The script is idempotent — safe to re-run any time to reset the demo
-state.
+Requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 
-## What gets seeded
+---
 
-- **User**: `demo@squadridge.com`, `status='active'`, `primary_role='facilitator'`
-- **Roles**: facilitator + participant (no admin powers)
-- **Sessions** (3): landlord-tenant, business partnership, workplace conflict
-- **Participants** (2 per session): pseudonymous codenames, verified status
-- **Outcome records** (1 per session): draft, pending_approval, published — one of each
+## Walkthrough entry
 
-The demo user is **not** a super_admin. Post-login routing prefers the facilitator
-dashboard so seeded sessions are visible immediately.
+1. **`/demo`** — credential reference + quick links
+2. **`/demo/start?demo=1`** — pick **role** + **scenario preset**, then begin tailored tour
+3. **`/sign-in?demo=1`** — quick sign-in as demo user
 
-## Rotating the password
+Roles: facilitator · participant · moderator · program lead · ombuds · executive
 
-Change `DEMO_PASSWORD` in `.env.local` and re-run the seed. The script
-does not update the password on an existing user via createUser (that
-call errors on "already exists"); to change the password on an existing
-demo user, use the admin dashboard or extend `seedDemo.mjs` to call
-`admin.auth.admin.updateUserById(...)`.
+Scenario presets: mediation · restorative · community safety · ombuds · institutional · university · business · military · high-stakes conflict
 
-## Removing the demo account entirely
+---
 
-Delete the user in the Supabase dashboard (Auth → Users). Cascade
-deletes on `profiles` and `user_roles` will clean up the related rows.
-Sessions and outcomes referencing the demo user's id remain but become
-orphaned — either accept that or run a manual cleanup query first.
+## Governed demo credentials (`/enter/credential`)
 
-## Detection in the client
+| Token | Role lens | Matter (fixture) |
+| ----- | --------- | ---------------- |
+| `demo-facilitator-watershed` | Facilitator | North Watershed Consultation |
+| `demo-participant-harbor` | Participant | Harbor District Restorative Circle |
+| `demo-university-ombuds` | Ombuds | Campus Conduct Review |
+| `demo-business-board` | Program lead | Joint Venture Wind-Down |
+| `demo-military-unit` | Facilitator | Cross-Unit Readiness Assessment |
+| `demo-conflict-track2` | Facilitator | Cross-Border Ceasefire Working Group |
+| `demo-moderator-oversight` | Moderator | Portfolio safety signals |
+| `demo-executive-brief` | Executive | Governance summary |
 
-`isDemoUser(session)` (from `src/lib/demoLogin.ts`) matches on
-`session.user.email` lowercased. Used by:
+---
 
-- `DemoBanner` — persistent top strip shown app-wide for demo sessions
-- `UserAvatarMenu` — shows a "Demo" pill next to the avatar
+## Participant room (no DB seed required)
 
-Neither surfaces the demo password anywhere in the UI.
+| Token | Path |
+| ----- | ---- |
+| `demo-token` | `/p/invite/demo-token` → consent → `/p/room/demo-token` → `/p/review/demo-token` |
+
+Synthetic chat and codename context in `src/lib/participantToken.ts`.
+
+---
+
+## Seeded facilitator session (after `seedDemo.mjs`)
+
+UUID: `11111111-1111-4111-8111-111111111111`
+
+Tour steps: invite → verify → control → outcome → release
+
+---
+
+## Role dashboard paths
+
+| Role | Path |
+| ---- | ---- |
+| Facilitator | `/app/facilitator` |
+| Participant | `/app/participant` |
+| Moderator | `/app/moderator` |
+| Program lead | `/app/institution` |
+| Ombuds | `/app/mediator` |
+| Executive | `/app/executive` |
+
+Demo users bypass `RoleProtectedRoute` to preview all dashboards (UI fixtures only).
+
+---
+
+## Env flags
+
+| Variable | Effect |
+| -------- | ------ |
+| `VITE_ENABLE_DEMO_LOGIN` | Enable demo sign-in (on in dev by default) |
+| `VITE_DEMO_EMAIL` / `VITE_DEMO_PASSWORD` | Client login credentials |
+| `VITE_V2_MOCK_DATA=true` | Fixture session list on facilitator `/app/sessions` |
+| `VITE_ENABLE_DEMO_SQUAD` | Legacy offline session (retired in App.v2) |
+
+---
+
+## What is *not* demo-complete today
+
+- **Separate auth accounts per role** — one demo user; role switcher changes UI lens only
+- **Live participant rooms for seeded UUIDs** — need real DB rows + invites for production-like path
+- **Legacy `/onboarding` tour** — soft-retired; use `/demo/start` instead
+- **Moderator decrypt console** — `/admin/rooms` requires rostered moderator + live sessions
+
+See [`docs/technical/demo-walkthrough.md`](../technical/demo-walkthrough.md) for tour step order.

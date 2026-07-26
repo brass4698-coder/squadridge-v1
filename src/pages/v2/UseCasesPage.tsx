@@ -4,8 +4,9 @@ import {
   primaryUseCases,
   secondaryUseCases,
   USE_CASE_ARCHITECTURE_LINE,
+  USE_CASE_VIGNETTES,
 } from '../../data/useCases';
-import { CTA } from '../../data/siteMessaging';
+import { CTA, PILOT_FIT_STRONG } from '../../data/siteMessaging';
 import {
   CTABlock,
   MarketingPageHero,
@@ -110,6 +111,82 @@ export function UseCasesPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section
+        id="vignettes"
+        className="scroll-mt-20 border-t border-line bg-[color:var(--sr-bg-sunken)] py-16 md:py-20"
+        aria-labelledby="vignettes-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel className="!mb-2">Composite outcomes</SectionLabel>
+            <h2
+              id="vignettes-h"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
+            >
+              What a bounded pilot can look like
+            </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Anonymized composites for diligence — not live traction. Participant counts and
+              timelines mirror the Strong fit criteria on{' '}
+              <Link to="/request-access" className="text-brand underline-offset-2 hover:underline">
+                Request access
+              </Link>
+              . Self-select against Not a fit before applying.
+            </p>
+            <ul className="mt-4 m-0 list-none space-y-1.5 p-0 text-xs text-ink-faint">
+              {PILOT_FIT_STRONG.map((line) => (
+                <li key={line} className="flex gap-2">
+                  <span aria-hidden className="text-brand">
+                    ·
+                  </span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <ul className="mt-10 m-0 grid list-none gap-4 p-0 lg:grid-cols-2">
+            {USE_CASE_VIGNETTES.map((v) => (
+              <li
+                key={v.id}
+                className="rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated p-5"
+              >
+                <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                  {v.sector}
+                </p>
+                <h3 className="mt-2 mb-0 text-sm font-semibold text-ink">{v.vignetteTitle}</h3>
+                <p className="mt-3 mb-0 text-xs text-ink-secondary">
+                  <span className="font-medium text-ink">Participants: </span>
+                  {v.participants}
+                </p>
+                <p className="mt-1 mb-0 text-xs text-ink-secondary">
+                  <span className="font-medium text-ink">Timeline: </span>
+                  {v.timeline}
+                </p>
+                <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">{v.outcome}</p>
+                <div className="mt-4 border-t border-line pt-3">
+                  <p className="m-0 text-xs font-medium text-ink">Not a fit if you need…</p>
+                  <ul className="mt-2 m-0 list-none space-y-1.5 p-0 text-xs text-ink-faint">
+                    {v.notFitHints.map((hint) => (
+                      <li key={hint} className="flex gap-2">
+                        <span aria-hidden>·</span>
+                        <span>{hint}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    to="/request-access#fit-heading"
+                    className="mt-3 inline-block text-xs font-medium text-brand underline-offset-2 hover:underline"
+                  >
+                    Full Strong fit / Not a fit list →
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

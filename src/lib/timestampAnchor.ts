@@ -33,9 +33,9 @@ export const TIMESTAMPING_CLAIM = {
   shipped:
     'SHA-256 integrity hash of the released record (ledger_sha). Proves the file is unaltered since publication.',
   planned:
-    'Optional RFC 3161 Time-Stamp Authority token stored beside ledger_sha. Schema ready; not requested during release today.',
+    'Optional RFC 3161 Time-Stamp Authority token stored beside ledger_sha. Schema and optional client gate exist; production release does not store a verified token until VITE_RFC3161_TSA_URL is configured and verification passes. Registry status remains SCAFFOLDED until then.',
   notClaimed:
-    'Court-admissible timestamps, public blockchain notarisation, or independent “when” proof without a live TSA.',
+    'Court-admissible timestamps, public blockchain notarisation, or independent “when” proof without a live, verified TSA path.',
 } as const;
 
 export function emptyTimestampAnchor(ledgerSha: LedgerIntegrityHash): OutcomeTimestampAnchor {

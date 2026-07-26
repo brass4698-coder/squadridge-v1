@@ -191,10 +191,18 @@
   --sr-glass-solid: var(--sr-bg-elevated);
 
   /* ── Form surfaces ──────────────────────────────────────────────── */
-  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg-sunken) 88%, transparent);
-  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 8%, transparent);
-  --sr-form-atmosphere-a: transparent;
-  --sr-form-atmosphere-b: transparent;
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg) 72%, var(--sr-bg-sunken));
+  --sr-form-control-bg-focus: color-mix(in oklch, var(--sr-bg) 55%, var(--sr-bg-elevated));
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 14%, transparent);
+  --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 11%, transparent);
+  --sr-form-atmosphere-b: color-mix(in oklch, var(--sr-verify) 6%, transparent);
+  --sr-form-accent-line: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--sr-primary) 65%, transparent) 35%,
+    color-mix(in oklch, var(--sr-verify) 45%, transparent) 65%,
+    transparent
+  );
 
   /* ── Typography — Inter everywhere; mono for labels/ledger ──────── */
   --sr-font-body: 'Inter', system-ui, sans-serif;

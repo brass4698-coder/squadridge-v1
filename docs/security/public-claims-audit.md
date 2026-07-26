@@ -1,6 +1,11 @@
 # Public claims audit (marketing ↔ threat model §5)
 
 Maps public-facing copy to engineering claims in `docs/security/threat-model.md` §5.
+
+**Machine-readable SoT for UI badges:** [`src/data/implementationStatus.ts`](../../src/data/implementationStatus.ts) (Implementation Status Registry). Security, Home, How it works, and Ledger must render LIVE / SCAFFOLDED / PLANNED from that module — not from ad-hoc copy.
+
+Partner-facing packet: [`trust-diligence-packet.md`](./trust-diligence-packet.md) · public download `/diligence/trust-diligence-packet.md`.
+
 Last audited: 2026-07-25.
 
 ## Claims that hold — correctly stated in public surface

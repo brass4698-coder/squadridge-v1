@@ -9,6 +9,7 @@ import {
 } from '../../data/siteMessaging';
 import {
   CTABlock,
+  FigureFrame,
   MarketingPageHero,
   MarketingSection,
   ProseMeasure,
@@ -20,9 +21,21 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 const primaryProfiles = TARGET_PILOT_PROFILES.filter((p) => p.tier === 'primary');
 const adjacentProfiles = TARGET_PILOT_PROFILES.filter((p) => p.tier === 'adjacent');
 
+/** Confirmed App.v2 routes — only link what resolves. */
+const DILIGENCE_LINKS = [
+  { label: 'Pipeline', href: '/pipeline' },
+  { label: 'Use cases', href: '/use-cases' },
+  { label: 'Security', href: '/security' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'How it works', href: '/how-it-works' },
+  { label: 'Briefings', href: '/briefings' },
+  { label: 'FAQ', href: '/faq' },
+  { label: 'About', href: '/about' },
+] as const;
+
 /**
- * Go-to-market & readiness — honest pre-launch plan for diligence readers.
- * No fabricated customers, LOIs, waitlist counts, or founder biography.
+ * Go-to-market & readiness — pre-launch plan for diligence readers.
+ * Honesty lives in one banner; body copy describes product and hopeful direction.
  */
 export function RoadmapPage() {
   usePageTitle('Go-to-market & readiness');
@@ -31,40 +44,54 @@ export function RoadmapPage() {
   return (
     <div data-page="roadmap">
       <MarketingPageHero
-        slim
         label="Readiness"
         title="Go-to-market & readiness"
         lead={
-          <>
-            <p>
-              Pre-launch product posture: what ships today, who we are targeting for first pilots,
-              and a cautious launch plan. No live pilots yet — see{' '}
-              <Link
-                to="/pipeline"
-                className="text-ink-secondary underline-offset-4 hover:underline"
-              >
-                Pipeline
-              </Link>{' '}
-              for current-state honesty.
+          <p>
+            What ships today, who we hope to serve first, and where we want to take the platform.
+            Built for facilitators navigating hard issues with care — see{' '}
+            <Link to="/pipeline" className="text-ink-secondary underline-offset-4 hover:underline">
+              Pipeline
+            </Link>{' '}
+            for live-vs-planned posture at a glance.
+          </p>
+        }
+        aside={
+          <FigureFrame
+            shadowed
+            aria-label="Verified vault — integrity before release"
+            caption="Integrity before release"
+          >
+            <img
+              src="/assets/gtm-hero-vault.png"
+              alt="Faceted vault with a verified checkmark — private deliberation protected until release is deliberate"
+              width={1024}
+              height={1024}
+              className="block h-auto w-full bg-black"
+              decoding="async"
+              fetchPriority="high"
+            />
+          </FigureFrame>
+        }
+        meta={
+          <aside
+            className="max-w-measure rounded-[var(--sr-radius-lg)] border border-line bg-surface-sunken/50 px-4 py-4 md:px-5"
+            role="note"
+            aria-label="Pre-pilot status"
+          >
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-brand/80">
+              Pre-pilot status
             </p>
-            <p className="mt-3 mb-0 text-sm text-ink-faint">
-              Capabilities below match{' '}
-              <Link
-                to="/how-it-works"
-                className="text-ink-secondary underline-offset-4 hover:underline"
-              >
-                How it works
-              </Link>{' '}
-              and{' '}
-              <Link
-                to="/security"
-                className="text-ink-secondary underline-offset-4 hover:underline"
-              >
+            <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
+              We have not run live partner pilots yet. Launch stages below are hopes and direction —
+              not completed cohorts. Security limits (including what is still scaffolded) live once
+              on{' '}
+              <Link to="/security" className="text-brand underline-offset-2 hover:underline">
                 Security
               </Link>
-              . Plan language is aspirational; we do not claim completed cohorts.
+              ; this page focuses on who we serve and what already works.
             </p>
-          </>
+          </aside>
         }
       />
 
@@ -73,11 +100,18 @@ export function RoadmapPage() {
           <ProseMeasure className="mb-10">
             <SectionLabel>What&apos;s live today</SectionLabel>
             <h2 id="live-today-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-              Real capabilities, documented limits
+              Capabilities you can evaluate now
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Shipped mechanism only — not a customer count. Planned work (RFC 3161 timestamps,
-              operator-blind room encryption) stays on Security as planned, not live.
+              The facilitator spine is built end-to-end in product — rooms, verification, release
+              gates, and integrity anchors. Walk the process on{' '}
+              <Link
+                to="/how-it-works"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                How it works
+              </Link>
+              .
             </p>
           </ProseMeasure>
           <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
@@ -96,7 +130,7 @@ export function RoadmapPage() {
           <ProseMeasure className="mb-10">
             <SectionLabel>Target pilot profile</SectionLabel>
             <h2 id="pilot-profile-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-              Ideal first pilots
+              Who we hope to serve first
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Org shape and pain by segment — aligned with{' '}
@@ -106,7 +140,8 @@ export function RoadmapPage() {
               >
                 Use cases
               </Link>
-              . No named organisations or logos.
+              . We are looking for facilitators and institutions ready for a scoped, invite-only
+              evaluation.
             </p>
           </ProseMeasure>
 
@@ -151,10 +186,11 @@ export function RoadmapPage() {
           <ProseMeasure className="mb-10">
             <SectionLabel>Launch plan</SectionLabel>
             <h2 id="launch-plan-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-              Three stages — targeting, not claiming
+              Where we want to go
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Cautious timeline language only. Dates and cohort sizes will move with partner fit.
+              A cautious sequence we are working toward. Dates will move with partner fit — we would
+              rather earn trust than rush a cohort.
             </p>
           </ProseMeasure>
           <ol className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 md:grid-cols-3">
@@ -184,15 +220,8 @@ export function RoadmapPage() {
               className="mt-8 max-w-measure border border-dashed border-line-strong bg-surface-sunken/50 p-6 md:p-8"
               aria-label="Founder note placeholder"
             >
-              {/* TODO: Replace FOUNDER_NOTE in siteMessaging.ts — do not invent bio or traction. */}
-              <p className="m-0 font-mono text-[0.65rem] font-medium uppercase tracking-[0.14em] text-ink-faint">
-                Placeholder
-              </p>
-              <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-                Founder note not published yet. Replace{' '}
-                <code className="font-mono text-xs text-ink">{'{{FOUNDER_NOTE}}'}</code> in{' '}
-                <code className="font-mono text-xs text-ink">src/data/siteMessaging.ts</code> with a
-                short first-person statement. Do not invent biography, customers, or metrics.
+              <p className="m-0 text-sm leading-relaxed text-ink-secondary">
+                Founder note not published yet.
               </p>
             </aside>
           ) : (
@@ -202,6 +231,32 @@ export function RoadmapPage() {
               </p>
             </blockquote>
           )}
+        </ShellWidth>
+      </MarketingSection>
+
+      <MarketingSection id="related" density="compact" tone="sunken">
+        <ShellWidth>
+          <ProseMeasure className="mb-6">
+            <SectionLabel>Continue diligence</SectionLabel>
+            <h2 id="related-h" className="mt-0 font-heading text-h3 font-semibold text-ink">
+              Related pages
+            </h2>
+            <p className="mt-2 mb-0 text-sm text-ink-secondary">
+              All links below resolve in the current app. Privacy and Terms are in the site footer.
+            </p>
+          </ProseMeasure>
+          <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+            {DILIGENCE_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  to={link.href}
+                  className="inline-block rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-3 py-1.5 text-sm text-ink-secondary no-underline hover:text-ink"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </ShellWidth>
       </MarketingSection>
 

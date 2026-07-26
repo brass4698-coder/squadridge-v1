@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { canAccessRoute } from '../../lib/guards';
+import { isDemoUser } from '../../lib/demoLogin';
 import type { RoleKey } from '../../types/roles';
 
 interface Props {
@@ -14,7 +15,10 @@ interface Props {
 }
 
 export function RoleProtectedRoute({ children, allowed }: Props) {
-  const { roles } = useAuthContext();
+  const { roles, session } = useAuthContext();
+  if (isDemoUser(session)) {
+    return <>{children}</>;
+  }
   if (!canAccessRoute(roles, allowed)) {
     return <Navigate to="/unauthorized" replace />;
   }
