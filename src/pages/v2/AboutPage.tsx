@@ -76,6 +76,8 @@ const STAGE = [
   {
     title: 'No traction claims on this site',
     body: 'You will not find organisation counts, partner logos, testimonials, or outcome statistics here, because there are none we can source. When there are, they will arrive with a citation.',
+    linkLabel: 'Pipeline — readiness without fabricated adoption',
+    linkHref: '/pipeline',
   },
   {
     title: 'The public register is empty on purpose',
@@ -226,6 +228,19 @@ export function AboutPage() {
                   <p className="m-0 text-sm font-semibold text-ink">{item.title}</p>
                   <p className="mt-1.5 mb-0 text-sm leading-relaxed text-ink-secondary">
                     {item.body}
+                    {'linkHref' in item && item.linkHref ? (
+                      <>
+                        {' '}
+                        Diligence readers:{' '}
+                        <Link
+                          to={item.linkHref}
+                          className="text-ink-secondary underline-offset-4 hover:underline"
+                        >
+                          {item.linkLabel}
+                        </Link>
+                        .
+                      </>
+                    ) : null}
                   </p>
                 </li>
               ))}

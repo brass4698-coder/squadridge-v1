@@ -121,6 +121,9 @@ import { ParticipantsIndexPage } from './pages/v2/ParticipantsIndexPage';
 import { InsightsPage } from './pages/v2/InsightsPage';
 import { LegacyAppRedirect } from './components/routing/LegacyAppRedirect';
 import { ContactPage } from './pages/v2/ContactPage';
+import { PricingPage } from './pages/v2/PricingPage';
+import { RoadmapPage } from './pages/v2/RoadmapPage';
+import { PipelinePage } from './pages/v2/PipelinePage';
 
 const routeChunkFallback = (
   <div
@@ -474,6 +477,11 @@ export default function AppV2() {
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/contact" element={<ContactPage />} />
+                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/roadmap" element={<RoadmapPage />} />
+                <Route path="/pipeline" element={<PipelinePage />} />
+                {/* Diligence alias — prefer /pipeline label over "traction" */}
+                <Route path="/traction" element={<Navigate to="/pipeline" replace />} />
 
                 {/* Ledger (public outcome records) */}
                 <Route path="/ledger" element={<LedgerIndexPage />} />

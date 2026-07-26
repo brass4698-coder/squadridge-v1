@@ -32,6 +32,7 @@ Checklist of work already in the repo (treat as **done** — do not re-implement
 - [x] Shared `LedgerSpecimen` schema (`src/data/ledgerSpecimens.ts`) across homepage, ledger index, dossier
 - [x] Live-vs-planned trust copy split (SHA-256 live · RFC 3161 planned)
 - [x] Soft-retired legacy citizen/ZK routes → `/request-access` in `App.v2.tsx`
+- [x] Investor-readiness surfaces (pre-launch honesty): `/roadmap` (GTM & readiness), `/pricing` (invite-only, no invented $), `/pipeline` (placeholders — never fabricate traction). Fill `FOUNDER_NOTE` + `PIPELINE_METRICS` in `src/data/siteMessaging.ts` when sourced.
 
 ### Facilitator workflow / room
 - [x] Spine Configure → Verify → Facilitate → Release (v2 routes + lifecycle guards)

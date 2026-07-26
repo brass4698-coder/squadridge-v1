@@ -108,6 +108,12 @@ export const CTA = {
     'Seen how an approved outcome looks in the archive? Request a pilot when you are ready to run the room that produces one.',
   closeBriefings:
     'Need deck access for diligence? Request briefing access — materials stay gated until there is a clear review reason.',
+  closeRoadmap:
+    'If the launch plan and pilot profile match your matter class, request a scoped pilot evaluation — manual review, not open signup.',
+  closePricing:
+    'Pricing is invite-only and scoped with each partner. Start with pilot intake or a briefing — we respond with fit and commercial posture, typically within 5–7 business days.',
+  closePipeline:
+    'No live pilots yet. If you are evaluating partnership or diligence fit, request intake or a briefing — we publish pipeline numbers only when sourced.',
   /** Honest status — never invent organisation counts. */
   pilotStatusLine: 'Invite-only · scoped private pilots · manual fit review',
   /** Shorter status for pages that already state fit-review elsewhere. */
@@ -118,6 +124,155 @@ export const CTA = {
   briefingBody:
     'For diligence conversations, security review, or partnership exploration with mediators and facilitation teams before a formal application.',
 } as const;
+
+/**
+ * Capabilities that ship today — aligned with How it Works / Security.
+ * Do not add planned items here; keep the live-vs-planned split on /security.
+ */
+export const READINESS_LIVE_TODAY = [
+  {
+    title: 'Private facilitator-governed rooms',
+    body: 'Invite-only written sessions with staged facilitation, capacity limits, and pacing controls. Dialogue stays inside the room.',
+  },
+  {
+    title: 'Facilitator-gated release',
+    body: 'Nothing leaves as a public or anchored record without designated approvals and an explicit facilitator release action.',
+  },
+  {
+    title: 'SHA-256 integrity anchor',
+    body: 'Released text is hashed and stored with the record. Anyone holding the approved wording can recompute the anchor.',
+  },
+  {
+    title: 'Documented security limits',
+    body: 'Operator-readable rooms today; no E2E-against-operator or platform-wide ZKP claims. Boundaries live on Security and in the threat model.',
+  },
+] as const;
+
+/**
+ * Ideal first-pilot profiles — org shape and pain only; no named logos or customers.
+ * Primary tracks mirror Use Cases; adjacent rows are secondary expansion contexts.
+ */
+export const TARGET_PILOT_PROFILES = [
+  {
+    tier: 'primary' as const,
+    sector: 'Philanthropy & foundations',
+    orgSize: 'Program or board teams (typically small deliberation circles)',
+    pain: 'Contested funding or governance decisions where email and chat become the discoverable story.',
+  },
+  {
+    tier: 'primary' as const,
+    sector: 'Peacebuilding & mediation',
+    orgSize: 'Facilitator-led cohorts of roughly 4–8 parties (hard ceiling 12)',
+    pain: 'Attribution-sensitive dialogue that still needs a citable approved instrument.',
+  },
+  {
+    tier: 'primary' as const,
+    sector: 'HR, compliance & ombuds',
+    orgSize: 'Institutional inquiry teams with a designated facilitator',
+    pain: 'Fact-finding without a sprawling transcript that invites retaliation or oversharing.',
+  },
+  {
+    tier: 'adjacent' as const,
+    sector: 'NGOs & civil society',
+    orgSize: 'Advocacy or partner-decision teams under leak risk',
+    pain: 'Sensitive internal deliberation without putting staff or community members at risk if notes escape.',
+  },
+  {
+    tier: 'adjacent' as const,
+    sector: 'Corporations & executive teams',
+    orgSize: 'Board / C-suite conflict under confidentiality',
+    pain: 'High-stakes disputes where CC chains create liability about what was decided.',
+  },
+] as const;
+
+/** Honest go-to-market stages — plan language only; never claim completed cohorts. */
+export const LAUNCH_PLAN_STAGES = [
+  {
+    id: 'now',
+    label: 'Now',
+    title: 'Invite-only access open',
+    body: 'Manual fit review is open. We assess matter class and facilitation context before granting scoped access — typically within 5–7 business days.',
+  },
+  {
+    id: 'next-90',
+    label: 'Next 90 days',
+    title: 'First pilot cohort (plan)',
+    body: 'Targeting a small first cohort of facilitator-led private pilots. This is an aspirational plan, not a claimed achievement — timing depends on fit and partner readiness.',
+  },
+  {
+    id: 'expand',
+    label: '6–12 months',
+    title: 'Sector expansion (plan)',
+    body: 'Plan to expand beyond the first matter classes into adjacent NGO and institutional contexts after the initial cohort proves operational fit.',
+  },
+] as const;
+
+/**
+ * Founder first-person note for /roadmap.
+ * Replace `{{FOUNDER_NOTE}}` with real copy. Until then, the page shows a visible placeholder.
+ * Do not invent biography or traction in this string.
+ */
+export const FOUNDER_NOTE = '{{FOUNDER_NOTE}}';
+
+export function isFounderNotePlaceholder(note: string = FOUNDER_NOTE): boolean {
+  return !note.trim() || note.includes('{{FOUNDER_NOTE}}');
+}
+
+/** Pricing tiers — no invented dollar amounts. Validate with partners before publishing numbers. */
+export const PRICING_TIERS = [
+  {
+    id: 'pilot',
+    name: 'Pilot',
+    posture: 'Time-boxed · low or no cost · manual review',
+    body: 'Scoped private pilots for facilitators evaluating fit. Access is invite-only after a 5–7 day manual review — not self-serve signup.',
+  },
+  {
+    id: 'team',
+    name: 'Team / Institutional',
+    posture: 'Scoped with each partner',
+    body: 'For organisations running recurring deliberation rooms under institutional governance. Commercial terms are discussed in briefing — not published as list prices today.',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise / Government',
+    posture: 'Custom',
+    body: 'Custom scope for larger institutions, multi-team deployments, or government contexts. Diligence, security review, and commercial structure are partner-specific.',
+  },
+] as const;
+
+/**
+ * Pipeline metrics for /pipeline.
+ * Keep `{{PLACEHOLDER}}` tokens (or empty) until real, sourced figures exist.
+ * The page renders unpublished values as "—" / "Not published yet" — never invent counts.
+ */
+export const PIPELINE_METRICS = {
+  /** {{ACTIVE_CONVERSATIONS}} — diligence or partnership conversations in flight */
+  activeConversations: '{{ACTIVE_CONVERSATIONS}}',
+  /** {{LOI_COUNT}} — signed or draft LOIs; publish only with citation */
+  loiCount: '{{LOI_COUNT}}',
+  /** {{WAITLIST_SIZE}} — waitlist or interest list size; publish only when accurate */
+  waitlistSize: '{{WAITLIST_SIZE}}',
+  /** Live pilots — hard-coded honesty until the first real pilot is live */
+  livePilots: '0',
+} as const;
+
+export type PipelineMetricKey = keyof typeof PIPELINE_METRICS;
+
+/** True when a metric still holds an unfilled `{{TOKEN}}` or empty string. */
+export function isPipelineMetricUnpublished(raw: string): boolean {
+  const trimmed = raw.trim();
+  return !trimmed || /^\{\{[A-Z0-9_]+\}\}$/.test(trimmed);
+}
+
+export function formatPipelineMetric(raw: string): {
+  display: string;
+  unpublished: boolean;
+} {
+  if (isPipelineMetricUnpublished(raw)) {
+    return { display: '—', unpublished: true };
+  }
+  return { display: raw.trim(), unpublished: false };
+}
 
 export const EVALUATOR_JOURNEY = [
   {
