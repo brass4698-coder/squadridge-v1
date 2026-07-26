@@ -8,7 +8,11 @@ import {
   demoParticipantContext,
   participantListMessages,
 } from './participantToken';
-import { buildParticipantInviteUrl, participantRoute } from './participantRoutes';
+import {
+  buildParticipantInviteUrl,
+  buildParticipantReviewUrl,
+  participantRoute,
+} from './participantRoutes';
 
 const rpc = vi.fn();
 
@@ -85,5 +89,11 @@ describe('participantToken', () => {
     const url = buildParticipantInviteUrl(token, 'https://app.example');
     expect(url).toBe(`https://app.example${participantRoute('invite', token)}`);
     expect(demoParticipantContext().session_title).toBeTruthy();
+  });
+
+  it('review URL points at /p/review/:token for manual sharing', () => {
+    const token = generateInviteToken();
+    const url = buildParticipantReviewUrl(token, 'https://app.example');
+    expect(url).toBe(`https://app.example${participantRoute('review', token)}`);
   });
 });

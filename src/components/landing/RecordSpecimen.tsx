@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { homepageSpecimen } from '../../data/ledgerSpecimens';
 import { RecordCard, specimenToRecordCardProps } from '../shared/RecordCard';
+import { SpecimenNotice } from '../shared/SpecimenNotice';
 import { TrustLabel } from '../shared/TrustLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
@@ -14,7 +15,7 @@ export function RecordSpecimen() {
     <section
       id="record-specimen"
       data-demo="landing-ledger"
-      className="scroll-mt-24 py-16 md:py-20 lg:py-24"
+      className="scroll-mt-24 border-b border-line py-16 md:py-20 lg:py-24"
       data-scroll-section
       aria-labelledby="record-specimen-h"
     >
@@ -26,7 +27,7 @@ export function RecordSpecimen() {
               id="record-specimen-h"
               className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
             >
-              The approved record.
+              What an approved record looks like
             </h2>
             <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary">
               Approved text, limited metadata, verification anchor — not what was said in the room.
@@ -43,11 +44,11 @@ export function RecordSpecimen() {
           </div>
           <div className="min-w-0">
             <RecordCard {...card} />
-            <p className="mt-3 mb-0 text-xs leading-relaxed text-ink-faint">
-              Illustrative specimen — not a live release. The register lists an entry only after a
-              facilitator releases an approved outcome and the releasing organisation opts into
-              publication.
-            </p>
+            <SpecimenNotice className="mt-4" heading="Example data — not a live release">
+              This specimen shows format only. Its anchor does not resolve against a released
+              instrument. Live entries appear on the ledger only after facilitator release and an
+              organisation opt-in to public publication.
+            </SpecimenNotice>
           </div>
         </div>
       </div>

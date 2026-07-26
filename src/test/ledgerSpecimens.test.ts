@@ -23,10 +23,20 @@ describe('ledgerSpecimens helpers', () => {
     expect(truncateAnchor('sha256:7c3a91d7b4e6f8aa2d91e91f')).toBe('7c3a…e91f');
   });
 
-  it('orders status chips ILLUSTRATIVE → ANCHOR VERIFIED → RECORD ID', () => {
+  it('orders specimen chips ILLUSTRATIVE → not-verifiable → RECORD ID', () => {
     const chips = getStatusChips(homepageSpecimen);
-    expect(chips.map((c) => c.kind)).toEqual(['illustrative', 'anchor-verified', 'record-id']);
+    expect(chips.map((c) => c.kind)).toEqual(['illustrative', 'illustrative', 'record-id']);
+    expect(chips[1]?.label).toBe('Specimen (not verifiable)');
     expect(chips[2]?.label).toBe('SQR-2026-0312');
+  });
+
+  it('keeps Anchor verified only for live published chips', () => {
+    const chips = getStatusChips({
+      id: 'SQR-2026-9999',
+      specimenType: 'live',
+      status: 'anchor-verified',
+    });
+    expect(chips.map((c) => c.label)).toEqual(['Published', 'Anchor verified', 'SQR-2026-9999']);
   });
 
   it('resolves homepage canonical specimen', () => {

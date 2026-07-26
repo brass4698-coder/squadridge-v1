@@ -56,13 +56,23 @@ Checklist of work already in the repo (treat as **done** — do not re-implement
 ### Known residual gaps (honest — still open)
 - [ ] Live RFC 3161 TSA request on `release_outcome`
 - [ ] Co-facilitator / sponsor / observer permissions wired into **v2 session** path (role shells exist; session ACL thin)
+  - **TODO (I2 / C10 — deferred Jul 25):** v2 `sessions` RLS is facilitator-owner-only (`facilitator_id = auth.uid()`). Safe observer read needs a session-membership (or grant) table, RLS SELECT policies on `sessions` / `outcome_records` / status RPCs, and pgTAP cross-principal denials — not a half-measure. Prefer full I2 over thin UI that implies access.
 - [ ] Facilitator per-stage prompt library + in-room redact tooling
-- [ ] Review-link issuance UX from release console (copy/email per participant)
-- [ ] Email workflow notifications (prefs exist; delivery not wired)
+- [x] Review-link issuance UX from release console (copy/email per participant)
+  - Copy/share shipped; optional Edge `send-session-invite` with Resend when secrets present; manual URL fallback when not
+- [ ] Email workflow notifications (prefs exist; delivery not wired for verify/open/release events)
+  - Invite/review email scaffold exists; broad workflow notification pipeline still open (P8)
 - [ ] First **real** pilot private release in staging/production (operator + partner step)
 - [ ] Clean `supabase db reset` / CI pgTAP green through full migration chain (incl. `20260707` incident hold)
 - [ ] Optional AI heat → private facilitator signal UI (advisory pacing exists; ConvoWizard-style heat UI not built)
 - [ ] Operator-blind room E2E (threat model §13 — out of pilot wedge)
+
+**Pilot hardening shipped (Jul 25–26 session):**
+- [x] Branded 404 / 403 / root+route 500 boundaries on `--sr-*` tokens
+- [x] `VITE_MAINTENANCE_MODE` kill-switch + `MaintenancePage`
+- [x] Edge `health-check` (no JWT) + `send-session-invite` (JWT, rate-limit, CORS)
+- [x] Hot-path indexes: `participants(session_id)`, `outcome_records(session_id)`, `outcome_approvals(outcome_id)`, `session_messages(session_id, sent_at)`
+- [x] `.env.example` documents Edge-only `RESEND_*` / `SITE_URL` / maintenance flag
 
 ---
 
@@ -75,7 +85,7 @@ Goal: one NGO facilitator can run **intake → invite → verify → staged room
 | **M1** | supabase | Apply Jul 25 migrations + regenerate types; prove capacity + stages pgTAP locally | `db reset` applies through latest; `v2_dialogue_stages_review` + `v2_mvp_capacity_deck_pacing` pass; generated types include `dialogue_stage`, `participation_reason`, timestamp scaffold cols | Local Supabase CLI |
 | **M2** | supabase | Append-only **repair** for `20260707_001_incident_dialogue_rooms.sql` order bug **or** documented skip path that keeps CI green | Clean CI `supabase db reset` no longer fails on incident helpers-before-table; incident routes stay **unmounted** on v2 | Do not edit historical migration in place |
 | **M3** | facilitator-workflow | End-to-end dry-run script for NGO template on staging | Facilitator completes create → invite(+reason) → verify → advance stages → pacing → outcome → `/p/review` → private release; `ledger_sha` set; record **not** on public ledger unless opted in | M1 |
-| **M4** | facilitator-workflow | Review-link issuance from release / outcome UI | Facilitator can copy per-participant review URL; disputed items block release with clear UI | Dialogue-stage review RPCs already shipped |
+| **M4** | facilitator-workflow | Review-link issuance from release / outcome UI | Facilitator can copy per-participant review URL; disputed items block release with clear UI | **Done (Jul 25):** copy/share + optional email scaffold (`send-session-invite`); Resend live only when Edge secrets set |
 | **M5** | security-claims | Sweep public + deck copy: live vs planned | `check:banned-copy` green; Security/landing never imply live TSA, IOA certification, or E2E-against-operator | [`public-claims-audit.md`](../security/public-claims-audit.md) |
 | **M6** | public-site | Homepage density pass (diagrams/rails only if still dense after stepped rail) | First viewport + governed sequence remain scannable; no new claim surfaces | Stepped rail already shipped — polish only |
 | **M7** | design | Specimen + released-record consistency QA | Homepage / `/ledger` / dossier share `LedgerSpecimen` fields; live API rows never look “illustrative” | `ledgerSpecimens.ts` shipped |
@@ -94,10 +104,10 @@ Goal: bounded NGO / peacebuilding pilot with MOU-disclosed operator-readable roo
 | **P2** | facilitator-workflow | Runbook drill: facilitator + 4–6 participants on staging | Completes [`v2-pilot-checklist.md`](../operations/v2-pilot-checklist.md); metrics pre-registered | Phase 1 exit |
 | **P3** | supabase | Session audit export verified in pilot path | `export_session_audit_trail` returns metadata-only ordered events; no message bodies | Audit table already shipped |
 | **P4** | public-site | Soft-retire / hide legacy surfaces from pilot demos | `/match`, ZK verify, CSI admin not in facilitator CTA or deck narrative | Soft-retire redirects already exist |
-| **P5** | design | In-room stage map + briefing clarity pass | Participants always see current `dialogue_stage` and next action; reduced-motion safe | Stage map shipped — harden copy/empty states |
+| **P5** | design | In-room stage map + briefing clarity pass | Participants always see current `dialogue_stage` and next action; reduced-motion safe | **Done (Jul 25):** stage map + next-action on briefing / waiting / room; empty / loading / reconnect / error hardened |
 | **P6** | security-claims | Partner diligence one-pager (evaluable-now vs planned) | Lists SHA-256, RLS, release gate, audit export as live; RFC 3161 / E2E / co-fac roles as planned | M5 |
 | **P7** | facilitator-workflow | First **real** private released outcome (staging or prod with consent) | Non-sample `outcome_records` row with `ledger_sha`; public ledger only if partner opts in | ROADMAP P1 #6 operator step |
-| **P8** | supabase | Email notification pipeline **or** explicit pilot waiver | Either email on verify/open/approval/release works, or MOU states in-app-only alerts | Prefs table exists |
+| **P8** | supabase | Email notification pipeline **or** explicit pilot waiver | Invite/review email scaffold (`send-session-invite`) + MOU in-app-only path; full verify/open/release notification pipeline still optional | Prefs table exists; Resend secrets are ops |
 
 **Phase 2 exit:** One completed facilitated session with private anchored memo + audit export; partner can evaluate without mistaking samples or planned TSA for live proof.
 
@@ -136,13 +146,15 @@ Goal: diligence-grade process integrity for multi-stakeholder / Track II–adjac
 
 ## Suggested next five actions
 
-1. **M1 + M2** — Make local/CI `db reset` green with Jul 25 migrations; repair or isolate `20260707` incident hold.  
-2. **M3 + M4** — Staging dry-run of full spine; ship review-link copy UX.  
-3. **M5** — Final live-vs-planned claims sweep before any partner demo.  
+1. **M1 + M2** — Make local/CI `db reset` green with Jul 25–26 migrations; repair or isolate `20260707` incident hold.  
+2. **M3** — Staging dry-run of full spine (review-link copy + optional email scaffold shipped as M4).  
+3. **Ops** — Deploy Edge `health-check` + `send-session-invite`; set `SITE_URL`; optionally `RESEND_*` or keep manual-link pilot.  
 4. **P1 + P2** — MOU + runbook drill with pre-registered metrics.  
 5. **P7** — Complete one real private anchored release (operator + partner).
 
-Defer **I1 (live TSA)** until after Phase 2 exit unless a diligence partner explicitly blocks without trusted time.
+Defer **I1 (live TSA)** and **I2 (co-facilitator / observer session ACL)** until after Phase 2 exit unless a diligence partner explicitly blocks. I2 needs membership + RLS + pgTAP — do not half-wire.
+
+**Rejected greenfield (do not build):** Vue/Zustand rewrite; Hydra Teal / Satoshi design; `organizations` / `conflicts` / `qr_signups` schema; pnpm CI rewrite; PDF/confetti org-SaaS onboarding.
 
 ---
 

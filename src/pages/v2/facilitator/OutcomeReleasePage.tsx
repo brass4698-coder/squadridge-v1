@@ -4,7 +4,10 @@ import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
+import { ReleaseReadinessChecklist } from '../../../components/facilitator/ReleaseReadinessChecklist';
+import { ReviewLinkIssuance } from '../../../components/facilitator/ReviewLinkIssuance';
 import { useOutcomeRecord } from '../../../hooks/useOutcomeRecord';
+import { useParticipants } from '../../../hooks/useParticipants';
 import { useSession } from '../../../hooks/useSessions';
 import {
   allApprovalsComplete,
@@ -14,6 +17,7 @@ import {
 import { appRoutes } from '../../../lib/appRoutes';
 import { ApprovalCount } from '../../../components/motion';
 import {
+  approvalWorkflowLabel,
   describeReleaseBlock,
   shortContentSha,
   staleApprovalNotice,
@@ -23,6 +27,7 @@ export function OutcomeReleasePage() {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { session, loading: sessionLoading } = useSession(sessionId);
+  const { participants, loading: participantsLoading } = useParticipants(sessionId);
   const {
     outcome,
     approvals,
@@ -47,6 +52,12 @@ export function OutcomeReleasePage() {
   const blockingCopy = describeReleaseBlock(readiness?.blockingReason);
   const staleNotice = staleApprovalNotice(readiness);
   const releaseBlocked = readiness ? !readiness.canRelease : !allApproved || counts.rejected > 0;
+  const facilitatorApprovals = approvals.filter(
+    (a) => a.approval_source !== 'participant' && !a.participant_id,
+  );
+  const waitingOnParticipantReview = approvals.some(
+    (a) => (a.approval_source === 'participant' || a.participant_id) && a.status === 'pending',
+  );
 
   async function handleAttest() {
     setError(null);
@@ -130,14 +141,15 @@ export function OutcomeReleasePage() {
               : 'All parties must approve via their review links before the outcome is released as a private anchored record. It will not appear on the public ledger. Room dialogue stays in the room.'}
           </p>
           <p className="mt-2 text-xs text-ink-secondary">
-            Share each participant&apos;s invite token URL with{' '}
-            <span className="font-mono text-ink-faint">/p/review/&lt;token&gt;</span> after you
-            submit the draft. You may only mark the Facilitator row from this console.
+            Copy each participant&apos;s review link below and share it manually. Automated email is
+            not wired. You may only mark the Facilitator row from this console.
           </p>
           <p className="mt-2 font-mono text-xs text-ink-faint">
             {outcomePublic ? 'Visibility: public ledger' : 'Visibility: private anchored record'}
           </p>
         </div>
+
+        <ReleaseReadinessChecklist readiness={readiness} />
 
         {instrumentPreview ? (
           <section className="sr-evidence-frame mb-8 p-5" aria-labelledby="instrument-preview-h">
@@ -221,7 +233,7 @@ export function OutcomeReleasePage() {
 
         <div
           className={`mb-6 rounded border-l-4 px-4 py-3 text-sm ${
-            allApproved
+            allApproved && !waitingOnParticipantReview
               ? 'border-brand bg-brand-soft text-brand'
               : 'border-warning bg-surface-sunken text-ink-secondary'
           }`}
@@ -232,65 +244,59 @@ export function OutcomeReleasePage() {
               {formatApprovalCount(counts.approved, counts.total)}
             </ApprovalCount>
             <span className="text-xs">
-              {allApproved
-                ? outcomePublic
-                  ? 'approved — ready to publish'
-                  : 'approved — ready to release privately'
-                : counts.total === 0
-                  ? 'No approvers yet'
-                  : 'approved'}
+              {waitingOnParticipantReview
+                ? 'approved — waiting on participant review'
+                : allApproved
+                  ? outcomePublic
+                    ? 'approved — ready to publish'
+                    : 'approved — ready to release privately'
+                  : counts.total === 0
+                    ? 'No approvers yet'
+                    : 'approved'}
             </span>
           </p>
           {counts.rejected > 0 ? (
             <p className="mt-1 text-xs text-sem-danger">
-              {counts.rejected} rejection{counts.rejected === 1 ? '' : 's'} recorded — resolve
-              before release.
+              {counts.rejected} dispute{counts.rejected === 1 ? '' : 's'} recorded — resolve before
+              release.
             </p>
           ) : null}
         </div>
 
-        {approvals.length === 0 ? (
-          <div className="mb-8">
-            <EmptyState
-              className="py-10"
-              heading="No approvers listed"
-              body="Return to the outcome workspace and add party labels before collecting approvals."
-              action={
-                <Link
-                  to={appRoutes.sessionOutcome(sessionId)}
-                  className="text-sm font-medium text-brand underline"
+        <ReviewLinkIssuance
+          approvals={approvals}
+          participants={participants}
+          participantsLoading={participantsLoading}
+        />
+
+        {facilitatorApprovals.length > 0 ? (
+          <section className="mb-8" aria-labelledby="facilitator-approval-h">
+            <h2
+              id="facilitator-approval-h"
+              className="mb-3 font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-ink-faint"
+            >
+              Facilitator console approval
+            </h2>
+            <ul className="flex flex-col gap-3" aria-label="Facilitator approval status">
+              {facilitatorApprovals.map((a) => (
+                <li
+                  key={a.id}
+                  className="flex min-h-[44px] items-center justify-between gap-3 rounded-lg bg-surface-elevated px-5 py-4 shadow-sr-sm"
                 >
-                  Edit outcome draft
-                </Link>
-              }
-            />
-          </div>
-        ) : (
-          <ul className="mb-8 flex flex-col gap-3" aria-label="Approver status">
-            {approvals.map((a) => (
-              <li
-                key={a.id}
-                className="flex min-h-[44px] items-center justify-between gap-3 rounded-lg bg-surface-elevated px-5 py-4 shadow-sr-sm"
-              >
-                <p className="text-sm font-medium text-ink">{a.approver_label}</p>
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <StatusBadge
-                    variant={
-                      a.status === 'rejected'
-                        ? 'denied'
-                        : a.status === 'approved'
-                          ? 'verified'
-                          : 'pending'
-                    }
-                  >
-                    {a.status}
-                  </StatusBadge>
-                  {a.status === 'pending' ? (
-                    a.approval_source === 'participant' || a.participant_id ? (
-                      <span className="max-w-[12rem] text-right text-xs text-ink-faint">
-                        Waiting on participant review link
-                      </span>
-                    ) : (
+                  <p className="text-sm font-medium text-ink">{a.approver_label}</p>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <StatusBadge
+                      variant={
+                        a.status === 'rejected'
+                          ? 'denied'
+                          : a.status === 'approved'
+                            ? 'verified'
+                            : 'pending'
+                      }
+                    >
+                      {approvalWorkflowLabel(a.status)}
+                    </StatusBadge>
+                    {a.status === 'pending' ? (
                       <button
                         type="button"
                         onClick={() => {
@@ -302,13 +308,31 @@ export function OutcomeReleasePage() {
                       >
                         Mark approved
                       </button>
-                    )
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {approvals.length === 0 ? (
+          <div className="mb-8">
+            <EmptyState
+              className="py-10"
+              heading="No approvers listed"
+              body="Return to the outcome workspace and submit the draft to open participant review."
+              action={
+                <Link
+                  to={appRoutes.sessionOutcome(sessionId)}
+                  className="text-sm font-medium text-brand underline"
+                >
+                  Edit outcome draft
+                </Link>
+              }
+            />
+          </div>
+        ) : null}
 
         {error ? (
           <p className="mb-4 text-sm text-sem-danger" role="alert">

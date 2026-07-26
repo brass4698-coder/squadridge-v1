@@ -3,7 +3,7 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
 
 /**
  * Early narrative anchor — institutional scenario + compact approved-record cue.
- * Labeled illustrative; not a pilot outcome or partner claim.
+ * Labeled as example data; not a pilot outcome or partner claim.
  */
 export function IllustrativeScenarioStrip() {
   return (
@@ -16,7 +16,7 @@ export function IllustrativeScenarioStrip() {
         <div className="grid max-w-[52rem] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,16rem)] lg:items-start lg:gap-10">
           <div className="grid gap-4 md:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] md:items-start md:gap-8">
             <div>
-              <CapsLabel>Illustrative scenario</CapsLabel>
+              <CapsLabel>Example scenario</CapsLabel>
               <h2
                 id="scenario-h"
                 className="mt-2 mb-0 font-heading text-h3 font-semibold leading-snug tracking-tight text-ink"
@@ -30,14 +30,14 @@ export function IllustrativeScenarioStrip() {
                 controlled. The room stays private — only facilitator-released text can leave.
               </p>
               <p className="mt-2 mb-0 text-xs leading-relaxed text-ink-faint">
-                Illustrative — not a live pilot outcome.
+                Example data — not a live pilot outcome.
               </p>
             </div>
           </div>
 
           <aside
             className="rounded-[var(--sr-radius-md)] bg-surface-elevated px-4 py-3.5 shadow-sr-card"
-            aria-label="Illustrative approved record"
+            aria-label="Example approved record"
           >
             <CapsLabel>What leaves the room</CapsLabel>
             <p className="mt-2 mb-0 text-sm font-medium leading-snug text-ink">

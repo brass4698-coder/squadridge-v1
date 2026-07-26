@@ -205,7 +205,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
           {mobileOpen ? (
             <div
               id={menuId}
-              className="border-t border-line bg-surface-elevated nav:hidden"
+              className="sr-glass-sidebar border-t border-line nav:hidden"
               role="dialog"
               aria-label="Site menu"
             >

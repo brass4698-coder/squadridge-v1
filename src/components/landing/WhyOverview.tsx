@@ -26,10 +26,6 @@ export function WhyOverview() {
               Not every difficult conversation should be public. The outcome still can be.
             </h2>
             <p className="mt-4 mb-0 text-base leading-relaxed text-ink-secondary">{SITE_WHY_NOW}</p>
-            <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary">
-              SquadRidge makes that separation structural: dialogue stays in a facilitator-governed
-              written room; only approved outcome text can leave.
-            </p>
             <p className="mt-4 mb-0">
               <a
                 href="#documented-limits"

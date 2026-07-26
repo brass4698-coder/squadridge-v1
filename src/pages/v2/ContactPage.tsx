@@ -46,7 +46,7 @@ export function ContactPage() {
 
       <MarketingSection tone="bordered" density="compact">
         <ShellWidth>
-          <EvaluatorPath current="trust" />
+          <EvaluatorPath />
         </ShellWidth>
       </MarketingSection>
 
@@ -55,7 +55,7 @@ export function ContactPage() {
         body={CTA.closeContact}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

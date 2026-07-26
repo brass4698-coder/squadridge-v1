@@ -82,6 +82,8 @@ import { LedgerRecordPage } from './pages/v2/LedgerRecordPage';
 import { LedgerVerifyPage } from './pages/v2/LedgerVerifyPage';
 import { NotFoundPage } from './pages/v2/NotFoundPage';
 import { AccessDeniedPage } from './pages/v2/AccessDeniedPage';
+import { MaintenancePage } from './pages/v2/MaintenancePage';
+import { isMaintenanceMode } from './lib/env';
 
 // ── New v2 pages — Phase 2 (authenticated facilitator core) ──────────────────
 import { FacilitatorDashboardPage } from './pages/v2/FacilitatorDashboardPage';
@@ -125,10 +127,18 @@ const routeChunkFallback = (
     role="status"
     aria-live="polite"
     aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-surface font-sans text-sm text-ink-secondary"
+    className="mx-auto flex w-full max-w-shell flex-col gap-4 px-gutter py-16"
   >
     <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
+    <div className="h-3 w-24 rounded-sm bg-surface-sunken motion-safe:animate-pulse" aria-hidden />
+    <div
+      className="h-8 w-2/3 max-w-md rounded-sm bg-surface-sunken motion-safe:animate-pulse"
+      aria-hidden
+    />
+    <div
+      className="mt-2 h-32 w-full max-w-2xl rounded-[var(--sr-radius-md)] bg-surface-sunken/60 motion-safe:animate-pulse"
+      aria-hidden
+    />
   </div>
 );
 
@@ -152,6 +162,17 @@ function OutcomesLegacyRedirect() {
 }
 
 export default function AppV2() {
+  if (isMaintenanceMode()) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/health" element={<SupabaseHealthPage />} />
+          <Route path="*" element={<MaintenancePage />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
   return (
     <BrowserRouter>
       <SentryNavigationListener />

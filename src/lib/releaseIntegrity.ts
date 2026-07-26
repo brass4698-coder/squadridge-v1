@@ -90,3 +90,123 @@ export function staleApprovalNotice(readiness: ReleaseReadiness | null): string 
   const count = readiness.approvalsStale;
   return `${count} approval${count === 1 ? '' : 's'} recorded against earlier text — re-collect before release.`;
 }
+
+export type ReleaseChecklistState = 'ready' | 'blocked' | 'waiting';
+
+export interface ReleaseChecklistItem {
+  id: string;
+  label: string;
+  detail: string;
+  state: ReleaseChecklistState;
+}
+
+/**
+ * Preflight checklist derived from `facilitator_get_release_readiness`.
+ * Shows what still blocks release as workflow states — not a single mystery error.
+ */
+export function buildReleaseReadinessChecklist(
+  readiness: ReleaseReadiness | null,
+): ReleaseChecklistItem[] {
+  if (!readiness) {
+    return [
+      {
+        id: 'load',
+        label: 'Release readiness',
+        detail: 'Could not load readiness from the server. Refresh and try again.',
+        state: 'blocked',
+      },
+    ];
+  }
+
+  const sessionEnded =
+    readiness.sessionStatus === 'ended' || readiness.sessionStatus === 'released';
+  const approvalsBound =
+    readiness.approvalsTotal > 0 &&
+    readiness.approvalsRejected === 0 &&
+    readiness.approvalsApproved - readiness.approvalsStale >= readiness.approvalsTotal &&
+    readiness.approvalsStale === 0;
+  const approvalsWaiting =
+    readiness.approvalsTotal > 0 &&
+    !approvalsBound &&
+    readiness.approvalsRejected === 0 &&
+    readiness.blockingReason !== 'CONTENT_CHANGED_AFTER_APPROVAL';
+
+  return [
+    {
+      id: 'session',
+      label: 'Session ended',
+      detail: sessionEnded
+        ? 'Session is closed — room dialogue stays in the room.'
+        : 'End the session before releasing the outcome.',
+      state: sessionEnded ? 'ready' : 'blocked',
+    },
+    {
+      id: 'summary',
+      label: 'Decision memo',
+      detail:
+        readiness.blockingReason === 'SUMMARY_REQUIRED'
+          ? 'Add a decision memo summary before release.'
+          : 'Summary is present on the instrument.',
+      state: readiness.blockingReason === 'SUMMARY_REQUIRED' ? 'blocked' : 'ready',
+    },
+    {
+      id: 'approvals',
+      label: 'Party approvals',
+      detail:
+        readiness.approvalsTotal === 0
+          ? 'Submit the draft for review so approvals can be recorded.'
+          : readiness.approvalsRejected > 0
+            ? `${readiness.approvalsRejected} dispute${readiness.approvalsRejected === 1 ? '' : 's'} recorded — resolve before release.`
+            : readiness.approvalsStale > 0
+              ? (staleApprovalNotice(readiness) ??
+                'Re-collect approvals on the current instrument text.')
+              : approvalsBound
+                ? `All ${readiness.approvalsTotal} parties approved this exact text.`
+                : `Waiting on review — ${readiness.approvalsApproved - readiness.approvalsStale} of ${readiness.approvalsTotal} bound approvals.`,
+      state:
+        readiness.approvalsTotal === 0 ||
+        readiness.approvalsRejected > 0 ||
+        readiness.approvalsStale > 0 ||
+        readiness.blockingReason === 'CONTENT_CHANGED_AFTER_APPROVAL'
+          ? 'blocked'
+          : approvalsBound
+            ? 'ready'
+            : approvalsWaiting
+              ? 'waiting'
+              : 'blocked',
+    },
+    {
+      id: 'verbatim',
+      label: 'Verbatim guard',
+      detail: readiness.verbatimConflict
+        ? 'Outcome text repeats room dialogue verbatim. Rewrite in facilitator-authored language.'
+        : 'No verbatim room-content conflict detected.',
+      state: readiness.verbatimConflict ? 'blocked' : 'ready',
+    },
+    {
+      id: 'attestation',
+      label: 'Authorship attestation',
+      detail:
+        readiness.blockingReason === 'ATTESTATION_STALE'
+          ? 'The instrument changed after attestation. Re-attest the current text.'
+          : readiness.authorshipAttested
+            ? 'Attestation is bound to the current instrument hash.'
+            : 'Record authorship attestation for this exact text before release.',
+      state:
+        readiness.blockingReason === 'ATTESTATION_STALE'
+          ? 'blocked'
+          : readiness.authorshipAttested
+            ? 'ready'
+            : 'blocked',
+    },
+  ];
+}
+
+/** Human label for approval row status on the release console. */
+export function approvalWorkflowLabel(
+  status: 'pending' | 'approved' | 'rejected' | string,
+): string {
+  if (status === 'approved') return 'Approved';
+  if (status === 'rejected') return 'Disputed';
+  return 'Pending review';
+}

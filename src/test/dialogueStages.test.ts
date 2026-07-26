@@ -4,6 +4,7 @@ import {
   nextDialogueStage,
   parseDialogueStage,
   previousDialogueStage,
+  participantNextActionHint,
   spinePhaseForSession,
   stageAllowsParticipantPost,
 } from '../lib/dialogueStages';
@@ -38,5 +39,26 @@ describe('dialogueStages', () => {
   it('falls back safely for unknown stage strings', () => {
     expect(parseDialogueStage('nope')).toBe('preparation');
     expect(parseDialogueStage('review')).toBe('review');
+  });
+
+  it('gives actionable next-step hints for waiting and room surfaces', () => {
+    expect(
+      participantNextActionHint('preparation', {
+        verificationStatus: 'pending',
+        roomReady: false,
+      }),
+    ).toMatch(/approve your verification/i);
+    expect(
+      participantNextActionHint('story', {
+        roomReady: true,
+        sessionStatus: 'live',
+      }),
+    ).toMatch(/Share your perspective/i);
+    expect(
+      participantNextActionHint('outcome_ready', {
+        sessionStatus: 'ended',
+        roomReady: true,
+      }),
+    ).toMatch(/review link/i);
   });
 });

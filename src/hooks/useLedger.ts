@@ -11,13 +11,27 @@ export type LedgerEntry = OutcomeRecordClient & {
 };
 
 /**
- * Public ledger reads name their columns: `facilitator_notes` is not granted to API
- * roles, and `select *` would be refused. See the release-provenance migration.
+ * Public ledger list columns. Keep this to fields that exist on both pre- and
+ * post-provenance schemas — requesting `timestamp_*` / `authorship_*` against an
+ * unmigrated project returns 400 and falsely surfaces as a load error.
+ * `facilitator_notes` must never be selected (revoked after provenance migration).
  */
 const LEDGER_SELECT =
   'id, session_id, summary, agreed_terms, pending_items, status, published_at, ledger_sha, ' +
-  'timestamp_status, authorship_attested_at, authorship_statement, created_at, updated_at, ' +
+  'created_at, updated_at, ' +
   'session:sessions!inner(title, conflict_type, language, outcome_public, status)';
+
+function ledgerFetchErrorMessage(err: unknown): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    const msg = String((err as { message?: unknown }).message ?? '');
+    if (/failed to fetch|networkerror|load failed|fetch/i.test(msg)) {
+      return 'Could not reach the ledger service. Check your connection and try again.';
+    }
+    if (msg.trim()) return msg;
+  }
+  if (err instanceof Error && err.message.trim()) return err.message;
+  return 'Could not load published records.';
+}
 
 export function useLedger(search = '') {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
@@ -29,6 +43,7 @@ export function useLedger(search = '') {
     setError(null);
 
     if (!isSupabaseConfigured()) {
+      // Honest empty register — specimens still render; not a fetch failure.
       setEntries([]);
       setError(null);
       setLoading(false);
@@ -50,13 +65,14 @@ export function useLedger(search = '') {
 
       const { data, error: qErr } = await query;
       if (qErr) {
-        setError(qErr.message);
+        setError(ledgerFetchErrorMessage(qErr));
         setEntries([]);
       } else {
         setEntries((data as unknown as LedgerEntry[]) ?? []);
+        setError(null);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not load ledger');
+      setError(ledgerFetchErrorMessage(e));
       setEntries([]);
     } finally {
       setLoading(false);
@@ -100,18 +116,19 @@ export function useLedgerRecord(outcomeId: string | undefined) {
           .eq('status', 'published')
           .eq('session.outcome_public', true)
           .eq('session.status', 'released')
-          .single();
+          .maybeSingle();
 
         if (cancelled) return;
         if (qErr) {
-          setError(qErr.message);
+          setError(ledgerFetchErrorMessage(qErr));
           setEntry(null);
         } else {
-          setEntry(data as unknown as LedgerEntry | null);
+          setEntry((data as unknown as LedgerEntry | null) ?? null);
+          setError(null);
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Could not load record');
+          setError(ledgerFetchErrorMessage(e));
           setEntry(null);
         }
       } finally {

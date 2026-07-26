@@ -22,15 +22,15 @@ export function ProcessStagePanel() {
             id="process-stages-h"
             className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
           >
-            Private room → release gate → public ledger
+            How the governed sequence works
           </h2>
           <p className="mt-3 mb-0 text-base leading-relaxed text-ink-secondary">
-            How a private mediation becomes a publicly verifiable outcome — without publishing the
-            conversation.
+            Three deliberate stages — private room, release decision, public ledger — each with an
+            owner and an exit condition. The conversation stays enclosed; only approved text can
+            leave.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
-            {USE_CASE_ARCHITECTURE_LINE}. Each transition has an owner, a boundary, and an exit
-            condition.
+            {USE_CASE_ARCHITECTURE_LINE}.
           </p>
         </div>
 

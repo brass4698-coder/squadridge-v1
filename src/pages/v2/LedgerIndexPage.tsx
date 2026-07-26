@@ -104,9 +104,13 @@ export function LedgerIndexPage() {
         </div>
         {error ? (
           <div className={`${publicShellInnerClass} pb-6`}>
-            <div className="flex flex-wrap items-center gap-3 rounded-[var(--sr-radius-md)] border border-sem-danger/30 bg-sem-danger-soft px-4 py-3 text-sm text-ink">
-              <p className="m-0">
-                Could not load published records. Illustrative specimens remain available.
+            <div
+              className="flex flex-wrap items-center gap-3 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/50 px-4 py-3 text-sm text-ink"
+              role="alert"
+            >
+              <p className="m-0 max-w-measure text-ink-secondary">
+                Live published records could not be loaded right now. Illustrative specimens below
+                are unaffected.
               </p>
               <button
                 type="button"

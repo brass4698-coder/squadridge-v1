@@ -5,6 +5,8 @@ import {
   releaseErrorMessage,
   shortContentSha,
   staleApprovalNotice,
+  buildReleaseReadinessChecklist,
+  approvalWorkflowLabel,
   type ReleaseReadiness,
 } from '../lib/releaseIntegrity';
 
@@ -57,5 +59,44 @@ describe('releaseIntegrity', () => {
     expect(staleApprovalNotice(readiness({ approvalsStale: 1 }))).toMatch(/1 approval recorded/i);
     expect(staleApprovalNotice(readiness({ approvalsStale: 2 }))).toMatch(/2 approvals recorded/i);
     expect(staleApprovalNotice(null)).toBeNull();
+  });
+
+  it('builds a release preflight checklist from readiness', () => {
+    const items = buildReleaseReadinessChecklist(
+      readiness({
+        sessionStatus: 'live',
+        authorshipAttested: false,
+        approvalsTotal: 2,
+        approvalsApproved: 1,
+        approvalsRejected: 0,
+        approvalsStale: 0,
+        canRelease: false,
+        blockingReason: 'APPROVALS_PENDING',
+      }),
+    );
+    expect(items.find((i) => i.id === 'session')?.state).toBe('blocked');
+    expect(items.find((i) => i.id === 'approvals')?.state).toBe('waiting');
+    expect(items.find((i) => i.id === 'attestation')?.state).toBe('blocked');
+    expect(items.find((i) => i.id === 'approvals')?.detail).toMatch(/Waiting on review/i);
+  });
+
+  it('marks party approvals ready when every bound approval is current', () => {
+    const items = buildReleaseReadinessChecklist(
+      readiness({
+        sessionStatus: 'ended',
+        authorshipAttested: true,
+        approvalsTotal: 2,
+        approvalsApproved: 2,
+        canRelease: true,
+        blockingReason: null,
+      }),
+    );
+    expect(items.every((i) => i.state === 'ready')).toBe(true);
+  });
+
+  it('labels disputed approvals clearly', () => {
+    expect(approvalWorkflowLabel('rejected')).toBe('Disputed');
+    expect(approvalWorkflowLabel('pending')).toBe('Pending review');
+    expect(approvalWorkflowLabel('approved')).toBe('Approved');
   });
 });

@@ -166,11 +166,29 @@
   --content-wide: 960px;
   --content-max: 1120px;
 
-  /* ── Glass ──────────────────────────────────────────────────────── */
+  /* ── Glass — surgical frost for chrome surfaces only ─────────────── */
   --sr-glass-bg: rgba(20, 22, 26, 0.78);
   --sr-glass-border: rgba(255, 255, 255, 0.08);
   --sr-glass-highlight: rgba(255, 255, 255, 0.04);
   --sr-glass-blur: 16px;
+
+  /* Modal / dialog scrim — dark tint over content behind the panel. */
+  --sr-glass-scrim: rgba(6, 8, 12, 0.5);
+  --sr-glass-scrim-blur: 12px;
+  /* Opaque-enough scrim when blur is unavailable / reduced-transparency. */
+  --sr-glass-scrim-solid: rgba(6, 8, 12, 0.74);
+
+  /* Mobile drawer / sidebar overlay panel sliding over content. */
+  --sr-glass-sidebar-bg: rgba(16, 17, 20, 0.85);
+
+  /* Floating toast card — subtle frost, semantic accent applied per type. */
+  --sr-glass-toast-bg: rgba(20, 22, 26, 0.72);
+
+  /* Very light tint for elevated floating summary panels (dark mode only). */
+  --sr-glass-elevated-tint: rgba(255, 255, 255, 0.06);
+
+  /* Solid fallback surface when transparency/blur is disabled. */
+  --sr-glass-solid: var(--sr-bg-elevated);
 
   /* ── Form surfaces ──────────────────────────────────────────────── */
   --sr-form-control-bg: color-mix(in oklch, var(--sr-bg-sunken) 88%, transparent);

@@ -44,13 +44,13 @@ export function NoLiveReleasesPanel({ className }: { className?: string }) {
     <section className={cn('sr-specimen-notice', className)} aria-labelledby="no-live-releases-h">
       <p className="sr-meta-label m-0">Register status</p>
       <h2 id="no-live-releases-h" className="mt-2 mb-0 text-base font-semibold text-ink">
-        No public releases published yet
+        No live released records yet
       </h2>
       <p className="mt-2 mb-0 max-w-measure text-sm leading-relaxed text-ink-secondary">
-        Every entry below is an illustrative specimen. Live entries appear only after a facilitator
-        releases an approved outcome and the releasing organisation opts into public publication —
-        private anchored records never appear here. We would rather show an empty register than a
-        populated fiction.
+        Every entry below is an illustrative specimen — not a live release. Live entries appear only
+        after a facilitator releases an approved outcome and the releasing organisation opts into
+        public publication. Private anchored records never appear here. We would rather show an
+        empty register than a populated fiction.
       </p>
     </section>
   );

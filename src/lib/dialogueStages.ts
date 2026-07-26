@@ -124,6 +124,36 @@ export function stageAllowsParticipantPost(stage: DialogueStage): boolean {
   return DIALOGUE_STAGE_CONFIGS[stage].allowParticipantPost;
 }
 
+/**
+ * Participant-facing next-step line for waiting / briefing / room chrome.
+ * Keeps stage map copy actionable without inventing facilitator intent.
+ */
+export function participantNextActionHint(
+  stage: DialogueStage,
+  opts?: {
+    sessionStatus?: string | null;
+    verificationStatus?: string | null;
+    roomReady?: boolean;
+  },
+): string {
+  if (opts?.verificationStatus === 'denied') {
+    return 'Participation was not approved. Contact your facilitator if this seems wrong.';
+  }
+  if (opts?.verificationStatus === 'pending') {
+    return 'Wait for the facilitator to approve your verification before the room opens.';
+  }
+  if (opts?.roomReady === false) {
+    return 'Wait for the facilitator to open the room, then enter when ready.';
+  }
+  if (opts?.sessionStatus === 'ended' || opts?.sessionStatus === 'released') {
+    return 'Room dialogue is closed. When review opens, use your review link to approve or dispute the draft.';
+  }
+  if (opts?.sessionStatus === 'paused') {
+    return 'The room is paused. Wait for the facilitator to resume, then follow the current stage.';
+  }
+  return DIALOGUE_STAGE_CONFIGS[stage].participantPrompt;
+}
+
 /** Map lifecycle status + dialogue stage onto the Configure→Verify→Facilitate→Release spine. */
 export function spinePhaseForSession(input: {
   status: string;

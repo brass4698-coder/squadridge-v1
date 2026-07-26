@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GovernedEntryNav } from '../../components/auth/GovernedEntryNav';
 import { GovernedEntryLayout } from '../../components/shell/GovernedEntryLayout';
 import { FormField } from '../../components/ui/FormField';
 import { FormPanel } from '../../components/ui/FormPanel';
 import { Input } from '../../components/ui/Input';
 import { copyForInviteReason } from '../../lib/inviteInvalidCopy';
+import { isDemoLoginEnabled } from '../../lib/demoLogin';
 import {
   DEMO_CREDENTIALS,
   validateGovernedCredential,
@@ -16,6 +18,7 @@ export function EnterCredentialPage() {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<CredentialValidation | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pasteHint, setPasteHint] = useState<string | null>(null);
 
   const errorCopy = useMemo(() => {
     if (!result || result.ok) return null;
@@ -40,10 +43,37 @@ export function EnterCredentialPage() {
     e.preventDefault();
     setBusy(true);
     setResult(null);
+    setPasteHint(null);
     const next = await validateGovernedCredential(value.trim());
     setResult(next);
     setBusy(false);
   }
+
+  async function pasteFromClipboard() {
+    setPasteHint(null);
+    if (!navigator.clipboard?.readText) {
+      setPasteHint(
+        'Clipboard paste is not available in this browser. Paste manually into the field.',
+      );
+      return;
+    }
+    try {
+      const text = await navigator.clipboard.readText();
+      const trimmed = text.trim();
+      if (!trimmed) {
+        setPasteHint('Clipboard was empty. Copy your invitation token, then try again.');
+        return;
+      }
+      setValue(trimmed);
+      setPasteHint('Pasted from clipboard.');
+    } catch {
+      setPasteHint(
+        'Could not read the clipboard. Allow paste permission, or paste the token manually.',
+      );
+    }
+  }
+
+  const showDemoCredentials = isDemoLoginEnabled();
 
   return (
     <GovernedEntryLayout title="Invitation credential">
@@ -73,13 +103,21 @@ export function EnterCredentialPage() {
               <Input
                 id="credential"
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                  setPasteHint(null);
+                }}
                 placeholder="Paste invitation hash or token"
                 autoComplete="off"
                 required
                 className="font-mono text-sm"
               />
             </FormField>
+            {pasteHint ? (
+              <p className="m-0 text-sm text-ink-secondary" role="status">
+                {pasteHint}
+              </p>
+            ) : null}
             <div className="flex flex-wrap gap-3">
               <button
                 type="submit"
@@ -91,14 +129,7 @@ export function EnterCredentialPage() {
               <button
                 type="button"
                 className="btn-institutional btn-institutional--ghost"
-                onClick={async () => {
-                  try {
-                    const text = await navigator.clipboard.readText();
-                    setValue(text.trim());
-                  } catch {
-                    /* paste permission denied */
-                  }
-                }}
+                onClick={() => void pasteFromClipboard()}
               >
                 Paste from clipboard
               </button>
@@ -154,6 +185,12 @@ export function EnterCredentialPage() {
           >
             <p className="m-0 font-medium text-ink">{errorCopy.title}</p>
             <p className="mt-2 mb-0 text-sm text-ink-secondary">{errorCopy.body}</p>
+            {result.reason === 'expired' ? (
+              <p className="mt-3 mb-0 text-sm text-ink-secondary">
+                Request a fresh invitation from your facilitator, or sign in if you already have an
+                account.
+              </p>
+            ) : null}
             {'primaryAction' in errorCopy && errorCopy.primaryAction ? (
               <Link
                 to={errorCopy.primaryAction.href}
@@ -165,23 +202,55 @@ export function EnterCredentialPage() {
           </div>
         ) : null}
 
-        <details className="mt-10 text-sm text-ink-faint">
-          <summary className="cursor-pointer text-ink-secondary">Demo credentials</summary>
-          <ul className="mt-2 list-disc pl-5">
-            {DEMO_CREDENTIALS.map((c) => (
-              <li key={c.token}>
-                <button
-                  type="button"
-                  className="font-mono text-brand underline-offset-2 hover:underline"
-                  onClick={() => setValue(c.token)}
-                >
-                  {c.token}
-                </button>{' '}
-                — {c.label}
-              </li>
-            ))}
-          </ul>
-        </details>
+        {showDemoCredentials ? (
+          <details className="mt-10 text-sm text-ink-faint">
+            <summary className="cursor-pointer text-ink-secondary">Demo credentials</summary>
+            <p className="mt-2 mb-0 text-xs leading-relaxed">
+              Local / staging shortcuts only. They validate in-browser and route to demo sign-in —
+              not production invitations.
+            </p>
+            <ul className="mt-2 list-disc pl-5">
+              {DEMO_CREDENTIALS.map((c) => (
+                <li key={c.token}>
+                  <button
+                    type="button"
+                    className="font-mono text-brand underline-offset-2 hover:underline"
+                    onClick={() => {
+                      setValue(c.token);
+                      setResult(null);
+                      setPasteHint(null);
+                    }}
+                  >
+                    {c.token}
+                  </button>{' '}
+                  — {c.label}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 mb-0 text-xs">
+              Try invalid/expired specimens:{' '}
+              <button
+                type="button"
+                className="font-mono text-brand underline-offset-2 hover:underline"
+                onClick={() => setValue('err-expired')}
+              >
+                err-expired
+              </button>
+              ,{' '}
+              <button
+                type="button"
+                className="font-mono text-brand underline-offset-2 hover:underline"
+                onClick={() => setValue('err-redeemed')}
+              >
+                err-redeemed
+              </button>
+            </p>
+          </details>
+        ) : null}
+
+        <div className="mt-10">
+          <GovernedEntryNav current="credential" />
+        </div>
       </div>
     </GovernedEntryLayout>
   );

@@ -262,6 +262,43 @@ a.sr-link-accent:hover,
     -webkit-backdrop-filter: blur(calc(var(--sr-glass-blur) * 1.5));
   }
 
+  /* Modal / dialog scrim — frosts the content behind a centered panel.
+     Solid-tint fallbacks live in the unlayered block at end of file. */
+  .sr-glass-scrim {
+    background: var(--sr-glass-scrim);
+    backdrop-filter: blur(var(--sr-glass-scrim-blur));
+    -webkit-backdrop-filter: blur(var(--sr-glass-scrim-blur));
+  }
+
+  /* Mobile drawer / sidebar overlay — frosted panel over page content. */
+  .sr-glass-sidebar {
+    background: var(--sr-glass-sidebar-bg);
+    border-color: var(--sr-glass-border);
+    box-shadow: var(--sr-shadow-lg);
+    backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+  }
+
+  /* Floating toast card — subtle frost; semantic left accent set per type
+     in the unlayered sonner block below. */
+  .sr-glass-toast {
+    background: var(--sr-glass-toast-bg);
+    border: 1px solid var(--sr-glass-border);
+    box-shadow: var(--sr-shadow-md);
+    backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+  }
+
+  /* Very light tint for elevated floating summary/KPI panels (dark only).
+     Never use on dense reading surfaces — see globals fallback block. */
+  .sr-glass-elevated {
+    background: color-mix(in oklch, var(--sr-glass-elevated-tint), var(--sr-bg-elevated));
+    border: 1px solid var(--sr-glass-border);
+    box-shadow: var(--sr-shadow-sm);
+    backdrop-filter: blur(calc(var(--sr-glass-blur) * 0.75));
+    -webkit-backdrop-filter: blur(calc(var(--sr-glass-blur) * 0.75));
+  }
+
   /* â”€â”€ Page / section soft header glow (marketing + app) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   .sr-page-glow {
     position: relative;
@@ -2073,4 +2110,86 @@ a.sr-link-accent:hover,
   }
 
   /* Respect the existing reduced-motion block above â€” no override. */
+}
+
+/* ====================================================================
+   Glass chrome - floating toasts (Sonner) + accessibility fallbacks
+
+   These rules are intentionally UNLAYERED so they win over both the
+   `@layer components` utilities above and Sonner's own injected stylesheet
+   without relying on source order. `!important` is scoped to the toast
+   surface because Sonner sets background via inline CSS variables.
+   ==================================================================== */
+
+/* Frosted toast card with a semantic left accent. Colour is paired with
+   the toast's icon + text, so state never relies on colour alone. */
+[data-sonner-toaster] [data-sonner-toast] {
+  background: var(--sr-glass-toast-bg) !important;
+  border: 1px solid var(--sr-glass-border) !important;
+  border-left: 3px solid var(--sr-ink-faint) !important;
+  color: var(--sr-ink) !important;
+  box-shadow: var(--sr-shadow-md) !important;
+  backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--sr-glass-blur)) saturate(140%);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='success'] {
+  border-left-color: var(--sr-success) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='error'] {
+  border-left-color: var(--sr-danger) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='warning'] {
+  border-left-color: var(--sr-warning) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type='info'] {
+  border-left-color: var(--sr-info) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: var(--sr-ink-secondary) !important;
+}
+
+/* Fallback: solid surfaces when blur is unsupported OR the user has
+   requested reduced transparency. Preserves WCAG AA readability by
+   dropping translucency for opaque elevated surfaces. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sr-glass,
+  .sr-glass-strong,
+  .sr-glass-sidebar,
+  .sr-glass-toast,
+  .sr-glass-elevated,
+  .nav-frosted,
+  [data-sonner-toaster] [data-sonner-toast] {
+    background: var(--sr-glass-solid) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .sr-glass-scrim {
+    background: var(--sr-glass-scrim-solid);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .sr-glass,
+  .sr-glass-strong,
+  .sr-glass-sidebar,
+  .sr-glass-toast,
+  .sr-glass-elevated,
+  .nav-frosted,
+  [data-sonner-toaster] [data-sonner-toast] {
+    background: var(--sr-glass-solid) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .sr-glass-scrim {
+    background: var(--sr-glass-scrim-solid) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
 }

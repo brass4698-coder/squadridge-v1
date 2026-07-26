@@ -250,7 +250,7 @@ export function HowItWorksPage() {
         body={CTA.closeHowItWorks}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

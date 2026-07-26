@@ -6,9 +6,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { isSupabaseConfigured } from '../lib';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 
-function signInHref(nextPath: string): string {
+function signInHref(nextPath: string, reason: 'link' | 'invalid' = 'link'): string {
   const next = nextPath !== '/' ? `next=${encodeURIComponent(nextPath)}&` : '';
-  return `/sign-in?${next}reason=link`;
+  return `/sign-in?${next}reason=${reason}`;
 }
 
 /**
@@ -18,6 +18,8 @@ export function AuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const explicitNext = searchParams.get('next');
+  const authError = searchParams.get('error');
+  const errorCode = searchParams.get('error_code');
   const { supabase, session, profile, roles, loading, initialized } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const navigated = useRef(false);
@@ -32,6 +34,13 @@ export function AuthCallbackPage() {
       }),
     [session, profile, roles, explicitNext],
   );
+
+  useEffect(() => {
+    if (!authError && !errorCode) return;
+    navigate(signInHref(nextPath === '/sign-in' ? '/' : nextPath, 'invalid'), {
+      replace: true,
+    });
+  }, [authError, errorCode, navigate, nextPath]);
 
   const attemptNavigation = useCallback(() => {
     if (navigated.current || !session || !initialized || loading) return;
@@ -58,7 +67,7 @@ export function AuthCallbackPage() {
       void supabase.auth.getSession().then(({ data: { session: s } }) => {
         if (!navigated.current && !s) {
           setError(
-            'We could not finish signing you in. The magic link may have expired or already been used—request a new link from Sign in.',
+            'We could not finish signing you in. The magic link may have expired or already been used — request a new link from Sign in.',
           );
         }
       });
@@ -75,6 +84,14 @@ export function AuthCallbackPage() {
       <div className="mx-auto max-w-copy px-gutter py-14 font-sans text-[0.95rem] text-ink-muted">
         Supabase is not configured.
       </div>
+    );
+  }
+
+  if (authError || errorCode) {
+    return (
+      <AccountPageShell>
+        <RouteSkeleton label="Returning to sign-in" />
+      </AccountPageShell>
     );
   }
 
@@ -103,8 +120,11 @@ export function AuthCallbackPage() {
       </h1>
       {error ? (
         <div className="mt-8 space-y-5">
-          <AccountPanel className="border border-amber/25 bg-amber/[0.04]">
-            <p className="mb-0 font-sans text-[0.9rem] leading-relaxed text-[#fcd9a8]" role="alert">
+          <AccountPanel className="border border-line bg-surface-sunken">
+            <p
+              className="mb-0 font-sans text-[0.9rem] leading-relaxed text-ink-secondary"
+              role="alert"
+            >
               {error}
             </p>
           </AccountPanel>
@@ -112,7 +132,7 @@ export function AuthCallbackPage() {
             Passwordless accounts only—we&apos;ll email you a new one-time link.
           </p>
           <Link
-            to={signInHref(nextPath)}
+            to={signInHref(nextPath, 'invalid')}
             className="inline-flex font-sans text-[0.9rem] font-medium text-teal-light underline-offset-4 hover:underline"
           >
             Back to sign in

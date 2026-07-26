@@ -73,22 +73,29 @@ export function formatDisplayDate(isoOrDate: string | Date): string {
 }
 
 /**
- * Chip order: ILLUSTRATIVE|PUBLISHED → ANCHOR VERIFIED → RECORD ID
+ * Chip order: ILLUSTRATIVE|PUBLISHED → anchor status → RECORD ID
  * (then pending/superseded variants). ID appears once — top chip only.
+ * Specimens must not reuse the live “Anchor verified” label — that reads as a
+ * real integrity check; use an honest non-verifiable specimen chip instead.
  */
 export function getStatusChips(
   specimen: Pick<LedgerSpecimen, 'id' | 'specimenType' | 'status'>,
 ): StatusChip[] {
   const chips: StatusChip[] = [];
+  const isSpecimen = specimen.specimenType === 'illustrative' || specimen.specimenType === 'demo';
 
-  if (specimen.specimenType === 'illustrative' || specimen.specimenType === 'demo') {
+  if (isSpecimen) {
     chips.push({ kind: 'illustrative', label: 'Illustrative' });
   } else if (specimen.specimenType === 'live') {
     chips.push({ kind: 'published', label: 'Published' });
   }
 
   if (specimen.status === 'anchor-verified') {
-    chips.push({ kind: 'anchor-verified', label: 'Anchor verified' });
+    chips.push(
+      isSpecimen
+        ? { kind: 'illustrative', label: 'Specimen (not verifiable)' }
+        : { kind: 'anchor-verified', label: 'Anchor verified' },
+    );
   } else if (specimen.status === 'pending') {
     chips.push({ kind: 'pending', label: 'Pending' });
   } else if (specimen.status === 'superseded') {

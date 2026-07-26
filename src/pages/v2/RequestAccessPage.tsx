@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FormField } from '../../components/ui/FormField';
 import { FormPanel } from '../../components/ui/FormPanel';
@@ -11,7 +11,10 @@ import { CTA, PILOT_FIT_STRONG, PILOT_FIT_WEAK } from '../../data/siteMessaging'
 import { BUYER_TRACK_INTAKE, type BuyerTrackParam } from '../../data/useCases';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { SectionLabel } from '../../components/SectionLabel';
+import { getPublicContactEmail } from '../../lib/env';
 import { cn } from '../../lib/cn';
+
+const DRAFT_STORAGE_KEY = 'sr.pilot-intake.draft.v1';
 
 function resolveBuyerTrack(raw: string | null): BuyerTrackParam | null {
   if (raw === 'foundations' || raw === 'peacebuilding' || raw === 'hr') return raw;
@@ -77,8 +80,8 @@ const AFTER_SUBMIT_STEPS = [
 
 const FORM_SECTIONS = [
   { id: 'contact', label: 'Contact' },
-  { id: 'matter', label: 'Matter context' },
-  { id: 'scope', label: 'Pilot scope' },
+  { id: 'matter', label: 'Matter' },
+  { id: 'additional', label: 'Additional' },
 ] as const;
 
 const TRUST_RAIL = [
@@ -115,18 +118,60 @@ const REQUIRED_KEYS: FormKey[] = [
   'organisation',
   'email',
   'role',
-  'orgType',
-  'orgSize',
   'matterType',
-  'mediationVolume',
-  'facilitatorCount',
-  'participants',
-  'region',
-  'sensitivity',
-  'publicRecord',
-  'timeframe',
   'painPoints',
 ];
+
+const EMPTY_FORM: FormState = {
+  name: '',
+  organisation: '',
+  email: '',
+  role: '',
+  orgType: '',
+  orgSize: '',
+  matterType: '',
+  mediationVolume: '',
+  facilitatorCount: '',
+  participants: '',
+  region: '',
+  sensitivity: '',
+  publicRecord: '',
+  painPoints: '',
+  timeframe: '',
+  phone: '',
+  buyerTrack: '',
+};
+
+function readDraft(): FormState | null {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<FormState>;
+    return { ...EMPTY_FORM, ...parsed };
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(form: FormState) {
+  try {
+    sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(form));
+  } catch {
+    /* private mode / quota */
+  }
+}
+
+function clearDraft() {
+  try {
+    sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function formHasContent(form: FormState): boolean {
+  return (Object.keys(form) as FormKey[]).some((k) => form[k].trim().length > 0);
+}
 
 /**
  * Institutional pilot intake console.
@@ -138,27 +183,46 @@ export function RequestAccessPage() {
   const buyerTrack = resolveBuyerTrack(searchParams.get('track'));
   const trackDefaults = buyerTrack ? BUYER_TRACK_INTAKE[buyerTrack] : null;
   const { submit, loading, error, submitted } = useAccessRequest();
-  const [form, setForm] = useState<FormState>({
-    name: '',
-    organisation: '',
-    email: prefilledEmail,
-    role: '',
-    orgType: trackDefaults?.orgType ?? '',
-    orgSize: '',
-    matterType: trackDefaults?.matterType ?? '',
-    mediationVolume: '',
-    facilitatorCount: '',
-    participants: '',
-    region: '',
-    sensitivity: '',
-    publicRecord: '',
-    painPoints: '',
-    timeframe: '',
-    phone: '',
-    buyerTrack: buyerTrack ?? '',
+  const contactEmail = getPublicContactEmail() ?? 'hello@squadridge.com';
+  const [form, setForm] = useState<FormState>(() => {
+    const draft = typeof window !== 'undefined' ? readDraft() : null;
+    return {
+      ...EMPTY_FORM,
+      ...draft,
+      email: prefilledEmail || draft?.email || '',
+      orgType: trackDefaults?.orgType ?? draft?.orgType ?? '',
+      matterType: trackDefaults?.matterType ?? draft?.matterType ?? '',
+      buyerTrack: buyerTrack ?? draft?.buyerTrack ?? '',
+    };
   });
   const [touched, setTouched] = useState<Partial<Record<FormKey, boolean>>>({});
   const [attempted, setAttempted] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(() => Boolean(readDraft()));
+
+  useEffect(() => {
+    if (submitted) {
+      clearDraft();
+      return;
+    }
+    if (!formHasContent(form)) {
+      clearDraft();
+      setDraftRestored(false);
+      return;
+    }
+    writeDraft(form);
+    setDraftRestored(true);
+  }, [form, submitted]);
+
+  useEffect(() => {
+    if (submitted) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!formHasContent(form)) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [form, submitted]);
 
   function set(key: FormKey, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -179,23 +243,28 @@ export function RequestAccessPage() {
   }
 
   const contactKeys: FormKey[] = ['name', 'organisation', 'email', 'role'];
-  const matterKeys: FormKey[] = [
+  const matterKeys: FormKey[] = ['matterType', 'painPoints'];
+  const additionalKeys: FormKey[] = [
     'orgType',
     'orgSize',
-    'matterType',
     'mediationVolume',
     'facilitatorCount',
     'participants',
     'region',
     'sensitivity',
+    'publicRecord',
+    'timeframe',
   ];
-  const scopeKeys: FormKey[] = ['publicRecord', 'timeframe', 'painPoints'];
 
   const sectionStatus = [
     sectionComplete(contactKeys),
     sectionComplete(matterKeys),
-    sectionComplete(scopeKeys),
+    additionalKeys.some((k) => form[k].trim().length > 0),
   ];
+  const completedSections = [sectionComplete(contactKeys), sectionComplete(matterKeys)].filter(
+    Boolean,
+  ).length;
+  const progressTotal = 2;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -212,16 +281,16 @@ export function RequestAccessPage() {
       form.painPoints.trim(),
       form.buyerTrack ? `Buyer track: ${form.buyerTrack}` : '',
       `Role in process: ${form.role}`,
-      `Organization type: ${form.orgType}`,
-      `Organization size: ${form.orgSize}`,
       `Matter type: ${form.matterType}`,
-      `Mediation / matter volume: ${form.mediationVolume}`,
-      `Facilitators available: ${form.facilitatorCount}`,
-      `Estimated participants: ${form.participants}`,
-      `Region / geography: ${form.region}`,
-      `Sensitivity level: ${form.sensitivity}`,
-      `Public record may be needed: ${form.publicRecord}`,
-      `Desired pilot timeframe: ${form.timeframe}`,
+      form.orgType ? `Organization type: ${form.orgType}` : '',
+      form.orgSize ? `Organization size: ${form.orgSize}` : '',
+      form.mediationVolume ? `Mediation / matter volume: ${form.mediationVolume}` : '',
+      form.facilitatorCount ? `Facilitators available: ${form.facilitatorCount}` : '',
+      form.participants ? `Estimated participants: ${form.participants}` : '',
+      form.region ? `Region / geography: ${form.region}` : '',
+      form.sensitivity ? `Sensitivity level: ${form.sensitivity}` : '',
+      form.publicRecord ? `Public record may be needed: ${form.publicRecord}` : '',
+      form.timeframe ? `Desired pilot timeframe: ${form.timeframe}` : '',
       form.phone ? `Contact phone: ${form.phone}` : '',
     ]
       .filter(Boolean)
@@ -243,17 +312,37 @@ export function RequestAccessPage() {
           <FormPanel
             className="max-w-lg"
             eyebrow="Intake"
-            title="Submission received"
-            description="Manual review. Expect a response within 5–7 business days — not an automated approval."
+            title="Thank you — submission received"
+            description="A human reviews every application. Expect a response within 5–7 business days — not an automated approval or live status tracker."
             footer="We reduce exposure by design. We do not claim full platform zero-knowledge or Signal-grade E2E today."
           >
-            <div className="space-y-3 text-sm text-ink-secondary">
-              <p className="m-0 font-medium text-ink">Possible next steps from the review team</p>
-              <ul className="m-0 list-disc space-y-1 pl-5">
-                <li>Additional diligence required</li>
-                <li>Briefing recommended before review</li>
-                <li>Not a fit at this stage</li>
-              </ul>
+            <div className="space-y-4 text-sm text-ink-secondary">
+              <div>
+                <p className="m-0 font-medium text-ink">What happens next</p>
+                <ol className="mt-2 mb-0 list-decimal space-y-1.5 pl-5">
+                  <li>Manual fit and sensitivity review (typically 5–7 business days).</li>
+                  <li>Possible request for a short briefing before any invitations.</li>
+                  <li>Scoped next step if there is a clear pilot fit — or an honest decline.</li>
+                </ol>
+              </div>
+              <div>
+                <p className="m-0 font-medium text-ink">Possible outcomes</p>
+                <ul className="mt-2 mb-0 list-disc space-y-1 pl-5">
+                  <li>Additional diligence required</li>
+                  <li>Briefing recommended before review</li>
+                  <li>Not a fit at this stage</li>
+                </ul>
+              </div>
+              <p className="m-0">
+                Follow up:{' '}
+                <a
+                  href={`mailto:${contactEmail}?subject=${encodeURIComponent('Pilot intake follow-up')}`}
+                  className="text-brand underline-offset-4 hover:underline"
+                >
+                  {contactEmail}
+                </a>
+                . There is no self-serve status page for this intake.
+              </p>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/" className="btn-institutional btn-institutional--ghost">
@@ -369,8 +458,41 @@ export function RequestAccessPage() {
           <FormPanel
             eyebrow="Application"
             title="Pilot application"
-            description="Share enough context for deliberate review. Fields marked optional can be left blank."
+            description="First-touch essentials only. Strong-fit / not-a-fit guidance above already prequalifies — volume and sensitivity details can wait for follow-up."
           >
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <p className="m-0 text-sm text-ink-secondary" aria-live="polite">
+                Required sections:{' '}
+                <span className="font-medium text-ink">
+                  {completedSections} of {progressTotal} complete
+                </span>
+              </p>
+              {draftRestored && formHasContent(form) ? (
+                <p className="m-0 text-xs text-ink-faint" role="status">
+                  Draft saved in this browser tab
+                  <button
+                    type="button"
+                    className="ml-2 text-brand underline-offset-2 hover:underline"
+                    onClick={() => {
+                      clearDraft();
+                      setForm({
+                        ...EMPTY_FORM,
+                        email: prefilledEmail,
+                        orgType: trackDefaults?.orgType ?? '',
+                        matterType: trackDefaults?.matterType ?? '',
+                        buyerTrack: buyerTrack ?? '',
+                      });
+                      setDraftRestored(false);
+                      setTouched({});
+                      setAttempted(false);
+                    }}
+                  >
+                    Clear draft
+                  </button>
+                </p>
+              ) : null}
+            </div>
+
             <nav aria-label="Application sections" className="mb-6">
               <ol className="m-0 flex list-none flex-wrap items-center gap-x-3 gap-y-2 p-0 text-sm">
                 {FORM_SECTIONS.map((section, i) => (
@@ -517,252 +639,37 @@ export function RequestAccessPage() {
 
               <fieldset id="section-matter" className="m-0 min-w-0 border-0 p-0">
                 <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
-                  Matter context
+                  Matter
                 </legend>
                 <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      id="orgType"
-                      label="Organization type"
-                      error={fieldInvalid('orgType') ? 'Select an organization type.' : undefined}
-                    >
-                      <Select
-                        id="orgType"
-                        name="orgType"
-                        required
-                        value={form.orgType}
-                        onChange={(e) => set('orgType', e.target.value)}
-                        onBlur={() => markTouched('orgType')}
-                      >
-                        <option value="">Select…</option>
-                        {ORG_TYPES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField
-                      id="orgSize"
-                      label="Organization size"
-                      error={fieldInvalid('orgSize') ? 'Select an organization size.' : undefined}
-                    >
-                      <Select
-                        id="orgSize"
-                        name="orgSize"
-                        required
-                        value={form.orgSize}
-                        onChange={(e) => set('orgSize', e.target.value)}
-                        onBlur={() => markTouched('orgSize')}
-                      >
-                        <option value="">Select…</option>
-                        {ORG_SIZES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
+                  <FormField
+                    id="matterType"
+                    label="Matter type"
+                    error={fieldInvalid('matterType') ? 'Select a matter type.' : undefined}
+                  >
+                    <Select
                       id="matterType"
-                      label="Matter type"
-                      error={fieldInvalid('matterType') ? 'Select a matter type.' : undefined}
+                      name="matterType"
+                      required
+                      value={form.matterType}
+                      onChange={(e) => set('matterType', e.target.value)}
+                      onBlur={() => markTouched('matterType')}
                     >
-                      <Select
-                        id="matterType"
-                        name="matterType"
-                        required
-                        value={form.matterType}
-                        onChange={(e) => set('matterType', e.target.value)}
-                        onBlur={() => markTouched('matterType')}
-                      >
-                        <option value="">Select…</option>
-                        {MATTER_TYPES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField
-                      id="mediationVolume"
-                      label="Mediation / matter volume"
-                      hint="Approximate annual volume for the unit that would pilot."
-                      error={
-                        fieldInvalid('mediationVolume')
-                          ? 'Select mediation or matter volume.'
-                          : undefined
-                      }
-                    >
-                      <Select
-                        id="mediationVolume"
-                        name="mediationVolume"
-                        required
-                        value={form.mediationVolume}
-                        onChange={(e) => set('mediationVolume', e.target.value)}
-                        onBlur={() => markTouched('mediationVolume')}
-                      >
-                        <option value="">Select…</option>
-                        {MEDIATION_VOLUME.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      id="facilitatorCount"
-                      label="Facilitators available"
-                      hint="People who would run governed rooms in a pilot."
-                      error={
-                        fieldInvalid('facilitatorCount')
-                          ? 'Select facilitator capacity.'
-                          : undefined
-                      }
-                    >
-                      <Select
-                        id="facilitatorCount"
-                        name="facilitatorCount"
-                        required
-                        value={form.facilitatorCount}
-                        onChange={(e) => set('facilitatorCount', e.target.value)}
-                        onBlur={() => markTouched('facilitatorCount')}
-                      >
-                        <option value="">Select…</option>
-                        {FACILITATOR_COUNTS.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField
-                      id="participants"
-                      label="Participants per room"
-                      hint="Estimated number for a typical pilot room."
-                      error={
-                        fieldInvalid('participants') ? 'Enter estimated participants.' : undefined
-                      }
-                    >
-                      <Input
-                        id="participants"
-                        name="participants"
-                        required
-                        value={form.participants}
-                        onChange={(e) => set('participants', e.target.value)}
-                        onBlur={() => markTouched('participants')}
-                        placeholder="e.g. 6–12"
-                      />
-                    </FormField>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      id="region"
-                      label="Region"
-                      hint="Operating geography for the matter."
-                      error={fieldInvalid('region') ? 'Enter a region.' : undefined}
-                    >
-                      <Input
-                        id="region"
-                        name="region"
-                        required
-                        value={form.region}
-                        onChange={(e) => set('region', e.target.value)}
-                        onBlur={() => markTouched('region')}
-                      />
-                    </FormField>
-                    <FormField
-                      id="sensitivity"
-                      label="Sensitivity level"
-                      hint="Helps reviewers scope diligence — not a public classification."
-                      error={
-                        fieldInvalid('sensitivity') ? 'Select a sensitivity level.' : undefined
-                      }
-                    >
-                      <Select
-                        id="sensitivity"
-                        name="sensitivity"
-                        required
-                        value={form.sensitivity}
-                        onChange={(e) => set('sensitivity', e.target.value)}
-                        onBlur={() => markTouched('sensitivity')}
-                      >
-                        <option value="">Select…</option>
-                        {SENSITIVITY.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
-                </div>
-              </fieldset>
-
-              <fieldset id="section-scope" className="m-0 min-w-0 border-0 p-0">
-                <legend className="mb-4 w-full border-b border-line pb-2 font-heading text-base font-medium text-ink">
-                  Pilot scope
-                </legend>
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      id="publicRecord"
-                      label="Public record needed?"
-                      hint="Private anchored memos are the pilot default; public ledger is optional."
-                      error={
-                        fieldInvalid('publicRecord')
-                          ? 'Indicate whether a public record may be needed.'
-                          : undefined
-                      }
-                    >
-                      <Select
-                        id="publicRecord"
-                        name="publicRecord"
-                        required
-                        value={form.publicRecord}
-                        onChange={(e) => set('publicRecord', e.target.value)}
-                        onBlur={() => markTouched('publicRecord')}
-                      >
-                        <option value="">Select…</option>
-                        {PUBLIC_RECORD.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                    <FormField
-                      id="timeframe"
-                      label="Pilot timeframe"
-                      error={fieldInvalid('timeframe') ? 'Select a timeframe.' : undefined}
-                    >
-                      <Select
-                        id="timeframe"
-                        name="timeframe"
-                        required
-                        value={form.timeframe}
-                        onChange={(e) => set('timeframe', e.target.value)}
-                        onBlur={() => markTouched('timeframe')}
-                      >
-                        <option value="">Select…</option>
-                        {TIMEFRAMES.map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormField>
-                  </div>
+                      <option value="">Select…</option>
+                      {MATTER_TYPES.map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormField>
                   <FormField
                     id="painPoints"
-                    label="Current tools or pain points"
+                    label="Why now — matter context"
+                    hint="Briefly describe the situation, current tools, and what is breaking down."
                     error={
                       fieldInvalid('painPoints')
-                        ? 'Briefly describe current tools or pain points.'
+                        ? 'Briefly describe why you are requesting a pilot now.'
                         : undefined
                     }
                   >
@@ -774,15 +681,174 @@ export function RequestAccessPage() {
                       value={form.painPoints}
                       onChange={(e) => set('painPoints', e.target.value)}
                       onBlur={() => markTouched('painPoints')}
-                      placeholder="Briefly describe your current workflow, constraints, or what is breaking down."
+                      placeholder="Matter context, constraints, and why a governed written room is needed."
                     />
                   </FormField>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      id="participants"
+                      label="Participants per room"
+                      hint="Optional estimate for a typical pilot room."
+                    >
+                      <Input
+                        id="participants"
+                        name="participants"
+                        value={form.participants}
+                        onChange={(e) => set('participants', e.target.value)}
+                        placeholder="e.g. 6–12"
+                      />
+                    </FormField>
+                    <FormField id="timeframe" label="Pilot timeframe" hint="Optional">
+                      <Select
+                        id="timeframe"
+                        name="timeframe"
+                        value={form.timeframe}
+                        onChange={(e) => set('timeframe', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {TIMEFRAMES.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
                 </div>
               </fieldset>
 
+              <details
+                id="section-additional"
+                className="rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/20 px-4 py-3"
+              >
+                <summary className="cursor-pointer list-none font-heading text-base font-medium text-ink [&::-webkit-details-marker]:hidden">
+                  <span className="inline-flex items-center gap-2">
+                    Additional context
+                    <span className="font-mono text-[length:var(--text-label)] font-normal uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                      Optional — for follow-up
+                    </span>
+                  </span>
+                </summary>
+                <p className="mt-2 mb-4 text-sm text-ink-secondary">
+                  Volume, sensitivity, and facilitator capacity can wait for human review. Fill only
+                  if useful now.
+                </p>
+                <div className="space-y-4 pb-2">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField id="orgType" label="Organization type">
+                      <Select
+                        id="orgType"
+                        name="orgType"
+                        value={form.orgType}
+                        onChange={(e) => set('orgType', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {ORG_TYPES.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                    <FormField id="orgSize" label="Organization size">
+                      <Select
+                        id="orgSize"
+                        name="orgSize"
+                        value={form.orgSize}
+                        onChange={(e) => set('orgSize', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {ORG_SIZES.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField id="mediationVolume" label="Mediation / matter volume">
+                      <Select
+                        id="mediationVolume"
+                        name="mediationVolume"
+                        value={form.mediationVolume}
+                        onChange={(e) => set('mediationVolume', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {MEDIATION_VOLUME.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                    <FormField id="facilitatorCount" label="Facilitators available">
+                      <Select
+                        id="facilitatorCount"
+                        name="facilitatorCount"
+                        value={form.facilitatorCount}
+                        onChange={(e) => set('facilitatorCount', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {FACILITATOR_COUNTS.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField id="region" label="Region">
+                      <Input
+                        id="region"
+                        name="region"
+                        value={form.region}
+                        onChange={(e) => set('region', e.target.value)}
+                      />
+                    </FormField>
+                    <FormField id="sensitivity" label="Sensitivity level">
+                      <Select
+                        id="sensitivity"
+                        name="sensitivity"
+                        value={form.sensitivity}
+                        onChange={(e) => set('sensitivity', e.target.value)}
+                      >
+                        <option value="">Select…</option>
+                        {SENSITIVITY.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormField>
+                  </div>
+                  <FormField
+                    id="publicRecord"
+                    label="Public record needed?"
+                    hint="Private anchored memos are the pilot default; public ledger is optional."
+                  >
+                    <Select
+                      id="publicRecord"
+                      name="publicRecord"
+                      value={form.publicRecord}
+                      onChange={(e) => set('publicRecord', e.target.value)}
+                    >
+                      <option value="">Select…</option>
+                      {PUBLIC_RECORD.map((o) => (
+                        <option key={o} value={o}>
+                          {o}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormField>
+                </div>
+              </details>
+
               <div className="space-y-3 border-t border-line pt-6">
                 <p className="m-0 text-sm leading-relaxed text-ink-secondary">
-                  Manual review only. No open invitations are issued before approval.
+                  Manual review only. No open invitations are issued before approval. Leaving this
+                  page keeps a draft in this browser tab until you submit or clear it.
                 </p>
                 <button
                   type="submit"

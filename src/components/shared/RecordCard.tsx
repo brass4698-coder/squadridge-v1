@@ -24,28 +24,29 @@ export interface RecordCardProps {
 }
 
 function chipForKind(chip: StatusChip) {
+  const key = `${chip.kind}:${chip.label}`;
   if (chip.kind === 'illustrative' || chip.kind === 'pending' || chip.kind === 'superseded') {
     return (
-      <StatusBadge key={chip.kind} variant="illustrative">
+      <StatusBadge key={key} variant="illustrative">
         {chip.label}
       </StatusBadge>
     );
   }
   if (chip.kind === 'published') {
     return (
-      <StatusBadge key={chip.kind} variant="published">
+      <StatusBadge key={key} variant="published">
         {chip.label}
       </StatusBadge>
     );
   }
   if (chip.kind === 'anchor-verified') {
     return (
-      <StatusBadge key={chip.kind} variant="anchor">
+      <StatusBadge key={key} variant="anchor">
         {chip.label}
       </StatusBadge>
     );
   }
-  return <RecordAnchorBadge key={chip.kind} recordId={chip.label} />;
+  return <RecordAnchorBadge key={key} recordId={chip.label} />;
 }
 
 function specimenLikeChips(
@@ -122,7 +123,9 @@ function RecordCardInner({
     <article
       className={cn(
         'sr-ledger-card overflow-hidden',
-        variant === 'live' ? 'sr-ledger-card--published' : 'sr-ledger-card--illustrative',
+        variant === 'live'
+          ? 'sr-ledger-card--published'
+          : 'sr-ledger-card--illustrative sr-specimen-surface',
       )}
     >
       <header className="border-b border-line sr-registry-pad">
@@ -213,7 +216,9 @@ export function RecordCardCompact({
     <article
       className={cn(
         'sr-ledger-card sr-registry-card',
-        variant === 'live' ? 'sr-ledger-card--published' : 'sr-ledger-card--illustrative',
+        variant === 'live'
+          ? 'sr-ledger-card--published'
+          : 'sr-ledger-card--illustrative sr-specimen-surface',
       )}
     >
       <div className="flex flex-col gap-3">

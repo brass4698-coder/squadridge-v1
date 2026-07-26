@@ -38,8 +38,8 @@ export function UseCasesPage() {
         lead={
           <>
             <p>
-              Private deliberation with facilitator-governed release — shown in a few serious
-              institutional settings.
+              Private deliberation with facilitator-governed release — shown across three primary
+              and two adjacent contexts (five bounded settings).
             </p>
             <p className="mt-3 mb-0 text-sm text-ink-faint">
               Same pattern throughout: room stays closed; only the approved outcome can leave. For
@@ -94,11 +94,11 @@ export function UseCasesPage() {
               id="primary-tracks-h"
               className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
             >
-              Three institutional problems
+              Three primary tracks
             </h2>
             <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
               Each track uses the same architecture — different matter class, same release
-              discipline.
+              discipline. Two adjacent contexts follow below.
             </p>
           </div>
           <div className="mt-10 flex flex-col gap-10 md:mt-12 md:gap-12">
@@ -125,8 +125,12 @@ export function UseCasesPage() {
               id="adjacent-h"
               className="mt-0 font-heading text-h3 font-semibold tracking-tight text-ink"
             >
-              Also a natural fit
+              Two adjacent contexts
             </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Natural extensions of the same model — not a second track system. Together with the
+              three primary tracks: five bounded contexts.
+            </p>
           </div>
           <ul className="mt-8 m-0 grid list-none gap-8 p-0 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-8">
             {secondaryUseCases.map((uc) => (
@@ -141,7 +145,7 @@ export function UseCasesPage() {
         body={CTA.closeUseCases}
         secondaryLabel={CTA.secondaryProcess}
         secondaryHref={CTA.secondaryProcessHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

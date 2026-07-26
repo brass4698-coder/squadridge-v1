@@ -5,7 +5,7 @@
  * Private room for hard issues; public clarity without the conversation.
  */
 export const SITE_MISSION =
-  'People need a private room to resolve hard issues. The public needs a clear outcome, not the conversation.';
+  'People need a private room to work through hard issues. When resolution is reached, the public can see a clear approved outcome — not the conversation.';
 
 export const SITE_THESIS =
   'SquadRidge is facilitator-led infrastructure for structured private deliberation: a small group of relevant people works through a sensitive issue in a controlled written room, and only an approved outcome can leave as a public record.';
@@ -15,12 +15,16 @@ export const SITE_THESIS_SHORT = 'Private room. Structured participation. Approv
 /** Canonical category — repeat sparingly as the product noun, not as a slogan. */
 export const SITE_CATEGORY = 'Private deliberation infrastructure';
 
+/** Plain-English companion under the category noun for first-time visitors. */
+export const SITE_CATEGORY_PLAIN =
+  'A governed written room for sensitive matters — and a citable public outcome only when release is deliberate.';
+
 /** Hero / category lead — prefer SITE_MISSION; keep alias for existing imports. */
 export const SITE_CATEGORY_PROMISE = SITE_MISSION;
 
 /** Market gap — one line; do not restate the full room→gate→record spine beside it. */
 export const SITE_NICHE =
-  'Chat keeps the conversation private but leaves no trusted record. Public systems publish too much. SquadRidge separates the two.';
+  'Built for NGO, peacebuilding, and institutional facilitators who need privacy in the room and integrity in the record — without treating chat as the archive.';
 
 /** Why this category matters now — precise, non-speculative. */
 export const SITE_WHY_NOW =
@@ -106,6 +110,8 @@ export const CTA = {
     'Need deck access for diligence? Request briefing access — materials stay gated until there is a clear review reason.',
   /** Honest status — never invent organisation counts. */
   pilotStatusLine: 'Invite-only · scoped private pilots · manual fit review',
+  /** Shorter status for pages that already state fit-review elsewhere. */
+  pilotStatusLineShort: 'Invite-only · scoped private pilots',
   pilotValueLine:
     'For foundations, NGOs, and facilitators handling high-stakes matters — not open signup.',
   briefingHeadline: 'Request briefing',

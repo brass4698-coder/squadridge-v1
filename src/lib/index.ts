@@ -32,6 +32,7 @@ export * from './queryKeys';
 export * from './rateLimitEdge';
 export * from './realtimeTelemetry';
 export * from './sendQueue';
+export * from './sendSessionInvite';
 export * from './sessionClaim';
 export * from './sentry';
 export * from './squad';

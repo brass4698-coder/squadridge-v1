@@ -69,7 +69,7 @@ export function SessionTimeoutWarning() {
       className="fixed inset-0 z-[60] flex items-center justify-center px-4"
     >
       <div
-        className="absolute inset-0 bg-ink/50"
+        className="sr-glass-scrim absolute inset-0"
         aria-hidden="true"
         onClick={() => void keepSignedIn()}
       />

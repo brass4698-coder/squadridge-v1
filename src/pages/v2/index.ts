@@ -11,6 +11,7 @@ export { LandingPage } from './LandingPage';
 export { LedgerIndexPage } from './LedgerIndexPage';
 export { LedgerRecordPage } from './LedgerRecordPage';
 export { LiveRoomPage } from './LiveRoomPage';
+export { MaintenancePage } from './MaintenancePage';
 export { NotFoundPage } from './NotFoundPage';
 export { OutcomeDraftingPage } from './OutcomeDraftingPage';
 export { ParticipantInvitePage } from './ParticipantInvitePage';

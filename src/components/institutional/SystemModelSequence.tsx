@@ -147,48 +147,68 @@ function WalkthroughSequence() {
         <span key={`anchor-${s.id}`} id={s.anchorId} className="sr-only" aria-hidden />
       ))}
 
-      {/* Desktop / tablet: persistent top tab rail */}
-      <div
-        role="tablist"
-        aria-label="Governed sequence stages"
-        className="hidden border-b border-line sm:grid sm:grid-cols-3"
-      >
-        {STAGES.map((s, index) => {
-          const isActive = index === active;
-          return (
-            <button
-              key={s.id}
-              type="button"
-              role="tab"
-              id={`${tabIds}-tab-${s.id}`}
-              aria-selected={isActive}
-              aria-controls={panelId}
-              tabIndex={isActive ? 0 : -1}
-              ref={(el) => {
-                tabRefs.current[index] = el;
-              }}
-              onClick={() => select(index)}
-              onKeyDown={(e) => onTabKeyDown(e, index)}
-              className={`flex flex-col gap-2 border-r border-line px-4 py-4 text-left last:border-r-0 transition-colors duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--sr-primary)] ${
-                isActive
-                  ? 'bg-[color:var(--sr-bg-elevated)]'
-                  : 'bg-transparent hover:bg-[color:var(--sr-bg-elevated)]/50'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-xs tabular-nums text-ink-faint">{s.num}</span>
-                <StatusBadge variant={s.badgeVariant}>{s.chipLabel}</StatusBadge>
-              </div>
-              <span
-                className={`text-sm font-semibold tracking-tight ${
-                  isActive ? 'text-ink' : 'text-ink-secondary'
+      {/* Desktop / tablet: persistent top tab rail with connecting progress line */}
+      <div className="relative hidden border-b border-line sm:block">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-[16.67%] right-[16.67%] top-[1.35rem] h-px bg-line"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-[16.67%] top-[1.35rem] h-px bg-brand/50 transition-[width] duration-200 ease-[var(--sr-ease-governed)] motion-reduce:transition-none"
+          style={{ width: `${(active / Math.max(STAGES.length - 1, 1)) * 66.66}%` }}
+        />
+        <div
+          role="tablist"
+          aria-label="Governed sequence stages"
+          className="relative grid grid-cols-3"
+        >
+          {STAGES.map((s, index) => {
+            const isActive = index === active;
+            const isComplete = index < active;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                role="tab"
+                id={`${tabIds}-tab-${s.id}`}
+                aria-selected={isActive}
+                aria-controls={panelId}
+                tabIndex={isActive ? 0 : -1}
+                ref={(el) => {
+                  tabRefs.current[index] = el;
+                }}
+                onClick={() => select(index)}
+                onKeyDown={(e) => onTabKeyDown(e, index)}
+                className={`flex flex-col gap-2 border-r border-line px-4 py-4 text-left last:border-r-0 transition-colors duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--sr-primary)] ${
+                  isActive
+                    ? 'bg-[color:var(--sr-bg-elevated)]'
+                    : 'bg-transparent hover:bg-[color:var(--sr-bg-elevated)]/50'
                 }`}
               >
-                {s.label}
-              </span>
-            </button>
-          );
-        })}
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex size-5 items-center justify-center rounded-full border font-mono text-[0.65rem] tabular-nums ${
+                      isActive || isComplete
+                        ? 'border-brand/60 bg-brand/10 text-brand'
+                        : 'border-line text-ink-faint'
+                    }`}
+                  >
+                    {s.num.replace(/^0/, '')}
+                  </span>
+                  <StatusBadge variant={s.badgeVariant}>{s.chipLabel}</StatusBadge>
+                </div>
+                <span
+                  className={`text-sm font-semibold tracking-tight ${
+                    isActive ? 'text-ink' : 'text-ink-secondary'
+                  }`}
+                >
+                  {s.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Mobile: stacked accordion headers; only one open */}

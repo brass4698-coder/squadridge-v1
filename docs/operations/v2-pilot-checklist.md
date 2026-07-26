@@ -18,10 +18,15 @@ Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It co
 | 2b | Facilitator completes `/app/pilot-guide` walkthrough (or scripted tour on staging) | Facilitator unfamiliar with spine |
 | 2c | Metrics pre-registered in [`pilot-metrics-preregistration.md`](./pilot-metrics-preregistration.md) | Closeout cites unregistered claims |
 | 3 | `supabase db push` + `supabase test db` green (includes `v2_session_lifecycle`) | Migration or pgTAP failure |
+| 3b | Edge Functions deployed: at least `health-check` (no JWT) and `send-session-invite` (JWT) | Missing probe / invite scaffold on staging |
+| 3c | If using email delivery: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `SITE_URL` set on Edge secrets; otherwise MOU states in-app / manual-link alerts only | Partner expects automated email without secrets |
 | 4 | Partner MOU states **operator-readable v2 room content** (not Signal-grade E2E) | Partner expects server-blind encryption |
 | 5 | Facilitator account active (`profile.status = active`, `facilitator` role) | Pending or suspended facilitator |
 | 6 | `VITE_V2_MOCK_DATA` is **unset or `false`** in deployed frontend | Fixture data in pilot |
+| 6b | `VITE_MAINTENANCE_MODE` is **unset or `false`** (set `true` only for planned downtime) | Accidental maintenance page in pilot |
 | 7 | Public `/ledger` banner reviewed — live records appear only after `release_outcome` | Partner cites illustrative samples as outcomes |
+
+**Ops notes (deferred / human):** CAPTCHA and SMTP dashboards are not product surfaces — configure at Supabase Auth / Resend as needed. Do not remote `db push` or production deploy from this checklist without operator credentials.
 
 ---
 
@@ -35,7 +40,7 @@ Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It co
 | 4 | Approve each participant (`verified`) | Same |
 | 5 | Open room (`live` / `open`) | `/app/sessions/:id/control` |
 
-**Manual today:** Participant email OTP is **not** sent automatically. Facilitator approval on the review screen is the real gate.
+**Manual today:** Participant invite/review links are bearer tokens. Facilitators copy links from the invite and release consoles. Optional email via Edge Function `send-session-invite` requires `RESEND_API_KEY` + `SITE_URL` on Edge secrets; without them the function returns `delivery: manual` and the UI keeps copy-link as the primary path. Facilitator approval on the review screen remains the real admission gate.
 
 ---
 
@@ -68,8 +73,9 @@ Use this checklist for **facilitator-led v2 sessions** (`/app/*`, `/p/*`). It co
 |---|------|-------|
 | 1 | End session | `/app/sessions/:id/control` |
 | 2 | Draft outcome (no room import) | `/app/sessions/:id/outcome` |
-| 3 | Record approvals | `/app/sessions/:id/release` |
-| 4 | Release to ledger | Same — verify `ledger_sha` on `/ledger` |
+| 3 | Record approvals / share participant review links (copy or optional email) | `/app/sessions/:id/release` |
+| 4 | Confirm release preflight checklist is green | Same |
+| 5 | Release to ledger | Same — verify `ledger_sha` on `/ledger` |
 
 **Consent:** Facilitator-marked approvals are process metadata, not cryptographic party signatures. Document off-platform consent if required.
 
@@ -100,3 +106,16 @@ Stop the pilot if:
 - [`pilot-runbook.md`](./pilot-runbook.md) — legacy squad pre-flight, owners, incidents
 - [`institutional-readiness-audit.md`](../audit/institutional-readiness-audit.md) — audience fit
 - [`threat-model.md`](../security/threat-model.md) — engineering truth
+- [`platform-evolution-action-plan.md`](../product/platform-evolution-action-plan.md) — phased MVP / pilot / institutional plan
+
+## Explicitly deferred (not v2 NGO pilot blockers)
+
+| Item | Why deferred |
+|------|----------------|
+| Greenfield orgs / conflicts / QR membership product | Forks product away from Configure → Verify → Facilitate → Release |
+| Live Resend without secrets | Scaffolded; ops must set `RESEND_*` + `SITE_URL` |
+| Live RFC 3161 TSA | Scaffold columns only until production TSA path |
+| Operator-blind room E2E | Threat model §13 — separate program |
+| PDF report microservice | Not required for private anchored memo |
+| CAPTCHA / SMTP dashboard | Document for ops; no code path required for pilot |
+| Remote `supabase db push` / prod deploy | Needs human credentials — use checklist steps above |

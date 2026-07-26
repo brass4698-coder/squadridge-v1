@@ -13,7 +13,7 @@ const DEFAULT_ROWS: TrustBoundaryRow[] = [
     layer: 'Private room',
     protected: 'Dialogue, drafts, identities, and attribution stay inside the session.',
     notProtected:
-      'Operators with moderator keys can decrypt for review under audited justification.',
+      'v2 room content is operator-readable plaintext in Postgres (TLS in transit; RLS and facilitator scope). Not Signal-grade E2E against the operator.',
   },
   {
     layer: 'Facilitator control',

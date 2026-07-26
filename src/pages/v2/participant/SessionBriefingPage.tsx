@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { FormPanel } from '../../../components/ui/FormPanel';
+import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { TokenShell } from '../../../components/layout/TokenShell';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { useParticipantSession } from '../../../hooks/useParticipantSession';
+import { parseDialogueStage, participantNextActionHint } from '../../../lib/dialogueStages';
 import { participantRoute } from '../../../lib/participantRoutes';
 import { MAX_ROOM_PARTICIPANTS } from '../../../lib/roomCapacity';
 
@@ -36,10 +38,29 @@ export function SessionBriefingPage() {
     );
   }
 
+  if (ctx && ctx.valid === false) {
+    return (
+      <TokenShell>
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+          <h1 className="mb-3 text-2xl font-semibold tracking-tight text-ink">Link unavailable</h1>
+          <p className="max-w-sm text-sm text-ink-secondary">
+            This briefing link is invalid or expired. Ask your facilitator for a fresh invite.
+          </p>
+        </div>
+      </TokenShell>
+    );
+  }
+
   const title = ctx?.session_title ?? 'Protected dialogue session';
   const language = ctx?.session_language ?? '—';
   const conflictType = ctx?.conflict_type ?? '—';
   const maxParticipants = ctx?.max_participants ?? MAX_ROOM_PARTICIPANTS;
+  const dialogueStage = parseDialogueStage(ctx?.dialogue_stage);
+  const nextAction = participantNextActionHint(dialogueStage, {
+    sessionStatus: ctx?.session_status,
+    verificationStatus: ctx?.verification_status,
+    roomReady: false,
+  });
   const outcome =
     ctx?.outcome_public === false
       ? 'Private anchored record'
@@ -57,6 +78,14 @@ export function SessionBriefingPage() {
           titleAs="h1"
           description="You are about to enter a protected written dialogue. Read the details below before proceeding."
         >
+          <div className="mb-6 rounded-lg bg-surface-elevated p-4 shadow-sr-sm">
+            <DialogueStageMap current={dialogueStage} compact />
+            <p className="mt-3 text-xs leading-relaxed text-ink-secondary">
+              <span className="font-medium text-ink">Next: </span>
+              {nextAction} After this briefing, enter the waiting room.
+            </p>
+          </div>
+
           <div className="mb-6 grid grid-cols-2 gap-3">
             {[
               { label: 'Matter type', value: conflictType },

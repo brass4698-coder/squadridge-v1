@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { ParticipantResolutionPanel } from '../../../components/participant/ParticipantResolutionPanel';
 import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
+import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { useParticipantMessages } from '../../../hooks/useParticipantMessages';
 import { useParticipantSession } from '../../../hooks/useParticipantSession';
@@ -10,6 +12,7 @@ import { analyzeToneLocal } from '../../../lib/ai/pipeline';
 import {
   DIALOGUE_STAGE_CONFIGS,
   parseDialogueStage,
+  participantNextActionHint,
   stageAllowsParticipantPost,
 } from '../../../lib/dialogueStages';
 import { participantRoute } from '../../../lib/participantRoutes';
@@ -23,8 +26,8 @@ import {
 
 export function ParticipantRoomPage() {
   const token = useParticipantToken();
-  const { ctx } = useParticipantSession(token ?? '');
-  const { messages, status, error, send } = useParticipantMessages(token ?? undefined);
+  const { ctx, loading: ctxLoading } = useParticipantSession(token ?? '');
+  const { messages, status, error, send, refresh } = useParticipantMessages(token ?? undefined);
   const [input, setInput] = useState('');
   const [draftReady, setDraftReady] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -41,6 +44,11 @@ export function ParticipantRoomPage() {
     pacing?.participant_posting_allowed ??
     ctx?.participant_posting_allowed ??
     stageAllowsParticipantPost(dialogueStage);
+  const nextAction = participantNextActionHint(dialogueStage, {
+    sessionStatus: pacing?.session_status ?? ctx?.session_status,
+    verificationStatus: ctx?.verification_status,
+    roomReady: true,
+  });
 
   const refreshPacing = useCallback(async () => {
     if (!token) return;
@@ -127,6 +135,21 @@ export function ParticipantRoomPage() {
 
   if (!token) return null;
 
+  if (ctxLoading && !ctx) {
+    return <RouteSkeleton label="Loading room" />;
+  }
+
+  if (ctx && ctx.valid === false) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-surface px-6 text-center">
+        <h1 className="mb-3 text-xl font-semibold text-ink">Room link unavailable</h1>
+        <p className="max-w-sm text-sm text-ink-secondary">
+          This room link is invalid or expired. Ask your facilitator for a fresh invite.
+        </p>
+      </div>
+    );
+  }
+
   const roomPaused = pacing?.session_status === 'paused' || pacing?.pacing_mode === 'paused';
   const warningMessage =
     localWarning ||
@@ -159,7 +182,8 @@ export function ParticipantRoomPage() {
       <div className="border-b border-line bg-surface-elevated px-6 py-3">
         <DialogueStageMap current={dialogueStage} compact className="mx-auto max-w-2xl" />
         <p className="mx-auto mt-2 max-w-2xl text-xs text-ink-secondary">
-          {stageConfig.participantPrompt}
+          <span className="font-medium text-ink">Next: </span>
+          {nextAction}
         </p>
       </div>
 
@@ -174,7 +198,18 @@ export function ParticipantRoomPage() {
             ? 'Offline — messages will sync when you reconnect'
             : status === 'syncing'
               ? 'Syncing messages…'
-              : 'Connected — messages refresh automatically'}
+              : status === 'error'
+                ? 'Could not load messages. Check your connection and retry.'
+                : 'Connected — messages refresh automatically'}
+        {status === 'error' || status === 'offline' ? (
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="ml-2 min-h-[44px] font-medium text-brand underline"
+          >
+            Retry
+          </button>
+        ) : null}
       </div>
 
       {warningMessage ? (
@@ -235,39 +270,58 @@ export function ParticipantRoomPage() {
         aria-atomic="false"
       >
         <div className="mx-auto flex max-w-2xl flex-col gap-4">
-          {messages.map((msg) => {
-            const isYou = msg.sender_role === 'participant' && msg.sender_label === ctx?.codename;
-            const isFacilitator = msg.sender_role === 'facilitator';
-            return (
-              <div key={msg.id} className={`flex flex-col ${isYou ? 'items-end' : 'items-start'}`}>
-                <div className="mb-1 flex items-center gap-2">
-                  <span
-                    className={`text-xs font-medium ${isFacilitator ? 'text-brand' : 'text-ink-secondary'}`}
-                  >
-                    {isYou ? 'You' : msg.sender_label}
-                    {isFacilitator ? ' · Facilitator' : ''}
-                  </span>
-                  <span className="text-xs text-ink-faint">
-                    {new Date(msg.sent_at).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
+          {status === 'syncing' && messages.length === 0 ? (
+            <p className="py-10 text-center text-sm text-ink-secondary" role="status">
+              Loading contributions…
+            </p>
+          ) : messages.length === 0 ? (
+            <EmptyState
+              className="py-10"
+              heading="No contributions yet"
+              body={
+                stageAllowsPost
+                  ? 'When you are ready, draft a contribution below. The facilitator may post a stage prompt first.'
+                  : 'This stage is facilitator-led. Wait for the process to advance before posting.'
+              }
+            />
+          ) : (
+            messages.map((msg) => {
+              const isYou = msg.sender_role === 'participant' && msg.sender_label === ctx?.codename;
+              const isFacilitator = msg.sender_role === 'facilitator';
+              return (
                 <div
-                  className={`max-w-md rounded-xl px-5 py-3 text-sm leading-relaxed ${
-                    isYou
-                      ? 'bg-brand text-brand-on'
-                      : isFacilitator
-                        ? 'border border-brand/30 bg-brand-soft text-ink'
-                        : 'bg-surface-elevated text-ink shadow-sr-xs'
-                  }`}
+                  key={msg.id}
+                  className={`flex flex-col ${isYou ? 'items-end' : 'items-start'}`}
                 >
-                  {msg.body}
+                  <div className="mb-1 flex items-center gap-2">
+                    <span
+                      className={`text-xs font-medium ${isFacilitator ? 'text-brand' : 'text-ink-secondary'}`}
+                    >
+                      {isYou ? 'You' : msg.sender_label}
+                      {isFacilitator ? ' · Facilitator' : ''}
+                    </span>
+                    <span className="text-xs text-ink-faint">
+                      {new Date(msg.sent_at).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                  <div
+                    className={`max-w-md rounded-xl px-5 py-3 text-sm leading-relaxed ${
+                      isYou
+                        ? 'bg-brand text-brand-on'
+                        : isFacilitator
+                          ? 'border border-brand/30 bg-brand-soft text-ink'
+                          : 'bg-surface-elevated text-ink shadow-sr-xs'
+                    }`}
+                  >
+                    {msg.body}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </main>
 

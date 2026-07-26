@@ -28,6 +28,9 @@ export function AccessDeniedPage() {
               Go back
             </Button>
             <Button asChild variant="secondary">
+              <Link to="/">Home</Link>
+            </Button>
+            <Button asChild variant="secondary">
               <Link to={appRoutes.dashboard}>Go to dashboard</Link>
             </Button>
             <Button asChild>

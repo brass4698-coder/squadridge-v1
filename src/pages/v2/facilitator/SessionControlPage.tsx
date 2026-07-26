@@ -446,7 +446,9 @@ export function SessionControlPage() {
               <p className="py-6 text-center text-sm text-ink-secondary">
                 {status === 'waiting'
                   ? 'Room is waiting. Start the session when participants are ready.'
-                  : 'No messages yet. Post a stage prompt to open the round.'}
+                  : status === 'ended'
+                    ? 'Room closed. Draft the outcome when you are ready to open participant review.'
+                    : 'No messages yet. Post a stage prompt to open the round.'}
               </p>
             ) : (
               messages.map((m) => (

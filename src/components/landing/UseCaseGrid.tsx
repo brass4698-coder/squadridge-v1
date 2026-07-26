@@ -19,8 +19,9 @@ export function UseCaseGrid() {
             Sensitive decisions. Private rooms. Citable outcomes.
           </h2>
           <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-            Three primary tracks where facilitators need a protected written room and an approved
-            record the institution can still stand behind.
+            Three primary tracks plus two adjacent contexts — five bounded settings where
+            facilitators need a protected written room and an approved record the institution can
+            still stand behind.
           </p>
         </div>
 

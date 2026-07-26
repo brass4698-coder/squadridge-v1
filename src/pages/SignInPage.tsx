@@ -4,6 +4,7 @@ import { FormField } from '../components/ui/FormField';
 import { FormPanel } from '../components/ui/FormPanel';
 import { Input } from '../components/ui/Input';
 import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
+import { GovernedEntryNav } from '../components/auth/GovernedEntryNav';
 import { GovernedEntryLayout } from '../components/shell/GovernedEntryLayout';
 import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,6 +15,8 @@ import { signInWithDemo, isDemoLoginEnabled } from '../lib/demoLogin';
 import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
+
+const RESEND_COOLDOWN_SEC = 60;
 
 function AuthStateBanner({ reason }: { reason: string }) {
   if (reason === 'expired') {
@@ -65,14 +68,18 @@ function AuthStateBanner({ reason }: { reason: string }) {
     );
   }
 
-  if (reason === 'link') {
+  if (reason === 'link' || reason === 'invalid') {
     return (
-      <p
+      <div
         className="mb-6 rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken px-4 py-3 text-sm text-ink-secondary"
         role="status"
       >
-        No password to reset — request a fresh magic link below.
-      </p>
+        <p className="m-0 font-medium text-ink">Magic link expired or already used</p>
+        <p className="mt-2 mb-0">
+          Sign-in links are one-time and expire in about an hour. Request a fresh link below — no
+          password to reset.
+        </p>
+      </div>
     );
   }
 
@@ -99,6 +106,8 @@ export function SignInPage() {
   const [demoBusy, setDemoBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState('');
+  const [cooldown, setCooldown] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
   const configured = isSupabaseConfigured();
@@ -108,6 +117,14 @@ export function SignInPage() {
   const redirected = useRef(false);
   const autoDemoStarted = useRef(false);
   const pendingGuidedTour = useRef(false);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = window.setInterval(() => {
+      setCooldown((c) => (c <= 1 ? 0 : c - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [cooldown]);
 
   useEffect(() => {
     if (!initialized || loading || !session || redirected.current) return;
@@ -137,20 +154,32 @@ export function SignInPage() {
     void handleDemo();
   }, [wantDemo, configured, initialized, loading, session]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function sendMagicLink(targetEmail: string) {
     setError(null);
     setBusy(true);
     const shouldForwardNext = Boolean(nextRaw) && nextPath !== appRoutes.dashboard;
-    const { error: err } = await signIn(email, {
+    const { error: err } = await signIn(targetEmail, {
       nextPath: shouldForwardNext ? nextPath : undefined,
     });
     setBusy(false);
     if (err) {
       setError(classifyClientError(err).userMessage);
-      return;
+      return false;
     }
+    setSentEmail(targetEmail);
     setSent(true);
+    setCooldown(RESEND_COOLDOWN_SEC);
+    return true;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await sendMagicLink(email.trim());
+  }
+
+  async function handleResend() {
+    if (cooldown > 0 || !sentEmail) return;
+    await sendMagicLink(sentEmail);
   }
 
   async function handleDemo() {
@@ -236,7 +265,10 @@ export function SignInPage() {
   return (
     <GovernedEntryLayout title="Verified access only">
       <div className="mx-auto grid max-w-lg gap-8">
-        {reason === 'expired' || reason === 'link' || reason === 'signed-out' ? (
+        {reason === 'expired' ||
+        reason === 'link' ||
+        reason === 'invalid' ||
+        reason === 'signed-out' ? (
           <AuthStateBanner reason={reason} />
         ) : null}
 
@@ -254,14 +286,71 @@ export function SignInPage() {
 
         <FormPanel
           eyebrow="Entry"
-          title={isSignup ? 'Create your account' : 'Magic-link sign-in'}
-          description="We email a one-time link to an invitation-linked work address."
+          title={
+            sent ? 'Check your email' : isSignup ? 'Create your account' : 'Magic-link sign-in'
+          }
+          description={
+            sent
+              ? 'We sent a one-time sign-in link. It expires in about an hour and can only be used once.'
+              : 'We email a one-time link to an invitation-linked work address.'
+          }
           footer="Need access? Request a confidential pilot intake — do not expect instant self-serve."
         >
           {sent ? (
-            <p className="text-sm text-ink" role="status">
-              Check your inbox for the sign-in link. It expires in about an hour.
-            </p>
+            <div className="space-y-4" role="status" aria-live="polite">
+              <p className="m-0 text-sm text-ink">
+                Check <span className="font-medium">{sentEmail}</span> for the sign-in link. If it
+                is not in your inbox, look in spam or promotions.
+              </p>
+              <ul className="m-0 list-none space-y-2 border-t border-line pt-4 p-0 text-sm text-ink-secondary">
+                <li className="flex gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                  />
+                  <span>Open the link on this device when possible.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                  />
+                  <span>Expired or already-used links will ask you to request a new one.</span>
+                </li>
+              </ul>
+              {error ? (
+                <p
+                  className="rounded-[var(--sr-radius-md)] border border-sem-danger/40 bg-sem-danger-soft px-3 py-2 text-sm"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              ) : null}
+              <div className="flex flex-wrap gap-3 pt-1">
+                <button
+                  type="button"
+                  className="btn-institutional btn-institutional--primary"
+                  disabled={busy || cooldown > 0}
+                  onClick={() => void handleResend()}
+                >
+                  {busy
+                    ? 'Sending…'
+                    : cooldown > 0
+                      ? `Resend in ${cooldown}s`
+                      : 'Resend sign-in link'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-institutional btn-institutional--ghost"
+                  onClick={() => {
+                    setSent(false);
+                    setError(null);
+                  }}
+                >
+                  Use a different email
+                </button>
+              </div>
+            </div>
           ) : (
             <form
               ref={formRef}
@@ -304,24 +393,23 @@ export function SignInPage() {
           )}
         </FormPanel>
 
-        <nav className="flex flex-col gap-2 text-sm" aria-label="Other entry paths">
-          <Link to="/enter/credential" className="text-brand">
-            Enter invitation credential
-          </Link>
-          <Link to="/request-access" className="text-brand">
-            Request pilot access
-          </Link>
-          {isDemoLoginEnabled() ? (
+        <GovernedEntryNav current="sign-in" nextPath={nextRaw} />
+
+        {isDemoLoginEnabled() ? (
+          <div className="border-t border-line pt-6">
             <button
               type="button"
               disabled={demoBusy}
               onClick={() => void handleDemo()}
-              className="w-fit text-left text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
+              className="w-fit text-left text-sm text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
             >
               {demoBusy ? 'Starting demo…' : 'Open demo walkthrough'}
             </button>
-          ) : null}
-        </nav>
+            <p className="mt-2 mb-0 text-xs text-ink-faint">
+              Uses the seeded demo account when available — not a production pilot path.
+            </p>
+          </div>
+        ) : null}
       </div>
     </GovernedEntryLayout>
   );

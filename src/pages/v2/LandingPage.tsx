@@ -12,7 +12,7 @@ import {
 import { usePageTitle } from '../../hooks/usePageTitle';
 
 /**
- * Homepage — promise → scenario → boundary → process → diligence → buyer proof → intake.
+ * Homepage — promise → scenario → why → process → specimen → diligence → buyer proof → intake.
  */
 export function LandingPage() {
   usePageTitle('Private deliberation infrastructure');
@@ -23,10 +23,10 @@ export function LandingPage() {
       <IllustrativeScenarioStrip />
       <WhyOverview />
       <ProcessStagePanel />
+      <RecordSpecimen />
       <BoundarySection />
       <UseCaseGrid />
       <ProductEvidenceCluster />
-      <RecordSpecimen />
       <PilotIntakeSection />
     </div>
   );

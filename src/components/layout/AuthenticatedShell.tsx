@@ -260,7 +260,7 @@ function ShellHeaderBar() {
   const roleAccent = workspaceRoleFromPath(location.pathname);
 
   return (
-    <div className="flex h-14 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-elevated/80 px-4 backdrop-blur-sm md:px-6">
+    <div className="sticky top-0 z-20 flex h-14 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-elevated/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-surface-elevated/70 md:px-6">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         {demo ? <DemoModePill /> : null}
         <RoleChip label={roleLabel} accent={roleAccent} />

@@ -32,16 +32,31 @@ export function BriefingsPage() {
           </>
         }
         actions={
-          <>
-            <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
-              Request briefing access
-            </Link>
-            <Link to="/sign-in?next=/decks" className="btn-institutional btn-institutional--ghost">
-              Sign in with invite
-            </Link>
-          </>
+          <div className="flex w-full max-w-xl flex-col gap-4 sm:flex-row sm:items-stretch">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
+                Request briefing access
+              </Link>
+              <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                For investors and partners without an invite yet — intake first, then gated
+                materials if there is a clear review reason.
+              </p>
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <Link
+                to="/sign-in?next=/decks"
+                className="btn-institutional btn-institutional--ghost"
+              >
+                Sign in with invite
+              </Link>
+              <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                For corporate leads and diligence contacts who already received a briefing invite or
+                deck grant.
+              </p>
+            </div>
+          </div>
         }
-        meta={<p className="text-xs text-ink-faint">{CTA.pilotStatusLine}</p>}
+        meta={<p className="text-xs text-ink-faint">{CTA.pilotStatusLineShort}</p>}
       />
 
       <MarketingSection density="compact">
@@ -82,7 +97,7 @@ export function BriefingsPage() {
         primaryHref={CTA.primaryHref}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

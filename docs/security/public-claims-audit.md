@@ -16,7 +16,7 @@ Last audited: 2026-07-25.
 | Optional AI tone / heat is advisory only | Security | `src/lib/ai/pipeline.ts`; facilitator pacing RPCs; participant room labels the local nudge as an in-browser suggestion |
 | Approvals are bound to the exact released wording | Security (“Live today”, reviewer appendix), facilitator release page | `outcome_approvals.reviewed_content_sha` + reset trigger (`20260725220000`) |
 | Release requires a facilitator authorship attestation | Security, facilitator release page | `facilitator_attest_outcome_authorship`; `release_outcome` refuses without a current attestation |
-| Room content is operator-readable | Security (“Who can read the room”) | `session_messages.body` is plaintext; threat-model §5 |
+| Room content is operator-readable | Security (“Who can read the room”), homepage TrustBoundaryBlock | `session_messages.body` is plaintext; threat-model §5 |
 | Facilitator notes are not published | Security, ledger record page | Column-level grants exclude `facilitator_notes`; `facilitator_get_outcome_notes` for facilitators |
 | Ledger holds no live public releases yet | LedgerIndexPage empty state, record page, home specimen | No published `outcome_records` rows; every displayed entry is a labelled specimen |
 
@@ -30,6 +30,7 @@ Last audited: 2026-07-25.
 | Verification anchor “when” | Hash alone ≠ trusted time | Security + research brief: SHA-256 shipped; RFC 3161 scaffolded, not live |
 | Specimen ledger entries | A sample dossier read like a released record | Specimen banner, watermarked surface, “not verifiable” anchor label, citation prefixed `ILLUSTRATIVE SPECIMEN` |
 | Security page roadmap | Planned work could read as shipped | Explicit “Live today, and what is not” split; planned rows say what exists (columns, interfaces) and what does not run |
+| Homepage TrustBoundaryBlock “moderator keys can decrypt” | Implied encrypted v2 room + audited decrypt | Rewrote to operator-readable plaintext for v2 rooms; legacy AES-GCM + audited decrypt stays scoped to Mod dashboard / threat model §5 |
 
 ## Explicitly not claimed
 
@@ -41,12 +42,14 @@ Last audited: 2026-07-25.
 - A live pilot, named partner organisations, user counts, or outcome metrics
 - Any live public ledger release (the register is empty and says so)
 - That the verification anchor proves authorship, identity, or time of release
+- That v2 facilitated rooms use application-layer encryption or “moderator decrypt” (that path is legacy squad chat only)
 
 ## Banned in public copy (enforced by `check:banned-copy`)
 
 - "Operator-proof encryption" / "server-blind E2E" for current release
 - "Full anonymity" platform-wide
 - Unqualified "end-to-end encrypted" for session content
+- "moderator keys can decrypt" on public marketing surfaces (legacy Mod path only)
 
 ## Review cadence
 

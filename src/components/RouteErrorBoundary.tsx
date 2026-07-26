@@ -20,6 +20,7 @@ interface State {
 
 /**
  * Catches render errors in the route tree so a failed route does not leave a blank screen.
+ * Branded with `--sr-*` tokens (Tailwind aliases) — matches AccessDenied / NotFound.
  */
 export class RouteErrorBoundary extends Component<Props, State> {
   private titleRef = createRef<HTMLHeadingElement>();
@@ -57,47 +58,48 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
       const alertBlock = (
         <div role="alert" aria-labelledby="route-error-title" aria-describedby="route-error-desc">
-          <div className="rounded-[10px] border border-[#1a2236] bg-[#0f1623] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+          <div className="rounded-lg bg-surface-elevated p-8 shadow-sr-card">
+            <p className="mb-3 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[0.14em] text-ink-faint">
+              500
+            </p>
             <h1
               id="route-error-title"
               ref={this.titleRef}
               tabIndex={-1}
-              className="font-heading text-fluid-h2 text-gray-light outline-none focus-visible:ring-2 focus-visible:ring-teal/60"
+              className="font-heading text-h2 font-semibold text-ink outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
               Something went wrong
             </h1>
             <p
               id="route-error-desc"
-              className="mt-3 font-sans text-[0.95rem] leading-relaxed text-[#8892a4]"
+              className="mt-3 font-sans text-sm leading-relaxed text-ink-secondary"
             >
               The app hit an unexpected error. Your session data is not shown here for safety. You
               can try again or return home.
             </p>
             {import.meta.env.DEV ? (
-              <pre className="mt-4 max-h-32 overflow-auto rounded-md border border-[#1a2236] bg-[#0b0f1a] p-3 font-mono text-[0.75rem] text-amber">
+              <pre className="mt-4 max-h-32 overflow-auto rounded-md border border-line bg-surface-sunken p-3 font-mono text-xs text-sem-warning">
                 {error.message}
               </pre>
             ) : null}
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 type="button"
-                className="inline-flex min-h-[44px] items-center justify-center border-0 bg-teal px-6 font-heading text-[0.95rem] font-semibold text-[#0b0f1a] transition-opacity duration-150 hover:opacity-[0.88]"
-                style={{ borderRadius: 8 }}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-brand px-6 font-heading text-sm font-semibold text-brand-on transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 onClick={this.handleRetry}
               >
                 Try again
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-[44px] items-center justify-center border border-solid border-[#2d3f55] bg-transparent px-6 font-heading text-[0.95rem] font-medium text-[#a8b2c1] transition-colors hover:border-[#3d4f63]"
-                style={{ borderRadius: 8 }}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-line bg-transparent px-6 font-heading text-sm font-medium text-ink-secondary transition-colors hover:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 onClick={() => window.location.reload()}
               >
                 Reload page
               </button>
               <Link
                 to="/"
-                className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.95rem] font-medium text-teal underline-offset-4 hover:underline"
+                className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-sm font-medium text-brand underline-offset-4 hover:underline"
               >
                 Back to home
               </Link>
