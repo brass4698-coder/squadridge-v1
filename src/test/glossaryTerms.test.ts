@@ -12,6 +12,8 @@ describe('glossaryTerms', () => {
         'canonicalised',
         'verification-anchor',
         'rfc-3161',
+        'instrument-hash',
+        'authorship-attestation',
       ]),
     );
     for (const term of Object.values(GLOSSARY_TERMS)) {

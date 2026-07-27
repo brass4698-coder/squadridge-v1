@@ -252,6 +252,7 @@ Investor-only surfaces (`/pitch-deck-hub`, `/financial-projections`, `/decks`) a
 - **Contributor orientation:** [`AGENTS.md`](AGENTS.md) — stack, directory map, coding rules
 - **Changelog:** [`CHANGELOG.md`](CHANGELOG.md)
 - Current status snapshot: [`CURRENT_STATUS.md`](CURRENT_STATUS.md)
+- Investor brief (start here for diligence): [`docs/business/investor-brief.md`](docs/business/investor-brief.md)
 - Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)
 - Security reporting: [`SECURITY.md`](SECURITY.md)
 - Specs and runbooks: [`docs/`](docs/)

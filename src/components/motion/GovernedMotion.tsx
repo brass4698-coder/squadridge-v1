@@ -21,11 +21,41 @@ export function GovernedPanel({ children, className, delay = 0 }: GovernedPanelP
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y: 8 }}
+      // Never start at opacity 0 — review tools that pause JS motion would leave content blank.
+      initial={reduce ? false : { opacity: 1, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.2,
         delay,
+        ease: SPRING_SETTLE,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+type GovernedPageProps = {
+  children: ReactNode;
+  className?: string;
+  /** Remount key (usually pathname) so enter motion runs on navigation */
+  motionKey?: string;
+};
+
+/**
+ * Route-level enter: transform-only rise. Never gates paint on opacity.
+ */
+export function GovernedPage({ children, className, motionKey }: GovernedPageProps) {
+  const reduce = useReducedMotion();
+
+  return (
+    <motion.div
+      key={motionKey}
+      className={className}
+      initial={reduce ? false : { y: 6 }}
+      animate={{ y: 0 }}
+      transition={{
+        duration: 0.18,
         ease: SPRING_SETTLE,
       }}
     >

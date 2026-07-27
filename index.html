@@ -8,6 +8,13 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- LCP: warm hero asset before module graph resolves -->
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/landing-hero-release.png"
+      fetchpriority="high"
+    />
     <!-- Instant canvas — cool near-black (unified dark system) -->
     <style>
       html,
@@ -16,8 +23,30 @@
         margin: 0;
       }
       #root {
-        opacity: 1;
         min-height: 100vh;
+      }
+      /* Visible before JS — avoids a blank black flash for first paint / diligence screenshots */
+      #sr-boot {
+        box-sizing: border-box;
+        min-height: 100vh;
+        padding: 2rem 1.5rem;
+        color: #c4c9d1;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      #sr-boot strong {
+        display: block;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        color: #e8eaed;
+      }
+      #sr-boot span {
+        display: block;
+        margin-top: 0.75rem;
+        max-width: 28rem;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+        color: #8b929e;
       }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +57,12 @@
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="sr-boot" role="status" aria-live="polite">
+        <strong>SquadRidge</strong>
+        <span>Private deliberation infrastructure — loading…</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -6,6 +6,7 @@ import {
   ShellWidth,
 } from '../../components/shared';
 import { SITE_NOT, SITE_THESIS_SHORT } from '../../data/siteMessaging';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const SECTIONS = [
   {
@@ -14,7 +15,7 @@ const SECTIONS = [
   },
   {
     heading: '2. Session room content',
-    body: `Session room dialogue is treated as private by default and is never published to the ledger. v2 messages are stored as access-controlled platform data (not operator-proof end-to-end encryption). We do not use room content for marketing, unrelated analytics, or surveillance-style monitoring. Platform staff access room content only when required for safety, support, or legal obligation.`,
+    body: `Session room dialogue is treated as private by default and is never published to the ledger. v2 messages are stored as application-layer ciphertext with operator-readable room keys (not operator-proof end-to-end encryption). We do not use room content for marketing, unrelated analytics, or surveillance-style monitoring. Platform staff access room content only when required for safety, support, or legal obligation.`,
   },
   {
     heading: '3. Outcome records',
@@ -39,6 +40,7 @@ const SECTIONS = [
 ];
 
 export function PrivacyPage() {
+  usePageTitle('Privacy');
   return (
     <div>
       <MarketingPageHero

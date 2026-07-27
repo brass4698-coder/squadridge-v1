@@ -237,7 +237,7 @@ function buildNav(role: RoleKey | null, isAdmin: boolean): NavItem[] {
       icon: <IconRooms />,
       demoId: 'nav-sessions',
     },
-    { label: 'Pilot guide', href: appRoutes.pilotGuide, icon: <IconInsights /> },
+    { label: 'Pilot readiness', href: appRoutes.pilotGuide, icon: <IconInsights /> },
     { label: 'Participants / parties', href: appRoutes.participants, icon: <IconPeople /> },
     { label: 'Release gate', href: appRoutes.releaseGate, icon: <IconGate /> },
     { label: 'Published records', href: appRoutes.appLedger, icon: <IconLedger /> },
@@ -322,7 +322,7 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+      'sr-press flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] duration-fast ease-out',
       isActive
         ? 'bg-brand-soft text-brand'
         : 'text-ink-secondary hover:bg-surface-elevated hover:text-ink',
@@ -401,7 +401,8 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
               <DemoBanner />
               <ShellHeaderBar />
               <div
-                className={`flex-1 p-6 ${surfaceClass} ${showDemoChrome ? 'pb-28' : ''}`}
+                key={location.pathname}
+                className={`sr-page-enter flex-1 p-6 ${surfaceClass} ${showDemoChrome ? 'pb-28' : ''}`}
                 data-surface={
                   surfaceClass.includes('gate')
                     ? 'gate'

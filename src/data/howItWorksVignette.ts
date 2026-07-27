@@ -50,7 +50,7 @@ export const howItWorksVignette = {
       label: '6',
       stage: 'Release',
       title: 'Facilitator approval gate',
-      body: 'Designated approvals are recorded as process metadata. Release is an explicit facilitator action after those confirmations — never timed, webhooked, or defaulted.',
+      body: 'Designated approvals and authorship attestation are recorded against the current instrument hash as process metadata. Release is an explicit facilitator action after those confirmations — never timed, webhooked, or defaulted.',
     },
     {
       label: '7',

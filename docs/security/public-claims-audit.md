@@ -21,7 +21,7 @@ Last audited: 2026-07-25.
 | Optional AI tone / heat is advisory only | Security | `src/lib/ai/pipeline.ts`; facilitator pacing RPCs; participant room labels the local nudge as an in-browser suggestion |
 | Approvals are bound to the exact released wording | Security (“Live today”, reviewer appendix), facilitator release page | `outcome_approvals.reviewed_content_sha` + reset trigger (`20260725220000`) |
 | Release requires a facilitator authorship attestation | Security, facilitator release page | `facilitator_attest_outcome_authorship`; `release_outcome` refuses without a current attestation |
-| Room content is operator-readable | Security (“Who can read the room”), homepage TrustBoundaryBlock | `session_messages.body` is plaintext; threat-model §5 |
+| Room content is operator-readable | Security (“Who can read the room”), homepage TrustBoundaryBlock | `session_messages.body` is AES-GCM v3 ciphertext; keys in `session_room_keys` are operator-readable; threat-model §5 |
 | Facilitator notes are not published | Security, ledger record page | Column-level grants exclude `facilitator_notes`; `facilitator_get_outcome_notes` for facilitators |
 | Ledger holds no live public releases yet | LedgerIndexPage empty state, record page, home specimen | No published `outcome_records` rows; every displayed entry is a labelled specimen |
 

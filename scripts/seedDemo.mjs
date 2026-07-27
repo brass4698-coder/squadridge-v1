@@ -200,7 +200,8 @@ async function upsertDemoSessions(facilitatorId) {
       language: 'en',
       max_participants: 3,
       identity_verification_required: false,
-      outcome_public: true,
+      // Keep demo outcome in the workspace — do not expose as a public ledger release.
+      outcome_public: false,
       status: 'released',
     },
   ];

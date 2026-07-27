@@ -5,9 +5,7 @@ import { SpecimenNotice } from '../shared/SpecimenNotice';
 import { TrustLabel } from '../shared/TrustLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
-/**
- * Specimen-led section — released instrument; card carries the persuasion.
- */
+/** Homepage specimen — format of an approved record, not a live release. */
 export function RecordSpecimen() {
   const card = specimenToRecordCardProps(homepageSpecimen, `/ledger/${homepageSpecimen.id}`);
 
@@ -15,7 +13,7 @@ export function RecordSpecimen() {
     <section
       id="record-specimen"
       data-demo="landing-ledger"
-      className="scroll-mt-24 border-b border-line py-16 md:py-20 lg:py-24"
+      className="sr-section-enter scroll-mt-24 border-b border-line py-16 md:py-20 lg:py-24"
       data-scroll-section
       aria-labelledby="record-specimen-h"
     >

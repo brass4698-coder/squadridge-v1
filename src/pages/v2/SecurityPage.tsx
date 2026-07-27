@@ -4,6 +4,7 @@ import {
   CTABlock,
   GlossTerm,
   ImplementationStatusBadge,
+  ImplementationStatusLegend,
   MarketingPageHero,
   MarketingSection,
   PrivatePublicSplit,
@@ -37,7 +38,7 @@ const TRUST_STATUS = claimsByIds(TRUST_FEATURE_CLAIM_IDS);
 const DILIGENCE_FAQ = [
   {
     q: 'Can the operator read room messages today?',
-    a: 'Yes. v2 rooms store written dialogue as access-controlled plaintext. Staff with service-role or database access can read it. There is no cryptographic barrier against the operator. Cover this in your MOU — we do not claim Signal-grade E2E.',
+    a: 'Yes. Message bodies are AES-GCM ciphertext at rest, but session room keys are stored in Postgres for facilitators and admitted participants. Staff with service-role or database access can still decrypt. Cover this in your MOU — we do not claim Signal-grade operator-blind E2E.',
   },
   {
     q: 'Does the verification anchor prove when something was released?',
@@ -61,11 +62,11 @@ const DILIGENCE_FAQ = [
 const OPERATOR_ACCESS = [
   {
     heading: 'Inside the room',
-    body: 'Written messages are stored as plaintext in Postgres. Direct API access is restricted by row-level security to the facilitator of that session; participants reach their room only through token-scoped functions.',
+    body: 'Written messages are encrypted client-side (AES-256-GCM) before storage. Direct API access to ciphertext is restricted by row-level security to the facilitator; participants reach their room only through token-scoped functions that also return the room key.',
   },
   {
     heading: 'Operator and infrastructure',
-    body: 'Staff with service-role or database access can read room content. There is no cryptographic barrier between us and the room — assume operator-readable and cover it in your MOU.',
+    body: 'Staff with service-role or database access can read room keys and ciphertext, so they can decrypt. Application-layer encryption stops casual Data API / non-participant reads — it is not a cryptographic barrier against the operator. Cover this in your MOU.',
   },
   {
     heading: 'Facilitator-only fields',
@@ -80,7 +81,7 @@ const OPERATOR_ACCESS = [
 const NOT_CLAIMED = [
   {
     label: 'Not E2E today',
-    body: 'Session content is not end-to-end encrypted against the operator. Transport uses TLS. Room-level E2EE is on the roadmap.',
+    body: 'Rooms use application-layer encryption with operator-readable keys. Transport uses TLS. Operator-blind room E2EE remains planned (ADR 005).',
   },
   {
     label: 'Not full ZKP',
@@ -269,6 +270,7 @@ export function SecurityPage() {
               source Home, How it works, and Ledger badges use — so marketing copy cannot drift
               ahead of shipped code.
             </p>
+            <ImplementationStatusLegend className="mt-4" />
           </ProseMeasure>
           <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
             {TRUST_STATUS.map((item) => (
@@ -479,7 +481,7 @@ export function SecurityPage() {
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Version-controlled summary generated from the Implementation Status Registry: current
               vs planned posture, threat-model bounds, residency, subprocessors, incident targets,
-              and deletion on pilot termination. Forward it during the 5–7 day manual review window.
+              and deletion on pilot termination. Forward it during the manual review window.
             </p>
           </ProseMeasure>
           <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
@@ -600,10 +602,11 @@ export function SecurityPage() {
                   <dt className="text-sm font-semibold text-ink">Release preconditions</dt>
                   <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
                     Release is refused unless the session has ended, every approval is recorded
-                    against the current instrument hash, a facilitator authorship attestation covers
-                    that same hash, and no approved text repeats a room message verbatim. Revising
-                    the instrument resets approvals and clears the attestation, and each refused
-                    attempt is written to the session audit trail.
+                    against the current <GlossTerm term="instrument-hash" />, a facilitator{' '}
+                    <GlossTerm term="authorship-attestation" /> covers that same hash, and no
+                    approved text repeats a room message verbatim. Revising the instrument resets
+                    approvals and clears the attestation, and each refused attempt is written to the
+                    session audit trail.
                   </dd>
                 </div>
                 <div>
@@ -646,7 +649,7 @@ export function SecurityPage() {
         body={CTA.closeSecurity}
         secondaryLabel={CTA.secondaryBriefingLabel}
         secondaryHref={CTA.secondaryBriefingHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

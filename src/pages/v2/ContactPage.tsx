@@ -8,8 +8,10 @@ import {
   MarketingSection,
   ShellWidth,
 } from '../../components/shared';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 export function ContactPage() {
+  usePageTitle('Contact');
   return (
     <div>
       <MarketingPageHero

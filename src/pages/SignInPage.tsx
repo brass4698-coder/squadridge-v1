@@ -16,6 +16,7 @@ import { signInWithDemo, isDemoLoginEnabled } from '../lib/demoLogin';
 import { classifyClientError } from '../lib/appErrors';
 import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
 import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -82,6 +83,7 @@ function AuthStateBanner({ reason }: { reason: string }) {
  * Minimal controlled-entry sign-in — verified / invite-linked access.
  */
 export function SignInPage() {
+  usePageTitle('Sign in');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { startWalkthrough } = useDemoWalkthrough();

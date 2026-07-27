@@ -6,6 +6,7 @@ import {
   ShellWidth,
 } from '../../components/shared';
 import { SITE_THESIS_SHORT } from '../../data/siteMessaging';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const SECTIONS = [
   {
@@ -43,6 +44,7 @@ const SECTIONS = [
 ];
 
 export function TermsPage() {
+  usePageTitle('Terms of use');
   return (
     <div>
       <MarketingPageHero

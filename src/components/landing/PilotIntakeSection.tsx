@@ -1,18 +1,16 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { CTA, PILOT_FIT_STRONG } from '../../data/siteMessaging';
+import { CTA, INTAKE_REVIEW_TIMING, PARTNER_EVALUATION } from '../../data/siteMessaging';
 import { SectionLabel } from '../SectionLabel';
 import { IntakeSteps } from '../ProcessStep';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
-/**
- * CTA-led close — selective, calm, human-reviewed.
- */
+/** Closing intake band — selective, human-reviewed. */
 export function PilotIntakeSection() {
   return (
     <section
       id="pilot"
-      className="scroll-mt-20 border-t border-line py-16 md:py-24"
+      className="sr-section-enter scroll-mt-20 border-t border-line py-16 md:py-24"
       data-scroll-section
       aria-labelledby="pilot-h"
     >
@@ -29,8 +27,7 @@ export function PilotIntakeSection() {
             {CTA.pilotValueLine}
           </p>
           <p className="mt-3 mb-0 max-w-[32rem] text-sm leading-relaxed text-ink-secondary">
-            Tell us the matter class and facilitation context. We respond with scope and fit —
-            typically within 5–7 business days.
+            Tell us the matter class and facilitation context. {INTAKE_REVIEW_TIMING.sentence}
           </p>
 
           <div className="mt-10 border-y border-line py-6">
@@ -48,10 +45,10 @@ export function PilotIntakeSection() {
 
           <div className="mt-8 border-l border-line pl-5">
             <p className="m-0 font-mono text-[length:var(--text-label)] font-medium uppercase tracking-[var(--tracking-caps)] text-ink-faint">
-              Strong fit signals
+              What a scoped pilot exposes
             </p>
             <ul className="mt-3 mb-0 list-none space-y-2 p-0 text-sm leading-relaxed text-ink-secondary">
-              {PILOT_FIT_STRONG.slice(0, 3).map((line) => (
+              {PARTNER_EVALUATION.slice(0, 4).map((line) => (
                 <li key={line} className="pl-0">
                   · {line}
                 </li>

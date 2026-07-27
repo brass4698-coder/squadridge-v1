@@ -1,7 +1,7 @@
 # SquadRidge — Trust & Diligence Packet
 
 **Audience:** Philanthropic, government, institutional investor, and enterprise security evaluators  
-**Registry version:** `2026.07.25` (from `src/data/implementationStatus.ts`)  
+**Registry version:** `2026.07.26` (from `src/data/implementationStatus.ts`)  
 **Reading order:** Documented limits → live safeguards → planned items → process  
 
 This packet is version-controlled and must stay aligned with the Implementation Status Registry. If a claim is not LIVE in the registry, it is not a shipped guarantee.
@@ -17,10 +17,11 @@ This packet is version-controlled and must stay aligned with the Implementation 
 | Facilitator authorship attestation | **LIVE** | Bound to same hash |
 | Metadata-only audit trail | **LIVE** | No message bodies in audit export |
 | Magic-link auth; role-scoped invites | **LIVE** | Invite-only pilot access |
-| Manual intake review (5–7 business days) | **LIVE** | Human review; no self-serve approval |
-| Approved-outcomes-only public ledger | **LIVE** | Specimens labeled illustrative |
+| Manual intake review (aim: about one week) | **LIVE** | Human review; no self-serve approval |
+| Approved-outcomes-only release → ledger pipeline | **LIVE** | Mechanism live; public entries only after real release + opt-in. Specimens labeled illustrative. |
+| Application-layer room encryption (AES-GCM) | **LIVE** | Ciphertext at rest; keys in `session_room_keys` still operator-readable |
 | RFC 3161 trusted timestamping | **SCAFFOLDED** | Schema + optional TSA client; not verified LIVE |
-| Operator-blind room encryption | **PLANNED** | See ADR 005; rooms operator-readable today |
+| Operator-blind room encryption | **PLANNED** | See ADR 005; keys remain operator-readable today |
 | IOA certification / legal privilege / court-admissible time | **NOT CLAIMED** | Architecture may align with IOA practice; no certification |
 
 ---
@@ -28,7 +29,7 @@ This packet is version-controlled and must stay aligned with the Implementation 
 ## 2. Threat model summary (honest bounds)
 
 - **Room vs record:** Dialogue stays in the private room. Only facilitator-authored, approval-bound text can leave as a public or private anchored record.
-- **Operator access today:** v2 room content is readable by the operator (Postgres plaintext + RLS). Cover this in the MOU. Not Signal-grade E2E.
+- **Operator access today:** v2 room bodies are AES-GCM ciphertext with operator-readable keys in `session_room_keys` (RLS + token RPCs). Cover this in the MOU. Not Signal-grade E2E.
 - **Integrity vs time:** SHA-256 proves the released file is unaltered. It does **not** prove independently attested time until a LIVE RFC 3161 path exists.
 - **Source of truth:** [`docs/security/threat-model.md`](./threat-model.md) and [`docs/security/public-claims-audit.md`](./public-claims-audit.md).
 

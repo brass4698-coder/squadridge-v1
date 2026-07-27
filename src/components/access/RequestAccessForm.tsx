@@ -36,11 +36,13 @@ export function RequestAccessForm() {
   if (submitted) {
     return (
       <div className="rounded-lg border border-sq-border bg-sq-surface p-6 text-center space-y-3">
-        <div className="text-3xl" aria-hidden>&#10003;</div>
+        <div className="text-3xl" aria-hidden>
+          &#10003;
+        </div>
         <h2 className="text-lg font-semibold text-sq-text">Request Received</h2>
         <p className="text-sq-muted text-sm">
-          Thank you, {fullName}. Our team will review your request and reach out
-          to <strong>{email}</strong> within 2–4 business days.
+          Thank you, {fullName}. Our team will review your request and aim to reach out to{' '}
+          <strong>{email}</strong> within about one week.
         </p>
       </div>
     );
@@ -49,7 +51,9 @@ export function RequestAccessForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="full-name" className="block text-sm font-medium text-sq-text mb-1">Full Name *</label>
+        <label htmlFor="full-name" className="block text-sm font-medium text-sq-text mb-1">
+          Full Name *
+        </label>
         <input
           id="full-name"
           type="text"
@@ -61,7 +65,9 @@ export function RequestAccessForm() {
       </div>
 
       <div>
-        <label htmlFor="access-email" className="block text-sm font-medium text-sq-text mb-1">Email *</label>
+        <label htmlFor="access-email" className="block text-sm font-medium text-sq-text mb-1">
+          Email *
+        </label>
         <input
           id="access-email"
           type="email"
@@ -73,7 +79,9 @@ export function RequestAccessForm() {
       </div>
 
       <div>
-        <label htmlFor="organization" className="block text-sm font-medium text-sq-text mb-1">Organization</label>
+        <label htmlFor="organization" className="block text-sm font-medium text-sq-text mb-1">
+          Organization
+        </label>
         <input
           id="organization"
           type="text"
@@ -84,7 +92,9 @@ export function RequestAccessForm() {
       </div>
 
       <div>
-        <label htmlFor="role-requested" className="block text-sm font-medium text-sq-text mb-1">Role Requested</label>
+        <label htmlFor="role-requested" className="block text-sm font-medium text-sq-text mb-1">
+          Role Requested
+        </label>
         <select
           id="role-requested"
           value={roleRequested}
@@ -102,7 +112,9 @@ export function RequestAccessForm() {
       </div>
 
       <div>
-        <label htmlFor="use-case" className="block text-sm font-medium text-sq-text mb-1">How do you plan to use SquadRidge?</label>
+        <label htmlFor="use-case" className="block text-sm font-medium text-sq-text mb-1">
+          How do you plan to use SquadRidge?
+        </label>
         <textarea
           id="use-case"
           value={useCase}
@@ -113,7 +125,11 @@ export function RequestAccessForm() {
         />
       </div>
 
-      {error && <p role="alert" className="text-sq-error text-sm">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sq-error text-sm">
+          {error}
+        </p>
+      )}
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
         {loading ? 'Submitting…' : 'Request Access'}

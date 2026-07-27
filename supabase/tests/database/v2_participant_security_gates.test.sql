@@ -4,7 +4,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(9);
+SELECT plan(10);
 
 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 VALUES (
@@ -62,8 +62,18 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- 1. Messaging blocked without a verification document (document gate runs first)
+-- Well-formed AES-GCM v3 envelope (structure only; decrypt not required for gate tests).
+SELECT set_config(
+    'test.cipher_body',
+    '{"v":3,"alg":"AES-256-GCM","iv":"YWFhYWFhYWFhYWFh","ct":"YmJiYmJiYmJiYmJiYmJiYg"}',
+    true
+);
+
 SELECT is(
-    public.participant_send_message('securtok000000000000000001', 'hello')->>'error',
+    public.participant_send_message(
+        'securtok000000000000000001',
+        current_setting('test.cipher_body')
+    )->>'error',
     'DOCUMENT_REQUIRED',
     'participant_send_message requires document when identity verification required'
 );
@@ -89,7 +99,10 @@ SELECT is(
 
 -- 4. Messaging still blocked without consent once the document exists
 SELECT is(
-    public.participant_send_message('securtok000000000000000001', 'hello')->>'error',
+    public.participant_send_message(
+        'securtok000000000000000001',
+        current_setting('test.cipher_body')
+    )->>'error',
     'CONSENT_REQUIRED',
     'participant_send_message requires consent'
 );
@@ -108,9 +121,18 @@ SET dialogue_stage = 'story'
 WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 
 SELECT is(
-    (public.participant_send_message('securtok000000000000000001', 'hello')->>'valid')::boolean,
+    public.participant_send_message('securtok000000000000000001', 'hello plaintext')->>'error',
+    'CIPHERTEXT_REQUIRED',
+    'participant_send_message rejects plaintext when room key exists'
+);
+
+SELECT is(
+    (public.participant_send_message(
+        'securtok000000000000000001',
+        current_setting('test.cipher_body')
+    )->>'valid')::boolean,
     TRUE,
-    'participant_send_message succeeds when verified and consented'
+    'participant_send_message succeeds when verified, consented, and ciphertext'
 );
 
 -- 7. Profile status self-update blocked

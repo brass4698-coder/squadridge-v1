@@ -2,10 +2,7 @@ import { SectionLabel } from '../SectionLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 import { SITE_WHY_NOW } from '../../data/siteMessaging';
 
-/**
- * Early landing band — why the room/record split exists.
- * Documented limits live once in BoundarySection; this section only points there.
- */
+/** Why the room/record split exists — limits live once in BoundarySection. */
 export function WhyOverview() {
   return (
     <section
@@ -33,10 +30,6 @@ export function WhyOverview() {
               >
                 Documented limits →
               </a>
-              <span className="text-sm text-ink-faint">
-                {' '}
-                — what we protect, and refuse to overclaim.
-              </span>
             </p>
           </div>
 

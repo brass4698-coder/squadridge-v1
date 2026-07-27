@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/realtime-js';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import {
+  decryptSessionMessageBodies,
+  encryptSessionMessageBody,
+} from '../lib/sessionMessageCrypto';
+import { fetchFacilitatorRoomKey } from '../lib/sessionRoomKey';
 import { supabase } from '../lib/supabase';
 import type { SessionMessage } from '../lib/supabaseTypes';
 
@@ -11,6 +16,8 @@ export type SessionMessageConnectionStatus =
   | 'reconnecting'
   | 'offline'
   | 'connection_error';
+
+export type SessionRoomPrivacyState = 'loading' | 'sealed_app_layer' | 'key_error' | 'unavailable';
 
 const MAX_RETRIES = 6;
 const BASE_DELAY_MS = 1_000;
@@ -29,16 +36,44 @@ export function useSessionMessages(sessionId: string | undefined) {
   const [messages, setMessages] = useState<SessionMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState<SessionMessageConnectionStatus>('idle');
+  const [privacyState, setPrivacyState] = useState<SessionRoomPrivacyState>('loading');
+  const [cryptoError, setCryptoError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const retryCountRef = useRef(0);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const channelRef = useRef<RealtimeChannel | undefined>(undefined);
   const maxSentAtRef = useRef<string | null>(null);
   const mountedRef = useRef(false);
+  const keyBase64Ref = useRef<string | null>(null);
   const [subscriptionEpoch, setSubscriptionEpoch] = useState(0);
+
+  const ensureRoomKey = useCallback(async (): Promise<string | null> => {
+    if (!sessionId) return null;
+    if (keyBase64Ref.current) return keyBase64Ref.current;
+    const result = await fetchFacilitatorRoomKey(sessionId);
+    if (!result.ok) {
+      setPrivacyState('key_error');
+      setCryptoError(result.error);
+      return null;
+    }
+    keyBase64Ref.current = result.keyBase64;
+    setPrivacyState('sealed_app_layer');
+    setCryptoError(null);
+    return result.keyBase64;
+  }, [sessionId]);
+
+  const decryptRows = useCallback(
+    async (rows: SessionMessage[]): Promise<SessionMessage[]> => {
+      const key = keyBase64Ref.current ?? (await ensureRoomKey());
+      const decrypted = await decryptSessionMessageBodies(rows, key);
+      return decrypted.map(({ decryptStatus: _s, ...row }) => row);
+    },
+    [ensureRoomKey],
+  );
 
   const fetchMessages = useCallback(async () => {
     if (!sessionId) return [];
+    await ensureRoomKey();
     const { data } = await supabase
       .from('session_messages')
       .select('*')
@@ -48,8 +83,8 @@ export function useSessionMessages(sessionId: string | undefined) {
     if (rows.length > 0) {
       maxSentAtRef.current = rows[rows.length - 1]!.sent_at;
     }
-    return rows;
-  }, [sessionId]);
+    return decryptRows(rows);
+  }, [sessionId, ensureRoomKey, decryptRows]);
 
   const backfillNewer = useCallback(async () => {
     if (!sessionId || !maxSentAtRef.current) return;
@@ -61,10 +96,11 @@ export function useSessionMessages(sessionId: string | undefined) {
       .order('sent_at', { ascending: true });
     const rows = (data ?? []) as SessionMessage[];
     if (rows.length > 0) {
-      setMessages((prev) => mergeMessagesById(prev, rows));
+      const decrypted = await decryptRows(rows);
+      setMessages((prev) => mergeMessagesById(prev, decrypted));
       maxSentAtRef.current = rows[rows.length - 1]!.sent_at;
     }
-  }, [sessionId]);
+  }, [sessionId, decryptRows]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -74,6 +110,12 @@ export function useSessionMessages(sessionId: string | undefined) {
       if (channelRef.current) supabase.removeChannel(channelRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    keyBase64Ref.current = null;
+    setPrivacyState(sessionId ? 'loading' : 'unavailable');
+    setCryptoError(null);
+  }, [sessionId]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -129,9 +171,12 @@ export function useSessionMessages(sessionId: string | undefined) {
           },
           (payload) => {
             const row = payload.new as SessionMessage;
-            setMessages((prev) => mergeMessagesById(prev, [row]));
-            maxSentAtRef.current = row.sent_at;
-            setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+            void decryptRows([row]).then((decrypted) => {
+              if (!mountedRef.current) return;
+              setMessages((prev) => mergeMessagesById(prev, decrypted));
+              maxSentAtRef.current = row.sent_at;
+              setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+            });
           },
         )
         .subscribe((status) => {
@@ -173,20 +218,36 @@ export function useSessionMessages(sessionId: string | undefined) {
       document.removeEventListener('visibilitychange', onVisible);
       if (channelRef.current) supabase.removeChannel(channelRef.current);
     };
-  }, [sessionId, subscriptionEpoch, backfillNewer]);
+  }, [sessionId, subscriptionEpoch, backfillNewer, decryptRows]);
 
   async function sendMessage(
     body: string,
     senderLabel: string,
     senderRole: 'facilitator' | 'participant',
-  ) {
-    if (!sessionId || !body.trim()) return;
-    await supabase.from('session_messages').insert({
+  ): Promise<{ ok: boolean; error?: string }> {
+    if (!sessionId || !body.trim()) return { ok: false, error: 'EMPTY_BODY' };
+    const key = await ensureRoomKey();
+    if (!key) {
+      return { ok: false, error: cryptoError ?? 'ROOM_KEY_MISSING' };
+    }
+    let ciphertext: string;
+    try {
+      ciphertext = await encryptSessionMessageBody(body.trim(), key);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'ENCRYPT_FAILED';
+      setCryptoError(message);
+      return { ok: false, error: message };
+    }
+    const { error } = await supabase.from('session_messages').insert({
       session_id: sessionId,
-      body: body.trim(),
+      body: ciphertext,
       sender_label: senderLabel,
       sender_role: senderRole,
     });
+    if (error) {
+      setCryptoError(error.message);
+      return { ok: false, error: error.message };
+    }
     if (senderRole === 'facilitator') {
       await supabase.rpc('log_session_audit_event', {
         p_session_id: sessionId,
@@ -195,6 +256,7 @@ export function useSessionMessages(sessionId: string | undefined) {
         p_metadata: { sender_label: senderLabel },
       });
     }
+    return { ok: true };
   }
 
   function retryConnection() {
@@ -202,5 +264,14 @@ export function useSessionMessages(sessionId: string | undefined) {
     setSubscriptionEpoch((e) => e + 1);
   }
 
-  return { messages, loading, sendMessage, bottomRef, connectionStatus, retryConnection };
+  return {
+    messages,
+    loading,
+    sendMessage,
+    bottomRef,
+    connectionStatus,
+    retryConnection,
+    privacyState,
+    cryptoError,
+  };
 }

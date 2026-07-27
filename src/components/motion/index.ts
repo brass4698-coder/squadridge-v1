@@ -1,1 +1,1 @@
-export { ApprovalCount, GovernedPanel } from './GovernedMotion';
+export { ApprovalCount, GovernedPage, GovernedPanel } from './GovernedMotion';

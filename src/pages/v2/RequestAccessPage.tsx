@@ -10,7 +10,12 @@ import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { useAccessRequest } from '../../hooks/useAccessRequest';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { CTA, PILOT_FIT_STRONG, PILOT_FIT_WEAK } from '../../data/siteMessaging';
+import {
+  CTA,
+  INTAKE_REVIEW_TIMING,
+  PILOT_FIT_STRONG,
+  PILOT_FIT_WEAK,
+} from '../../data/siteMessaging';
 import { BUYER_TRACK_INTAKE, type BuyerTrackParam } from '../../data/useCases';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
 import { SectionLabel } from '../../components/SectionLabel';
@@ -72,7 +77,7 @@ const AFTER_SUBMIT_STEPS = [
   },
   {
     title: 'Manual review',
-    body: 'A human assesses fit and sensitivity within 5–7 business days.',
+    body: 'A human assesses fit and sensitivity — we aim to reply within about one week.',
   },
   {
     title: 'Scoped next step',
@@ -90,7 +95,7 @@ const TRUST_RAIL = [
   'Manual review',
   'Invite-only',
   'Role-scoped access',
-  '5–7 day response',
+  INTAKE_REVIEW_TIMING.short,
 ] as const;
 
 type FormState = {
@@ -315,14 +320,14 @@ export function RequestAccessPage() {
             className="max-w-lg"
             eyebrow="Intake"
             title="Thank you — submission received"
-            description="A human reviews every application. Expect a response within 5–7 business days — not an automated approval or live status tracker."
+            description="A human reviews every application. We aim to reply within about one week — not an automated approval or live status tracker."
             footer="We reduce exposure by design. We do not claim full platform zero-knowledge or Signal-grade E2E today."
           >
             <div className="space-y-4 text-sm text-ink-secondary">
               <div>
                 <p className="m-0 font-medium text-ink">What happens next</p>
                 <ol className="mt-2 mb-0 list-decimal space-y-1.5 pl-5">
-                  <li>Manual fit and sensitivity review (typically 5–7 business days).</li>
+                  <li>Manual fit and sensitivity review (target: about one week).</li>
                   <li>Possible request for a short briefing before any invitations.</li>
                   <li>Scoped next step if there is a clear pilot fit — or an honest decline.</li>
                 </ol>
@@ -370,8 +375,8 @@ export function RequestAccessPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-secondary">
             Confidential application for facilitators and institutions preparing a governed written
-            room. Manual review within 5–7 business days — co-designed pilot scope, not self-serve
-            signup.
+            room. Manual review — we aim to reply within about one week — co-designed pilot scope,
+            not self-serve signup.
           </p>
           <p className="mt-3 max-w-2xl rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-3 py-2.5 text-sm leading-relaxed text-ink-secondary">
             We reduce exposure by design. We do not claim full platform zero-knowledge or
@@ -832,7 +837,7 @@ export function RequestAccessPage() {
                 <p className="m-0 text-sm leading-relaxed text-ink-secondary">
                   Manual review only. No open invitations are issued before approval. Leaving this
                   page keeps a draft in this browser tab until you submit or clear it. During the
-                  5–7 day window, share the{' '}
+                  During the review window, share the{' '}
                   <a
                     href="/diligence/trust-diligence-packet.md"
                     className="text-brand underline-offset-2 hover:underline"

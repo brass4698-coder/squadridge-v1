@@ -11,7 +11,7 @@ export function ProcessStagePanel() {
   return (
     <section
       id="system-model"
-      className="scroll-mt-20 border-b border-line bg-[color:var(--sr-bg-sunken)]/50 pb-16 pt-14 md:pb-20 md:pt-16"
+      className="sr-section-enter scroll-mt-20 border-b border-line bg-[color:var(--sr-bg-sunken)]/50 pb-16 pt-14 md:pb-20 md:pt-16"
       data-scroll-section
       aria-labelledby="process-stages-h"
     >
@@ -22,12 +22,11 @@ export function ProcessStagePanel() {
             id="process-stages-h"
             className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
           >
-            How the governed sequence works
+            Private room → release gate → public record
           </h2>
           <p className="mt-3 mb-0 text-base leading-relaxed text-ink-secondary">
-            Three deliberate stages — private room, release decision, public ledger — each with an
-            owner and an exit condition. The conversation stays enclosed; only approved text can
-            leave.
+            Three stages, each with an owner and an exit condition. The conversation stays enclosed;
+            only approved text can leave.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
             {USE_CASE_ARCHITECTURE_LINE}.

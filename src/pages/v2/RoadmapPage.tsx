@@ -48,8 +48,8 @@ export function RoadmapPage() {
         title="Go-to-market & readiness"
         lead={
           <p>
-            What ships today, who we hope to serve first, and where we want to take the platform.
-            Built for facilitators navigating hard issues with care — see{' '}
+            Private deliberation infrastructure — what ships today, who we hope to serve first, and
+            where we want to take the platform. Same room → gate → record story as the homepage; see{' '}
             <Link to="/pipeline" className="text-ink-secondary underline-offset-4 hover:underline">
               Pipeline
             </Link>{' '}
@@ -133,15 +133,16 @@ export function RoadmapPage() {
               Who we hope to serve first
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Org shape and pain by segment — aligned with{' '}
+              Buyer tracks for a governed written room and a citable outcome — the same framing as
+              the homepage. Detail and fit criteria on{' '}
               <Link
                 to="/use-cases"
                 className="text-ink-secondary underline-offset-4 hover:underline"
               >
                 Use cases
               </Link>
-              . We are looking for facilitators and institutions ready for a scoped, invite-only
-              evaluation.
+              . Peacebuilding and mediation appear as matter classes inside that infrastructure, not
+              as a separate product story.
             </p>
           </ProseMeasure>
 

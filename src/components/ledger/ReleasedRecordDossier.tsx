@@ -130,7 +130,7 @@ export type ReleasedRecordDossierProps = {
 };
 
 /**
- * Institution-grade released record dossier — layered parchment modules, not a white slab.
+ * Released-record dossier — elevated archival modules, not a flat content slab.
  * Zones: hero → metadata → instrument → trust tools.
  */
 export function ReleasedRecordDossier({

@@ -8,6 +8,11 @@ export {
 export { ContentColumn } from '../ContentColumn';
 export { StatusBadge, type StatusBadgeVariant } from '../StatusBadge';
 export { ImplementationStatusBadge } from './ImplementationStatusBadge';
+export {
+  ImplementationStatusLegend,
+  type ImplementationStatusLegendProps,
+} from './ImplementationStatusLegend';
+export { ProcessGateLegend, type ProcessGateLegendProps } from './ProcessGateLegend';
 export { HomeTrustStrip } from './HomeTrustStrip';
 export { SpineStageDiagram } from './SpineStageDiagram';
 export { MarketingPageHero, type MarketingPageHeroProps } from './MarketingPageHero';

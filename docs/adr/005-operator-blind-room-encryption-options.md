@@ -8,7 +8,7 @@ Supersedes nothing. Extends [ADR 004](./004-defer-operator-blind-e2e.md) with a 
 
 ## Context
 
-v2 facilitator rooms store dialogue as **operator-readable plaintext** in Postgres (RLS + token-scoped participant functions). Legacy squad chat uses a per-squad symmetric key still readable by the operator. Partners evaluating SquadRidge ask, correctly: can rooms become operator-blind while facilitators still draft and release approved outcomes?
+v2 facilitator rooms now store dialogue as **application-layer AES-GCM ciphertext** with per-session keys in `session_room_keys` (still **operator-readable** — keys live in Postgres). Legacy squad chat uses a per-squad symmetric key still readable by the operator. Partners evaluating SquadRidge ask, correctly: can rooms become operator-blind while facilitators still draft and release approved outcomes?
 
 This ADR compares two families of designs against that requirement. It does **not** authorize shipping either design or changing public badges.
 

@@ -270,6 +270,16 @@ export interface Database {
         };
         Update: never;
       };
+      session_room_keys: {
+        Row: {
+          session_id: string;
+          message_encryption_key: string;
+          key_epoch: number;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+      };
       session_audit_events: {
         Row: {
           id: string;
@@ -348,6 +358,18 @@ export interface Database {
       participant_list_messages: {
         Args: { p_token: string };
         Returns: Json;
+      };
+      participant_get_room_key: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      facilitator_get_or_create_room_key: {
+        Args: { p_session_id: string };
+        Returns: Json;
+      };
+      is_aes_gcm_v3_payload: {
+        Args: { p_body: string };
+        Returns: boolean;
       };
       release_outcome: {
         Args: { p_outcome_id: string };

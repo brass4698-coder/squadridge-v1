@@ -11,16 +11,36 @@ export type GlossTermProps = {
   className?: string;
   /** When false, skip the optional diligence link inside the tooltip. */
   linkDeepDive?: boolean;
+  /**
+   * `inline` — calm first-use parenthetical (preferred on marketing pages).
+   * `tooltip` — hover/focus tip for dense technical prose (Security appendix).
+   */
+  variant?: 'inline' | 'tooltip';
 };
 
 /**
- * Inline glossary tip for facilitator personas — hover/focus, reduced-motion safe.
- * Does not invent stronger privacy claims than the gloss text allows.
+ * Inline glossary for facilitator personas.
+ * Prefer `variant="inline"` for first public use; reserve tooltips for dense reviewer prose.
  */
-export function GlossTerm({ term, children, className, linkDeepDive = true }: GlossTermProps) {
+export function GlossTerm({
+  term,
+  children,
+  className,
+  linkDeepDive = true,
+  variant = 'tooltip',
+}: GlossTermProps) {
   const tipId = useId();
   const entry = GLOSSARY_TERMS[term];
   const label = children ?? entry.term;
+
+  if (variant === 'inline') {
+    return (
+      <span className={cn('inline', className)}>
+        <span className="text-ink">{label}</span>
+        <span className="text-ink-faint"> ({entry.gloss})</span>
+      </span>
+    );
+  }
 
   return (
     <span className={cn('group relative inline', className)}>

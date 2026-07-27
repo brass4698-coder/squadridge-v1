@@ -4,12 +4,19 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 ## Start Here
 
+- **Investor brief:** [`./investor-brief.md`](./investor-brief.md)
 - Current state: [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md)
 - Diligence summary: [`../../DILIGENCE_OVERVIEW.md`](../../DILIGENCE_OVERVIEW.md)
+- Competitive wedge: [`./competitive-wedge.md`](./competitive-wedge.md)
+- Use of funds & milestones: [`./use-of-funds-and-milestones.md`](./use-of-funds-and-milestones.md)
+- Architecture one-pager: [`../technical/diligence-architecture.md`](../technical/diligence-architecture.md)
+- External security review (placeholder): [`../security/external-review.md`](../security/external-review.md)
+- Pilot evidence pack template: [`../operations/pilot-evidence-pack-template.md`](../operations/pilot-evidence-pack-template.md)
 - Repository overview: [`../../README.md`](../../README.md)
 
 ## Product
 
+- Platform description (canonical story): [`../product/platform-description.md`](../product/platform-description.md)
 - Conflict Severity Index (methodology; internal moderator reads): [`../product/conflict-severity-index.md`](../product/conflict-severity-index.md)
 - Messaging framework (all deck audiences): [`./messaging-framework.md`](./messaging-framework.md)
 - Conflict prevention thesis (strategic, cross-links): [`./conflict-prevention-thesis.md`](./conflict-prevention-thesis.md)
@@ -22,12 +29,19 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 ## Security And Architecture
 
 - Threat model: [`../security/threat-model.md`](../security/threat-model.md)
+- Trust diligence packet: [`../security/trust-diligence-packet.md`](../security/trust-diligence-packet.md)
+- External security review (placeholder): [`../security/external-review.md`](../security/external-review.md)
 - Security/privacy overview: [`../technical/security-privacy.md`](../technical/security-privacy.md)
+- Diligence architecture one-pager: [`../technical/diligence-architecture.md`](../technical/diligence-architecture.md)
 - Architecture overview: [`../technical/architecture-overview.md`](../technical/architecture-overview.md)
-- ZK implementation: [`../technical/zk-implementation.md`](../technical/zk-implementation.md)
+- Operator-blind E2E options (planned): [`../adr/005-operator-blind-room-encryption-options.md`](../adr/005-operator-blind-room-encryption-options.md)
+- ZK implementation (legacy / diligence): [`../technical/zk-implementation.md`](../technical/zk-implementation.md)
 
 ## Operations
 
+- v2 pilot checklist: [`../operations/v2-pilot-checklist.md`](../operations/v2-pilot-checklist.md)
+- Pilot deploy runbook: [`../operations/pilot-deploy-runbook.md`](../operations/pilot-deploy-runbook.md)
+- Pilot evidence pack template: [`../operations/pilot-evidence-pack-template.md`](../operations/pilot-evidence-pack-template.md)
 - Production checklist: [`../operations/production-checklist.md`](../operations/production-checklist.md)
 - Launch checklist (positioning): [`../operations/launch-checklist.md`](../operations/launch-checklist.md)
 - Evidence collection (pilots): [`../operations/evidence-collection.md`](../operations/evidence-collection.md)
@@ -39,6 +53,9 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 ## Business And Partnerships
 
+- Investor brief: [`./investor-brief.md`](./investor-brief.md)
+- Competitive wedge: [`./competitive-wedge.md`](./competitive-wedge.md)
+- Use of funds & milestones: [`./use-of-funds-and-milestones.md`](./use-of-funds-and-milestones.md)
 - Partner integration (aspirational): [`./partner-integration-guide.md`](./partner-integration-guide.md)
 - Impact reporting (template): [`./impact-reporting-template.md`](./impact-reporting-template.md)
 - Strategic positioning (roadmap; vision vs shipped): [`./strategic-positioning-early-warning.md`](./strategic-positioning-early-warning.md)
@@ -52,9 +69,9 @@ This index is a suggested structure for a lightweight diligence room. It helps p
 
 These may live in a private diligence folder rather than git:
 
-- legal/privacy drafts
-- budget and use-of-funds
+- legal/privacy drafts and signed MOUs
+- filled budget / term materials (replace planning placeholders)
 - cap table or financing history
-- partner pipeline or LOIs
-- pilot reports and testimonials
-- external security review artifacts
+- partner pipeline or LOIs (only when real)
+- completed pilot evidence packs and testimonials (only with consent)
+- external security review artifacts (when an engagement completes)

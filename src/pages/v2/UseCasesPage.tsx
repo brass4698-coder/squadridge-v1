@@ -17,11 +17,13 @@ import {
 } from '../../components/shared';
 import { GovernedPanel } from '../../components/motion';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 /**
  * Use cases — state the backbone once, then prove it per buyer track.
  */
 export function UseCasesPage() {
+  usePageTitle('Use cases');
   const { hash } = useLocation();
 
   useEffect(() => {
@@ -130,10 +132,10 @@ export function UseCasesPage() {
               What a bounded pilot can look like
             </h2>
             <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
-              Anonymized composites for diligence — not live traction. Participant counts and
-              timelines mirror the Strong fit criteria on{' '}
+              Anonymized composites for diligence — illustrative specimens, not live traction.
+              Participant counts and timelines mirror the Strong fit criteria on{' '}
               <Link to="/request-access" className="text-brand underline-offset-2 hover:underline">
-                Request access
+                Request pilot access
               </Link>
               . Self-select against Not a fit before applying.
             </p>

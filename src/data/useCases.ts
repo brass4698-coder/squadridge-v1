@@ -111,6 +111,7 @@ export const primaryUseCases: UseCaseCardProps[] = [
     title: 'Board and grantee deliberation under scrutiny',
     context:
       'Contested funding or governance questions draw scrutiny. Informal notes and forwarded threads become the story.',
+    fitSignal: 'Typically 5–8 principals; hard ceiling 12',
     bullets: [
       'Email threads sprawl beyond the intended circle',
       'Chat leaves discoverable trails with no release authority',
@@ -129,6 +130,7 @@ export const primaryUseCases: UseCaseCardProps[] = [
     title: 'High-stakes mediation with a releasable agreement',
     context:
       'Attribution-sensitive parties need structured written dialogue. Institutions still need an outcome they can cite.',
+    fitSignal: 'Recommended 4–8 parties; hard ceiling 12',
     bullets: [
       'Open chat and shared docs collapse privacy and process control',
       'Transcripts become weapons between parties',
@@ -147,6 +149,7 @@ export const primaryUseCases: UseCaseCardProps[] = [
     title: 'Sensitive workplace or institutional inquiry',
     context:
       'Fact-finding without exposing contributors or creating a discoverable transcript that invites retaliation.',
+    fitSignal: 'Typically 4–7 contributors + facilitator; hard ceiling 12',
     bullets: [
       'Tickets and email create sprawling trails',
       'Anonymous forms lack facilitator process control',

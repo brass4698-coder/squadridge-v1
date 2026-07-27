@@ -9,7 +9,9 @@ export type GlossaryTermId =
   | 'ledger-sha'
   | 'canonicalised'
   | 'verification-anchor'
-  | 'rfc-3161';
+  | 'rfc-3161'
+  | 'instrument-hash'
+  | 'authorship-attestation';
 
 export type GlossaryTerm = {
   id: GlossaryTermId;
@@ -61,7 +63,21 @@ export const GLOSSARY_TERMS: Record<GlossaryTermId, GlossaryTerm> = {
     id: 'rfc-3161',
     term: 'RFC 3161',
     gloss:
-      'A trusted timestamping standard (planned) that would independently attest when a hash was created — not shipped in the current pilot.',
+      'A trusted timestamping standard (scaffolded) that would independently attest when a hash was created — not live in the current pilot.',
     href: '/security#verification-anchor',
+  },
+  'instrument-hash': {
+    id: 'instrument-hash',
+    term: 'instrument hash',
+    gloss:
+      'The SHA-256 fingerprint of the exact approved wording — approvals and release bind to this fingerprint, not a looser paraphrase.',
+    href: '/security#safeguards',
+  },
+  'authorship-attestation': {
+    id: 'authorship-attestation',
+    term: 'authorship attestation',
+    gloss:
+      'A recorded facilitator statement that they authored the instrument, bound to the same hash as the approvals.',
+    href: '/security#safeguards',
   },
 };

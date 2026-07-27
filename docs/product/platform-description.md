@@ -383,7 +383,7 @@ SquadRidge is **not** “a Zoom alternative.” It is the **protected messaging 
 ### Accurate pilot framing
 
 - **“Private pilot — now inviting mediators and peacebuilding teams.”**
-- **“Request pilot access”** — manual review, 5–7 business day response target on the form.
+- **“Request pilot access”** — manual review; aim to reply within about one week (not a hard SLA).
 - **“We work closely with pilot partners”** — present tense invitation to collaborate, **not** a claim that dozens of partners are already live unless true.
 - Founder/team **belief statements** on About — not customer testimonials.
 

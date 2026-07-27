@@ -38,19 +38,6 @@ export function PricingPage() {
             </p>
           </>
         }
-        actions={
-          <>
-            <Link to={CTA.primaryHref} className="btn-institutional btn-institutional--primary">
-              {CTA.primaryLabel}
-            </Link>
-            <Link
-              to={CTA.secondaryBriefingHref}
-              className="btn-institutional btn-institutional--ghost"
-            >
-              {CTA.secondaryBriefingLabel}
-            </Link>
-          </>
-        }
       />
 
       <MarketingSection id="tiers" density="compact">
@@ -89,9 +76,9 @@ export function PricingPage() {
                 Pricing follows fit review
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-                We review applications by hand and respond with an honest fit assessment, typically
-                within 5–7 business days. Commercial posture is discussed after matter class and
-                facilitation context are clear — not before.
+                We review applications by hand and aim to reply with an honest fit assessment within
+                about one week. Commercial posture is discussed after matter class and facilitation
+                context are clear — not before.
               </p>
               <p className="mt-4 mb-0 text-sm leading-relaxed text-ink-secondary">
                 Publishing invented &quot;starting at&quot; figures would mislead diligence readers.
@@ -124,7 +111,7 @@ export function PricingPage() {
         body={CTA.closePricing}
         secondaryLabel={CTA.secondaryBriefingLabel}
         secondaryHref={CTA.secondaryBriefingHref}
-        statusLine={CTA.pilotStatusLine}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

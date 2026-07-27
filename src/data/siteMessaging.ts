@@ -24,7 +24,7 @@ export const SITE_CATEGORY_PROMISE = SITE_MISSION;
 
 /** Market gap — one line; do not restate the full room→gate→record spine beside it. */
 export const SITE_NICHE =
-  'Built for NGO, peacebuilding, and institutional facilitators who need privacy in the room and integrity in the record — without treating chat as the archive.';
+  'Built for foundations, NGOs, boards, HR/ombuds, and facilitation teams who need a private written room and a citable record — without treating chat as the archive.';
 
 /** Why this category matters now — precise, non-speculative. */
 export const SITE_WHY_NOW =
@@ -48,21 +48,37 @@ export const SITE_NOT = [
   'Not a legal instrument or operator-proof E2E encryption (today)',
 ] as const;
 
-/** Ordered by go-to-market priority. */
+/** Ordered by go-to-market priority — same spine as homepage; peacebuilding is a track, not the category. */
 export const TARGET_AUDIENCES = [
   'Foundations and philanthropic program teams',
-  'NGO and peacebuilding facilitators',
+  'NGO and facilitation teams (including peacebuilding contexts)',
   'Boards and executive teams',
   'HR, compliance, and ombuds offices',
   'Professional mediators and dispute-resolution practitioners',
   'Track II dialogue facilitators (later)',
 ] as const;
 
+/**
+ * Honest intake timing for a human-reviewed, invite-only funnel.
+ * Prefer this over hard SLAs that overpromise solo-founder bandwidth.
+ */
+export const INTAKE_REVIEW_TIMING = {
+  /** Short chip / status rail */
+  short: 'Human review · target about one week',
+  /** Sentence for intake and CTAs */
+  sentence:
+    'We review applications manually and aim to reply with an honest fit assessment within about one week — not an automated approval.',
+  /** Compact clause for embedding in longer copy */
+  clause: 'aim to reply within about one week',
+} as const;
+
 export const PILOT_FIT_STRONG = [
-  'NGO or peacebuilding facilitator-led internal deliberation (recommended 4–8 participants; hard ceiling 12)',
+  'Philanthropy / foundations: board or grant-committee deliberation (typically 5–8 principals; hard ceiling 12)',
+  'Peacebuilding / mediation: facilitator-led internal or cross-party rooms (recommended 4–8 parties; hard ceiling 12)',
+  'HR / compliance / ombuds: inquiry or fact-finding rooms (typically 4–7 contributors + facilitator; hard ceiling 12)',
   'Need for a private anchored decision memo — public ledger optional',
   'High attribution sensitivity — parties need a protected written room',
-  'Willingness to operate within documented security boundaries (operator-readable rooms today)',
+  'Willingness to operate within documented security boundaries (app-layer encryption; operator-readable keys today)',
 ] as const;
 
 export const PILOT_FIT_WEAK = [
@@ -92,8 +108,7 @@ export const CTA = {
   secondaryLedgerHref: '/ledger',
   pilotHeadline: 'Request pilot access',
   /** Default close — prefer route-scoped bodies below when closing a page. */
-  pilotBody:
-    'We review applications manually and respond with an honest fit assessment, typically within 5–7 business days.',
+  pilotBody: INTAKE_REVIEW_TIMING.sentence,
   /** Route-scoped closes — same button, different reason to act. */
   closeHowItWorks:
     'If Configure → Release fits your matter class, request a scoped pilot evaluation — process walkthrough and security review, not open signup.',
@@ -103,8 +118,7 @@ export const CTA = {
     'If one of these tracks matches your matter, request a private pilot briefing. Manual review. Invite-only.',
   closeAbout:
     'Early pilots are invite-only. Tell us the matter class and facilitation context — we respond with fit, not automation.',
-  closeFaq:
-    'Still evaluating fit? Submit a pilot intake — we answer with scope and honesty, typically within 5–7 business days.',
+  closeFaq: `Still evaluating fit? Submit a pilot intake — we ${INTAKE_REVIEW_TIMING.clause} with scope and honesty.`,
   closeContact:
     'Prefer a conversation first? After briefing, most partners continue through pilot intake for role-scoped access.',
   closeLedger:
@@ -113,8 +127,7 @@ export const CTA = {
     'Need deck access for diligence? Request briefing access — materials stay gated until there is a clear review reason.',
   closeRoadmap:
     'If the launch plan and pilot profile match your matter class, request a scoped pilot evaluation — manual review, not open signup.',
-  closePricing:
-    'Pricing is invite-only and scoped with each partner. Start with pilot intake or a briefing — we respond with fit and commercial posture, typically within 5–7 business days.',
+  closePricing: `Pricing is invite-only and scoped with each partner. Start with pilot intake or a briefing — we ${INTAKE_REVIEW_TIMING.clause} with fit and commercial posture.`,
   closePipeline:
     'No live pilots yet. If you are evaluating partnership or diligence fit, request intake or a briefing — we publish pipeline numbers only when sourced.',
   /** Honest status — never invent organisation counts. */
@@ -122,10 +135,10 @@ export const CTA = {
   /** Shorter status for pages that already state fit-review elsewhere. */
   pilotStatusLineShort: 'Invite-only · scoped private pilots',
   pilotValueLine:
-    'For foundations, NGOs, and facilitators handling high-stakes matters — not open signup.',
+    'For foundations, NGOs, boards, and HR/compliance teams running private deliberation — not open signup.',
   briefingHeadline: 'Request briefing',
   briefingBody:
-    'For diligence conversations, security review, or partnership exploration with mediators and facilitation teams before a formal application.',
+    'For diligence conversations, security review, or partnership exploration with facilitation teams before a formal application.',
 } as const;
 
 /**
@@ -166,7 +179,7 @@ export const TARGET_PILOT_PROFILES = [
     tier: 'primary' as const,
     sector: 'Peacebuilding & mediation',
     orgSize: 'Facilitator-led cohorts of roughly 4–8 parties (hard ceiling 12)',
-    pain: 'Attribution-sensitive dialogue that still needs a citable approved instrument.',
+    pain: 'Attribution-sensitive deliberation that still needs a citable approved instrument — same private-room / release-gate model as other tracks.',
   },
   {
     tier: 'primary' as const,
@@ -194,7 +207,7 @@ export const LAUNCH_PLAN_STAGES = [
     id: 'now',
     label: 'Now',
     title: 'Invite-only access open',
-    body: 'Manual fit review is open. We assess matter class and facilitation context before granting scoped access — typically within 5–7 business days.',
+    body: `Manual fit review is open. We assess matter class and facilitation context before granting scoped access — we ${INTAKE_REVIEW_TIMING.clause}.`,
   },
   {
     id: 'next-90',
@@ -211,7 +224,7 @@ export const LAUNCH_PLAN_STAGES = [
 ] as const;
 
 /**
- * Founder first-person note for /roadmap.
+ * Founder first-person note for About (/about#who) and Roadmap.
  * Honest pre-pilot posture — no invented biography or traction.
  */
 export const FOUNDER_NOTE =
@@ -227,7 +240,7 @@ export const PRICING_TIERS = [
     id: 'pilot',
     name: 'Pilot',
     posture: 'Time-boxed · low or no cost · manual review',
-    body: 'Scoped private pilots for facilitators evaluating fit. Access is invite-only after a 5–7 day manual review — not self-serve signup.',
+    body: 'Scoped private pilots for facilitators evaluating fit. Access is invite-only after human review — not self-serve signup.',
   },
   {
     id: 'team',

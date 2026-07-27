@@ -18,7 +18,7 @@ export const faqHome: FaqItem[] = [
   {
     question: 'Who can see what is said in a room?',
     answer:
-      'Only verified participants and the facilitator. Session dialogue is never published, and identities never appear on the public record.',
+      'Verified participants and the facilitator. Dialogue is never published. Operators with database access can still decrypt stored ciphertext today — not Signal-grade operator-blind encryption. Identities never appear on the public record.',
   },
   {
     question: 'Why written dialogue only?',
@@ -33,6 +33,6 @@ export const faqHome: FaqItem[] = [
   {
     question: 'Is the session end-to-end encrypted?',
     answer:
-      'Not today. Content is protected in transit and access-controlled at rest, but it is not operator-proof end-to-end encryption; room-level E2EE is on the roadmap. We state exact boundaries on the security page so you can set accurate expectations with parties.',
+      'Not operator-blind today. Content is protected in transit and stored as ciphertext, but operators with database access can still decrypt. Operator-blind room E2EE is on the roadmap; exact boundaries are on the security page.',
   },
 ];

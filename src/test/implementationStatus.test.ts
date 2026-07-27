@@ -4,7 +4,10 @@ import {
   getClaim,
   HOME_TRUST_STRIP,
   IMPLEMENTATION_CLAIMS,
+  IMPLEMENTATION_STATUS_LEGEND,
+  IMPLEMENTATION_STATUS_LEGEND_LIVE_FOCUS,
   isClaimLive,
+  PROCESS_GATE_LEGEND,
   statusBadgeLabel,
   TRUST_FEATURE_CLAIM_IDS,
 } from '../data/implementationStatus';
@@ -31,16 +34,36 @@ describe('Implementation Status Registry', () => {
   it('home trust strip has four evaluator labels', () => {
     expect(HOME_TRUST_STRIP.map((x) => x.label)).toEqual([
       'Invite-only',
-      'Manual review',
+      'Sealed room',
       'Documented limits',
-      'Approved-outcomes-only ledger',
+      'Ledger mechanism',
     ]);
+  });
+
+  it('marks application-layer room encryption live and operator-blind planned', () => {
+    expect(getClaim('room_app_layer_encryption').status).toBe('live');
+    expect(getClaim('operator_blind_e2e').status).toBe('planned');
+  });
+
+  it('ledger LIVE claim is the release pipeline, not live public entries', () => {
+    const claim = getClaim('approved_outcomes_ledger');
+    expect(claim.status).toBe('live');
+    expect(claim.summary.toLowerCase()).toMatch(/illustrative specimen/);
+    expect(claim.summary.toLowerCase()).toMatch(/pipeline/);
   });
 
   it('status badge labels are stable', () => {
     expect(statusBadgeLabel('live')).toBe('Live');
     expect(statusBadgeLabel('scaffolded')).toBe('Planned · scaffolded');
     expect(statusBadgeLabel('planned')).toBe('Planned · not started');
+  });
+
+  it('status legends use badge vocabulary without inventing LIVE synonyms', () => {
+    expect(IMPLEMENTATION_STATUS_LEGEND).toMatch(/Live = shipped/);
+    expect(IMPLEMENTATION_STATUS_LEGEND).toMatch(/Planned · scaffolded/);
+    expect(IMPLEMENTATION_STATUS_LEGEND_LIVE_FOCUS).toMatch(/Live = shipped/);
+    expect(PROCESS_GATE_LEGEND).toMatch(/Gated =/);
+    expect(PROCESS_GATE_LEGEND).toMatch(/Released =/);
   });
 });
 

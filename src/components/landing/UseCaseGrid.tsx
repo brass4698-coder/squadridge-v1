@@ -8,10 +8,14 @@ import { publicShellInnerClass } from '../layout/publicShellTokens';
  */
 export function UseCaseGrid() {
   return (
-    <section className="py-16 md:py-20" data-scroll-section aria-labelledby="use-cases-h">
+    <section
+      className="sr-section-enter py-16 md:py-20"
+      data-scroll-section
+      aria-labelledby="use-cases-h"
+    >
       <div className={publicShellInnerClass}>
         <div className="max-w-[32rem]">
-          <SectionLabel className="!mb-2">Who buys this first</SectionLabel>
+          <SectionLabel className="!mb-2">Who this is for</SectionLabel>
           <h2
             id="use-cases-h"
             className="mt-0 font-heading text-h2 font-semibold leading-tight tracking-tight text-ink"
@@ -19,9 +23,8 @@ export function UseCaseGrid() {
             Sensitive decisions. Private rooms. Citable outcomes.
           </h2>
           <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
-            Three primary tracks plus two adjacent contexts — five bounded settings where
-            facilitators need a protected written room and an approved record the institution can
-            still stand behind.
+            Three primary tracks and two adjacent contexts — settings where a protected written room
+            and an approved record both matter.
           </p>
         </div>
 
@@ -41,6 +44,11 @@ export function UseCaseGrid() {
                 <p className="mt-3 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">
                   {uc.context}
                 </p>
+                {uc.fitSignal ? (
+                  <p className="mt-4 mb-0 font-mono text-[length:var(--text-label)] leading-relaxed tracking-[0.04em] text-ink-faint">
+                    Fit · {uc.fitSignal}
+                  </p>
+                ) : null}
                 <span className="mt-6 font-mono text-[length:var(--text-label)] tracking-[0.08em] text-ink-faint">
                   View track →
                 </span>

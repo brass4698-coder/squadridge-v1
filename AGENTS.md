@@ -19,6 +19,7 @@ Legacy citizen matchmaking / ZK routes are **soft-retired** in `App.v2.tsx` (red
 `/request-access`); code may remain for diligence. See `docs/security/threat-model.md` for
 honest privacy bounds. Canonical story: [`docs/product/platform-description.md`](docs/product/platform-description.md),
 `squadridge_platform_spec.json`, and `docs/founding/north-star.md`.
+Investor / diligence start-here: [`docs/business/investor-brief.md`](docs/business/investor-brief.md).
 The longer civic early-warning → redacted ledger → proposal vision lives in
 [`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md)
 (vision-labeled; do not treat as shipped claims).

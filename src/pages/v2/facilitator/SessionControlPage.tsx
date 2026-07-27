@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SessionResolutionPanel } from '../../../components/facilitator/SessionResolutionPanel';
 import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
+import { RoomPrivacyStatus } from '../../../components/session/RoomPrivacyStatus';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { useSessionMessages } from '../../../hooks/useSessionMessages';
@@ -37,11 +38,12 @@ export function SessionControlPage() {
   const navigate = useNavigate();
   const { session, loading } = useSession(sessionId);
   const { updateSessionStatus } = useSessions();
-  const { messages, sendMessage, connectionStatus, retryConnection } =
+  const { messages, sendMessage, connectionStatus, retryConnection, privacyState, cryptoError } =
     useSessionMessages(sessionId);
   const [roomStatus, setRoomStatus] = useState<RoomStatus>('waiting');
   const [showEndModal, setShowEndModal] = useState(false);
   const [facilitatorInput, setFacilitatorInput] = useState('');
+  const [sendError, setSendError] = useState<string | null>(null);
   const [transitionError, setTransitionError] = useState<string | null>(null);
   const [outcomeImport, setOutcomeImport] = useState<string | null>(null);
   const [pacingMode, setPacingMode] = useState<RoomPacingMode>('normal');
@@ -191,7 +193,16 @@ export function SessionControlPage() {
 
   async function sendFacilitatorMessage() {
     if (!facilitatorInput.trim()) return;
-    await sendMessage(facilitatorInput, 'Facilitator', 'facilitator');
+    setSendError(null);
+    const result = await sendMessage(facilitatorInput, 'Facilitator', 'facilitator');
+    if (!result.ok) {
+      setSendError(
+        result.error === 'ROOM_KEY_MISSING' || result.error === 'CIPHERTEXT_REQUIRED'
+          ? 'Could not seal this message. Check room encryption status and try again.'
+          : (result.error ?? 'Could not send message.'),
+      );
+      return;
+    }
     setFacilitatorInput('');
   }
 
@@ -243,6 +254,12 @@ export function SessionControlPage() {
             {statusLabel[status]}
           </span>
         </div>
+
+        <RoomPrivacyStatus
+          className="mb-4"
+          variant={privacyState === 'sealed_app_layer' ? 'sealed_app_layer' : privacyState}
+          detail={cryptoError}
+        />
 
         {session?.issue_goal ? (
           <div className="mb-4 rounded-lg bg-surface-secondary px-4 py-3 text-sm text-ink-secondary shadow-sr-sm">
@@ -468,21 +485,30 @@ export function SessionControlPage() {
             )}
           </div>
           {status === 'live' || status === 'paused' ? (
-            <div className="flex gap-2 border-t border-line p-4">
-              <textarea
-                rows={2}
-                value={facilitatorInput}
-                onChange={(e) => setFacilitatorInput(e.target.value)}
-                placeholder={`Stage prompt (${stageConfig.label})…`}
-                className="flex-1 resize-none rounded border border-line bg-surface px-3 py-2 text-sm text-ink"
-              />
-              <button
-                type="button"
-                onClick={() => void sendFacilitatorMessage()}
-                className="btn-pill btn-pill--primary shrink-0 self-end text-sm"
-              >
-                Send prompt
-              </button>
+            <div className="border-t border-line p-4">
+              {sendError ? (
+                <p className="mb-2 text-sm text-sem-danger" role="alert">
+                  {sendError}
+                </p>
+              ) : null}
+              <div className="flex gap-2">
+                <textarea
+                  rows={2}
+                  value={facilitatorInput}
+                  onChange={(e) => setFacilitatorInput(e.target.value)}
+                  placeholder={`Stage prompt (${stageConfig.label})…`}
+                  className="flex-1 resize-none rounded border border-line bg-surface px-3 py-2 text-sm text-ink"
+                  disabled={privacyState === 'key_error'}
+                />
+                <button
+                  type="button"
+                  onClick={() => void sendFacilitatorMessage()}
+                  className="btn-pill btn-pill--primary shrink-0 self-end text-sm"
+                  disabled={privacyState === 'key_error'}
+                >
+                  Send prompt
+                </button>
+              </div>
             </div>
           ) : null}
         </div>

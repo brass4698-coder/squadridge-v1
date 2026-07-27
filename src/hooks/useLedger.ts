@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { isSupabaseConfigured } from '../lib/env';
+import { isDemoLedgerFixture } from '../lib/demoLedgerFixtures';
 import type { OutcomeRecordClient, Session } from '../lib/supabaseTypes';
 
 export type LedgerEntry = OutcomeRecordClient & {
@@ -68,7 +69,10 @@ export function useLedger(search = '') {
         setError(ledgerFetchErrorMessage(qErr));
         setEntries([]);
       } else {
-        setEntries((data as unknown as LedgerEntry[]) ?? []);
+        const rows = ((data as unknown as LedgerEntry[]) ?? []).filter(
+          (entry) => !isDemoLedgerFixture(entry),
+        );
+        setEntries(rows);
         setError(null);
       }
     } catch (e) {
@@ -123,7 +127,8 @@ export function useLedgerRecord(outcomeId: string | undefined) {
           setError(ledgerFetchErrorMessage(qErr));
           setEntry(null);
         } else {
-          setEntry((data as unknown as LedgerEntry | null) ?? null);
+          const row = (data as unknown as LedgerEntry | null) ?? null;
+          setEntry(row && !isDemoLedgerFixture(row) ? row : null);
           setError(null);
         }
       } catch (e) {

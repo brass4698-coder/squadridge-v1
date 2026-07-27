@@ -4,6 +4,7 @@ import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ParticipantResolutionPanel } from '../../../components/participant/ParticipantResolutionPanel';
 import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
+import { RoomPrivacyStatus } from '../../../components/session/RoomPrivacyStatus';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
 import { useParticipantToken } from '../../../hooks/useParticipantToken';
 import { useParticipantMessages } from '../../../hooks/useParticipantMessages';
@@ -27,7 +28,8 @@ import {
 export function ParticipantRoomPage() {
   const token = useParticipantToken();
   const { ctx, loading: ctxLoading } = useParticipantSession(token ?? '');
-  const { messages, status, error, send, refresh } = useParticipantMessages(token ?? undefined);
+  const { messages, status, error, send, refresh, privacyState, cryptoError } =
+    useParticipantMessages(token ?? undefined);
   const [input, setInput] = useState('');
   const [draftReady, setDraftReady] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -185,6 +187,11 @@ export function ParticipantRoomPage() {
           <span className="font-medium text-ink">Next: </span>
           {nextAction}
         </p>
+        <RoomPrivacyStatus
+          className="mx-auto mt-3 max-w-2xl"
+          variant={privacyState}
+          detail={cryptoError}
+        />
       </div>
 
       <div

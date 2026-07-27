@@ -9,6 +9,8 @@ import {
   CTABlock,
   EvaluationPathCards,
   GlossTerm,
+  ImplementationStatusLegend,
+  ProcessGateLegend,
   SpineStageDiagram,
   StickySpineNav,
   type EvaluationPath,
@@ -30,19 +32,19 @@ const EVALUATION_PATHS: EvaluationPath[] = [
     label: 'Pilot evaluation',
     href: CTA.primaryHref,
     body: 'Scoped private pilot on a real matter class — process walkthrough, not open signup.',
-    cta: 'Start pilot intake',
+    cta: 'Open intake form',
   },
   {
     label: 'Security review',
     href: CTA.secondarySecurityHref,
     body: 'Documented limits, operator bounds, and what the integrity anchor does — and does not — prove.',
-    cta: 'Inspect security boundary',
+    cta: CTA.secondarySecurity,
   },
   {
     label: 'Operational fit',
     href: CTA.secondaryUseCasesHref,
     body: 'Where this architecture applies for foundations, mediators, and institutional teams — and where it does not.',
-    cta: 'Review buyer tracks',
+    cta: CTA.secondaryUseCases,
   },
 ];
 
@@ -59,7 +61,7 @@ export function HowItWorksPage() {
   return (
     <div className="sr-process-artifact" data-page="how-it-works">
       <header
-        className="sr-section-enter scroll-mt-20 border-b border-line pt-14 pb-10 md:pt-16 md:pb-12"
+        className="scroll-mt-20 border-b border-line pt-14 pb-10 md:pt-16 md:pb-12"
         data-demo="how-it-works-spine"
         data-scroll-section
       >
@@ -117,11 +119,14 @@ export function HowItWorksPage() {
               </a>
               .
             </p>
+            <ImplementationStatusLegend className="mt-4" />
           </div>
 
           <div className="mb-12">
             <SpineStageDiagram />
           </div>
+
+          <ProcessGateLegend className="mb-8" />
 
           <ol className="sr-process-spine m-0 list-none p-0">
             {PRODUCT_MECHANICS.map((step, index) => {
@@ -202,9 +207,10 @@ export function HowItWorksPage() {
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Evaluators ask this — so it is documented, not implied. Release is blocked until
-              required approvals and facilitator authorship attestation are recorded against the
-              current instrument hash. There is no timer, webhook, or operator override that
-              publishes room dialogue or an unsigned draft.
+              required approvals and facilitator{' '}
+              <GlossTerm term="authorship-attestation" variant="inline" /> are recorded against the
+              current <GlossTerm term="instrument-hash" variant="inline" />. There is no timer,
+              webhook, or operator override that publishes room dialogue or an unsigned draft.
             </p>
             <ul className="mt-6 m-0 list-none space-y-3 p-0 text-sm leading-relaxed text-ink-secondary">
               <li className="flex gap-2">
@@ -323,25 +329,33 @@ export function HowItWorksPage() {
   );
 }
 
-/** Light inline glosses for technical terms that appear in vignette copy. */
+/** First-use inline glosses for technical terms in vignette copy. */
 function VignetteBody({ text }: { text: string }) {
-  const parts = text.split(/(bearer secrets|codenames|ledger_sha|canonicalised)/g);
+  const parts = text.split(
+    /(bearer secrets|codenames|ledger_sha|canonicalised|RFC 3161|instrument hash|authorship attestation)/g,
+  );
   return (
     <>
       {parts.map((part, i) => {
         switch (part) {
           case 'bearer secrets':
-            return <GlossTerm key={i} term="bearer-secret" />;
+            return <GlossTerm key={i} term="bearer-secret" variant="inline" />;
           case 'codenames':
-            return <GlossTerm key={i} term="codename" />;
+            return <GlossTerm key={i} term="codename" variant="inline" />;
           case 'ledger_sha':
             return (
-              <GlossTerm key={i} term="ledger-sha">
+              <GlossTerm key={i} term="ledger-sha" variant="inline">
                 <span className="font-mono">ledger_sha</span>
               </GlossTerm>
             );
           case 'canonicalised':
-            return <GlossTerm key={i} term="canonicalised" />;
+            return <GlossTerm key={i} term="canonicalised" variant="inline" />;
+          case 'RFC 3161':
+            return <GlossTerm key={i} term="rfc-3161" variant="inline" />;
+          case 'instrument hash':
+            return <GlossTerm key={i} term="instrument-hash" variant="inline" />;
+          case 'authorship attestation':
+            return <GlossTerm key={i} term="authorship-attestation" variant="inline" />;
           default:
             return <span key={i}>{part}</span>;
         }

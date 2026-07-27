@@ -2,33 +2,32 @@
 
 ## What was weak before
 
-- The landing flow had strong intent but still read like an advanced prototype in places.
-- High-value navigation targets like security, ledger, and request-access were not obvious enough in the header and mobile drawer.
-- Some interaction states were too quiet for an investor-facing demo, especially around buttons, cards, and waitlist capture.
-- Encoding artifacts and inconsistent punctuation hurt perceived polish.
-- The waitlist form worked, but it did not feel premium or complete enough for a first-impression conversion surface.
+- Landing and nav sometimes read like an advanced prototype rather than deliberation infrastructure.
+- Security, ledger, and request-access were easy to miss for a first diligence pass.
+- Some docs and copy still leaned on legacy matchmaking / waitlist / ZK framing.
+- Encoding and polish issues hurt perceived maturity on marketing surfaces.
+- Diligence materials lagged the honesty already present in the threat model and implementation registry.
 
 ## What was improved
 
-- Reframed the landing page around a clearer above-the-fold value proposition and more investor-legible product story.
-- Added richer hero atmosphere, stronger CTA motion, and higher-quality surface treatments across key landing cards.
-- Upgraded header navigation to expose the most important demo surfaces faster: match flow, ledger, security, and request access.
-- Improved mobile drawer usefulness so it acts like a real product nav rather than a minimal overflow panel.
-- Rebuilt the waitlist section into a more premium, conversion-focused panel with better hierarchy and stronger success/error feedback.
-- Refined testimonial and footer presentation to better support trust and maturity.
-- Added explicit investor and pilot readiness documentation so the repo itself communicates discipline and current scope.
+- Public site and docs reframed around **private deliberation infrastructure** and Configure → Verify → Facilitate → Release.
+- Implementation Status Registry (`src/data/implementationStatus.ts`) backs LIVE / SCAFFOLDED / PLANNED claims.
+- Investor start-here pack added: [`docs/business/investor-brief.md`](./docs/business/investor-brief.md), competitive wedge, use-of-funds & milestones, diligence architecture one-pager, external-review placeholder, pilot evidence pack template.
+- [`DILIGENCE_OVERVIEW.md`](./DILIGENCE_OVERVIEW.md) and [`docs/business/data-room-index.md`](./docs/business/data-room-index.md) aligned to the v2 spine.
+- Security page, threat model, and platform description remain the engineering honesty anchors.
 
 ## Remaining gaps
 
-- Several secondary pages still have opportunities for a stronger visual system pass and copy tightening.
-- There are still older docs and some app copy outside this sprint that should be normalized for punctuation and encoding consistency.
-- Full investor-demo readiness would benefit from a dedicated pass on the onboarding, match, verification, and session flows as one continuous journey.
-- The product would benefit from one or two more polished empty and loading states in deeper flows beyond the landing and waitlist surfaces.
+- **Evidence, not decks:** first real private pilot + filled [`docs/operations/pilot-evidence-pack-template.md`](./docs/operations/pilot-evidence-pack-template.md) still required for higher fundability.
+- **External review:** placeholder only — [`docs/security/external-review.md`](./docs/security/external-review.md); no completed third-party review in-repo.
+- **Ops gaps:** email delivery for workflow notifications and first live private release still called out in [`CURRENT_STATUS.md`](./CURRENT_STATUS.md).
+- **Secondary surfaces:** some older business docs (e.g. legacy funding thesis language) may still need a pass so they do not contradict the investor brief.
+- **Demo continuity:** facilitator walkthrough exists; keep staging dry-runs aligned with [`docs/operations/v2-pilot-checklist.md`](./docs/operations/v2-pilot-checklist.md) rather than reviving waitlist/match journeys as the investor story.
 
 ## Recommended next steps
 
-1. Run a second-pass polish sprint on onboarding, verification, matching, and session-room continuity.
-2. Normalize punctuation and encoding across the rest of the codebase and product docs.
-3. Add a lightweight demo command center or "start here" state for live presentations.
-4. Tighten analytics, loading states, and recovery states for any flow used during a live investor demo.
-5. Capture screenshots or a short video after the next pass and compare the app against premium startup landing and product demos.
+1. Open diligence with [`docs/business/investor-brief.md`](./docs/business/investor-brief.md) → [`CURRENT_STATUS.md`](./CURRENT_STATUS.md) → threat model → `/security`.
+2. Run a staging dry-run and file an evidence pack for the first private memo pilot.
+3. Commission a scoped external review (RLS, auth, release path) using the external-review template.
+4. Keep public claims synchronized with `implementationStatus.ts` — no invented LIVE crypto or traction.
+5. Treat first paying organisation as a **labeled hypothesis** in [`docs/business/use-of-funds-and-milestones.md`](./docs/business/use-of-funds-and-milestones.md), not a present fact.

@@ -1,9 +1,8 @@
 export { LandingHero } from './LandingHero';
-export { IllustrativeScenarioStrip } from './IllustrativeScenarioStrip';
+export { LandingBelowFold } from './LandingBelowFold';
 export { WhyOverview } from './WhyOverview';
 export { ProcessStagePanel } from './ProcessStagePanel';
 export { BoundarySection } from './BoundarySection';
-export { ProductEvidenceCluster } from './ProductEvidenceCluster';
 export { UseCaseGrid } from './UseCaseGrid';
 export { RecordSpecimen } from './RecordSpecimen';
 export { PilotIntakeSection } from './PilotIntakeSection';

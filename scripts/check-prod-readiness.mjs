@@ -215,6 +215,13 @@ if (process.env.VITE_ENABLE_DEMO_LOGIN === 'true') {
   pass('Demo password login is not enabled for this check');
 }
 
+// 10c. V2 mock facilitator fixtures must not ship in production
+if (process.env.VITE_V2_MOCK_DATA === 'true') {
+  fail('VITE_V2_MOCK_DATA', 'facilitator session fixtures must not be enabled for production readiness');
+} else {
+  pass('V2 mock facilitator data is not enabled for this check');
+}
+
 const failed = checks.filter((c) => !c.ok);
 console.log(`\nDone: ${checks.filter((c) => c.ok).length}/${checks.length} passed.`);
 if (failed.length) {

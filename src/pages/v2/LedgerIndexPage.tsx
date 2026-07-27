@@ -8,6 +8,7 @@ import {
   CapsLabel,
   GlossTerm,
   ImplementationStatusBadge,
+  ImplementationStatusLegend,
   NoLiveReleasesPanel,
   RecordCardCompact,
   specimenToRecordCardProps,
@@ -82,14 +83,15 @@ export function LedgerIndexPage() {
             <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
               <span className="font-medium text-ink">Does not prove: </span>
               independently attested time, legal privilege, or court-admissible evidence of when.
-              RFC 3161 is{' '}
+              <GlossTerm term="rfc-3161" /> trusted timestamping is{' '}
               <ImplementationStatusBadge
                 status={RFC_CLAIM.status}
                 size="sm"
                 className="align-middle"
               />{' '}
-              — not LIVE until a verified TSA token is stored on release.
+              — not Live until a verified TSA token is stored on release.
             </p>
+            <ImplementationStatusLegend className="mt-3" />
           </aside>
           <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-faint">
             Process detail on{' '}

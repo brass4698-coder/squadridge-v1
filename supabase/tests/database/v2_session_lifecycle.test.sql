@@ -193,6 +193,11 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 9. release_outcome rejects verbatim room content
 -- Approvals are seeded after the text is final: any later edit resets them by design.
+-- Drop the room key so this fixture can store legacy plaintext (verbatim guard only
+-- substring-matches non-ciphertext rows; see 20260726093000_v2_session_room_encryption).
+DELETE FROM public.session_room_keys
+WHERE session_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+
 INSERT INTO public.session_messages (session_id, sender_label, sender_role, body)
 VALUES (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',

@@ -1,9 +1,11 @@
 import { faqFull } from '../../data/faqFull';
 import { CTA } from '../../data/siteMessaging';
 import { CTABlock, FAQAccordion, MarketingPageHero, ShellWidth } from '../../components/shared';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 /** FAQ — dense instrument, no decorative schematic or journey kit. */
 export function FaqPage() {
+  usePageTitle('FAQ');
   return (
     <div>
       <MarketingPageHero
@@ -26,6 +28,7 @@ export function FaqPage() {
         body={CTA.closeFaq}
         secondaryLabel={CTA.secondarySecurity}
         secondaryHref={CTA.secondarySecurityHref}
+        statusLine={CTA.pilotStatusLineShort}
       />
     </div>
   );

@@ -233,5 +233,5 @@ export const DEMO_QUICK_LINKS = [
   { label: 'Participant invite (demo)', href: DEMO_PARTICIPANT_INVITE.invitePath },
   { label: 'Participant room (demo)', href: DEMO_PARTICIPANT_INVITE.roomPath },
   { label: 'Enter credential', href: '/enter/credential' },
-  { label: 'Pilot guide', href: '/app/pilot-guide' },
+  { label: 'Pilot readiness', href: '/app/pilot-guide' },
 ] as const;

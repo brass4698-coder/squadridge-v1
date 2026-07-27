@@ -23,6 +23,7 @@ export type ImplementationClaimId =
   | 'manual_review_sla'
   | 'invite_only_access'
   | 'approved_outcomes_ledger'
+  | 'room_app_layer_encryption'
   | 'rfc3161_timestamp'
   | 'operator_blind_e2e'
   | 'ioa_alignment'
@@ -103,10 +104,10 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
   },
   {
     id: 'manual_review_sla',
-    label: 'Manual pilot intake review (5–7 business days)',
+    label: 'Manual pilot intake review',
     status: 'live',
     summary:
-      'Access requests are reviewed by a human. There is no automated approval or self-serve status tracker.',
+      'Access requests are reviewed by a human. We aim to reply within about one week. There is no automated approval or self-serve status tracker.',
     securityHref: '/request-access',
     spineStage: 'configure',
   },
@@ -120,12 +121,21 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
   },
   {
     id: 'approved_outcomes_ledger',
-    label: 'Approved-outcomes-only public ledger',
+    label: 'Approved-outcomes-only release → ledger pipeline',
     status: 'live',
     summary:
-      'The public ledger lists released records only. Room dialogue never appears. Specimens are labeled illustrative.',
+      'The release pipeline that can publish only facilitator-approved outcome text is live. The public ledger stays empty of real entries until an organisation completes a release and opts into publication. Current ledger cards are labeled ILLUSTRATIVE SPECIMEN (NOT VERIFIABLE) — format demos, not live pilots.',
     securityHref: '/ledger',
     spineStage: 'release',
+  },
+  {
+    id: 'room_app_layer_encryption',
+    label: 'Application-layer room encryption',
+    status: 'live',
+    summary:
+      'v2 session message bodies are AES-256-GCM ciphertext before storage. Keys are scoped to the facilitator and admitted participants (plus operators with database access). This is not operator-blind E2E.',
+    securityHref: '/security#operator-access',
+    spineStage: 'facilitate',
   },
   {
     id: 'rfc3161_timestamp',
@@ -141,7 +151,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     label: 'Operator-blind room encryption',
     status: 'planned',
     summary:
-      'Room content is readable by the operator today. Encrypting rooms so that we cannot read them requires per-participant key distribution — a separate programme (see ADR 005), not a setting.',
+      'Rooms use application-layer encryption with operator-readable keys today. True operator-blind encryption needs per-participant key wrapping (ADR 005) — a separate programme, not a setting.',
     securityHref: '/security#operator-access',
     spineStage: 'facilitate',
   },
@@ -185,6 +195,7 @@ export const TRUST_FEATURE_CLAIM_IDS: ImplementationClaimId[] = [
   'hash_bound_approvals',
   'facilitator_attestation',
   'metadata_audit_trail',
+  'room_app_layer_encryption',
   'rfc3161_timestamp',
   'operator_blind_e2e',
 ];
@@ -196,17 +207,17 @@ export const HOME_TRUST_STRIP: readonly {
   href: string;
 }[] = [
   { label: 'Invite-only', claimId: 'invite_only_access', href: '/security#reviewers' },
-  { label: 'Manual review', claimId: 'manual_review_sla', href: '/request-access' },
+  { label: 'Sealed room', claimId: 'room_app_layer_encryption', href: '/security#operator-access' },
   { label: 'Documented limits', claimId: 'sha256_anchor', href: '/security#reviewers' },
   {
-    label: 'Approved-outcomes-only ledger',
+    label: 'Ledger mechanism',
     claimId: 'approved_outcomes_ledger',
     href: '/ledger',
   },
 ] as const;
 
 /** Registry version for diligence packet stamping. */
-export const IMPLEMENTATION_REGISTRY_VERSION = '2026.07.25';
+export const IMPLEMENTATION_REGISTRY_VERSION = '2026.07.26';
 
 export function getClaim(id: ImplementationClaimId): ImplementationClaim {
   const claim = IMPLEMENTATION_CLAIMS.find((c) => c.id === id);
@@ -245,3 +256,21 @@ export function statusBadgeLabel(status: ImplementationStatus): string {
     }
   }
 }
+
+/**
+ * One-line key for first public appearance of ImplementationStatusBadge.
+ * Uses the same vocabulary as `statusBadgeLabel` — do not invent alternate badge names.
+ */
+export const IMPLEMENTATION_STATUS_LEGEND =
+  'Live = shipped and enforced today · Planned · scaffolded = interface exists, not production-live · Planned · not started = product intent only.';
+
+/** Shorter key when only Live badges appear (e.g. Home trust strip). */
+export const IMPLEMENTATION_STATUS_LEGEND_LIVE_FOCUS =
+  'Live = shipped and enforced today. Scaffolded and planned items are labeled where they appear — never treated as Live.';
+
+/**
+ * Process-gate badges on How it works (`ProcessStep` OPEN / GATED / SEALED / RELEASED).
+ * Distinct from Implementation Status Registry vocabulary.
+ */
+export const PROCESS_GATE_LEGEND =
+  'Open = stage available · Gated = verification required before entry · Sealed = dialogue enclosed in the room · Released = approved record published (or private anchored memo).';

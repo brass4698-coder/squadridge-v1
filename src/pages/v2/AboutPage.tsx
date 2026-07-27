@@ -8,7 +8,13 @@ import {
   ShellWidth,
 } from '../../components/shared';
 import { ProtectedThresholdVisual } from '../../components/institutional';
-import { CTA, SITE_THESIS_SHORT } from '../../data/siteMessaging';
+import {
+  CTA,
+  FOUNDER_NOTE,
+  isFounderNotePlaceholder,
+  SITE_THESIS_SHORT,
+} from '../../data/siteMessaging';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const THESIS_POINTS = [
   {
@@ -99,6 +105,9 @@ const FIT = [
  * About — human product story: why it exists, thesis, difference, commitments, fit.
  */
 export function AboutPage() {
+  usePageTitle('About');
+  const founderPlaceholder = isFounderNotePlaceholder(FOUNDER_NOTE);
+
   return (
     <div>
       <MarketingPageHero
@@ -123,6 +132,38 @@ export function AboutPage() {
           </p>
         }
       />
+      <MarketingSection id="who" tone="bordered" density="compact">
+        <ShellWidth>
+          <ProseMeasure>
+            <SectionLabel>Who is building this</SectionLabel>
+            <h2 id="who-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              A founder-built product, still pre-pilot
+            </h2>
+            {founderPlaceholder ? (
+              <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">
+                Founder note not published yet. Readiness and go-to-market context live on{' '}
+                <Link to="/roadmap" className="text-brand underline-offset-2 hover:underline">
+                  Roadmap
+                </Link>
+                .
+              </p>
+            ) : (
+              <>
+                <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary whitespace-pre-line">
+                  {FOUNDER_NOTE}
+                </p>
+                <p className="mt-4 mb-0 text-sm text-ink-faint">
+                  Launch readiness and partner path also on{' '}
+                  <Link to="/roadmap" className="text-brand underline-offset-2 hover:underline">
+                    Roadmap
+                  </Link>
+                  .
+                </p>
+              </>
+            )}
+          </ProseMeasure>
+        </ShellWidth>
+      </MarketingSection>
       <MarketingSection id="thesis" tone="sunken" density="compact">
         <ShellWidth>
           <ProseMeasure className="mb-10">
@@ -131,12 +172,11 @@ export function AboutPage() {
               {SITE_THESIS_SHORT}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              There was no purpose-built path that combined participant protection, facilitator
-              process control, and a credible route to a public outcome record. SquadRidge exists to
-              close that gap — carefully, and without overclaiming what the stack can promise today.
-              Confidentiality architecture is aligned with established ombuds practice standards
-              (independence, impartiality, informality, confidentiality) as a professional benchmark
-              — we are not an IOA-certified ombuds office, and we do not invent legal privilege.
+              SquadRidge combines participant protection, facilitator process control, and a
+              deliberate path to a public outcome record — without overclaiming what the stack can
+              promise today. Confidentiality follows established ombuds practice benchmarks
+              (independence, impartiality, informality, confidentiality); we are not an
+              IOA-certified ombuds office and do not invent legal privilege.
             </p>
           </ProseMeasure>
           <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-3">

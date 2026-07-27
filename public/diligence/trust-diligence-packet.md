@@ -1,6 +1,6 @@
 # SquadRidge — Trust & Diligence Packet
 
-**Registry version:** 2026.07.25  
+**Registry version:** 2026.07.26  
 **Source:** Synchronized with `src/data/implementationStatus.ts` and `docs/security/trust-diligence-packet.md`.
 
 ## Current vs planned (summary)
@@ -12,15 +12,16 @@
 | Facilitator authorship attestation | LIVE |
 | Metadata-only audit trail | LIVE |
 | Magic-link auth; role-scoped invites | LIVE |
-| Manual intake review (5–7 business days) | LIVE |
-| Approved-outcomes-only ledger | LIVE |
+| Manual intake review (aim: about one week) | LIVE |
+| Ledger release mechanism (approved outcomes only; specimens until first live publish) | LIVE |
+| Application-layer room encryption (AES-GCM) | LIVE (operator-readable keys) |
 | RFC 3161 trusted timestamping | SCAFFOLDED (not live) |
-| Operator-blind room encryption | PLANNED (rooms operator-readable today) |
+| Operator-blind room encryption | PLANNED (keys still operator-readable) |
 | IOA certification / legal privilege / court-admissible time | NOT CLAIMED |
 
 ## Honest bounds
 
-- Room dialogue is private to authorized participants and facilitators; operator can read v2 room content today (not Signal-grade E2E).
+- Room dialogue is encrypted at the application layer for facilitators and admitted participants; operators with database access can still decrypt (not Signal-grade E2E).
 - SHA-256 proves integrity of approved release text — not independently attested time.
 - Public ledger shows released records only; specimens are labeled illustrative and not verifiable.
 

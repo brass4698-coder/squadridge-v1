@@ -11,6 +11,8 @@ export interface UseCaseCardProps {
   context: string;
   /** Exactly three friction bullets — parallel across tracks */
   bullets?: string[];
+  /** Concrete room-size / cohort signal for diligence self-selection */
+  fitSignal?: string;
   /** Approved record artifact — short, concrete */
   releasedRecord: string;
   /** One-line outcome */
@@ -38,6 +40,7 @@ export function UseCaseCard({
   title,
   context,
   bullets,
+  fitSignal,
   releasedRecord,
   whySquadridge,
   recordSampleId,
@@ -45,7 +48,7 @@ export function UseCaseCard({
   ctaHref,
 }: UseCaseCardProps) {
   return (
-    <article className="overflow-hidden border border-line sr-surface-illustrative">
+    <article className="sr-use-case-card overflow-hidden border border-line sr-surface-illustrative">
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <div className="sr-registry-pad">
           <p className="sr-meta-label">{sector}</p>
@@ -55,6 +58,11 @@ export function UseCaseCard({
           <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
             {context}
           </p>
+          {fitSignal ? (
+            <p className="mt-3 mb-0 font-mono text-[length:var(--text-label)] leading-relaxed tracking-[0.04em] text-ink-faint">
+              Fit · {fitSignal}
+            </p>
+          ) : null}
 
           {bullets && bullets.length > 0 ? (
             <div className="mt-5">
@@ -94,7 +102,7 @@ export function UseCaseCard({
 
           <Link
             to={ctaHref}
-            className="btn-institutional btn-institutional--primary mt-5 inline-flex w-fit text-sm lg:mt-auto"
+            className="btn-institutional btn-institutional--primary sr-press mt-5 inline-flex w-fit text-sm lg:mt-auto"
           >
             {ctaLabel}
           </Link>
@@ -118,7 +126,7 @@ export function SecondaryUseCaseRow({
 }: SecondaryUseCaseProps) {
   return (
     <li id={id} className="scroll-mt-20 list-none">
-      <article className="flex h-full flex-col border-t border-line pt-5 md:pt-6">
+      <article className="sr-secondary-use-case flex h-full flex-col border-t border-line pt-5 md:pt-6">
         <p className="sr-meta-label">{sector}</p>
         <h3 className="mt-2 mb-0 text-base font-semibold leading-snug text-ink">{title}</h3>
         <p className="mt-2.5 mb-0 flex-1 text-sm leading-relaxed text-ink-secondary">{scenario}</p>

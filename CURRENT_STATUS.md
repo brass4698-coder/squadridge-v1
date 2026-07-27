@@ -150,3 +150,4 @@ Before any real pilot, confirm:
 - Metrics pre-registration: [`docs/operations/pilot-metrics-preregistration.md`](docs/operations/pilot-metrics-preregistration.md)
 - In-app pilot guide: `/app/pilot-guide` (facilitator walkthrough + preflight)
 - Diligence summary: [`DILIGENCE_OVERVIEW.md`](DILIGENCE_OVERVIEW.md)
+- Investor brief: [`docs/business/investor-brief.md`](docs/business/investor-brief.md)

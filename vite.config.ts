@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => {
         'Unset for release builds or use a non-production staging environment.',
     );
   }
+  if (mode === 'production' && env.VITE_V2_MOCK_DATA === 'true') {
+    throw new Error(
+      'Production build blocked: VITE_V2_MOCK_DATA=true serves facilitator session fixtures as the live workspace. ' +
+        'Unset or set false for pilot and production builds.',
+    );
+  }
 
   return {
     resolve: {
@@ -86,6 +92,35 @@ export default defineConfig(({ mode }) => {
     },
     worker: {
       format: 'es',
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          /**
+           * Conservative vendor splits — keep React together; isolate heavy optional stacks
+           * (charts / ZK / ML) so marketing first load does not pay for them.
+           */
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react-router') ||
+              id.includes('node_modules/scheduler/')
+            ) {
+              return 'react-vendor';
+            }
+            if (id.includes('@supabase')) return 'supabase';
+            if (id.includes('node_modules/motion') || id.includes('framer-motion')) {
+              return 'motion';
+            }
+            if (id.includes('recharts') || id.includes('/d3-')) return 'charts';
+            if (id.includes('@semaphore-protocol')) return 'zk';
+            if (id.includes('@xenova/transformers')) return 'ml';
+            if (id.includes('@sentry')) return 'sentry';
+          },
+        },
+      },
     },
     optimizeDeps: {
       // Dev-only: pre-bundling can break Transformers.js; keep it out of the optimizer.
