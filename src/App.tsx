@@ -27,6 +27,7 @@ import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
+import { RouteChunkFallback } from './components/system/SrLoader';
 import { InvitePage } from './pages/InvitePage';
 import { SettingsIndexPage } from './pages/SettingsIndexPage';
 import { SafetyCenterPage } from './pages/SafetyCenterPage';
@@ -70,17 +71,7 @@ const IncidentRoomPage = lazy(() =>
   })),
 );
 
-const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
-  </div>
-);
+const routeChunkFallback = <RouteChunkFallback />;
 
 export default function App() {
   return (

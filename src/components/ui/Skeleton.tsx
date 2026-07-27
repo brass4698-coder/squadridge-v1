@@ -4,7 +4,10 @@ import { cn } from '../../lib/cn';
 export function Skeleton({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-surface-secondary', className)}
+      className={cn(
+        'rounded-md bg-surface-secondary motion-safe:animate-pulse motion-reduce:animate-none',
+        className,
+      )}
       style={style}
       aria-hidden="true"
     />
@@ -13,7 +16,12 @@ export function Skeleton({ className, style }: { className?: string; style?: CSS
 
 export function RouteSkeletonBlock() {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-6 py-12" aria-busy="true">
+    <div
+      className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-6 py-12"
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+    >
       <span className="sr-only">Loading…</span>
       <Skeleton className="h-6 w-40" />
       <Skeleton className="h-4 w-64" />

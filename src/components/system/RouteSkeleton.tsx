@@ -1,9 +1,5 @@
-import { RouteSkeletonBlock } from '../ui/Skeleton';
+import { SrLoader } from './SrLoader';
 
 export function RouteSkeleton({ label = 'Loading page' }: { label?: string }) {
-  return (
-    <div role="status" aria-live="polite" aria-busy="true" aria-label={label}>
-      <RouteSkeletonBlock />
-    </div>
-  );
+  return <SrLoader variant="route" label={label} />;
 }

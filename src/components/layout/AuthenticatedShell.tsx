@@ -2,6 +2,7 @@ import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { appRoutes } from '../../lib/appRoutes';
+import { prefetchAppRoute } from '../../lib/prefetchAppRoute';
 import { getHighestPriorityRole, hasAnyRole } from '../../lib/roles';
 import { ROLE_LABELS, type RoleKey } from '../../types/roles';
 import { isDemoUser } from '../../lib/demoLogin';
@@ -374,6 +375,8 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
                   title={!sidebarOpen ? item.label : undefined}
                   end={item.href === '/app' || item.href === overviewHref(best)}
                   data-demo={item.demoId}
+                  onMouseEnter={() => prefetchAppRoute(item.href)}
+                  onFocus={() => prefetchAppRoute(item.href)}
                 >
                   <span className="shrink-0">{item.icon}</span>
                   {sidebarOpen ? <span>{item.label}</span> : null}

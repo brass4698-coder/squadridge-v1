@@ -3,6 +3,7 @@ import { cn } from '../../lib/cn';
 import { Skeleton } from '../ui/Skeleton';
 import { ErrorState } from '../system/ErrorState';
 import { EmptyState } from '../ui/EmptyState';
+import { DocketEmptyGraphic } from '../system/DocketEmptyGraphic';
 
 type ChartContainerProps = {
   title: string;
@@ -43,7 +44,10 @@ export function ChartContainer({
         ) : error ? (
           <ErrorState title="Chart unavailable" description={error} />
         ) : empty ? (
-          <EmptyState heading={emptyTitle} body={emptyDescription} />
+          <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+            <DocketEmptyGraphic />
+            <EmptyState heading={emptyTitle} body={emptyDescription} className="py-0" />
+          </div>
         ) : (
           children
         )}

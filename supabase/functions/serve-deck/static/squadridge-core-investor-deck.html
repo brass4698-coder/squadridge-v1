@@ -6,30 +6,31 @@
   <meta name="slides-format" content="viewport" />
   <title>SquadRidge Core Investor Deck</title>
   <link rel="stylesheet" href="deck-hub-chrome.css" />
+  <link rel="stylesheet" href="deck-ds.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style type="text/tailwindcss">
     @theme {
-      --color-bg: #0f1115;
+      --color-bg: #0a0b0d;
       --color-bg-deep: #08090c;
-      --color-surface: #171a21;
-      --color-text: #f3efe7;
-      --color-text-secondary: #d5cfc2;
-      --color-text-muted: #9e9789;
-      --color-accent-1: #c8a45d;
-      --color-accent-2: #f2dfb4;
-      --color-accent-3: #5f8f84;
-      --color-glass-bg: rgba(255,255,255,0.05);
-      --color-glass-border: rgba(255,255,255,0.1);
-      --color-vignette: rgba(0,0,0,0.42);
-      --font-display: 'Playfair Display', serif;
-      --font-body: 'DM Sans', sans-serif;
+      --color-surface: #14161a;
+      --color-text: #f5f5f7;
+      --color-text-secondary: #a1a1a6;
+      --color-text-muted: #6e6e73;
+      --color-accent-1: #1f8a7a;
+      --color-accent-2: #249e8c;
+      --color-accent-3: #1f8a7a;
+      --color-glass-bg: rgba(255,255,255,0.04);
+      --color-glass-border: rgba(255,255,255,0.08);
+      --color-vignette: rgba(0,0,0,0.5);
+      --font-display: 'Inter', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
     }
   </style>
   <style>
-    :root { --color-bg: #0f1115; --color-text: #f3efe7; --glow-color-rgb: 200,164,93; }
+    :root { --color-bg: #0a0b0d; --color-text: #f5f5f7; --glow-color-rgb: 31,138,122; --font-body: 'Inter', system-ui, sans-serif; --font-display: 'Inter', system-ui, sans-serif; --color-vignette: rgba(0,0,0,.5); }
     *,*::before,*::after{box-sizing:border-box}
     html,body{background:var(--color-bg);margin:0}
     body{font-family:var(--font-body);color:var(--color-text);overflow:hidden;height:100vh;width:100vw}
@@ -38,10 +39,10 @@
     .slide.active{opacity:1;transform:scale(1);pointer-events:all}
     .slide>.content{position:relative;z-index:2;width:100%;max-width:1180px;padding:clamp(1.5rem,4vw,4rem)}
     .nav-controls{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;z-index:100;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);padding:10px 24px;border-radius:40px;border:1px solid rgba(255,255,255,.1)}
-    .nav-btn{width:40px;height:40px;border:none;background:rgba(255,255,255,.06);color:#c8a45d;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s}
+    .nav-btn{width:40px;height:40px;border:none;background:rgba(255,255,255,.06);color:#1f8a7a;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s}
     .nav-btn:hover{background:rgba(255,255,255,.12)}
-    .slide-dots{display:flex;gap:8px}.slide-dots .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:background .3s,transform .3s}.slide-dots .dot.active{background:#c8a45d;transform:scale(1.3)}
-    .slide-counter{font-size:.8rem;color:#9e9789;min-width:48px;text-align:center}
+    .slide-dots{display:flex;gap:8px}.slide-dots .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:background .3s,transform .3s}.slide-dots .dot.active{background:#1f8a7a;transform:scale(1.3)}
+    .slide-counter{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.8rem;color:#6e6e73;min-width:48px;text-align:center}
     .reveal{opacity:0;transform:translateY(20px)}
     .gradient-mesh{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
     .blob{position:absolute;border-radius:50%;filter:blur(88px);animation:float-slow 12s ease-in-out infinite}
@@ -49,18 +50,18 @@
     @keyframes float-slow{0%{transform:translate(0,0) scale(1)}25%{transform:translate(60px,-50px) scale(1.12)}50%{transform:translate(-40px,40px) scale(.9)}75%{transform:translate(50px,20px) scale(1.08)}100%{transform:translate(0,0) scale(1)}}
     @keyframes float-drift{0%{transform:translate(0,0) scale(1) rotate(0deg)}33%{transform:translate(-50px,-60px) scale(1.15) rotate(3deg)}66%{transform:translate(40px,30px) scale(.88) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.03;mix-blend-mode:overlay}
+    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.08}
     .slide::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,var(--color-vignette) 100%)}
-    .text-glow{text-shadow:0 0 20px rgba(var(--glow-color-rgb),.35),0 0 40px rgba(var(--glow-color-rgb),.15)}
-    .stat-glow{text-shadow:0 0 28px rgba(var(--glow-color-rgb),.45),0 0 60px rgba(var(--glow-color-rgb),.18)}
+    .text-glow{text-shadow:none}
+    .stat-glow{text-shadow:none;color:#1f8a7a}
     .bar-chart{display:flex;align-items:flex-end;gap:.75rem;height:180px}.bar-col{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:1}.bar{border-radius:6px 6px 0 0;width:100%}
     .line-path{stroke-dasharray:1000;stroke-dashoffset:1000}.line-area,.line-dots{opacity:0}
     .mouse-spotlight{position:fixed;inset:0;z-index:99;pointer-events:none}
-    .metric-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
-    .gold-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(200,164,93,.85),transparent)}
+    .metric-card{background:#14161a;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.35)}
+    .gold-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(31,138,122,.85),transparent)}
     .inv-cash-svg{width:100%;max-width:52rem;height:220px;display:block;margin:0 auto}
-    .inv-chart-sub{font-size:.7rem;color:#9e9789;text-align:center;margin-top:.5rem;letter-spacing:.04em}
-    .inv-sens-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1rem;font-size:.78rem;color:#9e9789}
+    .inv-chart-sub{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.7rem;color:#6e6e73;text-align:center;margin-top:.5rem;letter-spacing:.04em}
+    .inv-sens-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1rem;font-size:.78rem;color:#6e6e73}
     @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}}
   </style>
   <link rel="stylesheet" href="deck-layout-global.css" />
@@ -80,15 +81,15 @@
     </div>
     <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content text-center">
-      <div class="reveal mx-auto mb-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_0_40px_rgba(200,164,93,0.14)] animate-[float_3s_ease-in-out_infinite]">
+      <div class="reveal mx-auto mb-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_0_40px_rgba(31,138,122,0.14)] animate-[float_3s_ease-in-out_infinite]">
         <img src="/assets/logo.png" alt="" width="96" height="96" class="h-full w-full object-contain" />
       </div>
       <p class="reveal mb-3 text-sm uppercase tracking-[0.45em] text-text-muted">Core investor deck</p>
       <div class="reveal flex justify-center px-4">
         <img src="/assets/squadridge.svg" alt="SquadRidge" class="h-[clamp(2.5rem,5vw,4rem)] w-auto max-w-[min(90vw,520px)]" />
       </div>
-      <p class="reveal mx-auto mt-5 max-w-4xl text-[clamp(1.1rem,2vw,1.6rem)] leading-relaxed text-text-secondary">Conflict-prevention infrastructure: verified-anonymous strategy rooms for facilitator-led cohorts—bounded trust, structured dialogue, ledger-grade outputs where enabled, and a roadmap toward escalation-aware analytics (label pilots vs shipped product in diligence).</p>
-      <p class="reveal mt-6 text-sm uppercase tracking-[0.35em] text-text-muted">April 2026 · Internal draft · Assumption-labeled</p>
+      <p class="reveal mx-auto mt-5 max-w-4xl text-[clamp(1.1rem,2vw,1.6rem)] leading-relaxed text-text-secondary">Facilitator-led protected dialogue: private written rooms, then an approved record with a verification anchor — Configure → Verify → Facilitate → Release. Room and record stay separate by design.</p>
+      <p class="reveal mt-6 text-sm uppercase tracking-[0.35em] text-text-muted">July 2026 · Assumption-labeled · Private pilot stage</p>
     </div>
   </div>
 
@@ -96,11 +97,11 @@
     <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:240px;height:240px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.07"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What the company is</p>
-      <h2 class="reveal font-display text-[clamp(2.2rem,4vw,3.6rem)] font-bold">The platform is purpose-built for sensitive coordination, not generic chat.</h2>
+      <h2 class="reveal font-display text-[clamp(2.2rem,4vw,3.6rem)] font-bold">Purpose-built for high-stakes written dialogue — not generic chat.</h2>
       <div class="reveal mt-8 grid grid-cols-3 gap-6">
-        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Problem</div><p class="mt-3 text-lg leading-8 text-text-secondary">Sensitive coordination often fails when identity is either fully public and unsafe or fully unverified and not credible.</p></div>
-        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Solution</div><p class="mt-3 text-lg leading-8 text-text-secondary">SquadRidge combines verified pseudonymous access, facilitator-led rooms, match routing, and durable outputs stakeholders can cite.</p></div>
-        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Mission</div><p class="mt-3 text-lg leading-8 text-text-secondary">Reduce escalatory misunderstanding in constrained dialogue settings by combining verification discipline, anonymity boundaries, and durable records where appropriate.</p></div>
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Problem</div><p class="mt-3 text-lg leading-8 text-text-secondary">Sensitive coordination fails when identity is fully public and unsafe, or fully unverified and not credible — and when there is no integrity-checked outcome.</p></div>
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Solution</div><p class="mt-3 text-lg leading-8 text-text-secondary">SquadRidge runs facilitator-led private rooms, then releases only approved outcomes with a SHA-256 verification anchor — optional public ledger or private memo.</p></div>
+        <div class="metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-text-muted">Mission</div><p class="mt-3 text-lg leading-8 text-text-secondary">Give mediators and institutions a calm process: protected dialogue, then a citable record — without publishing who said what.</p></div>
       </div>
     </div>
   </div>
@@ -134,13 +135,13 @@
   <div class="slide" data-slide="4">
     <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-60px;right:12%;background:var(--color-accent-3);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:8%;background:var(--color-accent-1);opacity:.07"></div></div>
     <div class="content">
-      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product system</p>
-      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Four layers turn sensitive rooms into citable operational outputs.</h2>
+      <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product spine</p>
+      <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Configure → Verify → Facilitate → Release — room and record stay separate.</h2>
       <div class="mt-8 grid grid-cols-2 gap-6">
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">1 · Verified pseudonymity</div><p class="mt-3 text-lg leading-8 text-text-secondary">Accounts are verified enough to anchor trust while keeping public real-name identity out of the room.</p></div>
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">2 · Facilitator-led cohorts</div><p class="mt-3 text-lg leading-8 text-text-secondary">Small structured groups create bounded dialogue instead of open-ended thread chaos.</p></div>
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">3 · Match routing</div><p class="mt-3 text-lg leading-8 text-text-secondary">Routing logic supports who should be in the room and how cohorts are assembled under explicit constraints.</p></div>
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">4 · Ledger outputs</div><p class="mt-3 text-lg leading-8 text-text-secondary">Important proposals and room outputs can be preserved in durable records suitable for briefings and follow-up.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">1 · Configure</div><p class="mt-3 text-lg leading-8 text-text-secondary">Invite-only sessions with role-scoped access; NGO deliberation is the default pilot template.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">2 · Verify</div><p class="mt-3 text-lg leading-8 text-text-secondary">Facilitator verifies eligibility privately; identities are confirmed but not disclosed on the public record.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">3 · Facilitate</div><p class="mt-3 text-lg leading-8 text-text-secondary">Structured written rounds in a private room — nothing said in the room is published as a transcript.</p></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">4 · Release</div><p class="mt-3 text-lg leading-8 text-text-secondary">Approved outcome text only, with hash-bound approvals and a verification anchor partners can recompute.</p></div>
       </div>
     </div>
   </div>
@@ -215,10 +216,10 @@
           <div class="reveal">
             <p class="text-sm uppercase tracking-[0.2em] text-accent-1 mb-2">Seat revenue (aggressive)</p>
             <div class="bar-chart" id="inv-rev-bar-chart">
-              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="0"></div><div class="text-sm text-text-muted">M1</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
-              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="42"></div><div class="text-sm text-text-muted">M6</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
-              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#5f8f84,#2f4d47)]" data-height="92"></div><div class="text-sm text-text-muted">M12</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
-              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#c8a45d,#7b6438)]" data-height="100"></div><div class="text-sm text-text-muted">M18</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#1f8a7a,#145a50)]" data-height="0"></div><div class="text-sm text-text-muted">M1</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#1f8a7a,#145a50)]" data-height="42"></div><div class="text-sm text-text-muted">M6</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#1f8a7a,#145a50)]" data-height="92"></div><div class="text-sm text-text-muted">M12</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
+              <div class="bar-col"><div class="bar bg-[linear-gradient(180deg,#249e8c,#1a7568)]" data-height="100"></div><div class="text-sm text-text-muted">M18</div><div class="text-xs inv-rev-lbl text-text-muted">—</div></div>
             </div>
           </div>
           <div class="reveal metric-card p-6">
@@ -236,9 +237,9 @@
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What is already defensible</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The diligence story is strongest where the product is explicit about boundaries.</h2>
       <div class="mt-8 grid grid-cols-3 gap-6">
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Security disclosure</div><p class="mt-3 text-lg leading-8 text-text-secondary">There is authoritative public copy on encryption scope, squad keys, and operator visibility in the current release.</p><div class="mt-5 text-sm text-text-muted">Evidence state: pending validation</div></div>
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Sample ledger output</div><p class="mt-3 text-lg leading-8 text-text-secondary">A demo ledger artifact exists and is useful for illustrating output format, while explicitly not being evidence of adoption.</p><div class="mt-5 text-sm text-text-muted">Evidence state: illustrative only</div></div>
-        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Open evidence gaps</div><p class="mt-3 text-lg leading-8 text-text-secondary">Pilot success criteria and market sizing still require source attachment before the deck should be marked external-ready.</p><div class="mt-5 text-sm text-text-muted">2 items still needing evidence</div></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Security disclosure</div><p class="mt-3 text-lg leading-8 text-text-secondary">Authoritative public copy at <code class="text-accent-1">/security</code> on encryption scope, operator visibility, and honest non-claims (rooms are operator-readable today).</p><div class="mt-5 text-sm text-text-muted">Evidence state: published product copy</div></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Sample ledger output</div><p class="mt-3 text-lg leading-8 text-text-secondary">Illustrative ledger specimens show format only — the public ledger has no real pilot entries until an org releases and opts in.</p><div class="mt-5 text-sm text-text-muted">Evidence state: illustrative only</div></div>
+        <div class="reveal metric-card p-7"><div class="text-sm uppercase tracking-[0.2em] text-accent-1">Open evidence gaps</div><p class="mt-3 text-lg leading-8 text-text-secondary">Pilot success criteria and market sizing still require source attachment before materials should be treated as external-ready.</p><div class="mt-5 text-sm text-text-muted">2 items still needing evidence</div></div>
       </div>
     </div>
   </div>
@@ -320,11 +321,11 @@
     <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content text-center">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.4em] text-text-muted">The ask</p>
-      <h2 class="reveal font-display text-[clamp(2.6rem,5vw,4.4rem)] font-bold bg-linear-to-br from-accent-1 via-accent-2 to-accent-1 bg-clip-text text-transparent">Fund the next proof layer with disciplined claims.</h2>
+      <h2 class="reveal font-display text-[clamp(2.6rem,5vw,4.4rem)] font-bold text-accent-1">Fund the next proof layer with disciplined claims.</h2>
       <div class="reveal mx-auto mt-8 max-w-4xl rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] px-9 py-8 text-left text-xl leading-9 text-text-secondary">
-        SquadRidge is building verified-anonymous infrastructure for facilitator-led strategy rooms where ordinary chat products fail. The current investor story is strongest when it stays rigorous: explicit trust boundaries, pilot-first deployment, and assumption-labeled financials tied to concrete milestones.
+        SquadRidge is building private deliberation infrastructure for facilitator-led written rooms where ordinary chat products fail. The investor story stays rigorous: explicit trust boundaries, pilot-first deployment, assumption-labeled financials, and no overclaimed E2E or traction.
       </div>
-      <div class="reveal mt-8 text-sm uppercase tracking-[0.3em] text-text-muted">Next step: investor diligence conversation + linked financial appendix</div>
+      <div class="reveal mt-8 text-sm uppercase tracking-[0.3em] text-text-muted">Next step: diligence conversation · linked financial appendix · /decks catalog</div>
     </div>
   </div>
 </div>
@@ -366,7 +367,7 @@
     const pts=vals.map(function(v,i){return xs(i)+','+ys(v)}).join(' ');
     const zeroY=ys(0);
     const poly=pl+','+zeroY+' '+pts.split(' ').slice(-1)[0]+' '+xs(n-1)+','+zeroY;
-    cc.innerHTML='<svg class="inv-cash-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" aria-label="Cash end by month, base scenario"><line x1="'+pl+'" y1="'+zeroY+'" x2="'+(W-pr)+'" y2="'+zeroY+'" stroke="rgba(158,151,137,0.35)" stroke-width="1"/><polyline fill="none" stroke="#5f8f84" stroke-width="2.5" points="'+pts+'"/><text x="'+pl+'" y="'+(H-6)+'" font-size="11" fill="#9e9789">'+m.monthly[0].label+'</text><text x="'+(W/2-22)+'" y="'+(H-6)+'" font-size="11" fill="#9e9789" text-anchor="middle">Month</text><text x="'+(W-pr-72)+'" y="'+(H-6)+'" font-size="11" fill="#9e9789">'+m.monthly[n-1].label+'</text></svg>';
+    cc.innerHTML='<svg class="inv-cash-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" aria-label="Cash end by month, base scenario"><line x1="'+pl+'" y1="'+zeroY+'" x2="'+(W-pr)+'" y2="'+zeroY+'" stroke="rgba(110,110,115,0.35)" stroke-width="1"/><polyline fill="none" stroke="#1f8a7a" stroke-width="2.5" points="'+pts+'"/><text x="'+pl+'" y="'+(H-6)+'" font-size="11" fill="#6e6e73">'+m.monthly[0].label+'</text><text x="'+(W/2-22)+'" y="'+(H-6)+'" font-size="11" fill="#6e6e73" text-anchor="middle">Month</text><text x="'+(W-pr-72)+'" y="'+(H-6)+'" font-size="11" fill="#6e6e73">'+m.monthly[n-1].label+'</text></svg>';
   }
   const rev=k.aggressive&&k.aggressive.revenueAtMonths;
   if(rev&&rev.length){

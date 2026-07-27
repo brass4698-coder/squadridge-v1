@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate, useSearchParams, type NavigateFunction } from 'react-router-dom';
+import { RouteChunkFallback } from '../components/system/SrLoader';
 import { DEMO_WALKTHROUGH_STORAGE_KEY, type DemoStep, type DemoTip } from './demoScript';
 
 export type DemoWalkthroughContextValue = {
@@ -114,13 +115,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-surface font-sans text-sm text-ink-faint">
-          Loading demo…
-        </div>
-      }
-    >
+    <Suspense fallback={<RouteChunkFallback label="Loading demo" />}>
       <DemoWalkthroughProviderImpl>{children}</DemoWalkthroughProviderImpl>
     </Suspense>
   );

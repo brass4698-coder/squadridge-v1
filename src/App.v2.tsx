@@ -46,6 +46,7 @@ import { MaintenancePage } from './pages/v2/MaintenancePage';
 import { isMaintenanceMode } from './lib/env';
 import { LegacyAppRedirect } from './components/routing/LegacyAppRedirect';
 import { appRoutes } from './lib/appRoutes';
+import { RouteChunkFallback } from './components/system/SrLoader';
 
 // ── Lazy routes — keep marketing/app/participant chunks off the home bundle ──
 const InvitePage = lazy(() =>
@@ -305,25 +306,8 @@ const NotFoundPage = lazy(() =>
 const AccessDeniedPage = lazy(() =>
   import('./pages/v2/AccessDeniedPage').then((m) => ({ default: m.AccessDeniedPage })),
 );
-const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="mx-auto flex w-full max-w-shell flex-col gap-4 px-gutter py-16"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <div className="h-3 w-24 rounded-sm bg-surface-sunken motion-safe:animate-pulse" aria-hidden />
-    <div
-      className="h-8 w-2/3 max-w-md rounded-sm bg-surface-sunken motion-safe:animate-pulse"
-      aria-hidden
-    />
-    <div
-      className="mt-2 h-32 w-full max-w-2xl rounded-[var(--sr-radius-md)] bg-surface-sunken/60 motion-safe:animate-pulse"
-      aria-hidden
-    />
-  </div>
-);
+
+const routeChunkFallback = <RouteChunkFallback />;
 
 const PitchDeckHubPage = lazy(() =>
   import('./pages/PitchDeckHubPage').then((m) => ({ default: m.PitchDeckHubPage })),

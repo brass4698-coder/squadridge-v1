@@ -38,7 +38,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'investors',
     audienceLabel: 'Investors',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('core-investor'),
-    updated: 'Diligence-ready structure · 2026',
+    updated: 'Presentable · site style · July 2026',
   },
   {
     id: 'company-overview',
@@ -47,7 +47,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'investors',
     audienceLabel: 'Investors',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('company-overview'),
-    updated: 'Narrative · rolling',
+    updated: 'Presentable · site style · July 2026',
   },
   {
     id: 'pilot-partner',
@@ -57,7 +57,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'pilots_partners',
     audienceLabel: 'Partners / institutions',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('pilot-partner'),
-    updated: 'Institutional pilot · 2026',
+    updated: 'Presentable · site style · July 2026',
   },
   {
     id: 'technical-security',
@@ -67,7 +67,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'technical_diligence',
     audienceLabel: 'Technical diligence',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('technical-security'),
-    updated: 'Aligned with threat model',
+    updated: 'Aligned with threat model · site style',
   },
   {
     id: 'policy-government',
@@ -76,7 +76,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'policy_government',
     audienceLabel: 'Policy / government',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('policy-government'),
-    updated: 'Institutional · 2026',
+    updated: 'Presentable · site style · July 2026',
   },
   {
     id: 'business-pricing',
@@ -85,7 +85,7 @@ export const GATED_DECK_CATALOG: GatedDeckCatalogItem[] = [
     audience: 'pilots_partners',
     audienceLabel: 'Corporate pilots',
     htmlFile: pitchDeckHubHtmlFileNameForDeck('business-pricing'),
-    updated: 'Pilot economics · 2026',
+    updated: 'Presentable · site style · July 2026',
   },
 ];
 
