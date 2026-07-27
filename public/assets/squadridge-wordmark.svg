@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="SquadRidge wordmark">
   <title>SquadRidge wordmark</title>
-  <text x="0" y="72" font-family="Inter, IBM Plex Sans, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="0.04em">
-    <tspan fill="#01696F">SQUAD</tspan><tspan fill="#8E7A68">RIDGE</tspan>
+  <text x="0" y="72" font-family="Inter, system-ui, Arial, sans-serif" font-size="64" font-weight="700" letter-spacing="0.04em">
+    <tspan fill="#1F8A7A">SQUAD</tspan><tspan fill="#A1A1A6">RIDGE</tspan>
   </text>
-  <text x="2" y="118" font-family="Inter, IBM Plex Sans, Arial, sans-serif" font-size="18" font-weight="500" letter-spacing="0.22em" fill="#8E7A68">PRIVATE DELIBERATION INFRASTRUCTURE</text>
+  <text x="2" y="118" font-family="Inter, system-ui, Arial, sans-serif" font-size="18" font-weight="500" letter-spacing="0.22em" fill="#A1A1A6">PRIVATE DELIBERATION INFRASTRUCTURE</text>
 </svg>

@@ -117,7 +117,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Problem + Solution Deep Dive',
     audience: 'investors',
     narrativeEmphasis:
-      'Problem mechanics and failure modes first; solution mapped to product primitives — minimal market or fundraising content.',
+      'Problem mechanics and failure modes first; solution mapped to product primitives — minimal market or fundraising content. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Explains why public identity and pure anonymity both break coordination, and how verified pseudonymous strategy rooms answer that gap.',
     status: 'internal',
@@ -141,7 +141,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Product / Demo Walkthrough',
     audience: 'facilitators_demos',
     narrativeEmphasis:
-      'Step-by-step flows, UI placeholders, and facilitator-safe language — replaces separate facilitator-only stub variants.',
+      'Step-by-step flows, talk-track panels, and facilitator-safe language — replaces separate facilitator-only stub variants. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Walkthrough: intent, match routing, room posture, demo session surfaces, ledger-style outputs — captions note UI under active development.',
     status: 'internal',
@@ -192,7 +192,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Conflict Prevention Thesis',
     audience: 'policy_government',
     narrativeEmphasis:
-      'Institutional: detection/intervention/measurement pillars, honest shipped-vs-roadmap split, less financial density than investor decks.',
+      'Institutional: detection/intervention/measurement pillars, honest shipped-vs-roadmap split, less financial density than investor decks. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'UN-adjacent and peacebuilding partners: early-warning posture, Conflict Severity Index as methodology (not a shipped public feed), rapid triage, and evidence discipline.',
     status: 'internal',
@@ -218,7 +218,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Market + Competition',
     audience: 'investors',
     narrativeEmphasis:
-      'Segments and positioning with explicit illustrative labeling on sizing; competitor matrix using product facts, not vanity scores.',
+      'Segments and positioning with explicit illustrative labeling on sizing; competitor matrix using product facts, not vanity scores. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'TAM/SAM/SOM as scenario/illustrative ranges, buyer segments, and honest comparison vs generic chat, social broadcast, and pure anon tools.',
     status: 'internal',
@@ -266,7 +266,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Traction + Roadmap',
     audience: 'investors',
     narrativeEmphasis:
-      'Strict split between Current (2026) signals and Target (12–24 months) milestones — no invented logos or revenue.',
+      'Strict split between Current (2026) signals and Target (12–24 months) milestones — no invented logos or revenue. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Honest stage framing, waitlist / pilot language, product milestones, and a roadmap that mirrors shipped vs planned separation.',
     status: 'internal',
@@ -290,7 +290,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Go-To-Market + Distribution',
     audience: 'pilots_partners',
     narrativeEmphasis:
-      'Channels, partner motion, and facilitator-led adoption — conservative about scale; playbook over splash.',
+      'Channels, partner motion, and facilitator-led adoption — conservative about scale; playbook over splash. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Distribution thesis: facilitator networks, mission-aligned orgs, technical eval channels, and what “landing a pilot” means operationally.',
     status: 'internal',
@@ -314,7 +314,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Team + Advisors',
     audience: 'investors',
     narrativeEmphasis:
-      'Roles and gaps called out explicitly; advisors listed generically if names are not approved for external use.',
+      'Roles and gaps called out explicitly; advisors listed generically if names are not approved for external use. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Founder and team structure, hiring plan shape, advisor involvement model — placeholder-friendly, no fabricated pedigrees.',
     status: 'internal',
@@ -365,7 +365,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Financial Appendix Deck',
     audience: 'financial_appendix',
     narrativeEmphasis:
-      'Maximum table and assumption density; scenario labeling and rollups drive the deck — same typography and components, finance-first emphasis.',
+      'Maximum table and assumption density; scenario labeling and rollups drive the deck — same typography and components, finance-first emphasis. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Bottom-up founder planning model: assumptions, pricing logic, cost stack, scenarios, sensitivity — all labeled as modeled, not actuals.',
     status: 'internal',
@@ -393,7 +393,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
     name: 'Appendix + FAQ',
     audience: 'financial_appendix',
     narrativeEmphasis:
-      'Operational FAQ, diligence shortcuts, and pointers to /security and the financial hub — not a substitute for counsel.',
+      'Operational FAQ, diligence shortcuts, and pointers to /security and the financial hub — not a substitute for counsel. Hub supplement — not listed on /decks partner catalog.',
     purpose:
       'Recurring questions on anonymity, encryption scope, roadmaps, pilots, and how to describe limits without overclaiming.',
     status: 'internal',

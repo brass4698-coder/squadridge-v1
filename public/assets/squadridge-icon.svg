@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="SquadRidge mark">
   <title>SquadRidge mark</title>
-  <g fill="#01696F">
+  <g fill="#1F8A7A">
     <polygon points="61,10 14,64 61,118"/>
     <polygon points="67,10 114,64 67,118"/>
   </g>
-  <g fill="none" stroke="#0E5E63" stroke-width="1.25" stroke-linejoin="round" opacity="0.55">
+  <g fill="none" stroke="#249E8C" stroke-width="1.25" stroke-linejoin="round" opacity="0.55">
     <polygon points="61,10 14,64 61,118"/>
     <polygon points="67,10 114,64 67,118"/>
   </g>

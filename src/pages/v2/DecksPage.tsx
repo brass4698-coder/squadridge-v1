@@ -17,7 +17,7 @@ export function DecksPage() {
           Content is shared by invitation — not for open browsing.
         </p>
         <p className="mt-3 max-w-2xl text-sm text-ink-faint">
-          Interactive hub (scenario model, consistency checks):{' '}
+          Interactive hub (scenario model, consistency checks, hub-only supplements):{' '}
           <Link to="/pitch-deck-hub" className="text-brand underline-offset-2 hover:underline">
             Pitch deck hub
           </Link>

@@ -9,6 +9,15 @@ import { pitchDeckHubHtmlFileNameForDeck } from '../pitch-deck-hub/deckHtmlRoute
 
 const ALLOWED_ASSET = /^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(html|css|js|json)$/;
 
+/** Rewrite absolute `/assets/...` to the SPA origin so srcDoc/blob tabs can load public brand marks. */
+export function absolutizeDeckPublicAssetUrls(html: string, origin: string): string {
+  if (!origin) return html;
+  return html.replace(
+    /(src|href)=(["'])\/assets\//gi,
+    (_m, attr: string, quote: string) => `${attr}=${quote}${origin}/assets/`,
+  );
+}
+
 export function isAllowedDeckAssetPath(path: string): boolean {
   return ALLOWED_ASSET.test(path.replace(/^.*[/\\]/, ''));
 }
@@ -85,21 +94,15 @@ export async function buildGatedDeckSrcDoc(htmlFileName: string): Promise<string
     return text;
   };
 
-  let out = html;
-
   // Absolute /assets/* paths resolve against the SPA origin (Vite public/), not the
   // blob/srcDoc document — required for fullscreen blob tabs and about:srcdoc iframes.
-  const assetOrigin =
-    typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
-  if (assetOrigin) {
-    out = out.replace(
-      /(src|href)=(["'])\/assets\//gi,
-      (_m, attr: string, quote: string) => `${attr}=${quote}${assetOrigin}/assets/`,
-    );
-  }
+  let out = absolutizeDeckPublicAssetUrls(
+    html,
+    typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '',
+  );
 
   const cssRe = /<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*\/?>/gi;
-  const cssMatches = [...html.matchAll(cssRe)];
+  const cssMatches = [...out.matchAll(cssRe)];
   for (const m of cssMatches) {
     const href = m[1];
     if (
