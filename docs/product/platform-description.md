@@ -410,6 +410,12 @@ Trust bar placeholders in the platform spec (advisor names, pilot count) exist *
 | ZK (legacy path) | Semaphore v4 — server-verified proofs |
 | Deployment | Vercel (frontend) + Supabase Cloud |
 
+### Target runtime (Cloudflare)
+
+Production does **not** run on Durable Objects / D1 / R2 today. A documented **target** maps private rooms → Durable Objects, identity mapping → D1, private dialogue archive → DO storage + encrypted R2, public ledger → R2 + SHA-256 hash chain on a public Worker, tokens → KV, release assembly → Queues, and optional Workers frontend hosting.
+
+That target preserves the same architectural line already shipped as product logic: **room ≠ record**; only facilitator-approved outcomes become public artifacts. See [`docs/adr/006-cloudflare-workers-room-record.md`](../adr/006-cloudflare-workers-room-record.md) and the diligence one-pager’s Target runtime section. Operator-blind crypto remains a separate programme ([ADR 005](../adr/005-operator-blind-room-encryption-options.md)).
+
 ---
 
 ## 16. Roadmap and explicit non-goals

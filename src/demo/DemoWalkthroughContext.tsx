@@ -28,7 +28,7 @@ export type DemoWalkthroughContextValue = {
   tipTotal: number;
   canGoNext: boolean;
   canGoBack: boolean;
-  /** Sheet minimized by the user (tips still advance; callout may remain). */
+  /** Tip callout minimized by the user (tour still advances; “Show tip” restores it). */
   sheetMinimized: boolean;
   setSheetMinimized: (value: boolean) => void;
   startWalkthrough: () => void;

@@ -1,9 +1,19 @@
 import { Link } from 'react-router-dom';
-import { getStatusChips, type LedgerSpecimen, type StatusChip } from '../../data/ledgerSpecimens';
+import {
+  getStatusChips,
+  specimenToDocumentFields,
+  type LedgerDocumentFields,
+  type LedgerSpecimen,
+  type StatusChip,
+} from '../../data/ledgerSpecimens';
 import { StatusBadge } from '../StatusBadge';
 import { RecordAnchorBadge } from './VerificationAnchorBadge';
-import { MetaField, MetaFieldGrid } from '../landing/MetaField';
-import { CapsLabel } from './CapsLabel';
+import {
+  LedgerDocumentFooter,
+  LedgerDocumentLetterhead,
+  LedgerDocumentStubMeta,
+  LedgerDocumentTitleBlock,
+} from '../ledger/LedgerDocumentChrome';
 import { cn } from '../../lib/cn';
 
 export interface RecordCardProps {
@@ -21,6 +31,8 @@ export interface RecordCardProps {
   verificationAnchor?: string;
   /** Truncated display form e.g. 7c3a…e91f */
   anchorShort?: string;
+  /** Official-document chrome fields (letterhead metadata). */
+  document?: LedgerDocumentFields;
 }
 
 function chipForKind(chip: StatusChip) {
@@ -66,102 +78,94 @@ function specimenLikeChips(
   });
 }
 
-function resolveAnchorDisplay(
-  id: string,
-  verificationAnchor?: string,
-  anchorShort?: string,
-): string | null {
-  if (anchorShort) return anchorShort;
-  if (verificationAnchor) {
-    return `${verificationAnchor.slice(0, 4)}…${verificationAnchor.slice(-4)}`;
-  }
-  void id;
-  return null;
-}
-
-function VerificationMetaValue({ verified }: { verified: boolean }) {
-  if (!verified) {
-    return <span className="text-ink-faint">Withdrawn</span>;
-  }
-  return (
-    <span className="sr-verify">
-      <span className="sr-verify-dot" aria-hidden />
-      Anchor verified
-    </span>
-  );
+function resolveDocumentFields(props: Omit<RecordCardProps, 'href'>): LedgerDocumentFields {
+  if (props.document) return props.document;
+  const isSpecimen = props.variant === 'sample';
+  return {
+    caseReference: props.id,
+    matterTitle: props.title,
+    templateType: isSpecimen ? 'Illustrative outcome record' : 'Released outcome record',
+    issuedAtDisplay: props.date,
+    approvedByRole: 'Designated facilitator (role attestation)',
+    visibilityLabel: isSpecimen ? 'Public registry (specimen format)' : 'Public registry',
+    classification: isSpecimen
+      ? 'Approved outcome · illustrative format'
+      : 'Approved outcome · public registry',
+    facilitatorAttestation:
+      'Attested for release by the designated facilitator after recorded party confirmations.',
+    integrityScheme: isSpecimen
+      ? 'SHA-256 stub (illustrative — not verifiable)'
+      : 'SHA-256 verification anchor',
+    timestampLabel: isSpecimen
+      ? 'Trusted timestamp — not applicable (specimen)'
+      : 'Trusted timestamp — not attested (SHA-256 integrity only)',
+    organisation: props.org,
+    participantCount: props.participantCount,
+    anchorShort: props.anchorShort,
+    verificationAnchor: props.verificationAnchor,
+    isSpecimen,
+  };
 }
 
 /**
- * Formal released-document specimen — public artifact.
+ * Formal released-document specimen — public artifact with letterhead.
  * On ledger-dark: elevated fill, hairline, soft shadow — no cream slabs.
  */
-function RecordCardInner({
-  id,
-  title,
-  summary,
-  org,
-  date,
-  participantCount,
-  variant,
-  anchorStatus = 'verified',
-  verificationAnchor,
-  anchorShort,
-}: Omit<RecordCardProps, 'href'>) {
-  const chips = specimenLikeChips({
-    id,
-    org,
-    date,
-    participantCount,
-    variant,
-    anchorStatus,
-    verificationAnchor,
-    anchorShort,
-  });
-  const anchorDisplay = resolveAnchorDisplay(id, verificationAnchor, anchorShort);
+function RecordCardInner(props: Omit<RecordCardProps, 'href'>) {
+  const { id, title, summary, variant, anchorStatus = 'verified' } = props;
+  const chips = specimenLikeChips({ ...props, anchorStatus });
+  const doc = resolveDocumentFields({ ...props, anchorStatus });
 
   return (
     <article
       className={cn(
-        'sr-ledger-card overflow-hidden',
+        'sr-ledger-card sr-ledger-document overflow-hidden',
         variant === 'live'
           ? 'sr-ledger-card--published'
           : 'sr-ledger-card--illustrative sr-specimen-surface',
       )}
     >
-      <header className="border-b border-line sr-registry-pad">
-        <div className="flex flex-wrap items-center gap-2">{chips.map(chipForKind)}</div>
-      </header>
-
-      <div className="flex flex-col gap-3 sr-registry-pad">
-        <CapsLabel>Released outcome</CapsLabel>
-        <h3 className="m-0 font-sans text-xl font-semibold leading-snug tracking-[-0.02em] text-ink md:text-[1.375rem]">
-          {title}
-        </h3>
-        <p className="m-0 max-w-prose text-sm leading-[1.65] text-ink-secondary">{summary}</p>
+      <div className="sr-registry-pad">
+        <LedgerDocumentLetterhead
+          variant="full"
+          isSpecimen={doc.isSpecimen}
+          caseReference={doc.caseReference}
+          classification={doc.classification}
+        />
+        <div className="mt-4 flex flex-wrap items-center gap-2">{chips.map(chipForKind)}</div>
+        <div className="mt-4">
+          <LedgerDocumentTitleBlock
+            templateType={doc.templateType}
+            title={title}
+            summary={summary}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 border-t border-line sm:grid-cols-2">
-        <div className="border-b border-line sr-registry-pad sm:border-r">
-          <MetaField label="Organisation" value={org} />
-        </div>
-        <div className="border-b border-line sr-registry-pad">
-          <MetaField label="Released" value={date} />
-        </div>
-        {typeof participantCount === 'number' ? (
-          <div className="border-b border-line sr-registry-pad sm:border-b-0 sm:border-r">
-            <MetaField label="Participants" value={`${participantCount} verified`} />
+      <div className="border-t border-line">
+        <div className="grid grid-cols-1 sm:grid-cols-2">
+          <div className="border-b border-line sr-registry-pad sm:border-r">
+            <p className="sr-meta-label">Issuing body</p>
+            <p className="sr-meta-value mt-1.5">{doc.organisation}</p>
           </div>
-        ) : null}
-        <div className="sr-registry-pad">
-          {anchorDisplay ? (
-            <MetaField label="Anchor" value={anchorDisplay} mono />
-          ) : (
-            <MetaField
-              label="Verification"
-              value={<VerificationMetaValue verified={anchorStatus !== 'withdrawn'} />}
-            />
-          )}
+          <div className="border-b border-line sr-registry-pad">
+            <p className="sr-meta-label">Issued / approved</p>
+            <p className="sr-meta-value mt-1.5">{doc.issuedAtDisplay}</p>
+          </div>
+          <div className="border-b border-line sr-registry-pad sm:border-b-0 sm:border-r">
+            <p className="sr-meta-label">Approved by</p>
+            <p className="sr-meta-value mt-1.5">{doc.approvedByRole}</p>
+          </div>
+          <div className="sr-registry-pad">
+            <p className="sr-meta-label">Visibility</p>
+            <p className="sr-meta-value mt-1.5">{doc.visibilityLabel}</p>
+          </div>
         </div>
+      </div>
+
+      <div className="sr-registry-pad pt-0">
+        <LedgerDocumentFooter fields={doc} compact />
+        <span className="sr-only">Record {id}</span>
       </div>
     </article>
   );
@@ -185,64 +189,35 @@ export function RecordCard(props: RecordCardProps) {
 }
 
 /**
- * Archival index entry — elevated dark filing row.
+ * Archival index entry — compact official filing stub with SquadRidge letterhead.
  * Chip order: ILLUSTRATIVE|PUBLISHED → ANCHOR VERIFIED → RECORD ID (top only).
  */
-export function RecordCardCompact({
-  id,
-  title,
-  org,
-  date,
-  participantCount,
-  variant,
-  anchorStatus = 'verified',
-  href,
-  verificationAnchor,
-  anchorShort,
-}: RecordCardProps) {
-  const chips = specimenLikeChips({
-    id,
-    org,
-    date,
-    participantCount,
-    variant,
-    anchorStatus,
-    verificationAnchor,
-    anchorShort,
-  });
-  const anchorDisplay = resolveAnchorDisplay(id, verificationAnchor, anchorShort);
+export function RecordCardCompact(props: RecordCardProps) {
+  const { id, title, variant, anchorStatus = 'verified', href } = props;
+  const chips = specimenLikeChips({ ...props, anchorStatus });
+  const doc = resolveDocumentFields({ ...props, anchorStatus });
 
   const content = (
     <article
       className={cn(
-        'sr-ledger-card sr-registry-card',
+        'sr-ledger-card sr-registry-card sr-ledger-document',
         variant === 'live'
           ? 'sr-ledger-card--published'
           : 'sr-ledger-card--illustrative sr-specimen-surface',
       )}
     >
       <div className="flex flex-col gap-3">
+        <LedgerDocumentLetterhead
+          variant="compact"
+          isSpecimen={doc.isSpecimen}
+          caseReference={doc.caseReference}
+          classification={doc.classification}
+        />
         <div className="flex flex-wrap items-center gap-2">{chips.map(chipForKind)}</div>
-        <h2 className="m-0 font-sans text-base font-semibold leading-snug tracking-[-0.02em] text-ink md:text-lg">
-          {title}
-        </h2>
-        <MetaFieldGrid columns={4} className="mt-1">
-          <MetaField label="Organisation" value={org} />
-          <MetaField label="Released" value={date} />
-          {typeof participantCount === 'number' ? (
-            <MetaField label="Participants" value={`${participantCount} verified`} />
-          ) : (
-            <MetaField label="Participants" value="Identities not public" />
-          )}
-          {anchorDisplay ? (
-            <MetaField label="Anchor" value={anchorDisplay} mono />
-          ) : (
-            <MetaField
-              label="Verification"
-              value={<VerificationMetaValue verified={anchorStatus !== 'withdrawn'} />}
-            />
-          )}
-        </MetaFieldGrid>
+        <LedgerDocumentTitleBlock compact templateType={doc.templateType} title={title} />
+        <LedgerDocumentStubMeta fields={doc} />
+        <LedgerDocumentFooter fields={doc} compact />
+        <span className="sr-only">Record {id}</span>
       </div>
     </article>
   );
@@ -277,6 +252,7 @@ export function specimenToRecordCardProps(
     anchorStatus: specimen.status === 'anchor-verified' ? 'verified' : 'withdrawn',
     verificationAnchor: specimen.verificationAnchor,
     anchorShort: specimen.anchorShort,
+    document: specimenToDocumentFields(specimen),
     href,
   };
 }

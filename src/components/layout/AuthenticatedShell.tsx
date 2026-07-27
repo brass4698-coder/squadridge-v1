@@ -9,7 +9,6 @@ import { workspaceRoleFromPath } from '../../lib/workspaceRole';
 import { DemoBanner } from '../demo/DemoBanner';
 import { DemoLayout } from '../../demo/DemoLayout';
 import { useDemoWalkthrough } from '../../demo/DemoWalkthroughContext';
-import { DemoGovernanceProvider } from '../../demo/DemoGovernanceContext';
 import { SquadLogo } from '../SquadLogo';
 import { SquadRidgeLockup } from '../SquadRidgeWordmark';
 import { UserAvatarMenu } from './UserAvatarMenu';
@@ -329,96 +328,94 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
     ].join(' ');
 
   return (
-    <DemoGovernanceProvider>
-      <ShellContextProvider>
-        <DemoLayout>
-          <div className="flex h-screen overflow-hidden bg-surface sr-shell-main">
-            <aside
-              className={[
-                'sr-shell-sidebar m-2 flex h-[calc(100%-1rem)] shrink-0 flex-col rounded-[var(--sr-radius-xl)] border border-line transition-all duration-200',
-                sidebarOpen ? 'w-56' : 'w-14',
-              ].join(' ')}
-              aria-label="Main navigation"
-            >
-              <div className="flex h-14 shrink-0 items-center gap-2 border-b border-line px-3">
-                {sidebarOpen ? (
-                  <>
-                    <span className="inline-flex min-w-0 flex-1 items-center text-ink" aria-hidden>
-                      <SquadRidgeLockup size="sm" showTagline={false} />
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSidebarOpen(false)}
-                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-opacity hover:opacity-70"
-                      aria-label="Collapse sidebar"
-                    >
-                      <span aria-hidden>×</span>
-                    </button>
-                  </>
-                ) : (
+    <ShellContextProvider>
+      <DemoLayout>
+        <div className="flex h-screen overflow-hidden bg-surface sr-shell-main">
+          <aside
+            className={[
+              'sr-shell-sidebar m-2 flex h-[calc(100%-1rem)] shrink-0 flex-col rounded-[var(--sr-radius-xl)] border border-line transition-all duration-200',
+              sidebarOpen ? 'w-56' : 'w-14',
+            ].join(' ')}
+            aria-label="Main navigation"
+          >
+            <div className="flex h-14 shrink-0 items-center gap-2 border-b border-line px-3">
+              {sidebarOpen ? (
+                <>
+                  <span className="inline-flex min-w-0 flex-1 items-center text-ink" aria-hidden>
+                    <SquadRidgeLockup size="sm" showTagline={false} />
+                  </span>
                   <button
                     type="button"
-                    onClick={() => setSidebarOpen(true)}
-                    className="mx-auto inline-flex size-8 items-center justify-center rounded-full transition-opacity hover:opacity-80"
-                    aria-label="Expand sidebar"
+                    onClick={() => setSidebarOpen(false)}
+                    className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-opacity hover:opacity-70"
+                    aria-label="Collapse sidebar"
                   >
-                    <SquadLogo size={28} aria-hidden />
+                    <span aria-hidden>×</span>
                   </button>
-                )}
-              </div>
-
-              <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-                {navItems.map((item) => (
-                  <NavLink
-                    key={`${item.label}-${item.href}`}
-                    to={item.href}
-                    className={navLinkClass}
-                    title={!sidebarOpen ? item.label : undefined}
-                    end={item.href === '/app' || item.href === overviewHref(best)}
-                    data-demo={item.demoId}
-                  >
-                    <span className="shrink-0">{item.icon}</span>
-                    {sidebarOpen ? <span>{item.label}</span> : null}
-                  </NavLink>
-                ))}
-              </nav>
-
-              <div className="border-t border-line p-3">
+                </>
+              ) : (
                 <button
                   type="button"
-                  onClick={() => void handleSignOut()}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-secondary transition-opacity hover:opacity-70"
+                  onClick={() => setSidebarOpen(true)}
+                  className="mx-auto inline-flex size-8 items-center justify-center rounded-full transition-opacity hover:opacity-80"
+                  aria-label="Expand sidebar"
                 >
-                  {sidebarOpen ? <span>Sign out</span> : <span aria-label="Sign out">⎋</span>}
+                  <SquadLogo size={28} aria-hidden />
                 </button>
-              </div>
-            </aside>
+              )}
+            </div>
 
-            <main
-              className="sr-shell-panel m-2 ml-0 flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain bg-surface-secondary"
-              data-scroll-root
-            >
-              <DemoBanner />
-              <ShellHeaderBar />
-              <div
-                key={location.pathname}
-                className={`sr-page-enter flex-1 p-6 ${surfaceClass} ${showDemoChrome ? 'pb-28' : ''}`}
-                data-surface={
-                  surfaceClass.includes('gate')
-                    ? 'gate'
-                    : surfaceClass.includes('record')
-                      ? 'record'
-                      : surfaceClass.includes('portfolio')
-                        ? 'portfolio'
-                        : 'room'
-                }
+            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+              {navItems.map((item) => (
+                <NavLink
+                  key={`${item.label}-${item.href}`}
+                  to={item.href}
+                  className={navLinkClass}
+                  title={!sidebarOpen ? item.label : undefined}
+                  end={item.href === '/app' || item.href === overviewHref(best)}
+                  data-demo={item.demoId}
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  {sidebarOpen ? <span>{item.label}</span> : null}
+                </NavLink>
+              ))}
+            </nav>
+
+            <div className="border-t border-line p-3">
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-secondary transition-opacity hover:opacity-70"
               >
-                {children ?? <Outlet />}
-              </div>
-            </main>
-          </div>
-        </DemoLayout>
-      </ShellContextProvider>
-    </DemoGovernanceProvider>
+                {sidebarOpen ? <span>Sign out</span> : <span aria-label="Sign out">⎋</span>}
+              </button>
+            </div>
+          </aside>
+
+          <main
+            className="sr-shell-panel m-2 ml-0 flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain bg-surface-secondary"
+            data-scroll-root
+          >
+            <DemoBanner />
+            <ShellHeaderBar />
+            <div
+              key={location.pathname}
+              className={`sr-page-enter flex-1 p-6 ${surfaceClass} ${showDemoChrome ? 'pb-28' : ''}`}
+              data-surface={
+                surfaceClass.includes('gate')
+                  ? 'gate'
+                  : surfaceClass.includes('record')
+                    ? 'record'
+                    : surfaceClass.includes('portfolio')
+                      ? 'portfolio'
+                      : 'room'
+              }
+            >
+              {children ?? <Outlet />}
+            </div>
+          </main>
+        </div>
+      </DemoLayout>
+    </ShellContextProvider>
   );
 }

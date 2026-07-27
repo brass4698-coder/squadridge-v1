@@ -50,15 +50,36 @@ export function DemoGovernanceProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+function writePresetId(id: DemoPresetId): void {
+  try {
+    sessionStorage.setItem('squadridge:demo-preset', id);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function useDemoGovernance() {
   const ctx = useContext(Ctx);
   if (!ctx) {
+    // Public demo routes may render outside AuthenticatedShell — still persist preset.
+    const stored = (() => {
+      try {
+        return sessionStorage.getItem('squadridge:demo-preset') as DemoPresetId | null;
+      } catch {
+        return null;
+      }
+    })();
+    const id =
+      stored && DEMO_PRESETS.some((p) => p.id === stored)
+        ? stored
+        : ('institutional' as DemoPresetId);
+    const preset = DEMO_PRESETS.find((p) => p.id === id) ?? DEMO_PRESETS[4];
     return {
-      presetId: 'institutional' as DemoPresetId,
-      setPresetId: () => undefined,
+      presetId: id,
+      setPresetId: writePresetId,
       presets: DEMO_PRESETS,
-      matters: mattersForPreset('institutional'),
-      scopeLabel: DEMO_PRESETS[4].scope,
+      matters: mattersForPreset(id),
+      scopeLabel: preset.scope,
     };
   }
   return ctx;

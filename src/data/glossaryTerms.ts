@@ -43,28 +43,28 @@ export const GLOSSARY_TERMS: Record<GlossaryTermId, GlossaryTerm> = {
     term: 'ledger_sha',
     gloss:
       'The SHA-256 integrity hash stored with a released record so outsiders can recompute and confirm the text is unaltered.',
-    href: '/security#verification-anchor',
+    href: '/security/technical#verification-anchor',
   },
   canonicalised: {
     id: 'canonicalised',
     term: 'canonicalised',
     gloss:
       'Normalised into a fixed byte form (whitespace and encoding) so the same approved text always hashes the same way.',
-    href: '/security#verification-anchor',
+    href: '/security/technical#verification-anchor',
   },
   'verification-anchor': {
     id: 'verification-anchor',
     term: 'verification anchor',
     gloss:
       'A tamper-evident integrity check on the released file — proves the published text is unaltered, not who said what in the room.',
-    href: '/security#verification-anchor',
+    href: '/security/technical#verification-anchor',
   },
   'rfc-3161': {
     id: 'rfc-3161',
     term: 'RFC 3161',
     gloss:
       'A trusted timestamping standard (scaffolded) that would independently attest when a hash was created — not live in the current pilot.',
-    href: '/security#verification-anchor',
+    href: '/security/technical#verification-anchor',
   },
   'instrument-hash': {
     id: 'instrument-hash',

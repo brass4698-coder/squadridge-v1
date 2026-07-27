@@ -67,6 +67,7 @@ When any [ADR 004 re-evaluation trigger](./004-defer-operator-blind-e2e.md) fire
 ## References
 
 - [ADR 004](./004-defer-operator-blind-e2e.md)
+- [ADR 006](./006-cloudflare-workers-room-record.md) — Cloudflare DO/R2 **runtime** target (complementary; not a crypto decision)
 - [`docs/technical/rfc-e2e-messaging-key-hierarchy.md`](../technical/rfc-e2e-messaging-key-hierarchy.md)
 - [`docs/security/threat-model.md`](../security/threat-model.md) §5 / §13
 - [`src/data/implementationStatus.ts`](../../src/data/implementationStatus.ts) — `operator_blind_e2e`

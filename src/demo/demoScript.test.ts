@@ -73,6 +73,9 @@ describe('resolveStepTips', () => {
           expect(tip.target).toBeTruthy();
         }
         expect(tip.blockInteraction).toBe(false);
+        // Tour narration stays a single short sentence (no multi-paragraph chrome).
+        expect(tip.body.length).toBeLessThanOrEqual(96);
+        expect(tip.body.split(/(?<=[.!?])\s+/).filter(Boolean).length).toBeLessThanOrEqual(2);
       }
     }
   });

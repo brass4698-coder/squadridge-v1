@@ -10,31 +10,31 @@ const STAGES: {
   id: SpineStageId;
   title: string;
   body: string;
-  securityHash: string;
+  securityHref: string;
 }[] = [
   {
     id: 'configure',
     title: 'Configure',
     body: 'Facilitator sets template, capacity, and eligibility. Invite-only — no open signup.',
-    securityHash: 'safeguards',
+    securityHref: '/security#safeguards',
   },
   {
     id: 'verify',
     title: 'Verify',
     body: 'Participants accept role-scoped invites. Facilitator approves before the room opens.',
-    securityHash: 'safeguards',
+    securityHref: '/security#safeguards',
   },
   {
     id: 'facilitate',
     title: 'Facilitate',
     body: 'Structured written rounds. Dialogue stays private. Metadata audit — no message bodies.',
-    securityHash: 'operator-access',
+    securityHref: '/security#operator-access',
   },
   {
     id: 'release',
     title: 'Release',
     body: 'Facilitator-authored instrument, hash-bound approvals, explicit release — or no public record.',
-    securityHash: 'verification-anchor',
+    securityHref: '/security/technical#verification-anchor',
   },
 ];
 
@@ -111,7 +111,7 @@ export function SpineStageDiagram() {
           ))}
         </ul>
         <Link
-          to={`/security#${stage.securityHash}`}
+          to={stage.securityHref}
           className="mt-5 inline-block text-sm font-medium text-brand underline-offset-2 hover:underline"
         >
           Open matching Security section →

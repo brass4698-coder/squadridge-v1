@@ -11,9 +11,10 @@ Implementation lives in **`src/demo/`**.
 ## How to start
 
 1. Ensure the demo account is seeded (`docs/operations/demo-account.md`).
-2. Open `/sign-in` and choose **Try the Demo** (or visit `/sign-in?demo=1`).
-3. After auth, the tour starts at `/?demo=1` and advances through `DEMO_MAIN_STEPS`
-   in `src/demo/demoScript.ts`.
+2. Open **`/demo`** (footer → Access → Demo hub in local/dev) or `/sign-in` → **Sign in + choose a role tour**.
+3. Pick a role on `/demo/start?demo=1` (or visit `/sign-in?demo=1` with no `next`).
+4. After auth, the tour advances through the role-filtered steps from `src/demo/demoRolePaths.ts`
+   / `DEMO_MAIN_STEPS` in `src/demo/demoScript.ts`.
 
 You can also call `startWalkthrough()` from `useDemoWalkthrough()` (see
 `src/pages/admin/AdminDemoPage.tsx`), or open any spine route with `?demo=1`

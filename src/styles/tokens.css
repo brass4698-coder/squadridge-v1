@@ -195,9 +195,12 @@
   --sr-glass-solid: var(--sr-bg-elevated);
 
   /* ── Form surfaces ──────────────────────────────────────────────── */
-  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg) 72%, var(--sr-bg-sunken));
-  --sr-form-control-bg-focus: color-mix(in oklch, var(--sr-bg) 55%, var(--sr-bg-elevated));
-  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 14%, transparent);
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg) 68%, var(--sr-bg-sunken));
+  --sr-form-control-bg-hover: color-mix(in oklch, var(--sr-bg) 58%, var(--sr-bg-elevated));
+  --sr-form-control-bg-focus: color-mix(in oklch, var(--sr-bg) 48%, var(--sr-bg-elevated));
+  --sr-form-control-bg-filled: color-mix(in oklch, var(--sr-bg-elevated) 88%, var(--sr-bg));
+  --sr-form-control-underline: color-mix(in oklch, var(--sr-primary) 55%, var(--sr-line-strong));
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 10%, transparent);
   --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 11%, transparent);
   --sr-form-atmosphere-b: color-mix(in oklch, var(--sr-verify) 6%, transparent);
   --sr-form-accent-line: linear-gradient(
@@ -207,6 +210,7 @@
     color-mix(in oklch, var(--sr-verify) 45%, transparent) 65%,
     transparent
   );
+  --sr-form-field-min-h: 2.75rem; /* 44px tap target */
 
   /* ── Typography — Inter everywhere; mono for labels/ledger ──────── */
   --sr-font-body: 'Inter', system-ui, sans-serif;

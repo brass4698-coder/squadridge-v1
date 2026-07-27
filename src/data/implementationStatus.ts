@@ -26,6 +26,7 @@ export type ImplementationClaimId =
   | 'room_app_layer_encryption'
   | 'rfc3161_timestamp'
   | 'operator_blind_e2e'
+  | 'cloudflare_room_do'
   | 'ioa_alignment'
   | 'legal_privilege'
   | 'court_admissible_time'
@@ -54,7 +55,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     status: 'live',
     summary:
       'Release computes a hash of the canonical approved text and stores it with the record. Anyone holding the text can recompute it.',
-    securityHref: '/security#verification-anchor',
+    securityHref: '/security/technical#verification-anchor',
     spineStage: 'release',
   },
   {
@@ -90,7 +91,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     status: 'live',
     summary:
       'Invite-linked accounts sign in via one-time email links (Supabase Auth). No password store for pilot accounts.',
-    securityHref: '/security#diligence-faq',
+    securityHref: '/security/technical#diligence-faq',
     spineStage: 'configure',
   },
   {
@@ -143,7 +144,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     status: 'scaffolded',
     summary:
       'Schema columns and typed interfaces exist; optional TSA client is gated by env. Release does not store a verified TimeStampToken in production until a live authority path is configured and verified. Until then, an anchor proves integrity, never time.',
-    securityHref: '/security#verification-anchor',
+    securityHref: '/security/technical#verification-anchor',
     spineStage: 'release',
   },
   {
@@ -156,12 +157,21 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     spineStage: 'facilitate',
   },
   {
+    id: 'cloudflare_room_do',
+    label: 'Cloudflare Durable Object room runtime',
+    status: 'planned',
+    summary:
+      'Today rooms are Supabase-backed (Postgres + Realtime + RLS). A Durable Object as single-writer room gate/pacing/dialogue boundary is the target runtime in ADR 006 — not production today.',
+    securityHref: '/security/technical#diligence-faq',
+    spineStage: 'facilitate',
+  },
+  {
     id: 'ioa_alignment',
     label: 'IOA-aligned confidentiality architecture',
     status: 'live',
     summary:
       'Product architecture mirrors IOA confidentiality / independence / impartiality / informality as a professional benchmark. We are not an IOA-certified ombuds office.',
-    securityHref: '/security#confidentiality-precedent',
+    securityHref: '/security/technical#confidentiality-precedent',
   },
   {
     id: 'legal_privilege',
@@ -177,7 +187,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     status: 'planned',
     summary:
       'Not claimed. SHA-256 proves integrity of the released file. Do not treat anchors as court evidence of time without a live, verified RFC 3161 path.',
-    securityHref: '/security#verification-anchor',
+    securityHref: '/security/technical#verification-anchor',
   },
   {
     id: 'full_platform_zk',

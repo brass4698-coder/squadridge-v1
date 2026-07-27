@@ -323,9 +323,12 @@ export function RequestAccessPage() {
             description="A human reviews every application. We aim to reply within about one week — not an automated approval or live status tracker."
             footer="We reduce exposure by design. We do not claim full platform zero-knowledge or Signal-grade E2E today."
           >
-            <div className="space-y-4 text-sm text-ink-secondary">
+            <FormAlert variant="success" title="Application received">
+              Your intake is queued for manual review. There is no self-serve status page.
+            </FormAlert>
+            <div className="mt-6 space-y-4 text-sm text-ink-secondary">
               <div>
-                <p className="m-0 font-medium text-ink">What happens next</p>
+                <p className="m-0 font-semibold tracking-tight text-ink">What happens next</p>
                 <ol className="mt-2 mb-0 list-decimal space-y-1.5 pl-5">
                   <li>Manual fit and sensitivity review (target: about one week).</li>
                   <li>Possible request for a short briefing before any invitations.</li>
@@ -333,7 +336,7 @@ export function RequestAccessPage() {
                 </ol>
               </div>
               <div>
-                <p className="m-0 font-medium text-ink">Possible outcomes</p>
+                <p className="m-0 font-semibold tracking-tight text-ink">Possible outcomes</p>
                 <ul className="mt-2 mb-0 list-disc space-y-1 pl-5">
                   <li>Additional diligence required</li>
                   <li>Briefing recommended before review</li>
@@ -348,15 +351,15 @@ export function RequestAccessPage() {
                 >
                   {contactEmail}
                 </a>
-                . There is no self-serve status page for this intake.
+                .
               </p>
             </div>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/" className="btn-institutional btn-institutional--ghost">
-                Return home
-              </Link>
+            <div className="sr-form-actions mt-8">
               <Link to="/briefings" className="btn-institutional btn-institutional--primary">
                 Briefing overview
+              </Link>
+              <Link to="/" className="btn-institutional btn-institutional--ghost">
+                Return home
               </Link>
             </div>
           </FormPanel>
@@ -378,7 +381,7 @@ export function RequestAccessPage() {
             room. Manual review — we aim to reply within about one week — co-designed pilot scope,
             not self-serve signup.
           </p>
-          <p className="mt-3 max-w-2xl rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/40 px-3 py-2.5 text-sm leading-relaxed text-ink-secondary">
+          <div className="sr-form-notice mt-5 max-w-2xl">
             We reduce exposure by design. We do not claim full platform zero-knowledge or
             Signal-grade E2E today — rooms are operator-readable. Details on{' '}
             <Link
@@ -388,7 +391,7 @@ export function RequestAccessPage() {
               Security
             </Link>
             .
-          </p>
+          </div>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-ink-faint">
             For foundations, NGOs, boards and executive teams, HR/ombuds offices, and peacebuilding
             facilitators. Need board or funder sign-off during review? Forward the{' '}
@@ -833,11 +836,11 @@ export function RequestAccessPage() {
                 </div>
               </details>
 
-              <div className="space-y-4 border-t border-line pt-6">
+              <div className="space-y-5 border-t border-line pt-7">
                 <p className="m-0 text-sm leading-relaxed text-ink-secondary">
                   Manual review only. No open invitations are issued before approval. Leaving this
                   page keeps a draft in this browser tab until you submit or clear it. During the
-                  During the review window, share the{' '}
+                  review window, share the{' '}
                   <a
                     href="/diligence/trust-diligence-packet.md"
                     className="text-brand underline-offset-2 hover:underline"
@@ -847,13 +850,21 @@ export function RequestAccessPage() {
                   </a>{' '}
                   with internal reviewers.
                 </p>
-                <button
-                  type="submit"
-                  className="btn-institutional btn-institutional--primary btn-institutional--block sm:w-auto"
-                  disabled={loading}
-                >
-                  {loading ? 'Submitting…' : CTA.primaryLabel}
-                </button>
+                <div className="sr-form-actions">
+                  <button
+                    type="submit"
+                    className="btn-institutional btn-institutional--primary"
+                    disabled={loading}
+                  >
+                    {loading ? 'Submitting…' : CTA.primaryLabel}
+                  </button>
+                  <Link
+                    to="/contact"
+                    className="btn-institutional btn-institutional--ghost text-center"
+                  >
+                    Prefer a briefing first
+                  </Link>
+                </div>
               </div>
             </form>
           </FormPanel>

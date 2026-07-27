@@ -4,7 +4,7 @@
 **Last updated:** July 2026  
 **Honesty:** Rooms are **operator-readable today**. Do not read this as Signal-grade E2E or audit-complete.
 
-Deeper references: [`../security/threat-model.md`](../security/threat-model.md) · Implementation registry: [`../../src/data/implementationStatus.ts`](../../src/data/implementationStatus.ts) · ADR: [`../adr/005-operator-blind-room-encryption-options.md`](../adr/005-operator-blind-room-encryption-options.md)
+Deeper references: [`../security/threat-model.md`](../security/threat-model.md) · Implementation registry: [`../../src/data/implementationStatus.ts`](../../src/data/implementationStatus.ts) · ADRs: [`../adr/005-operator-blind-room-encryption-options.md`](../adr/005-operator-blind-room-encryption-options.md) · [`../adr/006-cloudflare-workers-room-record.md`](../adr/006-cloudflare-workers-room-record.md)
 
 ---
 
@@ -68,5 +68,16 @@ SHA-256 ledger / private anchored memo
 - Not operator-proof E2E today  
 - Not a guarantee of legal privilege  
 - Not a finished external audit artifact (see [`../security/external-review.md`](../security/external-review.md))  
+- **Not a Cloudflare Durable Objects / D1 / R2 production deployment today** — see Target runtime below  
 
-Full stack map: [`./architecture-overview.md`](./architecture-overview.md)
+---
+
+## Target runtime (Cloudflare)
+
+**Today:** Supabase + Vite (Vercel). **Target (ADR only):** Cloudflare Workers fullstack — Durable Objects for room gate/pacing/dialogue storage, D1 for identity mapping, private R2 for encrypted dialogue archive, public R2 + SHA-256 hash chain for released artifacts, KV for tokens, Queues for async release assembly.
+
+The **product property** already matches that design: room ≠ record; only a facilitator-approved instrument is published as a new artifact with no path back to dialogue. Operator-readable AES-GCM room keys in Postgres are **not** DO-private dialogue; the Cloudflare DO path is the operator-isolation / single-writer consistency target, related to [ADR 005](../adr/005-operator-blind-room-encryption-options.md).
+
+Full mapping, mermaid target diagram, migration phases 0–5, and “when not to migrate mid-pilot”: [`../adr/006-cloudflare-workers-room-record.md`](../adr/006-cloudflare-workers-room-record.md). Non-production stub: [`../../cloudflare/README.md`](../../cloudflare/README.md).
+
+Full stack map (current): [`./architecture-overview.md`](./architecture-overview.md)

@@ -29,7 +29,7 @@ export function FormAlert({
       role={role}
     >
       <div className="min-w-0">
-        {title ? <p className="m-0 font-medium text-ink">{title}</p> : null}
+        {title ? <p className="m-0 font-semibold tracking-tight text-ink">{title}</p> : null}
         <div className={cn(title && 'mt-1.5', 'text-ink-secondary')}>{children}</div>
       </div>
     </div>

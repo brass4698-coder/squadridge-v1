@@ -4,7 +4,13 @@ import { StatusBadge } from '../StatusBadge';
 import { RecordAnchorBadge, VerificationAnchorBadge } from '../shared/VerificationAnchorBadge';
 import { SpecimenNotice } from '../shared/SpecimenNotice';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
+import type { LedgerDocumentFields } from '../../data/ledgerSpecimens';
 import type { LedgerRecordDetail, RelatedLedgerRecord } from '../../data/sampleRecords';
+import {
+  LedgerDocumentFooter,
+  LedgerDocumentLetterhead,
+  LedgerDocumentMetaGrid,
+} from './LedgerDocumentChrome';
 
 const SECTIONS = [
   { id: 'release-summary', label: 'Summary' },
@@ -39,15 +45,6 @@ function CopyButton({ label, getText }: { label: string; getText: () => string }
     >
       {done ? 'Copied' : label}
     </button>
-  );
-}
-
-function MetaCell({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="min-w-0 border-t border-line px-6 py-5 first:border-t-0 sm:border-t-0 sm:border-l sm:first:border-l-0">
-      <p className="sr-meta-label">{label}</p>
-      <p className="sr-meta-value mt-1.5">{value}</p>
-    </div>
   );
 }
 
@@ -123,11 +120,44 @@ export type ReleasedRecordDossierProps = {
     relatedRecords: RelatedLedgerRecord[];
     variant?: LedgerRecordDetail['variant'];
     anchorStatus?: LedgerRecordDetail['anchorStatus'];
+    /** Official-document chrome (letterhead + filing metadata). */
+    document?: LedgerDocumentFields;
   };
   citation: string;
   verifyHref?: string;
   illustrativeNotice?: string;
 };
+
+function resolveDossierDocument(
+  record: ReleasedRecordDossierProps['record'],
+): LedgerDocumentFields {
+  if (record.document) return record.document;
+  const isSpecimen = record.variant === 'sample';
+  return {
+    caseReference: record.id,
+    matterTitle: record.title,
+    templateType: record.outcomeType,
+    issuedAtDisplay: record.releasedDate,
+    approvedByRole: 'Designated facilitator (role attestation)',
+    visibilityLabel: record.visibilityClass,
+    classification: isSpecimen
+      ? 'Approved outcome · illustrative format'
+      : 'Approved outcome · public registry',
+    facilitatorAttestation:
+      'Attested for release by the designated facilitator after recorded party confirmations.',
+    integrityScheme: isSpecimen
+      ? 'SHA-256 stub (illustrative — not verifiable)'
+      : 'SHA-256 verification anchor',
+    timestampLabel: isSpecimen
+      ? 'Trusted timestamp — not applicable (specimen)'
+      : 'Trusted timestamp — not attested (SHA-256 integrity only)',
+    organisation: record.org,
+    participantCount: record.participantCount,
+    anchorShort: undefined,
+    verificationAnchor: record.verificationAnchor,
+    isSpecimen,
+  };
+}
 
 /**
  * Released-record dossier — elevated archival modules, not a flat content slab.
@@ -141,10 +171,11 @@ export function ReleasedRecordDossier({
 }: ReleasedRecordDossierProps) {
   const printPage = () => window.print();
   const isSpecimen = record.variant === 'sample';
+  const documentFields = resolveDossierDocument(record);
 
   return (
     <div className="sr-ledger-dark sr-dossier pb-20" data-page="ledger-record">
-      {/* ── Zone 1: Hero — open composition on continuous dark canvas ─ */}
+      {/* ── Zone 1: Hero — institutional letterhead on continuous dark canvas ─ */}
       <header className="border-b border-line">
         <div className={`${publicShellInnerClass} pb-12 pt-10 md:pb-16 md:pt-16`}>
           <nav aria-label="Breadcrumb" className="mb-8">
@@ -164,33 +195,50 @@ export function ReleasedRecordDossier({
             </ol>
           </nav>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {isSpecimen ? (
-              <StatusBadge variant="illustrative">Illustrative</StatusBadge>
-            ) : (
-              <StatusBadge variant="published">Published</StatusBadge>
-            )}
-            <VerificationAnchorBadge
-              anchorId={record.id}
-              status={record.anchorStatus ?? 'verified'}
+          <div className="sr-ledger-document sr-dossier-module overflow-hidden p-5 md:p-8">
+            <LedgerDocumentLetterhead
+              variant="full"
+              isSpecimen={documentFields.isSpecimen}
+              caseReference={documentFields.caseReference}
+              classification={documentFields.classification}
             />
-            <RecordAnchorBadge recordId={record.id} />
-          </div>
 
-          <h1 className="mt-5 mb-0 max-w-3xl font-sans text-h2 font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[length:var(--sr-text-display)]">
-            {record.title}
-          </h1>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {isSpecimen ? (
+                <StatusBadge variant="illustrative">Illustrative</StatusBadge>
+              ) : (
+                <StatusBadge variant="published">Published</StatusBadge>
+              )}
+              <VerificationAnchorBadge
+                anchorId={record.id}
+                status={record.anchorStatus ?? 'verified'}
+              />
+              <RecordAnchorBadge recordId={record.id} />
+            </div>
 
-          <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-secondary">
-            {isSpecimen
-              ? 'Specimen of an approved outcome record. No private session produced this text.'
-              : 'Approved outcome text only. The private session that produced it is not public.'}
-          </p>
+            <p className="sr-meta-label mt-6">{documentFields.templateType}</p>
+            <h1 className="mt-2 mb-0 max-w-3xl font-sans text-h2 font-semibold leading-tight tracking-[-0.02em] text-ink md:text-[length:var(--sr-text-display)]">
+              {record.title}
+            </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <span className="font-mono text-[length:var(--text-label)] text-ink-secondary">
-              {record.org} · {record.releasedDate}
-            </span>
+            <p className="mt-3 mb-0 max-w-measure text-sm leading-relaxed text-ink-secondary">
+              {isSpecimen
+                ? 'Specimen of an approved outcome record. No private session produced this text.'
+                : 'Approved outcome text only. The private session that produced it is not public.'}
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <span className="font-mono text-[length:var(--text-label)] text-ink-secondary">
+                {documentFields.organisation} · Issued {documentFields.issuedAtDisplay}
+              </span>
+              <span className="font-mono text-[length:var(--text-label)] text-ink-faint">
+                {documentFields.approvedByRole}
+              </span>
+            </div>
+
+            <div className="mt-6">
+              <LedgerDocumentFooter fields={documentFields} />
+            </div>
           </div>
 
           {isSpecimen ? (
@@ -225,29 +273,19 @@ export function ReleasedRecordDossier({
             </ul>
           </nav>
 
-          {/* ── Zone 2: Metadata ───────────────────────────────────── */}
+          {/* ── Zone 2: Filing metadata ─────────────────────────────── */}
           <section id="release-summary" className="scroll-mt-28">
-            <DossierLabel>Release summary</DossierLabel>
-            <h2 className="sr-only">Release summary</h2>
-            <div className="sr-dossier-module mt-4 overflow-hidden">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3">
-                <MetaCell label="Releasing body" value={record.org} />
-                <MetaCell label="Region" value={record.region} />
-                <MetaCell label="Released" value={record.releasedDate} />
-                <MetaCell label="Session date" value={record.sessionDate} />
-                <MetaCell label="Record type" value={record.outcomeType} />
-                <MetaCell label="Process type" value={record.processType} />
-                <MetaCell label="Visibility" value={record.visibilityClass} />
-                {typeof record.participantCount === 'number' ? (
-                  <MetaCell
-                    label="Verified parties"
-                    value={`${record.participantCount} — identities not public`}
-                  />
-                ) : (
-                  <MetaCell label="Participants" value="Identities not public" />
-                )}
-                <MetaCell label="Publication" value="Facilitator-governed · no auto-publish" />
-              </div>
+            <DossierLabel>Document register</DossierLabel>
+            <h2 className="mt-2 mb-0 font-heading text-h3 font-semibold text-ink">
+              Filing metadata
+            </h2>
+            <p className="mt-2 mb-0 max-w-measure text-sm text-ink-secondary">
+              Case reference, issuance, role attestation, and integrity stubs for this instrument.
+              Region: {record.region}. Process: {record.processType}. Session date recorded as{' '}
+              {record.sessionDate}.
+            </p>
+            <div className="mt-5">
+              <LedgerDocumentMetaGrid fields={documentFields} />
             </div>
           </section>
 
@@ -278,18 +316,29 @@ export function ReleasedRecordDossier({
               Not a transcript of the private room.
             </p>
             <article
-              className={`sr-dossier-instrument mt-6${isSpecimen ? ' sr-specimen-surface' : ''}`}
+              className={`sr-dossier-instrument sr-ledger-document mt-6${isSpecimen ? ' sr-specimen-surface' : ''}`}
             >
-              <header className="sr-dossier-instrument__header flex flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
-                <DossierLabel>
-                  {isSpecimen ? 'Specimen instrument' : 'Released instrument'}
-                </DossierLabel>
-                <RecordAnchorBadge recordId={record.id} />
+              <header className="sr-dossier-instrument__header px-5 py-4 md:px-8">
+                <LedgerDocumentLetterhead
+                  variant="compact"
+                  isSpecimen={documentFields.isSpecimen}
+                  caseReference={documentFields.caseReference}
+                  classification={documentFields.classification}
+                />
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <DossierLabel>
+                    {isSpecimen ? 'Specimen instrument' : 'Released instrument'}
+                  </DossierLabel>
+                  <RecordAnchorBadge recordId={record.id} />
+                </div>
               </header>
               <div className="px-5 py-8 md:px-10 md:py-10">
                 <pre className="sr-dossier-instrument__body m-0 max-w-prose whitespace-pre-wrap font-mono text-[0.8125rem] leading-[1.75] md:text-sm">
                   {record.body}
                 </pre>
+              </div>
+              <div className="px-5 md:px-8">
+                <LedgerDocumentFooter fields={documentFields} />
               </div>
             </article>
           </section>

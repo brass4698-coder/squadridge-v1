@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { getSampleRecordById, type LedgerRecordDetail } from '../../data/sampleRecords';
-import { getSpecimenById } from '../../data/ledgerSpecimens';
+import { getSpecimenById, specimenToDocumentFields } from '../../data/ledgerSpecimens';
 import { useLedgerRecord } from '../../hooks/useLedger';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import {
@@ -9,19 +9,15 @@ import {
 } from '../../components/ledger/ReleasedRecordDossier';
 import { MarketingSection, SectionLabel, ShellWidth } from '../../components/shared';
 import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { ledgerEntryToDocumentFields } from '../../lib/ledgerDisplay';
 
 function liveEntryToDossier(entry: NonNullable<ReturnType<typeof useLedgerRecord>['entry']>): {
   record: ReleasedRecordDossierProps['record'];
   citation: string;
 } {
+  const document = ledgerEntryToDocumentFields(entry);
   const title = entry.session?.title ?? 'Released outcome';
-  const releasedDate = entry.published_at
-    ? new Date(entry.published_at).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : '—';
+  const releasedDate = document.issuedAtDisplay;
   const year = entry.published_at
     ? new Date(entry.published_at).getFullYear()
     : new Date().getFullYear();
@@ -34,20 +30,20 @@ function liveEntryToDossier(entry: NonNullable<ReturnType<typeof useLedgerRecord
     .filter(Boolean)
     .slice(0, 5);
 
-  const citation = `${entry.session?.conflict_type ?? 'Facilitated session'}. (${year}). ${title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${entry.id}.`;
+  const citation = `${document.organisation}. (${year}). ${title}. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${entry.id}.`;
 
   return {
     citation,
     record: {
-      id: entry.id,
+      id: document.caseReference,
       title,
-      org: entry.session?.conflict_type ?? 'Releasing organisation',
+      org: document.organisation,
       region: 'As recorded',
       releasedDate,
       sessionDate: releasedDate,
-      outcomeType: 'Released outcome record',
+      outcomeType: document.templateType,
       processType: entry.session?.conflict_type ?? 'Facilitated written session',
-      visibilityClass: 'Public release',
+      visibilityClass: document.visibilityLabel,
       verificationAnchor: entry.ledger_sha ?? entry.id,
       generatedAt: entry.published_at ?? new Date().toISOString(),
       outcomeSummary:
@@ -74,6 +70,7 @@ function liveEntryToDossier(entry: NonNullable<ReturnType<typeof useLedgerRecord
       relatedRecords: [],
       variant: 'live',
       anchorStatus: 'verified',
+      document,
     },
   };
 }
@@ -140,12 +137,14 @@ function SampleDossier({ record }: { record: LedgerRecordDetail }) {
   const specimen = getSpecimenById(record.id);
   const year = specimen ? Number(specimen.releasedAt.slice(0, 4)) : new Date().getFullYear();
   const citation = `ILLUSTRATIVE SPECIMEN (not a citable record). ${record.org}. (${year}). ${record.title}. SquadRidge Outcome Ledger citation format.`;
+  const document = record.document ?? (specimen ? specimenToDocumentFields(specimen) : undefined);
 
   return (
     <ReleasedRecordDossier
       record={{
         ...record,
         verificationAnchor: specimen?.verificationAnchor ?? record.verificationAnchor,
+        document,
       }}
       citation={citation}
       illustrativeNotice="Designed to show the structure, metadata, and verification surface of a released record. No facilitated session produced this text, the anchor is illustrative, and no organisation named here has released anything through SquadRidge."

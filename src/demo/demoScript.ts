@@ -112,70 +112,55 @@ export const demoSteps: DemoStep[] = [
     id: 'role_select',
     path: '/demo/start?demo=1',
     title: 'Choose your role',
-    description: 'Each role sees a different workspace — pick the lens you want to explore.',
+    description: 'Pick a role lens.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'role-pick',
-        'Role-first tour',
-        'Facilitator, participant, moderator, program lead, ombuds, and executive each get a tailored path. Scenario presets change the fixture data on dashboards.',
-        { type: 'sheet' },
-      ),
+      tip('role-pick', 'Role', 'Pick a role — each path shows a different workspace.', {
+        type: 'sheet',
+      }),
     ],
   },
   {
     id: 'welcome',
     path: '/?demo=1',
     title: 'Welcome',
-    description: 'Private room → release gate → public ledger.',
+    description: 'Room → gate → ledger.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'welcome-brand',
-        'Product spine',
-        'Facilitator-led rooms stay private. Only an approved outcome can leave the room.',
-        { target: '[data-demo="landing-hero"]' },
-      ),
-      tip(
-        'welcome-why',
-        'Why this vessel',
-        'Scroll: who it serves, and why chat or email is the wrong place for high-stakes conflict.',
-        { target: '[data-demo="landing-why"]' },
-      ),
-      tip(
-        'welcome-ledger',
-        'Public record specimen',
-        'Further down: illustrative ledger entries. Dialogue never appears — only approved release text.',
-        { target: '[data-demo="landing-ledger"]' },
-      ),
-      tip(
-        'welcome-nav',
-        'Controls',
-        'Next advances. Back returns. Exit tour leaves anytime — you can resume from where you stopped.',
-        { type: 'sheet' },
-      ),
+      tip('welcome-brand', 'Spine', 'Rooms stay private; only an approved outcome can leave.', {
+        target: '[data-demo="landing-hero"]',
+      }),
+      tip('welcome-why', 'Why', 'Who it serves — and why chat is the wrong vessel.', {
+        target: '[data-demo="landing-why"]',
+      }),
+      tip('welcome-ledger', 'Ledger', 'Illustrative releases only — never the dialogue.', {
+        target: '[data-demo="landing-ledger"]',
+      }),
+      tip('welcome-nav', 'Controls', 'Next advances; Back returns; Exit leaves anytime.', {
+        type: 'sheet',
+      }),
     ],
   },
   {
     id: 'how_it_works',
     path: '/how-it-works?demo=1',
     title: 'How it works',
-    description: 'Configure → Verify → Facilitate → Release.',
+    description: 'Configure → Release.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
       tip(
         'hiw-spine',
         'Lifecycle',
-        'Mediators control the lifecycle. The platform tracks verification, session controls, and publish — not the dialogue.',
+        'Mediators own the lifecycle; the platform tracks gates, not chat.',
         { target: '[data-demo="how-it-works-spine"]' },
       ),
       tip(
         'hiw-guarantees',
-        'Room guarantees',
-        'Scroll: no auto-publish, verification before entry, facilitator-controlled release.',
+        'Guarantees',
+        'No auto-publish — verification, then facilitator release.',
         { target: '[data-demo="how-it-works-guarantees"]' },
       ),
     ],
@@ -184,60 +169,45 @@ export const demoSteps: DemoStep[] = [
     id: 'security',
     path: '/security?demo=1',
     title: 'Security boundary',
-    description: 'Room vs record — what can leave.',
+    description: 'Room vs record.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'security-frame',
-        'Honest boundary',
-        'The room and the record are separate by design. Read this before piloting.',
-        { target: '[data-demo="security-hero"]' },
-      ),
-      tip(
-        'security-not',
-        'Limits',
-        'Scroll to “What we do not do” — operator-readable rooms; not Signal-grade E2E.',
-        { target: '[data-demo="security-limits"]' },
-      ),
+      tip('security-frame', 'Boundary', 'Room and record are separate by design.', {
+        target: '[data-demo="security-hero"]',
+      }),
+      tip('security-not', 'Limits', 'Operator-readable rooms — not Signal-grade E2E.', {
+        target: '[data-demo="security-limits"]',
+      }),
     ],
   },
   {
     id: 'ledger',
     path: '/ledger?demo=1',
     title: 'Public ledger',
-    description: 'Released records only — not transcripts.',
+    description: 'Released records only.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'ledger-index',
-        'Ledger scope',
-        'Approved public records only. Session dialogue never appears here.',
-        { target: '[data-demo="ledger-index"]' },
-      ),
+      tip('ledger-index', 'Ledger', 'Approved public records only — never session dialogue.', {
+        target: '[data-demo="ledger-index"]',
+      }),
     ],
   },
   {
     id: 'facilitator_dashboard',
     path: '/app/facilitator?demo=1',
     title: 'Facilitator dashboard',
-    description: 'Room operations (facilitator).',
+    description: 'Room operations.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'dash-header',
-        'Facilitator view',
-        'Manage rooms, verification, pacing, and release. Seeded sessions are illustrative.',
-        { target: '[data-demo="facilitator-dashboard"]' },
-      ),
-      tip(
-        'dash-new',
-        'Role switcher',
-        'Header role switcher previews Participant and Moderator views.',
-        { target: '[data-demo="nav-sessions"]' },
-      ),
+      tip('dash-header', 'Facilitator', 'Manage rooms, verification, pacing, and release.', {
+        target: '[data-demo="facilitator-dashboard"]',
+      }),
+      tip('dash-new', 'Switcher', 'Use the header switcher to preview other roles.', {
+        target: '[data-demo="nav-sessions"]',
+      }),
     ],
   },
   {
@@ -250,8 +220,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'participant-home',
-        'Participant view',
-        'Your rooms, required actions, and approved outcomes — not other parties’ full transcripts.',
+        'Participant',
+        'Your rooms and required actions — not other parties’ transcripts.',
         { target: '[data-demo="participant-dashboard"]' },
       ),
     ],
@@ -266,8 +236,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'moderator-home',
-        'Moderator view',
-        'Process integrity signals. Release still belongs to the facilitator — no auto-publish.',
+        'Moderator',
+        'Process signals only — release still belongs to the facilitator.',
         { target: '[data-demo="moderator-dashboard"]' },
       ),
     ],
@@ -280,12 +250,9 @@ export const demoSteps: DemoStep[] = [
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'sessions-table',
-        'Session list',
-        'Each row is a deliberation room with a lifecycle status. Next: Configure → Invite → Verify.',
-        { target: '[data-demo="sessions-list"]' },
-      ),
+      tip('sessions-table', 'Sessions', 'Each row is a room with a lifecycle status.', {
+        target: '[data-demo="sessions-list"]',
+      }),
     ],
   },
   {
@@ -298,8 +265,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'configure-setup',
-        'Pilot default',
-        'NGO internal deliberation with a private anchored memo. Public ledger publish stays optional.',
+        'Configure',
+        'Default: NGO deliberation with a private anchored memo.',
         { target: '[data-demo="session-new"]' },
       ),
     ],
@@ -314,8 +281,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'invite-panel',
-        'Invite tokens',
-        'Each participant gets a unique /p/invite token. Treat links as bearer secrets.',
+        'Invite',
+        'Each participant gets a unique invite token — treat it as a secret.',
         { target: '[data-demo="session-invite"]' },
       ),
     ],
@@ -324,14 +291,14 @@ export const demoSteps: DemoStep[] = [
     id: 'session_verify',
     path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/participants?demo=1`,
     title: 'Verify',
-    description: 'Approve before opening the room.',
+    description: 'Approve before opening.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
       tip(
         'verify-review',
-        'Verification gate',
-        'Facilitator review is the gate. The live room stays closed until required participants are verified.',
+        'Verify',
+        'The room stays closed until required participants are verified.',
         { target: '[data-demo="session-participants"]' },
       ),
     ],
@@ -344,42 +311,36 @@ export const demoSteps: DemoStep[] = [
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'control-room',
-        'Private room',
-        'Participants are pseudonymous. Dialogue stays here until you draft an outcome.',
-        { target: '[data-demo="session-control"]' },
-      ),
+      tip('control-room', 'Room', 'Pseudonymous dialogue stays here until you draft an outcome.', {
+        target: '[data-demo="session-control"]',
+      }),
     ],
   },
   {
     id: 'session_outcome',
     path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/outcome?demo=1`,
     title: 'Outcome draft',
-    description: 'What may leave the room.',
+    description: 'What may leave.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'outcome-draft',
-        'Outcome draft',
-        'Facilitator-authored. Nothing becomes public until you pass the release gate.',
-        { target: '[data-demo="session-outcome"]' },
-      ),
+      tip('outcome-draft', 'Outcome', 'Nothing becomes public until it passes the release gate.', {
+        target: '[data-demo="session-outcome"]',
+      }),
     ],
   },
   {
     id: 'session_release',
     path: `/app/sessions/${DEMO_FACILITATOR_SESSION_ID}/release?demo=1`,
     title: 'Release gate',
-    description: 'Approve ledger publish.',
+    description: 'Approve publish.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
       tip(
         'release-gate',
-        'Release gate',
-        'Release is explicit. The platform does not auto-publish chat.',
+        'Release',
+        'Release is explicit — the platform never auto-publishes chat.',
         { target: '[data-demo="session-release"]' },
       ),
     ],
@@ -394,8 +355,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'institution-home',
-        'Program lead view',
-        'Portfolio heatmap, sensitivity mix, and release posture — metadata only, never room transcripts.',
+        'Program lead',
+        'Portfolio metadata and release posture — never room transcripts.',
         { target: '[data-demo="institution-dashboard"]' },
       ),
     ],
@@ -404,16 +365,13 @@ export const demoSteps: DemoStep[] = [
     id: 'mediator_dashboard',
     path: '/app/mediator?demo=1',
     title: 'Ombuds dashboard',
-    description: 'Inquiry desk workspace.',
+    description: 'Inquiry desk.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'mediator-home',
-        'Ombuds view',
-        'Confidential inquiries with elevated sensitivity. Parties remain pseudonymous in the written room.',
-        { target: '[data-demo="mediator-dashboard"]' },
-      ),
+      tip('mediator-home', 'Ombuds', 'Elevated-sensitivity inquiries; parties stay pseudonymous.', {
+        target: '[data-demo="mediator-dashboard"]',
+      }),
     ],
   },
   {
@@ -426,8 +384,8 @@ export const demoSteps: DemoStep[] = [
     tips: [
       tip(
         'executive-home',
-        'Executive observer',
-        'Release posture and risk signals without access to deliberation content.',
+        'Executive',
+        'Release posture and risk signals — no deliberation content.',
         { target: '[data-demo="executive-dashboard"]' },
       ),
     ],
@@ -436,14 +394,14 @@ export const demoSteps: DemoStep[] = [
     id: 'participant_invite',
     path: `/p/invite/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
     title: 'Participant invite',
-    description: 'Accept invitation and share your reason.',
+    description: 'Accept invitation.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
       tip(
         'participant-invite',
-        'Invite acceptance',
-        'Bearer-token invite links are unique per participant. Share why you belong in this room — facilitators review before admission.',
+        'Invite',
+        'Unique bearer invite — facilitators review before admission.',
         { type: 'sheet' },
       ),
     ],
@@ -452,30 +410,27 @@ export const demoSteps: DemoStep[] = [
     id: 'participant_room',
     path: `/p/room/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
     title: 'Private written room',
-    description: 'Structured dialogue — pseudonymous.',
+    description: 'Pseudonymous dialogue.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'participant-room',
-        'Written room',
-        'Codenames only. Dialogue stays here until an outcome is deliberately released — not auto-published.',
-        { type: 'sheet' },
-      ),
+      tip('participant-room', 'Room', 'Codenames only — dialogue stays until deliberate release.', {
+        type: 'sheet',
+      }),
     ],
   },
   {
     id: 'participant_review',
     path: `/p/review/${DEV_PARTICIPANT_DEMO_TOKEN}?demo=1`,
     title: 'Outcome review',
-    description: 'Approve release text — not the conversation.',
+    description: 'Approve release text.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
       tip(
         'participant-review',
-        'Self-review gate',
-        'Participants approve the outcome text that may leave the room. The transcript does not.',
+        'Review',
+        'Approve the outcome text that may leave — not the transcript.',
         { type: 'sheet' },
       ),
     ],
@@ -484,16 +439,13 @@ export const demoSteps: DemoStep[] = [
     id: 'tour_complete',
     path: '/app/facilitator?demo=1&tour=done',
     title: 'Tour complete',
-    description: 'Explore freely, or exit the tour.',
+    description: 'Explore or exit.',
     inMainScript: true,
     envModes: mockAll,
     tips: [
-      tip(
-        'done',
-        'Complete',
-        'Spine walked. Explore seeded sessions, or Exit tour to leave the guide.',
-        { target: '[data-demo="facilitator-dashboard"]', type: 'sheet' },
-      ),
+      tip('done', 'Complete', 'Spine walked — explore seeded sessions or Exit the tour.', {
+        target: '[data-demo="facilitator-dashboard"]',
+      }),
     ],
   },
 ];

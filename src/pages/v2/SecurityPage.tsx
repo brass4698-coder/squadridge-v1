@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
-import { LedgerProvenancePanel, TrustBoundarySchematic } from '../../components/institutional';
+import { Fragment, type ReactNode } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
+import { TrustBoundarySchematic } from '../../components/institutional';
 import {
   CTABlock,
-  GlossTerm,
   ImplementationStatusBadge,
   ImplementationStatusLegend,
   MarketingPageHero,
@@ -18,177 +18,59 @@ import {
   IMPLEMENTATION_REGISTRY_VERSION,
   TRUST_FEATURE_CLAIM_IDS,
 } from '../../data/implementationStatus';
+import {
+  DOCUMENTED_LIMITS_LEAD,
+  isSecurityTechnicalHash,
+  NOT_CLAIMED,
+  OPERATOR_ACCESS,
+  RECORD_ITEMS,
+  ROOM_ITEMS,
+  SAFEGUARDS,
+  SECURITY_AT_A_GLANCE,
+} from '../../data/securityPage';
 import { CTA } from '../../data/siteMessaging';
 import { usePageTitle } from '../../hooks/usePageTitle';
 
-const SECURITY_SECTIONS = [
+function withDocumentedLimitsAnchor(text: string): ReactNode {
+  const parts = text.split('Documented limits');
+  if (parts.length === 1) return text;
+  return parts.map((part, i) => (
+    <Fragment key={i}>
+      {part}
+      {i < parts.length - 1 ? (
+        <a href="#reviewers" className="text-brand underline-offset-2 hover:underline">
+          Documented limits
+        </a>
+      ) : null}
+    </Fragment>
+  ));
+}
+
+const GLANCE_SECTIONS = [
   { id: 'reviewers', label: 'Limits' },
+  { id: 'at-a-glance', label: 'Glance' },
   { id: 'live-vs-planned', label: 'Status' },
+  { id: 'operator-access', label: 'Operator' },
   { id: 'room-and-record', label: 'Architecture' },
-  { id: 'verification-anchor', label: 'Anchor' },
   { id: 'safeguards', label: 'Safeguards' },
   { id: 'diligence-packet', label: 'Packet' },
-  { id: 'diligence-faq', label: 'Diligence FAQ' },
-  { id: 'reviewer-appendix', label: 'Appendix' },
 ] as const;
 
 /** From Implementation Status Registry — never hardcode LIVE/PLANNED here. */
 const TRUST_STATUS = claimsByIds(TRUST_FEATURE_CLAIM_IDS);
 
-const DILIGENCE_FAQ = [
-  {
-    q: 'Can the operator read room messages today?',
-    a: 'Yes. Message bodies are AES-GCM ciphertext at rest, but session room keys are stored in Postgres for facilitators and admitted participants. Staff with service-role or database access can still decrypt. Cover this in your MOU — we do not claim Signal-grade operator-blind E2E.',
-  },
-  {
-    q: 'Does the verification anchor prove when something was released?',
-    a: 'No. SHA-256 proves integrity of the approved text. RFC 3161 trusted timestamping is scaffolded (schema + optional client gate) and is not LIVE in the Implementation Status Registry until a verified TSA path stores a token on release.',
-  },
-  {
-    q: 'Are you IOA-certified or a court instrument?',
-    a: 'No. Architecture aligns with IOA confidentiality practice as a professional benchmark. We are not an IOA-certified ombuds office and do not invent legal privilege or court-admissible timestamps.',
-  },
-  {
-    q: 'What if parties never agree to release?',
-    a: 'Release stays blocked without required approvals and facilitator attestation. The room may close or archive with no public record. Nothing auto-publishes. See How it works → non-consensus path.',
-  },
-  {
-    q: 'Where is operator-blind encryption on the roadmap?',
-    a: 'PLANNED. ADR 005 compares per-session key-share wrapping vs Double Ratchet / MLS while preserving facilitator-authored outcome drafting. Status stays Planned until exit criteria in that ADR are met.',
-  },
-] as const;
-
-/** Precise, checkable statement of who can read room content. */
-const OPERATOR_ACCESS = [
-  {
-    heading: 'Inside the room',
-    body: 'Written messages are encrypted client-side (AES-256-GCM) before storage. Direct API access to ciphertext is restricted by row-level security to the facilitator; participants reach their room only through token-scoped functions that also return the room key.',
-  },
-  {
-    heading: 'Operator and infrastructure',
-    body: 'Staff with service-role or database access can read room keys and ciphertext, so they can decrypt. Application-layer encryption stops casual Data API / non-participant reads — it is not a cryptographic barrier against the operator. Cover this in your MOU.',
-  },
-  {
-    heading: 'Facilitator-only fields',
-    body: 'Facilitator notes are excluded from the columns published clients may read, so they cannot leak through the ledger API alongside a released record.',
-  },
-  {
-    heading: 'What never leaves',
-    body: 'Room dialogue is never published, exported to the ledger, or importable into an outcome. The release path only accepts facilitator-authored text.',
-  },
-] as const;
-
-const NOT_CLAIMED = [
-  {
-    label: 'Not E2E today',
-    body: 'Rooms use application-layer encryption with operator-readable keys. Transport uses TLS. Operator-blind room E2EE remains planned (ADR 005).',
-  },
-  {
-    label: 'Not full ZKP',
-    body: 'We do not claim platform-wide zero-knowledge proofs. Prefer the private room, facilitator release, and approved outcomes model.',
-  },
-  {
-    label: 'Not anonymity as a legal guarantee',
-    body: 'Directional anonymity on the public record is a system property — not anonymity from the operator, and not a legal guarantee against re-identification.',
-  },
-  {
-    label: 'Not legal privilege',
-    body: 'Process infrastructure, not a legal instrument. We are not an IOA-certified ombuds office. Counsel decides privilege for your matter.',
-  },
-  {
-    label: 'Not court-admissible timestamps',
-    body: 'SHA-256 proves integrity of the released file. RFC 3161 trusted timestamping is planned, not live — do not treat anchors as court evidence of time today.',
-  },
-  {
-    label: 'Not whistleblower tooling',
-    body: 'If your threat model includes state-level adversaries, assess that risk before piloting.',
-  },
-  {
-    label: 'Not surveillance',
-    body: 'Not predictive policing, continuous monitoring, or early-warning product claims — facilitation only. Optional tone signals are advisory; facilitators control pacing.',
-  },
-] as const;
-
-const ROOM_ITEMS = [
-  'Written rounds, drafts, prompts, and private signals',
-  'Invite-only entry after facilitator-defined verification',
-  'Raw dialogue never appears on the ledger or in public exports',
-] as const;
-
-const RECORD_ITEMS = [
-  'Approved outcome text plus limited metadata — not a transcript',
-  'Verification anchor confirms the published file is unaltered',
-  'Designated approvals and an explicit facilitator release action',
-] as const;
-
-const ANCHOR_PROVES = [
-  'The released record is unaltered since publication (SHA-256 integrity)',
-  'It was issued through the SquadRidge release process',
-  'Listed metadata matches the anchored file',
-] as const;
-
-const ANCHOR_DOES_NOT = [
-  'What was said inside the private room',
-  'Who each participant is',
-  'External endorsement of the substance',
-  'Independent proof of when the hash was created (RFC 3161 TSA — planned, not shipped)',
-] as const;
-
-const OMBUDS_ALIGNED = [
-  {
-    heading: 'Independence & informality',
-    body: 'The room is a governed informal channel — distinct from formal grievance, litigation, or public forum tracks.',
-  },
-  {
-    heading: 'Impartial process authority',
-    body: 'The facilitator owns stages and release. Optional AI heat signals are private and advisory — never an autonomous mute.',
-  },
-  {
-    heading: 'Confidentiality architecture',
-    body: 'Aligned with established ombuds practice standards: no public transcript; identifying dialogue stays in the room; only an approved outcome may leave after release.',
-  },
-  {
-    heading: 'Narrow exceptions (policy template)',
-    body: 'Pilot ground rules may reserve imminent serious harm, defense against misconduct claims, and explicit permission — operational policy, not product-invented legal privilege.',
-  },
-] as const;
-
-const SAFEGUARDS = [
-  {
-    heading: 'Verified access only',
-    body: 'Facilitator-configured verification before entry. You set the bar.',
-  },
-  {
-    heading: 'Controlled release',
-    body: 'Nothing publishes without designated approvals. The platform cannot release unilaterally.',
-  },
-  {
-    heading: 'Text room only',
-    body: 'No audio or video capture. Written rounds under facilitator control.',
-  },
-  {
-    heading: 'Minimal retention',
-    body: 'Retain what facilitation and the record require. Released ledger entries are permanent by design.',
-  },
-  {
-    heading: 'Identity isolation',
-    body: 'Contact details are not shared between participants or written onto the public record.',
-  },
-  {
-    heading: 'Auditable release chain',
-    body: 'Lifecycle metadata is logged — not message bodies. Approvals precede release.',
-  },
-  {
-    heading: 'Invite-only surface',
-    body: 'No public forum. Access requires invitation or an approved organisational role.',
-  },
-] as const;
-
 /**
- * Security — limits lead. Architecture second. Safeguards as a docket, not a feature grid.
+ * Security at a glance — skimable first view.
+ * Technical appendix, diligence FAQ, and anchor deep detail: `/security/technical`.
  */
 export function SecurityPage() {
   usePageTitle('Security');
+  const { hash } = useLocation();
+  const hashId = hash.replace(/^#/, '');
+
+  if (hashId && isSecurityTechnicalHash(hashId)) {
+    return <Navigate to={`/security/technical${hash}`} replace />;
+  }
 
   return (
     <div className="sr-security-page" data-page="security">
@@ -197,34 +79,34 @@ export function SecurityPage() {
           label="Security"
           title="Privacy boundaries you can explain"
           lead={
-            <>
-              <p>
-                Trust comes from boundaries you can diligence: verification before entry,
-                facilitator authority over release, and a record integrity check — not continuous
-                monitoring or overclaimed cryptography.
-              </p>
-              <p className="mt-3 mb-0 text-sm text-ink-faint">
-                What each layer protects — and what we refuse to overclaim — for facilitators and
-                security reviewers alike.
-              </p>
-            </>
+            <p>
+              Verification before entry, facilitator authority over release, and a record integrity
+              check — with documented limits, not overclaimed cryptography.
+            </p>
           }
           aside={<TrustBoundarySchematic className="w-full" />}
           meta={
             <p className="text-sm text-ink-faint">
-              Documented limits first. Safeguards second.{' '}
+              Skimable overview.{' '}
+              <Link
+                to="/security/technical"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                Technical appendix
+              </Link>
+              {' · '}
               <a
                 href="#reviewers"
                 className="text-ink-secondary underline-offset-4 hover:underline"
               >
-                Jump to limits
+                Documented limits
               </a>
             </p>
           }
         />
       </div>
 
-      <StickySpineNav stages={SECURITY_SECTIONS} aria-label="Security sections" />
+      <StickySpineNav stages={GLANCE_SECTIONS} aria-label="Security sections" />
 
       <section
         id="reviewers"
@@ -238,6 +120,9 @@ export function SecurityPage() {
             <h2 id="limits-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
               What we do not do
             </h2>
+            <p className="mt-4 rounded-sm bg-surface-elevated px-5 py-4 text-sm leading-relaxed text-ink">
+              {DOCUMENTED_LIMITS_LEAD}
+            </p>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
               Read this before the safeguards. Accurate expectations are part of the product.
             </p>
@@ -252,11 +137,51 @@ export function SecurityPage() {
           </ul>
         </ShellWidth>
       </section>
+
+      <MarketingSection id="at-a-glance" density="compact" className="scroll-mt-28">
+        <ShellWidth>
+          <ProseMeasure className="mb-8">
+            <SectionLabel>Security at a glance</SectionLabel>
+            <h2 id="glance-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
+              Six boundaries in one screen
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
+              The short map. Depth lives in{' '}
+              <Link
+                to="/security/technical"
+                className="text-brand underline-offset-2 hover:underline"
+              >
+                Technical appendix
+              </Link>
+              .
+            </p>
+          </ProseMeasure>
+          <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {SECURITY_AT_A_GLANCE.map((card) => (
+              <li key={card.title} className="bg-surface-elevated px-5 py-5 shadow-sr-sm">
+                <p className="m-0 text-sm font-semibold text-ink">
+                  {card.href.startsWith('/') ? (
+                    <Link to={card.href} className="text-ink underline-offset-4 hover:underline">
+                      {card.title}
+                    </Link>
+                  ) : (
+                    <a href={card.href} className="text-ink underline-offset-4 hover:underline">
+                      {card.title}
+                    </a>
+                  )}
+                </p>
+                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{card.body}</p>
+              </li>
+            ))}
+          </ul>
+        </ShellWidth>
+      </MarketingSection>
+
       <MarketingSection
         id="live-vs-planned"
         tone="sunken"
         density="compact"
-        className="scroll-mt-28"
+        className="scroll-mt-28 border-b border-line"
       >
         <ShellWidth>
           <ProseMeasure className="mb-8">
@@ -265,10 +190,8 @@ export function SecurityPage() {
               Live today, and what is not
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              A trust feature is either running in the product or it is not. Rows below come from
-              the Implementation Status Registry (v{IMPLEMENTATION_REGISTRY_VERSION}) — the same
-              source Home, How it works, and Ledger badges use — so marketing copy cannot drift
-              ahead of shipped code.
+              From the Implementation Status Registry (v{IMPLEMENTATION_REGISTRY_VERSION}) — the
+              same source Home, How it works, and Ledger badges use.
             </p>
             <ImplementationStatusLegend className="mt-4" />
           </ProseMeasure>
@@ -285,7 +208,8 @@ export function SecurityPage() {
           </ul>
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection id="operator-access" density="compact">
+
+      <MarketingSection id="operator-access" density="compact" className="scroll-mt-28">
         <ShellWidth>
           <ProseMeasure className="mb-8">
             <SectionLabel>Operator access</SectionLabel>
@@ -293,31 +217,55 @@ export function SecurityPage() {
               Who can read the room
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              The uncomfortable answer, stated plainly, because a facilitator has to be able to
-              explain it to the people in the room before they type anything.
+              Layer summary. Full operator-readable disclosure:{' '}
+              <a href="#reviewers" className="text-brand underline-offset-2 hover:underline">
+                Documented limits
+              </a>
+              .
             </p>
           </ProseMeasure>
-          <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
-            {OPERATOR_ACCESS.map((item) => (
-              <li key={item.heading} className="bg-surface-elevated px-5 py-5">
-                <p className="m-0 text-sm font-semibold text-ink">{item.heading}</p>
-                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto border border-line">
+            <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
+              <caption className="sr-only">Operator access by layer</caption>
+              <thead>
+                <tr className="border-b border-line bg-surface-secondary">
+                  <th scope="col" className="px-5 py-3 font-semibold text-ink">
+                    Layer
+                  </th>
+                  <th scope="col" className="px-5 py-3 font-semibold text-ink">
+                    Access
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {OPERATOR_ACCESS.map((row) => (
+                  <tr key={row.layer} className="border-b border-line last:border-b-0">
+                    <th
+                      scope="row"
+                      className="whitespace-nowrap px-5 py-4 align-top font-semibold text-ink"
+                    >
+                      {row.layer}
+                    </th>
+                    <td className="px-5 py-4 align-top text-ink-secondary">
+                      {withDocumentedLimitsAnchor(row.access)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection id="room-and-record" density="default" className="scroll-mt-28">
+
+      <MarketingSection id="room-and-record" density="compact" className="scroll-mt-28">
         <ShellWidth>
-          <div className="mb-10 max-w-measure">
+          <div className="mb-8 max-w-measure">
             <SectionLabel>Architecture</SectionLabel>
             <h2 id="layers-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
               Private session vs released record
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Separation is structural, not a policy toggle. What stays private, what can be
-              released, and what outsiders can verify are different questions. Process walkthrough
-              on{' '}
+              Separation is structural, not a policy toggle.{' '}
               <Link
                 to={CTA.secondaryProcessHref}
                 className="text-ink-secondary underline-offset-4 hover:underline"
@@ -339,109 +287,13 @@ export function SecurityPage() {
           />
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection id="confidentiality-precedent" density="compact">
-        <ShellWidth>
-          <ProseMeasure className="mb-8">
-            <SectionLabel>Confidentiality precedent</SectionLabel>
-            <h2 id="ombuds-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-              Aligned with established ombuds practice standards
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              SquadRidge mirrors the International Ombuds Association confidentiality architecture —
-              independence, impartiality, informality, and confidentiality — as a professional
-              benchmark for how the room relates to the record. We are not an IOA-certified ombuds
-              office, and we do not invent legal privilege.
-            </p>
-          </ProseMeasure>
-          <ul className="m-0 grid list-none gap-px overflow-hidden border border-line bg-line p-0 sm:grid-cols-2">
-            {OMBUDS_ALIGNED.map((item) => (
-              <li key={item.heading} className="bg-surface-elevated px-5 py-5">
-                <p className="m-0 text-sm font-semibold text-ink">{item.heading}</p>
-                <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.body}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 max-w-measure text-xs leading-relaxed text-ink-faint">
-            Sources:{' '}
-            <a
-              href="https://www.ombudsassociation.org/assets/docs/IOA_Standards_of_Practice_Oct09.pdf"
-              className="underline-offset-2 hover:underline"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              IOA Standards of Practice
-            </a>
-            {' · '}
-            <a
-              href="https://www.nasa.gov/wp-content/uploads/2019/05/ioa_standards_of_practice_tagged.pdf"
-              className="underline-offset-2 hover:underline"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              NASA-hosted IOA SoP
-            </a>
-            . Full synthesis in internal research brief.
-          </p>
-        </ShellWidth>
-      </MarketingSection>
+
       <MarketingSection
-        id="verification-anchor"
+        id="safeguards"
         tone="sunken"
         density="compact"
-        className="scroll-mt-28"
+        className="scroll-mt-28 border-b border-line"
       >
-        <ShellWidth>
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-14">
-            <div>
-              <SectionLabel>Verification anchor</SectionLabel>
-              <h2 id="anchor-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-                What the anchor proves — and does not
-              </h2>
-              <p className="mt-3 max-w-prose text-sm leading-relaxed text-ink-secondary">
-                Today the <GlossTerm term="verification-anchor" /> is a SHA-256 hash of the released
-                record at publication. Anyone with the record can recompute it. That proves{' '}
-                <em className="not-italic text-ink">integrity</em> — not an independently attested{' '}
-                <em className="not-italic text-ink">when</em>. <GlossTerm term="rfc-3161" /> trusted
-                timestamping is the planned next layer beside the hash; it is not requested during
-                release today.
-              </p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                <div className="sr-security-proves border p-5">
-                  <p className="sr-security-proves-label sr-verify m-0 text-sm font-semibold">
-                    <span className="sr-verify-dot" aria-hidden />
-                    Proves
-                  </p>
-                  <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
-                    {ANCHOR_PROVES.map((line) => (
-                      <li key={line} className="flex gap-2">
-                        <span aria-hidden className="text-ink-faint">
-                          ·
-                        </span>
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="sr-security-nonprove border border-line p-5">
-                  <p className="m-0 text-sm font-semibold text-ink-faint">Does not prove</p>
-                  <ul className="mt-3 m-0 list-none space-y-2 p-0 text-sm text-ink-secondary">
-                    {ANCHOR_DOES_NOT.map((line) => (
-                      <li key={line} className="flex gap-2">
-                        <span aria-hidden className="text-ink-faint">
-                          ·
-                        </span>
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <LedgerProvenancePanel />
-          </div>
-        </ShellWidth>
-      </MarketingSection>
-      <MarketingSection id="safeguards" density="compact" className="scroll-mt-28">
         <ShellWidth>
           <ProseMeasure className="mb-8">
             <SectionLabel>Operations</SectionLabel>
@@ -449,28 +301,20 @@ export function SecurityPage() {
               Operational safeguards
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Process controls that keep the room closed and release deliberate — not a feature
-              grid.
+              Process controls that keep the room closed and release deliberate.
             </p>
           </ProseMeasure>
-          <ol className="m-0 list-none p-0">
-            {SAFEGUARDS.map((s, i) => (
-              <li
-                key={s.heading}
-                className="grid gap-2 border-t border-line py-5 md:grid-cols-[3rem_minmax(10rem,12rem)_minmax(0,1fr)] md:gap-8"
-              >
-                <span className="font-mono text-xs text-ink-faint">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+          <ul className="m-0 grid list-none gap-x-8 gap-y-4 p-0 sm:grid-cols-2">
+            {SAFEGUARDS.map((s) => (
+              <li key={s.heading} className="border-t border-line pt-4">
                 <h3 className="m-0 text-sm font-semibold text-ink">{s.heading}</h3>
-                <p className="m-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
-                  {s.body}
-                </p>
+                <p className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">{s.body}</p>
               </li>
             ))}
-          </ol>
+          </ul>
         </ShellWidth>
       </MarketingSection>
+
       <MarketingSection id="diligence-packet" density="compact" className="scroll-mt-28">
         <ShellWidth>
           <ProseMeasure className="mb-8">
@@ -479,9 +323,9 @@ export function SecurityPage() {
               Downloadable packet for board and funder sign-off
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              Version-controlled summary generated from the Implementation Status Registry: current
-              vs planned posture, threat-model bounds, residency, subprocessors, incident targets,
-              and deletion on pilot termination. Forward it during the manual review window.
+              Version-controlled summary from the Implementation Status Registry: posture,
+              threat-model bounds, residency, subprocessors, incident targets, and deletion on pilot
+              termination.
             </p>
           </ProseMeasure>
           <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
@@ -513,132 +357,19 @@ export function SecurityPage() {
               </a>
             </li>
           </ul>
-          <p className="mt-4 mb-0 text-xs text-ink-faint">
-            Samples are synthetic and labeled illustrative — not verifiable live releases.
-            Operator-blind design options: ADR 005 in the repository.
-          </p>
-        </ShellWidth>
-      </MarketingSection>
-      <MarketingSection id="diligence-faq" tone="sunken" density="compact" className="scroll-mt-28">
-        <ShellWidth>
-          <ProseMeasure className="mb-8">
-            <SectionLabel>Diligence FAQ</SectionLabel>
-            <h2 id="diligence-faq-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-              Objections answered inline
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-              For evaluators who will not open a separate FAQ page. Limits stay above safeguards —
-              these answers do not soften them.
-            </p>
-          </ProseMeasure>
-          <dl className="m-0 space-y-0 border border-line">
-            {DILIGENCE_FAQ.map((item) => (
-              <div
-                key={item.q}
-                className="border-b border-line bg-surface-elevated px-5 py-5 last:border-b-0"
-              >
-                <dt className="text-sm font-semibold text-ink">{item.q}</dt>
-                <dd className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">{item.a}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-4 mb-0 text-sm text-ink-secondary">
-            Broader product FAQ:{' '}
-            <Link to="/faq" className="text-brand underline-offset-2 hover:underline">
-              /faq
+          <p className="mt-6 mb-0 text-sm text-ink-secondary">
+            Need FAQ, verification-anchor bounds, or engineer notes?{' '}
+            <Link
+              to="/security/technical"
+              className="text-brand underline-offset-2 hover:underline"
+            >
+              Open technical appendix
             </Link>
             .
           </p>
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection id="reviewer-appendix" density="compact" className="scroll-mt-28">
-        <ShellWidth>
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:gap-16">
-            <div className="max-w-measure">
-              <SectionLabel>For reviewers</SectionLabel>
-              <h2 id="appendix-h" className="mt-0 font-heading text-h2 font-semibold text-ink">
-                Technical appendix
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-ink-secondary">
-                Concise notes for engineers and auditors. Full threat model is available on request
-                during diligence.
-              </p>
-              <dl className="mt-8 m-0 space-y-4 border-t border-line pt-6">
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Transport</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    TLS 1.2+ — not message-level E2E against the operator.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Session storage</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    Facilitator-led messages in Postgres as access-controlled plaintext. Legacy
-                    squad chat uses application-layer AES-GCM with operator-readable keys.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Verification anchor</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    SHA-256 (
-                    <GlossTerm term="ledger-sha">
-                      <span className="font-mono">ledger_sha</span>
-                    </GlossTerm>
-                    ) of the <GlossTerm term="canonicalised" /> approved instrument at facilitator
-                    sign-off — integrity of the released text. Not a Merkle tree of room messages,
-                    not a live RFC 3161 Time Stamp Authority token, and not on-chain notarisation in
-                    the current pilot. Optional `timestamp_token` columns exist as a scaffold for a
-                    future TSA path; release does not request a token today. Semaphore Merkle
-                    groups, where used, apply to identity verification cohorts — not to ledger
-                    anchoring.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Release preconditions</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    Release is refused unless the session has ended, every approval is recorded
-                    against the current <GlossTerm term="instrument-hash" />, a facilitator{' '}
-                    <GlossTerm term="authorship-attestation" /> covers that same hash, and no
-                    approved text repeats a room message verbatim. Revising the instrument resets
-                    approvals and clears the attestation, and each refused attempt is written to the
-                    session audit trail.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Export &amp; citation</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    Released dossiers support copyable citation text and verification against the
-                    listed anchor. Machine-readable citation APIs and bulk export formats for
-                    institutional CMS integration are diligence-scoped — not a public self-serve API
-                    today.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-semibold text-ink">Audit log access</dt>
-                  <dd className="mt-1 mb-0 text-sm leading-relaxed text-ink-secondary">
-                    Approvals must be recorded before release. Session audit trails are
-                    metadata-only (lifecycle events — not message bodies). Pilot partners receive
-                    export of the audit trail after close under the MOU; there is no public audit
-                    feed.
-                  </dd>
-                </div>
-              </dl>
-            </div>
-            <aside className="h-fit border border-line bg-surface-elevated p-6">
-              <p className="m-0 text-sm font-semibold text-ink">Security contact</p>
-              <p className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
-                Responsible disclosure and diligence questions.
-              </p>
-              <a
-                href="mailto:security@squadridge.com"
-                className="btn-institutional btn-institutional--ghost mt-6 inline-flex"
-              >
-                security@squadridge.com
-              </a>
-            </aside>
-          </div>
-        </ShellWidth>
-      </MarketingSection>
+
       <CTABlock
         headline={CTA.pilotHeadline}
         body={CTA.closeSecurity}

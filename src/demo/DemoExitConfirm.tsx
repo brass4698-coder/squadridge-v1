@@ -71,26 +71,21 @@ export function DemoExitConfirm({ open, onConfirm, onCancel }: Props) {
         aria-label="Dismiss exit confirmation"
         onClick={onCancel}
       />
-      <div className="sr-demo-surface-enter relative w-full max-w-sm rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated p-6 shadow-lg">
-        <h2 id={titleId} className="m-0 font-sans text-base font-semibold text-ink">
-          Exit guided tour?
+      <div className="sr-demo-surface-enter sr-tour-exit-dialog relative w-full max-w-sm p-5">
+        <h2 id={titleId} className="sr-tour-exit-dialog__title m-0">
+          Exit tour?
         </h2>
-        <p id={bodyId} className="mt-2 mb-0 text-sm leading-relaxed text-ink-secondary">
-          Progress is saved in this browser tab. You can restart from Sign in → Try the Demo, or
-          open any page with <span className="font-mono text-xs">?demo=1</span>.
+        <p id={bodyId} className="sr-tour-exit-dialog__body mt-2 mb-0">
+          Progress stays in this tab. Restart from Demo hub, or open a page with{' '}
+          <span className="font-mono">?demo=1</span>.
         </p>
-        <div className="mt-6 flex gap-3">
-          <button
-            ref={cancelRef}
-            type="button"
-            className="min-h-[2.5rem] flex-1 rounded-lg border border-line bg-transparent px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--sr-focus)]"
-            onClick={onCancel}
-          >
+        <div className="mt-5 flex gap-2">
+          <button ref={cancelRef} type="button" className="sr-tour-btn flex-1" onClick={onCancel}>
             Stay
           </button>
           <button
             type="button"
-            className="min-h-[2.5rem] flex-1 rounded-lg bg-brand px-3 py-2 text-sm font-semibold text-brand-on transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--sr-focus)]"
+            className="sr-tour-btn sr-tour-btn--quiet flex-1"
             onClick={onConfirm}
           >
             Exit tour

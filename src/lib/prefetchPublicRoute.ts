@@ -7,6 +7,7 @@ const prefetchers: Record<string, () => Promise<unknown>> = {
   '/use-cases': () => import('../pages/v2/UseCasesPage'),
   '/ledger': () => import('../pages/v2/LedgerIndexPage'),
   '/security': () => import('../pages/v2/SecurityPage'),
+  '/security/technical': () => import('../pages/v2/SecurityTechnicalPage'),
   '/about': () => import('../pages/v2/AboutPage'),
   '/faq': () => import('../pages/v2/FaqPage'),
   '/pricing': () => import('../pages/v2/PricingPage'),
@@ -18,6 +19,9 @@ const prefetchers: Record<string, () => Promise<unknown>> = {
   '/briefings': () => import('../pages/v2/BriefingsPage'),
   '/request-access': () => import('../pages/v2/RequestAccessPage'),
   '/pilot-guide': () => import('../pages/v2/PilotGuidePage'),
+  '/sign-in': () => import('../pages/SignInPage'),
+  '/demo': () => import('../pages/demo/DemoHubPage'),
+  '/demo/start': () => import('../pages/demo/DemoStartPage'),
 };
 
 const warmed = new Set<string>();

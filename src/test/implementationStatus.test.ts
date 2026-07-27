@@ -45,6 +45,11 @@ describe('Implementation Status Registry', () => {
     expect(getClaim('operator_blind_e2e').status).toBe('planned');
   });
 
+  it('marks Cloudflare room Durable Object runtime as planned, not live', () => {
+    expect(getClaim('cloudflare_room_do').status).toBe('planned');
+    expect(isClaimLive('cloudflare_room_do')).toBe(false);
+  });
+
   it('ledger LIVE claim is the release pipeline, not live public entries', () => {
     const claim = getClaim('approved_outcomes_ledger');
     expect(claim.status).toBe('live');

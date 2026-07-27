@@ -7,6 +7,7 @@ import {
   getSpecimenById,
   homepageSpecimen,
   ledgerSpecimens,
+  specimenToDocumentFields,
   type LedgerSpecimen,
 } from './ledgerSpecimens';
 
@@ -46,22 +47,34 @@ function specimenToCard(s: LedgerSpecimen): RecordCardProps {
     anchorStatus: s.status === 'anchor-verified' ? 'verified' : 'withdrawn',
     verificationAnchor: s.verificationAnchor,
     anchorShort: s.anchorShort,
+    document: specimenToDocumentFields(s),
   };
 }
 
 /** Instrument body text for dossier pages (approved paragraphs joined). */
 function buildInstrumentBody(s: LedgerSpecimen): string {
+  const doc = specimenToDocumentFields(s);
   const recordType = (s.metadata.recordType ?? 'Released outcome').toUpperCase();
   const lines = [
+    'SQUADRIDGE OUTCOME LEDGER',
     `${recordType}`,
-    `${s.organisation} — ${s.displayDate}`,
+    `Case / reference: ${doc.caseReference}`,
+    `Matter: ${doc.matterTitle}`,
+    `Issuing body: ${s.organisation}`,
+    `Issued / approved: ${doc.issuedAtDisplay}`,
+    `Approved by: ${doc.approvedByRole}`,
+    `Visibility: ${doc.visibilityLabel}`,
     '',
     'The following was approved for release by the designated facilitator after recorded party confirmations. It documents approved commitments and limited metadata only.',
     '',
     ...s.approvedText.map((t, i) => `${i + 1}. ${t}`),
     '',
     'Certification',
-    'This text was approved for release by the designated facilitator after recorded party confirmations.',
+    doc.facilitatorAttestation,
+    '',
+    'Integrity',
+    `${doc.integrityScheme} · ${s.anchorShort}`,
+    doc.timestampLabel,
     '',
     'Boundaries',
     'This record is not a transcript. It is not a public participant list. It is not automatically a legally binding instrument unless separately formalized by the relevant parties under applicable law.',
@@ -126,6 +139,7 @@ const SCOPE_CONFIRMS: Record<string, string[]> = {
 
 function specimenToDetail(s: LedgerSpecimen): LedgerRecordDetail {
   const sessionIso = s.releasedAt;
+  const document = specimenToDocumentFields(s);
   return {
     ...specimenToCard(s),
     region: s.region ?? 'As recorded',
@@ -147,6 +161,7 @@ function specimenToDetail(s: LedgerSpecimen): LedgerRecordDetail {
     ],
     scopeDoesNot: s.neverPublic,
     relatedRecords: RELATED[s.id] ?? [],
+    document,
   };
 }
 
@@ -172,5 +187,6 @@ export {
   getSpecimenById,
   homepageSpecimen,
   ledgerSpecimens,
+  specimenToDocumentFields,
   truncateAnchor,
 } from './ledgerSpecimens';

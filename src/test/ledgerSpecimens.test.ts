@@ -5,7 +5,10 @@ import {
   getSpecimenById,
   getStatusChips,
   homepageSpecimen,
+  specimenToDocumentFields,
+  timestampStatusLabel,
   truncateAnchor,
+  visibilityLabel,
 } from '../data/ledgerSpecimens';
 
 describe('ledgerSpecimens helpers', () => {
@@ -46,5 +49,39 @@ describe('ledgerSpecimens helpers', () => {
     expect(getSpecimenById('SQR-2026-0312')?.slug).toBe(
       'community-safety-coordination-q1-action-commitments',
     );
+  });
+
+  it('maps official document fields with honesty labels', () => {
+    const doc = specimenToDocumentFields(homepageSpecimen);
+    expect(doc.caseReference).toBe('SQR-2026-0312');
+    expect(doc.matterTitle).toContain('Community Safety');
+    expect(doc.templateType).toBe('Action Commitments Record');
+    expect(doc.issuedAtDisplay).toBe('March 12, 2026');
+    expect(doc.approvedByRole).toMatch(/facilitator/i);
+    expect(doc.visibilityLabel).toBe('Public registry');
+    expect(doc.isSpecimen).toBe(true);
+    expect(doc.integrityScheme).toMatch(/illustrative/i);
+    expect(doc.timestampLabel).toMatch(/specimen/i);
+    expect(doc.facilitatorAttestation.length).toBeGreaterThan(20);
+  });
+
+  it('labels visibility and timestamp honestly', () => {
+    expect(visibilityLabel('public')).toBe('Public registry');
+    expect(visibilityLabel('private')).toBe('Private anchored release');
+    expect(timestampStatusLabel('not-attested', true)).toMatch(/specimen/i);
+    expect(timestampStatusLabel('not-attested', false)).toMatch(/not attested/i);
+  });
+
+  it('includes document metadata on every catalog specimen', () => {
+    for (const specimen of [
+      homepageSpecimen,
+      getSpecimenById('SQR-2024-0147')!,
+      getSpecimenById('SQR-2023-1209')!,
+    ]) {
+      const doc = specimenToDocumentFields(specimen);
+      expect(doc.caseReference).toMatch(/^SQR-/);
+      expect(doc.classification).toBeTruthy();
+      expect(doc.templateType).toBeTruthy();
+    }
   });
 });

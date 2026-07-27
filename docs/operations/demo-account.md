@@ -25,13 +25,16 @@ Requires `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 
 ## Walkthrough entry
 
-1. **`/demo`** — credential reference + quick links
-2. **`/demo/start?demo=1`** — pick **role** + **scenario preset**, then begin tailored tour
-3. **`/sign-in?demo=1`** — quick sign-in as demo user
+1. **`/demo`** — credential reference + quick links (also in the site footer Access column when demo login is enabled)
+2. **`/demo/start?demo=1`** — pick **role** + **scenario preset**, then begin tailored tour (auto-signs in with the demo account when needed)
+3. **`/sign-in?demo=1`** — demo password login; omit `next` to open the role picker, or pass `next=/app/facilitator` (etc.) to land on a role dashboard
+4. Role cards on `/demo` use **Sign in & open** when you are logged out — they do **not** bounce to magic-link-only sign-in
 
 Roles: facilitator · participant · moderator · program lead · ombuds · executive
 
 Scenario presets: mediation · restorative · community safety · ombuds · institutional · university · business · military · high-stakes conflict
+
+**Pilot magic-link sign-in** still requires an invited work email. Local diligence without an invite should use the demo paths above.
 
 ---
 

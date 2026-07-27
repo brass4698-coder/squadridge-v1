@@ -13,7 +13,7 @@ type FormPanelProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 /**
- * Vault-instrument glass panel for entry and intake forms.
+ * Elevated institutional panel for entry and intake forms.
  * Atmosphere comes from parent `.sr-form-atmosphere` / GovernedEntryLayout.
  */
 export function FormPanel({
@@ -31,7 +31,7 @@ export function FormPanel({
   return (
     <div className={cn('sr-form-panel', className)} {...props}>
       {eyebrow || title || description ? (
-        <header className="mb-7">
+        <header className="mb-8">
           {eyebrow ? (
             <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-brand/80">
               {eyebrow}
@@ -43,20 +43,20 @@ export function FormPanel({
               className={cn(
                 'm-0 font-heading text-xl font-semibold tracking-tight text-ink',
                 titleAs === 'h1' && 'text-page-title',
-                eyebrow && 'mt-2.5',
+                eyebrow && 'mt-3',
               )}
             >
               {title}
             </TitleTag>
           ) : null}
           {description ? (
-            <div className="mt-2.5 text-sm leading-relaxed text-ink-secondary">{description}</div>
+            <div className="mt-3 text-sm leading-relaxed text-ink-secondary">{description}</div>
           ) : null}
         </header>
       ) : null}
       <div className="min-w-0">{children}</div>
       {footer ? (
-        <footer className="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-ink-faint">
+        <footer className="mt-7 border-t border-line pt-5 text-xs leading-relaxed text-ink-faint">
           {footer}
         </footer>
       ) : null}

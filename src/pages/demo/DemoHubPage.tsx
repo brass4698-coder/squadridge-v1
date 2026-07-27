@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { FormPanel } from '../../components/ui/FormPanel';
 import { GovernedEntryLayout } from '../../components/shell/GovernedEntryLayout';
-import { isDemoLoginEnabled } from '../../lib/demoLogin';
+import { useAuth } from '../../contexts/AuthContext';
+import { demoAppEntryPath, demoSignInPath, isDemoLoginEnabled } from '../../lib/demoLogin';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import {
   DEMO_GOVERNED_CREDENTIALS,
@@ -13,11 +14,23 @@ import {
 } from '../../data/demoCredentials';
 import { DEMO_PRESETS } from '../../data/governanceDashboard';
 
+function resolveHubHref(href: string, hasSession: boolean): string {
+  if (href.startsWith('/app')) {
+    return demoAppEntryPath(href, { hasSession });
+  }
+  if (href.startsWith('/sign-in')) {
+    return isDemoLoginEnabled() ? demoSignInPath() : href;
+  }
+  return href;
+}
+
 /**
  * Demo credential reference + entry hub (dev / demo-login enabled only).
  */
 export function DemoHubPage() {
   usePageTitle('Demo hub');
+  const { session } = useAuth();
+  const hasSession = Boolean(session);
 
   if (!isDemoLoginEnabled()) {
     return (
@@ -65,8 +78,8 @@ export function DemoHubPage() {
             <Link to="/demo/start?demo=1" className="btn-institutional btn-institutional--primary">
               Choose role & start tour
             </Link>
-            <Link to="/sign-in?demo=1" className="btn-institutional btn-institutional--ghost">
-              Sign in as demo user
+            <Link to={demoSignInPath()} className="btn-institutional btn-institutional--ghost">
+              {hasSession ? 'Re-enter as demo user' : 'Sign in as demo user'}
             </Link>
           </div>
         </FormPanel>
@@ -106,16 +119,21 @@ export function DemoHubPage() {
           <h2 id="roles-heading" className="font-heading text-h3 font-semibold text-ink">
             Role dashboards
           </h2>
+          <p className="mt-2 text-sm text-ink-secondary">
+            {hasSession
+              ? 'Open a role lens directly (demo users can preview every dashboard).'
+              : 'Each link signs you in with the demo account first, then opens that role.'}
+          </p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {DEMO_WALKTHROUGH_ROLES.map((role) => (
               <li key={role.id} className="sr-form-step-card">
                 <p className="m-0 text-sm font-semibold text-ink">{role.label}</p>
                 <p className="mt-1.5 m-0 text-sm text-ink-secondary">{role.description}</p>
                 <Link
-                  to={role.dashboardPath}
+                  to={demoAppEntryPath(role.dashboardPath, { hasSession })}
                   className="mt-3 inline-block text-sm font-medium text-brand underline-offset-2 hover:underline"
                 >
-                  Open dashboard →
+                  {hasSession ? 'Open dashboard →' : 'Sign in & open →'}
                 </Link>
               </li>
             ))}
@@ -204,7 +222,7 @@ export function DemoHubPage() {
             {DEMO_QUICK_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
-                  to={link.href}
+                  to={resolveHubHref(link.href, hasSession)}
                   className="inline-block rounded-[var(--sr-radius-md)] border border-line bg-surface-elevated px-3 py-1.5 text-sm text-ink-secondary hover:text-ink"
                 >
                   {link.label}

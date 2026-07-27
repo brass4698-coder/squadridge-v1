@@ -5,13 +5,32 @@
 
 export type LedgerSpecimenType = 'illustrative' | 'demo' | 'live';
 export type LedgerSpecimenStatus = 'anchor-verified' | 'pending' | 'superseded';
-export type LedgerSpecimenVisibility = 'public';
+export type LedgerSpecimenVisibility = 'public' | 'private';
+export type LedgerTimestampStatus = 'not-attested' | 'pending' | 'attested';
 
 export interface LedgerSpecimenMetadata {
   processType?: string;
   recordType?: string;
   releaseMode?: string;
   verifiedPartyCount?: number;
+  /** Filing / docket reference — usually mirrors catalog id for specimens. */
+  caseReference?: string;
+  /** Matter title as filed (may match public title). */
+  matterTitle?: string;
+  /** Instrument template label shown on letterhead. */
+  templateType?: string;
+  /** ISO date the instrument was issued / approved for release. */
+  issuedAt?: string;
+  /** Role attestation — never a personal name on public specimens. */
+  approvedByRole?: string;
+  /** Short classification line (e.g. Approved outcome record). */
+  classification?: string;
+  /** Facilitator attestation sentence for document footer. */
+  facilitatorAttestation?: string;
+  /** Integrity scheme label — honest about specimen vs live. */
+  integrityScheme?: string;
+  /** Trusted timestamp honesty status (RFC 3161 not Live today). */
+  timestampStatus?: LedgerTimestampStatus;
 }
 
 export interface LedgerSpecimen {
@@ -36,6 +55,25 @@ export interface LedgerSpecimen {
   approvedText: string[];
   neverPublic: string[];
   metadata: LedgerSpecimenMetadata;
+}
+
+/** Flat document fields for letterhead / dossier chrome. */
+export interface LedgerDocumentFields {
+  caseReference: string;
+  matterTitle: string;
+  templateType: string;
+  issuedAtDisplay: string;
+  approvedByRole: string;
+  visibilityLabel: string;
+  classification: string;
+  facilitatorAttestation: string;
+  integrityScheme: string;
+  timestampLabel: string;
+  organisation: string;
+  participantCount?: number;
+  anchorShort?: string | null;
+  verificationAnchor?: string;
+  isSpecimen: boolean;
 }
 
 export type StatusChipKind =
@@ -70,6 +108,20 @@ export function formatDisplayDate(isoOrDate: string | Date): string {
     year: 'numeric',
     timeZone: 'UTC',
   });
+}
+
+export function visibilityLabel(visibility: LedgerSpecimenVisibility): string {
+  return visibility === 'private' ? 'Private anchored release' : 'Public registry';
+}
+
+export function timestampStatusLabel(
+  status: LedgerTimestampStatus | undefined,
+  isSpecimen: boolean,
+): string {
+  if (isSpecimen) return 'Trusted timestamp — not applicable (specimen)';
+  if (status === 'attested') return 'Trusted timestamp — attested';
+  if (status === 'pending') return 'Trusted timestamp — pending';
+  return 'Trusted timestamp — not attested (SHA-256 integrity only)';
 }
 
 /**
@@ -113,6 +165,36 @@ export function truncateAnchor(anchor: string, head = 4, tail = 4): string {
   return `${clean.slice(0, head)}…${clean.slice(-tail)}`;
 }
 
+/** Map a specimen into letterhead / dossier document fields. */
+export function specimenToDocumentFields(specimen: LedgerSpecimen): LedgerDocumentFields {
+  const isSpecimen = specimen.specimenType === 'illustrative' || specimen.specimenType === 'demo';
+  const issuedIso = specimen.metadata.issuedAt ?? specimen.releasedAt;
+  const recordType = specimen.metadata.recordType ?? 'Released outcome record';
+  const integrityScheme =
+    specimen.metadata.integrityScheme ??
+    (isSpecimen ? 'SHA-256 stub (illustrative — not verifiable)' : 'SHA-256 verification anchor');
+
+  return {
+    caseReference: specimen.metadata.caseReference ?? formatRecordId(specimen.id),
+    matterTitle: specimen.metadata.matterTitle ?? specimen.title,
+    templateType: specimen.metadata.templateType ?? recordType,
+    issuedAtDisplay: formatDisplayDate(issuedIso),
+    approvedByRole: specimen.metadata.approvedByRole ?? 'Designated facilitator (role attestation)',
+    visibilityLabel: visibilityLabel(specimen.visibility),
+    classification: specimen.metadata.classification ?? 'Approved outcome record',
+    facilitatorAttestation:
+      specimen.metadata.facilitatorAttestation ??
+      'Attested for release by the designated facilitator after recorded party confirmations.',
+    integrityScheme,
+    timestampLabel: timestampStatusLabel(specimen.metadata.timestampStatus, isSpecimen),
+    organisation: specimen.organisation,
+    participantCount: specimen.participantCount,
+    anchorShort: specimen.anchorShort,
+    verificationAnchor: specimen.verificationAnchor,
+    isSpecimen,
+  };
+}
+
 /** Metadata field order for short cards: ORGANISATION → RELEASED → PARTICIPANTS → ANCHOR */
 export const SPECIMEN_CARD_META_ORDER = [
   'organisation',
@@ -128,6 +210,32 @@ const SPECIMEN_ID_ALIASES: Record<string, string> = {
   'rec-004': 'SQR-2023-1209',
   'SQR-2024-0147': 'SQR-2024-0147',
 };
+
+function baseDocMeta(
+  partial: Required<
+    Pick<
+      LedgerSpecimenMetadata,
+      | 'processType'
+      | 'recordType'
+      | 'releaseMode'
+      | 'verifiedPartyCount'
+      | 'caseReference'
+      | 'matterTitle'
+      | 'templateType'
+      | 'issuedAt'
+      | 'approvedByRole'
+      | 'classification'
+    >
+  >,
+): LedgerSpecimenMetadata {
+  return {
+    ...partial,
+    facilitatorAttestation:
+      'Attested for release by the designated facilitator after recorded party confirmations. Room dialogue remains private.',
+    integrityScheme: 'SHA-256 stub (illustrative — not verifiable)',
+    timestampStatus: 'not-attested',
+  };
+}
 
 /**
  * Canonical illustrative catalog — coherent SQR-YYYY-NNNN series.
@@ -164,12 +272,18 @@ export const ledgerSpecimens: LedgerSpecimen[] = [
       'Unapproved drafts or internal facilitator notes',
       'Anonymity guarantees or Signal-grade E2E claims',
     ],
-    metadata: {
+    metadata: baseDocMeta({
       processType: 'City community safety coordination',
       recordType: 'Action Commitments Record',
       releaseMode: 'Facilitator-governed · no auto-publish',
       verifiedPartyCount: 12,
-    },
+      caseReference: 'SQR-2026-0312',
+      matterTitle: 'Community Safety Coordination — Q1 Action Commitments',
+      templateType: 'Action Commitments Record',
+      issuedAt: '2026-03-12',
+      approvedByRole: 'Designated facilitator (role attestation)',
+      classification: 'Approved outcome · public registry format',
+    }),
   },
   {
     id: 'SQR-2024-0147',
@@ -201,12 +315,18 @@ export const ledgerSpecimens: LedgerSpecimen[] = [
       'Legal privilege or whistleblower-grade protection claims',
       'Full platform zero-knowledge or Signal-grade E2E',
     ],
-    metadata: {
+    metadata: baseDocMeta({
       processType: 'Mediation & dispute resolution',
       recordType: 'Joint Statement of Principles',
       releaseMode: 'Facilitator-governed · no auto-publish',
       verifiedPartyCount: 12,
-    },
+      caseReference: 'SQR-2024-0147',
+      matterTitle: 'Community Land Use — Joint Statement of Principles',
+      templateType: 'Joint Statement of Principles',
+      issuedAt: '2024-03-14',
+      approvedByRole: 'Designated facilitator (role attestation)',
+      classification: 'Approved outcome · public registry format',
+    }),
   },
   {
     id: 'SQR-2024-0203',
@@ -234,12 +354,18 @@ export const ledgerSpecimens: LedgerSpecimen[] = [
       'Transcripts, identities, or unapproved drafts',
       'Automated or timed publication',
     ],
-    metadata: {
+    metadata: baseDocMeta({
       processType: 'Institutional inquiry / policy consultation',
       recordType: 'Consensus Summary',
       releaseMode: 'Facilitator-governed · no auto-publish',
       verifiedPartyCount: 9,
-    },
+      caseReference: 'SQR-2024-0203',
+      matterTitle: 'Urban Housing Policy — Consensus Principles',
+      templateType: 'Consensus Summary',
+      issuedAt: '2024-02-03',
+      approvedByRole: 'Designated facilitator (role attestation)',
+      classification: 'Approved outcome · public registry format',
+    }),
   },
   {
     id: 'SQR-2024-0118',
@@ -264,12 +390,18 @@ export const ledgerSpecimens: LedgerSpecimen[] = [
       'The session that produced this record is not public.',
     ],
     neverPublic: ['Transcript', 'Participant list', 'Internal drafts'],
-    metadata: {
+    metadata: baseDocMeta({
       processType: 'Restorative / multi-party dialogue',
       recordType: 'Working Principles',
       releaseMode: 'Facilitator-governed · no auto-publish',
       verifiedPartyCount: 7,
-    },
+      caseReference: 'SQR-2024-0118',
+      matterTitle: 'Coastal Zone Dialogue — Working Principles',
+      templateType: 'Working Principles',
+      issuedAt: '2024-01-18',
+      approvedByRole: 'Designated facilitator (role attestation)',
+      classification: 'Approved outcome · public registry format',
+    }),
   },
   {
     id: 'SQR-2023-1209',
@@ -299,12 +431,18 @@ export const ledgerSpecimens: LedgerSpecimen[] = [
       'Identity disclosure',
       'Claims of full platform zero-knowledge or Signal-grade E2E',
     ],
-    metadata: {
+    metadata: baseDocMeta({
       processType: 'Regional consultation',
       recordType: 'Formal Recommendation',
       releaseMode: 'Facilitator-governed · no auto-publish',
       verifiedPartyCount: 15,
-    },
+      caseReference: 'SQR-2023-1209',
+      matterTitle: 'Regional Trade Framework — Recommendation',
+      templateType: 'Formal Recommendation',
+      issuedAt: '2023-12-09',
+      approvedByRole: 'Designated facilitator (role attestation)',
+      classification: 'Approved outcome · public registry format',
+    }),
   },
 ];
 

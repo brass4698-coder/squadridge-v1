@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FormField } from '../components/ui/FormField';
 import { FormPanel } from '../components/ui/FormPanel';
@@ -141,12 +141,27 @@ export function SignInPage() {
     navigate(destination, { replace: true });
   }, [initialized, loading, session, profile, roles, nextRaw, navigate, startWalkthrough]);
 
+  const handleDemo = useCallback(async () => {
+    setError(null);
+    setDemoBusy(true);
+    const result = await signInWithDemo();
+    if (!result.ok) {
+      setDemoBusy(false);
+      setError(classifyClientError(new Error(result.error)).userMessage);
+      return;
+    }
+    // Explicit `next` (role dashboard / credential continue) wins over the guided tour.
+    if (!nextRaw) {
+      pendingGuidedTour.current = true;
+    }
+  }, [nextRaw]);
+
   useEffect(() => {
     if (!wantDemo || !isDemoLoginEnabled() || !configured) return;
     if (!initialized || loading || session || autoDemoStarted.current) return;
     autoDemoStarted.current = true;
     void handleDemo();
-  }, [wantDemo, configured, initialized, loading, session]);
+  }, [wantDemo, configured, initialized, loading, session, handleDemo]);
 
   async function sendMagicLink(targetEmail: string) {
     setError(null);
@@ -176,18 +191,6 @@ export function SignInPage() {
     await sendMagicLink(sentEmail);
   }
 
-  async function handleDemo() {
-    setError(null);
-    setDemoBusy(true);
-    const result = await signInWithDemo();
-    if (!result.ok) {
-      setDemoBusy(false);
-      setError(classifyClientError(new Error(result.error)).userMessage);
-      return;
-    }
-    pendingGuidedTour.current = true;
-  }
-
   /* Expired / signed-out: never show a bare Loading skeleton — designed state + form affordance. */
   if ((!initialized || loading) && isExpired) {
     return (
@@ -205,15 +208,15 @@ export function SignInPage() {
                 Checking session…
               </p>
               <div className="space-y-2">
-                <div className="h-3 w-24 rounded-sm bg-surface-sunken" aria-hidden />
+                <div className="h-3 w-28 rounded-sm bg-surface-sunken" aria-hidden />
                 <div
-                  className="h-10 w-full rounded-[var(--sr-radius-md)] border border-line bg-surface-sunken/60"
+                  className="h-12 w-full rounded-[var(--sr-radius-lg)] border border-line bg-surface-sunken/60"
                   aria-hidden
                 />
               </div>
               <button
                 type="button"
-                className="btn-institutional btn-institutional--primary w-full"
+                className="btn-institutional btn-institutional--primary btn-institutional--block"
                 disabled
               >
                 Send a fresh sign-in link
@@ -268,13 +271,16 @@ export function SignInPage() {
           ) : null}
 
           <div>
-            <h1 className="font-heading text-display font-semibold tracking-tight text-ink">
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-brand/80">
+              SquadRidge
+            </p>
+            <h1 className="mt-3 font-heading text-display font-semibold tracking-tight text-ink">
               {isExpired ? 'Sign in again' : 'Sign in'}
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-ink-secondary">
+            <p className="mt-4 max-w-prose text-base leading-relaxed text-ink-secondary">
               Invite-linked accounts for pilot rooms and verified parties — not open signup.
             </p>
-            <div className="mt-5">
+            <div className="mt-6">
               <InviteOnlyNotice />
             </div>
           </div>
@@ -282,25 +288,38 @@ export function SignInPage() {
           <GovernedEntryNav current="sign-in" nextPath={nextRaw} />
 
           {isDemoLoginEnabled() ? (
-            <div className="border-t border-line pt-6">
-              <Link
-                to="/demo"
-                className="inline-block text-sm font-medium text-brand underline-offset-4 hover:underline"
-              >
-                Open demo hub — all roles & credentials
-              </Link>
-              <button
-                type="button"
-                disabled={demoBusy}
-                onClick={() => void handleDemo()}
-                className="mt-3 block w-fit text-left text-sm text-ink-secondary underline-offset-4 hover:underline disabled:opacity-50"
-              >
-                {demoBusy ? 'Starting demo…' : 'Quick sign-in + facilitator tour'}
-              </button>
-              <p className="mt-2 mb-0 text-xs text-ink-faint">
-                Uses the seeded demo account when available — not a production pilot path.
-              </p>
-            </div>
+            <FormPanel
+              className="border-t border-line pt-6 !shadow-none"
+              eyebrow="Local / staging"
+              title="Demo access"
+              description="Password login against the seeded demo account — not a production pilot path."
+            >
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  disabled={demoBusy}
+                  onClick={() => void handleDemo()}
+                  className="btn-institutional btn-institutional--primary btn-institutional--block"
+                >
+                  {demoBusy
+                    ? 'Starting demo…'
+                    : nextRaw
+                      ? 'Continue with demo account'
+                      : 'Sign in + choose a role tour'}
+                </button>
+                <Link
+                  to="/demo"
+                  className="btn-institutional btn-institutional--ghost btn-institutional--block text-center"
+                >
+                  Open demo hub — all roles & credentials
+                </Link>
+                <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                  If sign-in fails, seed with{' '}
+                  <code className="font-mono">node --env-file=.env.local scripts/seedDemo.mjs</code>
+                  .
+                </p>
+              </div>
+            </FormPanel>
           ) : null}
         </div>
 
@@ -340,10 +359,10 @@ export function SignInPage() {
                 </li>
               </ul>
               {error ? <FormAlert variant="error">{error}</FormAlert> : null}
-              <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap">
+              <div className="sr-form-actions pt-1">
                 <button
                   type="button"
-                  className="btn-institutional btn-institutional--primary sm:flex-1"
+                  className="btn-institutional btn-institutional--primary"
                   disabled={busy || cooldown > 0}
                   onClick={() => void handleResend()}
                 >
@@ -368,7 +387,7 @@ export function SignInPage() {
           ) : (
             <form
               ref={formRef}
-              className="space-y-5"
+              className="space-y-6"
               onSubmit={(e) => void handleSubmit(e)}
               noValidate
             >
@@ -394,19 +413,31 @@ export function SignInPage() {
                 credential stuffing — better for invite-only institutional access than shared
                 passwords.{' '}
                 <Link
-                  to="/security#diligence-faq"
+                  to="/security/technical#diligence-faq"
                   className="text-brand underline-offset-2 hover:underline"
                 >
                   Diligence FAQ
                 </Link>
               </p>
-              <button
-                type="submit"
-                className="btn-institutional btn-institutional--primary btn-institutional--block"
-                disabled={busy}
-              >
-                {busy ? 'Sending…' : isExpired ? 'Send a fresh sign-in link' : 'Send sign-in link'}
-              </button>
+              <div className="sr-form-actions">
+                <button
+                  type="submit"
+                  className="btn-institutional btn-institutional--primary"
+                  disabled={busy}
+                >
+                  {busy
+                    ? 'Sending…'
+                    : isExpired
+                      ? 'Send a fresh sign-in link'
+                      : 'Send sign-in link'}
+                </button>
+                <Link
+                  to="/request-access"
+                  className="btn-institutional btn-institutional--ghost text-center"
+                >
+                  Request pilot access
+                </Link>
+              </div>
             </form>
           )}
         </FormPanel>

@@ -107,11 +107,14 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 
 ## Architecture decisions (ADRs)
 
-| ADR                                            | Topic                        |
-| ---------------------------------------------- | ---------------------------- |
-| [001](adr/001-use-semaphore-zk.md)             | Semaphore / ZK direction     |
-| [002](adr/002-realtime-vs-polling.md)          | Realtime vs polling          |
-| [003](adr/003-zk-device-bootstrap-deferred.md) | Deferred ZK device bootstrap |
+| ADR                                            | Topic                                      |
+| ---------------------------------------------- | ------------------------------------------ |
+| [001](adr/001-use-semaphore-zk.md)             | Semaphore / ZK direction                   |
+| [002](adr/002-realtime-vs-polling.md)          | Realtime vs polling                        |
+| [003](adr/003-zk-device-bootstrap-deferred.md) | Deferred ZK device bootstrap               |
+| [004](adr/004-defer-operator-blind-e2e.md)     | Defer operator-blind E2E                   |
+| [005](adr/005-operator-blind-room-encryption-options.md) | Operator-blind room encryption options |
+| [006](adr/006-cloudflare-workers-room-record.md) | Cloudflare Workers room≠record target    |
 
 ## Short entrypoints (same folder)
 

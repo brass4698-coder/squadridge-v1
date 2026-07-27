@@ -21,8 +21,9 @@ export function FormSection({ id, title, index, complete, children, className }:
           {String(index).padStart(2, '0')}
         </span>
         {title}
+        {complete ? <span className="sr-only"> (complete)</span> : null}
       </legend>
-      {children}
+      <div className="space-y-1">{children}</div>
     </fieldset>
   );
 }

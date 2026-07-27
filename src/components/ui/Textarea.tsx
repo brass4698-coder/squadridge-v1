@@ -4,6 +4,7 @@ import { inputBaseClass } from './Input';
 
 export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   invalid?: boolean;
+  success?: boolean;
 };
 
 function isExplicitlyInvalid(
@@ -14,7 +15,7 @@ function isExplicitlyInvalid(
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, invalid, 'aria-invalid': ariaInvalid, ...props }, ref) => {
+  ({ className, invalid, success, 'aria-invalid': ariaInvalid, ...props }, ref) => {
     const showInvalid = isExplicitlyInvalid(invalid, ariaInvalid);
     return (
       <textarea
@@ -24,6 +25,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           inputBaseClass,
           'min-h-[6.5rem] resize-y py-3 leading-relaxed',
           showInvalid && 'sr-form-control--invalid',
+          !showInvalid && success && 'sr-form-control--success',
           className,
         )}
         aria-invalid={showInvalid ? true : undefined}

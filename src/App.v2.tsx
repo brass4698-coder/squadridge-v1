@@ -34,6 +34,7 @@ import { SettingsLayout } from './components/settings/SettingsLayout';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthenticatedShell } from './components/layout/AuthenticatedShell';
 import { AppTopShell } from './components/layout/AppTopShell';
+import { DemoGovernanceProvider } from './demo/DemoGovernanceContext';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
 
 // ── Eager critical path (first paint + auth) ─────────────────────────────────
@@ -158,6 +159,11 @@ const TermsPage = lazy(() =>
 );
 const SecurityPage = lazy(() =>
   import('./pages/v2/SecurityPage').then((m) => ({ default: m.SecurityPage })),
+);
+const SecurityTechnicalPage = lazy(() =>
+  import('./pages/v2/SecurityTechnicalPage').then((m) => ({
+    default: m.SecurityTechnicalPage,
+  })),
 );
 const UseCasesPage = lazy(() =>
   import('./pages/v2/UseCasesPage').then((m) => ({ default: m.UseCasesPage })),
@@ -356,414 +362,426 @@ export default function AppV2() {
       <ScrollToTop />
       <DemoWalkthroughProvider>
         <AuthProvider>
-          <SessionTimeoutWarning />
-          <Toaster position="top-center" richColors closeButton className="font-sans" />
-          <AuthGate>
-            <Suspense fallback={routeChunkFallback}>
-              <Routes>
-                {/* Legacy citizen onboarding — soft-retired; pilot funnel is request-access */}
-                <Route path="/onboarding" element={<Navigate to="/request-access" replace />} />
-                <Route
-                  path="/onboarding/:stepId"
-                  element={<Navigate to="/request-access" replace />}
-                />
-
-                {/* Legacy facilitator paths → /app namespace */}
-                <Route path="/f/dashboard" element={<Navigate to="/app" replace />} />
-                <Route path="/f/sessions" element={<Navigate to="/app/sessions" replace />} />
-                <Route
-                  path="/f/participants"
-                  element={<Navigate to="/app/participants" replace />}
-                />
-                <Route path="/f/settings" element={<Navigate to="/app/settings" replace />} />
-                <Route path="/dashboard" element={<Navigate to="/app" replace />} />
-                <Route
-                  path="/sessions/*"
-                  element={<LegacyAppRedirect fromPrefix="/sessions" toPrefix="/app/sessions" />}
-                />
-                <Route path="/participants" element={<Navigate to="/app/participants" replace />} />
-                <Route
-                  path="/outcomes/*"
-                  element={<LegacyAppRedirect fromPrefix="/outcomes" toPrefix="/app/outcomes" />}
-                />
-
-                {/* ── Participant flow (unauthenticated token-gated) ─────────── */}
-                <Route path="/p/invalid" element={<InviteInvalidPage />} />
-                {/* These sit outside AuthenticatedShell — participants use        */}
-                {/* magic-link tokens, not full auth sessions.                    */}
-                <Route path="/p/invite/:token" element={<InviteAcceptancePage />} />
-                <Route path="/p/verify/:token" element={<VerificationStepPage />} />
-                <Route path="/p/consent/:token" element={<ConsentPage />} />
-                <Route path="/p/briefing/:token" element={<SessionBriefingPage />} />
-                <Route path="/p/waiting/:token" element={<WaitingRoomPage />} />
-                <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
-                <Route path="/p/review/:token" element={<OutcomeReviewPage />} />
-                <Route path="/p/done/:token" element={<SessionEndPage />} />
-
-                {/* ── Investor / partner briefings (invite or super_admin) ── */}
-                <Route
-                  element={
-                    <RequireAuth>
-                      <DeckAccessGate>
-                        <AppTopShell>
-                          <Outlet />
-                        </AppTopShell>
-                      </DeckAccessGate>
-                    </RequireAuth>
-                  }
-                >
-                  <Route path="/decks" element={<DecksPage />} />
-                  <Route path="/decks/:deckId" element={<DeckViewerPage />} />
+          <DemoGovernanceProvider>
+            <SessionTimeoutWarning />
+            <Toaster position="top-center" richColors closeButton className="font-sans" />
+            <AuthGate>
+              <Suspense fallback={routeChunkFallback}>
+                <Routes>
+                  {/* Legacy citizen onboarding — soft-retired; pilot funnel is request-access */}
+                  <Route path="/onboarding" element={<Navigate to="/request-access" replace />} />
                   <Route
-                    path="/pitch-deck-hub"
-                    element={
-                      <Suspense fallback={routeChunkFallback}>
-                        <PitchDeckHubPage />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/financial-projections"
-                    element={
-                      <Suspense fallback={routeChunkFallback}>
-                        <FinancialProjectionsPage />
-                      </Suspense>
-                    }
-                  />
-                </Route>
-
-                {/* ── V2 Authenticated Shell ────────────────────────────────── */}
-                {/* /app/* is facilitator-scoped — participants land on /app/participant */}
-                {/* Phase 4: parent gate widened to ALL authenticated roles. Every  */}
-                {/* facilitator-scoped route below carries its own narrower           */}
-                {/* RoleProtectedRoute, and each of the 7 roles now has a landing     */}
-                {/* dashboard at /app/{role} matching ROLE_DASHBOARD_MAP. Server-side */}
-                {/* RLS remains authoritative. See                                    */}
-                {/* docs/audit/auth-and-dashboards-audit.md.                          */}
-                <Route
-                  element={
-                    <RequireAuth>
-                      <ActiveUserGate>
-                        <AuthenticatedShell>
-                          <Outlet />
-                        </AuthenticatedShell>
-                      </ActiveUserGate>
-                    </RequireAuth>
-                  }
-                >
-                  {/* /app — historical facilitator dashboard landing */}
-                  <Route
-                    path="/app"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
-                      >
-                        <FacilitatorDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-
-                  {/* Per-role landing pages — one per role, each with its own gate */}
-                  <Route
-                    path="/app/admin"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin']}>
-                        <SuperAdminDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/institution"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
-                        <InstitutionAdminDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/facilitator"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'facilitator']}
-                      >
-                        <FacilitatorDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/mediator"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'mediator']}>
-                        <MediatorDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/analyst"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'analyst']}>
-                        <AnalystDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/participant"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'participant', 'facilitator']}>
-                        <ParticipantDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/moderator"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'facilitator']}
-                      >
-                        <ModeratorDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/observer"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'observer']}>
-                        <ObserverDashboardPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/app/executive"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'observer']}
-                      >
-                        <ExecutiveGovernancePage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route path="/app/ombuds" element={<Navigate to="/app/mediator" replace />} />
-                  <Route
-                    path="/app/release-gate"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
-                      >
-                        <ReleaseGatePage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                  <Route path="/app/ledger" element={<AppLedgerDashboardPage />} />
-
-                  {/* Session workflow — facilitator-side roles only */}
-                  <Route
-                    element={
-                      <RoleProtectedRoute
-                        allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
-                      >
-                        <Outlet />
-                      </RoleProtectedRoute>
-                    }
-                  >
-                    <Route path="/app/sessions" element={<SessionsListPage />} />
-                    <Route path="/app/pilot-guide" element={<PilotGuidePage />} />
-                    <Route
-                      path="/app/sessions/new"
-                      element={<Navigate to="/app/sessions/new/setup" replace />}
-                    />
-                    <Route path="/app/sessions/new/setup" element={<SessionNewPage />} />
-                    <Route path="/app/sessions/:sessionId" element={<SessionDetailPage />} />
-                    <Route
-                      path="/app/sessions/:sessionId/invite"
-                      element={<ParticipantInvitePage />}
-                    />
-                    <Route
-                      path="/app/sessions/:sessionId/room"
-                      element={<SessionRoomLegacyRedirect />}
-                    />
-                    <Route
-                      path="/app/sessions/:sessionId/participants"
-                      element={<ParticipantsReviewPage />}
-                    />
-                    <Route
-                      path="/app/sessions/:sessionId/control"
-                      element={<SessionControlPage />}
-                    />
-                    <Route
-                      path="/app/sessions/:sessionId/outcome"
-                      element={<OutcomeWorkspacePage />}
-                    />
-                    <Route
-                      path="/app/sessions/:sessionId/release"
-                      element={<OutcomeReleasePage />}
-                    />
-                    <Route path="/app/participants" element={<ParticipantsIndexPage />} />
-                    <Route path="/app/outcomes/new" element={<OutcomesLegacyRedirect />} />
-                    <Route path="/app/outcomes/:outcomeId" element={<OutcomesLegacyRedirect />} />
-                  </Route>
-
-                  {/* Insights — facilitator-side + analyst */}
-                  <Route
-                    path="/app/insights"
-                    element={
-                      <RoleProtectedRoute
-                        allowed={[
-                          'super_admin',
-                          'institution_admin',
-                          'facilitator',
-                          'mediator',
-                          'analyst',
-                        ]}
-                      >
-                        <InsightsPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-
-                  {/* Settings — keep chrome inside AuthenticatedShell */}
-                  <Route path="/app/settings" element={<SettingsLayout />}>
-                    <Route index element={<SettingsIndexPage />} />
-                    <Route path="profile" element={<ProfileSettingsPage />} />
-                    <Route path="safety" element={<SafetyCenterPage />} />
-                    <Route path="notifications" element={<NotificationsSettingsPage />} />
-                  </Route>
-
-                  {/* Admin invites console — super_admin + institution_admin only */}
-                  <Route
-                    path="/app/admin/invites"
-                    element={
-                      <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
-                        <AdminInvitesPage />
-                      </RoleProtectedRoute>
-                    }
-                  />
-                </Route>
-
-                {/* ── V2 Public Shell ──────────────────────────────────────── */}
-                <Route
-                  element={
-                    <PublicShell>
-                      <Outlet />
-                    </PublicShell>
-                  }
-                >
-                  {/* Public marketing */}
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/how-it-works" element={<HowItWorksPage />} />
-                  <Route path="/use-cases" element={<UseCasesPage />} />
-                  <Route path="/request-access" element={<RequestAccessPage />} />
-                  <Route
-                    path="/request-access/confirmed"
+                    path="/onboarding/:stepId"
                     element={<Navigate to="/request-access" replace />}
                   />
-                  <Route path="/briefings" element={<BriefingsPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/faq" element={<FaqPage />} />
-                  <Route path="/privacy" element={<PrivacyPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="/security" element={<SecurityPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/pricing" element={<PricingPage />} />
-                  <Route path="/roadmap" element={<RoadmapPage />} />
-                  <Route path="/pipeline" element={<PipelinePage />} />
-                  {/* Diligence alias — prefer /pipeline label over "traction" */}
-                  <Route path="/traction" element={<Navigate to="/pipeline" replace />} />
 
-                  {/* Ledger (public outcome records) */}
-                  <Route path="/ledger" element={<LedgerIndexPage />} />
-                  <Route path="/ledger/:recordId/verify" element={<LedgerVerifyPage />} />
-                  <Route path="/ledger/:recordId" element={<LedgerRecordPage />} />
-
-                  {/* Legacy ledger routes → v2 ledger */}
+                  {/* Legacy facilitator paths → /app namespace */}
+                  <Route path="/f/dashboard" element={<Navigate to="/app" replace />} />
+                  <Route path="/f/sessions" element={<Navigate to="/app/sessions" replace />} />
                   <Route
-                    path="/ledger/:proposalId/legacy"
-                    element={<Navigate to="/ledger" replace />}
+                    path="/f/participants"
+                    element={<Navigate to="/app/participants" replace />}
                   />
-
-                  {/* Redirects for legacy paths */}
-                  <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+                  <Route path="/f/settings" element={<Navigate to="/app/settings" replace />} />
+                  <Route path="/dashboard" element={<Navigate to="/app" replace />} />
                   <Route
-                    path="/sign-up"
-                    element={<Navigate to="/sign-in?intent=signup" replace />}
+                    path="/sessions/*"
+                    element={<LegacyAppRedirect fromPrefix="/sessions" toPrefix="/app/sessions" />}
                   />
                   <Route
-                    path="/forgot-password"
-                    element={<Navigate to="/sign-in?reason=link" replace />}
+                    path="/participants"
+                    element={<Navigate to="/app/participants" replace />}
                   />
-                  {/* Legacy citizen matchmaking / ZK — soft-retired (code kept, not product story) */}
-                  <Route path="/intent" element={<Navigate to="/request-access" replace />} />
-                  <Route path="/match-setup" element={<Navigate to="/request-access" replace />} />
-                  <Route path="/find-squad" element={<Navigate to="/request-access" replace />} />
-                  <Route path="/match" element={<Navigate to="/request-access" replace />} />
-                  <Route path="/verify" element={<Navigate to="/request-access" replace />} />
-                  <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
-
-                  {/* Auth (existing pages, new shell) */}
-                  <Route path="/sign-in" element={<SignInPage />} />
-                  <Route path="/demo" element={<DemoHubPage />} />
-                  <Route path="/demo/start" element={<DemoStartPage />} />
-                  <Route path="/enter/credential" element={<EnterCredentialPage />} />
-                  <Route path="/enter/qr" element={<EnterQrPage />} />
-                  <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                  <Route path="/invite/accept/:token" element={<StaffInviteAcceptPage />} />
-                  <Route path="/invite/complete" element={<InviteCompletePage />} />
-                  <Route path="/invite" element={<InvitePage />} />
-
-                  {/* Legacy proposal ledger → v2 ledger */}
-                  <Route path="/ledger-legacy" element={<Navigate to="/ledger" replace />} />
                   <Route
-                    path="/ledger-legacy/:proposalId"
-                    element={<Navigate to="/ledger" replace />}
+                    path="/outcomes/*"
+                    element={<LegacyAppRedirect fromPrefix="/outcomes" toPrefix="/app/outcomes" />}
                   />
 
-                  {/* Settings — legacy URL → in-shell settings */}
-                  <Route path="/settings/*" element={<Navigate to="/app/settings" replace />} />
-                  <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
+                  {/* ── Participant flow (unauthenticated token-gated) ─────────── */}
+                  <Route path="/p/invalid" element={<InviteInvalidPage />} />
+                  {/* These sit outside AuthenticatedShell — participants use        */}
+                  {/* magic-link tokens, not full auth sessions.                    */}
+                  <Route path="/p/invite/:token" element={<InviteAcceptancePage />} />
+                  <Route path="/p/verify/:token" element={<VerificationStepPage />} />
+                  <Route path="/p/consent/:token" element={<ConsentPage />} />
+                  <Route path="/p/briefing/:token" element={<SessionBriefingPage />} />
+                  <Route path="/p/waiting/:token" element={<WaitingRoomPage />} />
+                  <Route path="/p/room/:token" element={<ParticipantRoomPage />} />
+                  <Route path="/p/review/:token" element={<OutcomeReviewPage />} />
+                  <Route path="/p/done/:token" element={<SessionEndPage />} />
 
-                  {/* Admin (existing pages, new shell) */}
+                  {/* ── Investor / partner briefings (invite or super_admin) ── */}
                   <Route
-                    path="/admin"
                     element={
                       <RequireAuth>
-                        <RequireModerator>
-                          <AdminLayout />
-                        </RequireModerator>
+                        <DeckAccessGate>
+                          <AppTopShell>
+                            <Outlet />
+                          </AppTopShell>
+                        </DeckAccessGate>
                       </RequireAuth>
                     }
                   >
-                    <Route path="reports" element={<AdminReportsPage />} />
-                    <Route path="verification" element={<AdminVerificationPage />} />
-                    <Route path="rooms" element={<AdminRoomsPage />} />
-                    <Route path="logs" element={<AdminLogsPage />} />
-                    <Route path="demo" element={<AdminDemoPage />} />
-                    <Route path="health" element={<SupabaseHealthPage />} />
-                    <Route path="csi" element={<AdminCsiPage />} />
-                    <Route index element={<Navigate to="rooms" replace />} />
+                    <Route path="/decks" element={<DecksPage />} />
+                    <Route path="/decks/:deckId" element={<DeckViewerPage />} />
+                    <Route
+                      path="/pitch-deck-hub"
+                      element={
+                        <Suspense fallback={routeChunkFallback}>
+                          <PitchDeckHubPage />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/financial-projections"
+                      element={
+                        <Suspense fallback={routeChunkFallback}>
+                          <FinancialProjectionsPage />
+                        </Suspense>
+                      }
+                    />
                   </Route>
 
-                  {/* Legacy squad session hub — soft-retired (demo flag no longer mounts room UI) */}
-                  <Route path="/session/demo-session-001" element={<Navigate to="/" replace />} />
-                  <Route path="/session/demo" element={<Navigate to="/" replace />} />
-                  <Route path="/session/:squadId?" element={<Navigate to="/" replace />} />
-
-                  {/* Error pages */}
-                  <Route path="/unauthorized" element={<AccessDeniedPage />} />
-                  <Route path="/access-denied" element={<Navigate to="/unauthorized" replace />} />
-                  {/* Phase 4: landing for signed-in users whose profile is still */}
-                  {/* pending review — returned by useDashboardRoute.             */}
+                  {/* ── V2 Authenticated Shell ────────────────────────────────── */}
+                  {/* /app/* is facilitator-scoped — participants land on /app/participant */}
+                  {/* Phase 4: parent gate widened to ALL authenticated roles. Every  */}
+                  {/* facilitator-scoped route below carries its own narrower           */}
+                  {/* RoleProtectedRoute, and each of the 7 roles now has a landing     */}
+                  {/* dashboard at /app/{role} matching ROLE_DASHBOARD_MAP. Server-side */}
+                  {/* RLS remains authoritative. See                                    */}
+                  {/* docs/audit/auth-and-dashboards-audit.md.                          */}
                   <Route
-                    path="/access-pending"
                     element={
                       <RequireAuth>
-                        <AccessPendingPage />
+                        <ActiveUserGate>
+                          <AuthenticatedShell>
+                            <Outlet />
+                          </AuthenticatedShell>
+                        </ActiveUserGate>
                       </RequireAuth>
                     }
-                  />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </AuthGate>
+                  >
+                    {/* /app — historical facilitator dashboard landing */}
+                    <Route
+                      path="/app"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                        >
+                          <FacilitatorDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+
+                    {/* Per-role landing pages — one per role, each with its own gate */}
+                    <Route
+                      path="/app/admin"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin']}>
+                          <SuperAdminDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/institution"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
+                          <InstitutionAdminDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/facilitator"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'facilitator']}
+                        >
+                          <FacilitatorDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/mediator"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'mediator']}>
+                          <MediatorDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/analyst"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'analyst']}>
+                          <AnalystDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/participant"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'participant', 'facilitator']}>
+                          <ParticipantDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/moderator"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'facilitator']}
+                        >
+                          <ModeratorDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/observer"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'observer']}>
+                          <ObserverDashboardPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/app/executive"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'observer']}
+                        >
+                          <ExecutiveGovernancePage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route path="/app/ombuds" element={<Navigate to="/app/mediator" replace />} />
+                    <Route
+                      path="/app/release-gate"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                        >
+                          <ReleaseGatePage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                    <Route path="/app/ledger" element={<AppLedgerDashboardPage />} />
+
+                    {/* Session workflow — facilitator-side roles only */}
+                    <Route
+                      element={
+                        <RoleProtectedRoute
+                          allowed={['super_admin', 'institution_admin', 'facilitator', 'mediator']}
+                        >
+                          <Outlet />
+                        </RoleProtectedRoute>
+                      }
+                    >
+                      <Route path="/app/sessions" element={<SessionsListPage />} />
+                      <Route path="/app/pilot-guide" element={<PilotGuidePage />} />
+                      <Route
+                        path="/app/sessions/new"
+                        element={<Navigate to="/app/sessions/new/setup" replace />}
+                      />
+                      <Route path="/app/sessions/new/setup" element={<SessionNewPage />} />
+                      <Route path="/app/sessions/:sessionId" element={<SessionDetailPage />} />
+                      <Route
+                        path="/app/sessions/:sessionId/invite"
+                        element={<ParticipantInvitePage />}
+                      />
+                      <Route
+                        path="/app/sessions/:sessionId/room"
+                        element={<SessionRoomLegacyRedirect />}
+                      />
+                      <Route
+                        path="/app/sessions/:sessionId/participants"
+                        element={<ParticipantsReviewPage />}
+                      />
+                      <Route
+                        path="/app/sessions/:sessionId/control"
+                        element={<SessionControlPage />}
+                      />
+                      <Route
+                        path="/app/sessions/:sessionId/outcome"
+                        element={<OutcomeWorkspacePage />}
+                      />
+                      <Route
+                        path="/app/sessions/:sessionId/release"
+                        element={<OutcomeReleasePage />}
+                      />
+                      <Route path="/app/participants" element={<ParticipantsIndexPage />} />
+                      <Route path="/app/outcomes/new" element={<OutcomesLegacyRedirect />} />
+                      <Route path="/app/outcomes/:outcomeId" element={<OutcomesLegacyRedirect />} />
+                    </Route>
+
+                    {/* Insights — facilitator-side + analyst */}
+                    <Route
+                      path="/app/insights"
+                      element={
+                        <RoleProtectedRoute
+                          allowed={[
+                            'super_admin',
+                            'institution_admin',
+                            'facilitator',
+                            'mediator',
+                            'analyst',
+                          ]}
+                        >
+                          <InsightsPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+
+                    {/* Settings — keep chrome inside AuthenticatedShell */}
+                    <Route path="/app/settings" element={<SettingsLayout />}>
+                      <Route index element={<SettingsIndexPage />} />
+                      <Route path="profile" element={<ProfileSettingsPage />} />
+                      <Route path="safety" element={<SafetyCenterPage />} />
+                      <Route path="notifications" element={<NotificationsSettingsPage />} />
+                    </Route>
+
+                    {/* Admin invites console — super_admin + institution_admin only */}
+                    <Route
+                      path="/app/admin/invites"
+                      element={
+                        <RoleProtectedRoute allowed={['super_admin', 'institution_admin']}>
+                          <AdminInvitesPage />
+                        </RoleProtectedRoute>
+                      }
+                    />
+                  </Route>
+
+                  {/* ── V2 Public Shell ──────────────────────────────────────── */}
+                  <Route
+                    element={
+                      <PublicShell>
+                        <Outlet />
+                      </PublicShell>
+                    }
+                  >
+                    {/* Public marketing */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/how-it-works" element={<HowItWorksPage />} />
+                    <Route path="/use-cases" element={<UseCasesPage />} />
+                    <Route path="/request-access" element={<RequestAccessPage />} />
+                    <Route
+                      path="/request-access/confirmed"
+                      element={<Navigate to="/request-access" replace />}
+                    />
+                    <Route path="/briefings" element={<BriefingsPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/faq" element={<FaqPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/security" element={<SecurityPage />} />
+                    <Route path="/security/technical" element={<SecurityTechnicalPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/roadmap" element={<RoadmapPage />} />
+                    <Route path="/pipeline" element={<PipelinePage />} />
+                    {/* Diligence alias — prefer /pipeline label over "traction" */}
+                    <Route path="/traction" element={<Navigate to="/pipeline" replace />} />
+
+                    {/* Ledger (public outcome records) */}
+                    <Route path="/ledger" element={<LedgerIndexPage />} />
+                    <Route path="/ledger/:recordId/verify" element={<LedgerVerifyPage />} />
+                    <Route path="/ledger/:recordId" element={<LedgerRecordPage />} />
+
+                    {/* Legacy ledger routes → v2 ledger */}
+                    <Route
+                      path="/ledger/:proposalId/legacy"
+                      element={<Navigate to="/ledger" replace />}
+                    />
+
+                    {/* Redirects for legacy paths */}
+                    <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+                    <Route
+                      path="/sign-up"
+                      element={<Navigate to="/sign-in?intent=signup" replace />}
+                    />
+                    <Route
+                      path="/forgot-password"
+                      element={<Navigate to="/sign-in?reason=link" replace />}
+                    />
+                    {/* Legacy citizen matchmaking / ZK — soft-retired (code kept, not product story) */}
+                    <Route path="/intent" element={<Navigate to="/request-access" replace />} />
+                    <Route
+                      path="/match-setup"
+                      element={<Navigate to="/request-access" replace />}
+                    />
+                    <Route path="/find-squad" element={<Navigate to="/request-access" replace />} />
+                    <Route path="/match" element={<Navigate to="/request-access" replace />} />
+                    <Route path="/verify" element={<Navigate to="/request-access" replace />} />
+                    <Route path="/mod" element={<Navigate to="/admin/rooms" replace />} />
+
+                    {/* Auth (existing pages, new shell) */}
+                    <Route path="/sign-in" element={<SignInPage />} />
+                    <Route path="/demo" element={<DemoHubPage />} />
+                    <Route path="/demo/start" element={<DemoStartPage />} />
+                    <Route path="/enter/credential" element={<EnterCredentialPage />} />
+                    <Route path="/enter/qr" element={<EnterQrPage />} />
+                    <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                    <Route path="/invite/accept/:token" element={<StaffInviteAcceptPage />} />
+                    <Route path="/invite/complete" element={<InviteCompletePage />} />
+                    <Route path="/invite" element={<InvitePage />} />
+
+                    {/* Legacy proposal ledger → v2 ledger */}
+                    <Route path="/ledger-legacy" element={<Navigate to="/ledger" replace />} />
+                    <Route
+                      path="/ledger-legacy/:proposalId"
+                      element={<Navigate to="/ledger" replace />}
+                    />
+
+                    {/* Settings — legacy URL → in-shell settings */}
+                    <Route path="/settings/*" element={<Navigate to="/app/settings" replace />} />
+                    <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
+
+                    {/* Admin (existing pages, new shell) */}
+                    <Route
+                      path="/admin"
+                      element={
+                        <RequireAuth>
+                          <RequireModerator>
+                            <AdminLayout />
+                          </RequireModerator>
+                        </RequireAuth>
+                      }
+                    >
+                      <Route path="reports" element={<AdminReportsPage />} />
+                      <Route path="verification" element={<AdminVerificationPage />} />
+                      <Route path="rooms" element={<AdminRoomsPage />} />
+                      <Route path="logs" element={<AdminLogsPage />} />
+                      <Route path="demo" element={<AdminDemoPage />} />
+                      <Route path="health" element={<SupabaseHealthPage />} />
+                      <Route path="csi" element={<AdminCsiPage />} />
+                      <Route index element={<Navigate to="rooms" replace />} />
+                    </Route>
+
+                    {/* Legacy squad session hub — soft-retired (demo flag no longer mounts room UI) */}
+                    <Route path="/session/demo-session-001" element={<Navigate to="/" replace />} />
+                    <Route path="/session/demo" element={<Navigate to="/" replace />} />
+                    <Route path="/session/:squadId?" element={<Navigate to="/" replace />} />
+
+                    {/* Error pages */}
+                    <Route path="/unauthorized" element={<AccessDeniedPage />} />
+                    <Route
+                      path="/access-denied"
+                      element={<Navigate to="/unauthorized" replace />}
+                    />
+                    {/* Phase 4: landing for signed-in users whose profile is still */}
+                    {/* pending review — returned by useDashboardRoute.             */}
+                    <Route
+                      path="/access-pending"
+                      element={
+                        <RequireAuth>
+                          <AccessPendingPage />
+                        </RequireAuth>
+                      }
+                    />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </AuthGate>
+          </DemoGovernanceProvider>
         </AuthProvider>
       </DemoWalkthroughProvider>
       <GrainOverlay />

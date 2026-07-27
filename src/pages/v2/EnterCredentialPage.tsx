@@ -79,18 +79,21 @@ export function EnterCredentialPage() {
   return (
     <GovernedEntryLayout title="Invitation credential">
       <div className="sr-governed-entry-grid">
-        <div className="min-w-0">
-          <h1 className="font-heading text-display font-semibold tracking-tight text-ink">
-            Enter invitation credential
-          </h1>
-          <p className="mt-4 text-base leading-relaxed text-ink-secondary">
-            Invitation credentials are issued for specific rooms, roles, and pilot scopes — not for
-            open signup.
-          </p>
-
-          <div className="mt-10">
-            <GovernedEntryNav current="credential" />
+        <div className="min-w-0 space-y-6">
+          <div>
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-brand/80">
+              SquadRidge
+            </p>
+            <h1 className="mt-3 font-heading text-display font-semibold tracking-tight text-ink">
+              Enter invitation credential
+            </h1>
+            <p className="mt-4 max-w-prose text-base leading-relaxed text-ink-secondary">
+              Invitation credentials are issued for specific rooms, roles, and pilot scopes — not
+              for open signup.
+            </p>
           </div>
+
+          <GovernedEntryNav current="credential" />
 
           {showDemoCredentials ? (
             <details className="sr-form-details mt-10">
@@ -155,18 +158,28 @@ export function EnterCredentialPage() {
             </>
           }
         >
-          <form className="space-y-5" onSubmit={(e) => void onValidate(e)}>
-            <FormField id="credential" label="Credential or invitation token" instrument>
+          <form className="space-y-6" onSubmit={(e) => void onValidate(e)}>
+            <FormField
+              id="credential"
+              label="Credential or invitation token"
+              instrument
+              success={result?.ok ? 'Credential recognized for this room.' : undefined}
+              hint={
+                result?.ok ? undefined : 'Paste the invitation hash or token issued for your room.'
+              }
+            >
               <Input
                 id="credential"
                 value={value}
                 onChange={(e) => {
                   setValue(e.target.value);
                   setPasteHint(null);
+                  setResult(null);
                 }}
                 placeholder="Paste invitation hash or token"
                 autoComplete="off"
                 required
+                invalid={Boolean(result && !result.ok)}
                 className="font-mono text-sm"
               />
             </FormField>
@@ -175,11 +188,11 @@ export function EnterCredentialPage() {
                 {pasteHint}
               </FormAlert>
             ) : null}
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="sr-form-actions">
               <button
                 type="submit"
-                className="btn-institutional btn-institutional--primary sm:flex-1"
-                disabled={busy}
+                className="btn-institutional btn-institutional--primary"
+                disabled={busy || !value.trim()}
               >
                 {busy ? 'Validating…' : 'Validate credential'}
               </button>

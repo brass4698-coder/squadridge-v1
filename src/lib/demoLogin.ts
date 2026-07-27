@@ -38,6 +38,29 @@ export function isDemoLoginEnabled(): boolean {
 }
 
 /**
+ * Sign-in URL that auto-starts demo password login (when enabled) and optionally
+ * continues to an app path afterward.
+ */
+export function demoSignInPath(next?: string | null): string {
+  const params = new URLSearchParams();
+  params.set('demo', '1');
+  if (next && next.startsWith('/') && !next.startsWith('//')) {
+    params.set('next', next);
+  }
+  return `/sign-in?${params.toString()}`;
+}
+
+/**
+ * Entry href for a role dashboard from the public demo hub.
+ * Unauthenticated visitors go through demo sign-in; signed-in sessions go direct.
+ */
+export function demoAppEntryPath(dashboardPath: string, opts?: { hasSession?: boolean }): string {
+  if (!isDemoLoginEnabled()) return dashboardPath;
+  if (opts?.hasSession) return dashboardPath;
+  return demoSignInPath(dashboardPath);
+}
+
+/**
  * Sign the browser in as the demo user. Returns `{ ok: true }` on success or
  * `{ ok: false, error }` on failure — callers should show `error` inline.
  */

@@ -3,40 +3,26 @@ import { ArrowRight } from 'lucide-react';
 import { SquadRidgeLockup } from '../SquadRidgeWordmark';
 import { SectionLabel } from '../SectionLabel';
 import { CTA } from '../../data/siteMessaging';
+import { isDemoLoginEnabled } from '../../lib/demoLogin';
 import { prefetchPublicRoute } from '../../lib/prefetchPublicRoute';
 import { publicShellInnerClass, shellListResetClass } from './publicShellTokens';
 
-const footerColumns = [
-  {
-    title: 'Product',
-    links: [
-      { label: 'How it works', href: '/how-it-works' },
-      { label: 'Use cases', href: '/use-cases' },
-      { label: 'Ledger', href: '/ledger' },
-      { label: 'Pricing', href: '/pricing' },
-      { label: 'Roadmap', href: '/roadmap' },
-      { label: 'Pipeline', href: '/pipeline' },
-      { label: 'FAQ', href: '/faq' },
-    ],
-  },
-  {
-    title: 'Trust',
-    links: [
-      { label: 'Security', href: '/security' },
-      { label: 'About', href: '/about' },
-      { label: 'Privacy', href: '/privacy' },
-      { label: 'Terms', href: '/terms' },
-    ],
-  },
-  {
-    title: 'Access',
-    links: [
-      { label: CTA.primaryLabel, href: CTA.primaryHref },
-      { label: 'Briefings', href: '/briefings' },
-      { label: 'Contact', href: '/contact' },
-      { label: 'Sign in', href: '/sign-in' },
-    ],
-  },
+const productLinks = [
+  { label: 'How it works', href: '/how-it-works' },
+  { label: 'Use cases', href: '/use-cases' },
+  { label: 'Ledger', href: '/ledger' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'Roadmap', href: '/roadmap' },
+  { label: 'Pipeline', href: '/pipeline' },
+  { label: 'FAQ', href: '/faq' },
+] as const;
+
+const trustLinks = [
+  { label: 'Security', href: '/security' },
+  { label: 'Security technical', href: '/security/technical' },
+  { label: 'About', href: '/about' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
 ] as const;
 
 const legalLinks = [
@@ -50,6 +36,18 @@ const legalLinks = [
  */
 export function PublicFooter() {
   const year = new Date().getFullYear();
+  const accessLinks = [
+    { label: CTA.primaryLabel, href: CTA.primaryHref },
+    { label: 'Briefings', href: '/briefings' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'Sign in', href: '/sign-in' },
+    ...(isDemoLoginEnabled() ? [{ label: 'Demo hub', href: '/demo' }] : []),
+  ];
+  const footerColumns = [
+    { title: 'Product', links: [...productLinks] },
+    { title: 'Trust', links: [...trustLinks] },
+    { title: 'Access', links: accessLinks },
+  ];
 
   return (
     <footer className="sr-public-footer relative z-10" data-scroll-section>

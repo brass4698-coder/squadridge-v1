@@ -4,6 +4,7 @@ import { inputBaseClass } from './Input';
 
 export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
   invalid?: boolean;
+  success?: boolean;
 };
 
 function isExplicitlyInvalid(
@@ -14,16 +15,23 @@ function isExplicitlyInvalid(
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, invalid, children, 'aria-invalid': ariaInvalid, ...props }, ref) => {
+  (
+    { className, invalid, success, children, 'aria-invalid': ariaInvalid, value, ...props },
+    ref,
+  ) => {
     const showInvalid = isExplicitlyInvalid(invalid, ariaInvalid);
+    const empty = value === undefined || value === null || value === '';
     return (
       <select
         {...props}
         ref={ref}
+        value={value}
+        data-empty={empty ? 'true' : undefined}
         className={cn(
           inputBaseClass,
           'sr-form-select',
           showInvalid && 'sr-form-control--invalid',
+          !showInvalid && success && 'sr-form-control--success',
           className,
         )}
         aria-invalid={showInvalid ? true : undefined}
