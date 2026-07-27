@@ -437,6 +437,8 @@ export interface Database {
 }
 
 export type Session = Database['public']['Tables']['sessions']['Row'];
+/** Facilitator create payload — DB defaults cover phase timer / floor columns. */
+export type SessionInsert = Database['public']['Tables']['sessions']['Insert'];
 export type Participant = Database['public']['Tables']['participants']['Row'];
 export type OutcomeRecord = Database['public']['Tables']['outcome_records']['Row'];
 

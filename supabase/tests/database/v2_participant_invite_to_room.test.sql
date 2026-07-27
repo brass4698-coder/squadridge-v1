@@ -5,7 +5,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(8);
+SELECT plan(9);
 
 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 VALUES (
@@ -121,10 +121,25 @@ SET status = 'live',
     dialogue_stage = 'story'
 WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 
+-- Room encryption requires AES-GCM v3 envelope (structure only; decrypt not required).
+SELECT set_config(
+    'test.cipher_body',
+    '{"v":3,"alg":"AES-256-GCM","iv":"YWFhYWFhYWFhYWFh","ct":"YmJiYmJiYmJiYmJiYmJiYg"}',
+    true
+);
+
+SELECT ok(
+    (public.participant_get_room_key('invitetoroom0000000000000001')->>'valid')::boolean,
+    'participant_get_room_key available before ciphertext send'
+);
+
 SELECT is(
-    (public.participant_send_message('invitetoroom0000000000000001', 'Position ready.')->>'valid')::boolean,
+    (public.participant_send_message(
+        'invitetoroom0000000000000001',
+        current_setting('test.cipher_body')
+    )->>'valid')::boolean,
     TRUE,
-    'participant can send message in live verified room'
+    'participant can send ciphertext in live verified room'
 );
 
 -- 8. List messages returns the send

@@ -1,8 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SessionMessage } from '../../lib/supabaseTypes';
 
+/** Feed row — session_id optional so participant RPC rows can render too. */
+export type DeliberationFeedMessage = Pick<
+  SessionMessage,
+  'id' | 'sender_label' | 'sender_role' | 'body' | 'sent_at'
+> & {
+  session_id?: string;
+};
+
 export interface DeliberationFeedProps {
-  messages: SessionMessage[];
+  messages: DeliberationFeedMessage[];
   emptyHeading?: string;
   emptyBody?: string;
   phaseLabel?: string;

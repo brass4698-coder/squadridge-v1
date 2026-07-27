@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 // TODO(supabase-types): see useAccessRequest.
 import { supabase } from '../lib/supabase';
-import type { Session } from '../lib/supabaseTypes';
+import type { Session, SessionInsert } from '../lib/supabaseTypes';
 import {
   clampMaxParticipants,
   DEFAULT_MAX_PARTICIPANTS,
@@ -28,12 +28,7 @@ export function useSessions() {
     fetchSessions();
   }, [fetchSessions]);
 
-  async function createSession(
-    payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'> & {
-      template_id?: string | null;
-      setup_config?: Session['setup_config'];
-    },
-  ) {
+  async function createSession(payload: Omit<SessionInsert, 'facilitator_id'>) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
