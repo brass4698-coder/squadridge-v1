@@ -20,9 +20,10 @@ These are platform surfaces. We do not control the storage formats, but we do co
 ### Supabase
 
 - **Auth events.** Supabase Auth records sign-in events with the originating IP. Treat the auth log as IP-bearing; restrict dashboard access to named operators.
-- **Postgres logs.** Connection-level logs at the Supabase platform may include IP for failed auth and for outbound connections. Application queries are made via the JS client, which proxies through Supabase's edge — operator IPs (e.g. running `psql` against the project) appear here.
+- **Postgres logs.** Connection-level logs at the Supabase platform may include IP for failed auth and for outbound connections. Application queries are made via the JS client, which proxies through Supabase's edge — operator IPs (e.g. running `psql` against the project) appear here. New projects (from 2026-07-09) default `log_connections` off — lower volume, not zero IP risk on other log surfaces.
 - **Edge Function invocation logs.** Supabase exposes per-invocation logs in the dashboard. Header values can be visible to project members; do not paste request headers into third-party tools when triaging.
-- **Action.** Document the project's log retention setting (Dashboard → Settings → Logs) in the pilot runbook. If a partner requires a shorter window than the platform default, use a log drain that respects the partner's retention rule, not the dashboard view.
+- **Platform Audit Logs (Team/Enterprise).** Org-member dashboard/Management API actions are logged with actor IP/email. Separate from project Log Drains (Postgres/Auth/Realtime/Edge). If retention or SIEM export is required, configure [Audit Log Drains](https://supabase.com/docs/guides/security/platform-audit-logs) under the org (not a substitute for app `moderation_audit_log`).
+- **Action.** Document the project's log retention setting (Dashboard → Settings → Logs) in the pilot runbook. If a partner requires a shorter window than the platform default, use a project log drain (and/or org Audit Log Drain on Team+) that respects the partner's retention rule, not the dashboard view.
 
 ### Hosting provider (Vercel, Netlify, Cloudflare Pages)
 

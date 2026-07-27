@@ -636,8 +636,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
     setHttpDegraded(false);
 
-    if (isAiPipelineEnabled() && squadId) {
-      const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, bodyForSend);
+    const verifiedSquadId = squad.id;
+    if (isAiPipelineEnabled()) {
+      const { persistOk } = await recordLocalToneAndMaybePersist(
+        supabase,
+        verifiedSquadId,
+        bodyForSend,
+      );
       if (!persistOk) {
         toast.warning(
           'Your message was sent, but tone insight could not be saved. Dialogue continues as normal.',
@@ -704,8 +709,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
     if (slowDownBreathing) return;
     if (sendPaused) return;
 
-    if (supabase && squadId) {
-      void logIntervention(supabase, squadId, 'slow_down_clear');
+    // Auth session + RLS-validated squad row — never authorize from the raw route param alone.
+    const authedUserId = session?.user?.id;
+    if (supabase && authedUserId && squadQuerySuccess && squad) {
+      void logIntervention(supabase, squad.id, 'slow_down_clear');
     }
 
     setSlowDownBreathing(true);

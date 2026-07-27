@@ -39,6 +39,7 @@ const ALLOWLIST = new Set([
   join(root, 'scripts', 'ensure-no-zk-stub-prod.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'ensure-no-demo-decoys-prod.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'ensure-no-demo-login-prod.mjs').replace(/\\/g, '/'),
+  join(root, 'scripts', 'ensure-no-v2-mock-data-prod.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'check-banned-public-copy.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'check-database-types-drift.mjs').replace(/\\/g, '/'),
   join(root, 'scripts', 'bundle-ingest-message.mjs').replace(/\\/g, '/'),

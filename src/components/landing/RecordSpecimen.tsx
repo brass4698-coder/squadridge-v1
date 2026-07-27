@@ -13,7 +13,7 @@ export function RecordSpecimen() {
     <section
       id="record-specimen"
       data-demo="landing-ledger"
-      className="sr-section-enter scroll-mt-24 border-b border-line py-16 md:py-20 lg:py-24"
+      className="sr-section-enter scroll-mt-24 py-16 md:py-20 lg:py-24"
       data-scroll-section
       aria-labelledby="record-specimen-h"
     >

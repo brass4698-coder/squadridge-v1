@@ -26,6 +26,8 @@ The longer civic early-warning → redacted ledger → proposal vision lives in
 
 **Contributor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
 `ai-guidelines.mdc` (optional translation/AI paths). Root `.cursorrules` summarizes both.
+Shared Cursor hooks, MCP, plugins, and extension recommendations:
+[`docs/operations/cursor-tooling.md`](docs/operations/cursor-tooling.md).
 
 ## Stack
 
@@ -83,6 +85,14 @@ supabase/
     deploy-staging.yml
     deploy-supabase-production.yml
     codeql.yml         # CodeQL static analysis
+.cursor/
+  rules/               # Agent rules (.mdc)
+  hooks/               # Project Cursor hooks (Node)
+  hooks.json
+  mcp.json             # Project MCP (no secrets)
+  settings.json        # Cursor plugin enablement
+.agents/skills/        # Vendored Supabase agent skills
+.vscode/               # Shared extensions + workspace settings (see gitignore exceptions)
 ```
 
 ## Feature Flags

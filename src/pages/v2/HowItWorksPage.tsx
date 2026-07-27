@@ -96,7 +96,7 @@ export function HowItWorksPage() {
       <StickySpineNav stages={SPINE_STAGES} aria-label="Configure through Release" />
 
       <section
-        className="scroll-mt-20 border-b border-line py-14 md:py-16"
+        className="scroll-mt-20 py-14 md:py-16"
         aria-labelledby="spine-h"
         data-scroll-section
       >
@@ -195,7 +195,7 @@ export function HowItWorksPage() {
 
       <section
         id="non-consensus"
-        className="scroll-mt-20 border-b border-line py-14 md:py-16"
+        className="scroll-mt-20 py-14 md:py-16"
         aria-labelledby="non-consensus-h"
         data-scroll-section
       >
@@ -257,7 +257,7 @@ export function HowItWorksPage() {
 
       <section
         id="room-record"
-        className="scroll-mt-20 bg-[color:var(--sr-bg-sunken)] py-14 md:py-16"
+        className="scroll-mt-20 bg-surface-secondary/80 py-14 md:py-16"
         data-scroll-section
         aria-labelledby="room-record-h"
         data-demo="how-it-works-guarantees"
@@ -299,7 +299,7 @@ export function HowItWorksPage() {
       </section>
 
       <section
-        className="scroll-mt-20 border-b border-line py-12 md:py-14"
+        className="scroll-mt-20 py-12 md:py-14"
         aria-labelledby="evaluate-h"
         data-scroll-section
       >

@@ -80,7 +80,7 @@ export const IMPLEMENTATION_CLAIMS: readonly ImplementationClaim[] = [
     label: 'Metadata-only audit trail',
     status: 'live',
     summary:
-      'Lifecycle events — verification, room open, approvals, release, failed release attempts — are logged without message bodies.',
+      'Lifecycle events — verification, room open, phase timer/floor/recess, approvals, release, failed release attempts — are logged without message bodies.',
     securityHref: '/security#safeguards',
     spineStage: 'facilitate',
   },

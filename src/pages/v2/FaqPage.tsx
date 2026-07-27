@@ -15,7 +15,7 @@ export function FaqPage() {
         lead="Direct answers — including what SquadRidge is not: surveillance, open chat, or a replacement for professional judgment."
       />
 
-      <section className="scroll-mt-20 border-t border-line py-12 md:py-14" data-scroll-section>
+      <section className="scroll-mt-20 border-t border-line py-12 md:py-16" data-scroll-section>
         <ShellWidth>
           <div className="max-w-measure text-left">
             <FAQAccordion items={faqFull} />

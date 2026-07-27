@@ -1,5 +1,7 @@
 # SquadRidge Flow illustration prompts
 
+> **Optional asset prompts** — not design-system source of truth. Prefer live tokens and components in [`squadridge-trust-ui-kit.md`](./squadridge-trust-ui-kit.md).
+
 Pasteable prompts for Google Flow (or similar) image generation. Keep **product forms** as abstract instrument UI; use these scenes for **marketing** surfaces only.
 
 Security pages stay schematic — see [`institutional-visual-system.md`](institutional-visual-system.md). Do not use lifestyle or padlock-on-shield art on `/security`.

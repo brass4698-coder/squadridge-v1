@@ -1,5 +1,7 @@
 # SquadRidge messaging framework (Pitch Deck Hub)
 
+> **Deck-hub focused.** Public site copy: [`../../src/data/siteMessaging.ts`](../../src/data/siteMessaging.ts). Investor start-here: [`./investor-brief.md`](./investor-brief.md). Product story: [`../product/platform-description.md`](../product/platform-description.md).
+
 ## Purpose
 
 This document explains how **Pitch Deck Hub** messaging in the app ([`src/pitch-deck-hub/initialState.ts`](../../src/pitch-deck-hub/initialState.ts)) relates to:

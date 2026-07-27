@@ -1,5 +1,7 @@
 # Marketing redesign audit (2026-07)
 
+> **Archive / historical.** Decisions below are locked into the live system; do not treat this file as the source of truth. Canonical: [`institutional-visual-system.md`](./institutional-visual-system.md), [`squadridge-trust-ui-kit.md`](./squadridge-trust-ui-kit.md).
+
 Living guide for the institutional marketing surface redesign. Complements
 [`institutional-visual-system.md`](institutional-visual-system.md) and
 [`full-site-visual-direction.md`](full-site-visual-direction.md).

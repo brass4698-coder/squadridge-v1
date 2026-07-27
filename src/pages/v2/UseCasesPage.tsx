@@ -61,7 +61,7 @@ export function UseCasesPage() {
       />
 
       <section
-        className="scroll-mt-20 border-y border-line py-16 md:py-20"
+        className="scroll-mt-20 border-t border-line py-16 md:py-20"
         aria-labelledby="backbone-h"
         data-scroll-section
       >
@@ -118,7 +118,7 @@ export function UseCasesPage() {
 
       <section
         id="vignettes"
-        className="scroll-mt-20 border-t border-line bg-[color:var(--sr-bg-sunken)] py-16 md:py-20"
+        className="scroll-mt-20 bg-surface-secondary/80 py-16 md:py-20"
         aria-labelledby="vignettes-h"
         data-scroll-section
       >
@@ -193,7 +193,7 @@ export function UseCasesPage() {
       </section>
 
       <section
-        className="scroll-mt-20 border-t border-line py-16 md:py-20"
+        className="scroll-mt-20 py-16 md:py-20"
         aria-labelledby="adjacent-h"
         data-scroll-section
       >

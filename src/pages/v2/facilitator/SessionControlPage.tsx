@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SessionResolutionPanel } from '../../../components/facilitator/SessionResolutionPanel';
+import { DeliberationFeed } from '../../../components/session/DeliberationFeed';
 import { DialogueStageMap } from '../../../components/session/DialogueStageMap';
+import { HeatIndicator } from '../../../components/session/HeatIndicator';
 import { RoomPrivacyStatus } from '../../../components/session/RoomPrivacyStatus';
+import { RoomShell } from '../../../components/session/RoomShell';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
 import { RouteSkeleton } from '../../../components/system/RouteSkeleton';
+import { useParticipants } from '../../../hooks/useParticipants';
+import { usePhaseTimer } from '../../../hooks/usePhaseTimer';
 import { useSessionMessages } from '../../../hooks/useSessionMessages';
 import { useSession, useSessions } from '../../../hooks/useSessions';
 import { appRoutes } from '../../../lib/appRoutes';
@@ -16,6 +21,14 @@ import {
   type DialogueStage,
 } from '../../../lib/dialogueStages';
 import { facilitatorAdvanceDialogueStage } from '../../../lib/outcomeReview';
+import {
+  facilitatorExtendPhaseTimer,
+  facilitatorInvokeRecess,
+  facilitatorPausePhaseTimer,
+  facilitatorSetFloor,
+  facilitatorStartPhaseTimer,
+  type PhaseTimerState,
+} from '../../../lib/phaseTimer';
 import { sessionUsesResolutionWorkflow } from '../../../lib/sessionResolutions';
 import {
   facilitatorSetRoomPacing,
@@ -38,6 +51,7 @@ export function SessionControlPage() {
   const navigate = useNavigate();
   const { session, loading } = useSession(sessionId);
   const { updateSessionStatus } = useSessions();
+  const { participants } = useParticipants(sessionId);
   const { messages, sendMessage, connectionStatus, retryConnection, privacyState, cryptoError } =
     useSessionMessages(sessionId);
   const [roomStatus, setRoomStatus] = useState<RoomStatus>('waiting');
@@ -50,6 +64,23 @@ export function SessionControlPage() {
   const [pacingBusy, setPacingBusy] = useState(false);
   const [dialogueStage, setDialogueStage] = useState<DialogueStage>('preparation');
   const [stageBusy, setStageBusy] = useState(false);
+  const [quietMode, setQuietMode] = useState(false);
+  const [extendReason, setExtendReason] = useState('');
+  const [recessSecondsLeft, setRecessSecondsLeft] = useState<number | null>(null);
+  const [floorBusy, setFloorBusy] = useState(false);
+
+  const phaseTimer = usePhaseTimer({
+    sessionId,
+    canMarkElapsed: roomStatus === 'live' || roomStatus === 'paused',
+    initial: session
+      ? {
+          phase_started_at: session.phase_started_at,
+          phase_duration_seconds: session.phase_duration_seconds,
+          phase_timer_state: session.phase_timer_state as PhaseTimerState,
+          session_ends_at: session.session_ends_at,
+        }
+      : null,
+  });
 
   const showResolutions = sessionUsesResolutionWorkflow(
     session?.template_id,
@@ -59,7 +90,23 @@ export function SessionControlPage() {
   useEffect(() => {
     setRoomStatus(mapSessionStatus(session?.status));
     setDialogueStage(parseDialogueStage(session?.dialogue_stage));
-  }, [session?.status, session?.dialogue_stage]);
+    if (session) {
+      phaseTimer.resync({
+        phase_started_at: session.phase_started_at,
+        phase_duration_seconds: session.phase_duration_seconds,
+        phase_timer_state: session.phase_timer_state as PhaseTimerState,
+        session_ends_at: session.session_ends_at,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync when session row loads
+  }, [
+    session?.status,
+    session?.dialogue_stage,
+    session?.phase_started_at,
+    session?.phase_duration_seconds,
+    session?.phase_timer_state,
+    session?.session_ends_at,
+  ]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -99,7 +146,11 @@ export function SessionControlPage() {
           filter: `id=eq.${sessionId}`,
         },
         (payload) => {
-          const row = payload.new as { dialogue_stage?: string; status?: string } | null;
+          const row = payload.new as {
+            dialogue_stage?: string;
+            status?: string;
+            floor_holder_participant_id?: string | null;
+          } | null;
           if (row?.dialogue_stage) setDialogueStage(parseDialogueStage(row.dialogue_stage));
           if (row?.status) setRoomStatus(mapSessionStatus(row.status));
         },
@@ -112,10 +163,39 @@ export function SessionControlPage() {
     };
   }, [sessionId]);
 
+  useEffect(() => {
+    if (recessSecondsLeft == null || recessSecondsLeft <= 0) return;
+    const id = window.setInterval(() => {
+      setRecessSecondsLeft((s) => (s == null || s <= 1 ? null : s - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [recessSecondsLeft]);
+
   const status = roomStatus;
   const stageConfig = DIALOGUE_STAGE_CONFIGS[dialogueStage];
   const nextStage = nextDialogueStage(dialogueStage);
   const prevStage = previousDialogueStage(dialogueStage);
+  const floorId = session?.floor_holder_participant_id ?? null;
+
+  const roster = useMemo(
+    () =>
+      participants.map((p) => ({
+        id: p.id,
+        label: p.codename,
+        status: p.verification_status,
+        hasFloor: floorId === p.id,
+        heatSlot: <HeatIndicator tensionLevel={p.tone_signal} />,
+      })),
+    [participants, floorId],
+  );
+
+  const ambientHeat = useMemo(() => {
+    const scores = participants
+      .map((p) => p.tone_signal)
+      .filter((n): n is number => typeof n === 'number');
+    if (scores.length === 0) return null;
+    return Math.max(...scores);
+  }, [participants]);
 
   async function applyPacing(mode: RoomPacingMode) {
     if (!sessionId) return;
@@ -153,6 +233,8 @@ export function SessionControlPage() {
       setRoomStatus('live');
       if (dialogueStage === 'preparation') {
         await advanceStage('opening');
+      } else {
+        await facilitatorStartPhaseTimer(sessionId);
       }
     } catch (err) {
       setTransitionError(
@@ -169,6 +251,7 @@ export function SessionControlPage() {
     try {
       await updateSessionStatus(sessionId, 'paused');
       setRoomStatus('paused');
+      await facilitatorPausePhaseTimer(sessionId, 'Session paused');
     } catch (err) {
       setTransitionError(err instanceof Error ? err.message : 'Could not pause session.');
     }
@@ -206,6 +289,53 @@ export function SessionControlPage() {
     setFacilitatorInput('');
   }
 
+  async function onExtend() {
+    if (!sessionId) return;
+    setPacingBusy(true);
+    const result = await facilitatorExtendPhaseTimer(
+      sessionId,
+      300,
+      extendReason.trim() || 'Facilitator extended the phase budget',
+    );
+    setPacingBusy(false);
+    if (!result.ok) setTransitionError(result.error ?? 'Could not extend timer.');
+    else setExtendReason('');
+  }
+
+  async function onPauseTimer() {
+    if (!sessionId) return;
+    setPacingBusy(true);
+    const result = await facilitatorPausePhaseTimer(
+      sessionId,
+      extendReason.trim() || 'Facilitator paused the phase timer',
+    );
+    setPacingBusy(false);
+    if (!result.ok) setTransitionError(result.error ?? 'Could not pause timer.');
+  }
+
+  async function onRecess() {
+    if (!sessionId) return;
+    setPacingBusy(true);
+    const result = await facilitatorInvokeRecess(sessionId);
+    setPacingBusy(false);
+    if (!result.ok) {
+      setTransitionError(result.error ?? 'Could not start recess.');
+      return;
+    }
+    setPacingMode('paused');
+    setRoomStatus('paused');
+    setRecessSecondsLeft(result.recess_seconds ?? 90);
+  }
+
+  async function onToggleFloor(participantId: string) {
+    if (!sessionId) return;
+    setFloorBusy(true);
+    const next = floorId === participantId ? null : participantId;
+    const result = await facilitatorSetFloor(sessionId, next);
+    setFloorBusy(false);
+    if (!result.ok) setTransitionError(result.error ?? 'Could not update floor.');
+  }
+
   if (loading) return <RouteSkeleton label="Loading session" />;
 
   if (!session && !loading) {
@@ -233,76 +363,166 @@ export function SessionControlPage() {
     ended: 'Ended',
   };
 
+  const sessionIdShort = (sessionId ?? '').slice(0, 8);
+
   return (
     <>
-      <div
-        className="sr-mode-room mx-auto max-w-2xl rounded-lg border border-[color:var(--sr-mode-room-border)] p-5 md:p-6"
-        data-demo="session-control"
-      >
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-ink-secondary">
-              Facilitator room
-            </p>
-            <h1 className="text-xl font-semibold text-ink">{session?.title ?? 'Session'}</h1>
-            <p className="mt-1 text-xs text-ink-faint">
-              Guided resolution instrument — advance stages deliberately; room content stays
-              private.
-            </p>
-          </div>
-          <span className="rounded bg-surface-sunken px-2.5 py-1 text-xs font-semibold tabular-nums text-ink">
-            {statusLabel[status]}
-          </span>
-        </div>
-
-        <RoomPrivacyStatus
-          className="mb-4"
-          variant={privacyState === 'sealed_app_layer' ? 'sealed_app_layer' : privacyState}
-          detail={cryptoError}
-        />
-
-        {session?.issue_goal ? (
-          <div className="mb-4 rounded-lg bg-surface-secondary px-4 py-3 text-sm text-ink-secondary shadow-sr-sm">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
-              Issue goal
-            </p>
-            <p className="mt-1 text-ink">{session.issue_goal}</p>
-          </div>
-        ) : null}
-
-        <div className="mb-6 rounded-lg bg-surface-elevated p-4 shadow-sr-card">
-          <DialogueStageMap current={dialogueStage} />
-          <p className="mt-2 text-xs text-ink-faint">
-            Participants may post only in Story, Framing, Options, and Review. You always control
-            prompts and pacing.
-          </p>
-          {(status === 'live' || status === 'paused') && dialogueStage !== 'outcome_ready' ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={stageBusy || !prevStage}
-                onClick={() => prevStage && void advanceStage(prevStage)}
-                className="min-h-[44px] rounded border border-line px-4 py-2 text-sm font-medium text-ink-secondary disabled:opacity-40"
-              >
-                Step back
-              </button>
-              <button
-                type="button"
-                disabled={stageBusy || !nextStage}
-                onClick={() => nextStage && void advanceStage(nextStage)}
-                className="btn-pill btn-pill--primary min-h-[44px] text-sm disabled:opacity-40"
-              >
-                {nextStage
-                  ? `Advance to ${DIALOGUE_STAGE_CONFIGS[nextStage].label}`
-                  : 'Final stage'}
-              </button>
+      <div className="mx-auto max-w-6xl p-4 md:p-6" data-demo="session-control">
+        <RoomShell
+          sessionTitle={session?.title ?? 'Session'}
+          sessionIdShort={sessionIdShort || '—'}
+          dialogueStage={dialogueStage}
+          quietMode={quietMode}
+          onQuietModeChange={setQuietMode}
+          remainingSeconds={phaseTimer.remainingSeconds}
+          durationSeconds={phaseTimer.durationSeconds}
+          timerState={phaseTimer.timerState}
+          urgency={phaseTimer.urgency}
+          roster={roster}
+          ambientHeat={ambientHeat}
+          topExtra={
+            <>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-2">
+                <RoomPrivacyStatus
+                  className="flex-1"
+                  variant={privacyState === 'sealed_app_layer' ? 'sealed_app_layer' : privacyState}
+                  detail={cryptoError}
+                />
+                <span className="rounded bg-surface-sunken px-2.5 py-1 text-xs font-semibold tabular-nums text-ink">
+                  {statusLabel[status]}
+                </span>
+              </div>
+              {recessSecondsLeft != null ? (
+                <div
+                  className="border-b border-sem-warning/40 bg-sem-warning-soft px-4 py-3 text-center text-sm text-ink"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Pause — {recessSecondsLeft}s. Take a breath; posting stays limited until you clear
+                  pacing.
+                </div>
+              ) : null}
+              {phaseTimer.timerState === 'elapsed' ? (
+                <div
+                  className="border-b border-line bg-surface-secondary px-4 py-2 text-center text-xs text-ink-secondary"
+                  role="status"
+                >
+                  Phase time has elapsed. Advance the stage when the room is ready — stages do not
+                  advance automatically.
+                </div>
+              ) : null}
+            </>
+          }
+          docketExtra={
+            <div className="mt-4 space-y-3">
+              <DialogueStageMap current={dialogueStage} compact />
+              {session?.issue_goal ? (
+                <p className="text-xs text-ink-secondary">
+                  <span className="font-medium text-ink">Issue: </span>
+                  {session.issue_goal}
+                </p>
+              ) : null}
+              {(status === 'live' || status === 'paused') && dialogueStage !== 'outcome_ready' ? (
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    disabled={stageBusy || !prevStage}
+                    onClick={() => prevStage && void advanceStage(prevStage)}
+                    className="min-h-[44px] rounded border border-line px-3 py-2 text-xs font-medium text-ink-secondary disabled:opacity-40"
+                  >
+                    Step back
+                  </button>
+                  <button
+                    type="button"
+                    disabled={stageBusy || !nextStage}
+                    onClick={() => nextStage && void advanceStage(nextStage)}
+                    className="btn-pill btn-pill--primary min-h-[44px] text-xs disabled:opacity-40"
+                  >
+                    {nextStage
+                      ? `Advance to ${DIALOGUE_STAGE_CONFIGS[nextStage].label}`
+                      : 'Final stage'}
+                  </button>
+                </div>
+              ) : null}
+              {participants.length > 0 && (status === 'live' || status === 'paused') ? (
+                <div className="space-y-1">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-faint">
+                    Floor
+                  </p>
+                  {participants.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      disabled={floorBusy}
+                      onClick={() => void onToggleFloor(p.id)}
+                      className={`block w-full min-h-[40px] rounded border px-2 py-1.5 text-left text-xs disabled:opacity-50 ${
+                        floorId === p.id
+                          ? 'border-brand/50 bg-brand-soft text-ink'
+                          : 'border-line text-ink-secondary'
+                      }`}
+                    >
+                      {floorId === p.id ? `Clear floor · ${p.codename}` : `Grant · ${p.codename}`}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
-          ) : null}
-        </div>
+          }
+          feed={
+            <DeliberationFeed
+              messages={messages}
+              phaseLabel={stageConfig.label}
+              floorCodename={participants.find((p) => p.id === floorId)?.codename ?? null}
+              emptyHeading={
+                status === 'waiting'
+                  ? 'Room is waiting'
+                  : status === 'ended'
+                    ? 'Room closed'
+                    : 'No messages yet'
+              }
+              emptyBody={
+                status === 'waiting'
+                  ? 'Start the session when participants are ready.'
+                  : status === 'ended'
+                    ? 'Draft the outcome when you are ready to open participant review.'
+                    : 'Post a stage prompt to open the round.'
+              }
+            />
+          }
+          composer={
+            status === 'live' || status === 'paused' ? (
+              <div className="border-t border-line p-3">
+                {sendError ? (
+                  <p className="mb-2 text-sm text-sem-danger" role="alert">
+                    {sendError}
+                  </p>
+                ) : null}
+                <div className="flex gap-2">
+                  <textarea
+                    rows={2}
+                    value={facilitatorInput}
+                    onChange={(e) => setFacilitatorInput(e.target.value)}
+                    placeholder={`Stage prompt (${stageConfig.label})…`}
+                    className="flex-1 resize-none rounded border border-line bg-surface px-3 py-2 text-sm text-ink"
+                    disabled={privacyState === 'key_error'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void sendFacilitatorMessage()}
+                    className="btn-pill btn-pill--primary shrink-0 self-end text-sm"
+                    disabled={privacyState === 'key_error'}
+                  >
+                    Send prompt
+                  </button>
+                </div>
+              </div>
+            ) : null
+          }
+        />
 
         {transitionError ? (
           <div
-            className="mb-4 rounded-lg border border-sem-danger/40 bg-sem-danger-soft px-4 py-3 text-sm text-sem-danger"
+            className="mt-4 rounded-lg border border-sem-danger/40 bg-sem-danger-soft px-4 py-3 text-sm text-sem-danger"
             role="alert"
           >
             {transitionError}
@@ -322,7 +542,7 @@ export function SessionControlPage() {
 
         {connectionStatus !== 'live' && connectionStatus !== 'idle' ? (
           <div
-            className="mb-4 rounded-lg bg-surface-secondary px-4 py-3 text-sm text-ink-secondary shadow-sr-sm"
+            className="mt-4 rounded-lg bg-surface-secondary px-4 py-3 text-sm text-ink-secondary shadow-sr-sm"
             role="status"
             aria-live="polite"
           >
@@ -345,7 +565,7 @@ export function SessionControlPage() {
           </div>
         ) : null}
 
-        <div className="mb-6 flex flex-wrap gap-3 rounded-lg bg-surface-elevated p-4 shadow-sr-card">
+        <div className="mt-4 flex flex-wrap gap-3 rounded-lg bg-surface-elevated p-4 shadow-sr-card">
           {status === 'waiting' && (
             <button
               type="button"
@@ -407,14 +627,14 @@ export function SessionControlPage() {
         </div>
 
         {status === 'live' || status === 'paused' ? (
-          <div className="mb-6 rounded-lg bg-surface-secondary/80 p-4 shadow-sr-sm">
+          <div className="mt-4 rounded-lg bg-surface-secondary/80 p-4 shadow-sr-sm">
             <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
               De-escalation · Power of Pause
             </p>
             <p className="mb-3 text-xs text-ink-secondary">
               {pacingCopy(pacingMode).body} Current: {pacingCopy(pacingMode).title}.
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="mb-3 flex flex-wrap gap-2">
               <button
                 type="button"
                 disabled={pacingBusy}
@@ -441,6 +661,14 @@ export function SessionControlPage() {
               </button>
               <button
                 type="button"
+                disabled={pacingBusy}
+                onClick={() => void onRecess()}
+                className="min-h-[44px] rounded border border-sem-warning/50 px-4 py-2 text-sm font-medium text-ink disabled:opacity-50"
+              >
+                Recess (90s)
+              </button>
+              <button
+                type="button"
                 disabled={pacingBusy || pacingMode === 'normal'}
                 onClick={() => void applyPacing('normal')}
                 className="min-h-[44px] rounded border border-brand/40 px-4 py-2 text-sm font-medium text-brand disabled:opacity-50"
@@ -448,78 +676,45 @@ export function SessionControlPage() {
                 Clear pacing
               </button>
             </div>
+            <div className="flex flex-wrap items-end gap-2 border-t border-line/60 pt-3">
+              <label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs text-ink-secondary">
+                Timer reason (optional)
+                <input
+                  value={extendReason}
+                  onChange={(e) => setExtendReason(e.target.value)}
+                  className="min-h-[44px] rounded border border-line bg-surface px-3 text-sm text-ink"
+                  placeholder="Why pause or extend…"
+                />
+              </label>
+              <button
+                type="button"
+                disabled={pacingBusy || phaseTimer.timerState !== 'running'}
+                onClick={() => void onPauseTimer()}
+                className="min-h-[44px] rounded border border-line px-4 py-2 text-sm font-medium text-ink disabled:opacity-50"
+              >
+                Pause timer
+              </button>
+              <button
+                type="button"
+                disabled={pacingBusy}
+                onClick={() => void onExtend()}
+                className="min-h-[44px] rounded border border-brand/40 px-4 py-2 text-sm font-medium text-brand disabled:opacity-50"
+              >
+                Extend +5 min
+              </button>
+            </div>
           </div>
         ) : null}
 
-        <div className="rounded-lg bg-surface-elevated shadow-sr-card">
-          <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">
-              Staged dialogue · {stageConfig.label}
-            </p>
-            <p className="text-xs text-ink-faint">Private to session · not published on release</p>
-          </div>
-          <div className="flex max-h-96 flex-col gap-4 overflow-y-auto p-5">
-            {messages.length === 0 ? (
-              <p className="py-6 text-center text-sm text-ink-secondary">
-                {status === 'waiting'
-                  ? 'Room is waiting. Start the session when participants are ready.'
-                  : status === 'ended'
-                    ? 'Room closed. Draft the outcome when you are ready to open participant review.'
-                    : 'No messages yet. Post a stage prompt to open the round.'}
-              </p>
-            ) : (
-              messages.map((m) => (
-                <div key={m.id}>
-                  <div className="mb-0.5 flex items-baseline gap-2">
-                    <span className="text-xs font-semibold text-ink">{m.sender_label}</span>
-                    <span className="text-xs text-ink-faint">
-                      {new Date(m.sent_at).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </div>
-                  <p className="text-sm text-ink">{m.body}</p>
-                </div>
-              ))
-            )}
-          </div>
-          {status === 'live' || status === 'paused' ? (
-            <div className="border-t border-line p-4">
-              {sendError ? (
-                <p className="mb-2 text-sm text-sem-danger" role="alert">
-                  {sendError}
-                </p>
-              ) : null}
-              <div className="flex gap-2">
-                <textarea
-                  rows={2}
-                  value={facilitatorInput}
-                  onChange={(e) => setFacilitatorInput(e.target.value)}
-                  placeholder={`Stage prompt (${stageConfig.label})…`}
-                  className="flex-1 resize-none rounded border border-line bg-surface px-3 py-2 text-sm text-ink"
-                  disabled={privacyState === 'key_error'}
-                />
-                <button
-                  type="button"
-                  onClick={() => void sendFacilitatorMessage()}
-                  className="btn-pill btn-pill--primary shrink-0 self-end text-sm"
-                  disabled={privacyState === 'key_error'}
-                >
-                  Send prompt
-                </button>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
         {showResolutions && sessionId ? (
-          <SessionResolutionPanel
-            sessionId={sessionId}
-            setupConfig={session?.setup_config}
-            roomActive={status === 'live' || status === 'paused'}
-            onShortlistReady={setOutcomeImport}
-          />
+          <div className="mt-4">
+            <SessionResolutionPanel
+              sessionId={sessionId}
+              setupConfig={session?.setup_config}
+              roomActive={status === 'live' || status === 'paused'}
+              onShortlistReady={setOutcomeImport}
+            />
+          </div>
         ) : null}
       </div>
 

@@ -3,14 +3,12 @@ import { TrustBoundaryBlock } from '../shared/TrustBoundaryBlock';
 import { SectionLabel } from '../SectionLabel';
 import { publicShellInnerClass } from '../layout/publicShellTokens';
 
-/**
- * Sole homepage home for documented limits — diligence table + honest layer claims.
- */
+/** Homepage documented limits — honesty table, not marketing posture. */
 export function BoundarySection() {
   return (
     <section
       id="documented-limits"
-      className="sr-section-enter scroll-mt-24 border-b border-line py-16 md:py-20"
+      className="sr-section-enter scroll-mt-24 bg-surface-secondary/80 py-16 md:py-20"
       data-scroll-section
       aria-labelledby="boundary-h"
     >

@@ -16,6 +16,14 @@ export interface ParticipantPacingState {
   session_status?: string;
   dialogue_stage?: string;
   participant_posting_allowed?: boolean;
+  phase_timer_state?: 'idle' | 'running' | 'paused' | 'elapsed';
+  phase_started_at?: string | null;
+  phase_duration_seconds?: number | null;
+  phase_remaining_seconds?: number | null;
+  session_ends_at?: string | null;
+  floor_holder_participant_id?: string | null;
+  floor_holder_codename?: string | null;
+  server_now?: string | null;
 }
 
 const DEMO_PACING: ParticipantPacingState = {
@@ -28,6 +36,14 @@ const DEMO_PACING: ParticipantPacingState = {
   session_status: 'live',
   dialogue_stage: 'story',
   participant_posting_allowed: true,
+  phase_timer_state: 'running',
+  phase_started_at: new Date(Date.now() - 60_000).toISOString(),
+  phase_duration_seconds: 1800,
+  phase_remaining_seconds: 1740,
+  session_ends_at: null,
+  floor_holder_participant_id: null,
+  floor_holder_codename: null,
+  server_now: new Date().toISOString(),
 };
 
 export async function facilitatorSetRoomPacing(

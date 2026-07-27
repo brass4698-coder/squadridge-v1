@@ -132,7 +132,7 @@ export function AboutPage() {
           </p>
         }
       />
-      <MarketingSection id="who" tone="bordered" density="compact">
+      <MarketingSection id="who" density="compact" className="border-t border-line">
         <ShellWidth>
           <ProseMeasure>
             <SectionLabel>Who is building this</SectionLabel>
@@ -216,7 +216,7 @@ export function AboutPage() {
           </div>
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection id="commitments" tone="bordered" density="compact">
+      <MarketingSection id="commitments" density="compact">
         <ShellWidth>
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-10">
             <div>

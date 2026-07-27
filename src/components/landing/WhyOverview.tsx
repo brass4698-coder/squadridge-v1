@@ -8,7 +8,7 @@ export function WhyOverview() {
     <section
       id="why"
       data-demo="landing-why"
-      className="sr-section-enter scroll-mt-24 border-b border-line py-16 md:py-20"
+      className="sr-section-enter scroll-mt-24 border-t border-line py-16 md:py-20"
       data-scroll-section
       aria-labelledby="why-h"
     >

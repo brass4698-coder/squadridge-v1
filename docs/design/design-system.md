@@ -1,5 +1,7 @@
 # Design System
 
+> **Canonical for tokens & component rules.** Concrete kit: [`squadridge-trust-ui-kit.md`](./squadridge-trust-ui-kit.md). Marketing art direction: [`institutional-visual-system.md`](./institutional-visual-system.md). Site-wide direction: [`full-site-visual-direction.md`](./full-site-visual-direction.md). Audit notes in `marketing-redesign-audit.md` are historical.
+
 ## Overview
 
 The SquadRidge design system uses a dark, calm **global civic** aesthetic: clarity, neutrality, and accessibility for structured dialogue and de-escalation. Visual language should feel stable and supportive — never alarmist, punitive, or militarized.

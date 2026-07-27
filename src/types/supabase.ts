@@ -1228,6 +1228,8 @@ export type Database = {
           left_at: string | null;
           participation_reason: string | null;
           session_id: string;
+          tone_signal: number | null;
+          tone_signal_at: string | null;
           updated_at: string;
           verification_status: string;
         };
@@ -1245,6 +1247,8 @@ export type Database = {
           left_at?: string | null;
           participation_reason?: string | null;
           session_id: string;
+          tone_signal?: number | null;
+          tone_signal_at?: string | null;
           updated_at?: string;
           verification_status?: string;
         };
@@ -1262,6 +1266,8 @@ export type Database = {
           left_at?: string | null;
           participation_reason?: string | null;
           session_id?: string;
+          tone_signal?: number | null;
+          tone_signal_at?: string | null;
           updated_at?: string;
           verification_status?: string;
         };
@@ -1657,6 +1663,35 @@ export type Database = {
           },
         ];
       };
+      session_room_keys: {
+        Row: {
+          created_at: string;
+          key_epoch: number;
+          message_encryption_key: string;
+          session_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          key_epoch?: number;
+          message_encryption_key: string;
+          session_id: string;
+        };
+        Update: {
+          created_at?: string;
+          key_epoch?: number;
+          message_encryption_key?: string;
+          session_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_room_keys_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: true;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       session_room_pacing: {
         Row: {
           pacing_mode: string;
@@ -1707,13 +1742,19 @@ export type Database = {
           disclosure_boundaries: string | null;
           eligibility_notes: string | null;
           facilitator_id: string;
+          floor_holder_participant_id: string | null;
           id: string;
           identity_verification_required: boolean;
           issue_goal: string | null;
           language: string;
           max_participants: number;
           outcome_public: boolean;
+          phase_budgets: Json;
+          phase_duration_seconds: number | null;
+          phase_started_at: string | null;
+          phase_timer_state: string;
           risk_notes: string | null;
+          session_ends_at: string | null;
           setup_config: Json;
           status: string;
           template_id: string | null;
@@ -1727,13 +1768,19 @@ export type Database = {
           disclosure_boundaries?: string | null;
           eligibility_notes?: string | null;
           facilitator_id: string;
+          floor_holder_participant_id?: string | null;
           id?: string;
           identity_verification_required?: boolean;
           issue_goal?: string | null;
           language?: string;
           max_participants?: number;
           outcome_public?: boolean;
+          phase_budgets?: Json;
+          phase_duration_seconds?: number | null;
+          phase_started_at?: string | null;
+          phase_timer_state?: string;
           risk_notes?: string | null;
+          session_ends_at?: string | null;
           setup_config?: Json;
           status?: string;
           template_id?: string | null;
@@ -1747,20 +1794,34 @@ export type Database = {
           disclosure_boundaries?: string | null;
           eligibility_notes?: string | null;
           facilitator_id?: string;
+          floor_holder_participant_id?: string | null;
           id?: string;
           identity_verification_required?: boolean;
           issue_goal?: string | null;
           language?: string;
           max_participants?: number;
           outcome_public?: boolean;
+          phase_budgets?: Json;
+          phase_duration_seconds?: number | null;
+          phase_started_at?: string | null;
+          phase_timer_state?: string;
           risk_notes?: string | null;
+          session_ends_at?: string | null;
           setup_config?: Json;
           status?: string;
           template_id?: string | null;
           title?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'sessions_floor_holder_participant_id_fkey';
+            columns: ['floor_holder_participant_id'];
+            isOneToOne: false;
+            referencedRelation: 'participants';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       squad_members: {
         Row: {
@@ -2281,6 +2342,41 @@ export type Database = {
       };
     };
     Functions: {
+      _assert_session_facilitator: {
+        Args: { p_session_id: string };
+        Returns: {
+          conflict_type: string;
+          created_at: string;
+          dialogue_stage: string;
+          disclosure_boundaries: string | null;
+          eligibility_notes: string | null;
+          facilitator_id: string;
+          floor_holder_participant_id: string | null;
+          id: string;
+          identity_verification_required: boolean;
+          issue_goal: string | null;
+          language: string;
+          max_participants: number;
+          outcome_public: boolean;
+          phase_budgets: Json;
+          phase_duration_seconds: number | null;
+          phase_started_at: string | null;
+          phase_timer_state: string;
+          risk_notes: string | null;
+          session_ends_at: string | null;
+          setup_config: Json;
+          status: string;
+          template_id: string | null;
+          title: string;
+          updated_at: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'sessions';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       _log_session_audit_event_internal: {
         Args: {
           p_actor_id?: string;
@@ -2353,6 +2449,10 @@ export type Database = {
         };
         Returns: Json;
       };
+      default_phase_budgets_for_template: {
+        Args: { p_template_id: string };
+        Returns: Json;
+      };
       dialogue_stage_allows_participant_post: {
         Args: { p_stage: string };
         Returns: boolean;
@@ -2370,6 +2470,18 @@ export type Database = {
         Args: { p_outcome_id: string; p_statement?: string };
         Returns: Json;
       };
+      facilitator_extend_phase_timer: {
+        Args: {
+          p_extra_seconds: number;
+          p_reason?: string;
+          p_session_id: string;
+        };
+        Returns: Json;
+      };
+      facilitator_get_or_create_room_key: {
+        Args: { p_session_id: string };
+        Returns: Json;
+      };
       facilitator_get_outcome_notes: {
         Args: { p_outcome_id: string };
         Returns: Json;
@@ -2378,12 +2490,28 @@ export type Database = {
         Args: { p_outcome_id: string };
         Returns: Json;
       };
+      facilitator_invoke_recess: {
+        Args: { p_message?: string; p_session_id: string };
+        Returns: Json;
+      };
+      facilitator_mark_phase_elapsed: {
+        Args: { p_session_id: string; p_system_body?: string };
+        Returns: Json;
+      };
+      facilitator_pause_phase_timer: {
+        Args: { p_reason?: string; p_session_id: string };
+        Returns: Json;
+      };
       facilitator_seed_outcome_approvals: {
         Args: { p_outcome_id: string };
         Returns: Json;
       };
       facilitator_set_approval_status: {
         Args: { p_approval_id: string; p_status: string };
+        Returns: Json;
+      };
+      facilitator_set_floor: {
+        Args: { p_participant_id?: string; p_session_id: string };
         Returns: Json;
       };
       facilitator_set_participant_verification: {
@@ -2397,6 +2525,10 @@ export type Database = {
           p_restrict_minutes?: number;
           p_session_id: string;
         };
+        Returns: Json;
+      };
+      facilitator_start_phase_timer: {
+        Args: { p_duration_seconds?: number; p_session_id: string };
         Returns: Json;
       };
       finalize_demo_session_claim: {
@@ -2453,6 +2585,7 @@ export type Database = {
         Args: { p_text: string };
         Returns: boolean;
       };
+      is_aes_gcm_v3_payload: { Args: { p_body: string }; Returns: boolean };
       issue_deck_invite: {
         Args: {
           p_audience_scopes?: string[];
@@ -2602,6 +2735,7 @@ export type Database = {
         Returns: Json;
       };
       participant_get_pacing: { Args: { p_token: string }; Returns: Json };
+      participant_get_room_key: { Args: { p_token: string }; Returns: Json };
       participant_list_messages: { Args: { p_token: string }; Returns: Json };
       participant_mark_document_submitted: {
         Args: { p_token: string };
@@ -2618,6 +2752,10 @@ export type Database = {
           p_storage_path: string;
           p_token: string;
         };
+        Returns: Json;
+      };
+      participant_report_tone_signal: {
+        Args: { p_tension_level: number; p_token: string };
         Returns: Json;
       };
       participant_request_slow_down: {
@@ -2670,6 +2808,19 @@ export type Database = {
           isOneToOne: true;
           isSetofReturn: false;
         };
+      };
+      session_phase_budget_seconds: {
+        Args: { p_budgets: Json; p_stage: string };
+        Returns: number;
+      };
+      session_phase_remaining_seconds: {
+        Args: {
+          p_duration_seconds: number;
+          p_now?: string;
+          p_started_at: string;
+          p_timer_state: string;
+        };
+        Returns: number;
       };
       submit_access_request: {
         Args: {

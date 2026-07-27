@@ -551,12 +551,7 @@ export function SecurityPage() {
           </p>
         </ShellWidth>
       </MarketingSection>
-      <MarketingSection
-        id="reviewer-appendix"
-        tone="bordered"
-        density="compact"
-        className="scroll-mt-28"
-      >
+      <MarketingSection id="reviewer-appendix" density="compact" className="scroll-mt-28">
         <ShellWidth>
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:gap-16">
             <div className="max-w-measure">

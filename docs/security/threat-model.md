@@ -164,6 +164,7 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | 2026-07-25 | Ledger integrity: SHA-256 `ledger_sha` remains the shipped claim. Optional RFC 3161 columns (`timestamp_token` et al.) are schema scaffold only — no live TSA; do not claim trusted time or court-admissible timestamps. Ombuds IOA alignment is architectural language only (not certification/privilege). See [`institutional-credibility-research.md`](../product/institutional-credibility-research.md). |
 | 2026-07-26 | §5: v2 facilitated rooms move from plaintext `session_messages.body` to application-layer AES-GCM v3 with keys in `session_room_keys`. Still operator-readable; operator-blind E2E remains ADR 005 / PLANNED. |
 | 2026-07-26 | §6 ops checklist: optional Platform Audit Logs / Audit Log Drain gate on Team/Enterprise (org dashboard actions; distinct from app moderation audit). |
+| 2026-07-26 | Room experience on `sessions` (not a parallel rooms schema): per-session `phase_budgets` / phase timer / floor / optional `participants.tone_signal`. Timer-zero system notes use the same AES-GCM ciphertext path (`Room note`). Tone heat is a private author nudge + quiet facilitator roster cue — not public shame labels, not a remote LLM. See [`docs/room-experience.md`](../room-experience.md). |
 
 ---
 

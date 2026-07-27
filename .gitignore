@@ -23,9 +23,14 @@ supabase/functions/.env
 supabase/.branches
 supabase/.temp
 
-# Editor / OS
-.vscode/
+# Editor / OS — share recommendations + workspace defaults; ignore personal IDE state
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
 .idea/
+# Optional local MCP overrides (secrets). Prefer user-global ~/.cursor/mcp.json instead.
+.cursor/mcp.local.json
 *.suo
 *.ntvs*
 *.njsproj

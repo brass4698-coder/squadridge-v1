@@ -73,6 +73,10 @@
   /* ── Atmosphere — quiet; no neon bloom ──────────────────────────── */
   --sr-glow: transparent;
   --sr-glow-secondary: transparent;
+  /* Film grain (GrainOverlay) — visible texture, still institutional */
+  --sr-grain-opacity: 0.095;
+  --sr-grain-size: 152px;
+  --sr-grain-z: 1;
 
   /* ── Semantic ───────────────────────────────────────────────────── */
   --sr-success: #30d158;

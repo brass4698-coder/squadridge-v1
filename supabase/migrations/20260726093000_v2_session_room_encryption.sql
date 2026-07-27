@@ -210,13 +210,15 @@ as $$
 declare
   v_ctx jsonb;
   v_key text;
+  v_epoch integer;
 begin
   v_ctx := public._participant_room_gate(p_token, false);
   if not (v_ctx->>'valid')::boolean then
     return v_ctx;
   end if;
 
-  select k.message_encryption_key into v_key
+  select k.message_encryption_key, k.key_epoch
+  into v_key, v_epoch
   from public.session_room_keys k
   where k.session_id = (v_ctx->>'session_id')::uuid;
 
@@ -228,7 +230,7 @@ begin
     'valid', true,
     'session_id', v_ctx->>'session_id',
     'message_encryption_key', v_key,
-    'key_epoch', 1
+    'key_epoch', coalesce(v_epoch, 1)
   );
 end;
 $$;

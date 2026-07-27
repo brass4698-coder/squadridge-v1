@@ -31,7 +31,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { execFileSync } from 'node:child_process';
-import { writeFileSync, unlinkSync } from 'node:fs';
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -60,9 +60,16 @@ const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
  * as `accept_invite`). PostgREST upserts cannot set that GUC.
  */
 function runLinkedSql(sql) {
-  const sqlPath = join(tmpdir(), `squadridge-seed-demo-${Date.now()}.sql`);
-  writeFileSync(sqlPath, sql, 'utf8');
+  // Private dir + restrictive file mode — avoid predictable paths in the shared temp root.
+  const dir = mkdtempSync(join(tmpdir(), 'squadridge-seed-demo-'));
   try {
+    try {
+      chmodSync(dir, 0o700);
+    } catch {
+      /* Windows may ignore mode; directory is still uniquely named */
+    }
+    const sqlPath = join(dir, 'seed.sql');
+    writeFileSync(sqlPath, sql, { encoding: 'utf8', mode: 0o600 });
     execFileSync(
       'npx',
       ['supabase', 'db', 'query', '--linked', '--agent=no', '-f', sqlPath],
@@ -70,7 +77,7 @@ function runLinkedSql(sql) {
     );
   } finally {
     try {
-      unlinkSync(sqlPath);
+      rmSync(dir, { recursive: true, force: true });
     } catch {
       /* ignore */
     }

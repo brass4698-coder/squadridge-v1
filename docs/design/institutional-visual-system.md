@@ -1,5 +1,7 @@
 # SquadRidge — Institutional Visual System
 
+> **Canonical marketing art direction.** Tokens/kit: [`squadridge-trust-ui-kit.md`](./squadridge-trust-ui-kit.md). Site-wide constraints: [`full-site-visual-direction.md`](./full-site-visual-direction.md).
+
 Art direction for the public marketing site and institutional-facing materials. Targets investors, foundations, mediators, policy partners, NGOs, and enterprise buyers.
 
 ## Design intent
@@ -56,6 +58,7 @@ No display serif default. Controlled workflow typography, not editorial flourish
 ## Spacing
 
 - Section rhythm: `--space-section: 5.5rem`
+- One separator per major beat — not a `border-line` under every section; prefer sunken band (`bg-surface-secondary/80`) or spacing when two blocks feel muddy (see trust UI kit)
 - Grid discipline: max-width `6xl`, evidence panels use `gap-px` tile borders
 - Intentional whitespace — authority through restraint
 
@@ -90,17 +93,17 @@ Avoid:
 
 ## Homepage structure
 
-See [`src/pages/v2/LandingPage.tsx`](../../src/pages/v2/LandingPage.tsx):
+See [`src/pages/v2/LandingPage.tsx`](../../src/pages/v2/LandingPage.tsx) and `LandingBelowFold`:
 
-1. Editorial hero + system model diagram (room → gate → ledger)
-2. Process stage panel — three governed states (single module)
-3. Trust boundary table + honesty micro-summary
-4. Product evidence sequence (three visual modes)
-5. Mediation flagship + context teasers
-6. Released record specimen + pilot intake (`#pilot`)
+1. Editorial hero (brand, mission, CTAs, trust strip, product figure)
+2. Why the room/record split exists
+3. Process stage panel — private room → release gate → public record
+4. Released-record specimen
+5. Documented limits (trust boundary)
+6. Use-case tracks
+7. Pilot intake (`#pilot`)
 
-Also see [`marketing-redesign-audit.md`](marketing-redesign-audit.md) and
-[`alignment-system.md`](alignment-system.md) (left-first alignment rules).
+Also see [`alignment-system.md`](alignment-system.md) (left-first alignment rules).
 
 ## Imagery guidance
 

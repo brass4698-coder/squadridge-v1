@@ -10,6 +10,10 @@ Platform conventions for agents and editors live in **`.cursor/rules/`**:
 
 Root `.cursorrules` and `AGENTS.md` summarize these. Privacy claims must match `docs/security/threat-model.md`.
 
+**Shared Cursor / VS Code tooling** (hooks, MCP template, recommended extensions,
+plugins, automations guidance): [`docs/operations/cursor-tooling.md`](docs/operations/cursor-tooling.md).
+Do not commit secrets into `.cursor/mcp.json` or env files.
+
 ## Branching
 
 - `feature/<short-topic>` — new functionality

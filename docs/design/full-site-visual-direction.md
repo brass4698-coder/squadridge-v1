@@ -1,5 +1,7 @@
 # SquadRidge — Full-site visual direction
 
+> Companion to [`institutional-visual-system.md`](./institutional-visual-system.md). Prefer the institutional doc for day-to-day marketing edits; this file holds site-wide constraints and anti-patterns.
+
 Site-wide art direction for the public marketing surface. Use with [`institutional-visual-system.md`](institutional-visual-system.md) when editing Home, About, How It Works, Security, Ledger, Request Access, and related pages.
 
 ---

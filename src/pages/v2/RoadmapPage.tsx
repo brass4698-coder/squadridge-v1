@@ -182,7 +182,7 @@ export function RoadmapPage() {
         </ShellWidth>
       </MarketingSection>
 
-      <MarketingSection id="launch-plan" tone="bordered" density="compact">
+      <MarketingSection id="launch-plan" tone="sunken" density="compact">
         <ShellWidth>
           <ProseMeasure className="mb-10">
             <SectionLabel>Launch plan</SectionLabel>

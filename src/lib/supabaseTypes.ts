@@ -33,6 +33,12 @@ export interface Database {
           issue_goal: string | null;
           risk_notes: string | null;
           disclosure_boundaries: string | null;
+          phase_started_at: string | null;
+          phase_duration_seconds: number | null;
+          phase_budgets: Json;
+          session_ends_at: string | null;
+          phase_timer_state: 'idle' | 'running' | 'paused' | 'elapsed';
+          floor_holder_participant_id: string | null;
         };
         Insert: {
           facilitator_id: string;
@@ -57,6 +63,12 @@ export interface Database {
           issue_goal?: string | null;
           risk_notes?: string | null;
           disclosure_boundaries?: string | null;
+          phase_started_at?: string | null;
+          phase_duration_seconds?: number | null;
+          phase_budgets?: Json;
+          session_ends_at?: string | null;
+          phase_timer_state?: 'idle' | 'running' | 'paused' | 'elapsed';
+          floor_holder_participant_id?: string | null;
         };
         Update: {
           status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
@@ -74,6 +86,12 @@ export interface Database {
           issue_goal?: string | null;
           risk_notes?: string | null;
           disclosure_boundaries?: string | null;
+          phase_started_at?: string | null;
+          phase_duration_seconds?: number | null;
+          phase_budgets?: Json;
+          session_ends_at?: string | null;
+          phase_timer_state?: 'idle' | 'running' | 'paused' | 'elapsed';
+          floor_holder_participant_id?: string | null;
         };
       };
       participants: {
@@ -92,6 +110,8 @@ export interface Database {
           left_at: string | null;
           created_at: string;
           participation_reason: string | null;
+          tone_signal: number | null;
+          tone_signal_at: string | null;
         };
         Insert: {
           session_id: string;
@@ -105,6 +125,8 @@ export interface Database {
           admitted_at?: string | null;
           left_at?: string | null;
           participation_reason?: string | null;
+          tone_signal?: number | null;
+          tone_signal_at?: string | null;
         };
         Update: {
           verification_status?: 'pending' | 'verified' | 'denied';
@@ -112,6 +134,8 @@ export interface Database {
           admitted_at?: string | null;
           left_at?: string | null;
           participation_reason?: string | null;
+          tone_signal?: number | null;
+          tone_signal_at?: string | null;
         };
       };
       outcome_records: {

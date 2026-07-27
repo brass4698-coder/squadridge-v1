@@ -11,7 +11,7 @@ export function ProcessStagePanel() {
   return (
     <section
       id="system-model"
-      className="sr-section-enter scroll-mt-20 border-b border-line bg-[color:var(--sr-bg-sunken)]/50 pb-16 pt-14 md:pb-20 md:pt-16"
+      className="sr-section-enter scroll-mt-20 bg-surface-secondary/80 pb-16 pt-14 md:pb-20 md:pt-16"
       data-scroll-section
       aria-labelledby="process-stages-h"
     >

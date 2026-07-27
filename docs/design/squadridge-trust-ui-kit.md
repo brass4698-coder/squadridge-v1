@@ -1,5 +1,7 @@
 # SquadRidge Trust UI Kit
 
+> **Canonical pasteable kit** (palette, type, surfaces, checklist). Broader rules: [`design-system.md`](./design-system.md). Marketing art direction: [`institutional-visual-system.md`](./institutional-visual-system.md).
+
 Concrete design kit for marketing + product surfaces. Aesthetic target: **civic-grade confidentiality** — not cybersecurity neon, not generic SaaS.
 
 **Implemented in:** `src/styles/tokens.css` (unified `:root` + theme scope aliases), `src/styles/globals.css` (`.sr-mode-*`, `.sr-evidence-*`, `.sr-surface-card`, buttons), landing evidence components.
@@ -25,6 +27,10 @@ Concrete design kit for marketing + product surfaces. Aesthetic target: **civic-
 Utilities: `.sr-surface-card` / `.sr-surface-card--soft` (elevated fill + soft shadow), `.sr-mode-*`, `.sr-evidence-*`, `.sr-vault-card`, `.sr-shell-sidebar`, `.sr-shell-panel`.
 
 Prefer **elevation** (`bg-surface-elevated` + `shadow-sr-card`) over hard boxed `border border-line` chrome on trust panels. Do **not** use Spotify green, purple neon, or warm cream marketing canvases.
+
+### Section rhythm (marketing)
+
+One clear separator per **major beat**, not one per `<section>`. Prefer a quiet hairline (`border-line`) at true mode changes (hero→trust, process/sunken bands, footer top, security dockets, form headers, closing CTA). If adjacent blocks feel muddy, use a slight band shift (`bg-surface-secondary/80` / sunken tone) or more vertical space before stacking another line. Keep list-item / accordion / docket internal borders — those are scan aids, not section beats.
 
 ---
 
