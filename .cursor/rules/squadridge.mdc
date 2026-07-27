@@ -1,33 +1,129 @@
 ---
 description: SquadRidge Core Application Rules
-globs: *.ts, *.tsx, *.js, *.jsx
+globs: src/**/*.{ts,tsx,css}, supabase/migrations/**/*.sql, supabase/functions/**/*.ts
 ---
+
 # SquadRidge — core rules
 
-Cross-border dialogue app on the Enclave[ZK] stack (React, Vite, Supabase).
+Cross-border dialogue platform built on the Enclave[ZK]-influenced stack: React, Vite, TypeScript, Supabase, privacy-first verification, and de-escalation-centered UX.
 
-## Architecture
+These are platform-wide implementation rules. Prefer explicit security, operational clarity, and honest privacy boundaries over aspirational or ambiguous claims.
 
-1. **ZK verification**: Semaphore proofs for identity checks. Do not log or expose raw PII.
-2. **Sessions**: Time-bounded rooms; encrypt payloads; keep data minimal.
-3. **Low bandwidth**: Fewer round-trips; handle offline and flaky networks.
-4. **De-escalation UX**: “Power of Pause,” one-tap Slow down, calm copy.
+## Platform principles
 
-## Frontend
+1. **Privacy without overclaiming**
+   - Use privacy-preserving verification where supported, including Semaphore-based proof workflows where applicable.
+   - Do not log, expose, or unnecessarily retain raw PII.
+   - Do not describe the platform as fully end-to-end encrypted or fully zero-knowledge unless the specific feature actually meets that bar under the current threat model.
 
-- Functional components; hooks for state/side effects; strict TypeScript.
-- **Look**: Deep Navy `#0A0F1E`, Space Grotesk headings, DM Sans body, `clamp()` for type.
-- **Controls**: Teal `#0E9AA7` primary, Amber `#F5A623` warnings; clear hover/focus; WCAG AA contrast.
-- **SVG**: Clear, consistent icons; no flags or military insignia.
+2. **Minimal, time-bounded exposure**
+   - Rooms, sessions, and protected workflows should be time-bounded where product logic calls for it.
+   - Keep data collection, retention, and replication minimal.
+   - Store only the data needed for product function, auditability, safety, and institutional operation.
 
-## Backend
+3. **Operational resilience**
+   - Optimize for low-bandwidth, flaky, and intermittent connectivity.
+   - Reduce round-trips where practical.
+   - Core workflows must degrade safely when network quality drops.
+   - Local UI state should remain usable during temporary disconnects, with clear sync/retry behavior.
 
-- Postgres + Supabase (RLS on by default). Matchmaking and queues live in SQL/RPC unless a worker is added.
-- Optional Redis in `docker-compose.yml` is for local experiments only.
-- Realtime: Supabase channels; respect membership and RLS.
+4. **De-escalation by design**
+   - Favor calm, supportive, agency-preserving language.
+   - Build for the “Power of Pause,” one-tap “Slow down,” and low-friction recovery from tense moments.
+   - Avoid hostile, punitive, sensational, or militarized UI language.
 
-## Security
+## Frontend rules
 
-- Message encryption follows `docs/security/threat-model.md` (application-layer keys today, not Signal-style E2E).
-- Translation / tone features must fail soft: chat works if those paths error.
-- Data design: minimize retention and harm (see threat model).
+1. **Code quality**
+   - Use React function components and hooks.
+   - Use strict TypeScript types for props, state, API contracts, and security-sensitive data flows.
+   - Prefer explicit types and narrowed unions over loose `any` or ambiguous object shapes.
+
+2. **Design system**
+   - Use shared tokens from `src/styles/tokens.css` (`--sr-*`) and Tailwind aliases (`bg-surface`, `text-brand`, `border-line`) — never raw hex in components.
+   - Typography is tokenized: `--sr-font-body` (Inter), `--sr-font-heading` / `--sr-font-display` (IBM Plex), `--sr-font-mono` (IBM Plex Mono). Do not introduce new font families without updating tokens, `globals.css`, and `tailwind.config.ts`.
+   - Marketing/display scale uses `--sr-text-display` … `--sr-text-caption`; app chrome uses `--sr-text-page-title` … `--sr-text-meta`. Prefer `clamp()` only where responsive scaling materially helps (hero headings).
+   - Maintain WCAG AA contrast at minimum.
+   - Never rely on color alone to indicate warnings, tension, status, or moderation outcomes.
+
+3. **Interaction**
+   - Provide clear hover, focus-visible, active, disabled, loading, and error states for interactive controls.
+   - Support keyboard access and reduced-motion preferences.
+   - De-escalation interventions must be easy to understand and easy to tap.
+
+4. **SVG and imagery**
+   - Use clear, consistent icons and SVG styling.
+   - Avoid flags, military insignia, weapons, or inflammatory visual metaphors.
+   - Use icons to support meaning, not replace necessary labels.
+
+## Backend rules
+
+1. **Supabase baseline**
+   - Use Postgres + Supabase as the operational backend.
+   - Enable RLS on all exposed user-facing tables by default.
+   - Apply storage policies for any user-accessible buckets.
+   - Never expose `service_role` credentials in client code.
+
+2. **Authorization**
+   - Treat RLS as a core security boundary, not a convenience filter.
+   - Scope access by membership, workspace, role, and object-level permission.
+   - Add explicit query filters in application code where appropriate; do not rely on RLS alone for UX filtering.
+
+3. **Realtime**
+   - Supabase Realtime must respect membership, authorization boundaries, and room scoping.
+   - Realtime subscriptions must never reveal data outside the caller’s permitted scope.
+   - Subscription setup should fail safely when membership is missing or stale.
+
+4. **Queues and orchestration**
+   - Matchmaking, queues, and coordination flows may live in SQL/RPC unless and until a worker architecture is formally introduced.
+   - Any optional Redis in `docker-compose.yml` is local-development-only unless explicitly promoted through architecture review.
+   - Do not create production dependencies on local experimental infrastructure without documentation and approval.
+
+## Security rules
+
+1. **Threat-model honesty**
+   - Message encryption follows `docs/security/threat-model.md`.
+   - Current message protection uses application-layer encryption with the platform’s documented key model.
+   - This is not Signal-style end-to-end encryption unless the feature explicitly says so and the implementation satisfies that claim.
+
+2. **Sensitive data handling**
+   - Minimize retention, duplication, and unnecessary plaintext exposure.
+   - Do not place sensitive content in logs, analytics payloads, client telemetry, or error breadcrumbs.
+   - Sanitize operational logging and keep it metadata-only wherever possible.
+
+3. **Verification and identity**
+   - Use Semaphore proofs or similar privacy-preserving verification mechanisms only where they materially improve privacy and are correctly implemented.
+   - Never store raw PII merely because a proof-backed alternative exists.
+   - Clearly separate proof artifacts, verification state, and any regulated identity data.
+
+4. **Failure handling**
+   - Translation, tone, and optional AI features must fail soft.
+   - Chat, room participation, and core workflow must continue when optional intelligence paths fail.
+   - Security-sensitive failures must fail closed where required, but messaging UX should remain comprehensible.
+
+5. **Secrets and privileged paths**
+   - Keep secrets out of client bundles.
+   - Restrict privileged RPC, Edge Functions, and admin workflows by role and server-side checks.
+   - Audit admin, export, invite, release, and verification-sensitive actions.
+
+## Network and offline behavior
+
+- Design for intermittent connectivity, not perfect connectivity.
+- Show clear reconnecting, unsynced, retrying, and failed-to-send states.
+- Avoid hidden data loss during disconnects.
+- Make retry behavior explicit for critical actions.
+- Sync as connectivity improves without blocking the user unnecessarily.
+
+## Documentation rules
+
+- Update the threat model when encryption, verification, retention, or vendor data flows change.
+- Update privacy/security docs before shipping new sensitive data pathways.
+- Do not overstate privacy guarantees in comments, UI copy, docs, or marketing language.
+
+## Implementation defaults
+
+- Prefer least privilege.
+- Prefer metadata over raw content when operationally sufficient.
+- Prefer reusable primitives and shared contracts over custom one-off flows.
+- Prefer graceful degradation for non-core enhancements.
+- Prefer explicit feature flags for experimental, AI, translation, or verification-heavy functionality.

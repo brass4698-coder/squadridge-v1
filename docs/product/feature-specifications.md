@@ -1,52 +1,124 @@
 # Feature Specifications
 
-## Overview
+> **Canonical overview:** [platform-description.md](platform-description.md). This document lists features by implementation status. Do not describe legacy squad matchmaking as the primary product unless the audience is engineering or migration.
 
-SquadRidge uniquely combines zero-knowledge attribute verification, structured small-group matching, and AI-driven de-escalation into a single peace-tech infrastructure [1]. This document outlines the core features that enable verified-anonymous, cross-border dialogue.
+---
 
-## 1. Zero-Knowledge Attribute Verification
+## v2 facilitator platform (primary)
 
-Security is anchored by the Enclave[ZK] stack, employing Semaphore-based zero-knowledge proofs (ZKPs) to verify user attributes [1]. This system allows citizens to cryptographically prove attributes like citizenship, age, or organizational roles without storing raw personally identifiable information (PII) from verification in Postgres [3].
+### 1. Facilitator session lifecycle
 
-*   **Mechanism (shipped)**: In-browser Semaphore proofs and server verification via the **`verify-zk-proof`** Edge Function; engineering detail in [`docs/technical/zk-implementation.md`](../technical/zk-implementation.md).
-*   **Mechanism (roadmap)**: Research materials describe privacy-preserving proofs from secure web sources via **zkTLS** [2]. That flow is **not** in the repository today—do not specify it in delivery timelines until implemented.
-*   **Purpose**: Participants in authoritarian or active conflict zones need proportionate safety; see [`docs/security/threat-model.md`](../security/threat-model.md) for honest operator-visible metadata [1].
-*   **Implementation**: Users prove group membership for configured scopes; the service still stores `user_id` with verification outcomes—see threat model and zk docs [3].
+Structured mediation workflow: **Configure → Verify → Facilitate → Release**.
 
-## 2. Structured Small-Group Matching
+| Step | Capability | Status |
+| ---- | ---------- | ------ |
+| Configure | Session create with title, template, `setup_config`, participant cap | **Shipped** |
+| Verify | Participant tokens, facilitator verification review | **Shipped** (participant OTP UI partially simulated) |
+| Facilitate | Realtime `session_messages`, facilitator control room | **Shipped** |
+| Release | Outcome draft, approvals, `release_outcome` RPC, ledger publish | **Shipped** |
 
-The platform matches small groups from opposing perspectives into time-bound dialogue sessions [1]. Product vision ties matching to verified signals; **current implementation** includes pool-based matchmaking RPCs in Postgres (see [`supabase/migrations/20260416164823_matchmaking_queue.sql`](../../supabase/migrations/20260416164823_matchmaking_queue.sql), [`src/lib/matchmakingPoolKey.ts`](../../src/lib/matchmakingPoolKey.ts)).
+**Purpose:** High-stakes dialogue with a credible public outcome and no published transcript.
 
-*   **Mechanism**: Matching uses intent pools and sides (A/B); anonymity here means **pseudonymous accounts** and RLS between clients—not invisibility from the operator—see the [threat model](../security/threat-model.md).
-*   **Purpose**: This intimate setting fosters deeper connection and understanding, moving away from the chaotic environment of traditional social media that amplifies outrage [1].
-*   **Implementation**: In-room prompts guide structured dialogue; squad size and flows may be tuned per product [1].
+### 2. Facilitator-led messaging room
 
-## 3. AI-Assisted De-escalation
+- Structured **written** dialogue only — no video, audio, or call integrations.
+- Facilitator controls prompts, rounds, pace, and release.
+- Room content **never** published to ledger.
 
-SquadRidge integrates AI-assisted real-time translation and tone detection to intervene during escalations [1].
+**Status:** **Shipped** (core path). Mock alternate room UI exists for design (`LiveRoomPage`).
 
-*   **Mechanism**: The AI system listens to written exchanges, flags rising tension, and gently suggests calmer wording [3].
-*   **Purpose**: This embodies the "Power of Pause," slowing down hostile exchanges and allowing for reflection [2].
-*   **Implementation**: Features include a one-tap "Slow down" button to pause sending and a temporary "Pull back" feature for immediate message retraction [1].
+### 3. Room / record separation
 
-## 4. Secure Early Warning Signals
+- Private: `sessions`, `participants`, `session_messages`.
+- Public: `outcome_records` with `ledger_sha` anchor after facilitator release.
 
-To support wider Track II diplomacy efforts, the system aggregates de-identified sentiment metrics to provide early warning insights [1].
+**Status:** **Shipped** architecturally. Enforcement of skipped lifecycle steps is **partial** (manual status updates).
 
-*   **Mechanism**: The data pipeline separates ephemeral messaging streams from aggregated analytics [1]; encryption of stored dialogue from the operator is **target** architecture—see [`docs/technical/security-privacy.md`](../technical/security-privacy.md).
-*   **Purpose**: This addresses the "warning-response" problem by providing vetted mediators, think tanks, and UN agencies with real-time insights into rising regional tensions [1].
-*   **Implementation**: Sentiment analysis tools gauge public mood and polarization, helping policymakers spot rising tensions before violence spreads [3].
+### 4. Session templates
 
-## 5. Low-Bandwidth Mode
+Three templates: community mediation, NGO deliberation, Track II dialogue — ground rules, outcome structure, approval rules.
 
-Recognizing the "digital divide," SquadRidge is designed to support low-bandwidth environments [3].
+**Status:** **Shipped** — [`src/lib/sessionTemplates.ts`](../../src/lib/sessionTemplates.ts).
 
-*   **Mechanism**: The platform minimizes data transfer and prioritizes text-based communication.
-*   **Purpose**: Many active conflict zones have severely degraded internet infrastructure; this feature ensures inclusivity [3].
-*   **Implementation**: The architecture allows for graceful degradation if AI translation or sentiment moderation services experience downtime [1].
+### 5. Invite-only access and roles
+
+- Pilot request form → manual review → staff invite → magic link → role assignment.
+- Roles: `super_admin`, `institution_admin`, `facilitator`, `mediator`, `analyst`, `participant`, `observer`.
+
+**Status:** **Shipped** for staff invites. Session participant token path **partially** aligned with staff invite flow.
+
+### 6. Public ledger and verification anchor
+
+- Query published `outcome_records`; display anchor via `ledgerDisplay`.
+- Sample records labeled **illustrative** when no live data.
+
+**Status:** **Shipped** UI + release RPC. Independent public verify UX depends on deployment; samples use static hashes.
+
+### 7. Marketing and legal surfaces
+
+- Landing, How It Works, Use Cases, Security, FAQ, About, Contact, Privacy, Terms.
+
+**Status:** **Shipped**. Copy governed by `squadridge_platform_spec.json` and `check:banned-copy`.
+
+### 8. Workflow automation (planned)
+
+Spec calls for notifications at invite, verify, approve, release. Notification preferences table exists.
+
+**Status:** **Planned** — not fully wired to email/workflow events.
+
+### 9. Room-level E2E encryption
+
+**Status:** **Roadmap** — not operator-blind today. See [threat model](../security/threat-model.md) §13.
+
+---
+
+## Legacy product lines (still in repository)
+
+### A. Structured squad matchmaking
+
+Intent-pool matching into encrypted squad chat; Semaphore ZK verification path; `ingest-message` Edge Function with server-side redaction.
+
+**Status:** **Legacy**, still routed in v2 app (`/match`, `/session/:squadId`). Application-layer encryption — **not** operator-proof E2E. See threat model §5.
+
+### B. Incident dialogue rooms
+
+Structured incident response rooms (`incident_rooms`, moderation, severity tiers).
+
+**Status:** **Implemented**, mounted in legacy `App.tsx` only — **not** the v2 primary story.
+
+### C. AI-assisted de-escalation and translation
+
+Optional translation workers; tone/de-escalation UX on legacy squad path.
+
+**Status:** **Partial** — optional; core v2 mediation does not depend on AI.
+
+### D. Aggregated early-warning / sentiment analytics
+
+Described in research docs and dashboard fixtures.
+
+**Status:** **Not shipped** as production analytics product; dashboard metrics may show **pilot/fixture** data in dev.
+
+---
+
+## Claims discipline
+
+| Claim | Allowed? |
+| ----- | -------- |
+| Facilitator-led written room | Yes |
+| Verification anchor on released records | Yes (for release path) |
+| No video/audio on platform | Yes |
+| Completed pilots / named partners | **Only if verified** |
+| Operator-blind E2E | **No** (today) |
+| Full platform zero-knowledge | **No** |
+| Public transcript | **No** |
+
+See [public-claims-audit.md](../security/public-claims-audit.md).
+
+---
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
-[2] Gemini Deep Research Synthesis.
-[3] Perplexity Research.
+- [Platform description](platform-description.md)
+- [Threat model](../security/threat-model.md)
+- [Data model](../technical/data-model.md)
+- [Auth and sessions](../technical/auth-and-sessions.md)

@@ -1,5 +1,6 @@
 /**
- * Static pitch decks live under `public/pitch-deck-hub/`.
+ * Pitch deck HTML/CSS/JS live under `supabase/functions/serve-deck/static/`
+ * and are served only by Edge Function `serve-deck` after `has_deck_access()`.
  * Most decks use `{deckId}.html`; a few legacy filenames remain.
  */
 const PITCH_DECK_HUB_HTML_OVERRIDES: Record<string, string> = {

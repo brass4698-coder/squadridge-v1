@@ -54,7 +54,7 @@ export function DemoClaimConsentModal({
       aria-modal="true"
       aria-labelledby="demo-claim-consent-title"
       aria-describedby="demo-claim-consent-body"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+      className="sr-glass-scrim fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}

@@ -32,11 +32,13 @@ export * from './queryKeys';
 export * from './rateLimitEdge';
 export * from './realtimeTelemetry';
 export * from './sendQueue';
+export * from './sendSessionInvite';
 export * from './sessionClaim';
 export * from './sentry';
 export * from './squad';
 export * from './squadMessageKey';
-export * from './supabase';
-export * from './supabaseClient';
+// Single browser client. Barrel exports the untyped alias so RPC-heavy call
+// sites stay green; import from `./supabaseClient` for `Database` typing.
+export { getSupabase, supabase } from './supabase';
 export * from './verifyZkProofResponse';
 export * from './zk';

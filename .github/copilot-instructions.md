@@ -19,10 +19,9 @@ Impact claims are intentionally modest: this repo supports *serious bounded pilo
 - Frontend: React + Vite + TypeScript.
 - Styling: Tailwind CSS.
 - Backend: pure BaaS via Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions).
-- No Node server tier and **no local Redis** dependency.
-- Edge rate limiting (when enabled) uses Upstash Redis via REST from `supabase/functions/rate-limit/`.
+- No Node server tier. **Local Redis** in `docker-compose.yml` is optional for dev only; production rate limits use Upstash via Edge Functions (`supabase/functions/rate-limit/`).
 
-When older docs mention `docker-compose.yml` or a local Redis stub, treat them as obsolete; follow the current Supabase‑only architecture.
+When docs mention Redis, distinguish local-dev optional (`docker-compose.yml`) from production Upstash.
 
 ## Environment and configuration
 
@@ -120,7 +119,7 @@ Roadmap / non‑shipped work:
 The repository includes structured demo surfaces:
 
 - `/investors` — public investor mini‑page (sanitized, link‑safe, no gated decks or sensitive scenarios).
-- `/pitch-deck-hub` — moderator‑only interactive pitch hub (uses content also available as static HTML under `public/pitch-deck-hub/`).
+- `/pitch-deck-hub` — invite/super_admin interactive pitch hub (HTML assets gated via `serve-deck`, not public static files).
 - `/demo` → `/admin/demo-hub` — moderator‑only presenter hub for scenario selection and tour control.
 - `?notes=1` — presenter notes overlay on tour URLs (desktop only).
 - `/session/demo-session-001` — static offline demo session page with seeded messages and scripted interventions.

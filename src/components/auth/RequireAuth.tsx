@@ -1,39 +1,47 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { DEMO_WALKTHROUGH_STORAGE_KEY } from '../../demo/demoScript';
 import { useProfile } from '../../hooks';
+import { demoSignInPath, isDemoLoginEnabled } from '../../lib/demoLogin';
+import { RouteSkeleton } from '../system/RouteSkeleton';
 
 type RequireAuthProps = {
   children: ReactNode;
-  /** When true, incomplete profiles are sent to profile settings with return path. */
   requireCompleteProfile?: boolean;
 };
 
-/**
- * Guards routes that need a Supabase session. Optionally enforces a minimal pseudonymous profile
- * (callsign + role, and role detail when role is `other`).
- */
+function isDemoTourActive(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return sessionStorage.getItem(DEMO_WALKTHROUGH_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function RequireAuth({ children, requireCompleteProfile }: RequireAuthProps) {
   const { session, loading: authLoading } = useAuth();
   const { loading: profileLoading, profileComplete } = useProfile();
   const location = useLocation();
 
   if (authLoading || (session && requireCompleteProfile && profileLoading)) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center font-sans text-[0.95rem] text-[#8892a4]">
-        Loading…
-      </div>
-    );
+    return <RouteSkeleton label="Checking session" />;
   }
 
   if (!session) {
-    const next = encodeURIComponent(`${location.pathname}${location.search}${location.hash}`);
-    return <Navigate to={`/sign-in?next=${next}`} replace />;
+    const next = `${location.pathname}${location.search}${location.hash}`;
+    // Mid-tour visits to /app/* should resume via demo login in local/staging —
+    // not a bare magic-link form that cannot succeed without an invite.
+    if (isDemoLoginEnabled() && isDemoTourActive()) {
+      return <Navigate to={demoSignInPath(next)} replace />;
+    }
+    return <Navigate to={`/sign-in?next=${encodeURIComponent(next)}`} replace />;
   }
 
   if (requireCompleteProfile && !profileComplete) {
     const next = encodeURIComponent(`${location.pathname}${location.search}${location.hash}`);
-    return <Navigate to={`/settings/profile?next=${next}`} replace />;
+    return <Navigate to={`/app/settings/profile?next=${next}`} replace />;
   }
 
   return <>{children}</>;

@@ -8,9 +8,10 @@ export function Toaster({ ...props }: ToasterProps) {
       className="toaster group"
       style={
         {
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
+          '--normal-bg': 'var(--sr-glass-toast-bg)',
+          '--normal-text': 'var(--sr-ink)',
+          '--normal-border': 'var(--sr-glass-border)',
+          '--border-radius': 'var(--sr-radius-lg)',
         } as CSSProperties
       }
       {...props}

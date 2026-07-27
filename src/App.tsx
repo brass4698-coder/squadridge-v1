@@ -11,6 +11,8 @@ import {
   SessionAccess,
   Toaster,
 } from './components';
+import { RoleProtectedRoute } from './components/auth/RoleProtectedRoute';
+import { SessionTimeoutWarning } from './components/auth/SessionTimeoutWarning';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { SettingsLayout } from './components/settings/SettingsLayout';
 import { IntentPage } from './pages/IntentPage';
@@ -25,6 +27,7 @@ import { Match } from './pages/Match';
 import { DemoSessionPage } from './pages/DemoSessionPage';
 import { isDemoSquadShortcutsEnabled } from './lib';
 import { DemoWalkthroughProvider } from './demo/DemoWalkthroughContext';
+import { RouteChunkFallback } from './components/system/SrLoader';
 import { InvitePage } from './pages/InvitePage';
 import { SettingsIndexPage } from './pages/SettingsIndexPage';
 import { SafetyCenterPage } from './pages/SafetyCenterPage';
@@ -56,17 +59,19 @@ const FinancialProjectionsPage = lazy(() =>
   })),
 );
 
-const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
-  </div>
+const IncidentRoomListPage = lazy(() =>
+  import('./pages/incident/IncidentRoomListPage').then((m) => ({
+    default: m.IncidentRoomListPage,
+  })),
 );
+
+const IncidentRoomPage = lazy(() =>
+  import('./pages/incident/IncidentRoomPage').then((m) => ({
+    default: m.IncidentRoomPage,
+  })),
+);
+
+const routeChunkFallback = <RouteChunkFallback />;
 
 export default function App() {
   return (
@@ -77,6 +82,7 @@ export default function App() {
           <ScrollToTop />
           <DemoWalkthroughProvider>
             <AuthProvider>
+              <SessionTimeoutWarning />
               <Toaster position="top-center" richColors closeButton className="font-sans" />
               <Routes>
                 <Route path="/onboarding" element={<Navigate to="/onboarding/mission" replace />} />
@@ -116,9 +122,11 @@ export default function App() {
                     path="/pitch-deck-hub"
                     element={
                       <RequireAuth>
-                        <Suspense fallback={routeChunkFallback}>
-                          <PitchDeckHubPage />
-                        </Suspense>
+                        <RoleProtectedRoute allowed={['super_admin']}>
+                          <Suspense fallback={routeChunkFallback}>
+                            <PitchDeckHubPage />
+                          </Suspense>
+                        </RoleProtectedRoute>
                       </RequireAuth>
                     }
                   />
@@ -126,10 +134,30 @@ export default function App() {
                     path="/financial-projections"
                     element={
                       <RequireAuth>
+                        <RoleProtectedRoute allowed={['super_admin']}>
+                          <Suspense fallback={routeChunkFallback}>
+                            <FinancialProjectionsPage />
+                          </Suspense>
+                        </RoleProtectedRoute>
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/incident"
+                    element={
+                      <RequireAuth>
                         <Suspense fallback={routeChunkFallback}>
-                          <FinancialProjectionsPage />
+                          <IncidentRoomListPage />
                         </Suspense>
                       </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/incident/:slug"
+                    element={
+                      <Suspense fallback={routeChunkFallback}>
+                        <IncidentRoomPage />
+                      </Suspense>
                     }
                   />
                   <Route path="/match" element={<Match />} />

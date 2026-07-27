@@ -79,14 +79,14 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
             if (e.target === e.currentTarget) close();
           }}
         >
-          <div className="w-full max-w-[480px] rounded-[12px] border border-amber/40 bg-[#0c1118] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+          <div className="w-full max-w-[480px] rounded-[12px] border border-amber/40 bg-surface-elevated p-5 shadow-sr-lg">
             <h2
               id="alert-facilitator-title"
               className="font-heading text-[1.05rem] font-semibold text-amber"
             >
               Alert a facilitator
             </h2>
-            <p className="mt-2 font-sans text-[0.85rem] leading-relaxed text-[#c4cdd9]">
+            <p className="mt-2 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
               Pick the closest reason. Your alert is sent out-of-band — it does not go through chat.
               Free-form details are intentionally not sent to keep the audit log private.
             </p>
@@ -99,7 +99,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                   className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 ${
                     pickedReason === r.id
                       ? 'border-amber/60 bg-amber/10'
-                      : 'border-[#1a2236] bg-[#0f1623] hover:border-amber/35'
+                      : 'border-line bg-surface-elevated hover:border-amber/35'
                   }`}
                 >
                   <input
@@ -110,15 +110,15 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                     onChange={() => setPickedReason(r.id)}
                     className="mt-1 h-4 w-4 cursor-pointer accent-amber"
                   />
-                  <span className="font-sans text-[0.85rem] leading-relaxed text-[#c4cdd9]">
-                    <span className="block font-medium text-[#e2e8f0]">{r.label}</span>
-                    <span className="block text-[0.78rem] text-[#94a3b8]">{r.hint}</span>
+                  <span className="font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
+                    <span className="block font-medium text-ink">{r.label}</span>
+                    <span className="block text-[0.78rem] text-ink-secondary">{r.hint}</span>
                   </span>
                 </label>
               ))}
             </fieldset>
 
-            <p className="mt-3 font-sans text-[0.78rem] text-[#94a3b8]">
+            <p className="mt-3 font-sans text-[0.78rem] text-ink-secondary">
               For immediate physical danger, also contact your local emergency number — SquadRidge
               cannot reach emergency services for you.
             </p>
@@ -128,7 +128,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                 type="button"
                 onClick={close}
                 disabled={busy}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-[#2d3f55] bg-transparent px-5 font-sans text-[0.85rem] text-[#c4cdd9] hover:border-amber/40 hover:text-[#e2e8f0] disabled:opacity-60"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border border-line-strong bg-transparent px-5 font-sans text-[0.85rem] text-ink-secondary hover:border-amber/40 hover:text-ink disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -136,7 +136,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
                 type="button"
                 onClick={() => void handleConfirm()}
                 disabled={busy || !pickedReason}
-                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 font-heading text-[0.85rem] font-semibold text-[#0b0f1a] hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[40px] items-center justify-center rounded-[8px] border-0 bg-amber px-5 font-heading text-[0.85rem] font-semibold text-surface hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? 'Sending…' : 'Send alert'}
               </button>

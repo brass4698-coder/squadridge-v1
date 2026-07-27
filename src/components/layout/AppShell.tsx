@@ -1,7 +1,7 @@
 // ============================================================
 // AppShell — authenticated app wrapper with sidebar nav
 // ============================================================
-import React, { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { RoleAwareNav } from './RoleAwareNav';
 import { DashboardSwitcher } from './DashboardSwitcher';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -41,9 +41,7 @@ export function AppShell({ children }: Props) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

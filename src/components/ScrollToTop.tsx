@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { scrollAllRootsToTop } from '../demo/scrollRoot';
 
 /**
  * Scrolls appropriately on client-side navigation: hash links scroll to the target id;
- * otherwise scroll to top. (Scrolling to top on every hash change broke `/#waitlist` and in-page anchors.)
+ * otherwise every scroll root (window + `[data-scroll-root]`) starts at the top.
+ * (Scrolling to top on every hash change broke `/#waitlist` and in-page anchors.)
  */
 export function ScrollToTop() {
   const { pathname, search, hash } = useLocation();
@@ -17,7 +19,7 @@ export function ScrollToTop() {
         return;
       }
     }
-    window.scrollTo(0, 0);
+    scrollAllRootsToTop();
   }, [pathname, search, hash]);
 
   return null;

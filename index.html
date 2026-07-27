@@ -4,15 +4,184 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SquadRidge</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/squadridge-icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- LCP: warm hero asset before module graph resolves -->
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/landing-hero-release.png"
+      fetchpriority="high"
+    />
+    <!-- Instant canvas — cool near-black (unified dark system) -->
+    <style>
+      html,
+      body {
+        background-color: #0a0b0d;
+        margin: 0;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      /* Visible before JS — no opacity:0; avoids blank-screen flash */
+      #sr-boot {
+        box-sizing: border-box;
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
+        color: #c4c9d1;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      #sr-boot .sr-boot-inner {
+        width: 100%;
+        max-width: 18rem;
+      }
+      #sr-boot .sr-boot-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      #sr-boot img {
+        display: block;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+      }
+      #sr-boot strong {
+        display: block;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #e8eaed;
+      }
+      #sr-boot strong .sr-boot-squad {
+        color: #1f8a7a;
+      }
+      #sr-boot strong .sr-boot-ridge {
+        color: #a1a1a6;
+      }
+      #sr-boot .sr-boot-rail {
+        position: relative;
+        margin-top: 1rem;
+        height: 2px;
+        overflow: hidden;
+        border-radius: 9999px;
+        background: #1c1e24;
+      }
+      #sr-boot .sr-boot-rail > i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 42%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, transparent, rgba(31, 138, 122, 0.85), #1f8a7a);
+      }
+      #sr-boot span.sr-boot-copy {
+        display: block;
+        margin-top: 0.75rem;
+        max-width: 28rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: #8b929e;
+      }
+      #sr-boot .sr-boot-ticks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
+        margin: 0.85rem 0 0;
+        padding: 0;
+        list-style: none;
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 0.625rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #6b7280;
+      }
+      #sr-boot .sr-boot-ticks li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      #sr-boot .sr-boot-ticks li::before {
+        content: '';
+        width: 0.375rem;
+        height: 0.375rem;
+        border-radius: 9999px;
+        background: #3fe0c5;
+        opacity: 0.85;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        #sr-boot .sr-boot-rail > i {
+          animation: sr-boot-rail 1.35s ease-in-out infinite;
+        }
+        #sr-boot img {
+          animation: sr-boot-mark 2.8s ease-out infinite;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #sr-boot .sr-boot-rail > i {
+          width: 58%;
+          background: #1f8a7a;
+          opacity: 0.7;
+        }
+      }
+      @keyframes sr-boot-rail {
+        0% {
+          transform: translateX(-120%);
+        }
+        100% {
+          transform: translateX(280%);
+        }
+      }
+      @keyframes sr-boot-mark {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="sr-boot" role="status" aria-live="polite">
+        <div class="sr-boot-inner">
+          <div class="sr-boot-brand">
+            <img
+              src="/assets/squadridge-icon.svg"
+              alt=""
+              width="40"
+              height="40"
+              decoding="async"
+            />
+            <strong
+              ><span class="sr-boot-squad">Squad</span><span class="sr-boot-ridge">Ridge</span></strong
+            >
+          </div>
+          <div class="sr-boot-rail" aria-hidden="true"><i></i></div>
+          <ul class="sr-boot-ticks" aria-hidden="true">
+            <li>Configure</li>
+            <li>Verify</li>
+            <li>Facilitate</li>
+            <li>Release</li>
+          </ul>
+          <span class="sr-boot-copy">Private deliberation infrastructure — loading…</span>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,142 +1,302 @@
 /**
- * SquadRidge — semantic design tokens  v2
+ * SquadRidge — semantic design tokens  v3
  *
- * Single source of truth for surfaces, ink, primary accent, and semantic
- * states. Components read these via Tailwind utilities mapped in
- * `tailwind.config.ts` (e.g. `bg-surface`, `text-ink`, `border-line`)
- * instead of inline hex.
+ * Single source of truth for surfaces, ink, interactive accent, and
+ * verification punctuation. Components read these via Tailwind utilities
+ * in `tailwind.config.ts` (e.g. `bg-surface`, `text-ink`, `border-line`)
+ * — never raw hex in components.
  *
- * Two themes:
- *   :root          — dark (default; operations chrome)
- *   .theme-light   — paper (marketing landing, printable ledger surfaces)
+ * Theme architecture (one visual system):
+ *   :root                         — cool near-black (default; app + marketing)
+ *   body[data-theme='institutional'] — scope alias; same palette (retired cream)
+ *   body[data-theme='ledger-dark']   — scope alias; same palette
+ *   body[data-theme='flat']          — disables ambient glow only
  *
- * Token naming: --sr-{category}-{variant}
- * Motion tokens: --sr-ease-* and --sr-duration-*
+ * Interactive accent (#1F8A7A) ≠ verification accent (#3FE0C5).
+ * Verification accent is reserved for badges, dots, and verified states.
  */
 
 :root {
-  /* ── Surfaces — graphite ladder ─────────────────────────────────── */
-  --sr-bg:           #0c0e12;
-  --sr-bg-elevated:  #12151c;
-  --sr-bg-secondary: #0f1116;
-  --sr-bg-sunken:    #08090d;
-  /* Surface tinted with accent — for selected cards, active sidebar items */
-  --sr-bg-accent:    color-mix(in oklch, #2aa39a 6%, #12151c);
+  /* ── Surfaces — cool near-black elevation stack ─────────────────── */
+  --sr-bg: #0a0b0d;
+  --sr-bg-elevated: #14161a;
+  --sr-bg-secondary: #101114;
+  --sr-bg-sunken: #0a0b0d;
+  --sr-bg-hover: #1b1e23;
+  --sr-bg-accent: color-mix(in oklch, #1f8a7a 10%, #14161a);
+  --sr-bg-accent-alt: color-mix(in oklch, #1f8a7a 6%, #14161a);
 
-  /* ── Lines ──────────────────────────────────────────────────────── */
-  --sr-line:         #232831;
-  --sr-line-strong:  #2f3640;
-  --sr-divider:      #1a1e26;
-  /* Alpha-blended border — adapts to surrounding surface automatically */
-  --sr-border-alpha: oklch(from #e8eaef l c h / 0.09);
+  /* ── Lines — hairline white alpha ───────────────────────────────── */
+  --sr-line: rgba(255, 255, 255, 0.08);
+  --sr-line-strong: rgba(255, 255, 255, 0.14);
+  --sr-divider: rgba(255, 255, 255, 0.06);
+  --sr-border-alpha: rgba(255, 255, 255, 0.08);
 
-  /* ── Ink — four levels ──────────────────────────────────────────── */
-  --sr-ink:          #e8eaef;
-  --sr-ink-secondary:#aab1bd;
-  --sr-ink-faint:    #7b8290;
-  --sr-ink-subtle:   #555c69;
+  /* ── Ink — high-contrast cool neutrals ──────────────────────────── */
+  --sr-ink: #f5f5f7;
+  --sr-ink-secondary: #a1a1a6;
+  --sr-ink-faint: #6e6e73;
+  --sr-ink-subtle: #6e6e73;
 
-  /* ── Single accent — slate-teal ─────────────────────────────────── */
-  --sr-primary:         #2aa39a;
-  --sr-primary-hover:   #34b8ae;
-  --sr-primary-pressed: #1f8a82;
-  --sr-primary-soft:    oklch(from #2aa39a l c h / 0.12);
-  --sr-primary-ring:    oklch(from #2aa39a l c h / 0.45);
-  --sr-on-primary:      #06121a;
+  /* ── Interactive accent — buttons, links, active nav ────────────── */
+  --sr-primary: #1f8a7a;
+  --sr-primary-hover: #249e8c;
+  --sr-primary-pressed: #1a7568;
+  --sr-primary-soft: rgba(31, 138, 122, 0.16);
+  --sr-primary-ring: rgba(31, 138, 122, 0.45);
+  --sr-on-primary: #f5f5f7;
 
-  /* ── Semantic — status only, never decoration ───────────────────── */
-  --sr-success:         #5aa67f;
-  --sr-success-soft:    oklch(from #5aa67f l c h / 0.10);
-  --sr-warning:         #c79a4a;
-  --sr-warning-soft:    oklch(from #c79a4a l c h / 0.12);
-  --sr-danger:          #c46a5e;
-  --sr-danger-soft:     oklch(from #c46a5e l c h / 0.12);
-  --sr-info:            #6f8ab1;
-  --sr-info-soft:       oklch(from #6f8ab1 l c h / 0.10);
+  /* ── Verification punctuation — badges / dots only (never fill) ─── */
+  --sr-verify: #3fe0c5;
+  --sr-verify-soft: rgba(63, 224, 197, 0.12);
+  --sr-verify-ink: #3fe0c5;
+  --sr-verify-ring: rgba(63, 224, 197, 0.15);
+  --sr-surface-published: #14161a;
+  --sr-surface-illustrative: #14161a;
+  --sr-surface-hover: #1b1e23;
 
-  /* ── Focus ──────────────────────────────────────────────────────── */
-  --sr-focus: var(--sr-primary);
-  --sr-focus-ring: 0 0 0 2px var(--sr-bg), 0 0 0 4px var(--sr-primary-ring);
+  /* Registry metadata hierarchy */
+  --sr-meta-label-size: 0.6875rem; /* 11px */
+  --sr-meta-label-tracking: 0.08em;
+  --sr-registry-pad: var(--sr-space-4);
 
-  /* ── Elevation — layered, tone-matched to dark surface ─────────── */
-  --sr-shadow-xs: 0 1px 2px oklch(0 0 0 / 0.30);
-  --sr-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.35),
-                  0 4px 8px  oklch(0 0 0 / 0.20);
-  --sr-shadow-md: 0 2px 4px  oklch(0 0 0 / 0.30),
-                  0 8px 24px oklch(0 0 0 / 0.35);
-  --sr-shadow-lg: 0 4px 8px  oklch(0 0 0 / 0.30),
-                  0 16px 48px oklch(0 0 0 / 0.45);
+  /* ── Brand mark (logo SVGs) ─────────────────────────────────────── */
+  --sr-brand-mark: #1f8a7a;
+  --sr-brand-ridge: #a1a1a6;
 
-  /* ── Motion — timing constants ──────────────────────────────────── */
-  /* Golden spring — interactive UI (buttons, menus, drawers) */
-  --sr-ease-spring:    cubic-bezier(0.16, 1, 0.3, 1);
-  /* Smooth out — toasts, tooltips dismissing */
-  --sr-ease-out:       cubic-bezier(0, 0, 0.2, 1);
-  /* Standard — page transitions, route changes */
-  --sr-ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+  /* ── Secondary — cool slate (no warm bronze/olive) ──────────────── */
+  --sr-accent-alt: #86868b;
+  --sr-accent-alt-hover: #a1a1a6;
+  --sr-accent-alt-soft: rgba(134, 134, 139, 0.14);
+  --sr-accent-alt-ring: rgba(134, 134, 139, 0.35);
 
-  --sr-duration-fast:   120ms;
-  --sr-duration-normal: 220ms;
-  --sr-duration-slow:   380ms;
-  --sr-duration-xslow:  600ms;
+  /* ── Atmosphere — quiet; no neon bloom ──────────────────────────── */
+  --sr-glow: transparent;
+  --sr-glow-secondary: transparent;
+  /* Film grain (GrainOverlay) — visible texture, still institutional */
+  --sr-grain-opacity: 0.095;
+  --sr-grain-size: 152px;
+  --sr-grain-z: 1;
 
-  /* Shorthand transition for interactive elements */
-  --sr-transition: color      var(--sr-duration-normal) var(--sr-ease-spring),
-                   background var(--sr-duration-normal) var(--sr-ease-spring),
-                   border-color var(--sr-duration-normal) var(--sr-ease-spring),
-                   box-shadow   var(--sr-duration-normal) var(--sr-ease-spring),
-                   opacity      var(--sr-duration-normal) var(--sr-ease-spring);
+  /* ── Semantic ───────────────────────────────────────────────────── */
+  --sr-success: #30d158;
+  --sr-success-soft: rgba(48, 209, 88, 0.14);
+  --sr-warning: #ff9f0a;
+  --sr-warning-soft: rgba(255, 159, 10, 0.14);
+  --sr-danger: #ff453a;
+  --sr-danger-soft: rgba(255, 69, 58, 0.14);
+  --sr-info: #64d2ff;
+  --sr-info-soft: rgba(100, 210, 255, 0.12);
+
+  /* ── Workspace role accents ─────────────────────────────────────── */
+  --sr-role-facilitator: var(--sr-primary);
+  --sr-role-facilitator-soft: var(--sr-primary-soft);
+  --sr-role-facilitator-ink: var(--sr-primary);
+  --sr-role-participant: var(--sr-info);
+  --sr-role-participant-soft: var(--sr-info-soft);
+  --sr-role-participant-ink: var(--sr-info);
+  --sr-role-moderator: #a1a1a6;
+  --sr-role-moderator-soft: rgba(161, 161, 166, 0.14);
+  --sr-role-moderator-ink: #c7c7cc;
+  --sr-role-mediator: var(--sr-accent-alt);
+  --sr-role-mediator-soft: var(--sr-accent-alt-soft);
+  --sr-role-mediator-ink: var(--sr-accent-alt-hover);
+
+  /* ── Focus — soft verify ring on inputs; primary ring elsewhere ─── */
+  --sr-focus: var(--sr-verify);
+  --sr-focus-ring: 0 0 0 3px var(--sr-verify-ring);
+  --sr-focus-ring-primary: 0 0 0 2px var(--sr-bg), 0 0 0 4px var(--sr-primary-ring);
+
+  /* ── Elevation — soft depth, no hard boxed chrome ───────────────── */
+  --sr-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --sr-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
+  --sr-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --sr-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.45), 0 16px 40px rgba(0, 0, 0, 0.5);
+  --sr-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --sr-shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.55), 0 12px 32px rgba(0, 0, 0, 0.4);
+
+  /* ── Motion ─────────────────────────────────────────────────────── */
+  --sr-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --sr-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --sr-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --sr-ease-governed: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  --sr-duration-fast: 150ms;
+  --sr-duration-normal: 180ms;
+  --sr-duration-slow: 380ms;
+  --sr-duration-xslow: 600ms;
+  --sr-duration-governed: 180ms;
+  --sr-duration-pulse: 2.8s;
+
+  --sr-transition:
+    color var(--sr-duration-normal) var(--sr-ease-out),
+    background var(--sr-duration-normal) var(--sr-ease-out),
+    border-color var(--sr-duration-normal) var(--sr-ease-out),
+    box-shadow var(--sr-duration-normal) var(--sr-ease-out),
+    opacity var(--sr-duration-normal) var(--sr-ease-out),
+    transform var(--sr-duration-normal) var(--sr-ease-out);
 
   /* ── Radius ─────────────────────────────────────────────────────── */
-  --sr-radius-xs:   0.25rem;   /*  4px — chips, badges */
-  --sr-radius-sm:   0.375rem;  /*  6px — inputs, buttons */
-  --sr-radius-md:   0.5rem;    /*  8px — cards, modals */
-  --sr-radius-lg:   0.75rem;   /* 12px — panels */
-  --sr-radius-xl:   1rem;      /* 16px — sheets, drawers */
-  --sr-radius-full: 9999px;    /* pill */
+  --sr-radius-xs: 0.375rem;
+  --sr-radius-sm: 0.5rem;
+  --sr-radius-md: 0.625rem;
+  --sr-radius-lg: 0.75rem;
+  --sr-radius-xl: 0.875rem;
+  --sr-radius-2xl: 1rem;
+  --sr-radius-full: 9999px;
+
+  /* ── 8pt spacing grid ───────────────────────────────────────────── */
+  --sr-space-1: 4px;
+  --sr-space-2: 8px;
+  --sr-space-3: 16px;
+  --sr-space-4: 24px;
+  --sr-space-5: 32px;
+  --sr-space-6: 48px;
+  --sr-space-7: 64px;
+  --sr-space-8: 96px;
+  --sr-space-9: 120px;
+
+  /* Section padding — 48–64 mobile, 96–120 desktop (see globals) */
+  --space-section: clamp(3rem, 4vw + 2rem, 4rem);
+  --space-section-lg: clamp(4rem, 5vw + 2.5rem, 7.5rem);
+
+  /* Marketing layout measures */
+  --sr-shell-max: 70rem;
+  --sr-measure-prose: 41.25rem;
+  --sr-measure-wide: 60rem;
+  --sr-measure-narrow: 36rem;
+
+  --content-narrow: 660px;
+  --content-wide: 960px;
+  --content-max: 1120px;
+
+  /* ── Glass — surgical frost for chrome surfaces only ─────────────── */
+  --sr-glass-bg: rgba(20, 22, 26, 0.78);
+  --sr-glass-border: rgba(255, 255, 255, 0.08);
+  --sr-glass-highlight: rgba(255, 255, 255, 0.04);
+  --sr-glass-blur: 16px;
+
+  /* Modal / dialog scrim — dark tint over content behind the panel. */
+  --sr-glass-scrim: rgba(6, 8, 12, 0.5);
+  --sr-glass-scrim-blur: 12px;
+  /* Opaque-enough scrim when blur is unavailable / reduced-transparency. */
+  --sr-glass-scrim-solid: rgba(6, 8, 12, 0.74);
+
+  /* Mobile drawer / sidebar overlay panel sliding over content. */
+  --sr-glass-sidebar-bg: rgba(16, 17, 20, 0.85);
+
+  /* Floating toast card — subtle frost, semantic accent applied per type. */
+  --sr-glass-toast-bg: rgba(20, 22, 26, 0.72);
+
+  /* Very light tint for elevated floating summary panels (dark mode only). */
+  --sr-glass-elevated-tint: rgba(255, 255, 255, 0.06);
+
+  /* Solid fallback surface when transparency/blur is disabled. */
+  --sr-glass-solid: var(--sr-bg-elevated);
+
+  /* ── Form surfaces ──────────────────────────────────────────────── */
+  --sr-form-control-bg: color-mix(in oklch, var(--sr-bg) 68%, var(--sr-bg-sunken));
+  --sr-form-control-bg-hover: color-mix(in oklch, var(--sr-bg) 58%, var(--sr-bg-elevated));
+  --sr-form-control-bg-focus: color-mix(in oklch, var(--sr-bg) 48%, var(--sr-bg-elevated));
+  --sr-form-control-bg-filled: color-mix(in oklch, var(--sr-bg-elevated) 88%, var(--sr-bg));
+  --sr-form-control-underline: color-mix(in oklch, var(--sr-primary) 55%, var(--sr-line-strong));
+  --sr-form-panel-glow: color-mix(in oklch, var(--sr-primary) 10%, transparent);
+  --sr-form-atmosphere-a: color-mix(in oklch, var(--sr-primary) 11%, transparent);
+  --sr-form-atmosphere-b: color-mix(in oklch, var(--sr-verify) 6%, transparent);
+  --sr-form-accent-line: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--sr-primary) 65%, transparent) 35%,
+    color-mix(in oklch, var(--sr-verify) 45%, transparent) 65%,
+    transparent
+  );
+  --sr-form-field-min-h: 2.75rem; /* 44px tap target */
+
+  /* ── Typography — Inter everywhere; mono for labels/ledger ──────── */
+  --sr-font-body: 'Inter', system-ui, sans-serif;
+  --sr-font-heading: 'Inter', system-ui, sans-serif;
+  --sr-font-display: 'Inter', system-ui, sans-serif;
+  --sr-font-mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+
+  /* App compact scale */
+  --sr-text-page-title: 1.25rem;
+  --sr-text-section: 0.9375rem;
+  --sr-text-body: 0.875rem;
+  --sr-text-meta: 0.75rem;
+  --sr-text-button: 0.8125rem;
+
+  /* Display / marketing scale — stronger H1/H2/body contrast */
+  --sr-text-display: clamp(2.25rem, 3.6vw, 3.25rem);
+  --sr-text-h1: clamp(1.75rem, 2.4vw, 2.25rem);
+  --sr-text-h2: clamp(1.375rem, 1.8vw, 1.75rem);
+  --sr-text-h3: 1.25rem;
+  --sr-text-caption: 0.8125rem;
+  --sr-text-eyebrow: 0.6875rem;
+  --sr-text-lead: 1.0625rem;
+
+  --text-label: 0.6875rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-body: 1.0625rem;
+  --text-base: 1.0625rem;
+
+  /* Governed mode fills — elevation, not color blocks */
+  --sr-mode-room-bg: #101114;
+  --sr-mode-room-border: rgba(255, 255, 255, 0.08);
+  --sr-mode-gate-bg: color-mix(in oklch, #1f8a7a 8%, #14161a);
+  --sr-mode-gate-border: color-mix(in oklch, #1f8a7a 28%, transparent);
+  --sr-mode-ledger-bg: #0a0b0d;
+  --sr-mode-ledger-border: rgba(255, 255, 255, 0.08);
+
+  --sr-dossier-plane: #14161a;
+  --sr-dossier-inset: #101114;
+  --sr-dossier-instrument: #1b1e23;
+  --sr-dossier-label: #a1a1a6;
+
+  /* Legacy marketing color aliases (map to unified dark) */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-medium: rgba(255, 255, 255, 0.14);
+  --color-surface-raised: #14161a;
+  --color-surface-hover: #1b1e23;
+  --color-text-muted: #a1a1a6;
+  --color-badge-private: rgba(255, 255, 255, 0.06);
+  --color-badge-private-text: var(--sr-ink-secondary);
+  --color-badge-published: rgba(255, 255, 255, 0.06);
+  --color-badge-published-text: var(--sr-ink-secondary);
+  --color-badge-verified: var(--sr-verify-soft);
+  --color-badge-verified-text: var(--sr-verify-ink);
+  --color-badge-verified-border: rgba(63, 224, 197, 0.28);
 }
 
-/* ── Light theme (marketing / ledger surfaces) ──────────────────────── */
-.theme-light {
-  --sr-bg:           #f8f6f2;
-  --sr-bg-elevated:  #ffffff;
-  --sr-bg-secondary: #efece6;
-  --sr-bg-sunken:    #ebe8e1;
-  --sr-bg-accent:    color-mix(in oklch, #1f7a72 6%, #ffffff);
+/*
+ * Scope aliases — same palette as :root.
+ * Kept so PublicShell / route code can still set data-theme without a
+ * third parallel visual system. Layout-only tweaks live in globals.css.
+ */
+body[data-theme='institutional'],
+body[data-theme='ledger-dark'] {
+  /* Inherit unified :root palette; no cream / parchment overrides. */
+  color-scheme: dark;
+}
 
-  --sr-line:         #e2dfd9;
-  --sr-line-strong:  #cfcbc2;
-  --sr-divider:      #ece9e2;
-  --sr-border-alpha: oklch(from #14181f l c h / 0.09);
+body[data-theme='institutional']::before,
+body[data-theme='ledger-dark']::before {
+  display: none;
+}
 
-  --sr-ink:          #14181f;
-  --sr-ink-secondary:#525a66;
-  --sr-ink-faint:    #7c8390;
-  --sr-ink-subtle:   #a4aab4;
+/* Desktop section rhythm for marketing scopes */
+@media (min-width: 768px) {
+  body[data-theme='institutional'],
+  body[data-theme='ledger-dark'] {
+    --space-section: 6rem; /* 96px */
+    --space-section-lg: 7.5rem; /* 120px */
+  }
+}
 
-  --sr-primary:         #1f7a72;
-  --sr-primary-hover:   #246a64;
-  --sr-primary-pressed: #185b56;
-  --sr-primary-soft:    oklch(from #1f7a72 l c h / 0.10);
-  --sr-primary-ring:    oklch(from #1f7a72 l c h / 0.35);
-  --sr-on-primary:      #ffffff;
-
-  --sr-success:         #2f7754;
-  --sr-success-soft:    oklch(from #2f7754 l c h / 0.08);
-  --sr-warning:         #8a6418;
-  --sr-warning-soft:    oklch(from #8a6418 l c h / 0.10);
-  --sr-danger:          #9a4338;
-  --sr-danger-soft:     oklch(from #9a4338 l c h / 0.08);
-  --sr-info:            #3d5a82;
-  --sr-info-soft:       oklch(from #3d5a82 l c h / 0.08);
-
-  --sr-focus-ring: 0 0 0 2px var(--sr-bg), 0 0 0 4px var(--sr-primary-ring);
-
-  --sr-shadow-xs: 0 1px 2px oklch(0.2 0.01 250 / 0.06);
-  --sr-shadow-sm: 0 1px 2px oklch(0.2 0.01 250 / 0.06),
-                  0 4px 8px  oklch(0.2 0.01 250 / 0.04);
-  --sr-shadow-md: 0 2px 4px  oklch(0.2 0.01 250 / 0.08),
-                  0 8px 24px oklch(0.2 0.01 250 / 0.12);
-  --sr-shadow-lg: 0 4px 8px  oklch(0.2 0.01 250 / 0.08),
-                  0 16px 48px oklch(0.2 0.01 250 / 0.16);
+@media (max-width: 767px) {
+  body[data-theme='institutional'],
+  body[data-theme='ledger-dark'] {
+    --space-section: 3rem; /* 48px */
+    --space-section-lg: 4rem; /* 64px */
+  }
 }

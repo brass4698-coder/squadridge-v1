@@ -2,11 +2,11 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Link, useLocation } from 'react-router-dom';
 import { useAppNavContext, useIsModerator } from '../../hooks';
 import { NavigationProgress } from './NavigationProgress';
-import { publicShellInnerClass, shellListResetClass } from './publicShell';
+import { publicShellInnerClass, shellListResetClass } from './publicShellTokens';
 import { twMerge } from 'tailwind-merge';
 
 const HEADER_SHELL =
-  'sticky top-0 z-[100] border-b border-white/[0.08] bg-[rgba(11,15,26,0.92)] backdrop-blur-[8px] supports-[backdrop-filter]:bg-[rgba(11,15,26,0.88)]';
+  'sticky top-0 z-[100] border-b border-line bg-surface/90 backdrop-blur-[8px] supports-[backdrop-filter]:bg-surface/85';
 
 /** Single primary row: 64px mobile, 72px desktop — context bar is always separate below. */
 const HEADER_MAIN_ROW = twMerge(
@@ -29,7 +29,7 @@ const mobileLink = (active: boolean) =>
     'flex min-h-[44px] w-full items-center rounded-[6px] px-1 text-left text-[15px] font-medium leading-snug transition-colors',
     active
       ? 'text-slate-100 underline decoration-slate-500 underline-offset-4'
-      : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300',
+      : 'text-slate-500 hover:bg-surface-hover hover:text-slate-300',
   );
 
 type Variant = 'full' | 'minimal';
@@ -40,7 +40,7 @@ function usePublicNavActive() {
     howItWorks: pathname === '/' && hash === '#how-it-works',
     security: pathname.startsWith('/security'),
     ledger: pathname === '/ledger' || pathname === '/ledger/' || pathname.startsWith('/ledger/'),
-    pilotAccess: (pathname === '/' && hash === '#waitlist') || pathname.startsWith('/invite'),
+    pilotAccess: pathname.startsWith('/request-access') || pathname.startsWith('/invite'),
   };
 }
 
@@ -94,7 +94,7 @@ function JourneyStrip() {
     return null;
   if (!showResumeCta && !showOnboardingCta) return null;
   return (
-    <div className="border-b border-[#141e30] bg-[rgba(8,11,18,0.92)] py-2.5">
+    <div className="border-b border-line bg-surface/90 py-2.5">
       <div
         className={twMerge(
           publicShellInnerClass,
@@ -133,7 +133,12 @@ function DesktopPrimaryNav({
     { key: 'how', to: '/#how-it-works', label: 'How it works', isActive: active.howItWorks },
     { key: 'sec', to: '/security', label: 'Security', isActive: active.security },
     { key: 'led', to: '/ledger', label: 'Ledger', isActive: active.ledger },
-    { key: 'pilot', to: '/#waitlist', label: 'Pilot access', isActive: active.pilotAccess },
+    {
+      key: 'pilot',
+      to: '/request-access',
+      label: 'Request pilot access',
+      isActive: active.pilotAccess,
+    },
   ] as const;
 
   return (
@@ -259,7 +264,12 @@ function MobileNavPanel({
     { to: '/#how-it-works', label: 'How it works', active: active.howItWorks, hash: true },
     { to: '/security', label: 'Security', active: active.security, hash: false },
     { to: '/ledger', label: 'Ledger', active: active.ledger, hash: false },
-    { to: '/#waitlist', label: 'Pilot access', active: active.pilotAccess, hash: true },
+    {
+      to: '/request-access',
+      label: 'Request pilot access',
+      active: active.pilotAccess,
+      hash: false,
+    },
   ] as const;
 
   return (
@@ -268,7 +278,7 @@ function MobileNavPanel({
       id="public-site-mobile-nav"
       role="region"
       aria-labelledby={titleId}
-      className="absolute left-0 right-0 top-full border-b border-white/[0.07] bg-[rgba(10,14,22,0.98)] shadow-[0_8px_24px_rgba(0,0,0,0.28)] lg:hidden"
+      className="absolute left-0 right-0 top-full border-b border-line bg-surface/95 shadow-[0_8px_24px_rgba(0,0,0,0.28)] lg:hidden"
     >
       <h2 id={titleId} className="sr-only">
         Site navigation
@@ -303,9 +313,9 @@ function MobileNavPanel({
             ))}
           </ul>
         </nav>
-        <div className="mt-5 border-t border-white/[0.06] pt-5">
+        <div className="mt-5 border-t border-line pt-5">
           <a
-            href="/#waitlist"
+            href="/request-access"
             className={twMerge(
               'focus-ring inline-flex h-10 min-h-[40px] w-full items-center justify-center rounded-[8px] px-4 font-heading text-[0.875rem] font-semibold transition-opacity',
               'bg-teal text-white hover:bg-teal-dark',
@@ -317,7 +327,7 @@ function MobileNavPanel({
           </a>
         </div>
         {showDev ? (
-          <div className="mt-6 border-t border-white/[0.06] pt-4">
+          <div className="mt-6 border-t border-line pt-4">
             <p className="mb-2 font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-slate-600">
               Dev
             </p>
@@ -404,7 +414,7 @@ function PublicShellHeader() {
           <div className="flex min-w-0 shrink-0 items-center justify-end gap-3 lg:justify-self-end">
             <div className="hidden lg:block">
               <a
-                href="/#waitlist"
+                href="/request-access"
                 className={twMerge(
                   'focus-ring inline-flex min-h-[42px] items-center justify-center rounded-[8px] border border-transparent bg-teal px-[16px] font-heading text-[0.875rem] font-semibold text-white transition-[opacity,background-color] hover:bg-teal-dark',
                   'lg:min-h-[44px]',
@@ -418,7 +428,7 @@ function PublicShellHeader() {
               <button
                 ref={menuBtnRef}
                 type="button"
-                className="inline-flex size-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
+                className="inline-flex size-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-[6px] text-slate-300 transition-colors hover:bg-surface-hover hover:text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
                 aria-expanded={mobileOpen}
                 aria-controls={menuId}
                 aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -450,7 +460,7 @@ function PublicShellHeader() {
 
         {/* Route context only — full-width row, never inline with the CTA */}
         {showContext ? (
-          <div className="border-t border-white/[0.06] bg-[rgba(7,10,16,0.65)]">
+          <div className="border-t border-line bg-surface/65">
             <div
               className={twMerge(
                 publicShellInnerClass,

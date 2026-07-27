@@ -1,15 +1,20 @@
 export { DEMO_PERSONA } from './demoPersona';
 export {
   DEMO_APPENDIX,
+  DEMO_FACILITATOR_SESSION_ID,
   DEMO_FIRST_WALKTHROUGH_PATH,
   DEMO_MAIN_STEPS,
   DEMO_WALKTHROUGH_STORAGE_KEY,
+  DEMO_WALKTHROUGH_TIP_KEY,
   demoSteps,
   locationMatchesStep,
   pathsEqual,
+  resolveStepTips,
   type DemoAction,
   type DemoOverlayStep,
   type DemoStep,
+  type DemoSurfaceType,
+  type DemoTip,
   type EnvMode,
 } from './demoScript';
 export {

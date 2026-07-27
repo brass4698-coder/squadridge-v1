@@ -1,9 +1,13 @@
-# `src/demo` — guided walkthrough
+# Demo walkthrough (`src/demo/`)
 
-Scripted presenter tour (provider, step list, `DemoLayout`, auto-actions with human-paced **`type`** steps, minimal telemetry).
+Guided product tour for App.v2: **spotlight + adjacent callout**, corner progress pill,
+dismissible badge, **Back / Next / Exit**.
 
-The main script includes the **full onboarding** wizard at `/onboarding?demo=1&owt=0` … `owt=5` (URL-synced), then **`/verify?demo=1`**, then intent → match → offline session (`/session/demo-session-001`) → ledger → security → profile.
+- Script: `demoScript.ts` (`DEMO_MAIN_STEPS` + linear `tips`)
+- Chrome: `DemoLayout.tsx` + `DemoOverlay.tsx` + `DemoExitConfirm.tsx`
+- Provider: `DemoWalkthroughContext.tsx` / `DemoWalkthroughProviderImpl.tsx`
+- Styles: scoped under `body[data-demo-active]` / `.demoActive` in `globals.css`
+- Docs: `docs/technical/demo-walkthrough.md`
 
-**Mission (`ob=1`)** does not auto-advance — use **Next** / **Space** when ready. **Callsign, role, language, region, time window, tags, and era** are driven by **`DEMO_PERSONA`** in `demoPersona.ts` so onboarding and the profile step show the same story.
-
-**How to remove the tour** (delete this folder and unwind integrations): see **`docs/technical/demo-walkthrough.md`** → *Removing the tour completely*.
+Start via **/demo** → role start, **Try the Demo** on `/sign-in`, `/?demo=1`, or
+`startWalkthrough()`.

@@ -1,8 +1,9 @@
 /**
  * AES-256-GCM helpers for app-level message encryption (Web Crypto).
- * Keys live on `squads.message_encryption_key` (32 raw bytes, base64 or base64url). RLS limits members;
- * the DB also generates a key on insert if omitted (see migration `20260417150000_*`). This is not
- * end-to-end encryption against the platform — see `docs/security/threat-model.md`.
+ * Squad keys live on `squads.message_encryption_key`; v2 facilitated rooms use
+ * `session_room_keys.message_encryption_key` with the same v3 envelope.
+ * RLS limits members; this is not end-to-end encryption against the platform —
+ * see `docs/security/threat-model.md`.
  */
 
 const AES_GCM_IV_LENGTH = 12;

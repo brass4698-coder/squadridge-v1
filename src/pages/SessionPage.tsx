@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   SessionFeatureErrorBoundary,
@@ -11,6 +12,8 @@ import {
   SessionTranslationPanel,
   SquadPeerStrip,
 } from '../components';
+import { EmptyState } from '../components/shared/EmptyState';
+import { TrustLabel } from '../components/shared/TrustLabel';
 import { SessionConsensusPanel } from '../components/session/SessionConsensusPanel';
 import { SessionPresenceList } from '../components/session/SessionPresenceList';
 import { SessionStrategyRoomChrome } from '../components/session/SessionStrategyRoomChrome';
@@ -633,8 +636,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
 
     setHttpDegraded(false);
 
-    if (isAiPipelineEnabled() && squadId) {
-      const { persistOk } = await recordLocalToneAndMaybePersist(supabase, squadId, bodyForSend);
+    const verifiedSquadId = squad.id;
+    if (isAiPipelineEnabled()) {
+      const { persistOk } = await recordLocalToneAndMaybePersist(
+        supabase,
+        verifiedSquadId,
+        bodyForSend,
+      );
       if (!persistOk) {
         toast.warning(
           'Your message was sent, but tone insight could not be saved. Dialogue continues as normal.',
@@ -701,8 +709,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
     if (slowDownBreathing) return;
     if (sendPaused) return;
 
-    if (supabase && squadId) {
-      void logIntervention(supabase, squadId, 'slow_down_clear');
+    // Auth session + RLS-validated squad row — never authorize from the raw route param alone.
+    const authedUserId = session?.user?.id;
+    if (supabase && authedUserId && squadQuerySuccess && squad) {
+      void logIntervention(supabase, squad.id, 'slow_down_clear');
     }
 
     setSlowDownBreathing(true);
@@ -953,40 +963,46 @@ export function SessionPage({ squadId }: { squadId: string }) {
           <div
             role="toolbar"
             aria-label="Squad session actions"
-            className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-b border-[#1a2236] px-4 py-2 sm:gap-3"
+            className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#1a2236] px-4 py-2 sm:gap-3"
           >
-            {!squad?.archived_at ? (
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <TrustLabel variant="session" />
+              <TrustLabel variant="anonymous" />
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+              {!squad?.archived_at ? (
+                <button
+                  type="button"
+                  className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-amber disabled:opacity-60"
+                  aria-busy={archiving}
+                  aria-label={archiving ? 'Archiving squad' : 'Archive squad'}
+                  disabled={archiving}
+                  onClick={() => void handleArchiveSquad()}
+                >
+                  {archiving ? 'Archiving…' : 'Archive squad'}
+                </button>
+              ) : null}
               <button
                 type="button"
-                className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-amber disabled:opacity-60"
-                aria-busy={archiving}
-                aria-label={archiving ? 'Archiving squad' : 'Archive squad'}
-                disabled={archiving}
-                onClick={() => void handleArchiveSquad()}
+                className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1]"
+                aria-label="Export conversation transcript as JSON"
+                onClick={() => handleExportTranscript()}
               >
-                {archiving ? 'Archiving…' : 'Archive squad'}
+                Export transcript
               </button>
-            ) : null}
-            <button
-              type="button"
-              className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1]"
-              aria-label="Export conversation transcript as JSON"
-              onClick={() => handleExportTranscript()}
-            >
-              Export transcript
-            </button>
-            <button
-              type="button"
-              className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1] disabled:opacity-60"
-              aria-busy={refreshingMessages}
-              aria-label={
-                refreshingMessages ? 'Refreshing messages' : 'Refresh messages from server'
-              }
-              disabled={refreshingMessages}
-              onClick={() => void handleRefreshMessages()}
-            >
-              {refreshingMessages ? 'Refreshing…' : 'Refresh'}
-            </button>
+              <button
+                type="button"
+                className="inline-flex min-h-[44px] items-center justify-center px-2 font-sans text-[0.75rem] font-medium text-[#4b5563] transition-colors hover:text-[#a8b2c1] disabled:opacity-60"
+                aria-busy={refreshingMessages}
+                aria-label={
+                  refreshingMessages ? 'Refreshing messages' : 'Refresh messages from server'
+                }
+                disabled={refreshingMessages}
+                onClick={() => void handleRefreshMessages()}
+              >
+                {refreshingMessages ? 'Refreshing…' : 'Refresh'}
+              </button>
+            </div>
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col p-4 pt-3 sm:p-6 sm:pt-4">
@@ -1008,8 +1024,13 @@ export function SessionPage({ squadId }: { squadId: string }) {
               ) : null}
               {loading ? <SessionPageMessagesSkeleton count={5} /> : null}
               {messages.length === 0 && optimisticMessages.length === 0 && !loading ? (
-                <li className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-4 py-8 text-center font-sans text-[0.9rem] italic leading-relaxed text-[#3d4f63]">
-                  No messages yet. Say hello calmly.
+                <li className="list-none min-h-[200px]">
+                  <EmptyState
+                    icon={MessageSquare}
+                    heading="No messages yet"
+                    body="Say hello calmly when you are ready."
+                    className="py-10"
+                  />
                 </li>
               ) : null}
               {!loading

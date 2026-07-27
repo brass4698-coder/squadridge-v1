@@ -49,8 +49,8 @@ BEGIN
 
     INSERT INTO public.users (id) VALUES (v_member), (v_other) ON CONFLICT (id) DO NOTHING;
 
-    INSERT INTO public.squads (id, status)
-    VALUES (v_squad, 'active')
+    INSERT INTO public.squads (id, topic, status, expires_at)
+    VALUES (v_squad, 'pgTAP ledger votes squad', 'active', now() + interval '1 day')
     ON CONFLICT (id) DO NOTHING;
 
     INSERT INTO public.squad_members (squad_id, user_id)

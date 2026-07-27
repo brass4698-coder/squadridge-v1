@@ -43,13 +43,8 @@ export function ConfirmModal({
       aria-describedby="confirm-modal-body"
       className="fixed inset-0 z-50 flex items-center justify-center px-4"
     >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-        onClick={onCancel}
-        aria-hidden="true"
-      />
+      {/* Backdrop — frosted scrim (falls back to solid tint when reduced) */}
+      <div className="sr-glass-scrim absolute inset-0" onClick={onCancel} aria-hidden="true" />
 
       {/* Panel */}
       <div

@@ -25,25 +25,26 @@ function fail(name, detail) {
   console.log(`FAIL  ${name}${detail ? ` — ${detail}` : ''}`);
 }
 
-// 1. No public /dev/supabase route
+// 1. No public /dev/supabase route (active router is App.v2.tsx; keep App.tsx clean too)
 try {
-  const app = read('src/App.tsx');
-  if (app.includes('path="/dev/supabase"') || app.includes("path='/dev/supabase'")) {
-    fail('Remove /dev/supabase route', 'still present in App.tsx');
-  } else {
-    pass('No /dev/supabase route in App.tsx');
+  for (const file of ['src/App.v2.tsx', 'src/App.tsx']) {
+    const app = read(file);
+    if (app.includes('path="/dev/supabase"') || app.includes("path='/dev/supabase'")) {
+      fail('Remove /dev/supabase route', `still present in ${file}`);
+    }
   }
+  pass('No /dev/supabase route in App routers');
 } catch (e) {
   fail('No /dev/supabase route', String(e));
 }
 
-// 2. Moderator admin health route (nested under /admin in React Router)
+// 2. Moderator admin health route (nested under /admin in React Router) — App.v2 is active
 try {
-  const app = read('src/App.tsx');
+  const app = read('src/App.v2.tsx');
   const hasAdminNest = app.includes('path="/admin"');
   const hasHealthChild = /path=\{?["']health["']\}?/.test(app) && app.includes('SupabaseHealthPage');
   if (!hasAdminNest || !hasHealthChild) {
-    fail('Admin health route', 'expect /admin nest with path "health" → SupabaseHealthPage');
+    fail('Admin health route', 'expect /admin nest with path "health" → SupabaseHealthPage in App.v2.tsx');
   } else if (!app.includes('RequireModerator')) {
     fail('Admin health route', 'missing RequireModerator');
   } else {
@@ -205,6 +206,20 @@ if (
   );
 } else {
   pass('Bundled Semaphore demo decoys are gated for this check');
+}
+
+// 10b. Demo password login must not ship in production
+if (process.env.VITE_ENABLE_DEMO_LOGIN === 'true') {
+  fail('VITE_ENABLE_DEMO_LOGIN', 'demo password login must not be enabled for production readiness');
+} else {
+  pass('Demo password login is not enabled for this check');
+}
+
+// 10c. V2 mock facilitator fixtures must not ship in production
+if (process.env.VITE_V2_MOCK_DATA === 'true') {
+  fail('VITE_V2_MOCK_DATA', 'facilitator session fixtures must not be enabled for production readiness');
+} else {
+  pass('V2 mock facilitator data is not enabled for this check');
 }
 
 const failed = checks.filter((c) => !c.ok);

@@ -18,6 +18,30 @@ export type MatchQueueStatus = 'waiting' | 'matched' | 'cancelled';
 export type LedgerProposalStatus = 'draft' | 'published' | 'archived';
 
 export type LedgerProposalVote = 'approve' | 'reject' | 'abstain';
+export type IncidentRoomStatus = 'active' | 'paused' | 'archived' | 'closed';
+export type IncidentSeverityTier = 'monitoring' | 'escalating' | 'critical' | 'de-escalating';
+export type IncidentLane =
+  | 'verified_evidence'
+  | 'disputed_claims'
+  | 'unverified_leads'
+  | 'community_impact'
+  | 'official_responses';
+export type IncidentVerificationStatus =
+  | 'pending_review'
+  | 'corroborated'
+  | 'disputed'
+  | 'unverified'
+  | 'retracted';
+export type IncidentModerationState = 'pending' | 'approved' | 'flagged' | 'removed';
+export type IncidentSourceType =
+  | 'document'
+  | 'statement'
+  | 'news'
+  | 'social'
+  | 'official'
+  | 'other';
+export type IncidentThreadStatus = 'open' | 'paused' | 'resolved';
+export type IncidentParticipantRole = 'participant' | 'facilitator' | 'moderator' | 'observer';
 export interface Database {
   public: {
     Tables: {
@@ -49,6 +73,14 @@ export interface Database {
           onboarding_completed_at: string | null;
           created_at: string;
           updated_at: string;
+          /** Invite-only columns (20260704 reconcile); optional until migration applied. */
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          status?: string | null;
+          primary_role?: string | null;
+          onboarding_completed?: boolean | null;
+          last_dashboard?: string | null;
         };
         Insert: {
           id: string;
@@ -63,6 +95,13 @@ export interface Database {
           onboarding_completed_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          status?: string | null;
+          primary_role?: string | null;
+          onboarding_completed?: boolean | null;
+          last_dashboard?: string | null;
         };
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
         Relationships: [];
@@ -75,6 +114,7 @@ export interface Database {
           nullifier_hash: string;
           attribute_scope: string;
           created_at: string;
+          expires_at: string;
         };
         Insert: {
           id?: string;
@@ -83,6 +123,7 @@ export interface Database {
           nullifier_hash: string;
           attribute_scope: string;
           created_at?: string;
+          expires_at?: string;
         };
         Update: Partial<Database['public']['Tables']['zk_proof_submissions']['Insert']>;
         Relationships: [];
@@ -481,6 +522,442 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['user_notification_prefs']['Insert']>;
         Relationships: [];
       };
+      incident_rooms: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          description: string;
+          status: IncidentRoomStatus;
+          severity_tier: IncidentSeverityTier;
+          facilitator_id: string;
+          created_at: string;
+          updated_at: string;
+          closed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          description?: string;
+          status?: IncidentRoomStatus;
+          severity_tier?: IncidentSeverityTier;
+          facilitator_id: string;
+          created_at?: string;
+          updated_at?: string;
+          closed_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['incident_rooms']['Insert']>;
+        Relationships: [];
+      };
+      incident_items: {
+        Row: {
+          id: string;
+          room_id: string;
+          lane: IncidentLane;
+          verification_status: IncidentVerificationStatus;
+          moderation_state: IncidentModerationState;
+          title: string;
+          body: string;
+          source_url: string | null;
+          source_type: IncidentSourceType;
+          content_warning: string | null;
+          author_id: string;
+          moderator_id: string | null;
+          moderation_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          lane: IncidentLane;
+          verification_status?: IncidentVerificationStatus;
+          moderation_state?: IncidentModerationState;
+          title: string;
+          body: string;
+          source_url?: string | null;
+          source_type?: IncidentSourceType;
+          content_warning?: string | null;
+          author_id: string;
+          moderator_id?: string | null;
+          moderation_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_items']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_items_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_threads: {
+        Row: {
+          id: string;
+          room_id: string;
+          item_id: string | null;
+          topic: string;
+          status: IncidentThreadStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          item_id?: string | null;
+          topic: string;
+          status?: IncidentThreadStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_threads']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_threads_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_messages: {
+        Row: {
+          id: string;
+          thread_id: string;
+          author_id: string;
+          body: string;
+          moderation_state: IncidentModerationState;
+          is_facilitator: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          thread_id: string;
+          author_id: string;
+          body: string;
+          moderation_state?: IncidentModerationState;
+          is_facilitator?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_messages']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_messages_thread_id_fkey';
+            columns: ['thread_id'];
+            referencedRelation: 'incident_threads';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_room_participants: {
+        Row: {
+          room_id: string;
+          user_id: string;
+          role: IncidentParticipantRole;
+          joined_at: string;
+        };
+        Insert: {
+          room_id: string;
+          user_id: string;
+          role?: IncidentParticipantRole;
+          joined_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['incident_room_participants']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_room_participants_room_id_fkey';
+            columns: ['room_id'];
+            referencedRelation: 'incident_rooms';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      // ── v2 facilitator platform (20260618+) ──
+      sessions: {
+        Row: {
+          id: string;
+          facilitator_id: string;
+          title: string;
+          conflict_type: string;
+          language: string;
+          max_participants: number;
+          eligibility_notes: string | null;
+          identity_verification_required: boolean;
+          outcome_public: boolean;
+          status: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          created_at: string;
+          updated_at: string;
+          template_id: string | null;
+          setup_config: Json;
+          dialogue_stage?:
+            | 'preparation'
+            | 'opening'
+            | 'story'
+            | 'framing'
+            | 'options'
+            | 'review'
+            | 'outcome_ready';
+          issue_goal?: string | null;
+          risk_notes?: string | null;
+          disclosure_boundaries?: string | null;
+        };
+        Insert: {
+          facilitator_id: string;
+          title: string;
+          conflict_type: string;
+          language?: string;
+          max_participants?: number;
+          eligibility_notes?: string | null;
+          identity_verification_required?: boolean;
+          outcome_public?: boolean;
+          status?: 'setup' | 'open' | 'live' | 'paused' | 'ended' | 'released';
+          template_id?: string | null;
+          setup_config?: Json;
+        };
+        Update: Partial<Database['public']['Tables']['sessions']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      participants: {
+        Row: {
+          id: string;
+          session_id: string;
+          codename: string;
+          invite_token: string;
+          invite_used: boolean;
+          email_hash: string | null;
+          verification_status: 'pending' | 'verified' | 'denied';
+          document_submitted: boolean;
+          consented_at: string | null;
+          admitted_at: string | null;
+          left_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          codename: string;
+          invite_token: string;
+          invite_used?: boolean;
+          email_hash?: string | null;
+          verification_status?: 'pending' | 'verified' | 'denied';
+          document_submitted?: boolean;
+          consented_at?: string | null;
+          admitted_at?: string | null;
+          left_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['participants']['Insert']>;
+        Relationships: [];
+      };
+      verification_requests: {
+        Row: {
+          id: string;
+          participant_id: string;
+          document_type: string | null;
+          storage_path: string | null;
+          submitted_at: string;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+        };
+        Insert: {
+          participant_id: string;
+          document_type?: string | null;
+          storage_path?: string | null;
+          submitted_at?: string;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['verification_requests']['Insert']>;
+        Relationships: [];
+      };
+      outcome_records: {
+        Row: {
+          id: string;
+          session_id: string;
+          summary: string;
+          agreed_terms: string | null;
+          pending_items: string | null;
+          facilitator_notes: string | null;
+          status: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at: string | null;
+          ledger_sha: string | null;
+          timestamp_token: string | null;
+          timestamp_authority: string | null;
+          timestamped_at: string | null;
+          timestamp_status: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          session_id: string;
+          summary: string;
+          agreed_terms?: string | null;
+          pending_items?: string | null;
+          facilitator_notes?: string | null;
+          status?: 'draft' | 'pending_approval' | 'approved' | 'published';
+          published_at?: string | null;
+          ledger_sha?: string | null;
+          timestamp_token?: string | null;
+          timestamp_authority?: string | null;
+          timestamped_at?: string | null;
+          timestamp_status?: 'none' | 'pending' | 'stored' | 'verified' | 'failed' | null;
+        };
+        Update: Partial<Database['public']['Tables']['outcome_records']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      outcome_approvals: {
+        Row: {
+          id: string;
+          outcome_id: string;
+          approver_label: string;
+          status: 'pending' | 'approved' | 'rejected';
+          approved_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          outcome_id: string;
+          approver_label: string;
+          status?: 'pending' | 'approved' | 'rejected';
+          approved_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['outcome_approvals']['Insert']>;
+        Relationships: [];
+      };
+      access_requests: {
+        Row: {
+          id: string;
+          full_name: string;
+          organisation: string | null;
+          email: string;
+          use_case: string;
+          description: string;
+          status: 'pending' | 'approved' | 'rejected';
+          created_at: string;
+        };
+        Insert: {
+          full_name: string;
+          organisation?: string | null;
+          email: string;
+          use_case: string;
+          description: string;
+          status?: 'pending' | 'approved' | 'rejected';
+        };
+        Update: Partial<Database['public']['Tables']['access_requests']['Insert']>;
+        Relationships: [];
+      };
+      session_messages: {
+        Row: {
+          id: string;
+          session_id: string;
+          sender_label: string;
+          sender_role: 'facilitator' | 'participant';
+          body: string;
+          sent_at: string;
+        };
+        Insert: {
+          session_id: string;
+          sender_label: string;
+          sender_role: 'facilitator' | 'participant';
+          body: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      session_resolution_items: {
+        Row: {
+          id: string;
+          session_id: string;
+          title: string;
+          description: string | null;
+          owner_org: string | null;
+          target_days: number | null;
+          support_count: number;
+          rank_order: number | null;
+          status: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          session_id: string;
+          title: string;
+          description?: string | null;
+          owner_org?: string | null;
+          target_days?: number | null;
+          support_count?: number;
+          rank_order?: number | null;
+          status?: 'proposed' | 'shortlisted' | 'archived';
+          proposed_by_label?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['session_resolution_items']['Insert']> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      session_resolution_supports: {
+        Row: {
+          id: string;
+          item_id: string;
+          participant_id: string;
+          created_at: string;
+        };
+        Insert: {
+          item_id: string;
+          participant_id: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      session_audit_events: {
+        Row: {
+          id: string;
+          session_id: string;
+          event_type: string;
+          actor_role: string | null;
+          actor_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          event_type: string;
+          actor_role?: string | null;
+          actor_id?: string | null;
+          metadata?: Json;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      workflow_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          session_id: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          session_id?: string | null;
+          event_type: string;
+          title: string;
+          body: string;
+          read_at?: string | null;
+        };
+        Update: {
+          read_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       ledger_proposal_vote_summary: {
@@ -533,6 +1010,10 @@ export interface Database {
         Args: { p_message_id: string; p_reason: string };
         Returns: undefined;
       };
+      moderator_flag_and_archive: {
+        Args: { p_target_type: string; p_target_id: string; p_reason: string };
+        Returns: undefined;
+      };
       moderator_archive_squad: {
         Args: { p_squad_id: string };
         Returns: undefined;
@@ -540,6 +1021,10 @@ export interface Database {
       moderator_record_decrypt_audit: {
         Args: { p_message_id: string; p_justification: string };
         Returns: undefined;
+      };
+      auth_user_is_moderator: {
+        Args: Record<string, never>;
+        Returns: boolean;
       };
       get_or_create_squad_message_key: {
         Args: { p_squad_id: string };

@@ -1,18 +1,20 @@
 // ============================================================
 // InviteOnlyNotice — shown on sign-in page
 // ============================================================
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export function InviteOnlyNotice() {
   return (
-    <div className="rounded-md border border-sq-border bg-sq-surface px-4 py-3 text-sm text-sq-muted">
-      <p>
-        SquadRidge is an invite-only platform.{' '}
-        <Link to="/request-access" className="text-sq-primary underline hover:no-underline">
-          Request access
+    <div className="sr-form-notice">
+      <p className="m-0">
+        SquadRidge is invite-only during the private pilot for mediators and facilitation teams.{' '}
+        <Link
+          to="/request-access"
+          className="font-medium text-brand underline-offset-4 hover:underline"
+        >
+          Request pilot access
         </Link>{' '}
-        if you’d like to join.
+        if you do not have an invitation yet.
       </p>
     </div>
   );

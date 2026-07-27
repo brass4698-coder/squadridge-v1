@@ -13,4 +13,9 @@ export const queryKeys = {
   messages: {
     list: (squadId: string | undefined) => ['messages', 'list', squadId ?? 'none'] as const,
   },
+  incident: {
+    rooms: (filters?: { status?: string; severity?: string }) =>
+      ['incident', 'rooms', filters?.status ?? 'all', filters?.severity ?? 'all'] as const,
+    room: (slug: string | undefined) => ['incident', 'room', slug ?? 'none'] as const,
+  },
 } as const;

@@ -3,15 +3,10 @@
 // ============================================================
 import { useMemo } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import { resolveLocalDashboard } from '../lib/dashboardRouting';
+import { resolvePostAuthPath } from '../lib/postAuthRouting';
 
 export function useDashboardRoute(): string {
-  const { profile, roles } = useAuthContext();
+  const { session, profile, roles } = useAuthContext();
 
-  return useMemo(() => {
-    if (!profile) return '/sign-in';
-    if (profile.status === 'pending') return '/access-pending';
-    if (profile.last_dashboard) return profile.last_dashboard;
-    return resolveLocalDashboard(roles);
-  }, [profile, roles]);
+  return useMemo(() => resolvePostAuthPath({ session, profile, roles }), [session, profile, roles]);
 }

@@ -207,30 +207,35 @@ export async function verifyAndPersistZkProof(
   );
 
   const nullifierHash = semaphore_proof.nullifier.toLowerCase();
-  const proofId = crypto.randomUUID();
   const verifiedAt = new Date().toISOString();
 
   const admin = createClient(supabaseUrl, serviceKey);
 
-  const { error: zkErr } = await admin.from('zk_proof_submissions').insert({
-    user_id: userId,
-    proof_commitment,
-    nullifier_hash: nullifierHash,
-    attribute_scope: attribute_scope.trim(),
-    issuer_group_id: issuerGroupId,
-  });
+  const { data: inserted, error: zkErr } = await admin
+    .from('zk_proof_submissions')
+    .insert({
+      user_id: userId,
+      proof_commitment,
+      nullifier_hash: nullifierHash,
+      attribute_scope: attribute_scope.trim(),
+      issuer_group_id: issuerGroupId,
+    })
+    .select('id')
+    .single();
 
-  if (zkErr) {
-    if (zkErr.code === '23505') {
+  if (zkErr || !inserted?.id) {
+    if (zkErr?.code === '23505') {
       throw new Error('Nullifier already used');
     }
     logError('zk_proof_submissions_insert_failed', {
       function: 'handleZkProofVerification',
-      error_code: zkErr.code ?? null,
-      error_message: safeErrorMessage(new Error(zkErr.message)),
+      error_code: zkErr?.code ?? null,
+      error_message: safeErrorMessage(new Error(zkErr?.message ?? 'missing insert id')),
     });
     throw new Error('Could not record proof');
   }
+
+  const proofId = String(inserted.id);
 
   const attr = scopeToVerifiedAttribute(attribute_scope);
   const { error: attrErr } = await admin.from('verified_attributes').upsert(

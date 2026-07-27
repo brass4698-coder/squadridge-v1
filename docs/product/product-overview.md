@@ -1,30 +1,36 @@
 # Product Overview
 
+> **Superseded detail lives in [platform-description.md](platform-description.md)** — the canonical in-depth description. This page is a short index.
+
 ## Introduction
 
-SquadRidge is a verified-anonymous, cross-border dialogue platform designed to prevent conflict by securely connecting small groups of citizens across geopolitical divides [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform's core mission is to enable small, verified-anonymous squads to build bridges safely and at scale [1]. By prioritizing structured dialogue over public broadcasting, SquadRidge aims to de-escalate geopolitical tensions while providing secure early warning signals without relying on state surveillance [1].
+SquadRidge is a **facilitator-led messaging room** for high-stakes mediation and peacebuilding dialogue. Mediators and organizations run structured **written** sessions in a protected room, verify participants privately, and release **only** an approved outcome to a public ledger with a **verification anchor** — without publishing session dialogue or participant identities.
 
-## Core Mechanics
+The platform is in **private pilot**, inviting mediators and peacebuilding teams. We do not claim completed pilots, partner logos, or live ledger traction unless real and approved for public mention.
 
-The platform utilizes zero-knowledge cryptography to match four to six participants from opposing sides of a conflict into secure, time-bound dialogue sessions [1]. This ensures that users can connect across conflict lines without fear of state retaliation, while peace practitioners can run structured sessions safely [1].
+## Core mechanics
 
-### Key Features
+**Configure → Verify → Facilitate → Release**
 
-1.  **Zero-Knowledge Attribute Verification**: We employ Semaphore-based zero-knowledge proofs to verify user attributes like citizenship or organizational roles without exposing raw personally identifiable information (PII) [1]. This is a critical feature, as participants in authoritarian or active conflict zones face real danger if their identities are exposed [3].
-2.  **Structured Small-Group Matching**: Users are matched into squads of four to six individuals from opposing sides of a conflict [1]. This intimate setting fosters deeper connection and understanding compared to the chaotic environment of traditional social media.
-3.  **AI-Assisted De-escalation**: The platform integrates AI-assisted real-time translation and tone detection to intervene during escalations [1]. It gently suggests calmer wording and slows down hostile exchanges, embodying the "Power of Pause" essential for collective wellbeing [2].
-4.  **Secure Early Warning Signals**: To support wider Track II diplomacy efforts, the system aggregates de-identified sentiment metrics [1]. These insights are provided to vetted mediators, think tanks, and UN agencies, addressing the "warning-response" problem identified in the peace-tech ecosystem [2].
+1. **Configure** — Facilitator sets eligibility, template (community mediation, NGO deliberation, or Track II), and ground rules.
+2. **Verify** — Participants confirm privately; facilitator reviews before the room opens.
+3. **Facilitate** — Structured written dialogue under facilitator control (no video/audio on SquadRidge).
+4. **Release** — Facilitator drafts outcome, collects approvals, publishes with tamper-evident anchor.
 
-## The UX Paradigm
+**Room vs record:** Session content stays in the room. The public surface is outcome text + limited metadata only. See [platform-description.md §5](platform-description.md#5-the-core-architecture-room-vs-record).
 
-The onboarding flow prioritizes norm-setting by clearly explaining the platform's non-violence principles and the mechanics of verified anonymity [1]. UX copy emphasizes safety and reflection, utilizing interventions like a one-tap "Slow down" button to pause sending and a temporary "Pull back" feature for immediate message retraction [1]. In-room prompts actively guide users through structured digital dialogue frameworks, such as exploring mutual fears and shared goals, to foster sustained empathy [1].
+## What it is not
 
-## Architecture and Scalability
+- Not a video conferencing or general chat tool.
+- Not operator-proof E2E encryption today — see [threat model](../security/threat-model.md).
+- Not a legal instrument.
 
-The product is delivered as a **React + Vite + TypeScript** web client on a **Supabase backend-as-a-service** stack: managed PostgreSQL (with Row Level Security), Auth, Realtime, PostgREST-style access via `supabase-js`, and **Supabase Edge Functions** (Deno) for verification and other server-side steps. There is **no separate Node.js application server or Redis layer in the shipped product path** documented in this repository; matchmaking and messaging use Postgres and Realtime. Security is anchored by the Enclave[ZK] stack [1]. The data pipeline separates messaging from aggregated analytics where implemented; see [`docs/technical/architecture-overview.md`](../technical/architecture-overview.md) for the engineering-accurate picture.
+## Legacy product lines
+
+The repository still contains **squad matchmaking** and **incident dialogue** surfaces from earlier product iterations. External description should lead with **v2 facilitator sessions** unless speaking to engineers about migration. Details: [platform-description.md §11](platform-description.md#11-feature-inventory-honest-status).
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
-[2] Gemini Deep Research Synthesis.
-[3] Perplexity Research.
+- [Platform description (full)](platform-description.md)
+- [Threat model](../security/threat-model.md)
+- [Platform spec JSON](../../squadridge_platform_spec.json)

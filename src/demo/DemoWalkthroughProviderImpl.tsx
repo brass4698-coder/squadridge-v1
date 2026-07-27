@@ -7,15 +7,33 @@ import {
 } from './DemoWalkthroughContext';
 import { runDemoActions } from './demoAutoActions';
 import {
-  DEMO_MAIN_STEPS,
+  clearPersistedTipState,
   DEMO_WALKTHROUGH_STORAGE_KEY,
   locationMatchesStep,
+  readPersistedTipState,
+  resolveStepTips,
+  writePersistedTipState,
   type DemoStep,
+  type DemoTip,
 } from './demoScript';
+import { resolveDemoMainSteps } from './demoRolePaths';
 import { emitDemoPageView, emitDemoStepNav } from './demoTelemetry';
 
+function totalTipCount(steps: DemoStep[]): number {
+  return steps.reduce((n, s) => n + Math.max(1, resolveStepTips(s).length), 0);
+}
+
+function tipOrdinalFor(steps: DemoStep[], stepIndex: number, tipIndex: number): number {
+  if (stepIndex < 0) return 0;
+  let ordinal = 0;
+  for (let i = 0; i < stepIndex; i++) {
+    ordinal += Math.max(1, resolveStepTips(steps[i]).length);
+  }
+  return ordinal + tipIndex + 1;
+}
+
 /**
- * Full demo walkthrough: scripted steps, auto-actions, telemetry.
+ * Full demo walkthrough: scripted steps, linear tips, auto-actions, telemetry.
  * Loaded only when `?demo=1` or session tour flag is active (see `DemoWalkthroughProvider`).
  */
 export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode }) {
@@ -23,6 +41,8 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [storageActive, setStorageActive] = useState(readStorageFlag);
+  const [tipIndex, setTipIndex] = useState(0);
+  const [sheetMinimized, setSheetMinimized] = useState(false);
 
   const demoQuery = searchParams.get('demo') === '1';
 
@@ -34,44 +54,46 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
 
   const demoActive = demoQuery || storageActive;
 
+  const mainSteps = resolveDemoMainSteps();
+
   const currentStepIndex = useMemo(() => {
-    return DEMO_MAIN_STEPS.findIndex((s) =>
+    return mainSteps.findIndex((s) =>
       locationMatchesStep(location.pathname, location.search, s.path),
     );
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, mainSteps]);
 
   const currentStep: DemoStep | null =
-    currentStepIndex >= 0 && currentStepIndex < DEMO_MAIN_STEPS.length
-      ? DEMO_MAIN_STEPS[currentStepIndex]!
+    currentStepIndex >= 0 && currentStepIndex < mainSteps.length
+      ? mainSteps[currentStepIndex]!
       : null;
+
+  const currentTips: DemoTip[] = useMemo(() => resolveStepTips(currentStep), [currentStep]);
 
   const currentStepTitle = currentStep?.title ?? null;
 
-  /** Keep landing/ledger/security polished: show guided chrome on those paths only when `?demo=1` is in the URL. */
-  const marketingPublicPath =
-    location.pathname === '/' ||
-    location.pathname.startsWith('/ledger') ||
-    location.pathname.startsWith('/security');
-
-  /** Single published ledger records should read as artifacts, not a guided tour step. */
-  const isLedgerProposalDetail = /^\/ledger\/[^/]+$/.test(location.pathname);
-
-  const showDemoChrome =
-    demoActive &&
-    currentStepIndex >= 0 &&
-    !(marketingPublicPath && !demoQuery) &&
-    !isLedgerProposalDetail;
+  /** Show chrome whenever the URL matches a scripted tour step. */
+  const showDemoChrome = demoActive && currentStepIndex >= 0;
 
   const onboardingDemoTour =
     location.pathname.startsWith('/onboarding/') && searchParams.get('demo') === '1';
 
-  const canGoNext =
-    demoActive &&
-    currentStepIndex >= 0 &&
-    currentStepIndex < DEMO_MAIN_STEPS.length - 1 &&
-    !onboardingDemoTour;
+  const clampedTipIndex =
+    currentTips.length === 0 ? 0 : Math.min(Math.max(tipIndex, 0), currentTips.length - 1);
 
-  const canGoBack = demoActive && currentStepIndex > 0;
+  const currentTip: DemoTip | null =
+    currentTips.length > 0 ? (currentTips[clampedTipIndex] ?? null) : null;
+
+  const tipTotal = useMemo(() => totalTipCount(mainSteps), [mainSteps]);
+  const tipOrdinal = tipOrdinalFor(mainSteps, currentStepIndex, clampedTipIndex);
+
+  const atLastTipOfStep = clampedTipIndex >= Math.max(0, currentTips.length - 1);
+  const atLastStep = currentStepIndex >= mainSteps.length - 1;
+
+  const canGoNext =
+    demoActive && currentStepIndex >= 0 && !onboardingDemoTour && !(atLastStep && atLastTipOfStep);
+
+  const canGoBack =
+    demoActive && currentStepIndex >= 0 && !(currentStepIndex === 0 && clampedTipIndex === 0);
 
   const autoAbortRef = useRef<AbortController | null>(null);
   const actionsRunningRef = useRef(false);
@@ -81,34 +103,99 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
     autoAbortRef.current = null;
   }, []);
 
+  // Sync tip index when the route step changes; restore resume state when possible.
+  useEffect(() => {
+    if (!currentStep) {
+      setTipIndex(0);
+      return;
+    }
+    const persisted = readPersistedTipState();
+    if (persisted?.stepId === currentStep.id) {
+      const max = Math.max(0, resolveStepTips(currentStep).length - 1);
+      setTipIndex(Math.min(Math.max(0, persisted.tipIndex), max));
+    } else {
+      setTipIndex(0);
+      writePersistedTipState(currentStep.id, 0);
+    }
+    setSheetMinimized(false);
+  }, [currentStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- only on step id change
+
+  useEffect(() => {
+    if (!currentStep) return;
+    writePersistedTipState(currentStep.id, clampedTipIndex);
+  }, [currentStep, clampedTipIndex]);
+
   const startWalkthrough = useCallback(() => {
     sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
     setStorageActive(true);
-    const first = DEMO_MAIN_STEPS[0];
-    if (first) navigate(first.path);
+    const steps = resolveDemoMainSteps();
+    const first = steps.find((s) => s.id !== 'role_select') ?? steps[0];
+    if (first) {
+      writePersistedTipState(first.id, 0);
+      navigate(first.path);
+      return;
+    }
+    navigate('/demo/start?demo=1');
   }, [navigate]);
 
   const goNext = useCallback(() => {
     if (!demoActive || currentStepIndex < 0) return;
     if (onboardingDemoTour) return;
     if (actionsRunningRef.current) return;
-    if (currentStepIndex >= DEMO_MAIN_STEPS.length - 1) return;
-    const next = DEMO_MAIN_STEPS[currentStepIndex + 1];
+    if (!canGoNext) return;
+
+    if (!atLastTipOfStep) {
+      setTipIndex((i) => i + 1);
+      setSheetMinimized(false);
+      if (currentStep) emitDemoStepNav(currentStep.id, 'next');
+      return;
+    }
+
+    const next = mainSteps[currentStepIndex + 1];
     if (currentStep) emitDemoStepNav(currentStep.id, 'next');
-    if (next) navigate(next.path);
-  }, [demoActive, currentStepIndex, currentStep, navigate, onboardingDemoTour]);
+    if (next) {
+      writePersistedTipState(next.id, 0);
+      navigate(next.path);
+    }
+  }, [
+    demoActive,
+    currentStepIndex,
+    currentStep,
+    navigate,
+    onboardingDemoTour,
+    canGoNext,
+    atLastTipOfStep,
+    mainSteps,
+  ]);
 
   const goBack = useCallback(() => {
-    if (!demoActive || currentStepIndex <= 0) return;
-    const prev = DEMO_MAIN_STEPS[currentStepIndex - 1];
+    if (!demoActive || currentStepIndex < 0) return;
+    if (!canGoBack) return;
+
+    if (clampedTipIndex > 0) {
+      setTipIndex((i) => Math.max(0, i - 1));
+      setSheetMinimized(false);
+      if (currentStep) emitDemoStepNav(currentStep.id, 'back');
+      return;
+    }
+
+    const prev = mainSteps[currentStepIndex - 1];
     if (currentStep) emitDemoStepNav(currentStep.id, 'back');
-    if (prev) navigate(prev.path);
-  }, [demoActive, currentStepIndex, currentStep, navigate]);
+    if (prev) {
+      const prevTips = resolveStepTips(prev);
+      const lastTip = Math.max(0, prevTips.length - 1);
+      writePersistedTipState(prev.id, lastTip);
+      navigate(prev.path);
+    }
+  }, [demoActive, currentStepIndex, currentStep, navigate, canGoBack, clampedTipIndex, mainSteps]);
 
   const exitDemo = useCallback(() => {
     cancelAutoActions();
     sessionStorage.removeItem(DEMO_WALKTHROUGH_STORAGE_KEY);
+    clearPersistedTipState();
     setStorageActive(false);
+    setTipIndex(0);
+    setSheetMinimized(false);
     navigate('/', { replace: true });
   }, [navigate, cancelAutoActions]);
 
@@ -171,8 +258,15 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       currentStepIndex,
       currentStep,
       currentStepTitle,
+      currentTips,
+      tipIndex: clampedTipIndex,
+      currentTip,
+      tipOrdinal,
+      tipTotal,
       canGoNext,
       canGoBack,
+      sheetMinimized,
+      setSheetMinimized,
       startWalkthrough,
       goNext,
       goBack,
@@ -184,8 +278,14 @@ export function DemoWalkthroughProviderImpl({ children }: { children: ReactNode 
       currentStepIndex,
       currentStep,
       currentStepTitle,
+      currentTips,
+      clampedTipIndex,
+      currentTip,
+      tipOrdinal,
+      tipTotal,
       canGoNext,
       canGoBack,
+      sheetMinimized,
       startWalkthrough,
       goNext,
       goBack,

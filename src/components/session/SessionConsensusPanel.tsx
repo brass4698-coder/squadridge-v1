@@ -47,16 +47,16 @@ export function SessionConsensusPanel({
   return (
     <section
       aria-labelledby="session-consensus-heading"
-      className="rounded-[10px] border border-[#1a2236] bg-[#0c1219] px-4 py-4 sm:px-5 sm:py-5"
+      className="rounded-[10px] border border-line bg-surface-elevated px-4 py-4 sm:px-5 sm:py-5"
     >
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2
           id="session-consensus-heading"
-          className="font-heading text-[0.95rem] font-semibold text-[#e2e8f0]"
+          className="font-heading text-[0.95rem] font-semibold text-ink"
         >
           Consensus record
         </h2>
-        <p className="text-[0.78rem] text-[#94a3b8]">
+        <p className="text-[0.78rem] text-ink-secondary">
           Draft a public outcome together. Nothing publishes until the squad votes and a moderator
           approves.
         </p>
@@ -188,7 +188,7 @@ function DraftForm({
       }}
     >
       <label className="block">
-        <span className="block font-sans text-[0.78rem] font-medium text-[#94a3b8]">
+        <span className="block font-sans text-[0.78rem] font-medium text-ink-secondary">
           Outcome title
         </span>
         <input
@@ -197,22 +197,24 @@ function DraftForm({
           maxLength={120}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Civilian protection protocols — corridor X"
-          className="mt-1 block w-full rounded-md border border-[#1f2940] bg-[#070b13] px-3 py-2 font-sans text-[0.875rem] text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/60 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-line bg-surface px-3 py-2 font-sans text-[0.875rem] text-ink placeholder:text-ink-faint focus:border-teal/60 focus:outline-none"
         />
       </label>
       <label className="block">
-        <span className="block font-sans text-[0.78rem] font-medium text-[#94a3b8]">Summary</span>
+        <span className="block font-sans text-[0.78rem] font-medium text-ink-secondary">
+          Summary
+        </span>
         <textarea
           value={summary}
           maxLength={400}
           rows={2}
           onChange={(e) => setSummary(e.target.value)}
           placeholder="One paragraph that a third party could cite."
-          className="mt-1 block w-full resize-y rounded-md border border-[#1f2940] bg-[#070b13] px-3 py-2 font-sans text-[0.875rem] text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/60 focus:outline-none"
+          className="mt-1 block w-full resize-y rounded-md border border-line bg-surface px-3 py-2 font-sans text-[0.875rem] text-ink placeholder:text-ink-faint focus:border-teal/60 focus:outline-none"
         />
       </label>
       <fieldset className="space-y-2">
-        <legend className="font-sans text-[0.78rem] font-medium text-[#94a3b8]">
+        <legend className="font-sans text-[0.78rem] font-medium text-ink-secondary">
           Consensus bullets (1-3)
         </legend>
         {[item1, item2, item3].map((value, idx) => (
@@ -228,12 +230,12 @@ function DraftForm({
               if (idx === 2) setItem3(v);
             }}
             placeholder={`Bullet ${idx + 1}`}
-            className="block w-full rounded-md border border-[#1f2940] bg-[#070b13] px-3 py-2 font-sans text-[0.875rem] text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/60 focus:outline-none"
+            className="block w-full rounded-md border border-line bg-surface px-3 py-2 font-sans text-[0.875rem] text-ink placeholder:text-ink-faint focus:border-teal/60 focus:outline-none"
           />
         ))}
       </fieldset>
       <label className="block">
-        <span className="block font-sans text-[0.78rem] font-medium text-[#94a3b8]">
+        <span className="block font-sans text-[0.78rem] font-medium text-ink-secondary">
           Tags (comma-separated, optional)
         </span>
         <input
@@ -242,7 +244,7 @@ function DraftForm({
           maxLength={140}
           onChange={(e) => setTagsInput(e.target.value)}
           placeholder="e.g. Climate, Displacement"
-          className="mt-1 block w-full rounded-md border border-[#1f2940] bg-[#070b13] px-3 py-2 font-sans text-[0.875rem] text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/60 focus:outline-none"
+          className="mt-1 block w-full rounded-md border border-line bg-surface px-3 py-2 font-sans text-[0.875rem] text-ink placeholder:text-ink-faint focus:border-teal/60 focus:outline-none"
         />
       </label>
       <button
@@ -288,10 +290,12 @@ function ProposalView({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="font-heading text-[0.95rem] font-semibold text-[#e2e8f0]">{title}</h3>
-        <p className="mt-1 font-sans text-[0.85rem] leading-relaxed text-[#a8b2c1]">{summary}</p>
+        <h3 className="font-heading text-[0.95rem] font-semibold text-ink">{title}</h3>
+        <p className="mt-1 font-sans text-[0.85rem] leading-relaxed text-ink-secondary">
+          {summary}
+        </p>
         {consensusItems.length ? (
-          <ul className="mt-3 list-disc space-y-1 pl-5 font-sans text-[0.85rem] text-[#cbd5e1] marker:text-slate-600">
+          <ul className="mt-3 list-disc space-y-1 pl-5 font-sans text-[0.85rem] text-ink-secondary marker:text-slate-600">
             {consensusItems.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
@@ -302,7 +306,7 @@ function ProposalView({
             {tags.map((t) => (
               <li
                 key={t}
-                className="rounded-full border border-[#1f2940] bg-[#0f1623] px-2 py-0.5 font-mono text-[0.7rem] text-[#94a3b8]"
+                className="rounded-full border border-line bg-surface-elevated px-2 py-0.5 font-mono text-[0.7rem] text-ink-secondary"
               >
                 {t}
               </li>
@@ -311,8 +315,8 @@ function ProposalView({
         ) : null}
       </div>
 
-      <fieldset className="rounded-md border border-[#1a2236] bg-[#070b13] px-3 py-3">
-        <legend className="px-1 font-sans text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[#64748b]">
+      <fieldset className="rounded-md border border-line bg-surface px-3 py-3">
+        <legend className="px-1 font-sans text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-ink-faint">
           Your vote
         </legend>
         <div className="flex flex-wrap gap-2">
@@ -325,7 +329,7 @@ function ProposalView({
               className={`min-h-[36px] rounded-md border px-3 font-sans text-[0.8rem] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                 myVote === v
                   ? 'border-teal/60 bg-teal/15 text-teal-light'
-                  : 'border-[#1f2940] bg-[#0c1219] text-[#a8b2c1] hover:border-teal/40 hover:text-[#e2e8f0]'
+                  : 'border-line bg-surface-elevated text-ink-secondary hover:border-teal/40 hover:text-ink'
               }`}
             >
               {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -334,8 +338,8 @@ function ProposalView({
         </div>
       </fieldset>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#1a2236] bg-[#070b13] px-3 py-2.5">
-        <p className="font-mono text-[0.78rem] text-[#94a3b8]">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-surface px-3 py-2.5">
+        <p className="font-mono text-[0.78rem] text-ink-secondary">
           {voteSummary
             ? `Approve ${voteSummary.approve} · Reject ${voteSummary.reject} · Abstain ${voteSummary.abstain} (of ${voteSummary.eligible} eligible)`
             : 'Loading vote tally…'}

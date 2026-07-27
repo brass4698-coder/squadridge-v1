@@ -1,0 +1,19 @@
+# Example only — copy to wrangler.toml locally. Not used by SquadRidge CI or Vercel deploy.
+# See docs/adr/006-cloudflare-workers-room-record.md (phase 1).
+
+name = "squadridge-public-ledger"
+main = "src/public-ledger.ts"
+compatibility_date = "2026-07-01"
+
+# Uncomment when you have a real account and R2 bucket for *public* ledger artifacts only.
+# Never bind a private dialogue archive bucket to this Worker.
+#
+# account_id = "YOUR_ACCOUNT_ID"
+#
+# [[r2_buckets]]
+# binding = "LEDGER_BUCKET"
+# bucket_name = "squadridge-ledger-public-example"
+
+[vars]
+# Informal label only — does not imply production cutover.
+SQUADRIDGE_LEDGER_MODE = "stub"

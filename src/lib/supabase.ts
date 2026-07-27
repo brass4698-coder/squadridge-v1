@@ -1,29 +1,18 @@
-// ============================================================
-// SquadRidge Supabase client (anon key only — no service role)
-// ============================================================
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variable.'
-  );
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
-
 /**
- * Getter function for accessing the Supabase client.
- * Enables compatibility with code patterns that use getSupabase().
+ * Canonical Supabase browser client (same HMR-safe singleton as `supabaseClient.ts`).
+ *
+ * Exported as an untyped `SupabaseClient` so call sites that use RPCs / tables not
+ * yet present in `Database` (invite-only auth, v2 session RPCs) keep compiling.
+ * Prefer importing `supabase` from `./supabaseClient` when you want full
+ * `Database` typing against `src/types/supabase.ts`.
+ *
+ * Never import or embed a service_role key here.
  */
-export function getSupabase() {
-  return supabase;
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabase as getTypedSupabase, supabase as typedSupabase } from './supabaseClient';
+
+export const supabase = typedSupabase as unknown as SupabaseClient;
+
+export function getSupabase(): SupabaseClient {
+  return getTypedSupabase() as unknown as SupabaseClient;
 }

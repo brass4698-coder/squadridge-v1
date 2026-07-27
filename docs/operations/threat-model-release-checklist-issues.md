@@ -24,6 +24,7 @@ Use the titles below as templates when filing issues.
 - [ ] No authorization decisions based on user-editable `user_metadata` in JWT
 - [ ] Service role and dashboard access: MFA, minimal headcount, break-glass procedure
 - [ ] Logging: Edge Functions avoid logging full proof bodies; structured outcome-only logs in production
+- [ ] Team/Enterprise: Platform Audit Logs / optional Audit Log Drain ownership and access list (see production-checklist Ops)
 
 ## Incident readiness
 

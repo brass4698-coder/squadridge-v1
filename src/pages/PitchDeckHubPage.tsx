@@ -1,3 +1,5 @@
+/* DEFERRED: pilot-first — internal pitch deck ops hub. Not part of MVP demo.
+   Gated to super_admin at /pitch-deck-hub (App.v2.tsx). */
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
@@ -33,9 +35,10 @@ import {
   labelForStatus,
   usePitchDeckHubStore,
 } from '../pitch-deck-hub/usePitchDeckHubStore';
-import { SquadLogo } from '../components/SquadLogo';
-import { SquadRidgeWordmark } from '../components/SquadRidgeWordmark';
+import { SquadRidgeLockup } from '../components/SquadRidgeWordmark';
 import { cn } from '../lib/cn';
+import { openGatedDeckInNewTab } from '../lib/deckAssetFetch';
+import { logWarn, safeErrorMessage } from '../lib/log';
 
 const AUDIENCE_LABEL: Record<DeckAudience, string> = {
   investors: 'Investors',
@@ -54,10 +57,8 @@ const HUB_NAV = [
   { id: 'hub-consistency', label: 'Consistency' },
 ] as const;
 
-const pitchDeckHubBase = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}pitch-deck-hub/`;
-
-function viewDeckHrefForId(deckId: string): string {
-  return `${pitchDeckHubBase}${pitchDeckHubHtmlFileNameForDeck(deckId)}`;
+function gatedHtmlFileForDeckId(deckId: string): string {
+  return pitchDeckHubHtmlFileNameForDeck(deckId);
 }
 
 const MESSAGING_FIELD_LABELS: Record<keyof MessagingLayer, string> = {
@@ -112,18 +113,18 @@ function Badge({
   subtle?: boolean;
 }) {
   const styles = {
-    neutral: 'border-white/[0.08] bg-white/[0.04] text-[#cbd5e1]',
+    neutral: 'border-line bg-surface-hover text-ink-secondary',
     teal: 'border-teal/30 bg-teal/10 text-teal-light',
     amber: 'border-amber/35 bg-amber/10 text-amber-light',
     danger: 'border-red-500/35 bg-red-500/10 text-red-300',
-    muted: 'border-white/[0.06] bg-[#0c1219] text-[#94a3b8]',
+    muted: 'border-line bg-surface-elevated text-ink-secondary',
   } as const;
   return (
     <span
       className={cn(
         'inline-flex items-center rounded-full border px-2.5 py-0.5 font-sans text-[0.65rem] font-medium',
         subtle
-          ? 'normal-case tracking-normal text-[#94a3b8]'
+          ? 'normal-case tracking-normal text-ink-secondary'
           : 'font-semibold uppercase tracking-[0.1em]',
         styles[variant],
       )}
@@ -155,11 +156,11 @@ function SectionShell({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-[7.5rem] border-t border-white/[0.06] pt-12 sm:pt-14">
+    <section id={id} className="scroll-mt-[7.5rem] border-t border-line pt-12 sm:pt-14">
       <p className="font-sans text-[0.75rem] font-medium tracking-wide text-teal/85">{eyebrow}</p>
-      <h2 className="mt-2 font-heading text-fluid-h2 font-extrabold text-[#f1f5f9]">{title}</h2>
+      <h2 className="mt-2 font-heading text-fluid-h2 font-extrabold text-ink">{title}</h2>
       {description ? (
-        <p className="mt-3 max-w-copy font-sans text-[0.92rem] leading-relaxed text-[#94a3b8]">
+        <p className="mt-3 max-w-copy font-sans text-[0.92rem] leading-relaxed text-ink-secondary">
           {description}
         </p>
       ) : null}
@@ -174,7 +175,7 @@ function ReadinessBar({ done, total }: { done: number; total: number }) {
   return (
     <div className="flex w-full items-center gap-3">
       <div
-        className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#0f172a]"
+        className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-sunken"
         role="progressbar"
         aria-valuenow={done}
         aria-valuemin={0}
@@ -185,7 +186,7 @@ function ReadinessBar({ done, total }: { done: number; total: number }) {
           style={pct === 0 ? { width: '3px' } : { width: `${pct}%` }}
         />
       </div>
-      <span className="shrink-0 font-sans text-[0.7rem] tabular-nums text-[#64748b]">
+      <span className="shrink-0 font-sans text-[0.7rem] tabular-nums text-ink-faint">
         {done} / {total}
       </span>
     </div>
@@ -193,7 +194,7 @@ function ReadinessBar({ done, total }: { done: number; total: number }) {
 }
 
 const menuBtn =
-  'flex w-full items-center gap-2 rounded-md px-2.5 py-2 font-sans text-[0.78rem] text-left text-[#cbd5e1] transition-colors hover:bg-white/[0.06]';
+  'flex w-full items-center gap-2 rounded-md px-2.5 py-2 font-sans text-[0.78rem] text-left text-ink-secondary transition-colors hover:bg-surface-hover';
 
 function DeckCard({
   deck,
@@ -202,7 +203,7 @@ function DeckCard({
   onExportOutline,
   onOpenFinancial,
   readiness,
-  viewDeckHref,
+  onViewDeck,
 }: {
   deck: PitchDeck;
   onDuplicate: (id: string) => void;
@@ -210,18 +211,18 @@ function DeckCard({
   onExportOutline: () => void;
   onOpenFinancial: () => void;
   readiness: DeckReadiness | undefined;
-  viewDeckHref?: string;
+  onViewDeck?: () => void;
 }) {
   const rDone = readiness?.items.filter((i) => i.done).length ?? 0;
   const rTotal = readiness?.items.length ?? 0;
 
   const primaryCta =
-    'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-teal/35 bg-teal/12 px-4 py-2.5 font-sans text-[0.8rem] font-semibold text-[#ecfeff] shadow-[0_0_0_1px_rgba(0,194,178,0.12)] transition-[background,border] hover:border-teal/50 hover:bg-teal/18';
+    'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-brand/35 bg-brand/12 px-4 py-2.5 font-sans text-[0.8rem] font-semibold text-ink shadow-sr-xs transition-[background,border] hover:border-brand/50 hover:bg-brand/18';
 
   return (
-    <article className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[linear-gradient(165deg,rgba(18,26,46,0.94),rgba(8,12,20,0.96))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] transition-[border-color,transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:border-white/[0.14] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+    <article className="flex flex-col gap-3 rounded-xl bg-surface-elevated p-6 shadow-sr-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-sr-card-hover">
       <div className="flex min-w-0 flex-row items-start justify-between gap-3">
-        <h3 className="min-w-0 flex-1 pr-1 font-heading text-[1.15rem] font-semibold leading-tight text-[#f8fafc]">
+        <h3 className="min-w-0 flex-1 pr-1 font-heading text-[1.15rem] font-semibold leading-tight text-ink">
           {deck.name}
         </h3>
         <div className="flex shrink-0 items-center justify-end gap-2">
@@ -238,13 +239,13 @@ function DeckCard({
           </div>
           <details className="group/deck-menu relative shrink-0">
             <summary
-              className="flex list-none cursor-pointer items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] p-2 text-[#94a3b8] transition-colors hover:border-teal/30 hover:text-[#e2e8f0] [&::-webkit-details-marker]:hidden"
+              className="flex list-none cursor-pointer items-center justify-center rounded-lg border border-line bg-surface-hover p-2 text-ink-secondary transition-colors hover:border-teal/30 hover:text-ink [&::-webkit-details-marker]:hidden"
               aria-label={`More actions for ${deck.name}`}
             >
               <MoreHorizontal className="size-4" aria-hidden />
             </summary>
             <div
-              className="absolute right-0 z-40 mt-1 min-w-[14rem] rounded-lg border border-white/[0.1] bg-[#0c1219] py-1 shadow-xl"
+              className="absolute right-0 z-40 mt-1 min-w-[14rem] rounded-lg border border-line-strong bg-surface-elevated py-1 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button type="button" className={menuBtn} onClick={() => onDuplicate(deck.id)}>
@@ -278,32 +279,32 @@ function DeckCard({
         </div>
       </div>
 
-      <p className="w-full font-sans text-[0.84rem] leading-relaxed text-[#94a3b8]">
+      <p className="w-full font-sans text-[0.84rem] leading-relaxed text-ink-secondary">
         {deck.purpose}
       </p>
       {deck.narrativeEmphasis ? (
-        <p className="w-full border-l-2 border-teal/25 pl-3 font-sans text-[0.78rem] leading-snug text-[#7c8796]">
-          <span className="block text-[0.65rem] font-medium uppercase tracking-[0.08em] text-[#64748b]">
+        <p className="w-full border-l-2 border-teal/25 pl-3 font-sans text-[0.78rem] leading-snug text-ink-faint">
+          <span className="block text-[0.65rem] font-medium uppercase tracking-[0.08em] text-ink-faint">
             Story weight
           </span>
-          <span className="mt-0.5 block text-[#94a3b8]">{deck.narrativeEmphasis}</span>
+          <span className="mt-0.5 block text-ink-secondary">{deck.narrativeEmphasis}</span>
         </p>
       ) : null}
 
       <div className="flex min-w-0 flex-nowrap items-baseline gap-x-3 overflow-x-auto font-sans text-[0.72rem] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <span>
           <span className="opacity-40">Slides</span>{' '}
-          <span className="tabular-nums text-[#a8b3c4]">{deck.slideCount}</span>
+          <span className="tabular-nums text-ink-secondary">{deck.slideCount}</span>
         </span>
-        <span className="text-[#334155] opacity-60">·</span>
+        <span className="text-ink-faint opacity-60">·</span>
         <span>
           <span className="opacity-40">Owner</span>{' '}
-          <span className="text-[#a8b3c4]">{deck.owner}</span>
+          <span className="text-ink-secondary">{deck.owner}</span>
         </span>
-        <span className="text-[#334155] opacity-60">·</span>
+        <span className="text-ink-faint opacity-60">·</span>
         <span>
           <span className="opacity-40">Updated</span>{' '}
-          <span className="tabular-nums text-[#a8b3c4]">
+          <span className="tabular-nums text-ink-secondary">
             {new Date(deck.lastUpdatedISO).toLocaleDateString()}
           </span>
         </span>
@@ -312,11 +313,11 @@ function DeckCard({
       {rTotal > 0 ? <ReadinessBar done={rDone} total={rTotal} /> : null}
 
       <div className="pt-0.5">
-        {viewDeckHref ? (
-          <a href={viewDeckHref} target="_blank" rel="noopener noreferrer" className={primaryCta}>
+        {onViewDeck ? (
+          <button type="button" className={primaryCta} onClick={onViewDeck}>
             <Eye className="size-4 shrink-0 opacity-90" aria-hidden />
             View deck
-          </a>
+          </button>
         ) : (
           <button
             type="button"
@@ -345,21 +346,21 @@ function ReadinessBlock({
 }) {
   if (!readiness) return null;
   return (
-    <div className="rounded-lg border border-white/[0.06] bg-[#0a0f16]/90 p-4">
-      <p className="font-sans text-[0.78rem] font-medium text-[#94a3b8]">
-        External readiness · <span className="text-[#cbd5e1]">{deckName}</span>
+    <div className="rounded-lg border border-line bg-surface-secondary/90 p-4">
+      <p className="font-sans text-[0.78rem] font-medium text-ink-secondary">
+        External readiness · <span className="text-ink-secondary">{deckName}</span>
       </p>
       <ul className="mt-3 space-y-2">
         {readiness.items.map((it) => (
           <li key={it.id}>
-            <label className="flex cursor-pointer items-start gap-2 font-sans text-[0.82rem] text-[#a8b2c1]">
+            <label className="flex cursor-pointer items-start gap-2 font-sans text-[0.82rem] text-ink-secondary">
               <input
                 type="checkbox"
                 checked={it.done}
                 onChange={() => onToggle(readiness.deckId, it.id)}
-                className="mt-1 size-3.5 rounded border-white/[0.12] bg-[#0c1219] text-teal focus:ring-teal/40"
+                className="mt-1 size-3.5 rounded border-line-strong bg-surface-elevated text-teal focus:ring-teal/40"
               />
-              <span className={it.done ? 'text-[#cbd5e1] line-through opacity-60' : ''}>
+              <span className={it.done ? 'text-ink-secondary line-through opacity-60' : ''}>
                 {it.label}
               </span>
             </label>
@@ -447,21 +448,20 @@ export function PitchDeckHubPage() {
 
   return (
     <div className="w-full pb-28 pt-[56px]">
-      <header className="border-b border-white/[0.06] pb-12">
-        <div className="flex flex-wrap items-center gap-4">
-          <SquadLogo size={44} aria-hidden className="opacity-95" />
-          <SquadRidgeWordmark className="h-8 w-auto opacity-95 sm:h-9" alt="SquadRidge" />
+      <header className="border-b border-line pb-12">
+        <div className="flex flex-wrap items-center gap-4 text-ink opacity-95">
+          <SquadRidgeLockup size="lg" alt="SquadRidge" />
         </div>
         <p className="mt-8 font-sans text-[0.8rem] font-medium text-teal/85">Internal materials</p>
-        <h1 className="mt-3 max-w-[20ch] font-heading text-display-hero font-extrabold leading-[1.08] text-[#f1f5f9]">
+        <h1 className="mt-3 max-w-[20ch] font-heading text-display-hero font-extrabold leading-[1.08] text-ink">
           Pitch Deck Hub
         </h1>
-        <p className="mt-5 max-w-copy font-sans text-body-lg text-[#94a3b8]">
+        <p className="mt-5 max-w-copy font-sans text-body-lg text-ink-secondary">
           Conflict prevention and early-warning narrative—grounded in verified squads,
           facilitator-led de-escalation, and honest security boundaries. When a figure is unknown,
           label it. Separate shipped product from pilot and roadmap, and never upgrade a claim
           beyond what sources and CURRENT_STATUS support.{' '}
-          <span className="text-[#a8b2c1]">
+          <span className="text-ink-secondary">
             Every deck variant shares the same design system — colors, typography, spacing,
             components, and brand lockup — while content density, narrative angle, and slide
             emphasis shift by audience.
@@ -469,14 +469,14 @@ export function PitchDeckHubPage() {
         </p>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-white/[0.07] bg-[#0c1219]/80 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <p className="font-sans text-[0.72rem] text-[#64748b]">Last content touch</p>
-            <p className="mt-1 font-heading text-lg font-semibold tabular-nums text-[#f1f5f9]">
+          <div className="rounded-xl bg-surface-elevated/80 p-5 shadow-sr-card">
+            <p className="font-sans text-[0.72rem] text-ink-faint">Last content touch</p>
+            <p className="mt-1 font-heading text-lg font-semibold tabular-nums text-ink">
               {meta.lastReview
                 ? new Date(meta.lastReview).toLocaleDateString(undefined, { dateStyle: 'medium' })
                 : '—'}
             </p>
-            <p className="mt-1 font-sans text-[0.7rem] text-[#64748b]">
+            <p className="mt-1 font-sans text-[0.7rem] text-ink-faint">
               {meta.lastReview
                 ? new Date(meta.lastReview).toLocaleTimeString([], {
                     hour: '2-digit',
@@ -485,7 +485,7 @@ export function PitchDeckHubPage() {
                 : ''}
             </p>
           </div>
-          <div className="rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/[0.09] to-[#0c1219]/90 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] ring-1 ring-amber-400/15">
+          <div className="rounded-xl border border-amber/35 bg-surface-elevated p-5 shadow-sr-card ring-1 ring-amber/15">
             <p className="font-sans text-[0.72rem] font-medium text-amber-200/90">
               Items still needing evidence
             </p>
@@ -496,24 +496,24 @@ export function PitchDeckHubPage() {
               Tighten sources before external decks ship.
             </p>
           </div>
-          <div className="rounded-xl border border-white/[0.07] bg-[#0c1219]/80 p-5">
-            <p className="font-sans text-[0.72rem] text-[#64748b]">External-ready decks</p>
+          <div className="rounded-xl border border-line bg-surface-elevated/80 p-5">
+            <p className="font-sans text-[0.72rem] text-ink-faint">External-ready decks</p>
             <p className="mt-1 font-heading text-2xl font-semibold tabular-nums text-teal-light">
               {meta.safeExternal}
             </p>
-            <p className="mt-2 font-sans text-[0.72rem] text-[#64748b]">
+            <p className="mt-2 font-sans text-[0.72rem] text-ink-faint">
               Marked safe for outside audiences
             </p>
           </div>
-          <div className="rounded-xl border border-white/[0.07] bg-[#0c1219]/80 p-5">
-            <p className="font-sans text-[0.72rem] text-[#64748b]">Next blocking focus</p>
-            <p className="mt-1 font-sans text-[0.85rem] font-medium leading-snug text-[#cbd5e1]">
+          <div className="rounded-xl border border-line bg-surface-elevated/80 p-5">
+            <p className="font-sans text-[0.72rem] text-ink-faint">Next blocking focus</p>
+            <p className="mt-1 font-sans text-[0.85rem] font-medium leading-snug text-ink-secondary">
               {nextBlocking}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
                 to="/security"
-                className="inline-flex items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-[0.72rem] text-[#e2e8f0] hover:border-teal/30 hover:text-white"
+                className="inline-flex items-center gap-1 rounded-lg border border-line bg-surface-hover px-2.5 py-1.5 text-[0.72rem] text-ink hover:border-teal/30 hover:text-white"
               >
                 Security disclosure
                 <ArrowRight className="size-3" aria-hidden />
@@ -523,7 +523,7 @@ export function PitchDeckHubPage() {
                 onClick={() =>
                   document.getElementById('hub-evidence')?.scrollIntoView({ behavior: 'smooth' })
                 }
-                className="rounded-lg border border-white/[0.08] px-2.5 py-1.5 text-[0.72rem] text-[#94a3b8] hover:border-teal/30 hover:text-[#e2e8f0]"
+                className="rounded-lg border border-line px-2.5 py-1.5 text-[0.72rem] text-ink-secondary hover:border-teal/30 hover:text-ink"
               >
                 Evidence locker
               </button>
@@ -532,7 +532,7 @@ export function PitchDeckHubPage() {
         </div>
 
         <nav
-          className="sticky top-0 z-30 -mx-4 mt-10 flex flex-wrap gap-1.5 border-y border-white/[0.06] bg-[#080c12]/90 px-4 py-3 font-sans text-[0.8rem] backdrop-blur-md sm:-mx-6 sm:px-6"
+          className="sticky top-0 z-30 -mx-4 mt-10 flex flex-wrap gap-1.5 border-y border-line bg-surface/90 px-4 py-3 font-sans text-[0.8rem] backdrop-blur-md sm:-mx-6 sm:px-6"
           aria-label="Hub sections"
         >
           {HUB_NAV.map(({ id, label }) => (
@@ -543,7 +543,7 @@ export function PitchDeckHubPage() {
                 'rounded-t-md border-b-2 px-3 py-2 font-medium transition-colors',
                 activeNavId === id
                   ? 'border-teal text-teal-light'
-                  : 'border-transparent text-[#8b95a8] hover:border-white/[0.12] hover:bg-white/[0.04] hover:text-[#e2e8f0]',
+                  : 'border-transparent text-ink-faint hover:border-line-strong hover:bg-surface-hover hover:text-ink',
               )}
             >
               {label}
@@ -559,13 +559,13 @@ export function PitchDeckHubPage() {
         description="One visual language across variants; each row below calls out how story weight differs for that audience. Filter by audience and readiness. CTAs orchestrate workflow; link source decks in your storage layer."
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-wrap items-center gap-2 text-[#94a3b8]">
+          <div className="flex flex-wrap items-center gap-2 text-ink-secondary">
             <Filter className="size-3.5 shrink-0 opacity-60" aria-hidden />
-            <span className="font-sans text-[0.78rem] text-[#64748b]">Audience</span>
+            <span className="font-sans text-[0.78rem] text-ink-faint">Audience</span>
             <select
               value={audienceFilter}
               onChange={(e) => setAudienceFilter(e.target.value as DeckAudience | 'all')}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-line-strong bg-surface-elevated px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               <option value="all">All</option>
               {(Object.keys(AUDIENCE_LABEL) as DeckAudience[]).map((k) => (
@@ -574,11 +574,11 @@ export function PitchDeckHubPage() {
                 </option>
               ))}
             </select>
-            <span className="ml-2 font-sans text-[0.78rem] text-[#64748b]">Status</span>
+            <span className="ml-2 font-sans text-[0.78rem] text-ink-faint">Status</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as DeckStatus | 'all')}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-line-strong bg-surface-elevated px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               <option value="all">All</option>
               <option value="draft">Draft</option>
@@ -591,14 +591,14 @@ export function PitchDeckHubPage() {
             <button
               type="button"
               onClick={exportOutline}
-              className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-4 py-2 font-sans text-[0.8rem] font-medium text-[#e2e8f0] hover:border-teal/35"
+              className="rounded-lg border border-line bg-surface-hover px-4 py-2 font-sans text-[0.8rem] font-medium text-ink hover:border-teal/35"
             >
               Export all outlines
             </button>
             <button
               type="button"
               onClick={exportFullJson}
-              className="rounded-lg border border-white/[0.08] bg-transparent px-4 py-2 font-sans text-[0.8rem] text-[#94a3b8] hover:border-teal/35 hover:text-[#e2e8f0]"
+              className="rounded-lg border border-line bg-transparent px-4 py-2 font-sans text-[0.8rem] text-ink-secondary hover:border-teal/35 hover:text-ink"
             >
               Export hub JSON
             </button>
@@ -632,30 +632,42 @@ export function PitchDeckHubPage() {
                 document.getElementById('hub-financial')?.scrollIntoView({ behavior: 'smooth' })
               }
               readiness={state.readiness.find((r) => r.deckId === deck.id)}
-              viewDeckHref={viewDeckHrefForId(deck.id)}
+              onViewDeck={() => {
+                void openGatedDeckInNewTab(gatedHtmlFileForDeckId(deck.id)).catch((err) => {
+                  logWarn('pitch_hub.view_deck_failed', {
+                    feature: 'deck_access',
+                    error_message: safeErrorMessage(err),
+                  });
+                  toast.message(
+                    err instanceof Error && err.message === 'POPUP_BLOCKED'
+                      ? 'Allow pop-ups to open the briefing.'
+                      : 'Could not open gated briefing. Confirm you have deck access.',
+                  );
+                });
+              }}
             />
           ))}
         </div>
 
         {filteredDecks.length === 0 ? (
-          <p className="mt-8 rounded-lg border border-dashed border-white/[0.1] bg-[#0a0f14]/80 px-4 py-8 text-center font-sans text-[0.9rem] text-[#64748b]">
+          <p className="mt-8 rounded-lg border border-dashed border-line-strong bg-surface-secondary/80 px-4 py-8 text-center font-sans text-[0.9rem] text-ink-faint">
             No decks match filters. Clear filters or add a duplicate variant.
           </p>
         ) : null}
 
         <div className="mt-12 max-w-2xl">
-          <p className="font-sans text-[0.8rem] font-medium text-[#94a3b8]">
+          <p className="font-sans text-[0.8rem] font-medium text-ink-secondary">
             External-readiness checklist
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <label htmlFor="readiness-deck" className="font-sans text-[0.78rem] text-[#94a3b8]">
+            <label htmlFor="readiness-deck" className="font-sans text-[0.78rem] text-ink-secondary">
               Deck
             </label>
             <select
               id="readiness-deck"
               value={readinessDeckId}
               onChange={(e) => setReadinessDeckId(e.target.value)}
-              className="rounded-lg border border-white/[0.1] bg-[#0c1219] px-2 py-1.5 font-sans text-[0.82rem] text-[#e2e8f0]"
+              className="rounded-lg border border-line-strong bg-surface-elevated px-2 py-1.5 font-sans text-[0.82rem] text-ink"
             >
               {state.decks.map((d) => (
                 <option key={d.id} value={d.id}>
@@ -680,9 +692,9 @@ export function PitchDeckHubPage() {
         title="Shared copy layer"
         description="Single source of tone and claims for every deck. Deck-specific slides still need alignment by hand — this layer prevents silent drift."
       >
-        <div className="flex min-h-[22rem] flex-col gap-6 rounded-xl border border-white/[0.06] bg-[#060a10]/40 lg:flex-row lg:gap-0">
+        <div className="flex min-h-[22rem] flex-col gap-6 rounded-xl border border-line bg-surface/40 lg:flex-row lg:gap-0">
           <div
-            className="flex shrink-0 flex-col border-b border-white/[0.06] lg:w-[min(14rem,34%)] lg:border-b-0 lg:border-r"
+            className="flex shrink-0 flex-col border-b border-line lg:w-[min(14rem,34%)] lg:border-b-0 lg:border-r"
             role="tablist"
             aria-label="Messaging fields"
           >
@@ -698,8 +710,8 @@ export function PitchDeckHubPage() {
                 className={cn(
                   'border-l-2 px-4 py-3 text-left font-sans text-[0.82rem] transition-colors',
                   activeMessagingKey === key
-                    ? 'border-teal bg-teal/[0.06] font-medium text-[#f1f5f9]'
-                    : 'border-transparent text-[#94a3b8] hover:bg-white/[0.03] hover:text-[#e2e8f0]',
+                    ? 'border-teal bg-teal/[0.06] font-medium text-ink'
+                    : 'border-transparent text-ink-secondary hover:bg-surface-hover hover:text-ink',
                 )}
               >
                 {MESSAGING_FIELD_LABELS[key]}
@@ -712,7 +724,7 @@ export function PitchDeckHubPage() {
             aria-labelledby={`hub-msg-tab-${activeMessagingKey}`}
             className="min-h-[18rem] flex-1 p-4 sm:p-6"
           >
-            <label htmlFor="hub-msg-editor" className="font-sans text-[0.78rem] text-[#64748b]">
+            <label htmlFor="hub-msg-editor" className="font-sans text-[0.78rem] text-ink-faint">
               {MESSAGING_FIELD_LABELS[activeMessagingKey]}
             </label>
             <textarea
@@ -720,7 +732,7 @@ export function PitchDeckHubPage() {
               value={state.messaging[activeMessagingKey]}
               onChange={(e) => updateMessaging({ [activeMessagingKey]: e.target.value })}
               rows={14}
-              className="mt-3 min-h-[16rem] w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-4 py-3 font-sans text-[0.9rem] leading-relaxed text-[#e2e8f0] placeholder:text-[#475569] focus:border-teal/40 focus:outline-none focus:ring-1 focus:ring-teal/30"
+              className="mt-3 min-h-[16rem] w-full rounded-lg border border-line bg-surface-elevated px-4 py-3 font-sans text-[0.9rem] leading-relaxed text-ink placeholder:text-ink-faint focus:border-teal/40 focus:outline-none focus:ring-1 focus:ring-teal/30"
             />
           </div>
         </div>
@@ -740,7 +752,7 @@ export function PitchDeckHubPage() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <span className="font-sans text-[0.78rem] text-[#64748b]">Scenario</span>
+          <span className="font-sans text-[0.78rem] text-ink-faint">Scenario</span>
           {(['base', 'conservative', 'aggressive'] as FinancialScenario[]).map((sc) => (
             <button
               key={sc}
@@ -750,7 +762,7 @@ export function PitchDeckHubPage() {
                 'rounded-lg border px-4 py-2 font-sans text-[0.8rem] font-medium capitalize transition-colors',
                 state.activeScenario === sc
                   ? 'border-teal/45 bg-teal/10 text-teal-light'
-                  : 'border-white/[0.06] bg-transparent text-[#94a3b8] hover:border-white/[0.12]',
+                  : 'border-line bg-transparent text-ink-secondary hover:border-line-strong',
               )}
             >
               {sc}
@@ -762,36 +774,36 @@ export function PitchDeckHubPage() {
         </div>
 
         <div className="mt-10">
-          <p className="font-sans text-[0.72rem] font-medium text-[#64748b]">
+          <p className="font-sans text-[0.72rem] font-medium text-ink-faint">
             Modeled outcomes ({state.activeScenario})
           </p>
           <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
-              <p className="font-sans text-[0.72rem] text-[#64748b]">Runway</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+            <div className="rounded-xl border border-line bg-surface-secondary p-5">
+              <p className="font-sans text-[0.72rem] text-ink-faint">Runway</p>
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.runwayMonthsFromStart != null ? `${model.runwayMonthsFromStart} mo` : '—'}
               </p>
-              <p className="mt-1 font-sans text-[0.72rem] text-[#64748b]">
+              <p className="mt-1 font-sans text-[0.72rem] text-ink-faint">
                 Cash to zero: month {model.cashZeroMonthIndex ?? '—'}
               </p>
             </div>
-            <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
-              <p className="font-sans text-[0.72rem] text-[#64748b]">Break-even (operating)</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+            <div className="rounded-xl border border-line bg-surface-secondary p-5">
+              <p className="font-sans text-[0.72rem] text-ink-faint">Break-even (operating)</p>
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.breakEvenMonthIndex != null
                   ? `M${model.breakEvenMonthIndex}`
                   : 'Not in horizon'}
               </p>
             </div>
             <div className="rounded-xl border border-teal/25 bg-teal/[0.06] p-5 ring-1 ring-teal/15">
-              <p className="font-sans text-[0.72rem] text-[#94a3b8]">Fundraising ask (input)</p>
+              <p className="font-sans text-[0.72rem] text-ink-secondary">Fundraising ask (input)</p>
               <p className="mt-1 font-heading text-2xl font-semibold text-teal-light/95">
                 {formatUsd(state.assumptions.fundraisingAskUsd)}
               </p>
             </div>
-            <div className="rounded-xl border border-white/[0.08] bg-[#0a0f16] p-5">
-              <p className="font-sans text-[0.72rem] text-[#64748b]">Ending cash (last month)</p>
-              <p className="mt-1 font-heading text-2xl font-semibold text-[#f1f5f9]">
+            <div className="rounded-xl border border-line bg-surface-secondary p-5">
+              <p className="font-sans text-[0.72rem] text-ink-faint">Ending cash (last month)</p>
+              <p className="mt-1 font-heading text-2xl font-semibold text-ink">
                 {model.monthly.length
                   ? formatUsd(model.monthly[model.monthly.length - 1].cashEndUsd)
                   : '—'}
@@ -800,15 +812,15 @@ export function PitchDeckHubPage() {
           </div>
         </div>
 
-        <details className="group/fin-inputs mt-10 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
-            <span className="mr-2 text-[#64748b]">▸</span>
+        <details className="group/fin-inputs mt-10 rounded-xl border border-line bg-surface/55">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
+            <span className="mr-2 text-ink-faint">▸</span>
             Model inputs
-            <span className="ml-2 font-normal text-[#64748b]">
+            <span className="ml-2 font-normal text-ink-faint">
               Assumptions that drive the scenario
             </span>
           </summary>
-          <div className="border-t border-white/[0.06] px-5 pb-6 pt-4">
+          <div className="border-t border-line px-5 pb-6 pt-4">
             <div className="grid gap-4 md:grid-cols-2">
               {(Object.keys(state.assumptions) as (keyof typeof state.assumptions)[]).map((k) => {
                 const v = state.assumptions[k];
@@ -816,12 +828,12 @@ export function PitchDeckHubPage() {
                 if (k === 'modelStartISO') {
                   return (
                     <div key={k}>
-                      <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
+                      <label className="font-sans text-[0.75rem] text-ink-faint">{label}</label>
                       <input
                         type="date"
                         value={typeof v === 'string' ? v.slice(0, 10) : ''}
                         onChange={(e) => updateAssumptions({ modelStartISO: e.target.value })}
-                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                        className="mt-1 w-full rounded-lg border border-line bg-surface-elevated px-3 py-2 font-mono text-[0.82rem] text-ink focus:border-teal/40 focus:outline-none"
                       />
                     </div>
                   );
@@ -829,24 +841,24 @@ export function PitchDeckHubPage() {
                 if (typeof v === 'string') {
                   return (
                     <div key={k} className="md:col-span-2">
-                      <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
+                      <label className="font-sans text-[0.75rem] text-ink-faint">{label}</label>
                       <textarea
                         value={v}
                         onChange={(e) => updateAssumptions({ [k]: e.target.value })}
                         rows={2}
-                        className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-sans text-[0.85rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                        className="mt-1 w-full rounded-lg border border-line bg-surface-elevated px-3 py-2 font-sans text-[0.85rem] text-ink focus:border-teal/40 focus:outline-none"
                       />
                     </div>
                   );
                 }
                 return (
                   <div key={k}>
-                    <label className="font-sans text-[0.75rem] text-[#64748b]">{label}</label>
+                    <label className="font-sans text-[0.75rem] text-ink-faint">{label}</label>
                     <input
                       type="number"
                       value={typeof v === 'number' ? v : 0}
                       onChange={(e) => updateAssumptions({ [k]: parseFloat(e.target.value) || 0 })}
-                      className="mt-1 w-full rounded-lg border border-white/[0.08] bg-[#0c1219] px-3 py-2 font-mono text-[0.82rem] text-[#e2e8f0] focus:border-teal/40 focus:outline-none"
+                      className="mt-1 w-full rounded-lg border border-line bg-surface-elevated px-3 py-2 font-mono text-[0.82rem] text-ink focus:border-teal/40 focus:outline-none"
                     />
                   </div>
                 );
@@ -855,16 +867,16 @@ export function PitchDeckHubPage() {
           </div>
         </details>
 
-        <details className="group/fin-monthly mt-4 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
-            <span className="mr-2 text-[#64748b]">▸</span>
+        <details className="group/fin-monthly mt-4 rounded-xl border border-line bg-surface/55">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
+            <span className="mr-2 text-ink-faint">▸</span>
             Monthly cash model
-            <span className="ml-2 font-normal text-[#64748b]">Month-by-month diligence detail</span>
+            <span className="ml-2 font-normal text-ink-faint">Month-by-month diligence detail</span>
           </summary>
-          <div className="overflow-x-auto border-t border-white/[0.06]">
+          <div className="overflow-x-auto border-t border-line">
             <table className="min-w-[720px] w-full border-collapse font-sans text-[0.75rem]">
               <thead>
-                <tr className="border-b border-white/[0.08] bg-[#0c1219] text-left text-[#64748b]">
+                <tr className="border-b border-line bg-surface-elevated text-left text-ink-faint">
                   <th className="px-3 py-2 font-semibold">Month</th>
                   <th className="px-3 py-2 font-semibold">Seats</th>
                   <th className="px-3 py-2 font-semibold">Revenue</th>
@@ -879,20 +891,18 @@ export function PitchDeckHubPage() {
                 {model.monthly.map((row) => (
                   <tr
                     key={row.monthIndex}
-                    className="border-b border-white/[0.04] hover:bg-white/[0.02]"
+                    className="border-b border-line hover:bg-surface-hover/40"
                   >
-                    <td className="px-3 py-2 text-[#cbd5e1]">{row.label}</td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">{row.payingSeats}</td>
-                    <td className="px-3 py-2 font-mono text-[#e2e8f0]">
-                      {formatUsd(row.revenueUsd)}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">
+                    <td className="px-3 py-2 text-ink-secondary">{row.label}</td>
+                    <td className="px-3 py-2 font-mono text-ink-secondary">{row.payingSeats}</td>
+                    <td className="px-3 py-2 font-mono text-ink">{formatUsd(row.revenueUsd)}</td>
+                    <td className="px-3 py-2 font-mono text-ink-secondary">
                       {formatUsd(row.payrollUsd)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-[#94a3b8]">
+                    <td className="px-3 py-2 font-mono text-ink-secondary">
                       {formatUsd(row.nonPayrollOpexUsd)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-[#64748b]">
+                    <td className="px-3 py-2 font-mono text-ink-faint">
                       {formatUsd(row.contingencyUsd)}
                     </td>
                     <td
@@ -903,29 +913,27 @@ export function PitchDeckHubPage() {
                     >
                       {formatUsd(row.operatingIncomeUsd)}
                     </td>
-                    <td className="px-3 py-2 font-mono text-[#f1f5f9]">
-                      {formatUsd(row.cashEndUsd)}
-                    </td>
+                    <td className="px-3 py-2 font-mono text-ink">{formatUsd(row.cashEndUsd)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="px-5 py-4 font-sans text-[0.72rem] leading-relaxed text-[#64748b]">
+          <p className="px-5 py-4 font-sans text-[0.72rem] leading-relaxed text-ink-faint">
             Traceability sample (first month): {model.monthly[0]?.lineage.slice(0, 6).join(' · ')}
             {model.monthly[0]?.lineage.length ? ' …' : ''}
           </p>
         </details>
 
-        <details className="group/fin-annual mt-4 rounded-xl border border-white/[0.07] bg-[#060a10]/55">
-          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-[#e2e8f0] [&::-webkit-details-marker]:hidden">
-            <span className="mr-2 text-[#64748b]">▸</span>
+        <details className="group/fin-annual mt-4 rounded-xl border border-line bg-surface/55">
+          <summary className="cursor-pointer list-none px-5 py-4 font-sans text-[0.88rem] font-medium text-ink [&::-webkit-details-marker]:hidden">
+            <span className="mr-2 text-ink-faint">▸</span>
             Annual rollup
           </summary>
-          <div className="overflow-x-auto border-t border-white/[0.06]">
+          <div className="overflow-x-auto border-t border-line">
             <table className="min-w-[480px] w-full border-collapse font-sans text-[0.78rem]">
               <thead>
-                <tr className="border-b border-white/[0.08] bg-[#0c1219] text-left text-[#64748b]">
+                <tr className="border-b border-line bg-surface-elevated text-left text-ink-faint">
                   <th className="px-3 py-2">Year</th>
                   <th className="px-3 py-2">Revenue</th>
                   <th className="px-3 py-2">Total opex</th>
@@ -934,11 +942,11 @@ export function PitchDeckHubPage() {
               </thead>
               <tbody>
                 {model.annual.map((y) => (
-                  <tr key={y.year} className="border-b border-white/[0.04]">
-                    <td className="px-3 py-2 text-[#cbd5e1]">{y.year}</td>
+                  <tr key={y.year} className="border-b border-line">
+                    <td className="px-3 py-2 text-ink-secondary">{y.year}</td>
                     <td className="px-3 py-2 font-mono">{formatUsd(y.revenueUsd)}</td>
                     <td className="px-3 py-2 font-mono">{formatUsd(y.totalOpexUsd)}</td>
-                    <td className="px-3 py-2 font-mono text-[#e2e8f0]">
+                    <td className="px-3 py-2 font-mono text-ink">
                       {formatUsd(y.operatingIncomeUsd)}
                     </td>
                   </tr>
@@ -960,19 +968,19 @@ export function PitchDeckHubPage() {
             <article
               key={ev.id}
               className={cn(
-                'overflow-hidden rounded-xl border border-white/[0.06] border-l-[3px] bg-[#0c1219]/90 pl-5 pr-4 py-5 shadow-sm',
+                'overflow-hidden rounded-xl border border-line border-l-[3px] bg-surface-elevated/90 pl-5 pr-4 py-5 shadow-sm',
                 evidenceAccent(ev.dataLabel, ev.approvedForExternal),
               )}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
-                  <p className="font-sans text-[0.72rem] font-medium text-[#64748b]">
+                  <p className="font-sans text-[0.72rem] font-medium text-ink-faint">
                     Document record
                   </p>
-                  <h4 className="mt-1 font-heading text-[1.02rem] font-semibold text-[#f1f5f9]">
+                  <h4 className="mt-1 font-heading text-[1.02rem] font-semibold text-ink">
                     {ev.title}
                   </h4>
-                  <p className="mt-2 max-w-prose font-sans text-[0.84rem] leading-relaxed text-[#94a3b8]">
+                  <p className="mt-2 max-w-prose font-sans text-[0.84rem] leading-relaxed text-ink-secondary">
                     {ev.summary}
                   </p>
                   {ev.sourceUrl ? (
@@ -1008,15 +1016,15 @@ export function PitchDeckHubPage() {
                       {ev.approvedForExternal ? 'External OK' : 'Internal only'}
                     </Badge>
                   </div>
-                  <p className="rounded-md border border-white/[0.05] bg-[#070b10]/80 px-2.5 py-2 font-sans text-[0.72rem] leading-snug text-[#94a3b8]">
-                    <span className="text-[#64748b]">Data state ·</span>{' '}
+                  <p className="rounded-md border border-line bg-surface/80 px-2.5 py-2 font-sans text-[0.72rem] leading-snug text-ink-secondary">
+                    <span className="text-ink-faint">Data state ·</span>{' '}
                     <span
                       className={
                         ev.dataLabel === 'input_required' || ev.dataLabel === 'pending_validation'
                           ? 'text-amber-light'
                           : ev.dataLabel === 'illustrative_only'
                             ? 'text-slate-400'
-                            : 'text-[#cbd5e1]'
+                            : 'text-ink-secondary'
                       }
                     >
                       {ev.dataLabel.replace(/_/g, ' ')}
@@ -1045,7 +1053,7 @@ export function PitchDeckHubPage() {
           {issues.map((issue) => (
             <li
               key={issue.code + issue.message}
-              className="flex gap-3 rounded-lg border border-white/[0.06] bg-[#0a0f14] px-4 py-3 font-sans text-[0.85rem] text-[#cbd5e1]"
+              className="flex gap-3 rounded-lg border border-line bg-surface-secondary px-4 py-3 font-sans text-[0.85rem] text-ink-secondary"
             >
               {issue.severity === 'error' ? (
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-400/90" aria-hidden />
@@ -1053,26 +1061,26 @@ export function PitchDeckHubPage() {
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-light/90" aria-hidden />
               )}
               <span>
-                <span className="font-semibold text-[#e2e8f0]">{issue.message}</span>
+                <span className="font-semibold text-ink">{issue.message}</span>
                 {issue.hint ? (
-                  <span className="mt-1 block text-[#64748b]">{issue.hint}</span>
+                  <span className="mt-1 block text-ink-faint">{issue.hint}</span>
                 ) : null}
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="mt-8 rounded-lg border border-dashed border-white/[0.08] bg-[#0c1219]/40 p-5 font-sans text-[0.82rem] text-[#94a3b8]">
-          <p className="font-medium text-[#e2e8f0]">Deck field quick-edit</p>
+        <div className="mt-8 rounded-lg border border-dashed border-line bg-surface-elevated/40 p-5 font-sans text-[0.82rem] text-ink-secondary">
+          <p className="font-medium text-ink">Deck field quick-edit</p>
           <p className="mt-2">Adjust status when outline changes — keeps filters honest.</p>
           <div className="mt-4 flex flex-col gap-3">
             {state.decks.map((d) => (
               <div key={d.id} className="flex flex-wrap items-center gap-2">
-                <span className="min-w-[10rem] text-[0.78rem] text-[#64748b]">{d.name}</span>
+                <span className="min-w-[10rem] text-[0.78rem] text-ink-faint">{d.name}</span>
                 <select
                   value={d.status}
                   onChange={(e) => updateDeck(d.id, { status: e.target.value as DeckStatus })}
-                  className="rounded-lg border border-white/[0.1] bg-[#0a0f16] px-2 py-1.5 font-sans text-[0.78rem] text-[#e2e8f0]"
+                  className="rounded-lg border border-line-strong bg-surface-secondary px-2 py-1.5 font-sans text-[0.78rem] text-ink"
                 >
                   <option value="draft">Draft</option>
                   <option value="internal">Internal</option>

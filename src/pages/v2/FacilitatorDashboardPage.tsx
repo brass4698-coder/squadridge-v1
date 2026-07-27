@@ -1,235 +1,266 @@
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { StatusBadge } from '../../components/ui/StatusBadge';
+import { LineChartCard } from '../../components/charts/LineChartCard';
+import { ActivityQueue } from '../../components/dashboard/ActivityQueue';
+import { BarChartPanel } from '../../components/dashboard/BarChartPanel';
+import { FunnelChartPanel } from '../../components/dashboard/FunnelChartPanel';
+import { KpiCard } from '../../components/dashboard/KpiCard';
+import { RoleWorkspaceFrame } from '../../components/dashboard/RoleWorkspaceFrame';
+import { OperationalPageHeader, StatusRail, useShellContext } from '../../components/shell';
+import { FacilitatorWalkthrough } from '../../components/facilitator/FacilitatorWalkthrough';
+import { WorkflowNotificationsBanner } from '../../components/session/WorkflowNotificationsBanner';
+import { useDemoGovernance } from '../../demo/DemoGovernanceContext';
+import {
+  approvalTurnaround,
+  formatUpdated,
+  funnelFromMatters,
+  releaseModeDistribution,
+  weeklyResolutionTrend,
+} from '../../data/governanceDashboard';
+import { appRoutes } from '../../lib/appRoutes';
+import { isV2MockDataEnabled } from '../../lib/v2MockMode';
+import { useDashboardMetrics, useFacilitatorSessions } from '../../hooks/useFacilitatorSessions';
+import { RouteSkeleton } from '../../components/system/RouteSkeleton';
+import { ErrorState } from '../../components/system/ErrorState';
 
-// ── Mock data (replace with real hooks) ──────────────────────────────────────
-const stats = [
-  { label: 'Active sessions',    value: '3' },
-  { label: 'Pending approvals',  value: '7' },
-  { label: 'Released records',   value: '14' },
-  { label: 'Verified participants', value: '62' },
-];
-
-const recentSessions = [
-  {
-    id: 'sess-001',
-    title: 'Northern Watershed Consultation',
-    status: 'live' as const,
-    participants: 12,
-    updated: 'Today, 6:14 PM',
-  },
-  {
-    id: 'sess-002',
-    title: 'Urban Housing Policy Working Group',
-    status: 'pending' as const,
-    participants: 8,
-    updated: 'Today, 2:30 PM',
-  },
-  {
-    id: 'sess-003',
-    title: 'Regional Trade Framework — Round 2',
-    status: 'draft' as const,
-    participants: 6,
-    updated: 'Yesterday',
-  },
-  {
-    id: 'sess-004',
-    title: 'Community Land Use — Joint Statement',
-    status: 'released' as const,
-    participants: 12,
-    updated: 'Jun 14',
-  },
-];
-
-const pendingApprovals = [
-  { id: 'appr-001', title: 'Urban Housing Policy — Outcome Draft', requestedBy: 'M. Osei', due: 'Today' },
-  { id: 'appr-002', title: 'Trade Framework — Amendment Clause B', requestedBy: 'K. Lindqvist', due: 'Tomorrow' },
-];
-
+/**
+ * Facilitator Workspace — room + gate operational command center.
+ * Demo portfolio charts only when VITE_V2_MOCK_DATA=true; otherwise live session metrics.
+ */
 export function FacilitatorDashboardPage() {
+  const { setContext } = useShellContext();
+  const showDemoPortfolio = isV2MockDataEnabled();
+  const { matters, scopeLabel } = useDemoGovernance();
+  const { sessions, loading, error } = useFacilitatorSessions();
+  const metrics = useDashboardMetrics(sessions);
+
+  const awaitingGate = showDemoPortfolio
+    ? matters.filter((m) => m.stage === 'approvals' || m.draft_status === 'in_review')
+    : [];
+
+  const nextAction = useMemo(() => {
+    if (showDemoPortfolio && awaitingGate.length > 0) {
+      return `Review ${awaitingGate.length} draft outcome${awaitingGate.length === 1 ? '' : 's'} awaiting release.`;
+    }
+    const pending = Number(metrics.kpis[1]?.value ?? 0);
+    if (pending > 0) return `Open rooms needing verification (${pending}).`;
+    if (sessions.length === 0) return 'Create a session to start Configure → Release.';
+    return 'Open rooms needing verification or pacing.';
+  }, [showDemoPortfolio, awaitingGate.length, metrics.kpis, sessions.length]);
+
+  useEffect(() => {
+    setContext({
+      title: 'Facilitator Workspace',
+      roleLabel: 'Facilitator',
+      matterLabel: showDemoPortfolio ? scopeLabel : 'Your sessions',
+      stateLabel: 'Room operations',
+      nextAction,
+      trustNote:
+        'No public record is created unless you explicitly release an approved outcome. Raw room dialogue is visible only inside authorized room views.',
+      lastUpdated: formatUpdated(),
+      surface: 'room',
+      primaryAction: { label: 'Open release queue', href: appRoutes.releaseGate },
+    });
+  }, [setContext, scopeLabel, nextAction, showDemoPortfolio]);
+
+  if (loading) return <RouteSkeleton label="Loading facilitator workspace" />;
+  if (error) return <ErrorState title="Could not load sessions" description={error} />;
+
+  const activeRooms = showDemoPortfolio
+    ? matters.filter((m) => ['active', 'verified', 'draft', 'approvals'].includes(m.stage)).length
+    : Number(metrics.kpis[0]?.value ?? 0);
+  const awaitingVerification = showDemoPortfolio
+    ? matters.filter((m) => m.stage === 'invited' || m.stage === 'verified').length
+    : Number(metrics.kpis[1]?.value ?? 0);
+  const draftsPending = showDemoPortfolio
+    ? awaitingGate.length
+    : sessions.filter((s) => s.status === 'draft').length;
+  const releasedMonth = showDemoPortfolio
+    ? matters.filter((m) => m.stage === 'released').length
+    : Number(metrics.kpis[2]?.value ?? 0);
+  const paused = showDemoPortfolio
+    ? matters.filter((m) => m.stall_risk).length
+    : sessions.filter((s) => s.status === 'paused').length;
+  const participantsToday = showDemoPortfolio
+    ? matters.reduce((s, m) => s + m.verified_participant_count, 0)
+    : Number(metrics.kpis[3]?.value ?? 0);
+
   return (
-    <div className="px-6 py-8 md:px-10">
-      {/* Header */}
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1
-            className="text-2xl font-semibold tracking-tight"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Your active sessions, pending approvals, and recent records.
-          </p>
-        </div>
-        <Link
-          to="/sessions/new"
-          className="hidden shrink-0 rounded px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 sm:block"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-        >
-          + New Session
+    <RoleWorkspaceFrame role="facilitator" demoId="facilitator-dashboard">
+      <OperationalPageHeader
+        title="Facilitator Workspace"
+        summary="Manage active rooms, verify participation, govern pacing, and release only approved outcomes."
+        scope={showDemoPortfolio ? scopeLabel : 'Your sessions'}
+        nextAction={nextAction}
+        trustNote="No public record is created unless you explicitly release an approved outcome. Raw room dialogue is visible only inside authorized room views."
+        roleLabel="Facilitator"
+        stateLabel="Configure → Verify → Facilitate → Release"
+        lastUpdated={formatUpdated()}
+        primaryAction={{ label: 'Open release queue', href: appRoutes.releaseGate }}
+        roleAccent="facilitator"
+      />
+      <StatusRail
+        items={[
+          'Invite-only',
+          'Verified participants',
+          'Approvals pending',
+          'Public release optional',
+          'Operator-readable today',
+          'No transcript published',
+        ]}
+      />
+
+      <FacilitatorWalkthrough />
+      <p className="mb-6 -mt-4 text-sm text-ink-faint">
+        Full go-live checklist and abort criteria:{' '}
+        <Link to={appRoutes.pilotGuide} className="text-brand">
+          Pilot readiness
         </Link>
+      </p>
+      <WorkflowNotificationsBanner />
+
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <KpiCard label="Active rooms" value={activeRooms} />
+        <KpiCard label="Awaiting verification" value={awaitingVerification} />
+        <KpiCard label="Release drafts pending" value={draftsPending} />
+        <KpiCard label="Outcomes released" value={releasedMonth} />
+        <KpiCard label="Rooms paused / stalled" value={paused} />
+        <KpiCard label="Participants engaged" value={participantsToday} />
       </div>
 
-      {/* Stat cards */}
-      <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-lg border p-5"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-              boxShadow: 'var(--shadow-card)',
-            }}
-          >
-            <p
-              className="mb-1 text-3xl font-semibold tabular-nums"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {s.value}
+      {showDemoPortfolio ? (
+        <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          <FunnelChartPanel
+            title="Room lifecycle funnel"
+            description="Invited → verified → active → draft → approvals → released"
+            steps={funnelFromMatters(matters)}
+          />
+          <LineChartCard
+            title="Weekly room resolution trend"
+            description="Illustrative demo portfolio — not live pilot metrics"
+            data={weeklyResolutionTrend()}
+            valueLabel="Resolved"
+          />
+          <BarChartPanel
+            title="Approval turnaround by room"
+            description="Illustrative demo portfolio"
+            data={approvalTurnaround()}
+            valueLabel="Hours"
+          />
+          <BarChartPanel
+            title="Release outcome distribution"
+            description="Public · internal · no-release closes"
+            data={releaseModeDistribution(matters)}
+            valueLabel="Matters"
+          />
+        </div>
+      ) : (
+        <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          <BarChartPanel
+            title="Session status mix"
+            description="Counts from your account sessions"
+            data={metrics.statusMix.map((s) => ({ label: s.name, value: s.value }))}
+            valueLabel="Sessions"
+          />
+          <aside className="rounded-lg border border-line bg-surface-sunken/40 p-5 text-sm leading-relaxed text-ink-secondary">
+            <p className="m-0 font-medium text-ink">Live workspace</p>
+            <p className="mt-2 mb-0">
+              Portfolio charts and demo queues appear only when{' '}
+              <code className="font-mono text-xs">VITE_V2_MOCK_DATA=true</code>. This view uses your
+              real sessions — empty counts are expected before the first pilot room.
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              {s.label}
-            </p>
-          </div>
-        ))}
+          </aside>
+        </div>
+      )}
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {showDemoPortfolio ? (
+          <>
+            <ActivityQueue
+              title="Rooms needing action now"
+              items={matters
+                .filter((m) => m.stall_risk || m.stage === 'approvals' || m.stage === 'verified')
+                .map((m) => ({
+                  id: m.matter_id,
+                  title: m.label,
+                  meta: `${m.stage} · ${m.days_in_state}d in state${m.stall_risk ? ' · stall risk' : ''}`,
+                  href: appRoutes.sessions,
+                }))}
+            />
+            <ActivityQueue
+              title="Drafts awaiting facilitator review"
+              items={awaitingGate.map((m) => ({
+                id: m.matter_id,
+                title: m.label,
+                meta: `Approvals ${m.approvals_complete}/${m.approvals_required} · ${m.release_mode} release`,
+                href: appRoutes.releaseGate,
+              }))}
+            />
+            <ActivityQueue
+              title="Pending participant verification"
+              items={matters
+                .filter((m) => m.stage === 'invited' || m.stage === 'verified')
+                .map((m) => ({
+                  id: m.matter_id,
+                  title: m.label,
+                  meta: `${m.verified_participant_count} verified · ${m.region}`,
+                  href: appRoutes.participants,
+                }))}
+            />
+            <ActivityQueue
+              title="Recent releases"
+              items={matters
+                .filter((m) => m.stage === 'released')
+                .map((m) => ({
+                  id: m.matter_id,
+                  title: m.label,
+                  meta: m.public_record_id
+                    ? `Record ${m.public_record_id} · ${m.anchor_hash ?? 'anchor pending'}`
+                    : 'Released without public ledger',
+                  href: m.public_record_id ? `/ledger/${m.public_record_id}` : appRoutes.appLedger,
+                }))}
+            />
+          </>
+        ) : (
+          <>
+            <ActivityQueue
+              title="Your sessions"
+              items={sessions.slice(0, 8).map((s) => ({
+                id: s.id,
+                title: s.title,
+                meta: `${s.status} · ${s.date}`,
+                href: appRoutes.sessionControl(s.id),
+              }))}
+            />
+            <ActivityQueue
+              title="Next actions"
+              items={[
+                {
+                  id: 'new',
+                  title: sessions.length === 0 ? 'Create your first session' : 'Open sessions list',
+                  meta: 'Configure → Verify → Facilitate → Release',
+                  href: sessions.length === 0 ? appRoutes.sessionNew : appRoutes.sessions,
+                },
+                {
+                  id: 'guide',
+                  title: 'Pilot readiness',
+                  meta: 'Go-live checklist · abort criteria · deferred scope',
+                  href: appRoutes.pilotGuide,
+                },
+              ]}
+            />
+          </>
+        )}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Recent sessions */}
-        <section className="lg:col-span-2" aria-labelledby="recent-sessions-heading">
-          <div className="mb-4 flex items-center justify-between">
-            <h2
-              id="recent-sessions-heading"
-              className="text-base font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Recent Sessions
-            </h2>
-            <Link
-              to="/sessions"
-              className="text-xs underline transition-opacity hover:opacity-70"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              View all
-            </Link>
-          </div>
-
-          <div
-            className="overflow-hidden rounded-lg border"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-            }}
-          >
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr
-                  className="border-b"
-                  style={{ borderColor: 'var(--color-border)' }}
-                >
-                  {['Session', 'Status', 'Participants', 'Updated'].map((h) => (
-                    <th
-                      key={h}
-                      scope="col"
-                      className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentSessions.map((s, i) => (
-                  <tr
-                    key={s.id}
-                    className="border-b transition-colors last:border-0 hover:bg-slate-50"
-                    style={{
-                      borderColor: 'var(--color-border)',
-                    }}
-                  >
-                    <td className="px-5 py-3.5">
-                      <Link
-                        to={`/sessions/${s.id}`}
-                        className="font-medium hover:underline"
-                        style={{ color: 'var(--color-text-primary)' }}
-                      >
-                        {s.title}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <StatusBadge variant={s.status}>
-                        {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
-                      </StatusBadge>
-                    </td>
-                    <td
-                      className="px-5 py-3.5 tabular-nums"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
-                      {s.participants}
-                    </td>
-                    <td
-                      className="px-5 py-3.5"
-                      style={{ color: 'var(--color-text-secondary)' }}
-                    >
-                      {s.updated}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* Pending approvals */}
-        <section aria-labelledby="pending-approvals-heading">
-          <div className="mb-4 flex items-center justify-between">
-            <h2
-              id="pending-approvals-heading"
-              className="text-base font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              Needs Your Review
-            </h2>
-            <span
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium text-white"
-              style={{ backgroundColor: 'var(--color-accent)' }}
-            >
-              {pendingApprovals.length}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {pendingApprovals.map((a) => (
-              <Link
-                key={a.id}
-                to={`/outcomes/${a.id}`}
-                className="block rounded-lg border p-4 transition-shadow hover:shadow-md"
-                style={{
-                  borderColor: 'var(--color-pending-strip)',
-                  backgroundColor: 'var(--color-pending-strip)',
-                }}
-              >
-                <p
-                  className="mb-1 text-sm font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {a.title}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                  Requested by {a.requestedBy} &middot; Due {a.due}
-                </p>
-              </Link>
-            ))}
-            {pendingApprovals.length === 0 && (
-              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                No pending approvals.
-              </p>
-            )}
-          </div>
-        </section>
-      </div>
-    </div>
+      <p className="mt-8 text-sm text-ink-faint">
+        {showDemoPortfolio
+          ? 'Demo portfolio signals are active (VITE_V2_MOCK_DATA). '
+          : 'Showing live session counts from your account. '}
+        <Link to={appRoutes.sessionNew} className="text-brand">
+          New session
+        </Link>
+      </p>
+    </RoleWorkspaceFrame>
   );
 }

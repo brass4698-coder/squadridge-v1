@@ -1,6 +1,8 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useDemoWalkthrough } from './DemoWalkthroughContext';
 import { DemoOverlay } from './DemoOverlay';
+import { DemoExitConfirm } from './DemoExitConfirm';
+import { DEMO_MAIN_STEPS } from './demoScript';
 
 type Props = {
   children: ReactNode;
@@ -13,29 +15,68 @@ function isSpaceAdvanceBlocked(target: EventTarget | null): boolean {
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return true;
   if (target.closest('[contenteditable="true"]')) return true;
   if (target.closest('button, [role="button"], a[href], input, textarea, select')) return true;
+  if (target.closest('[role="dialog"]')) return true;
   return false;
 }
 
 /**
- * Demo chrome: top banner, bottom bar, optional overlays, Space-to-advance (when not typing).
- * Safe to delete with `src/demo/` — core routes ignore this.
+ * Demo chrome: corner progress pill, dismissible badge, spotlight overlay, compact nav.
+ * All tour styles scoped via `data-demo-active` / `.demoActive` on `document.body`.
  */
 export function DemoLayout({ children }: Props) {
   const {
     demoActive,
     showDemoChrome,
     currentStepIndex,
-    currentStepTitle,
     currentStep,
+    currentTip,
+    currentTips,
+    tipIndex,
+    tipOrdinal,
+    tipTotal,
     canGoNext,
     canGoBack,
+    sheetMinimized,
+    setSheetMinimized,
     goNext,
     goBack,
     exitDemo,
   } = useDemoWalkthrough();
 
+  const [exitOpen, setExitOpen] = useState(false);
+  const [badgeDismissed, setBadgeDismissed] = useState(false);
+
+  const stepCount = DEMO_MAIN_STEPS.length;
+  const progressPct =
+    tipTotal > 0 && tipOrdinal > 0
+      ? Math.round((tipOrdinal / tipTotal) * 100)
+      : currentStepIndex >= 0
+        ? Math.round(((currentStepIndex + 1) / stepCount) * 100)
+        : 0;
+  const progressNow = tipOrdinal || currentStepIndex + 1;
+  const progressMax = tipTotal || stepCount;
+
+  // Scope demo-only CSS under a single root flag (rip-out friendly).
   useEffect(() => {
-    if (!demoActive || !showDemoChrome) return;
+    if (!demoActive) {
+      document.body.removeAttribute('data-demo-active');
+      document.body.classList.remove('demoActive');
+      return;
+    }
+    document.body.setAttribute('data-demo-active', '');
+    document.body.classList.add('demoActive');
+    return () => {
+      document.body.removeAttribute('data-demo-active');
+      document.body.classList.remove('demoActive');
+    };
+  }, [demoActive]);
+
+  useEffect(() => {
+    setBadgeDismissed(false);
+  }, [currentStep?.id]);
+
+  useEffect(() => {
+    if (!demoActive || !showDemoChrome || exitOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== ' ') return;
       if (isSpaceAdvanceBlocked(event.target)) return;
@@ -44,39 +85,78 @@ export function DemoLayout({ children }: Props) {
     };
     document.addEventListener('keydown', onKeyDown, true);
     return () => document.removeEventListener('keydown', onKeyDown, true);
-  }, [demoActive, showDemoChrome, goNext]);
+  }, [demoActive, showDemoChrome, goNext, exitOpen]);
 
   return (
     <>
-      {showDemoChrome ? (
-        <div
-          className="relative z-[5] border-b border-amber/25 bg-amber/10 px-gutter py-2.5 text-center"
-          role="status"
-        >
-          <p className="font-sans text-[0.8rem] leading-snug text-amber/95 md:text-[0.85rem]">
-            Guided simulation. Seeded data only; no live disputes or real people.
-          </p>
-        </div>
-      ) : null}
       {children}
       {showDemoChrome ? (
         <>
-          <DemoOverlay steps={currentStep?.overlaySteps} layoutKey={currentStepIndex} />
-          <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-navy-light/60 bg-[#070b12]/95 px-gutter py-3 backdrop-blur-md">
-            <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                {currentStepIndex >= 0 && currentStepTitle ? (
+          {!badgeDismissed ? (
+            <div className="sr-tour-badge" role="status">
+              <span className="sr-tour-badge__label">Tour</span>
+              <span className="sr-tour-badge__hint">Space · Next</span>
+              <button
+                type="button"
+                className="sr-tour-badge__dismiss"
+                onClick={() => setBadgeDismissed(true)}
+                aria-label="Dismiss tour badge"
+              >
+                ×
+              </button>
+            </div>
+          ) : null}
+
+          <div
+            className="sr-tour-progress-pill"
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={progressMax}
+            aria-valuenow={progressNow}
+            aria-label="Tour progress"
+          >
+            <span className="sr-tour-progress-pill__label">
+              {progressNow}/{progressMax}
+            </span>
+            <div className="sr-tour-progress-pill__track">
+              <div className="sr-tour-progress-pill__bar" style={{ width: `${progressPct}%` }} />
+            </div>
+          </div>
+
+          <DemoOverlay
+            step={currentStep}
+            tip={currentTip}
+            tipIndex={tipIndex}
+            tipCount={currentTips.length}
+            tipOrdinal={tipOrdinal}
+            tipTotal={tipTotal}
+            sheetMinimized={sheetMinimized}
+            onMinimizeSheet={() => setSheetMinimized(true)}
+            onExpandSheet={() => setSheetMinimized(false)}
+            layoutKey={`${currentStep?.id ?? ''}-${tipIndex}`}
+          />
+
+          <footer className="sr-tour-footer">
+            <div className="sr-tour-footer__inner">
+              <p className="sr-tour-footer__meta">
+                {currentStepIndex >= 0 ? (
                   <>
-                    Step {currentStepIndex + 1} · {currentStepTitle}
+                    {currentStepIndex + 1}/{stepCount}
+                    {tipTotal > 0 ? (
+                      <span className="sr-tour-footer__meta-muted">
+                        {' '}
+                        · tip {tipOrdinal}/{tipTotal}
+                      </span>
+                    ) : null}
                   </>
                 ) : (
-                  <>Guided tour</>
+                  'Tour'
                 )}
               </p>
-              <div className="flex flex-wrap gap-2 sm:justify-end">
+              <div className="sr-tour-footer__actions">
                 <button
                   type="button"
-                  className="btn-secondary min-h-[2.5rem] px-4 py-2 text-sm"
+                  className="sr-tour-btn"
                   disabled={!canGoBack}
                   onClick={goBack}
                 >
@@ -84,22 +164,27 @@ export function DemoLayout({ children }: Props) {
                 </button>
                 <button
                   type="button"
-                  className="btn-secondary min-h-[2.5rem] px-4 py-2 text-sm"
+                  className="sr-tour-btn sr-tour-btn--primary"
                   disabled={!canGoNext}
                   onClick={goNext}
                 >
                   Next
                 </button>
-                <button
-                  type="button"
-                  className="min-h-[2.5rem] rounded-md border border-slate-600 bg-transparent px-4 py-2 text-sm font-medium text-slate-200 hover:border-slate-500 hover:bg-white/5"
-                  onClick={exitDemo}
-                >
-                  Exit tour
+                <button type="button" className="sr-tour-btn" onClick={() => setExitOpen(true)}>
+                  Exit
                 </button>
               </div>
             </div>
           </footer>
+
+          <DemoExitConfirm
+            open={exitOpen}
+            onCancel={() => setExitOpen(false)}
+            onConfirm={() => {
+              setExitOpen(false);
+              exitDemo();
+            }}
+          />
         </>
       ) : null}
     </>

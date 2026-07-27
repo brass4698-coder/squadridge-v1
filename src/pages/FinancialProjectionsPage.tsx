@@ -1,4 +1,6 @@
-/**
+/* DEFERRED: pilot-first — investor-facing financial projections. Not part of MVP demo.
+ * Gated to super_admin at /financial-projections (App.v2.tsx). Issue #48.
+ *
  * FinancialProjectionsPage
  *
  * Investor-facing financial projections view.  Reuses `buildFinancialModel` /
@@ -94,9 +96,7 @@ function KpiCard({
       >
         {value}
       </p>
-      {sub ? (
-        <p className="font-sans text-[0.75rem] text-[#64748b]">{sub}</p>
-      ) : null}
+      {sub ? <p className="font-sans text-[0.75rem] text-[#64748b]">{sub}</p> : null}
     </div>
   );
 }
@@ -131,7 +131,9 @@ function Sparkline({
     pad + uh - ((v - min) / range) * uh,
   ]);
 
-  const line = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const line = pts
+    .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(' ');
   const area = fill
     ? `${line} L${pts[pts.length - 1][0].toFixed(1)},${(pad + uh).toFixed(1)} L${pts[0][0].toFixed(1)},${(pad + uh).toFixed(1)} Z`
     : null;
@@ -152,7 +154,14 @@ function Sparkline({
         </linearGradient>
       </defs>
       {area && <path d={area} fill="url(#spark-fill)" />}
-      <path d={line} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -271,7 +280,9 @@ function MonthlyTable({ rows }: { rows: MonthlyFinancialRow[] }) {
                 <td className={cn(td, 'text-[#94a3b8]')}>{r.label}</td>
                 <td className={cn(td, 'text-right text-teal-400')}>{formatUsd(r.revenueUsd)}</td>
                 <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.payrollUsd)}</td>
-                <td className={cn(td, 'text-right text-[#94a3b8]')}>{formatUsd(r.nonPayrollOpexUsd)}</td>
+                <td className={cn(td, 'text-right text-[#94a3b8]')}>
+                  {formatUsd(r.nonPayrollOpexUsd)}
+                </td>
                 <td className={cn(td, 'text-right text-red-400')}>{formatUsd(r.totalOpexUsd)}</td>
                 <td
                   className={cn(
@@ -280,7 +291,8 @@ function MonthlyTable({ rows }: { rows: MonthlyFinancialRow[] }) {
                     r.operatingIncomeUsd >= 0 ? 'text-teal-300' : 'text-red-400',
                   )}
                 >
-                  {r.operatingIncomeUsd >= 0 ? '+' : ''}{formatUsd(r.operatingIncomeUsd)}
+                  {r.operatingIncomeUsd >= 0 ? '+' : ''}
+                  {formatUsd(r.operatingIncomeUsd)}
                 </td>
                 <td
                   className={cn(
@@ -350,22 +362,16 @@ export function FinancialProjectionsPage() {
   }
 
   // Engine called with both required args: buildFinancialModel(assumptions, scenario)
-  const model = useMemo(
-    () => buildFinancialModel(assumptions, scenario),
-    [assumptions, scenario],
-  );
+  const model = useMemo(() => buildFinancialModel(assumptions, scenario), [assumptions, scenario]);
 
   const monthRows = model.monthly;
 
-  // Chart data — use correct field names
-  const revenueData = monthRows.map((r) => r.revenueUsd);
+  // Chart data — use correct field names (revenue data unused pending chart update)
   const burnData = monthRows.map((r) => r.totalOpexUsd);
   const cashData = monthRows.map((r) => r.cashEndUsd);
 
   // Bar chart (every 2nd month)
-  const barLabels = monthRows
-    .filter((_, i) => i % 2 === 0)
-    .map((r) => r.label.replace(/^.* /, ''));
+  const barLabels = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.label.replace(/^.* /, ''));
   const barRevenue = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.revenueUsd);
   const barBurn = monthRows.filter((_, i) => i % 2 === 0).map((r) => r.totalOpexUsd);
 
@@ -385,7 +391,7 @@ export function FinancialProjectionsPage() {
   const breakEvenLabel =
     model.breakEvenMonthIndex === null
       ? 'Not in horizon'
-      : monthRows[model.breakEvenMonthIndex]?.label ?? `Month ${model.breakEvenMonthIndex}`;
+      : (monthRows[model.breakEvenMonthIndex]?.label ?? `Month ${model.breakEvenMonthIndex}`);
 
   const peakBurn = Math.max(...burnData, 0);
 
@@ -438,7 +444,6 @@ export function FinancialProjectionsPage() {
 
       {/* ── Body ── */}
       <main className="mx-auto max-w-[1200px] px-4 py-10 sm:px-8">
-
         {/* DataIntegrityLabel disclaimer */}
         <div className="mb-8 flex items-start gap-2.5 rounded-lg border border-amber-400/20 bg-amber-400/[0.05] px-4 py-3">
           <Info className="mt-0.5 size-3.5 shrink-0 text-amber-400/70" aria-hidden />
@@ -453,9 +458,9 @@ export function FinancialProjectionsPage() {
         <div className="mb-8 flex items-center gap-3">
           <Badge variant={SCENARIO_BADGE[scenario]}>{SCENARIO_LABELS[scenario]}</Badge>
           <p className="font-sans text-[0.78rem] text-[#475569]">
-            {assumptions.monthlyHorizonMonths}-month horizon ·{' '}
-            starting cash {formatUsd(assumptions.startingCashUsd)} ·{' '}
-            ${assumptions.pricePerPilotSeatMonthUsd}/seat/mo
+            {assumptions.monthlyHorizonMonths}-month horizon · starting cash{' '}
+            {formatUsd(assumptions.startingCashUsd)} · ${assumptions.pricePerPilotSeatMonthUsd}
+            /seat/mo
           </p>
         </div>
 
@@ -474,12 +479,7 @@ export function FinancialProjectionsPage() {
                 accent
               />
             </div>
-            <KpiCard
-              label="Cash runway"
-              value={runwayLabel}
-              sub="from model start"
-              icon={Flame}
-            />
+            <KpiCard label="Cash runway" value={runwayLabel} sub="from model start" icon={Flame} />
             <KpiCard
               label="Break-even month"
               value={breakEvenLabel}
@@ -674,8 +674,8 @@ export function FinancialProjectionsPage() {
             Monthly Model
           </h2>
           <p className="mt-2 font-sans text-[0.85rem] text-[#64748b]">
-            Full {assumptions.monthlyHorizonMonths}-month cashflow.
-            Adjust assumptions in the Pitch Hub → Financial tab.
+            Full {assumptions.monthlyHorizonMonths}-month cashflow. Adjust assumptions in the Pitch
+            Hub → Financial tab.
           </p>
           <div className="mt-6">
             <MonthlyTable rows={monthRows} />
@@ -700,7 +700,8 @@ export function FinancialProjectionsPage() {
               className="text-teal-400 underline underline-offset-2 hover:text-teal-300"
             >
               Pitch Hub → Financial tab
-            </Link>.
+            </Link>
+            .
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {(
@@ -736,9 +737,9 @@ export function FinancialProjectionsPage() {
 
         {/* Footer disclaimer */}
         <p className="mt-12 max-w-2xl font-sans text-[0.72rem] leading-relaxed text-[#334155]">
-          These projections are illustrative financial models based on the assumptions above.
-          They are not audited financials, guarantees of future performance, or investment
-          advice. Actual results may differ materially.
+          These projections are illustrative financial models based on the assumptions above. They
+          are not audited financials, guarantees of future performance, or investment advice. Actual
+          results may differ materially.
         </p>
       </main>
     </div>

@@ -2,6 +2,13 @@
 
 Formal OpenAPI specs can be generated later; this document captures **intent**, auth, and example payloads for maintainers.
 
+## `serve-deck`
+
+- **Role:** Serve invite-only pitch briefing HTML/CSS/JS after JWT auth + `has_deck_access()`.
+- **Client:** `src/lib/deckAssetFetch.ts` → `GET /functions/v1/serve-deck?path=<basename>` with user Bearer token.
+- **Assets:** `supabase/functions/serve-deck/static/` (not Vite `public/`).
+- **Errors:** `401 NOT_AUTHENTICATED`, `403 FORBIDDEN`, `404 NOT_FOUND`, `400 INVALID_PATH`.
+
 ## `verify-zk-proof`
 
 - **Role:** Verify a Semaphore proof for a scoped attribute.

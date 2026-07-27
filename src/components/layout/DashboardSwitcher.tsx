@@ -1,7 +1,6 @@
 // ============================================================
 // DashboardSwitcher — shown only for multi-role users
 // ============================================================
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { saveLastDashboard } from '../../lib/dashboardRouting';
@@ -23,7 +22,9 @@ export function DashboardSwitcher() {
 
   return (
     <div>
-      <p className="text-xs text-sq-muted mb-1 font-medium uppercase tracking-wide">Switch Dashboard</p>
+      <p className="text-xs text-sq-muted mb-1 font-medium uppercase tracking-wide">
+        Switch Dashboard
+      </p>
       <div className="space-y-0.5">
         {uniqueRoles.map((role) => (
           <button

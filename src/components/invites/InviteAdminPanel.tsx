@@ -3,12 +3,19 @@
 // ============================================================
 import React, { useEffect, useState } from 'react';
 import { createInvite, revokeInvite, listInvites } from '../../lib/invites';
+import { staffInviteAcceptPath } from '../../lib/pendingInvite';
 import type { Invite, InviteType } from '../../types/invites';
 import type { RoleKey } from '../../types/roles';
 import { ROLE_LABELS } from '../../types/roles';
 
 const INVITE_TYPES: InviteType[] = [
-  'participant','facilitator','mediator','analyst','institution_admin','observer','super_admin',
+  'participant',
+  'facilitator',
+  'mediator',
+  'analyst',
+  'institution_admin',
+  'observer',
+  'super_admin',
 ];
 
 export function InviteAdminPanel() {
@@ -24,7 +31,9 @@ export function InviteAdminPanel() {
     setInvites(data);
   };
 
-  useEffect(() => { void loadInvites(); }, []);
+  useEffect(() => {
+    void loadInvites();
+  }, []);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +50,9 @@ export function InviteAdminPanel() {
       setError(result.error ?? 'Failed to create invite.');
       return;
     }
-    setSuccess(`Invite created. Token: ${result.token}`);
+    setSuccess(
+      `Invite created. Share this link: ${window.location.origin}${staffInviteAcceptPath(result.token ?? '')}`,
+    );
     setEmail('');
     void loadInvites();
   }
@@ -61,7 +72,9 @@ export function InviteAdminPanel() {
 
       <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
         <div>
-          <label htmlFor="invite-email" className="block text-sm font-medium text-sq-text mb-1">Email</label>
+          <label htmlFor="invite-email" className="block text-sm font-medium text-sq-text mb-1">
+            Email
+          </label>
           <input
             id="invite-email"
             type="email"
@@ -72,7 +85,9 @@ export function InviteAdminPanel() {
           />
         </div>
         <div>
-          <label htmlFor="invite-type" className="block text-sm font-medium text-sq-text mb-1">Role</label>
+          <label htmlFor="invite-type" className="block text-sm font-medium text-sq-text mb-1">
+            Role
+          </label>
           <select
             id="invite-type"
             value={inviteType}
@@ -80,7 +95,9 @@ export function InviteAdminPanel() {
             className="input-field w-full"
           >
             {INVITE_TYPES.map((t) => (
-              <option key={t} value={t}>{ROLE_LABELS[t as RoleKey] ?? t}</option>
+              <option key={t} value={t}>
+                {ROLE_LABELS[t as RoleKey] ?? t}
+              </option>
             ))}
           </select>
         </div>
@@ -126,9 +143,7 @@ export function InviteAdminPanel() {
             ))}
           </tbody>
         </table>
-        {invites.length === 0 && (
-          <p className="text-sq-muted text-sm py-4">No invites yet.</p>
-        )}
+        {invites.length === 0 && <p className="text-sq-muted text-sm py-4">No invites yet.</p>}
       </div>
     </div>
   );

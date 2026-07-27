@@ -1,195 +1,447 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Shield } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AccountPageShell, AccountPanel } from '../components';
-import { NextStepHint } from '../components/ui/NextStepHint';
+import { FormField } from '../components/ui/FormField';
+import { FormPanel } from '../components/ui/FormPanel';
+import { FormAlert } from '../components/ui/FormAlert';
+import { Input } from '../components/ui/Input';
+import { InviteOnlyNotice } from '../components/auth/InviteOnlyNotice';
+import { GovernedEntryNav } from '../components/auth/GovernedEntryNav';
+import { GovernedEntryLayout } from '../components/shell/GovernedEntryLayout';
+import { RouteSkeleton } from '../components/system/RouteSkeleton';
 import { useAuth } from '../contexts/AuthContext';
+import { appRoutes } from '../lib/appRoutes';
 import { isSupabaseConfigured } from '../lib';
+import { useDashboardRoute } from '../hooks/useDashboardRoute';
+import { signInWithDemo, isDemoLoginEnabled } from '../lib/demoLogin';
+import { classifyClientError } from '../lib/appErrors';
+import { resolvePostAuthPath, safeNextPath } from '../lib/postAuthRouting';
+import { useDemoWalkthrough } from '../demo/DemoWalkthroughContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
-export function SignInPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const nextRaw = searchParams.get('next');
-  const reason = searchParams.get('reason');
-  const nextPath = useMemo(
-    () =>
-      nextRaw && nextRaw.startsWith('/') && !nextRaw.startsWith('//')
-        ? decodeURIComponent(nextRaw)
-        : '/',
-    [nextRaw],
-  );
+const RESEND_COOLDOWN_SEC = 60;
 
-  const { signIn, session, loading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
-
-  const configured = isSupabaseConfigured();
-  const showLinkHelpBanner = reason === 'link';
-
-  useEffect(() => {
-    if (!loading && session) {
-      navigate(nextPath, { replace: true });
-    }
-  }, [loading, session, navigate, nextPath]);
-
-  if (!loading && session) {
+function AuthStateBanner({ reason }: { reason: string }) {
+  if (reason === 'expired') {
     return (
-      <AccountPageShell>
-        <p className="font-sans text-[0.95rem] text-ink-muted">Continuing…</p>
-      </AccountPageShell>
-    );
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setBusy(true);
-    const { error: err } = await signIn(email, {
-      nextPath: nextPath !== '/' ? nextPath : undefined,
-    });
-    setBusy(false);
-    if (err) {
-      setError(err.message);
-      return;
-    }
-    setSent(true);
-  }
-
-  if (!configured) {
-    return (
-      <div className="relative mx-auto w-full max-w-copy px-gutter py-12">
-        <p className="font-sans text-body-lg text-ink-muted">
-          Supabase is not configured. Add{' '}
-          <code className="text-teal-light/90">VITE_SUPABASE_URL</code> and a publishable or anon
-          key to use sign-in.
-        </p>
-        <Link
-          to="/"
-          className="mt-6 inline-block text-sm font-medium text-teal-light underline-offset-4 hover:underline"
-        >
-          Back to home
-        </Link>
+      <div
+        className="mb-8 overflow-hidden rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated"
+        role="status"
+      >
+        <div className="border-b border-line bg-surface-sunken/50 px-5 py-4 md:px-6">
+          <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+            Session ended
+          </p>
+          <h2 className="mt-2 mb-0 font-heading text-h3 font-semibold text-ink">
+            Sign in again to continue
+          </h2>
+        </div>
+        <div className="space-y-3 px-5 py-5 text-sm leading-relaxed text-ink-secondary md:px-6">
+          <p className="m-0">
+            Your session ended for safety after a period of inactivity or an expired credential.
+            Request a fresh magic link below.
+          </p>
+          <ul className="m-0 list-none space-y-2 border-t border-line pt-4 p-0">
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Private room content was not exposed by this timeout.</span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Nothing was auto-published to the ledger.</span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand" />
+              <span>Release still requires facilitator approval.</span>
+            </li>
+          </ul>
+        </div>
       </div>
     );
   }
 
-  return (
-    <AccountPageShell>
-      <p className="mb-0 font-heading text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-teal/80">
-        Account
-      </p>
-      <h1
-        className="mt-2 font-heading font-extrabold text-ink"
-        style={{
-          fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
-        }}
-      >
-        Sign in
-      </h1>
-      <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-ink-muted">
-        New here? Use the same email—we send a one-time link. First time signs you in. No password
-        stored on our side.
-      </p>
+  if (reason === 'signed-out') {
+    return (
+      <FormAlert className="mb-6" title="Signed out">
+        You signed out successfully. Sign in again when you are ready.
+      </FormAlert>
+    );
+  }
 
-      {showLinkHelpBanner ? (
-        <div
-          className="mt-6 rounded-lg border border-amber/30 bg-amber/[0.06] px-4 py-3 font-sans text-[0.85rem] leading-snug text-[#fcd9a8]"
-          role="status"
-        >
-          No password to reset—enter your email below and we&apos;ll send a fresh magic link.
-        </div>
-      ) : null}
+  if (reason === 'link' || reason === 'invalid') {
+    return (
+      <FormAlert className="mb-6" title="Magic link expired or already used">
+        Sign-in links are one-time and expire in about an hour. Request a fresh link below — no
+        password to reset.
+      </FormAlert>
+    );
+  }
 
-      {sent ? (
-        <AccountPanel className="mt-10">
-          <p className="mb-0 font-sans text-[0.95rem] text-ink-secondary">
-            Check your inbox for the sign-in link. After you open it, you&apos;ll return here and
-            we&apos;ll route you
-            {nextPath !== '/' ? ' to your squad room.' : '.'}
-          </p>
-        </AccountPanel>
-      ) : (
-        <form className="mt-10" onSubmit={(e) => void handleSubmit(e)} noValidate>
-          <AccountPanel className="space-y-5">
-            {error ? (
-              <p className="font-sans text-[0.875rem] text-amber" role="alert">
-                {error}
+  return null;
+}
+
+/**
+ * Minimal controlled-entry sign-in — verified / invite-linked access.
+ */
+export function SignInPage() {
+  usePageTitle('Sign in');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { startWalkthrough } = useDemoWalkthrough();
+  const nextRaw = searchParams.get('next');
+  const reason = searchParams.get('reason');
+  const intent = searchParams.get('intent');
+  const wantDemo = searchParams.get('demo') === '1';
+  const roleDashboard = useDashboardRoute();
+  const nextPath = safeNextPath(nextRaw ? decodeURIComponent(nextRaw) : null, roleDashboard);
+
+  const { signIn, session, loading, initialized, profile, roles } = useAuth();
+  const [email, setEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const configured = isSupabaseConfigured();
+  const isSignup = intent === 'signup';
+  const isExpired = reason === 'expired';
+
+  const redirected = useRef(false);
+  const autoDemoStarted = useRef(false);
+  const pendingGuidedTour = useRef(false);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = window.setInterval(() => {
+      setCooldown((c) => (c <= 1 ? 0 : c - 1));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [cooldown]);
+
+  useEffect(() => {
+    if (!initialized || loading || !session || redirected.current) return;
+
+    if (pendingGuidedTour.current) {
+      redirected.current = true;
+      pendingGuidedTour.current = false;
+      startWalkthrough();
+      return;
+    }
+
+    const destination = resolvePostAuthPath({
+      session,
+      profile,
+      roles,
+      explicitNext: nextRaw,
+    });
+    if (destination === '/sign-in') return;
+    redirected.current = true;
+    navigate(destination, { replace: true });
+  }, [initialized, loading, session, profile, roles, nextRaw, navigate, startWalkthrough]);
+
+  const handleDemo = useCallback(async () => {
+    setError(null);
+    setDemoBusy(true);
+    const result = await signInWithDemo();
+    if (!result.ok) {
+      setDemoBusy(false);
+      setError(classifyClientError(new Error(result.error)).userMessage);
+      return;
+    }
+    // Explicit `next` (role dashboard / credential continue) wins over the guided tour.
+    if (!nextRaw) {
+      pendingGuidedTour.current = true;
+    }
+  }, [nextRaw]);
+
+  useEffect(() => {
+    if (!wantDemo || !isDemoLoginEnabled() || !configured) return;
+    if (!initialized || loading || session || autoDemoStarted.current) return;
+    autoDemoStarted.current = true;
+    void handleDemo();
+  }, [wantDemo, configured, initialized, loading, session, handleDemo]);
+
+  async function sendMagicLink(targetEmail: string) {
+    setError(null);
+    setBusy(true);
+    const shouldForwardNext = Boolean(nextRaw) && nextPath !== appRoutes.dashboard;
+    const { error: err } = await signIn(targetEmail, {
+      nextPath: shouldForwardNext ? nextPath : undefined,
+    });
+    setBusy(false);
+    if (err) {
+      setError(classifyClientError(err).userMessage);
+      return false;
+    }
+    setSentEmail(targetEmail);
+    setSent(true);
+    setCooldown(RESEND_COOLDOWN_SEC);
+    return true;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await sendMagicLink(email.trim());
+  }
+
+  async function handleResend() {
+    if (cooldown > 0 || !sentEmail) return;
+    await sendMagicLink(sentEmail);
+  }
+
+  /* Expired / signed-out: never show a bare Loading skeleton — designed state + form affordance. */
+  if ((!initialized || loading) && isExpired) {
+    return (
+      <GovernedEntryLayout title="Session ended">
+        <div className="mx-auto max-w-lg">
+          <AuthStateBanner reason="expired" />
+          <FormPanel
+            eyebrow="Entry"
+            title="Sign in with magic link"
+            description="Preparing a secure form…"
+            footer="Private room content was not exposed. Nothing auto-published. Release still needs facilitator approval."
+          >
+            <div className="space-y-4" aria-busy="true" aria-live="polite">
+              <p className="m-0 text-sm text-ink-secondary" role="status">
+                Checking session…
               </p>
-            ) : null}
-            <div className="space-y-2">
-              <label
-                htmlFor="signin-email"
-                className="block font-sans text-[0.8rem] font-medium text-ink-secondary"
+              <div className="space-y-2">
+                <div className="h-3 w-28 rounded-sm bg-surface-sunken" aria-hidden />
+                <div
+                  className="h-12 w-full rounded-[var(--sr-radius-lg)] border border-line bg-surface-sunken/60"
+                  aria-hidden
+                />
+              </div>
+              <button
+                type="button"
+                className="btn-institutional btn-institutional--primary btn-institutional--block"
+                disabled
               >
-                Email
-              </label>
-              <input
-                id="signin-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[8px] border border-[#1a2236] bg-[#0f1623] px-4 py-3 font-sans text-[0.95rem] text-ink-secondary placeholder:text-ink-subtle focus-visible:border-teal/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/20"
-                placeholder="you@organization.org"
-              />
+                Send a fresh sign-in link
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={busy}
-              className="inline-flex min-h-[44px] w-full items-center justify-center border-0 bg-teal px-6 py-3 font-heading text-[0.95rem] font-semibold text-navy transition-opacity hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ borderRadius: 8 }}
-            >
-              {busy ? 'Sending link…' : 'Email me a link'}
-            </button>
-          </AccountPanel>
-        </form>
-      )}
+          </FormPanel>
+        </div>
+      </GovernedEntryLayout>
+    );
+  }
 
-      {!sent ? (
-        <p className="mt-6 font-sans text-[0.8rem] leading-relaxed text-ink-subtle">
-          Link expired? Enter your email again—we&apos;ll send a fresh link. There is no separate
-          password to recover.
-        </p>
-      ) : null}
+  if (!initialized || loading) {
+    return (
+      <GovernedEntryLayout title="Verified access">
+        <div className="mx-auto max-w-lg">
+          <RouteSkeleton label="Checking session" />
+        </div>
+      </GovernedEntryLayout>
+    );
+  }
 
-      {sent ? (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> Open the email link on this
-          device. We&apos;ll finish sign-in and route you
-          {nextPath !== '/' ? ' to your destination' : ' home'}.
-        </NextStepHint>
-      ) : (
-        <NextStepHint className="mt-8 border-white/10 bg-white/[0.03]">
-          <span className="font-medium text-slate-400">Next:</span> After the magic link signs you
-          in, we&apos;ll send you to the page you were trying to reach, or home if nothing is
-          queued.
-        </NextStepHint>
-      )}
+  if (session) {
+    return (
+      <GovernedEntryLayout title="Verified access">
+        <div className="mx-auto max-w-lg">
+          <RouteSkeleton label="Signing you in" />
+        </div>
+      </GovernedEntryLayout>
+    );
+  }
 
-      <nav
-        className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-8 font-sans text-[0.85rem] text-ink-subtle"
-        aria-label="Account help"
-      >
-        <Link
-          to="/security"
-          className="inline-flex items-center gap-2 text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
-        >
-          <Shield className="size-3 shrink-0 opacity-50" aria-hidden />
-          Security &amp; privacy
-        </Link>
-        <Link
-          to="/"
-          className="w-fit text-ink-muted underline-offset-4 transition-colors hover:text-ink-secondary hover:underline"
-        >
+  if (!configured) {
+    return (
+      <GovernedEntryLayout>
+        <p className="text-sm text-ink-secondary">Supabase is not configured for sign-in.</p>
+        <Link to="/" className="mt-4 inline-block text-brand">
           Back to home
         </Link>
-      </nav>
-    </AccountPageShell>
+      </GovernedEntryLayout>
+    );
+  }
+
+  return (
+    <GovernedEntryLayout title="Verified access only">
+      <div className="sr-governed-entry-grid">
+        <div className="min-w-0 space-y-6">
+          {reason === 'expired' ||
+          reason === 'link' ||
+          reason === 'invalid' ||
+          reason === 'signed-out' ? (
+            <AuthStateBanner reason={reason} />
+          ) : null}
+
+          <div>
+            <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[0.14em] text-brand/80">
+              SquadRidge
+            </p>
+            <h1 className="mt-3 font-heading text-display font-semibold tracking-tight text-ink">
+              {isExpired ? 'Sign in again' : 'Sign in'}
+            </h1>
+            <p className="mt-4 max-w-prose text-base leading-relaxed text-ink-secondary">
+              Invite-linked accounts for pilot rooms and verified parties — not open signup.
+            </p>
+            <div className="mt-6">
+              <InviteOnlyNotice />
+            </div>
+          </div>
+
+          <GovernedEntryNav current="sign-in" nextPath={nextRaw} />
+
+          {isDemoLoginEnabled() ? (
+            <FormPanel
+              className="border-t border-line pt-6 !shadow-none"
+              eyebrow="Local / staging"
+              title="Demo access"
+              description="Password login against the seeded demo account — not a production pilot path."
+            >
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  disabled={demoBusy}
+                  onClick={() => void handleDemo()}
+                  className="btn-institutional btn-institutional--primary btn-institutional--block"
+                >
+                  {demoBusy
+                    ? 'Starting demo…'
+                    : nextRaw
+                      ? 'Continue with demo account'
+                      : 'Sign in + choose a role tour'}
+                </button>
+                <Link
+                  to="/demo"
+                  className="btn-institutional btn-institutional--ghost btn-institutional--block text-center"
+                >
+                  Open demo hub — all roles & credentials
+                </Link>
+                <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                  If sign-in fails, seed with{' '}
+                  <code className="font-mono">node --env-file=.env.local scripts/seedDemo.mjs</code>
+                  .
+                </p>
+              </div>
+            </FormPanel>
+          ) : null}
+        </div>
+
+        <FormPanel
+          className="md:sticky md:top-20"
+          eyebrow="Entry"
+          title={
+            sent ? 'Check your email' : isSignup ? 'Create your account' : 'Magic-link sign-in'
+          }
+          description={
+            sent
+              ? 'We sent a one-time sign-in link. It expires in about an hour and can only be used once.'
+              : 'We email a one-time link to an invitation-linked work address.'
+          }
+          footer="Need access? Request a confidential pilot intake — do not expect instant self-serve."
+        >
+          {sent ? (
+            <div className="space-y-4" role="status" aria-live="polite">
+              <FormAlert variant="success" title="Link sent">
+                Check <span className="font-medium text-ink">{sentEmail}</span> for the sign-in
+                link. If it is not in your inbox, look in spam or promotions.
+              </FormAlert>
+              <ul className="m-0 list-none space-y-2 border-t border-line pt-4 p-0 text-sm text-ink-secondary">
+                <li className="flex gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                  />
+                  <span>Open the link on this device when possible.</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-brand"
+                  />
+                  <span>Expired or already-used links will ask you to request a new one.</span>
+                </li>
+              </ul>
+              {error ? <FormAlert variant="error">{error}</FormAlert> : null}
+              <div className="sr-form-actions pt-1">
+                <button
+                  type="button"
+                  className="btn-institutional btn-institutional--primary"
+                  disabled={busy || cooldown > 0}
+                  onClick={() => void handleResend()}
+                >
+                  {busy
+                    ? 'Sending…'
+                    : cooldown > 0
+                      ? `Resend in ${cooldown}s`
+                      : 'Resend sign-in link'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-institutional btn-institutional--ghost"
+                  onClick={() => {
+                    setSent(false);
+                    setError(null);
+                  }}
+                >
+                  Use a different email
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form
+              ref={formRef}
+              className="space-y-6"
+              onSubmit={(e) => void handleSubmit(e)}
+              noValidate
+            >
+              {error ? <FormAlert variant="error">{error}</FormAlert> : null}
+              <FormField
+                id="signin-email"
+                label="Work email"
+                hint="Must match an invited or approved pilot address."
+                instrument
+              >
+                <Input
+                  id="signin-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@organization.org"
+                />
+              </FormField>
+              <p className="m-0 text-xs leading-relaxed text-ink-faint">
+                Why magic links: one-time, time-bounded credentials avoid password reuse and
+                credential stuffing — better for invite-only institutional access than shared
+                passwords.{' '}
+                <Link
+                  to="/security/technical#diligence-faq"
+                  className="text-brand underline-offset-2 hover:underline"
+                >
+                  Diligence FAQ
+                </Link>
+              </p>
+              <div className="sr-form-actions">
+                <button
+                  type="submit"
+                  className="btn-institutional btn-institutional--primary"
+                  disabled={busy}
+                >
+                  {busy
+                    ? 'Sending…'
+                    : isExpired
+                      ? 'Send a fresh sign-in link'
+                      : 'Send sign-in link'}
+                </button>
+                <Link
+                  to="/request-access"
+                  className="btn-institutional btn-institutional--ghost text-center"
+                >
+                  Request pilot access
+                </Link>
+              </div>
+            </form>
+          )}
+        </FormPanel>
+      </div>
+    </GovernedEntryLayout>
   );
 }

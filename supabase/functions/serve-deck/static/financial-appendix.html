@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="ds-pitch-deck">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SquadRidge — Financial Appendix</title>
+  <link rel="stylesheet" href="deck-hub-chrome.css" />
+  <link rel="stylesheet" href="deck-ds.css" />
+  <link rel="stylesheet" href="deck-layout-global.css" />
+</head>
+<body class="ds-pitch-deck">
+<a href="/pitch-deck-hub" class="deck-exit-hub">← Pitch Deck Hub</a>
+<button type="button" class="deck-side-arrow deck-side-arrow--prev" data-scroll-deck-prev aria-label="Previous slide">&#8249;</button>
+<button type="button" class="deck-side-arrow deck-side-arrow--next" data-scroll-deck-next aria-label="Next slide">&#8250;</button>
+<div class="deck-bottom-bar" role="toolbar" aria-label="Slide navigation">
+  <button type="button" class="deck-nav-btn" data-scroll-deck-prev aria-label="Previous slide">&#8249;</button>
+  <div class="deck-dot-row" id="scroll-deck-dots"></div>
+  <span class="deck-slide-counter" id="scroll-deck-counter">1 / 12</span>
+  <button type="button" class="deck-nav-btn" data-scroll-deck-next aria-label="Next slide">&#8250;</button>
+</div>
+
+<section class="slide">
+  <div class="ds-title-lockup">
+    <div class="ds-mark-wrap"><img src="/assets/squadridge-icon.svg" alt="" /></div>
+    <span class="ds-wordmark-large ds-wordmark-text" role="img" aria-label="SquadRidge"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span>
+    <p class="ds-eyebrow">Financial appendix</p>
+    <p class="ds-small">Scenario model — editable in Pitch Deck Hub · Not audited actuals</p>
+    <p class="ds-lead" style="max-width:none">Founder planning view: assumptions, seat ramp, OPEX stack, scenarios — export JSON from hub for the canonical numbers.</p>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">01 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Limitations</p>
+  <h2>How to read this model</h2>
+  <ul style="max-width:40rem;color:var(--color-text-secondary);line-height:1.65;font-size:0.92rem">
+    <li>All figures are labeled assumption or scenario — not GAAP statements.</li>
+    <li>Align narrative asks with <code>fundraisingAskUsd</code> and runway outputs in hub.</li>
+  </ul>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">02 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Assumptions</p>
+  <h2>Key inputs (see hub for live values)</h2>
+  <table class="ds-compare-table">
+    <thead><tr><th>Input</th><th>Role in model</th></tr></thead>
+    <tbody>
+      <tr><td>Starting cash</td><td>Planning balance — scenario</td></tr>
+      <tr><td>Seat-month price</td><td>Illustrative pilot pricing</td></tr>
+      <tr><td>Target paying seats (m12)</td><td>Ramp endpoint — sensitivity tested</td></tr>
+      <tr><td>Fully loaded FTE cost</td><td>Payroll stack</td></tr>
+    </tbody>
+  </table>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">03 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Pricing</p>
+  <h2>Logic</h2>
+  <p class="ds-lead">Revenue in model ties to paying seats × seat-month assumptions — replace with contract-specific pricing when negotiating pilots.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">04 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Ramp</p>
+  <h2>Seat build (linear ramp — hub default)</h2>
+  <p class="ds-lead">Illustrative: seats ramp toward target by month 12 unless you change <code>seatRampMonths</code> in assumptions.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">05 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Costs</p>
+  <h2>OPEX stack</h2>
+  <div class="ds-grid-2">
+    <div class="ds-panel"><h3>People</h3><p>Payroll from headcount FTE × fully loaded cost.</p></div>
+    <div class="ds-panel ds-panel--sage"><h3>Non-payroll</h3><p>Infra, legal, S&amp;M, contractors + contingency in hub.</p></div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">06 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">HC plan</p>
+  <h2>Headcount trajectory</h2>
+  <p class="ds-lead">Model uses month 0 / 12 / 24 FTE counts — interpolate as straight-line in engine; refine if you add hires off-cycle.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">07 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Monthly</p>
+  <h2>Bridge view (illustrative)</h2>
+  <p class="ds-lead">Use hub “Financial” section for month-by-month revenue, OPEX, cash — export JSON includes lineage labels on modeled rows.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">08 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Annual</p>
+  <h2>Rollups</h2>
+  <p class="ds-lead">Scenario multipliers apply to revenue and OPEX in engine — compare base vs conservative vs aggressive in hub UI before external use.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">09 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Scenarios</p>
+  <h2>Base / conservative / aggressive</h2>
+  <p class="ds-lead">Switch active scenario in hub to align narrative decks with the same parameters — avoid mismatched asks.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">10 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Sensitivity</p>
+  <h2>What moves runway most</h2>
+  <div class="ds-grid-3">
+    <div class="ds-panel ds-metric"><div class="ds-val ds-val--gold">Seats</div><div class="ds-metric-label">Revenue timing</div></div>
+    <div class="ds-panel ds-metric"><div class="ds-val">HC</div><div class="ds-metric-label">Payroll step changes</div></div>
+    <div class="ds-panel ds-metric"><div class="ds-val ds-val--teal">Ask</div><div class="ds-metric-label">Cash zero bridge</div></div>
+  </div>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">11 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<section class="slide">
+  <p class="ds-eyebrow">Capital</p>
+  <h2>Runway &amp; use of funds</h2>
+  <p class="ds-lead">Fundraising ask and milestone strings live in hub assumptions — pair investor deck ask slide with these exports before external send.</p>
+  <div class="ds-slide-footer">
+    <div class="ds-brand-lock"><img class="mark" src="/assets/squadridge-icon.svg" alt="" /><span class="ds-wordmark-text" aria-hidden="true"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span></div>
+    <div class="ds-slide-num js-deck-slide-num">12 / 12</div>
+    <div class="ds-confidential">Confidential · SquadRidge</div>
+  </div>
+</section>
+
+<script src="deck-scroll-deck.js" defer></script>
+</body>
+</html>

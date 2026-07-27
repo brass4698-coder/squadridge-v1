@@ -57,7 +57,7 @@ export function NegotiationPhasePanel({
                 ? 'border-sem-danger/40 text-sem-danger'
                 : timeRemainingMs < 300_000
                   ? 'border-amber/30 text-amber-light'
-                  : 'border-white/[0.06] text-ink'
+                  : 'border-line text-ink'
             }`}
           >
             <Clock className="size-3.5 opacity-50" />
@@ -83,11 +83,11 @@ export function NegotiationPhasePanel({
             <ChevronDown className="size-4 text-ink-faint" />
           )}
         </summary>
-        <div className="max-h-[320px] space-y-3 overflow-y-auto border-t border-white/[0.04] px-4 py-3">
+        <div className="max-h-[320px] space-y-3 overflow-y-auto border-t border-line px-4 py-3">
           {inputs.map((input, idx) => (
             <div
               key={idx}
-              className="rounded-lg border border-white/[0.04] bg-white/[0.01] px-3 py-2.5"
+              className="rounded-lg border border-line bg-surface-hover/40 px-3 py-2.5"
             >
               <p className="font-mono text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-ink-subtle">
                 {input.label}

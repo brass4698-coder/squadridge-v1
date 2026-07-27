@@ -1,5 +1,13 @@
 # Optional local Redis — reserved for future rate limits or queue workers. The app’s matchmaking
 # path uses PostgreSQL today; do not assume Redis is required to run the client or Supabase flows.
+#
+# Supabase local stack is NOT defined here. It is started by the Supabase CLI
+# (`npm run supabase:start` → `npx supabase start`), which pulls images matching the
+# pinned CLI in package.json (`supabase` ^2.91.3). Check with:
+#   npx supabase --version
+#   docker ps --format "{{.Image}}" | findstr supabase
+# Do not pin public.ecr.aws/supabase/* tags in this file — the CLI owns image selection.
+
 services:
   redis:
     image: redis:7-alpine

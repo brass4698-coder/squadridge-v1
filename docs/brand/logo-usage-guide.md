@@ -2,48 +2,48 @@
 
 ## Overview
 
-The SquadRidge logo represents a secure bridge across global divides, reflecting our mission to enable verified-anonymous, cross-border dialogue. The visual identity relies on a dark, calm "global civic" aesthetic [1].
+The SquadRidge mark is a **split diamond vault** — a geometric diamond divided down the center.
+It signals protected deliberation without figurative people, flags, or militarized iconography.
 
-## Logo Concept
+## Assets
 
-The logo incorporates subtle iconography like globes and bridges, symbolizing connectivity and structured dialogue. We strictly avoid flags or militaristic symbols, as they conflict with our non-violence principles and focus on peacebuilding [1].
+| File | Use |
+|------|-----|
+| `/assets/squadridge-icon.svg` | App icon, favicon (SVG), compact chrome — **preferred** |
+| `/assets/squadridge-mark.png` | Raster symbolic mark (transparent) |
+| `/assets/squadridge-wordmark.svg` | Export wordmark (SQUAD/RIDGE + tagline) |
+| `/assets/squadridge-wordmark-lockup.png` | Raster full lockup (mark + wordmark + tagline; dark-friendly) |
+| `/assets/squadridge-lockup.svg` | Icon + wordmark for decks, print, press |
+| `/assets/squadridge.svg` | Name-only wordmark for pitch-deck slides |
+| `/assets/logo.png` | Square raster mark (decks / PWA-adjacent) |
+| `SquadLogo` / `SquadRidgeLockup` | In-product React components |
 
 ## Colors
 
-The primary colors used in the logo are:
+* **Brand teal** (`--sr-brand-mark` / `#01696F`, institutional `#0E5E63`): diamond fill; **SQUAD**
+* **Ridge stone** (`--sr-brand-ridge` / `#8E7A68`): **RIDGE** and export tagline
+* In UI chrome, the tagline uses theme `text-ink-secondary` so it stays legible on dark and light shells
 
-*   **Deep Navy** (`#0A0F1E`): Used as the primary background or base color, signaling stability and calmness [1].
-*   **Teal** (`#0E9AA7`): Used for accents and highlights, representing clarity and connection [1].
-*   **Amber** (`#F5A623`): Used sparingly for warmth and to draw attention to key elements [1].
+## Tagline
 
-## Usage Guidelines
+**Private Deliberation Infrastructure** — use with the lockup on sign-in / hero brand moments
+(`showTagline`). Compact nav may omit the tagline.
 
-### Minimum Size
+## Placement
 
-To ensure legibility, the logo must not be reproduced smaller than the following dimensions:
+* **Nav / sidebar / public header**: icon + two-tone “SQUADRIDGE” (`SquadRidgeLockup`, `size="sm"`)
+* **Sign-in / hero brand moments**: lockup with tagline
+* **Favicon / PWA**: icon SVG + PNG sizes derived from the symbolic mark
+* **Pitch decks**: `/assets/logo.png` mark + `/assets/squadridge.svg` wordmark
 
-*   **Digital**: 32px height
-*   **Print**: 0.5 inches height
+## Minimum size & clear space
 
-### Clear Space
+* Digital mark: ≥ 28px height in chrome; ≥ 32px where it is the sole brand signal
+* Clear space around the mark ≈ half the icon diameter
 
-Always maintain a minimum clear space around the logo equal to the height of the central icon element. This ensures the logo remains distinct and uncluttered.
+## Prohibited uses
 
-### Backgrounds
-
-*   **Preferred**: The logo should ideally be placed on the primary Deep Navy (`#0A0F1E`) background [1].
-*   **Alternative**: When necessary, the logo can be used on a solid white or light gray background, provided the contrast is sufficient. In these cases, a reversed or monochromatic version of the logo may be required.
-
-### Prohibited Uses
-
-To maintain brand integrity, avoid the following:
-
-*   Do not alter the proportions or distort the logo.
-*   Do not change the specified brand colors.
-*   Do not add drop shadows, gradients, or other effects not specified in this guide.
-*   Do not place the logo on busy or patterned backgrounds that reduce legibility.
-*   Do not incorporate flags, militaristic symbols, or any imagery that contradicts our peacebuilding mission [1].
-
-## References
-
-[1] SquadRidge Core Research Compilation.
+* Do not distort proportions, recolor the mark ad hoc, or add drop shadows / glow
+* Do not place the colored mark on busy photography without a calm surface behind it
+* Do not use the retired people-on-ridge figures as the primary brand mark
+* Do not swap in flags or militaristic symbols

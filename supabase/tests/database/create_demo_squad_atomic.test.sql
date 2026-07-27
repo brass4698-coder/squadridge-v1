@@ -19,7 +19,7 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(7);
+SELECT plan(8);
 
 -- 1. Function exists with the expected return type.
 SELECT has_function(

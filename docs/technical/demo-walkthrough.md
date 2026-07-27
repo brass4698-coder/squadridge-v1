@@ -1,65 +1,58 @@
 # Guided demo walkthrough
 
-The product tour is a **demo-only** layer: scripted routes, optional auto-actions on `data-demo` hooks, banner + bottom chrome, and **Space** to advance when the tour is active (not while typing in fields). It is **not** required for production traffic.
+The live product tour is an **App.v2 institutional spine**: public story → facilitator
+workspace → seeded session control → outcome → release gate.
 
-Implementation lives in **`src/demo/`** (script, provider, layout, telemetry helpers).
+Chrome includes a **side sheet** (primary explanation), optional **anchored callout** +
+spotlight, progress (step + tip ordinal), and **Back / Next / Exit tour** controls.
 
-## What ships in every build
+Implementation lives in **`src/demo/`**.
 
-| Surface | Route | Notes |
-| ------- | ----- | ----- |
-| Offline squad mock | `/session/demo-session-001` | [`DemoSessionPage`](../../src/pages/DemoSessionPage.tsx): no Supabase Realtime; copy links to `/security`. **Not** gated on `VITE_ENABLE_DEMO_SQUAD`. |
-| ZK verification (standalone) | `/verify` | Real Semaphore + Edge path when configured; the tour adds **`/verify?demo=1`** as a step with overlay copy aligned to the threat model. |
-| Profile in tour | `/settings/profile?demo=1` | [`ProfileSettingsPage`](../../src/pages/ProfileSettingsPage.tsx) calls `ensureAnonymousSession()` when `demo=1` so the step works without visiting Match first. |
+## How to start
 
-## Investor-facing behavior
+1. Ensure the demo account is seeded (`docs/operations/demo-account.md`).
+2. Open **`/demo`** (footer → Access → Demo hub in local/dev) or `/sign-in` → **Sign in + choose a role tour**.
+3. Pick a role on `/demo/start?demo=1` (or visit `/sign-in?demo=1` with no `next`).
+4. After auth, the tour advances through the role-filtered steps from `src/demo/demoRolePaths.ts`
+   / `DEMO_MAIN_STEPS` in `src/demo/demoScript.ts`.
 
-- **Pitch / diligence:** The offline session is explicitly a **mock**; live squad rooms use [`SessionPage`](../../src/pages/SessionPage.tsx) with Realtime and app-layer encryption (see [`threat-model.md`](../security/threat-model.md)).
-- **`VITE_ENABLE_DEMO_SQUAD`:** Optional. Only enables **developer** shortcuts (e.g. creating a test squad from the session hub), not the public `/session/demo-session-001` route.
+You can also call `startWalkthrough()` from `useDemoWalkthrough()` (see
+`src/pages/admin/AdminDemoPage.tsx`), or open any spine route with `?demo=1`
+(e.g. `http://localhost:5173/?demo=1`).
 
-## Removing the tour completely
+## Interaction model
 
-Follow these steps in order; after each step, run `npm run build` and smoke-test `/`, `/match?demo=1`, and intent/match flows.
+| Surface | When |
+| ------- | ---- |
+| Side sheet | Primary tip copy for the current screen (Hide collapses to “Show guide”) |
+| Callout + spotlight | Short anchored hint when a tip has `type: 'callout'` and a `target` |
+| Exit modal | Blocking confirm only when leaving the tour |
+| Footer Back / Next / Exit | Always labeled; Next advances tips before routes |
 
-1. **Delete the demo package**  
-   Remove the entire directory **`src/demo/`** (including `demoScript.test.ts`).
+Tips are **linear**: Next walks tips on the current route, then navigates to the next
+scripted path. Tip index resumes via `sessionStorage` (`demoWalkthroughTip`).
 
-2. **`src/App.tsx`**  
-   - Remove the `DemoWalkthroughProvider` import and unwrap the tree so `AuthProvider` is directly inside `BrowserRouter` (no provider wrapper).  
-   - Remove the route **`/onboarding/demo`** (if present) or its **`Navigate`** to **`/onboarding?demo=1&ob=1`**.  
-   - Remove the route **`/session/demo`** (`Navigate` to `demo-session-001`) if you added it only for the tour alias.
+## Chrome
 
-3. **`src/components/layout/AppLayout.tsx`**  
-   - Remove `DemoLayout`, `useDemoWalkthrough`, and the `showDemoChrome` / `demoMainPad` padding logic.  
-   - Render the previous structure: `ZkStubBanner`, `OfflineBanner`, `AuthIssueBanner`, `AppHeaderNav`, `main` with `Outlet`, `footer` — **without** wrapping children in `DemoLayout`.
+| Control | Behavior |
+| ------- | -------- |
+| Progress bar | Tip ordinal across the full script |
+| **Back** | Previous tip, or last tip of previous step |
+| **Next** / Space | Next tip, or next scripted step |
+| **Exit tour** | Confirm, then clear tour flag and return to `/` |
 
-4. **`src/pages/LandingPage.tsx`**  
-   - Remove `useDemoWalkthrough` / `startWalkthrough`.  
-   - Remove the **Start guided tour** button (and any copy that exists only for the tour).
+`DemoLayout` is mounted from `PublicShell` and `AuthenticatedShell`.
 
-5. **`src/pages/Match.tsx`**  
-   - Remove the import from **`../demo/demoScript`** (`DEMO_WALKTHROUGH_STORAGE_KEY`).  
-   - In the `guidedDemo` effect, remove the **`walkthroughActive`** branch so offline guided demo again uses only the original timeout → **`/session/demo-session-001`** behavior (unless you intentionally keep pacing changes).  
-   - Optionally remove **`data-demo="match-guided-root"`** from the guided-demo container.
+## Script steps (summary)
 
-6. **`src/pages/IntentPage.tsx`** and **`src/pages/DemoSessionPage.tsx`**  
-   - Remove **`data-demo="..."`** attributes that were added for scripted auto-actions (safe to leave, but removal avoids dead hooks).
+Welcome → How it works → Security → Ledger → Facilitator dashboard → Participant →
+Moderator → Sessions → **Configure** → **Invite** → **Verify** → Session control →
+Outcome draft → Release gate → Tour complete.
 
-7. **Verify**  
-   Run:
+In-app pilot ops (live facilitators, not the demo tour): `/app/pilot-guide` with the
+interactive Configure → Verify → Facilitate → Release walkthrough.
 
-   ```bash
-   rg "demo/DemoWalkthrough|DemoWalkthroughProvider|useDemoWalkthrough|DemoLayout|demoWalkthrough|DEMO_WALKTHROUGH_STORAGE_KEY|onboardingTourPath" src
-   ```
+## Removing the tour
 
-   There should be **no** matches except unrelated uses of the word “demo” (e.g. `DemoSessionPage`, ledger fixtures, `demo=` query params on match).
-
-### Runtime state
-
-The tour sets **`sessionStorage.demoWalkthrough = "1"`** while active. Removing the code does not clear existing tabs; users can clear site data or session storage, or ignore it (nothing will read the key after removal).
-
-### What to keep
-
-Do **not** remove unless you are dropping investor/offline demos entirely:
-
-- **`DemoSessionPage`**, **`/session/demo-session-001`**, **`lib/demoSession.ts`**, **`?demo=1`** on Match — these are separate from the **walkthrough** package and support offline/story demos without the scripted tour.
+See historical notes in git history for deleting `src/demo/` entirely. Prefer keeping the
+package and updating `demoScript.ts` when the product spine changes.

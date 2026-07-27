@@ -20,7 +20,7 @@ export function SafetyCenterPage() {
       </p>
 
       <section
-        className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5"
+        className="rounded-xl border border-line bg-surface-elevated p-5"
         aria-labelledby="safety-status"
       >
         <h2 id="safety-status" className="font-heading text-section-title text-slate-100">
@@ -52,18 +52,18 @@ export function SafetyCenterPage() {
           </div>
         </dl>
         <p className="mt-3 font-sans text-[0.8rem] text-slate-500">
-          Verification and ZK eligibility are separate from what others see in dialogue — you stay
-          anonymous to other participants.
+          Facilitator verification confirms eligibility for a session. Released records do not name
+          participants. Room content is access-controlled, not operator-blind encryption.
         </p>
         <Link
-          to="/verify"
+          to="/security"
           className="mt-4 inline-flex min-h-[44px] items-center text-teal-light underline-offset-4 hover:underline"
         >
-          Verification &amp; ZK scope
+          Security &amp; privacy boundaries
         </Link>
       </section>
 
-      <section className="rounded-xl border border-white/[0.08] bg-[#0c121c] p-5">
+      <section className="rounded-xl border border-line bg-surface-elevated p-5">
         <h2 className="font-heading text-section-title text-slate-100">Policies &amp; tools</h2>
         <ul className="mt-3 list-none space-y-3 font-sans text-[0.9rem]">
           <li>

@@ -1,113 +1,231 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  primaryUseCases,
+  secondaryUseCases,
+  USE_CASE_ARCHITECTURE_LINE,
+  USE_CASE_VIGNETTES,
+} from '../../data/useCases';
+import { CTA, PILOT_FIT_STRONG } from '../../data/siteMessaging';
+import {
+  CTABlock,
+  MarketingPageHero,
+  SecondaryUseCaseRow,
+  SectionLabel,
+  UseCaseCard,
+  UseCasesBackboneStrip,
+} from '../../components/shared';
+import { GovernedPanel } from '../../components/motion';
+import { publicShellInnerClass } from '../../components/layout/publicShellTokens';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
-const cases = [
-  {
-    audience: 'Civil mediators & conflict resolution practitioners',
-    heading: 'Structured mediation with a published outcome',
-    body: 'Facilitate multi-party dialogue in a protected environment. Produce a formal joint statement or consensus record that can be cited by courts, institutions, or media — without exposing the mediation itself.',
-    cta: 'Request access as a facilitator',
-    href: '/request-access',
-  },
-  {
-    audience: 'Government & public institutions',
-    heading: 'Consultation processes with accountability',
-    body: 'Run structured public consultations where the process is protected and the outcome is verifiable. Replace informal stakeholder engagement with a recorded, approver-signed result.',
-    cta: 'Request institutional access',
-    href: '/request-access',
-  },
-  {
-    audience: 'NGOs & civil society organisations',
-    heading: 'Community dialogue without exposure risk',
-    body: 'Bring together communities in conflict or tension for facilitated conversation. Protect participants from exposure while still producing a credible, publishable statement of agreed principles.',
-    cta: 'Talk to us',
-    href: '/request-access',
-  },
-  {
-    audience: 'Peace-tech operators & humanitarian programs',
-    heading: 'High-stakes dialogue in difficult contexts',
-    body: 'SquadRidge was designed for contexts where trust is absent, exposure risk is real, and the stakes of failure are high. Use it for ceasefire talks, displaced community consultations, post-crisis recovery dialogue, and similar operations.',
-    cta: 'Request pilot access',
-    href: '/request-access',
-  },
-  {
-    audience: 'Academic researchers & evaluators',
-    heading: 'Process integrity for research-grade dialogue',
-    body: 'Run structured, documented dialogue sessions with verifiable process records. The outcome ledger provides a citable, time-stamped record that meets institutional standards for evidence-based research.',
-    cta: 'Learn more',
-    href: '/how-it-works',
-  },
-  {
-    audience: 'Legal and corporate dispute resolution',
-    heading: 'Private mediation, documented outcome',
-    body: 'Conduct structured mediation between parties in commercial or legal disputes. Produce an agreed settlement record that can be referenced as evidence of good-faith negotiation without exposing confidential session content.',
-    cta: 'Request access',
-    href: '/request-access',
-  },
-];
-
+/**
+ * Use cases — state the backbone once, then prove it per buyer track.
+ */
 export function UseCasesPage() {
-  return (
-    <div className="mx-auto max-w-5xl px-6 py-20">
-      <div className="mb-14 text-center">
-        <p
-          className="mb-3 text-xs font-semibold uppercase tracking-widest"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          Applications
-        </p>
-        <h1
-          className="mb-4 text-3xl font-semibold tracking-tight"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-          Who SquadRidge is built for
-        </h1>
-        <p
-          className="mx-auto max-w-xl text-sm leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          SquadRidge is not a general-purpose platform. It was purpose-built for high-stakes, facilitated dialogue where the room must remain private and the outcome must be credible. These are the contexts it is designed to serve.
-        </p>
-      </div>
+  usePageTitle('Use cases');
+  const { hash } = useLocation();
 
-      <div className="grid gap-8 md:grid-cols-2">
-        {cases.map((c) => (
-          <article
-            key={c.heading}
-            className="flex flex-col rounded-xl border p-8"
-            style={{
-              borderColor: 'var(--color-border)',
-              backgroundColor: 'var(--color-surface)',
-              boxShadow: 'var(--shadow-card)',
-            }}
-          >
-            <p
-              className="mb-3 text-xs font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              {c.audience}
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.replace(/^#/, '');
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [hash]);
+
+  return (
+    <div data-page="use-cases">
+      <MarketingPageHero
+        label="Buyer tracks"
+        title="Where the model fits"
+        lead={
+          <>
+            <p>
+              Private deliberation with facilitator-governed release — shown across three primary
+              and two adjacent contexts (five bounded settings).
             </p>
+            <p className="mt-3 mb-0 text-sm text-ink-faint">
+              Same pattern throughout: room stays closed; only the approved outcome can leave. For
+              the process spine and room guarantees, see{' '}
+              <Link
+                to="/how-it-works"
+                className="text-ink-secondary underline-offset-4 hover:underline"
+              >
+                How it works
+              </Link>
+              .
+            </p>
+          </>
+        }
+        slim
+      />
+
+      <section
+        className="scroll-mt-20 border-t border-line py-16 md:py-20"
+        aria-labelledby="backbone-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel className="!mb-2">Shared backbone</SectionLabel>
             <h2
-              className="mb-3 text-lg font-semibold leading-snug"
-              style={{ color: 'var(--color-text-primary)' }}
+              id="backbone-h"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
             >
-              {c.heading}
+              {USE_CASE_ARCHITECTURE_LINE}
             </h2>
-            <p
-              className="mb-6 flex-1 text-sm leading-relaxed"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              {c.body}
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Invite-only entry, facilitator authority, recorded approvals, and a released
+              instrument that excludes the room itself.
             </p>
-            <Link
-              to={c.href}
-              className="text-sm font-medium underline transition-opacity hover:opacity-70"
-              style={{ color: 'var(--color-accent)' }}
+          </div>
+          <div className="mt-10 md:mt-12">
+            <UseCasesBackboneStrip />
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="scroll-mt-20 py-16 md:py-20"
+        aria-labelledby="primary-tracks-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel className="!mb-2">Primary tracks</SectionLabel>
+            <h2
+              id="primary-tracks-h"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
             >
-              {c.cta} →
-            </Link>
-          </article>
-        ))}
-      </div>
+              Three primary tracks
+            </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Each track uses the same architecture — different matter class, same release
+              discipline. Two adjacent contexts follow below.
+            </p>
+          </div>
+          <div className="mt-10 flex flex-col gap-10 md:mt-12 md:gap-12">
+            {primaryUseCases.map((uc, i) => (
+              <div key={uc.id} id={uc.id} className="scroll-mt-24">
+                <GovernedPanel delay={i * 0.03}>
+                  <UseCaseCard {...uc} />
+                </GovernedPanel>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="vignettes"
+        className="scroll-mt-20 bg-surface-secondary/80 py-16 md:py-20"
+        aria-labelledby="vignettes-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel className="!mb-2">Composite outcomes</SectionLabel>
+            <h2
+              id="vignettes-h"
+              className="mt-0 font-heading text-h2 font-semibold tracking-tight text-ink"
+            >
+              What a bounded pilot can look like
+            </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Anonymized composites for diligence — illustrative specimens, not live traction.
+              Participant counts and timelines mirror the Strong fit criteria on{' '}
+              <Link to="/request-access" className="text-brand underline-offset-2 hover:underline">
+                Request pilot access
+              </Link>
+              . Self-select against Not a fit before applying.
+            </p>
+            <ul className="mt-4 m-0 list-none space-y-1.5 p-0 text-xs text-ink-faint">
+              {PILOT_FIT_STRONG.map((line) => (
+                <li key={line} className="flex gap-2">
+                  <span aria-hidden className="text-brand">
+                    ·
+                  </span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <ul className="mt-10 m-0 grid list-none gap-4 p-0 lg:grid-cols-2">
+            {USE_CASE_VIGNETTES.map((v) => (
+              <li
+                key={v.id}
+                className="rounded-[var(--sr-radius-lg)] border border-line bg-surface-elevated p-5"
+              >
+                <p className="m-0 font-mono text-[length:var(--text-label)] uppercase tracking-[var(--tracking-caps)] text-ink-faint">
+                  {v.sector}
+                </p>
+                <h3 className="mt-2 mb-0 text-sm font-semibold text-ink">{v.vignetteTitle}</h3>
+                <p className="mt-3 mb-0 text-xs text-ink-secondary">
+                  <span className="font-medium text-ink">Participants: </span>
+                  {v.participants}
+                </p>
+                <p className="mt-1 mb-0 text-xs text-ink-secondary">
+                  <span className="font-medium text-ink">Timeline: </span>
+                  {v.timeline}
+                </p>
+                <p className="mt-3 mb-0 text-sm leading-relaxed text-ink-secondary">{v.outcome}</p>
+                <div className="mt-4 border-t border-line pt-3">
+                  <p className="m-0 text-xs font-medium text-ink">Not a fit if you need…</p>
+                  <ul className="mt-2 m-0 list-none space-y-1.5 p-0 text-xs text-ink-faint">
+                    {v.notFitHints.map((hint) => (
+                      <li key={hint} className="flex gap-2">
+                        <span aria-hidden>·</span>
+                        <span>{hint}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    to="/request-access#fit-heading"
+                    className="mt-3 inline-block text-xs font-medium text-brand underline-offset-2 hover:underline"
+                  >
+                    Full Strong fit / Not a fit list →
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section
+        className="scroll-mt-20 py-16 md:py-20"
+        aria-labelledby="adjacent-h"
+        data-scroll-section
+      >
+        <div className={publicShellInnerClass}>
+          <div className="max-w-measure">
+            <SectionLabel className="!mb-2">Adjacent contexts</SectionLabel>
+            <h2
+              id="adjacent-h"
+              className="mt-0 font-heading text-h3 font-semibold tracking-tight text-ink"
+            >
+              Two adjacent contexts
+            </h2>
+            <p className="mt-3 mb-0 max-w-prose text-sm leading-relaxed text-ink-secondary">
+              Natural extensions of the same model — not a second track system. Together with the
+              three primary tracks: five bounded contexts.
+            </p>
+          </div>
+          <ul className="mt-8 m-0 grid list-none gap-8 p-0 sm:grid-cols-2 sm:gap-x-12 sm:gap-y-8">
+            {secondaryUseCases.map((uc) => (
+              <SecondaryUseCaseRow key={uc.id} {...uc} />
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <CTABlock
+        headline={CTA.pilotHeadline}
+        body={CTA.closeUseCases}
+        secondaryLabel={CTA.secondaryProcess}
+        secondaryHref={CTA.secondaryProcessHref}
+        statusLine={CTA.pilotStatusLineShort}
+      />
     </div>
   );
 }

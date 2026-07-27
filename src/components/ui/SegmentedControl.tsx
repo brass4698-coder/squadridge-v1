@@ -81,7 +81,7 @@ export function SegmentedControl<T extends string>({
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
               active
                 ? 'bg-brand-soft text-ink shadow-[inset_0_0_0_1px_var(--sr-primary)]'
-                : 'text-ink-secondary hover:bg-white/[0.03] hover:text-ink',
+                : 'text-ink-secondary hover:bg-surface-hover hover:text-ink',
               opt.disabled ? 'cursor-not-allowed opacity-50' : '',
             )}
           >

@@ -3,7 +3,7 @@
  * Pitch Deck Hub defaults (single source of truth).
  *
  * Run: npx tsx scripts/generate-investor-deck-model.ts
- * (Committed outputs: public/pitch-deck-hub/investor-deck-model.json + .embed.js)
+ * (Committed outputs: supabase/functions/serve-deck/static/investor-deck-model.json + .embed.js)
  */
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -13,7 +13,7 @@ import { DEFAULT_ASSUMPTIONS } from '../src/pitch-deck-hub/initialState';
 import type { FinancialScenario } from '../src/pitch-deck-hub/types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = join(__dirname, '../public/pitch-deck-hub');
+const OUT_DIR = join(__dirname, '../supabase/functions/serve-deck/static');
 
 const scenarios: FinancialScenario[] = ['base', 'conservative', 'aggressive'];
 

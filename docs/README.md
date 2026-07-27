@@ -28,10 +28,18 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 
 | Topic                                   | Document                                                               |
 | --------------------------------------- | ---------------------------------------------------------------------- |
-| What SquadRidge is (mission, mechanics) | [product/product-overview.md](product/product-overview.md)             |
+| **Full platform description (start here)** | [product/platform-description.md](product/platform-description.md)   |
+| Civic early-warning & response model (vision) | [product/civic-early-warning-response-model.md](product/civic-early-warning-response-model.md) |
+| Impact & differentiation roadmap          | [product/impact-roadmap.md](product/impact-roadmap.md)               |
+| Phase A engineering checklist             | [../ROADMAP.md](../ROADMAP.md)                                       |
+| Ridge Protocol spec (B1)                  | [product/ridge-protocol-spec.md](product/ridge-protocol-spec.md)     |
+| Short pitch (30s / 2min)                | [product-one-pager.md](product-one-pager.md)                           |
+| What SquadRidge is (summary index)      | [product/product-overview.md](product/product-overview.md)             |
 | Onboarding journey (product view)       | [product/onboarding-flow.md](product/onboarding-flow.md)               |
 | User journeys                           | [product/user-journeys.md](product/user-journeys.md)                   |
 | Feature specifications                  | [product/feature-specifications.md](product/feature-specifications.md) |
+| Institutional credibility research      | [product/institutional-credibility-research.md](product/institutional-credibility-research.md) |
+| **Platform evolution action plan** (MVP → pilot → institutional) | [product/platform-evolution-action-plan.md](product/platform-evolution-action-plan.md) |
 | Metrics                                 | [product/metrics-spec.md](product/metrics-spec.md)                     |
 | CSI (draft, not shipped)                | [product/csi-spec.md](product/csi-spec.md)                             |
 
@@ -43,7 +51,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Go-to-market                                                 | [business/go-to-market.md](business/go-to-market.md)                                                                              |
 | Partnership strategy                                         | [business/partnership-strategy.md](business/partnership-strategy.md)                                                              |
 | Pilot one-pager                                              | [business/pilot-partner-one-pager.md](business/pilot-partner-one-pager.md)                                                        |
-| Pitch Deck Hub (app + static HTML)                           | In-app `/pitch-deck-hub`; [`public/pitch-deck-hub/`](../public/pitch-deck-hub/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
+| Pitch Deck Hub (app + gated HTML)                            | In-app `/pitch-deck-hub` + `/decks`; assets in [`supabase/functions/serve-deck/static/`](../supabase/functions/serve-deck/static/) · [`src/pitch-deck-hub/`](../src/pitch-deck-hub/) |
 | Impact metrics                                               | [business/impact-metrics.md](business/impact-metrics.md)                                                                          |
 
 ## Technical
@@ -68,11 +76,20 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Sentry / client observability        | [security/observability-and-sentry.md](security/observability-and-sentry.md) |
 | Verified / anonymous auth narrative  | [auth/anonymous-to-verified.md](auth/anonymous-to-verified.md)               |
 
+## Audits & institutional readiness
+
+| Topic                                | Document                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
+| **Institutional readiness (start here)** | [audit/institutional-readiness-audit.md](audit/institutional-readiness-audit.md) |
+| Auth, invites, and role dashboards   | [audit/auth-and-dashboards-audit.md](audit/auth-and-dashboards-audit.md)     |
+| Public marketing ↔ engineering claims | [security/public-claims-audit.md](security/public-claims-audit.md)           |
+
 ## Operations & piloting
 
 | Topic                | Document                                                                 |
 | -------------------- | ------------------------------------------------------------------------ |
 | Pilot runbook        | [operations/pilot-runbook.md](operations/pilot-runbook.md)               |
+| v2 pilot checklist   | [operations/v2-pilot-checklist.md](operations/v2-pilot-checklist.md)     |
 | Incidents            | [operations/incidents.md](operations/incidents.md)                       |
 | Production checklist | [operations/production-checklist.md](operations/production-checklist.md) |
 
@@ -81,17 +98,23 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 | Topic         | Document                                                       |
 | ------------- | -------------------------------------------------------------- |
 | Design system | [design/design-system.md](design/design-system.md)             |
+| Full-site visual direction | [design/full-site-visual-direction.md](design/full-site-visual-direction.md) |
+| Institutional visual system | [design/institutional-visual-system.md](design/institutional-visual-system.md) |
+| Trust UI kit (tokens + components) | [design/squadridge-trust-ui-kit.md](design/squadridge-trust-ui-kit.md) |
 | UX patterns   | [design/ux-patterns.md](design/ux-patterns.md)                 |
 | Accessibility | [design/accessibility-guide.md](design/accessibility-guide.md) |
 | Tone of voice | [brand/tone-of-voice.md](brand/tone-of-voice.md)               |
 
 ## Architecture decisions (ADRs)
 
-| ADR                                            | Topic                        |
-| ---------------------------------------------- | ---------------------------- |
-| [001](adr/001-use-semaphore-zk.md)             | Semaphore / ZK direction     |
-| [002](adr/002-realtime-vs-polling.md)          | Realtime vs polling          |
-| [003](adr/003-zk-device-bootstrap-deferred.md) | Deferred ZK device bootstrap |
+| ADR                                            | Topic                                      |
+| ---------------------------------------------- | ------------------------------------------ |
+| [001](adr/001-use-semaphore-zk.md)             | Semaphore / ZK direction                   |
+| [002](adr/002-realtime-vs-polling.md)          | Realtime vs polling                        |
+| [003](adr/003-zk-device-bootstrap-deferred.md) | Deferred ZK device bootstrap               |
+| [004](adr/004-defer-operator-blind-e2e.md)     | Defer operator-blind E2E                   |
+| [005](adr/005-operator-blind-room-encryption-options.md) | Operator-blind room encryption options |
+| [006](adr/006-cloudflare-workers-room-record.md) | Cloudflare Workers room≠record target    |
 
 ## Short entrypoints (same folder)
 

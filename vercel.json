@@ -13,7 +13,7 @@
         },
         {
           "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
+          "value": "DENY"
         },
         {
           "key": "Referrer-Policy",
@@ -28,6 +28,13 @@
           "value": "max-age=31536000; includeSubDomains"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/pitch-deck-hub/:file([^/]+\\.(html|css|js|json|txt))",
+      "destination": "/decks",
+      "permanent": false
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]

@@ -56,7 +56,7 @@ export function CrisisResources({ className = '' }: { className?: string }) {
         </span>
         <span className="font-mono text-[0.7rem] text-amber/80">{open ? '−' : '+'}</span>
       </summary>
-      <div className="mt-3 border-t border-amber/20 pt-3 font-sans text-[0.82rem] leading-relaxed text-[#e5d2a8]">
+      <div className="mt-3 border-t border-amber/20 pt-3 font-sans text-[0.82rem] leading-relaxed text-sem-warning">
         <p className="font-medium text-amber-100">{getCrisisResourcesLead(preferredLanguage)}</p>
         <ul className="mt-3 space-y-3">
           {DEFAULT_RESOURCES.map((r) => (
@@ -69,11 +69,11 @@ export function CrisisResources({ className = '' }: { className?: string }) {
               >
                 {r.label}
               </a>
-              <p className="text-[0.78rem] text-[#c9b88f]">{r.hint}</p>
+              <p className="text-[0.78rem] text-sem-warning">{r.hint}</p>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-[0.78rem] text-[#c9b88f]">
+        <p className="mt-3 text-[0.78rem] text-sem-warning">
           {getCrisisResourcesFooter(preferredLanguage)}
         </p>
       </div>

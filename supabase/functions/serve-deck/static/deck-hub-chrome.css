@@ -1,0 +1,211 @@
+/**
+ * Shared UI chrome for gated pitch decks (serve-deck/static/)
+ * — exit to SPA Pitch Deck Hub, side arrows, optional bottom bar.
+ * Include from each deck: <link rel="stylesheet" href="deck-hub-chrome.css" />
+ * Accent matches site `--sr-primary` (teal); no gold/cream leftovers.
+ */
+
+:root {
+  --deck-chrome-bottom: 52px;
+  --deck-chrome-accent: #1f8a7a;
+  --deck-chrome-bg: #0a0b0d;
+}
+
+.deck-exit-hub,
+a.deck-back-link {
+  position: fixed;
+  top: 20px;
+  right: max(24px, env(safe-area-inset-right));
+  z-index: 200;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(248, 250, 252, 0.75);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 11, 13, 0.82);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0.85;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    opacity 0.2s;
+}
+
+.deck-exit-hub:hover,
+a.deck-back-link:hover {
+  background: rgba(30, 35, 45, 0.92);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  opacity: 1;
+}
+
+.deck-side-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 150;
+  width: 44px;
+  height: 120px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(10, 11, 13, 0.62);
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.deck-side-arrow:hover:not(:disabled) {
+  background: rgba(40, 45, 55, 0.75);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.deck-side-arrow:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.deck-side-arrow--prev,
+.slide-nav-prev {
+  left: max(20px, env(safe-area-inset-left));
+}
+
+.deck-side-arrow--next,
+.slide-nav-next {
+  right: max(20px, env(safe-area-inset-right));
+}
+
+/* Bottom controls row (viewport decks + scroll decks) — full-width bar */
+.deck-bottom-bar,
+[role='toolbar'][aria-label='Slide navigation'],
+.scroll-deck-nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--deck-chrome-bottom);
+  min-height: var(--deck-chrome-bottom);
+  transform: none;
+  z-index: 160;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 max(16px, env(safe-area-inset-left)) env(safe-area-inset-bottom, 0px)
+    max(16px, env(safe-area-inset-right));
+  border-radius: 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  box-shadow: none;
+}
+
+.deck-bottom-bar .deck-nav-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.deck-bottom-bar .deck-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.deck-bottom-bar .deck-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.deck-bottom-bar .deck-slide-counter,
+#scroll-deck-counter,
+#counter,
+.slide-counter {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 0.35;
+  min-width: 52px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-dot-row {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  max-width: 200px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.deck-dot-row .deck-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+
+.deck-dot-row .deck-dot[aria-current='true'] {
+  background: var(--deck-chrome-accent, #1f8a7a);
+  transform: scale(1.25);
+}
+
+@media (max-width: 640px) {
+  .deck-exit-hub,
+  a.deck-back-link {
+    font-size: 10px;
+    padding: 6px 10px;
+    right: max(8px, env(safe-area-inset-right));
+  }
+
+  .deck-side-arrow {
+    width: 36px;
+    height: 88px;
+    font-size: 22px;
+  }
+
+  .deck-bottom-bar {
+    max-width: calc(100vw - 24px);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-dot-row .deck-dot {
+    transition: none;
+  }
+}

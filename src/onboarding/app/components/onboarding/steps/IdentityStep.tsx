@@ -20,13 +20,13 @@ import { obBody, obH1, obH1ToLead, obHelper, obLabel } from '../onboardingStepCl
 import { TRUST_FOOTER } from '../onboardingTrustNotes';
 import type { StepProps } from '../types';
 
-const ROLES: { label: string; value: Exclude<RoleArchetype, ''> }[] = [
-  { label: 'Strategist', value: 'strategist' },
-  { label: 'Analyst', value: 'analyst' },
-  { label: 'Policy', value: 'policy' },
-  { label: 'Mediator', value: 'mediator' },
-  { label: 'Field practitioner', value: 'field' },
-  { label: 'Other', value: 'other' },
+const ROLES: { label: string; value: Exclude<RoleArchetype, ''>; hint: string }[] = [
+  { label: 'Strategist', value: 'strategist', hint: 'Shapes options and trade-offs' },
+  { label: 'Analyst', value: 'analyst', hint: 'Grounds the room in evidence' },
+  { label: 'Policy', value: 'policy', hint: 'Keeps decisions implementable' },
+  { label: 'Mediator', value: 'mediator', hint: 'Holds space when tension rises' },
+  { label: 'Field practitioner', value: 'field', hint: 'Brings lived operational context' },
+  { label: 'Other', value: 'other', hint: 'Describe your lane in your own words' },
 ];
 
 const ERAS: { label: string; value: Exclude<EraAffiliation, ''> }[] = [
@@ -114,7 +114,7 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                 aria-labelledby="sr-role-label"
                 aria-required="true"
               >
-                {ROLES.map(({ value, label }) => (
+                {ROLES.map(({ value, label, hint }) => (
                   <button
                     key={value}
                     type="button"
@@ -129,8 +129,10 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                       draft.roleArchetype === value
                         ? ROLE_BUTTON_ACTIVE_CLASS
                         : ROLE_BUTTON_INACTIVE_CLASS,
+                      'flex flex-col items-start gap-0.5 text-left',
                     )}
                     aria-pressed={draft.roleArchetype === value}
+                    title={hint}
                     onClick={() => {
                       setDraft({
                         roleArchetype: value,
@@ -138,7 +140,10 @@ export function IdentityStep({ onBack, onNext, nextLabel, nextDisabled }: StepPr
                       });
                     }}
                   >
-                    {label}
+                    <span>{label}</span>
+                    <span className="text-[0.65rem] font-normal leading-snug text-white/45">
+                      {hint}
+                    </span>
                   </button>
                 ))}
               </div>

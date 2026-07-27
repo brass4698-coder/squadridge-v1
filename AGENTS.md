@@ -6,10 +6,28 @@ consistent. Read it before making significant changes.
 
 ## What is SquadRidge?
 
-A peace-tech platform for **verified anonymous dialogue** across conflict lines.
-Users join verified groups (called squads), get matched with counterparts, and hold
-structured conversations recorded in a tamper-evident ledger. Zero-knowledge proofs
-(Semaphore) prove group membership without revealing identity.
+A peace-tech platform for **facilitator-led, high-stakes dialogue** — protected sessions
+in a private room, then a **verifiable anchored outcome** without exposing who said what.
+The product spine is **Configure → Verify → Facilitate → Release**.
+
+**Pilot wedge (default):** NGO internal deliberation with a **private** anchored decision memo;
+public ledger publish is optional. Default create-session template is `ngo_deliberation`.
+
+**Core architectural line:** the room and the record are separate by design — not policy.
+
+Legacy citizen matchmaking / ZK routes are **soft-retired** in `App.v2.tsx` (redirect to
+`/request-access`); code may remain for diligence. See `docs/security/threat-model.md` for
+honest privacy bounds. Canonical story: [`docs/product/platform-description.md`](docs/product/platform-description.md),
+`squadridge_platform_spec.json`, and `docs/founding/north-star.md`.
+Investor / diligence start-here: [`docs/business/investor-brief.md`](docs/business/investor-brief.md).
+The longer civic early-warning → redacted ledger → proposal vision lives in
+[`docs/product/civic-early-warning-response-model.md`](docs/product/civic-early-warning-response-model.md)
+(vision-labeled; do not treat as shipped claims).
+
+**Contributor rules:** `.cursor/rules/squadridge.mdc` (platform), `component-rules.mdc` (UI),
+`ai-guidelines.mdc` (optional translation/AI paths). Root `.cursorrules` summarizes both.
+Shared Cursor hooks, MCP, plugins, and extension recommendations:
+[`docs/operations/cursor-tooling.md`](docs/operations/cursor-tooling.md).
 
 ## Stack
 
@@ -32,10 +50,11 @@ structured conversations recorded in a tamper-evident ledger. Zero-knowledge pro
 
 - **Token source of truth**: `src/styles/tokens.css` — CSS custom properties with `--sr-` prefix
 - **Tailwind bridge**: `tailwind.config.ts` maps `--sr-*` vars to utility classes (`bg-surface`, `text-brand`, etc.)
-- **Default theme**: dark (graphite `#0c0e12` base), `.theme-light` for marketing/ledger surfaces
-- **Accent**: single slate-teal `--sr-primary: #2aa39a` — one accent, full stop
-- **Fonts**: IBM Plex Sans (UI), IBM Plex Serif (display/marketing), IBM Plex Mono (ledger/code)
-- **Motion**: use `motion` (Framer) + `animate-step-in` / `animate-step-in-body` Tailwind utilities
+- **Default theme**: cool near-black elevation stack for app + marketing (`:root`). `body[data-theme='institutional']` / `ledger-dark` are scope aliases that inherit the same palette (cream parchment retired)
+- **Accent**: interactive teal `--sr-primary` (`#1F8A7A`); verification punctuation `--sr-verify` (`#3FE0C5`) reserved for verified / released badges and dots only
+- **Fonts (tokenized)**: Inter for body/UI/headings (`--sr-font-body|heading|display`); IBM Plex Mono for labels/ledger/code — see `--sr-font-*` in tokens.css. Kit: [`docs/design/squadridge-trust-ui-kit.md`](docs/design/squadridge-trust-ui-kit.md)
+- **Motion**: `motion` (Framer) + `animate-step-in` utilities; respect `prefers-reduced-motion`
+- **Rules**: No raw hex in components; WCAG AA; calm de-escalation copy; no militarized iconography (flags, weapons)
 
 ## Directory Map
 
@@ -66,6 +85,14 @@ supabase/
     deploy-staging.yml
     deploy-supabase-production.yml
     codeql.yml         # CodeQL static analysis
+.cursor/
+  rules/               # Agent rules (.mdc)
+  hooks/               # Project Cursor hooks (Node)
+  hooks.json
+  mcp.json             # Project MCP (no secrets)
+  settings.json        # Cursor plugin enablement
+.agents/skills/        # Vendored Supabase agent skills
+.vscode/               # Shared extensions + workspace settings (see gitignore exceptions)
 ```
 
 ## Feature Flags
@@ -103,12 +130,15 @@ These exist because past PRs broke things in predictable ways. Please follow the
   (`bg-surface`, `text-brand`, `border-line`, etc.). Raw hex in JSX/CSS will be flagged in review.
 - **Never set `VITE_ZK_STUB=true` in production paths** — `check:no-zk-stub-prod` will catch it,
   but don't rely on CI to enforce something this important.
+- **Do not overclaim privacy** — message protection is application-layer encryption with
+  operator-readable keys today; see `docs/security/threat-model.md` before UI or marketing copy.
+- **Redis in `docker-compose.yml` is local-dev optional** — production rate limits use Upstash via Edge Functions.
 - **Migrations are append-only** — never edit an existing file in `supabase/migrations/`.
   Always add a new timestamped file.
 - **RLS is mandatory** — every new table needs `alter table ... enable row level security`
   and at least one policy in the same migration.
-- **IBM Plex fonts only** — don't introduce a new font family without also updating
-  `tailwind.config.ts` and `tokens.css`.
+- **Tokenized fonts only** — Inter (UI + headings) + IBM Plex Mono (labels/ledger).
+  Don't introduce a new family without updating `tailwind.config.ts`, `tokens.css`, and `index.html`.
 - **TypeScript strict** — no `any`, no `@ts-ignore` without an explanatory comment.
 - **Test new utilities** — any new file in `src/utils/` or `src/lib/` needs a corresponding
   test in `src/test/`.

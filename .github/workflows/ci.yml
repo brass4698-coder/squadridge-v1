@@ -38,6 +38,12 @@ jobs:
       - name: Ensure no bundled Semaphore demo decoys for release artifacts
         run: npm run check:no-demo-decoys-prod
 
+      - name: Ensure demo password login disabled for release artifacts
+        run: npm run check:no-demo-login-prod
+
+      - name: Ensure V2 mock facilitator data disabled for release artifacts
+        run: npm run check:no-v2-mock-data-prod
+
       - name: Ensure no raw console.* in production-data paths
         run: npm run check:no-raw-console
 
@@ -163,7 +169,7 @@ jobs:
 
       - uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.91.3
 
       - name: Start local stack and apply migrations
         run: |

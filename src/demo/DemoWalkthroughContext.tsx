@@ -9,11 +9,8 @@ import {
   type ReactNode,
 } from 'react';
 import { useNavigate, useSearchParams, type NavigateFunction } from 'react-router-dom';
-import {
-  DEMO_FIRST_WALKTHROUGH_PATH,
-  DEMO_WALKTHROUGH_STORAGE_KEY,
-  type DemoStep,
-} from './demoScript';
+import { RouteChunkFallback } from '../components/system/SrLoader';
+import { DEMO_WALKTHROUGH_STORAGE_KEY, type DemoStep, type DemoTip } from './demoScript';
 
 export type DemoWalkthroughContextValue = {
   demoActive: boolean;
@@ -22,8 +19,19 @@ export type DemoWalkthroughContextValue = {
   currentStepIndex: number;
   currentStep: DemoStep | null;
   currentStepTitle: string | null;
+  /** Linear tips for the current route step. */
+  currentTips: DemoTip[];
+  /** Index within `currentTips` (0-based). */
+  tipIndex: number;
+  currentTip: DemoTip | null;
+  /** Global progress across all tips in the main script (1-based display helpers). */
+  tipOrdinal: number;
+  tipTotal: number;
   canGoNext: boolean;
   canGoBack: boolean;
+  /** Tip callout minimized by the user (tour still advances; “Show tip” restores it). */
+  sheetMinimized: boolean;
+  setSheetMinimized: (value: boolean) => void;
   startWalkthrough: () => void;
   goNext: () => void;
   goBack: () => void;
@@ -44,11 +52,18 @@ function inactiveWalkthroughValue(navigate: NavigateFunction): DemoWalkthroughCo
     currentStepIndex: -1,
     currentStep: null,
     currentStepTitle: null,
+    currentTips: [],
+    tipIndex: 0,
+    currentTip: null,
+    tipOrdinal: 0,
+    tipTotal: 0,
     canGoNext: false,
     canGoBack: false,
+    sheetMinimized: false,
+    setSheetMinimized: () => {},
     startWalkthrough: () => {
       sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
-      navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+      navigate('/demo/start?demo=1');
     },
     goNext: () => {},
     goBack: () => {},
@@ -86,7 +101,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
       startWalkthrough: () => {
         sessionStorage.setItem(DEMO_WALKTHROUGH_STORAGE_KEY, '1');
         setStorageActive(true);
-        navigate(DEMO_FIRST_WALKTHROUGH_PATH);
+        navigate('/demo/start?demo=1');
       },
     };
   }, [navigate]);
@@ -100,13 +115,7 @@ export function DemoWalkthroughProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500">
-          Loading demo…
-        </div>
-      }
-    >
+    <Suspense fallback={<RouteChunkFallback label="Loading demo" />}>
       <DemoWalkthroughProviderImpl>{children}</DemoWalkthroughProviderImpl>
     </Suspense>
   );

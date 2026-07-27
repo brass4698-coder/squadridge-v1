@@ -1,74 +1,46 @@
 # SquadRidge Cursor Rules
 
-You are an expert React, Vite, and TypeScript developer, specialized in building secure, low-bandwidth, and accessible applications. You are building SquadRidge — a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack.
+Expert React, Vite, and TypeScript development for SquadRidge — a verified-anonymous cross-border dialogue platform on the Enclave[ZK]-influenced privacy stack.
 
-Project-specific details also live under `.cursor/rules/` (e.g. `squadridge.mdc`); treat those as authoritative for file globs and deeper conventions.
+**Authoritative rules live in `.cursor/rules/`** — read the relevant file before editing:
 
-## Default quality bar (applies unless the user asks for a deliberate shortcut)
+| File | Scope |
+|------|--------|
+| `squadridge.mdc` | Platform principles, security, backend, network behavior |
+| `component-rules.mdc` | `src/components/**`, UI primitives, accessibility |
+| `ai-guidelines.mdc` | `src/lib/ai/**`, translation, optional intelligence |
+
+`AGENTS.md` is the developer orientation doc. `docs/security/threat-model.md` is the engineering source of truth for privacy claims.
+
+## Default quality bar
 
 Optimize for **production-grade** outcomes, not the smallest diff that barely works.
 
-- **Security & privacy**: Design for hostile inputs and misuse at trust boundaries. Prefer least privilege, safe defaults for auth and redirects, and no secrets in client bundles. Assume RLS is always in play for Supabase.
-- **User experience**: Ship complete flows—loading, empty, success, and recoverable error states. Match existing typography, spacing, and patterns. Meet **WCAG AA** for contrast and interactive targets.
-- **Reliability**: Avoid silent failures; surface actionable errors when the user must do something. Prefer clear idempotency and backoff where retries matter (realtime, network).
-- **Performance & bundles**: Heavy client libraries (e.g. ML, large WASM) should be **lazy-loaded** or isolated (workers / dynamic imports) so initial navigation stays lean. Avoid unnecessary re-renders and redundant work on hot paths (lists, realtime merges).
-- **Verification**: Add or update **tests** proportional to risk (auth, crypto, data rules, payment-adjacent flows = higher bar). Run the relevant test/lint commands when you change behavior.
-- **Observability**: Use the project’s existing error reporting and logging patterns; include useful context, never PII.
-- **Scope discipline**: Still keep changes **focused** on the task—no drive-by refactors or unrelated files—but do not shrink scope by shipping incomplete error handling, security, or UX “to save lines.”
+- **Security & privacy**: Hostile inputs at trust boundaries; least privilege; no secrets in client bundles; RLS on all exposed tables. Do **not** describe the platform as fully E2E encrypted or fully zero-knowledge unless the specific feature meets that bar under the current threat model.
+- **User experience**: Complete flows — loading, empty, success, recoverable error. WCAG AA contrast and tap targets. Calm, de-escalation-centered language; avoid alarmist, punitive, or militarized UI copy.
+- **Reliability**: No silent failures; clear reconnecting / unsynced / retry states on flaky networks; idempotent retries on realtime paths.
+- **Performance**: Lazy-load heavy libraries (ML, WASM); workers for crypto/decrypt hot paths.
+- **Verification**: Tests proportional to risk (auth, crypto, RLS, invites). Run lint/test/build when behavior changes.
+- **Observability**: Existing logging patterns; metadata only — never PII or message bodies in logs or Sentry.
+- **Scope discipline**: Focused diffs; do not skip error handling or security to save lines.
 
-## Reviews & audit triggers (practical hybrid)
+## Reviews & audit triggers
 
-**In this repo (agent + implementer):** After **material** changes to **authentication, cryptography, RLS/policies, migrations, or any PII-adjacent flows**, explicitly call out **residual risks**, **what was verified** (e.g. tests run, manual checks), and **what was not** (e.g. full threat model, external pen test). Do not imply “audit-complete” when only code paths were updated.
+After **material** changes to **authentication, cryptography, RLS/policies, migrations, or PII-adjacent flows**, call out **residual risks**, **what was verified**, and **what was not**. Do not imply audit-complete when only code paths changed.
 
-**Automated gates** (lint, tests, build, dependency scans) belong in **CI** and should be kept green; treat failing CI as blocking for merge when the project already enforces it.
+CI gates (lint, tests, build, db) are blocking for merge. Release checklists live in `CONTRIBUTING.md` and operations docs.
 
-**Release / periodic** checks (tagged releases, security review cadence, accessibility passes, bundle budgets) belong in a **human checklist** (e.g. `CONTRIBUTING.md`, release runbooks, or team process)—add or update those docs when you introduce a new gate, rather than duplicating long matrices here.
+## Stack (summary)
 
-## Core Principles
+- **Frontend**: React 19, Vite 6, TypeScript, Tailwind CSS
+- **Design tokens**: `src/styles/tokens.css` — never raw hex in components; use `--sr-*` or Tailwind aliases
+- **Backend**: Supabase (Postgres + RLS + Edge Functions)
+- **Optional local Redis**: `docker-compose.yml` is **local dev only**; production rate limits use Upstash via Edge Functions
+- **Privacy**: Semaphore ZKPs where implemented; application-layer message encryption per `docs/security/threat-model.md` (not Signal-style E2E today)
 
-1.  **Security First**: Prioritize the safety of users in high-risk environments. Ensure all data handling follows strict "do no harm" principles and ephemerality.
-2.  **Verified Anonymity**: Never log or expose raw personally identifiable information (PII). All identity verification must use zero-knowledge proofs (ZKPs).
-3.  **Low-Bandwidth Optimization**: Assume the user is on a degraded internet connection in an active conflict zone. Minimize payload sizes and ensure graceful degradation.
-4.  **Dark-Native Aesthetic**: Always prioritize a modern, military-friendly, dark-native design system for user interfaces.
-5.  **De-escalation UX**: Implement the "Power of Pause." UX should be calm and measured, not urgent or alarmist.
+## Core principles
 
-## Technology Stack
-
-*   **Frontend**: React, Vite, TypeScript
-*   **Styling**: TailwindCSS
-*   **Backend/State**: Supabase (PostgreSQL with RLS), Redis (for ephemeral state)
-*   **Privacy Stack**: Enclave[ZK] (Semaphore-based ZKPs, zkTLS)
-
-## Code Guidelines
-
-### TypeScript and React
-
-*   Use strict TypeScript. Avoid `any`.
-*   Use functional components and React Hooks.
-*   Extract reusable logic into custom hooks.
-*   Ensure all components are strictly typed with interfaces or types.
-
-### Styling and UI (TailwindCSS)
-
-*   Use TailwindCSS for all styling.
-*   **Color Palette**: Rely on the core palette: Deep Navy (`#0A0F1E`) background, Teal (`#0E9AA7`) accents, and Amber (`#F5A623`) warnings.
-*   **Typography**: Use Space Grotesk for headings and DM Sans for body text. Always use fluid typography (e.g. CSS `clamp()`) to ensure text scales perfectly across different screen sizes.
-*   **Buttons**: Always design buttons using neo-skeuomorphism principles to provide tactile feedback and clear affordances.
-*   **SVGs**: Always ensure SVG designs are of ultra-premium quality and adhere to a military-grade aesthetic.
-*   **Accessibility**: Ensure strict adherence to WCAG AA standards. Maintain high contrast ratios against the Deep Navy background.
-
-### Data Handling and Supabase
-
-*   Use Supabase client for database interactions.
-*   Always assume Row Level Security (RLS) is enabled. Write queries that respect RLS policies.
-*   For ephemeral messaging, ensure data is handled securely and deleted appropriately. Do not store sensitive dialogue in long-term persistent storage.
-
-### Zero-Knowledge Integration
-
-*   When integrating with Enclave[ZK], ensure proofs are handled securely on the client side before submission.
-*   Never send raw PII to the backend. Only send cryptographic proofs.
-
-### AI Pipeline
-
-*   When integrating AI features (translation, tone detection), handle potential latency gracefully.
-*   Provide clear loading states and ensure the core messaging functionality works even if AI services are temporarily unavailable.
+1. **Privacy without overclaiming** — minimize PII; proof-backed verification where supported; honest boundaries in UI, docs, and comments.
+2. **Minimal, time-bounded exposure** — ephemerality where product logic requires it; metadata over raw content when sufficient.
+3. **Operational resilience** — low-bandwidth, intermittent connectivity; core chat and workflows degrade safely when optional AI/translation fails.
+4. **De-escalation by design** — Power of Pause, Slow down, Pull back; supportive copy under pressure.

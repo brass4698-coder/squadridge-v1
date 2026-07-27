@@ -1,0 +1,732 @@
+/**
+ * Shared pitch-deck design system — aligned with marketing / app tokens
+ * (`src/styles/tokens.css`): cool near-black elevation, Inter + IBM Plex Mono,
+ * interactive teal `--sr-primary`, verification accent only for badges/dots.
+ *
+ * Include after deck-hub-chrome.css; before deck-layout-global.css.
+ * Legacy `--color-*` aliases keep existing deck HTML working.
+ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+html.ds-pitch-deck {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.ds-pitch-deck {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}
+
+body.ds-pitch-deck {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+:root {
+  /* Site tokens (deck-local copy — CSS cannot import app tokens.css here) */
+  --sr-bg: #0a0b0d;
+  --sr-bg-elevated: #14161a;
+  --sr-bg-secondary: #101114;
+  --sr-bg-hover: #1b1e23;
+  --sr-line: rgba(255, 255, 255, 0.08);
+  --sr-line-strong: rgba(255, 255, 255, 0.14);
+  --sr-ink: #f5f5f7;
+  --sr-ink-secondary: #a1a1a6;
+  --sr-ink-faint: #6e6e73;
+  --sr-primary: #1f8a7a;
+  --sr-primary-hover: #249e8c;
+  --sr-primary-soft: rgba(31, 138, 122, 0.16);
+  --sr-primary-ring: rgba(31, 138, 122, 0.45);
+  --sr-verify: #3fe0c5;
+  --sr-verify-soft: rgba(63, 224, 197, 0.12);
+  --sr-verify-ink: #3fe0c5;
+  --sr-brand-mark: #1f8a7a;
+  --sr-brand-ridge: #a1a1a6;
+  --sr-info: #64d2ff;
+  --sr-info-soft: rgba(100, 210, 255, 0.12);
+  --sr-font-body: 'Inter', system-ui, sans-serif;
+  --sr-font-heading: 'Inter', system-ui, sans-serif;
+  --sr-font-display: 'Inter', system-ui, sans-serif;
+  --sr-font-mono: 'IBM Plex Mono', ui-monospace, 'Courier New', monospace;
+  --sr-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* Legacy aliases used by existing deck HTML */
+  --color-bg: var(--sr-bg);
+  --color-bg-deep: #08090c;
+  --color-surface: var(--sr-bg-elevated);
+  --color-text: var(--sr-ink);
+  --color-text-secondary: var(--sr-ink-secondary);
+  --color-text-muted: var(--sr-ink-faint);
+  --color-accent-1: var(--sr-primary);
+  --color-accent-2: var(--sr-primary-hover);
+  --color-accent-3: var(--sr-primary);
+  --color-glass-bg: rgba(255, 255, 255, 0.04);
+  --color-glass-border: var(--sr-line);
+  --color-vignette: rgba(0, 0, 0, 0.5);
+  --color-brand-teal: var(--sr-primary);
+  --glow-color-rgb: 31, 138, 122;
+  --font-display: var(--sr-font-display);
+  --font-body: var(--sr-font-body);
+  --font-mono: var(--sr-font-mono);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html.ds-pitch-deck,
+body.ds-pitch-deck {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ds-pitch-deck h1,
+.ds-pitch-deck h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.ds-pitch-deck h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
+.ds-pitch-deck h2 {
+  font-size: clamp(1.85rem, 3.5vw, 2.65rem);
+  font-weight: 700;
+}
+
+.ds-pitch-deck h3 {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.ds-pitch-deck h4 {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+
+.ds-pitch-deck p {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.ds-pitch-deck .ds-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sr-primary);
+  margin-bottom: 1rem;
+}
+
+.ds-pitch-deck .ds-lead {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+  max-width: 42rem;
+}
+
+.ds-pitch-deck .ds-small {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.ds-pitch-deck .ds-metric-card {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: var(--sr-shadow-md);
+}
+
+.ds-pitch-deck .ds-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--sr-line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text-muted);
+}
+
+.ds-pitch-deck .ds-chip--gold,
+.ds-pitch-deck .ds-chip--sage {
+  border-color: rgba(31, 138, 122, 0.35);
+  background: var(--sr-primary-soft);
+  color: var(--sr-primary-hover);
+}
+
+.ds-pitch-deck .ds-chip--navy {
+  border-color: rgba(100, 210, 255, 0.22);
+  background: var(--sr-info-soft);
+  color: var(--sr-info);
+}
+
+.ds-pitch-deck .ds-chip--verify {
+  border-color: rgba(63, 224, 197, 0.35);
+  background: var(--sr-verify-soft);
+  color: var(--sr-verify-ink);
+}
+
+/* Scroll-deck slide shell */
+.ds-pitch-deck section.slide {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(3rem, 8vw, 5rem) clamp(1.5rem, 6vw, 6rem) 7.5rem;
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--sr-line);
+  isolation: isolate;
+}
+
+.ds-pitch-deck section.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  opacity: 0.1;
+}
+
+.ds-pitch-deck section.slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, var(--color-vignette) 100%);
+}
+
+.ds-pitch-deck section.slide > *:not(.ds-gradient-mesh):not(.ds-slide-footer):not(.slide-footer) {
+  position: relative;
+  z-index: 1;
+}
+
+.ds-pitch-deck .ds-slide-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: clamp(1.5rem, 6vw, 6rem);
+  right: clamp(1.5rem, 6vw, 6rem);
+  display: grid;
+  grid-template-columns: minmax(0, max-content) 1fr minmax(0, max-content);
+  align-items: end;
+  column-gap: 1rem;
+  min-height: 28px;
+  z-index: 2;
+}
+
+.ds-pitch-deck .ds-slide-footer .ds-brand-lock {
+  justify-self: start;
+  grid-column: 1;
+}
+
+.ds-pitch-deck .ds-slide-footer .ds-slide-num {
+  justify-self: center;
+  grid-column: 2;
+  text-align: center;
+}
+
+.ds-pitch-deck .ds-slide-footer .ds-confidential {
+  justify-self: end;
+  grid-column: 3;
+}
+
+.ds-pitch-deck .ds-brand-lock {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ds-pitch-deck .ds-brand-lock img.mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.ds-pitch-deck .ds-brand-lock img.wordmark {
+  height: 12px;
+  width: auto;
+  opacity: 0.55;
+}
+
+/* CSS wordmark — matches app SquadRidgeWordmark (no stale SVG bronze) */
+.ds-pitch-deck .ds-wordmark-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--sr-ink);
+}
+
+.ds-pitch-deck .ds-wordmark-text .ds-w-squad {
+  color: var(--sr-brand-mark);
+}
+
+.ds-pitch-deck .ds-wordmark-text .ds-w-ridge {
+  color: var(--sr-brand-ridge);
+}
+
+.ds-pitch-deck .ds-brand-lock .ds-wordmark-text {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  letter-spacing: 0.06em;
+}
+
+.ds-pitch-deck .ds-slide-num {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-pitch-deck .ds-confidential {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: rgba(110, 110, 115, 0.85);
+}
+
+.ds-pitch-deck .ds-disclaimer {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--sr-line);
+  padding-top: 0.85rem;
+  margin-top: 1.25rem;
+  line-height: 1.5;
+  max-width: 52rem;
+}
+
+.ds-pitch-deck .ds-gradient-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ds-pitch-deck section.slide > .ds-gradient-mesh {
+  position: absolute;
+}
+
+.ds-pitch-deck .ds-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(88px);
+  opacity: 0.08;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-pitch-deck .ds-blob {
+    animation: none !important;
+  }
+}
+
+/* Layout grids */
+.ds-pitch-deck .ds-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.ds-pitch-deck .ds-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.ds-pitch-deck .ds-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .ds-pitch-deck .ds-grid-2,
+  .ds-pitch-deck .ds-grid-3,
+  .ds-pitch-deck .ds-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ds-pitch-deck .ds-panel {
+  background: var(--sr-bg-elevated);
+  border: 1px solid var(--sr-line);
+  border-radius: 12px;
+  padding: 1.5rem 1.6rem;
+  box-shadow: var(--sr-shadow-md);
+}
+
+.ds-pitch-deck .ds-panel--sage,
+.ds-pitch-deck .ds-panel--gold {
+  border-color: rgba(31, 138, 122, 0.28);
+  background: linear-gradient(135deg, rgba(31, 138, 122, 0.08), rgba(20, 22, 26, 0.95));
+}
+
+.ds-pitch-deck .ds-panel--navy {
+  border-color: rgba(100, 210, 255, 0.18);
+  background: linear-gradient(135deg, rgba(100, 210, 255, 0.06), rgba(20, 22, 26, 0.95));
+}
+
+.ds-pitch-deck .ds-panel--verify {
+  border-color: rgba(63, 224, 197, 0.28);
+  background: linear-gradient(135deg, rgba(63, 224, 197, 0.06), rgba(20, 22, 26, 0.95));
+}
+
+.ds-pitch-deck .ds-panel--dashed {
+  border-style: dashed;
+  background: var(--sr-bg-secondary);
+}
+
+/* Process steps */
+.ds-pitch-deck .ds-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.ds-pitch-deck .ds-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--sr-primary-soft);
+  border: 1px solid rgba(31, 138, 122, 0.4);
+  color: var(--sr-primary-hover);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ds-pitch-deck .ds-step-body p {
+  font-size: 0.9rem;
+}
+
+/* Security rows */
+.ds-pitch-deck .ds-sec-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--sr-line);
+}
+
+.ds-pitch-deck .ds-sec-row:last-child {
+  border-bottom: none;
+}
+
+.ds-pitch-deck .ds-sec-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.ds-pitch-deck .ds-sec-icon--gold,
+.ds-pitch-deck .ds-sec-icon--sage {
+  background: var(--sr-primary-soft);
+}
+
+.ds-pitch-deck .ds-sec-icon--navy {
+  background: var(--sr-info-soft);
+}
+
+/* Timeline */
+.ds-pitch-deck .ds-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-pitch-deck .ds-tl-item {
+  display: grid;
+  grid-template-columns: 120px 32px 1fr;
+  gap: 0 1rem;
+  align-items: start;
+  padding-bottom: 1.5rem;
+}
+
+.ds-pitch-deck .ds-tl-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sr-primary);
+  padding-top: 0.25rem;
+  text-align: right;
+}
+
+.ds-pitch-deck .ds-tl-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ds-pitch-deck .ds-tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sr-primary);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.ds-pitch-deck .ds-tl-dot--gold {
+  background: var(--sr-verify);
+}
+
+.ds-pitch-deck .ds-tl-dot--muted {
+  background: rgba(110, 110, 115, 0.45);
+}
+
+.ds-pitch-deck .ds-tl-line {
+  width: 1px;
+  flex: 1;
+  background: var(--sr-line);
+  margin-top: 4px;
+}
+
+.ds-pitch-deck .ds-tl-content p {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+  .ds-pitch-deck .ds-tl-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .ds-pitch-deck .ds-tl-date {
+    text-align: left;
+  }
+}
+
+/* Table */
+.ds-pitch-deck .ds-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.ds-pitch-deck .ds-compare-table th {
+  text-align: left;
+  padding: 0.65rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--sr-line);
+}
+
+.ds-pitch-deck .ds-compare-table td {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+  color: var(--color-text-secondary);
+}
+
+.ds-pitch-deck .ds-compare-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ds-pitch-deck .ds-compare-table .ds-check {
+  color: var(--sr-primary);
+  font-weight: 700;
+}
+
+.ds-pitch-deck .ds-compare-table .ds-cross {
+  color: var(--color-text-muted);
+}
+
+.ds-pitch-deck .ds-compare-table .ds-highlight-row td {
+  background: var(--sr-primary-soft);
+}
+
+/* Quote */
+.ds-pitch-deck .ds-quote-block {
+  border-left: 3px solid var(--sr-primary);
+  padding: 1rem 1.25rem;
+  background: var(--sr-primary-soft);
+  border-radius: 0 10px 10px 0;
+}
+
+.ds-pitch-deck .ds-quote-block p {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.ds-pitch-deck .ds-quote-block .ds-attr {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.6rem;
+  font-style: normal;
+  font-family: var(--font-mono);
+}
+
+/* Use-case cards */
+.ds-pitch-deck .ds-use-case {
+  background: var(--sr-bg-elevated);
+  border: 1px solid var(--sr-line);
+  border-radius: 10px;
+  padding: 1.2rem 1.35rem;
+}
+
+.ds-pitch-deck .ds-use-case .ds-uc-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sr-primary);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.ds-pitch-deck .ds-use-case p {
+  font-size: 0.85rem;
+}
+
+/* Title lockup (slide 1) */
+.ds-pitch-deck .ds-title-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.ds-pitch-deck .ds-title-lockup .ds-mark-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  border: 1px solid var(--sr-line-strong);
+  background: var(--sr-bg-elevated);
+  padding: 12px;
+  box-shadow: var(--sr-shadow-md);
+}
+
+.ds-pitch-deck .ds-title-lockup .ds-mark-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ds-pitch-deck .ds-title-lockup .ds-wordmark-large {
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
+  width: auto;
+  max-width: min(90vw, 480px);
+}
+
+.ds-pitch-deck .ds-title-lockup img.ds-wordmark-large {
+  height: clamp(2rem, 5vw, 3rem);
+}
+
+/* Metric row */
+.ds-pitch-deck .ds-metric.ds-panel {
+  text-align: center;
+}
+
+.ds-pitch-deck .ds-metric .ds-val {
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.ds-pitch-deck .ds-metric .ds-val--teal,
+.ds-pitch-deck .ds-metric .ds-val--gold {
+  color: var(--sr-primary);
+}
+
+.ds-pitch-deck .ds-metric .ds-metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.ds-pitch-deck .ds-metric .ds-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-top: 0.35rem;
+}
+
+.ds-pitch-deck code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--sr-primary);
+}
+
+/* Lifecycle spine chips */
+.ds-pitch-deck .ds-spine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+
+.ds-pitch-deck .ds-spine span {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid rgba(31, 138, 122, 0.35);
+  background: var(--sr-primary-soft);
+  color: var(--sr-primary-hover);
+}

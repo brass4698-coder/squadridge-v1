@@ -16,14 +16,21 @@ build/
 .env.production
 .env.staging
 # .env.example, .env.e2e, and .env.test are intentionally committed (no secrets)
+# Local Edge Function secrets (service_role). Hosted: Dashboard → Edge Functions → Secrets.
+supabase/functions/.env
 
 # Supabase local stack
 supabase/.branches
 supabase/.temp
 
-# Editor / OS
-.vscode/
+# Editor / OS — share recommendations + workspace defaults; ignore personal IDE state
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
 .idea/
+# Optional local MCP overrides (secrets). Prefer user-global ~/.cursor/mcp.json instead.
+.cursor/mcp.local.json
 *.suo
 *.ntvs*
 *.njsproj

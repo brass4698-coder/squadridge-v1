@@ -1,84 +1,87 @@
 # Diligence Overview
 
-This document is a short diligence-oriented overview for partners, funders, and advisors evaluating SquadRidge as it exists today.
+Short overview for partners, funders, and advisors evaluating SquadRidge **as it exists today**. For a fuller investor start-here, use [`docs/business/investor-brief.md`](./docs/business/investor-brief.md).
 
 ## What SquadRidge Is
 
-SquadRidge is a verified-anonymous dialogue platform for small, structured, cross-border cohorts. The current product is best suited for facilitated pilots where trusted organizations need a safer alternative to generic chat or meeting tools for sensitive dialogue work.
+SquadRidge is **private deliberation infrastructure**: facilitator-led, structured written sessions in an enclosed room, with a hard **release gate**, then an optional **integrity-anchored** private memo or public ledger entry. The product spine is **Configure → Verify → Facilitate → Release** (Enclosed → Release gate → Published).
+
+The architectural line: **the room and the record are separate by design** — not a policy toggle.
+
+This is **not** a consumer messenger, a video mediation suite, or (today) Signal-grade operator-blind encryption. Legacy citizen matchmaking / ZK routes are soft-retired from the v2 product story.
 
 ## Current Product State
 
 The repository contains a substantial working application with:
 
-- React/Vite/TypeScript frontend
+- React/Vite/TypeScript frontend (`App.v2` facilitator + participant paths)
 - Supabase backend with PostgreSQL, RLS, Auth, Realtime, and Edge Functions
-- ZK verification flow built around Semaphore-style proofs
-- Matchmaking, session, ledger, moderator, and profile surfaces
-- CI pipelines and deployment workflows
-- Documentation covering architecture, security, business positioning, and operations
+- Invite-only auth, verification review, live session messaging, outcome approvals, and `release_outcome` with SHA-256 anchors
+- Public marketing site, security claims surface, and ledger UI (illustrative specimens until a real opt-in publish)
+- CI pipelines, deployment workflows, and honest security documentation
 
-This is not just a concept repo. It is also not yet a finished institution-grade platform.
+This is not just a concept repo. It is also **pre-pilot** for first real private releases — not a finished institution-grade procurement platform.
+
+Honesty source for LIVE / SCAFFOLDED / PLANNED: [`src/data/implementationStatus.ts`](./src/data/implementationStatus.ts). Snapshot: [`CURRENT_STATUS.md`](./CURRENT_STATUS.md).
 
 ## Recommended Initial Wedge
 
-The most credible near-term deployment path is:
-
-- buyer: peacebuilding organizations, research programs, academic labs, Track II operators
-- user group: vetted, facilitator-supported participants in bounded cohorts
-- job to be done: run structured dialogue sessions with stronger verification, better safety framing, and more purposeful outcomes than generic messaging tools
+- **Buyer / operator:** NGO, board, or HR/compliance teams running sensitive internal deliberation
+- **User group:** Small, invite-linked cohorts (typically 2–6) under a facilitator
+- **Job to be done:** Deliberate in a controlled written room; release a **private anchored decision memo** first; public ledger only if the organisation opts in
+- **Must disclose:** room content is **operator-readable** today (see threat model)
 
 ## Security And Privacy Boundaries
 
-The engineering source of truth is [`docs/security/threat-model.md`](./docs/security/threat-model.md). The most important diligence points are:
+Engineering source of truth: [`docs/security/threat-model.md`](./docs/security/threat-model.md). Architecture one-pager: [`docs/technical/diligence-architecture.md`](./docs/technical/diligence-architecture.md).
 
-- verification is designed to reduce unnecessary exposure of raw identity attributes
-- the system still maintains account identifiers and operational metadata
-- current message confidentiality is not Signal-style end-to-end encryption against the platform operator
-- operator, service-role, moderator, and database-access boundaries matter materially
-- production deployments should not rely on demo or stub verification modes
+Most important diligence points:
 
-Any external narrative should follow those boundaries exactly.
+- Release anchors (SHA-256) prove integrity of **approved outcome text**, not who said what in the room
+- RFC 3161 trusted time is **scaffolded**, not production-live — do not claim court-admissible time
+- Room confidentiality is **not** Signal-style E2E against the platform operator today; operator-blind encryption is **planned** (ADR 005)
+- Operator, service-role, facilitator, and database-access boundaries matter materially
+- Production must not rely on demo/mock/stub modes
+- **No external security review is complete yet** — template: [`docs/security/external-review.md`](./docs/security/external-review.md)
 
 ## What Is Fundable About This
 
-The strongest fundable aspects of SquadRidge today are:
-
-- a distinct thesis: verification plus structured dialogue for sensitive cross-border cohorts
-- unusually honest and mature security documentation for an early-stage project
-- an already-built product surface rather than only a deck or prototype video
-- a plausible institutional wedge where trust, safety, and workflow matter more than mass-market growth
+- A distinct category thesis: **private deliberation infrastructure** with a deliberate release gate
+- Unusually honest security documentation and an Implementation Status Registry for public claims
+- A built v2 product surface (not only a deck), with CI and ops checklists aimed at bounded pilots
+- A credible beachhead where process integrity and disclosure matter more than mass-market growth
 
 ## What Still Needs To Be Proven
 
-To become clearly fundable at a higher level, SquadRidge still needs:
-
-- pilot evidence with real partners or tightly structured external cohorts
-- stronger operational tooling for facilitators and moderators
-- measurable outcome reporting and retention metrics
-- security review beyond internal documentation
-- a tighter partner/data-room narrative that distinguishes shipped product from roadmap
+- Pilot evidence with real partners (use [`docs/operations/pilot-evidence-pack-template.md`](./docs/operations/pilot-evidence-pack-template.md))
+- First private released memo from a live pilot session
+- Scoped external security review beyond internal documentation
+- Operational maturity (email delivery gaps, facilitator ops discipline)
+- Paying organisation traction — **hypothesis only; none claimed today**
 
 ## Current Risks
 
-- overclaiming privacy or peace impact ahead of demonstrated evidence
-- mixing demo-readiness with pilot-readiness
-- insufficient process around incidents, moderation, and partner operations
-- institution-facing diligence materials lagging behind the technical maturity of the repo
+- Overclaiming privacy, time proofs, or impact ahead of evidence
+- Confusing illustrative ledger specimens with live pilot outcomes
+- Mixing legacy matchmaking/ZK diligence surfaces with the v2 deliberation story
+- Institution-facing materials drifting from `implementationStatus.ts`
 
 ## Near-Term Milestones
 
-The next 90 days should aim to produce:
+See [`docs/business/use-of-funds-and-milestones.md`](./docs/business/use-of-funds-and-milestones.md). In short:
 
-1. A narrow pilot thesis and partner-facing collateral
-2. Pilot runbooks, incident handling, and facilitator workflow readiness
-3. Core metric instrumentation and partner reporting
-4. A diligence-ready data room with current-state documentation
-5. Either an explicit operator-readable messaging posture or a defined true-E2E roadmap
+1. Staging dry-run on a fixed deploy SHA  
+2. First private NGO/board/HR memo pilot with MOU honesty  
+3. 2–3 additional bounded pilots + evidence packs  
+4. Scoped external security review  
+5. First paying org (**hypothesis**)
 
 ## Supporting Docs
 
-- Current state summary: [`CURRENT_STATUS.md`](./CURRENT_STATUS.md)
-- Product overview: [`docs/product/product-overview.md`](./docs/product/product-overview.md)
+- Investor brief: [`docs/business/investor-brief.md`](./docs/business/investor-brief.md)
+- Competitive wedge: [`docs/business/competitive-wedge.md`](./docs/business/competitive-wedge.md)
+- Data room index: [`docs/business/data-room-index.md`](./docs/business/data-room-index.md)
+- Current state: [`CURRENT_STATUS.md`](./CURRENT_STATUS.md)
+- Platform description: [`docs/product/platform-description.md`](./docs/product/platform-description.md)
 - Threat model: [`docs/security/threat-model.md`](./docs/security/threat-model.md)
-- Architecture: [`docs/technical/architecture-overview.md`](./docs/technical/architecture-overview.md)
-- Production checklist: [`docs/operations/production-checklist.md`](./docs/operations/production-checklist.md)
+- v2 pilot checklist: [`docs/operations/v2-pilot-checklist.md`](./docs/operations/v2-pilot-checklist.md)

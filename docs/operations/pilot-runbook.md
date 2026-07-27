@@ -2,6 +2,8 @@
 
 This runbook is for early facilitator-led pilots. It assumes a bounded cohort, named internal owners, and a willingness to pause the pilot if safety or product confidence drops.
 
+**v2 facilitator sessions:** use the dedicated checklist in [`v2-pilot-checklist.md`](./v2-pilot-checklist.md) for `/app/*` and `/p/*` flows. The legacy pre-flight below targets squad matchmaking infrastructure.
+
 ## Pilot Shape
 
 Recommended first pilots:

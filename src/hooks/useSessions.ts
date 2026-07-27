@@ -1,6 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import type { Session } from '../lib/supabaseTypes';
+// TODO(supabase-types): see useAccessRequest.
+import { supabase } from '../lib/supabase';
+import type { Session, SessionInsert } from '../lib/supabaseTypes';
+import {
+  clampMaxParticipants,
+  DEFAULT_MAX_PARTICIPANTS,
+  MAX_ROOM_PARTICIPANTS,
+} from '../lib/roomCapacity';
 
 export function useSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -14,32 +20,54 @@ export function useSessions() {
       .select('*')
       .order('created_at', { ascending: false });
     if (err) setError(err.message);
-    else setSessions(data ?? []);
+    else setSessions((data ?? []) as Session[]);
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchSessions(); }, [fetchSessions]);
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
 
-  async function createSession(payload: Omit<Session, 'id' | 'created_at' | 'updated_at' | 'facilitator_id'>) {
-    const { data: { user } } = await supabase.auth.getUser();
+  async function createSession(payload: Omit<SessionInsert, 'facilitator_id'>) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
+    const maxParticipants = clampMaxParticipants(
+      payload.max_participants,
+      DEFAULT_MAX_PARTICIPANTS,
+    );
     const { data, error: err } = await supabase
       .from('sessions')
-      .insert({ ...payload, facilitator_id: user.id })
+      .insert({ ...payload, max_participants: maxParticipants, facilitator_id: user.id })
       .select()
       .single();
-    if (err) throw err;
-    setSessions((prev) => [data, ...prev]);
-    return data;
+    if (err) {
+      if ((err.message ?? '').includes('max_participants')) {
+        throw new Error(`Maximum participants must be between 2 and ${MAX_ROOM_PARTICIPANTS}.`);
+      }
+      throw err;
+    }
+    const row = data as Session;
+    setSessions((prev) => [row, ...prev]);
+    return row;
   }
 
   async function updateSessionStatus(id: string, status: Session['status']) {
-    const { error: err } = await supabase
-      .from('sessions')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', id);
+    if (status === 'released') {
+      throw new Error('Session release must use the outcome release flow.');
+    }
+    const { data, error: err } = await supabase.rpc('transition_session_status', {
+      p_session_id: id,
+      p_status: status,
+    });
     if (err) throw err;
-    setSessions((prev) => prev.map((s) => s.id === id ? { ...s, status } : s));
+    const result = data as { ok?: boolean; error?: string; status?: Session['status'] };
+    if (!result?.ok) {
+      throw new Error(result?.error ?? 'Status transition blocked');
+    }
+    const nextStatus = result.status ?? status;
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, status: nextStatus } : s)));
   }
 
   return { sessions, loading, error, createSession, updateSessionStatus, refetch: fetchSessions };

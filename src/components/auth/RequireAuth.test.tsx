@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AuthContextValue } from '../../contexts/AuthContext';
 import { createMockSession } from '../../test/fixtures';
 import { RequireAuth } from './RequireAuth';
+
+function SignInSearchProbe() {
+  const { search } = useLocation();
+  return <div data-testid="sign-in-search">{search}</div>;
+}
 
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: vi.fn(),
@@ -18,7 +23,12 @@ import { useProfile } from '../../hooks/useProfile';
 const authDefaults: AuthContextValue = {
   session: null,
   user: null,
+  profile: null,
+  roles: [],
   loading: false,
+  initialized: true,
+  refreshProfile: vi.fn(),
+  refreshRoles: vi.fn(),
   supabase: null,
   supabaseClientInitError: null,
   sessionError: null,
@@ -27,24 +37,26 @@ const authDefaults: AuthContextValue = {
   signOut: vi.fn(),
 };
 
-function renderProtectedRoute() {
-  const router = createMemoryRouter(
-    [
-      {
-        path: '/protected',
-        element: (
-          <RequireAuth requireCompleteProfile>
-            <div data-testid="protected-child">ok</div>
-          </RequireAuth>
-        ),
-      },
-      { path: '/sign-in', element: <div data-testid="sign-in-page">sign-in</div> },
-      { path: '/settings/profile', element: <div data-testid="profile-page">profile</div> },
-    ],
-    { initialEntries: ['/protected'] },
+function renderProtectedRoute(initialEntry = '/protected') {
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <Routes>
+        <Route
+          path="/protected"
+          element={
+            <RequireAuth requireCompleteProfile>
+              <div data-testid="protected-child">ok</div>
+            </RequireAuth>
+          }
+        />
+        <Route path="/sign-in" element={<div data-testid="sign-in-page">sign-in</div>} />
+        <Route
+          path="/app/settings/profile"
+          element={<div data-testid="profile-page">profile</div>}
+        />
+      </Routes>
+    </MemoryRouter>,
   );
-  render(<RouterProvider router={router} />);
-  return router;
 }
 
 describe('RequireAuth', () => {
@@ -65,7 +77,7 @@ describe('RequireAuth', () => {
       profileComplete: false,
     });
     renderProtectedRoute();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByLabelText('Checking session')).toBeInTheDocument();
   });
 
   it('redirects to sign-in when there is no session', () => {
@@ -79,9 +91,41 @@ describe('RequireAuth', () => {
       patchProfile: vi.fn(),
       profileComplete: false,
     });
-    const router = renderProtectedRoute();
-    expect(router.state.location.pathname).toBe('/sign-in');
+    renderProtectedRoute();
     expect(screen.getByTestId('sign-in-page')).toBeInTheDocument();
+  });
+
+  it('redirects to demo sign-in when a walkthrough is active and demo login is enabled', () => {
+    sessionStorage.setItem('demoWalkthrough', '1');
+    vi.mocked(useAuth).mockReturnValue({ ...authDefaults, session: null, loading: false });
+    vi.mocked(useProfile).mockReturnValue({
+      profile: null,
+      loading: false,
+      error: null,
+      refetch: vi.fn(),
+      upsertProfile: vi.fn(),
+      patchProfile: vi.fn(),
+      profileComplete: false,
+    });
+    render(
+      <MemoryRouter initialEntries={['/protected']}>
+        <Routes>
+          <Route
+            path="/protected"
+            element={
+              <RequireAuth>
+                <div data-testid="protected-child">ok</div>
+              </RequireAuth>
+            }
+          />
+          <Route path="/sign-in" element={<SignInSearchProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const search = screen.getByTestId('sign-in-search').textContent ?? '';
+    expect(search).toContain('demo=1');
+    expect(search).toContain('next=');
+    sessionStorage.removeItem('demoWalkthrough');
   });
 
   it('redirects to profile settings when profile is incomplete', () => {
@@ -99,8 +143,7 @@ describe('RequireAuth', () => {
       patchProfile: vi.fn(),
       profileComplete: false,
     });
-    const router = renderProtectedRoute();
-    expect(router.state.location.pathname).toBe('/settings/profile');
+    renderProtectedRoute();
     expect(screen.getByTestId('profile-page')).toBeInTheDocument();
   });
 
@@ -120,7 +163,7 @@ describe('RequireAuth', () => {
       profileComplete: false,
     });
     renderProtectedRoute();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByLabelText('Checking session')).toBeInTheDocument();
   });
 
   it('renders children when session exists and profile is complete', () => {

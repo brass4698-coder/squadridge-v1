@@ -58,9 +58,11 @@ flowchart LR
   subgraph client [Browser]
     A[Semaphore / client logic]
     B[Session token]
+    M[Message AES-GCM client]
   end
   subgraph edge [Edge Functions]
     C[verify-zk-proof]
+    I[ingest-message]
   end
   subgraph db [Supabase Postgres]
     D[RLS for anon JWT]
@@ -68,11 +70,20 @@ flowchart LR
   end
   A -->|HTTPS| C
   A -->|HTTPS API| D
+  M -->|ciphertext + JWT| I
   C -->|service role| E
+  I -->|decrypt redact re-encrypt INSERT| E
 ```
 
 - **RLS:** Constrains what **other users** can read/write via the Data API; **does not** make data unreadable to privileged DB/service-role access.
 - **Edge `verify-zk-proof`:** Verifies proofs and inserts rows; holds **service role** — treat as part of TCB (trusted computing base).
+- **Edge `ingest-message`:** Sole write path for live squad chat. Decrypts with the squad key, runs `redactOutgoingLiveMessage`, re-encrypts, and INSERTs with the service role. Direct authenticated INSERTs into `messages` are denied (`WITH CHECK (false)`). Part of the TCB.
+
+### 4.1 Operator visibility (matches ModDashboard callout)
+
+Squad message keys are **stored for this product**; moderators (and anyone with service-role or raw DB access) can read ciphertext and decrypt for review. This is **not** Signal-style operator-blind E2E.
+
+Legitimate moderator review must call `moderator_record_decrypt_audit` with a written justification (≥ 8 characters) **before** client-side decrypt. Each successful path logs `message_plaintext_decrypt_review` in `moderation_audit_log`. The Mod dashboard surfaces this in amber copy (`src/pages/ModDashboardPage.tsx`) so operators cannot mistake audited review for operator-proof encryption.
 
 ---
 
@@ -91,6 +102,10 @@ These are **safe to treat as engineering facts** until code changes:
 - **Email sign-in is passwordless (magic link / OTP) only** in the web app (`signInWithOtp` in `AuthContext`). There is no in-app password field; recovery is “request a new link,” not password reset.
 - **Matchmaking `pool_key`** encodes sorted intent tags (truncated), stored next to `user_id` — see `src/lib/matchmakingPoolKey.ts` and `supabase/migrations/*matchmaking_queue.sql`.
 - **Matchmaking operations:** periodic sweep and queue metrics are documented in [`docs/technical/matchmaking-automation.md`](../technical/matchmaking-automation.md) (cron, `matchmaking_sweep_runs`, service-role-only stats RPC).
+- **Released outcome integrity uses SHA-256 (`ledger_sha`).** Recomputation proves the published instrument is unaltered since release. Optional RFC 3161 columns on `outcome_records` are a **schema scaffold only** — release does not request a Time Stamp Authority token today. Do not claim trusted time or court-admissible timestamps until a live TSA path is documented here.
+- **v2 session rooms use application-layer AES-256-GCM (not operator-blind E2E).** Migration `20260726093000_v2_session_room_encryption.sql` stores per-session keys in `public.session_room_keys` (separate from `sessions` so public released-session SELECT cannot expose keys). Clients encrypt message bodies to the same v3 JSON envelope as squad chat (`v`/`alg`/`iv`/`ct`) before facilitator INSERT or `participant_send_message`. A BEFORE INSERT trigger rejects non-ciphertext when a room key exists. Participants obtain the key via `participant_get_room_key` (token-gated); facilitators via `facilitator_get_or_create_room_key` / RLS SELECT on `session_room_keys`. **Honest-but-curious operators, service-role, and raw DB access can still read keys + ciphertext and decrypt.** Legacy plaintext rows (if any) remain readable as plaintext; the verbatim release guard substring-matches only non-ciphertext bodies — encrypted rooms rely on facilitator authorship attestation for transcript prevention until server-side decrypt for that check lands. Public copy must say operator-readable keys; see `SecurityPage` “Who can read the room” and Implementation Status `room_app_layer_encryption` (LIVE) vs `operator_blind_e2e` (PLANNED).
+- **Release is bound to the exact approved text.** Migration `20260725220000_outcome_release_provenance_binding.sql` adds `outcome_approvals.reviewed_content_sha` (stamped by trigger at approval time) and `outcome_records.attested_content_sha` / `authorship_attested_at` / `authorship_attested_by`. Editing an instrument's title, summary, body, or terms recomputes the content SHA, **resets every approval to `pending`**, and **clears the authorship attestation**; both effects are trigger-enforced, not UI-enforced. `release_outcome` refuses to publish unless the session has ended, every approval carries the *current* SHA, a facilitator attestation covers that same SHA, and the pre-existing verbatim-room-content guard passes. Every refusal writes a `release_failed` audit event with a machine-readable reason. pgTAP: `supabase/tests/database/v2_release_provenance_binding.test.sql`.
+- **Facilitator notes are not readable through the Data API.** The same migration revokes blanket `SELECT` on `public.outcome_records` from `anon` / `authenticated` and re-grants it column-by-column, excluding `facilitator_notes` and `authorship_attested_by`. Facilitators read their own notes through `facilitator_get_outcome_notes`. Client queries therefore use explicit column lists (`src/hooks/useOutcomeRecord.ts`, `src/hooks/useLedger.ts`); a `select('*')` against that table will now fail rather than silently widen exposure. This closes a real leak: the public ledger policy previously exposed `facilitator_notes` alongside released records.
 
 ---
 
@@ -123,12 +138,13 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 - [ ] No authorization decisions based on **user-editable** `user_metadata` in JWT (use `app_metadata` / server-side roles for authz).
 - [ ] Service role and dashboard access: MFA, minimal headcount, break-glass procedure.
 - [ ] Logging: Edge Functions avoid logging full proof bodies; structured outcome-only logs in production.
+- [ ] On Team/Enterprise: decide whether Platform Audit Logs (and optional org Audit Log Drain) are required for operator accountability; document who may view them (IP-bearing). Not a substitute for `moderation_audit_log`.
 
 ### Incident readiness
 
 - [ ] Severity-0 definition for suspected mass correlation or export; runbook includes key rotation and comms.
 
-**Tracking:** File GitHub issues from the templates in [`docs/operations/threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) instead of checking boxes here without implementation work.
+**Tracking:** Operational artifacts for pilot gate: [`break-glass-moderator-decrypt-runbook.md`](../operations/break-glass-moderator-decrypt-runbook.md), [`zk-self-assessment.md`](zk-self-assessment.md), [`public-claims-audit.md`](public-claims-audit.md), pgTAP `v2_sessions_rls.test.sql`. File GitHub issues from [`threat-model-release-checklist-issues.md`](../operations/threat-model-release-checklist-issues.md) for remaining items.
 
 ---
 
@@ -143,6 +159,12 @@ Use this as a **release gate** for any build aimed at high-risk users. Track com
 | 2026-04-28 | §5: Edge-only `messages` inserts (`20260428194500`), audited moderator decrypt RPC (`20260428120000`), squad encryption snapshot archive (`20260428123000`). §13.1: `VITE_SEMAPHORE_DEMO_GROUP` flag for bundled demo decoys. |
 | 2026-04-28 | Audit remediation Phase 0–2: `create_demo_squad` RPC (atomic, `20260428220000`); demo squad keys rotated and client-side key generation removed (`20260428210000`); demo claim consent token (`20260428230000`); issuer-managed anonymity group implemented (`20260428240000`, RFC §13.1); structured Edge logger (`supabase/functions/_shared/log.ts`); `VITE_SEMAPHORE_DEMO_GROUP` requires `VITE_ALLOW_DEMO_DECOYS_IN_PROD` for production builds. |
 | 2026-04-30 | §13.1: Client proof path now passes `issuer_group_id` to the Edge verifier when `VITE_ISSUER_GROUP_ID` / `VITE_ISSUER_MANIFEST_URL` / `VITE_ISSUER_SIGNING_KEY_BASE64URL` are configured (`src/lib/zk/issuerRegistry.ts`); RFC `rfc-issuer-managed-anonymity-group.md` status moved from Draft to Implemented v1. Manifest refresh cron remains deferred (RFC §4.3). New ledger publish workflow: squad-member draft inserts, member voting on `ledger_proposal_votes` with RLS-scoped insert, and a moderator-gated `publish-ledger-proposal` Edge Function that enforces a 2/3 participation + majority-approve threshold before flipping `status='published'`. |
+| 2026-07-17 | §4 trust boundaries: add `ingest-message` to the Edge TCB diagram. New §4.1 operator-visibility note aligned with ModDashboard amber callout (keys stored; audited `message_plaintext_decrypt_review`). |
+| 2026-07-25 | §5: v2 `session_messages.body` documented as plaintext (no application-layer encryption on the facilitated-room path). Release provenance binding shipped (`20260725220000`): approvals stamped with `reviewed_content_sha`, facilitator authorship attestation, trigger-enforced approval reset on revision, `release_failed` audit events. `facilitator_notes` removed from the Data API column grants after finding it exposed through the public ledger select policy; facilitators read notes via `facilitator_get_outcome_notes`. |
+| 2026-07-25 | Ledger integrity: SHA-256 `ledger_sha` remains the shipped claim. Optional RFC 3161 columns (`timestamp_token` et al.) are schema scaffold only — no live TSA; do not claim trusted time or court-admissible timestamps. Ombuds IOA alignment is architectural language only (not certification/privilege). See [`institutional-credibility-research.md`](../product/institutional-credibility-research.md). |
+| 2026-07-26 | §5: v2 facilitated rooms move from plaintext `session_messages.body` to application-layer AES-GCM v3 with keys in `session_room_keys`. Still operator-readable; operator-blind E2E remains ADR 005 / PLANNED. |
+| 2026-07-26 | §6 ops checklist: optional Platform Audit Logs / Audit Log Drain gate on Team/Enterprise (org dashboard actions; distinct from app moderation audit). |
+| 2026-07-26 | Room experience on `sessions` (not a parallel rooms schema): per-session `phase_budgets` / phase timer / floor / optional `participants.tone_signal`. Timer-zero system notes use the same AES-GCM ciphertext path (`Room note`). Tone heat is a private author nudge + quiet facilitator roster cue — not public shame labels, not a remote LLM. See [`docs/room-experience.md`](../room-experience.md). |
 
 ---
 

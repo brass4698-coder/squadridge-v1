@@ -44,10 +44,10 @@ export function SecurityDisclosurePage() {
             <SecurityReferencesSection />
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 border-t border-white/[0.06] pt-8 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10 sm:gap-y-3">
+          <div className="mt-10 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10 sm:gap-y-3">
             <Link
-              to="/#waitlist"
-              className="font-sans text-[0.875rem] font-medium text-[#94a3b8] underline-offset-4 transition-colors hover:text-[#cbd5e1] hover:underline"
+              to="/request-access"
+              className="font-sans text-[0.875rem] font-medium text-ink-secondary underline-offset-4 transition-colors hover:text-ink hover:underline"
             >
               Request pilot access
             </Link>
@@ -70,10 +70,10 @@ function SecurityHeader() {
       <p className="font-sans text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
         SECURITY DISCLOSURE
       </p>
-      <h1 className="mt-2.5 font-sans text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-[1.15] tracking-tight text-[#f1f5f9]">
+      <h1 className="mt-2.5 font-sans text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-[1.15] tracking-tight text-ink">
         Security boundaries in the current release
       </h1>
-      <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-[#a8b2c1]">
+      <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-ink-secondary">
         This page describes what SquadRidge protects today, what operators can still access during
         normal operation, and which guarantees are not yet part of the current release. Trust comes
         from clarity here, not from claims.
@@ -226,10 +226,7 @@ function DocSection({
 
 function SectionHeading({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2
-      id={id}
-      className="mb-3 font-sans text-[1.0625rem] font-semibold leading-snug text-[#e2e8f0]"
-    >
+    <h2 id={id} className="mb-3 font-sans text-[1.0625rem] font-semibold leading-snug text-ink">
       {children}
     </h2>
   );
@@ -301,7 +298,7 @@ function SecurityOperatorVisibilitySection() {
       <p className="mb-3 font-sans text-[0.8125rem] leading-[1.55] text-ink-faint">
         What SquadRidge staff can see during normal operation.
       </p>
-      <div className="space-y-3 font-sans text-[0.95rem] leading-[1.65] text-[#b8c2cf]">
+      <div className="space-y-3 font-sans text-[0.95rem] leading-[1.65] text-ink-secondary">
         <p className="mb-0">
           The hosting environment, including the database and logs, can access ciphertext and squad
           keys during normal operation. SquadRidge does not currently claim that operators are

@@ -25,6 +25,8 @@ const envSchema = z
     VITE_SENTRY_ENVIRONMENT: z.string().optional(),
     VITE_SENTRY_USER_HASH_SALT: z.string().optional(),
     VITE_ENABLE_EDGE_RATE_LIMIT: viteBoolString.optional(),
+    /** When `true`, App.v2 shows MaintenancePage for all routes except health probes. */
+    VITE_MAINTENANCE_MODE: viteBoolString.optional(),
   })
   .superRefine((data, ctx) => {
     const pub = data.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
@@ -195,4 +197,9 @@ export function getWaitlistFormUrl(): string | undefined {
 export function getPublicContactEmail(): string | undefined {
   const v = env.VITE_CONTACT_EMAIL;
   return typeof v === 'string' && v.length > 0 ? v : undefined;
+}
+
+/** Ops kill-switch: show maintenance page instead of the app shell. */
+export function isMaintenanceMode(): boolean {
+  return env.VITE_MAINTENANCE_MODE === 'true';
 }
