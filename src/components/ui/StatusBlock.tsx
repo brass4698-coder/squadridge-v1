@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { BrandPresenceLoader } from './BrandPresenceLoader';
 
 /**
  * Standard loading / empty / error visual primitives (Phase 3.3 of the audit
@@ -22,15 +23,12 @@ export function LoadingBlock({
   className?: string;
 }) {
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={`flex flex-col items-center gap-2 rounded-lg border border-[#1a2236] bg-[#0c121c] px-4 py-6 text-center font-sans text-[0.85rem] text-slate-400 ${className}`}
-    >
-      <span aria-hidden className="inline-block h-2 w-2 animate-pulse rounded-full bg-teal" />
-      <p className="font-medium text-slate-200">{title}</p>
-      {hint ? <p className="text-[0.78rem] text-slate-500">{hint}</p> : null}
-    </div>
+    <BrandPresenceLoader
+      variant="compact"
+      label={title}
+      phrase={hint ?? 'Gathering what you need'}
+      className={className}
+    />
   );
 }
 

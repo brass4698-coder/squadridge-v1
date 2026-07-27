@@ -35,6 +35,7 @@ import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { BrandPresenceLoader } from './components/ui/BrandPresenceLoader';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -57,15 +58,7 @@ const FinancialProjectionsPage = lazy(() =>
 );
 
 const routeChunkFallback = (
-  <div
-    role="status"
-    aria-live="polite"
-    aria-busy="true"
-    className="flex min-h-dvh items-center justify-center bg-[#0a0f1a] font-sans text-sm text-slate-500"
-  >
-    <span className="sr-only">Loading page content.</span>
-    <span aria-hidden="true">Loading…</span>
-  </div>
+  <BrandPresenceLoader variant="full" label="Loading…" phrase="Opening page" />
 );
 
 export default function App() {
