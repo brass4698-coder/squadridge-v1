@@ -34,6 +34,41 @@ export default defineConfig(({ mode }) => {
           open: false,
         }),
     ].filter(Boolean),
+    build: {
+      target: 'es2022',
+      cssCodeSplit: true,
+      modulePreload: {
+        polyfill: false,
+        resolveDependencies(filename, deps) {
+          // Don't contention-preload deferred / heavy async chunks on first paint.
+          return deps.filter(
+            (dep) =>
+              !dep.includes('vendor-sentry') &&
+              !dep.includes('zkVerifier') &&
+              !dep.includes('transformers') &&
+              !dep.includes('Onboarding'),
+          );
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('@sentry')) return 'vendor-sentry';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            if (id.includes('@tanstack')) return 'vendor-query';
+            if (
+              id.includes('react-dom') ||
+              id.includes('react-router') ||
+              id.includes('/react/') ||
+              id.endsWith('/react/index.js')
+            ) {
+              return 'vendor-react';
+            }
+          },
+        },
+      },
+    },
     test: {
       environment: 'jsdom',
       globals: false,
