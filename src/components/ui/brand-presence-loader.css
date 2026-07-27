@@ -125,7 +125,7 @@
 
 .sr-presence-loader__brand {
   margin: 0;
-  font-family: var(--font-display, var(--font-body, 'IBM Plex Serif', Georgia, serif));
+  font-family: 'IBM Plex Serif', 'IBM Plex Sans', Georgia, serif;
   font-size: clamp(1.85rem, 5vw, 2.65rem);
   font-weight: 560;
   letter-spacing: -0.03em;
