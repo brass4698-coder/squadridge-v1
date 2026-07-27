@@ -112,3 +112,32 @@ These exist because past PRs broke things in predictable ways. Please follow the
 - **TypeScript strict** — no `any`, no `@ts-ignore` without an explanatory comment.
 - **Test new utilities** — any new file in `src/utils/` or `src/lib/` needs a corresponding
   test in `src/test/`.
+
+## Cursor Cloud specific instructions
+
+Node 22 + npm 10 are preinstalled and the update script runs `npm ci` (which also runs
+`husky` git hooks). Standard commands live in `README.md` / `package.json` scripts — this
+section only captures non-obvious gotchas found during setup.
+
+- **Active router is `src/App.v2.tsx`, not `src/App.tsx`.** `src/main.tsx` mounts `App.v2`
+  (the "redesign/v2" router). When tracing routes/pages, edit/read `App.v2.tsx`.
+- **Local env (`.env`, gitignored).** `src/lib/supabase.ts` reads `VITE_SUPABASE_ANON_KEY`
+  specifically, while env validation (`src/lib/env.ts`) and `src/utils/supabase.ts` accept
+  `VITE_SUPABASE_PUBLISHABLE_KEY`. For local dev set **both** to a JWT-shaped placeholder so
+  no client path throws. A minimal offline `.env` is: `VITE_SUPABASE_URL` (any valid URL),
+  `VITE_SUPABASE_ANON_KEY` + `VITE_SUPABASE_PUBLISHABLE_KEY` (placeholder), `VITE_ZK_STUB=true`,
+  `VITE_ENABLE_DEMO_SQUAD=true`. Env changes require a dev-server restart (Vite inlines them).
+- **`npm run dev` uses esbuild (no typecheck)** and serves `http://localhost:5173`, so the app
+  runs even when `tsc` fails. `npm run build` and `npm run e2e` both run `tsc -b` first
+  (Playwright's `webServer` builds via `build:e2e`), so a red typecheck blocks build + e2e.
+- **A real Supabase backend is optional for frontend work.** The local Supabase stack
+  (`npm run supabase:start`) needs Docker, which is NOT preinstalled. Point `.env` at a cloud
+  project (README default) or use placeholders + `VITE_ZK_STUB=true` for offline UI work.
+- **Playwright browsers**: install once with `npx playwright install chromium` before running
+  `npm run e2e` (CI uses `--with-deps`; the sandbox already has the needed system libs).
+- **Repo state observed during setup (2026-07):** `main`'s typecheck/lint/some Vitest suites
+  and CI are red, and v2 pages rendered under the `PublicShell`/`AuthenticatedShell` layout
+  routes show an empty outlet (the shells render `{children}` instead of `<Outlet/>`), so `/`,
+  `/sign-in`, and the demo session show only chrome. Routes outside those shells render fine
+  (e.g. `/onboarding/mission`, `/p/...`). Treat these as pre-existing code issues, not env
+  problems; the dev server itself works.
