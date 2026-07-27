@@ -87,6 +87,17 @@ export async function buildGatedDeckSrcDoc(htmlFileName: string): Promise<string
 
   let out = html;
 
+  // Absolute /assets/* paths resolve against the SPA origin (Vite public/), not the
+  // blob/srcDoc document — required for fullscreen blob tabs and about:srcdoc iframes.
+  const assetOrigin =
+    typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
+  if (assetOrigin) {
+    out = out.replace(
+      /(src|href)=(["'])\/assets\//gi,
+      (_m, attr: string, quote: string) => `${attr}=${quote}${assetOrigin}/assets/`,
+    );
+  }
+
   const cssRe = /<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*\/?>/gi;
   const cssMatches = [...html.matchAll(cssRe)];
   for (const m of cssMatches) {

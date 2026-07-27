@@ -29,9 +29,7 @@ export function DecksPage() {
           {GATED_DECK_CATALOG.map((deck) => (
             <li key={deck.id}>
               <article className="flex h-full flex-col rounded-[var(--sr-radius-lg)] border border-line sr-surface-published sr-registry-pad">
-                <p className="sr-meta-label text-[color:var(--sr-verify-ink,var(--sr-primary))]">
-                  {deck.audienceLabel}
-                </p>
+                <p className="sr-meta-label text-brand">{deck.audienceLabel}</p>
                 <h2 className="mt-2 text-h3 text-ink">{deck.title}</h2>
                 <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-secondary">
                   {deck.summary}

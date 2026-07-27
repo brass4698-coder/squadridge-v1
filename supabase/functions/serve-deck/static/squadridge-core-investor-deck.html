@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="ds-pitch-deck">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,56 +45,57 @@
     .slide-counter{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.8rem;color:#6e6e73;min-width:48px;text-align:center}
     .reveal{opacity:0;transform:translateY(20px)}
     .gradient-mesh{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-    .blob{position:absolute;border-radius:50%;filter:blur(88px);animation:float-slow 12s ease-in-out infinite}
-    .blob:nth-child(2){animation:float-drift 16s ease-in-out infinite}.blob:nth-child(3){animation:float-slow 18s ease-in-out infinite reverse}
-    @keyframes float-slow{0%{transform:translate(0,0) scale(1)}25%{transform:translate(60px,-50px) scale(1.12)}50%{transform:translate(-40px,40px) scale(.9)}75%{transform:translate(50px,20px) scale(1.08)}100%{transform:translate(0,0) scale(1)}}
-    @keyframes float-drift{0%{transform:translate(0,0) scale(1) rotate(0deg)}33%{transform:translate(-50px,-60px) scale(1.15) rotate(3deg)}66%{transform:translate(40px,30px) scale(.88) rotate(-2deg)}100%{transform:translate(0,0) scale(1) rotate(0deg)}}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
-    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.08}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:.06;animation:none}
+    @media (prefers-reduced-motion:no-preference){
+      .blob{animation:float-slow 18s ease-in-out infinite}
+      .blob:nth-child(2){animation:float-drift 22s ease-in-out infinite}
+    }
+    @keyframes float-slow{0%{transform:translate(0,0) scale(1)}50%{transform:translate(24px,-20px) scale(1.04)}100%{transform:translate(0,0) scale(1)}}
+    @keyframes float-drift{0%{transform:translate(0,0)}50%{transform:translate(-18px,16px)}100%{transform:translate(0,0)}}
+    .slide::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;opacity:.05}
     .slide::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,var(--color-vignette) 100%)}
     .text-glow{text-shadow:none}
     .stat-glow{text-shadow:none;color:#1f8a7a}
     .bar-chart{display:flex;align-items:flex-end;gap:.75rem;height:180px}.bar-col{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex:1}.bar{border-radius:6px 6px 0 0;width:100%}
     .line-path{stroke-dasharray:1000;stroke-dashoffset:1000}.line-area,.line-dots{opacity:0}
-    .mouse-spotlight{position:fixed;inset:0;z-index:99;pointer-events:none}
-    .metric-card{background:#14161a;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.35)}
+    .mouse-spotlight{display:none}
+    .metric-card{background:#14161a;border:1px solid rgba(255,255,255,.08);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.35)}
     .gold-rule{height:1px;background:linear-gradient(90deg,transparent,rgba(31,138,122,.85),transparent)}
     .inv-cash-svg{width:100%;max-width:52rem;height:220px;display:block;margin:0 auto}
     .inv-chart-sub{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.7rem;color:#6e6e73;text-align:center;margin-top:.5rem;letter-spacing:.04em}
     .inv-sens-row{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:1rem;font-size:.78rem;color:#6e6e73}
+    .inv-wordmark{font-family:var(--font-display);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:clamp(2.5rem,5vw,4rem);line-height:1}
+    .inv-wordmark .ds-w-squad{color:#1f8a7a}.inv-wordmark .ds-w-ridge{color:#a1a1a6}
     @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}}
   </style>
   <link rel="stylesheet" href="deck-layout-global.css" />
 </head>
-<body>
+<body class="ds-pitch-deck">
 <script src="investor-deck-model.embed.js"></script>
 <a href="/pitch-deck-hub" class="deck-exit-hub">← Pitch Deck Hub</a>
 <button type="button" class="deck-side-arrow deck-side-arrow--prev" data-investor-deck-prev aria-label="Previous slide" onclick="changeSlide(-1)">&#8249;</button>
 <button type="button" class="deck-side-arrow deck-side-arrow--next" data-investor-deck-next aria-label="Next slide" onclick="changeSlide(1)">&#8250;</button>
-<div class="mouse-spotlight"></div>
 <div class="deck">
   <div class="slide active" data-slide="1">
     <div class="gradient-mesh">
-      <div class="blob" style="width:520px;height:520px;top:-120px;right:-120px;background:var(--color-accent-1);opacity:.14"></div>
-      <div class="blob" style="width:320px;height:320px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:.10"></div>
-      <div class="blob" style="width:220px;height:220px;top:42%;left:12%;background:var(--color-accent-3);opacity:.10"></div>
+      <div class="blob" style="width:420px;height:420px;top:-100px;right:-100px;background:var(--color-accent-1)"></div>
+      <div class="blob" style="width:280px;height:280px;bottom:-60px;left:-40px;background:var(--color-accent-2)"></div>
     </div>
-    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content text-center">
-      <div class="reveal mx-auto mb-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[28px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] p-3 shadow-[0_0_40px_rgba(31,138,122,0.14)] animate-[float_3s_ease-in-out_infinite]">
-        <img src="/assets/logo.png" alt="" width="96" height="96" class="h-full w-full object-contain" />
+      <div class="reveal mx-auto mb-6 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[22px] border border-[rgba(255,255,255,0.12)] bg-[#14161a] p-3 shadow-[0_1px_2px_rgba(0,0,0,.6),0_8px_24px_rgba(0,0,0,.35)]">
+        <img src="/assets/squadridge-icon.svg" alt="" width="96" height="96" class="h-full w-full object-contain" />
       </div>
-      <p class="reveal mb-3 text-sm uppercase tracking-[0.45em] text-text-muted">Core investor deck</p>
+      <p class="reveal mb-3 font-mono text-sm uppercase tracking-[0.28em] text-text-muted">Core investor deck</p>
       <div class="reveal flex justify-center px-4">
-        <img src="/assets/squadridge.svg" alt="SquadRidge" class="h-[clamp(2.5rem,5vw,4rem)] w-auto max-w-[min(90vw,520px)]" />
+        <span class="inv-wordmark" role="img" aria-label="SquadRidge"><span class="ds-w-squad">Squad</span><span class="ds-w-ridge">Ridge</span></span>
       </div>
       <p class="reveal mx-auto mt-5 max-w-4xl text-[clamp(1.1rem,2vw,1.6rem)] leading-relaxed text-text-secondary">Facilitator-led protected dialogue: private written rooms, then an approved record with a verification anchor — Configure → Verify → Facilitate → Release. Room and record stay separate by design.</p>
-      <p class="reveal mt-6 text-sm uppercase tracking-[0.35em] text-text-muted">July 2026 · Assumption-labeled · Private pilot stage</p>
+      <p class="reveal mt-6 font-mono text-sm uppercase tracking-[0.2em] text-text-muted">July 2026 · Assumption-labeled · Private pilot stage</p>
     </div>
   </div>
 
   <div class="slide" data-slide="2">
-    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:240px;height:240px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.07"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:var(--color-accent-1);opacity:.05"></div><div class="blob" style="width:240px;height:240px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What the company is</p>
       <h2 class="reveal font-display text-[clamp(2.2rem,4vw,3.6rem)] font-bold">Purpose-built for high-stakes written dialogue — not generic chat.</h2>
@@ -107,7 +108,7 @@
   </div>
 
   <div class="slide" data-slide="3">
-    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:10%;left:-80px;background:var(--color-accent-2);opacity:.07"></div><div class="blob" style="width:280px;height:280px;bottom:-80px;right:-40px;background:var(--color-accent-3);opacity:.08"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:10%;left:-80px;background:var(--color-accent-2);opacity:.05"></div><div class="blob" style="width:280px;height:280px;bottom:-80px;right:-40px;background:var(--color-accent-3);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Market gap</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The failure mode is not messaging volume. It is trust structure.</h2>
@@ -133,7 +134,7 @@
   </div>
 
   <div class="slide" data-slide="4">
-    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-60px;right:12%;background:var(--color-accent-3);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:8%;background:var(--color-accent-1);opacity:.07"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-60px;right:12%;background:var(--color-accent-3);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;left:8%;background:var(--color-accent-1);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product spine</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Configure → Verify → Facilitate → Release — room and record stay separate.</h2>
@@ -147,7 +148,7 @@
   </div>
 
   <div class="slide" data-slide="5">
-    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-60px;left:10%;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:10%;background:var(--color-accent-2);opacity:.06"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-60px;left:10%;background:var(--color-accent-1);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:10%;background:var(--color-accent-2);opacity:.06"></div></div>
     <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Why now</p>
@@ -161,7 +162,7 @@
   </div>
 
   <div class="slide" data-slide="6">
-    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-60px;right:-70px;background:var(--color-accent-1);opacity:.09"></div><div class="blob" style="width:250px;height:250px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.07"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-60px;right:-70px;background:var(--color-accent-1);opacity:.09"></div><div class="blob" style="width:250px;height:250px;bottom:-60px;left:-40px;background:var(--color-accent-3);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Early use model</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The initial go-to-market is high-touch and pilot-led.</h2>
@@ -187,7 +188,7 @@
   </div>
 
   <div class="slide" data-slide="7">
-    <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.08"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;right:-40px;background:var(--color-accent-1);opacity:.07"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:330px;height:330px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.05"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;right:-40px;background:var(--color-accent-1);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Modeled economics (base scenario)</p>
       <h2 id="inv-kpi-headline" class="reveal font-display text-[clamp(2rem,4vw,3.2rem)] font-bold">Hub-linked model: $750k starting cash ties to modeled runway and month-18 cash on the assumption set below.</h2>
@@ -202,7 +203,7 @@
   </div>
 
   <div class="slide" data-slide="8">
-    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-40px;background:var(--color-accent-3);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-80px;left:-50px;background:var(--color-accent-1);opacity:.08"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-40px;background:var(--color-accent-3);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-80px;left:-50px;background:var(--color-accent-1);opacity:.05"></div></div>
     <div class="content max-w-[1100px]">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Graphical · traceable</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Cash end (base) and seat revenue checkpoints (aggressive scenario multiplier).</h2>
@@ -232,7 +233,7 @@
   </div>
 
   <div class="slide" data-slide="9">
-    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;left:-30px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:-30px;background:var(--color-accent-2);opacity:.06"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;left:-30px;background:var(--color-accent-1);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;right:-30px;background:var(--color-accent-2);opacity:.06"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">What is already defensible</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">The diligence story is strongest where the product is explicit about boundaries.</h2>
@@ -245,7 +246,7 @@
   </div>
 
   <div class="slide" data-slide="10">
-    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;right:8%;background:var(--color-accent-3);opacity:.07"></div><div class="blob" style="width:260px;height:260px;bottom:-50px;left:-20px;background:var(--color-accent-1);opacity:.08"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:300px;height:300px;top:-50px;right:8%;background:var(--color-accent-3);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-50px;left:-20px;background:var(--color-accent-1);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Product &amp; GTM roadmap</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Milestones with explicit shipped vs planned posture.</h2>
@@ -277,7 +278,7 @@
   </div>
 
   <div class="slide" data-slide="11">
-    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-50px;background:var(--color-accent-1);opacity:.08"></div><div class="blob" style="width:220px;height:220px;bottom:-60px;left:-30px;background:var(--color-accent-3);opacity:.08"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-70px;right:-50px;background:var(--color-accent-1);opacity:.05"></div><div class="blob" style="width:220px;height:220px;bottom:-60px;left:-30px;background:var(--color-accent-3);opacity:.05"></div></div>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Defensibility rules</p>
       <h2 class="reveal font-display text-[clamp(2.1rem,4vw,3.4rem)] font-bold">Investors should hear a disciplined story, not a maximal one.</h2>
@@ -303,7 +304,7 @@
   </div>
 
   <div class="slide" data-slide="12">
-    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.08"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;right:-40px;background:var(--color-accent-1);opacity:.07"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-80px;left:-40px;background:var(--color-accent-2);opacity:.05"></div><div class="blob" style="width:260px;height:260px;bottom:-70px;right:-40px;background:var(--color-accent-1);opacity:.05"></div></div>
     <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.3em] text-text-muted">Use of funds</p>
@@ -317,7 +318,7 @@
   </div>
 
   <div class="slide" data-slide="13">
-    <div class="gradient-mesh"><div class="blob" style="width:520px;height:520px;top:-100px;right:-100px;background:var(--color-accent-1);opacity:.14"></div><div class="blob" style="width:300px;height:300px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:.10"></div><div class="blob" style="width:200px;height:200px;top:40%;left:15%;background:var(--color-accent-3);opacity:.1"></div></div>
+    <div class="gradient-mesh"><div class="blob" style="width:520px;height:520px;top:-100px;right:-100px;background:var(--color-accent-1);opacity:.06"></div><div class="blob" style="width:300px;height:300px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:.06"></div><div class="blob" style="width:200px;height:200px;top:40%;left:15%;background:var(--color-accent-3);opacity:.1"></div></div>
     <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1"></canvas>
     <div class="content text-center">
       <p class="reveal mb-4 text-sm uppercase tracking-[0.4em] text-text-muted">The ask</p>

@@ -44,6 +44,8 @@ body.ds-pitch-deck {
   --sr-verify: #3fe0c5;
   --sr-verify-soft: rgba(63, 224, 197, 0.12);
   --sr-verify-ink: #3fe0c5;
+  --sr-brand-mark: #1f8a7a;
+  --sr-brand-ridge: #a1a1a6;
   --sr-info: #64d2ff;
   --sr-info-soft: rgba(100, 210, 255, 0.12);
   --sr-font-body: 'Inter', system-ui, sans-serif;
@@ -278,6 +280,30 @@ body.ds-pitch-deck {
   height: 12px;
   width: auto;
   opacity: 0.55;
+}
+
+/* CSS wordmark — matches app SquadRidgeWordmark (no stale SVG bronze) */
+.ds-pitch-deck .ds-wordmark-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--sr-ink);
+}
+
+.ds-pitch-deck .ds-wordmark-text .ds-w-squad {
+  color: var(--sr-brand-mark);
+}
+
+.ds-pitch-deck .ds-wordmark-text .ds-w-ridge {
+  color: var(--sr-brand-ridge);
+}
+
+.ds-pitch-deck .ds-brand-lock .ds-wordmark-text {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  letter-spacing: 0.06em;
 }
 
 .ds-pitch-deck .ds-slide-num {
@@ -625,7 +651,7 @@ body.ds-pitch-deck {
   border: 1px solid var(--sr-line-strong);
   background: var(--sr-bg-elevated);
   padding: 12px;
-  box-shadow: 0 0 36px rgba(31, 138, 122, 0.12);
+  box-shadow: var(--sr-shadow-md);
 }
 
 .ds-pitch-deck .ds-title-lockup .ds-mark-wrap img {
@@ -635,9 +661,13 @@ body.ds-pitch-deck {
 }
 
 .ds-pitch-deck .ds-title-lockup .ds-wordmark-large {
-  height: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.85rem, 4.5vw, 2.75rem);
   width: auto;
   max-width: min(90vw, 480px);
+}
+
+.ds-pitch-deck .ds-title-lockup img.ds-wordmark-large {
+  height: clamp(2rem, 5vw, 3rem);
 }
 
 /* Metric row */
