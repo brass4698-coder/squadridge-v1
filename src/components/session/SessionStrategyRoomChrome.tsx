@@ -10,6 +10,30 @@ const REACTIONS = ['+1', 'Holding', 'Thanks', 'Caution'] as const;
 
 type PhaseId = (typeof PHASES)[number];
 
+/** Facilitator-facing prompts to surface at each phase of a session. */
+const PHASE_PROMPTS: Record<PhaseId, string[]> = {
+  Intro: [
+    'Set the ground rules: one person speaks at a time, no interruptions.',
+    'Invite each participant to share one sentence about why they joined.',
+    'Clarify the session goal \u2014 agree on what "done" looks like.',
+  ],
+  'Round 1': [
+    'Ask each side: "What matters most to your community right now?"',
+    'Reflect back what you heard before moving to the next speaker.',
+    'If tension rises, name it: "I notice we\'re getting heated \u2014 let\'s pause 30 seconds."',
+  ],
+  Synthesis: [
+    'Identify at least one point of genuine agreement, however small.',
+    'Ask: "What would need to be true for both sides to accept this outcome?"',
+    'Invite a volunteer to draft the first consensus bullet.',
+  ],
+  Close: [
+    'Read back the agreed consensus bullets aloud for confirmation.',
+    'Ask each participant: "Can you live with this outcome? Yes / abstain?"',
+    'Remind the group: the outcome is private until the squad votes to publish.',
+  ],
+};
+
 export function SessionStrategyRoomChrome({
   topic,
   roomStartedAt,
@@ -98,6 +122,9 @@ export function SessionStrategyRoomChrome({
         ))}
       </div>
 
+      {/* Facilitator prompts — phase-aware guidance, visible only to the facilitator */}
+      <FacilitatorPrompts phase={phase} />
+
       {interventionBanner ? (
         <div
           className="rounded-lg border border-amber/35 bg-[#1a1408] px-4 py-3 font-sans text-[0.85rem] text-[#f5d7a3]"
@@ -138,6 +165,41 @@ export function SessionStrategyRoomChrome({
       </div>
 
       <CrisisResources className="mt-1" />
+    </div>
+  );
+}
+
+/** Phase-aware facilitator prompts collapsed by default (not visible to participants). */
+function FacilitatorPrompts({ phase }: { phase: PhaseId }) {
+  const [open, setOpen] = useState(false);
+  const prompts = PHASE_PROMPTS[phase];
+  return (
+    <div className="rounded-lg border border-dashed border-teal/20 bg-[#070c12] px-3 py-2.5">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-2 text-left"
+        aria-expanded={open}
+      >
+        <span className="font-heading text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-teal/70">
+          Facilitator prompts · {phase}
+        </span>
+        <span className="font-mono text-[0.65rem] text-slate-600" aria-hidden>
+          {open ? '▲' : '▼'}
+        </span>
+      </button>
+      {open ? (
+        <ul className="mt-2.5 space-y-1.5 pl-0">
+          {prompts.map((p) => (
+            <li key={p} className="flex gap-2 font-sans text-[0.8rem] leading-snug text-slate-400">
+              <span className="mt-0.5 shrink-0 select-none text-teal/40" aria-hidden>
+                →
+              </span>
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }

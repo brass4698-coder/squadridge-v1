@@ -35,6 +35,9 @@ import { AdminRoomsPage } from './pages/admin/AdminRoomsPage';
 import { AdminLogsPage } from './pages/admin/AdminLogsPage';
 import { AdminDemoPage } from './pages/admin/AdminDemoPage';
 import { AdminCsiPage } from './pages/admin/AdminCsiPage';
+import { AdminIncidentsPage } from './pages/admin/AdminIncidentsPage';
+import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
+import { TrustCenterPage } from './pages/TrustCenterPage';
 
 const OnboardingApp = lazy(() =>
   import('./onboarding/app/components/onboarding/Onboarding').then((m) => ({
@@ -112,6 +115,7 @@ export default function App() {
                     }
                   />
                   <Route path="/security" element={<SecurityDisclosurePage />} />
+                  <Route path="/trust" element={<TrustCenterPage />} />
                   <Route
                     path="/pitch-deck-hub"
                     element={
@@ -160,6 +164,8 @@ export default function App() {
                     <Route path="reports" element={<AdminReportsPage />} />
                     <Route path="verification" element={<AdminVerificationPage />} />
                     <Route path="rooms" element={<AdminRoomsPage />} />
+                    <Route path="incidents" element={<AdminIncidentsPage />} />
+                    <Route path="metrics" element={<AdminMetricsPage />} />
                     <Route path="logs" element={<AdminLogsPage />} />
                     <Route path="demo" element={<AdminDemoPage />} />
                     <Route path="health" element={<SupabaseHealthPage />} />
