@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProfile } from '../../hooks';
+import { BrandPresenceLoader } from '../ui/BrandPresenceLoader';
 
 type RequireAuthProps = {
   children: ReactNode;
@@ -20,9 +21,7 @@ export function RequireAuth({ children, requireCompleteProfile }: RequireAuthPro
 
   if (authLoading || (session && requireCompleteProfile && profileLoading)) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center font-sans text-[0.95rem] text-[#8892a4]">
-        Loading…
-      </div>
+      <BrandPresenceLoader variant="compact" label="Loading…" phrase="Opening your workspace" />
     );
   }
 

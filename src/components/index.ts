@@ -39,3 +39,4 @@ export * from './ui/StatusBadge';
 export * from './ui/StatusBlock';
 export * from './ui/Stepper';
 export * from './ui/sonner';
+export * from './ui/BrandPresenceLoader';
