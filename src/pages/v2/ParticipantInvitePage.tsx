@@ -29,7 +29,7 @@ export function ParticipantInvitePage() {
   const [participants, setParticipants] = useState<Participant[]>(mockParticipants);
   const [copied, setCopied] = useState(false);
 
-  const inviteLink = `https://squadridge.app/invite/${sessionId ?? 'sess-001'}?token=demo-token-abc123`;
+  const inviteLink = `https://mendguild.app/invite/${sessionId ?? 'sess-001'}?token=demo-token-abc123`;
 
   function addEmail() {
     const raw = emailInput.trim();

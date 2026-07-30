@@ -113,7 +113,7 @@ export function NotificationsSettingsPage() {
   return (
     <div className="space-y-6">
       <p className="font-sans text-[0.9rem] leading-relaxed text-slate-400">
-        Choose how SquadRidge notifies you about session activity. These toggles apply immediately
+        Choose how MENDguild notifies you about session activity. These toggles apply immediately
         to in-app surfaces. Email delivery is preferences-only in this build — see the per-toggle
         notes below.
       </p>

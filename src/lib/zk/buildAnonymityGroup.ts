@@ -14,9 +14,9 @@ import {
  * from an issuer-managed group (see
  * `docs/technical/rfc-issuer-managed-anonymity-group.md`).
  */
-const DECOY_A = new Identity('squadridge-decoy-a');
-const DECOY_B = new Identity('squadridge-decoy-b');
-const DECOY_C = new Identity('squadridge-decoy-c');
+const DECOY_A = new Identity('mendguild-decoy-a');
+const DECOY_B = new Identity('mendguild-decoy-b');
+const DECOY_C = new Identity('mendguild-decoy-c');
 
 const DEFAULT_DECOYS = [DECOY_A, DECOY_B, DECOY_C] as const;
 

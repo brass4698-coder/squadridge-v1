@@ -16,7 +16,7 @@ export async function redactOutgoingLiveMessage(
     context: {
       roomId: squadId,
       actorUserId,
-      allowlistTerms: ['SquadRidge', 'CSI'],
+      allowlistTerms: ['MENDguild', 'CSI'],
     },
     actorLabel: 'client:session-send',
   });

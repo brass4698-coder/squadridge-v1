@@ -1,5 +1,5 @@
 # This workflow was a GitHub template placeholder and has been removed.
-# SquadRidge Edge Functions use the Supabase CLI Deno runtime, deployed via
+# MENDguild Edge Functions use the Supabase CLI Deno runtime, deployed via
 # deploy-supabase-production.yml — not a standalone Deno project.
 name: _removed-deno-placeholder
 on: workflow_dispatch

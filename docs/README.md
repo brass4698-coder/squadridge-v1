@@ -1,4 +1,4 @@
-# SquadRidge documentation
+# MENDguild documentation
 
 This folder is the **canonical** home for product, technical, security, and operations documentation. Start here, then open the linked files — avoid duplicating long-form content.
 
@@ -20,7 +20,7 @@ The product surface uses three closely-related words inconsistently across the c
 
 The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](../README.md). Examples to flag:
 
-- `LAST_SQUAD_KEY = 'squadridge_last_squad_id'` — correct (squad).
+- `LAST_SQUAD_KEY = 'mendguild_last_squad_id'` — correct (squad).
 - `getDemoSession()` returning a state machine that mixes onboarding + verification + squad pointer — should split into `getDemoOnboardingState()` + `getDemoSquadPointer()` in a follow-up.
 - `SessionPage.tsx` — name is fine (UI surface for a session) but `squadId` prop is the canonical identifier.
 
@@ -28,7 +28,7 @@ The naming inconsistency is logged as Phase 3.1 of the [audit remediation plan](
 
 | Topic                                   | Document                                                               |
 | --------------------------------------- | ---------------------------------------------------------------------- |
-| What SquadRidge is (mission, mechanics) | [product/product-overview.md](product/product-overview.md)             |
+| What MENDguild is (mission, mechanics) | [product/product-overview.md](product/product-overview.md)             |
 | Onboarding journey (product view)       | [product/onboarding-flow.md](product/onboarding-flow.md)               |
 | User journeys                           | [product/user-journeys.md](product/user-journeys.md)                   |
 | Feature specifications                  | [product/feature-specifications.md](product/feature-specifications.md) |

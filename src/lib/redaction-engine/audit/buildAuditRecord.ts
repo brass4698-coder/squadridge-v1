@@ -1,6 +1,6 @@
 import { sha256Hex } from '../hash';
 import type { AuditRecord, Finding, RedactionRequest } from '../types';
-import { DEFAULT_POLICY_PACK_ID } from '../policies/defaultSquadRidge';
+import { DEFAULT_POLICY_PACK_ID } from '../policies/defaultMENDguild';
 
 export async function buildAuditRecord(
   req: RedactionRequest,

@@ -1,8 +1,8 @@
 ---
-description: SquadRidge AI Pipeline Guidelines
+description: MENDguild AI Pipeline Guidelines
 globs: src/lib/ai/**/*.ts
 ---
-# SquadRidge — AI / translation
+# MENDguild — AI / translation
 
 Optional analytics and in-browser translation. Core chat must not depend on remote AI.
 

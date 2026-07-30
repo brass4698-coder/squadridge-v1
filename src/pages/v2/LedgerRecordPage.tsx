@@ -14,7 +14,7 @@ const record = {
   body: `JOINT STATEMENT OF PRINCIPLES
 Community Land Use Consultation — March 14, 2024
 
-The following principles were agreed by representatives participating in a facilitated dialogue convened under the SquadRidge platform and certified by Regional Mediation Centre.
+The following principles were agreed by representatives participating in a facilitated dialogue convened under the MENDguild platform and certified by Regional Mediation Centre.
 
 1. All future land-use decisions affecting the designated consultation area will require structured stakeholder consultation prior to any planning authority submission.
 
@@ -136,7 +136,7 @@ export function LedgerRecordPage() {
           className="mb-4 text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          This record was released through SquadRidge's controlled release process. A cryptographic anchor is generated at the moment of approval and cannot be retroactively modified.
+          This record was released through MENDguild's controlled release process. A cryptographic anchor is generated at the moment of approval and cannot be retroactively modified.
         </p>
         <code
           className="block break-all rounded border px-4 py-3 text-xs"
@@ -200,7 +200,7 @@ export function LedgerRecordPage() {
             fontFamily: 'var(--font-mono)',
           }}
         >
-          {`Regional Mediation Centre. (2024). Community Land Use — Joint Statement. SquadRidge Outcome Ledger. https://squadridge.app/ledger/${proposalId ?? record.id}`}
+          {`Regional Mediation Centre. (2024). Community Land Use — Joint Statement. MENDguild Outcome Ledger. https://mendguild.app/ledger/${proposalId ?? record.id}`}
         </code>
       </section>
     </div>

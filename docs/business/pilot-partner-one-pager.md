@@ -1,8 +1,8 @@
 # Pilot Partner One-Pager
 
-## What SquadRidge Is
+## What MENDguild Is
 
-SquadRidge is a pilot-stage dialogue platform for small, structured, cross-border cohorts. It is designed for organizations that need more verification, safety framing, and session structure than general-purpose chat or meeting tools provide.
+MENDguild is a pilot-stage dialogue platform for small, structured, cross-border cohorts. It is designed for organizations that need more verification, safety framing, and session structure than general-purpose chat or meeting tools provide.
 
 **Strategic “missing link” (roadmap context):** Many actors need **trustworthy structure** for sensitive contact *before* situations harden—not only after violence. That prevention-minded framing guides long-term product direction; **today’s pilots** remain bounded verification, session, and accountability workflows—see [`strategic-positioning-early-warning.md`](strategic-positioning-early-warning.md) and [`../security/threat-model.md`](../security/threat-model.md) for honesty on what is shipped vs vision.
 
@@ -35,7 +35,7 @@ A typical first pilot is:
 
 ## Current Boundaries
 
-SquadRidge is a serious pilot foundation, not yet a finished institution-grade platform. Partners should understand:
+MENDguild is a serious pilot foundation, not yet a finished institution-grade platform. Partners should understand:
 
 - the product is best used in bounded, facilitator-supported pilots
 - current privacy and operator-visibility boundaries are described in [`../security/threat-model.md`](../security/threat-model.md)

@@ -13,7 +13,7 @@ export type ConnectionLogEntry = {
   message: string;
 };
 
-const DB_NAME = 'squadridge-connection-debug';
+const DB_NAME = 'mendguild-connection-debug';
 const STORE = 'logs';
 const MAX_ENTRIES = 200;
 

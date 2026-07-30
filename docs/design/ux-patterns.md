@@ -2,7 +2,7 @@
 
 ## Overview
 
-The User Experience (UX) patterns in SquadRidge are designed to establish trust, facilitate structured dialogue, and de-escalate tension [1]. By prioritizing safety and reflection, these patterns counteract the rapid reaction times demanded by traditional social platforms, fostering an environment of verified-anonymous, cross-border dialogue [1].
+The User Experience (UX) patterns in MENDguild are designed to establish trust, facilitate structured dialogue, and de-escalate tension [1]. By prioritizing safety and reflection, these patterns counteract the rapid reaction times demanded by traditional social platforms, fostering an environment of verified-anonymous, cross-border dialogue [1].
 
 ## Core Patterns
 
@@ -40,10 +40,10 @@ Users need constant reassurance that their identity is protected, especially tho
 
 ## Design System Integration
 
-These UX patterns are supported by the SquadRidge design system, which relies on a dark, calm "global civic" aesthetic [1]. The deep navy background (`#0A0F1E`) and teal (`#0E9AA7`) accents signal stability and warmth, while typography utilizes Space Grotesk or DM Sans to ensure clarity and neutrality [1].
+These UX patterns are supported by the MENDguild design system, which relies on a dark, calm "global civic" aesthetic [1]. The deep navy background (`#0A0F1E`) and teal (`#0E9AA7`) accents signal stability and warmth, while typography utilizes Space Grotesk or DM Sans to ensure clarity and neutrality [1].
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

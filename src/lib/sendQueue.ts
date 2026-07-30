@@ -13,9 +13,9 @@ export type PendingSendRecord = {
 };
 
 /** Cross-tab BroadcastChannel — peers notify each other when pending sends arrive or flush may be needed (see SessionPage). */
-export const SEND_QUEUE_BROADCAST_CHANNEL = 'squadridge:sendQueue';
+export const SEND_QUEUE_BROADCAST_CHANNEL = 'mendguild:sendQueue';
 
-const DB_NAME = 'squadridge-send-queue';
+const DB_NAME = 'mendguild-send-queue';
 const STORE = 'pending';
 const MEM = new Map<string, PendingSendRecord>();
 

@@ -1,12 +1,12 @@
 ---
-description: Supabase MCP rules for SquadRidge-V1. Apply when working with database, auth, edge functions, or storage.
+description: Supabase MCP rules for MENDguild-V1. Apply when working with database, auth, edge functions, or storage.
 alwaysApply: true
 ---
 
-# Supabase Rules for SquadRidge-V1
+# Supabase Rules for MENDguild-V1
 
 ## Project Info
-- Project name: SquadRidge-V1
+- Project name: MENDguild-V1
 - Project ref: wrptdvwdcknmhclethjh
 - Region: us-west-2
 - Stack: TypeScript, Supabase (Postgres + Auth + Edge Functions + Storage)

@@ -72,7 +72,7 @@ export function LedgerIndexPage() {
           className="mx-auto max-w-xl text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          The following records represent outcomes from facilitated dialogue sessions conducted on the SquadRidge platform. Each record is published only after explicit approval by all designated parties. Session room content remains permanently private.
+          The following records represent outcomes from facilitated dialogue sessions conducted on the MENDguild platform. Each record is published only after explicit approval by all designated parties. Session room content remains permanently private.
         </p>
       </div>
 
@@ -148,7 +148,7 @@ export function LedgerIndexPage() {
         className="mt-12 text-center text-xs leading-relaxed"
         style={{ color: 'var(--color-text-secondary)' }}
       >
-        Records are published with the consent of all session parties. Facilitating organisations are responsible for the accuracy of submitted outcomes. SquadRidge does not verify the substance of published records — only the release process.
+        Records are published with the consent of all session parties. Facilitating organisations are responsible for the accuracy of submitted outcomes. MENDguild does not verify the substance of published records — only the release process.
       </p>
     </div>
   );

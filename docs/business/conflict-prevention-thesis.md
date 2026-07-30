@@ -1,10 +1,10 @@
-# Conflict prevention thesis (SquadRidge)
+# Conflict prevention thesis (MENDguild)
 
 **Audience:** partners, funders, internal strategy. For **diligence and engineering truth**, start with [`../../CURRENT_STATUS.md`](../../CURRENT_STATUS.md) and the [threat model](../security/threat-model.md).
 
 ## One-paragraph thesis
 
-SquadRidge aims to be **infrastructure for timely, de-escalating contact** across conflict lines: verified participation, small squads, facilitator authority, citable outcomes where appropriate, and a **disciplined path** toward early-warning style analytics (the Conflict Severity Index) under **partner governance, ethics, and law**—not a substitute for local expertise or a claim of global omniscient monitoring.
+MENDguild aims to be **infrastructure for timely, de-escalating contact** across conflict lines: verified participation, small squads, facilitator authority, citable outcomes where appropriate, and a **disciplined path** toward early-warning style analytics (the Conflict Severity Index) under **partner governance, ethics, and law**—not a substitute for local expertise or a claim of global omniscient monitoring.
 
 ## What is strategic vs shipped
 

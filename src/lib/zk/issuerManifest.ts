@@ -4,7 +4,7 @@
  *
  * An "issuer" is an external organization (humanitarian org, academic registry,
  * partner platform) that publishes the set of identity commitments authorised
- * to participate in a SquadRidge cohort. The platform never sees the mapping
+ * to participate in a MENDguild cohort. The platform never sees the mapping
  * commitment ↔ real identity; it only consumes the issuer's signed Merkle root.
  *
  * This module is responsible for fetching, signature-verifying, and caching
@@ -19,7 +19,7 @@
  *       "group_id":     "issuer.example/2026-04-cohort",
  *       "tree_depth":   20,
  *       "root":         "0xabc…",
- *       "members_url":  "https://issuer.example/squadridge/members.json",
+ *       "members_url":  "https://issuer.example/mendguild/members.json",
  *       "issued_at":    "2026-04-28T00:00:00Z",
  *       "expires_at":   "2026-05-28T00:00:00Z",
  *       "signature":    "ed25519:<base64url-of-64-byte-signature>"

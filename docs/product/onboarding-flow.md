@@ -4,7 +4,7 @@
 
 ## Overview
 
-The onboarding flow for SquadRidge is designed to establish trust, explain the mechanics of verified anonymity, and set the tone for non-violent, structured dialogue [1]. This critical first step ensures that users understand the platform's purpose and the safeguards in place to protect their identity.
+The onboarding flow for MENDguild is designed to establish trust, explain the mechanics of verified anonymity, and set the tone for non-violent, structured dialogue [1]. This critical first step ensures that users understand the platform's purpose and the safeguards in place to protect their identity.
 
 ## Step 1: Norm-Setting and Principles
 
@@ -20,7 +20,7 @@ The flow reassures users that their identity remains hidden, a vital feature for
 
 ## Step 3: Attribute verification (product vision vs current app)
 
-**Product direction:** Long term, the experience may guide users through attribute checks using **zkTLS**-style flows—extracting proofs from secure web sources without handing raw documents to SquadRidge [2]. That pipeline is **not implemented in the repository today**; treat it as roadmap until it ships in application code.
+**Product direction:** Long term, the experience may guide users through attribute checks using **zkTLS**-style flows—extracting proofs from secure web sources without handing raw documents to MENDguild [2]. That pipeline is **not implemented in the repository today**; treat it as roadmap until it ships in application code.
 
 **Current implementation:** Verification uses **Semaphore** proofs in the browser and server-side verification via the **`verify-zk-proof`** Edge Function (`src/lib/zkAdapter.ts`, `supabase/functions/_shared/handleZkProofVerification.ts`). Copy in this step should match whatever scopes and UX the live onboarding actually runs (including demo/simulated language where appropriate). Engineering details and honesty about operator-visible metadata: [`docs/technical/zk-implementation.md`](../technical/zk-implementation.md), [`docs/security/threat-model.md`](../security/threat-model.md).
 
@@ -34,6 +34,6 @@ The flow also explains the role of AI-assisted real-time translation and tone de
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

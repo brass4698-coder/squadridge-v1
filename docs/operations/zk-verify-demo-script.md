@@ -26,7 +26,7 @@ Pull from [`docs/technical/zk-implementation.md`](../technical/zk-implementation
 Pull from [`docs/security/threat-model.md`](../security/threat-model.md) §5:
 
 - ZK proves statements about **attributes** without storing raw ID documents; proof records are still **bound to `user_id`** for the logged-in account—the platform learns *that this account* verified, not the underlying PII from a document upload (there isn’t one on this path).
-- **Messaging** is a separate surface: ZK verification does **not** mean chat is E2E-encrypted against the operator—cite the threat model if the conversation drifts to “everything is encrypted from SquadRidge.”
+- **Messaging** is a separate surface: ZK verification does **not** mean chat is E2E-encrypted against the operator—cite the threat model if the conversation drifts to “everything is encrypted from MENDguild.”
 
 ## 5. Do not claim (accuracy)
 

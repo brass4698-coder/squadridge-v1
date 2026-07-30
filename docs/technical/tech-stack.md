@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge is built upon a modern, highly secure technology stack designed to support verified-anonymous, cross-border dialogue at scale [1]. The architecture is anchored by the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), prioritizing performance, security, and low-bandwidth accessibility [1].
+MENDguild is built upon a modern, highly secure technology stack designed to support verified-anonymous, cross-border dialogue at scale [1]. The architecture is anchored by the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), prioritizing performance, security, and low-bandwidth accessibility [1].
 
 ## Frontend Client
 
@@ -25,7 +25,7 @@ The **shipped** application backend is **Supabase**: PostgreSQL with Row Level S
 
 ## Zero-Knowledge Privacy Stack
 
-Security is the cornerstone of SquadRidge, employing advanced cryptographic techniques to protect user identities [1].
+Security is the cornerstone of MENDguild, employing advanced cryptographic techniques to protect user identities [1].
 
 *   **Core protocol**: Enclave[ZK] privacy stack [1]
 *   **Proof system (shipped in repo)**: Semaphore-based ZKPs; client proving in `src/lib/zk/` + `src/lib/zkVerifier.ts`; server verification in `supabase/functions/_shared/handleZkProofVerification.ts` [1]
@@ -51,6 +51,6 @@ The infrastructure is designed to withstand attacks and protect users in high-ri
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

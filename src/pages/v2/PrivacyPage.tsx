@@ -35,7 +35,7 @@ export function PrivacyPage() {
           },
           {
             heading: '4. Verification data',
-            body: `Identity documents and verification materials submitted by participants are accessible only to the facilitator of the relevant session. SquadRidge staff do not access verification materials in normal operations. Verification data is retained only for the duration required to confirm eligibility and is deleted thereafter.`,
+            body: `Identity documents and verification materials submitted by participants are accessible only to the facilitator of the relevant session. MENDguild staff do not access verification materials in normal operations. Verification data is retained only for the duration required to confirm eligibility and is deleted thereafter.`,
           },
           {
             heading: '5. Data sharing',
@@ -43,11 +43,11 @@ export function PrivacyPage() {
           },
           {
             heading: '6. Your rights',
-            body: `You have the right to request access to, correction of, or deletion of your personal data. To exercise these rights, contact us at privacy@squadridge.app. We will respond within 30 days.`,
+            body: `You have the right to request access to, correction of, or deletion of your personal data. To exercise these rights, contact us at privacy@mendguild.app. We will respond within 30 days.`,
           },
           {
             heading: '7. Contact',
-            body: `For privacy-related queries: privacy@squadridge.app`,
+            body: `For privacy-related queries: privacy@mendguild.app`,
           },
         ].map((section) => (
           <section key={section.heading}>

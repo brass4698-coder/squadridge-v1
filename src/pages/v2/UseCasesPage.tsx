@@ -25,7 +25,7 @@ const cases = [
   {
     audience: 'Peace-tech operators & humanitarian programs',
     heading: 'High-stakes dialogue in difficult contexts',
-    body: 'SquadRidge was designed for contexts where trust is absent, exposure risk is real, and the stakes of failure are high. Use it for ceasefire talks, displaced community consultations, post-crisis recovery dialogue, and similar operations.',
+    body: 'MENDguild was designed for contexts where trust is absent, exposure risk is real, and the stakes of failure are high. Use it for ceasefire talks, displaced community consultations, post-crisis recovery dialogue, and similar operations.',
     cta: 'Request pilot access',
     href: '/request-access',
   },
@@ -59,13 +59,13 @@ export function UseCasesPage() {
           className="mb-4 text-3xl font-semibold tracking-tight"
           style={{ color: 'var(--color-text-primary)' }}
         >
-          Who SquadRidge is built for
+          Who MENDguild is built for
         </h1>
         <p
           className="mx-auto max-w-xl text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          SquadRidge is not a general-purpose platform. It was purpose-built for high-stakes, facilitated dialogue where the room must remain private and the outcome must be credible. These are the contexts it is designed to serve.
+          MENDguild is not a general-purpose platform. It was purpose-built for high-stakes, facilitated dialogue where the room must remain private and the outcome must be credible. These are the contexts it is designed to serve.
         </p>
       </div>
 

@@ -2,7 +2,7 @@
  * Ephemeral intent for matching (sessionStorage only in this build).
  * Not persisted as PII on the server — replace with hashed/vector pipeline when matching ships.
  */
-export const INTENT_SESSION_KEY = 'squadridge_session_intent';
+export const INTENT_SESSION_KEY = 'mendguild_session_intent';
 
 /** Intents older than this are treated as absent on read. */
 const SESSION_INTENT_MAX_AGE_MS = 30 * 60 * 1000;

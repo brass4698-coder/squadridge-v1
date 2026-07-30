@@ -2,7 +2,7 @@
 
 ## Overview
 
-The infrastructure of SquadRidge is designed to support verified-anonymous, cross-border dialogue at scale while ensuring strong security, privacy, and resilience [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform separates ephemeral messaging streams from aggregated analytics to reduce exposure for users in high-risk environments [1].
+The infrastructure of MENDguild is designed to support verified-anonymous, cross-border dialogue at scale while ensuring strong security, privacy, and resilience [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform separates ephemeral messaging streams from aggregated analytics to reduce exposure for users in high-risk environments [1].
 
 ## Cloud-Native Deployment
 
@@ -45,6 +45,6 @@ The infrastructure implements "do no harm" principles from the design phase, ens
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

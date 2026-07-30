@@ -9,7 +9,7 @@ export * from './SessionMessageItem';
 export * from './SessionTranslationPanel';
 export { SquadLogo } from './SquadLogo';
 export type { LogoProps as SquadLogoProps } from './SquadLogo';
-export * from './SquadRidgeWordmark';
+export * from './MENDguildWordmark';
 export * from './WaitlistSection';
 export * from './ZkStubBanner';
 export * from './auth/AccountPageShell';

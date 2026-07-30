@@ -2,9 +2,9 @@
 
 ## What this repo is
 
-This repository contains **SquadRidge**, a pilot‑stage verified dialogue infrastructure for structured, facilitator‑led cross‑border dialogue.
+This repository contains **MENDguild**, a pilot‑stage verified dialogue infrastructure for structured, facilitator‑led cross‑border dialogue.
 
-SquadRidge is **not** a generic chat app.
+MENDguild is **not** a generic chat app.
 It focuses on:
 - Verified access (pilot‑scoped identity / attribute proofs, Semaphore‑style).
 - Pseudonymous small‑squad matching and structured session rooms.

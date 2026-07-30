@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { isZkHashStubExplicit } from '../lib';
 
-const STORAGE_KEY = 'squadridge.zkStubToast.dismissed';
+const STORAGE_KEY = 'mendguild.zkStubToast.dismissed';
 
 function readDismissedFromStorage(): boolean {
   if (typeof window === 'undefined') return false;

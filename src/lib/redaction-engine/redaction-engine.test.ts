@@ -5,7 +5,7 @@ import { detectSensitiveEntities, redactContent } from './pipelines/redactConten
 const baseCtx = {
   roomId: 'room-1',
   roomPseudonymSecret: 'test-secret',
-  allowlistTerms: ['SquadRidge'],
+  allowlistTerms: ['MENDguild'],
 };
 
 describe('redaction-engine', () => {
@@ -29,7 +29,7 @@ describe('redaction-engine', () => {
   });
 
   it('preserves allowlisted product terms in heuristic NER path', async () => {
-    const raw = 'We use SquadRidge and also worry about Jane Smith from HR.';
+    const raw = 'We use MENDguild and also worry about Jane Smith from HR.';
     const r = await redactContent({
       text: raw,
       mode: 'upload_ocr',
@@ -37,7 +37,7 @@ describe('redaction-engine', () => {
       contentType: 'ocr_text',
       context: baseCtx,
     });
-    expect(r.redactedText).toContain('SquadRidge');
+    expect(r.redactedText).toContain('MENDguild');
     expect(r.redactedText).toContain('[POSSIBLE_NAME_GENERALIZED]');
   });
 

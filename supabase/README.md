@@ -1,4 +1,4 @@
-# Supabase (SquadRidge)
+# Supabase (MENDguild)
 
 ## CLI layout
 

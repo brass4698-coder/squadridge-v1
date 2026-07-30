@@ -1,6 +1,6 @@
 # Redaction engine (`src/lib/redaction-engine`)
 
-Production-oriented **v1** redaction pipeline for SquadRidge: verified pseudonymity, audience-specific policies, and durable-export safety. Deterministic detectors run first; a **pluggable NER** interface defaults to a conservative heuristic (swap for ONNX / API without changing types).
+Production-oriented **v1** redaction pipeline for MENDguild: verified pseudonymity, audience-specific policies, and durable-export safety. Deterministic detectors run first; a **pluggable NER** interface defaults to a conservative heuristic (swap for ONNX / API without changing types).
 
 ## Modes
 
@@ -25,7 +25,7 @@ const result = await redactContent({
   context: {
     roomId: 'room-uuid',
     roomPseudonymSecret: process.env.ROOM_PSEUDONYM_HMAC_SECRET!,
-    allowlistTerms: ['SquadRidge', 'CSI'],
+    allowlistTerms: ['MENDguild', 'CSI'],
   },
   roomParticipantUserIds: ['user-a', 'user-b'],
   actorLabel: 'api:message-ingest',

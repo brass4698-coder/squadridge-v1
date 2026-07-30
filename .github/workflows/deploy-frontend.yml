@@ -66,5 +66,5 @@ jobs:
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
-          name: squadridge-dist
+          name: mendguild-dist
           path: dist/

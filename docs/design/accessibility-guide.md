@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge is designed to support verified-anonymous, cross-border dialogue for users in diverse and often challenging environments [1]. To ensure that voices from non-dominant cultures, rural areas, and active conflict zones are not marginalized, our platform adheres strictly to WCAG AA accessibility standards [1].
+MENDguild is designed to support verified-anonymous, cross-border dialogue for users in diverse and often challenging environments [1]. To ensure that voices from non-dominant cultures, rural areas, and active conflict zones are not marginalized, our platform adheres strictly to WCAG AA accessibility standards [1].
 
 ## Core Principles
 
@@ -24,7 +24,7 @@ Our UX copy emphasizes safety and reflection, counteracting the rapid reaction t
 
 ### 3. Technical Accessibility
 
-SquadRidge is built on a React, Vite, and TypeScript frontend, supported by a horizontally scalable Node.js backend [1].
+MENDguild is built on a React, Vite, and TypeScript frontend, supported by a horizontally scalable Node.js backend [1].
 
 *   **Keyboard Navigation**: All interactive elements are fully accessible via keyboard, ensuring users who cannot use a mouse can navigate the platform effectively.
 *   **Screen Readers**: Semantic HTML and ARIA attributes are used throughout the application to ensure compatibility with screen readers.
@@ -32,6 +32,6 @@ SquadRidge is built on a React, Vite, and TypeScript frontend, supported by a ho
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

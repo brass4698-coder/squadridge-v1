@@ -2,7 +2,7 @@
  * Global layout chrome for all static pitch decks in /public/pitch-deck-hub/
  * — full-viewport slides, footer band, headline rhythm, card grids.
  * Load after deck-hub-chrome.css and deck-ds.css (ds-pitch-deck HTML decks).
- * Core investor deck: load after deck-hub-chrome.css (see squadridge-core-investor-deck.html).
+ * Core investor deck: load after deck-hub-chrome.css (see mendguild-core-investor-deck.html).
  */
 :root {
   --deck-chrome-bottom: 52px;

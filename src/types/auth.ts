@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Auth Types
+// MENDguild Auth Types
 // ============================================================
 
 export type UserStatus = 'pending' | 'active' | 'suspended';

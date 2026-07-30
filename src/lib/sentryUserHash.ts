@@ -13,7 +13,7 @@
  * still deterministic — it's not a privacy boundary in dev anyway.
  */
 
-const DEV_FALLBACK_SALT = 'squadridge.sentry.dev-fallback';
+const DEV_FALLBACK_SALT = 'mendguild.sentry.dev-fallback';
 const HEX_CHARS = '0123456789abcdef';
 
 function bytesToHex(bytes: Uint8Array): string {

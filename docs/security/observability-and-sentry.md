@@ -1,6 +1,6 @@
 # Observability and Sentry (privacy posture)
 
-SquadRidge uses [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) for **client-side error reporting** only when `VITE_SENTRY_DSN` is set. This page summarizes **what may leave the browser** and **what does not**, so reviewers can align operational choices with the [threat model](threat-model.md).
+MENDguild uses [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) for **client-side error reporting** only when `VITE_SENTRY_DSN` is set. This page summarizes **what may leave the browser** and **what does not**, so reviewers can align operational choices with the [threat model](threat-model.md).
 
 Implementation source of truth: `src/lib/sentry.ts`, `src/lib/sentryUserHash.ts`.
 

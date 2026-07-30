@@ -11,7 +11,7 @@ import type {
   PitchDeckHubState,
 } from './types';
 
-const STORAGE_KEY = 'squadridge-pitch-deck-hub-v1';
+const STORAGE_KEY = 'mendguild-pitch-deck-hub-v1';
 
 function loadState(): PitchDeckHubState {
   if (typeof window === 'undefined') return INITIAL_STATE;
@@ -28,7 +28,7 @@ function loadState(): PitchDeckHubState {
         a.href = url;
         // Sanitize version from localStorage — only allow safe filename characters.
         const safeVersion = String(parsed.version ?? 'unknown').replace(/[^a-zA-Z0-9.-]/g, '_');
-        a.download = `squadridge-pitch-deck-hub-backup-v${safeVersion}.json`;
+        a.download = `mendguild-pitch-deck-hub-backup-v${safeVersion}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -176,7 +176,7 @@ export function usePitchDeckHubStore() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `squadridge-pitch-deck-hub-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `mendguild-pitch-deck-hub-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success('Full hub state exported (JSON).');

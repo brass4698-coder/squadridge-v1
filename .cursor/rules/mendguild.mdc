@@ -1,8 +1,8 @@
 ---
-description: SquadRidge Core Application Rules
+description: MENDguild Core Application Rules
 globs: *.ts, *.tsx, *.js, *.jsx
 ---
-# SquadRidge — core rules
+# MENDguild — core rules
 
 Cross-border dialogue app on the Enclave[ZK] stack (React, Vite, Supabase).
 

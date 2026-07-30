@@ -23,7 +23,7 @@ export function MissionStep({ onBack, onNext, nextLabel, nextDisabled }: StepPro
           <div className={`flex flex-col ${obH1ToFirstLine}`}>
             <h1 className={obH1}>Mission brief</h1>
             <p className={obBody}>
-              SquadRidge is verified-anonymous infrastructure for high-stakes cross-border strategy.
+              MENDguild is verified-anonymous infrastructure for high-stakes cross-border strategy.
             </p>
           </div>
 

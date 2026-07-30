@@ -3,7 +3,7 @@
  * Most decks use `{deckId}.html`; a few legacy filenames remain.
  */
 const PITCH_DECK_HUB_HTML_OVERRIDES: Record<string, string> = {
-  'core-investor': 'squadridge-core-investor-deck.html',
+  'core-investor': 'mendguild-core-investor-deck.html',
   'pilot-partner': 'pilot-partner-deck.html',
 };
 

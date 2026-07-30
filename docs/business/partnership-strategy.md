@@ -8,7 +8,7 @@ Tiered lists below include **archetypes and targets for conversation**. They are
 
 ## Overview
 
-SquadRidge's success depends on building a robust ecosystem of institutional partners, civil society organizations, and technology providers. Our strategy is designed to integrate our verified-anonymous cross-border dialogue platform into existing peacebuilding frameworks while addressing the critical "warning-response" gap [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), we aim to provide secure digital infrastructure at scale [1].
+MENDguild's success depends on building a robust ecosystem of institutional partners, civil society organizations, and technology providers. Our strategy is designed to integrate our verified-anonymous cross-border dialogue platform into existing peacebuilding frameworks while addressing the critical "warning-response" gap [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), we aim to provide secure digital infrastructure at scale [1].
 
 ## Phase 1: Foundational Peacebuilding Partners
 
@@ -36,11 +36,11 @@ To reach "The Concerned Citizen" and "The Diaspora Member," we must partner with
 
 ### Key Targets:
 
-*   **Build Up and PeaceTech Lab**: We will leverage their networks of practitioners and activists to deploy SquadRidge in high-risk zones [3].
+*   **Build Up and PeaceTech Lab**: We will leverage their networks of practitioners and activists to deploy MENDguild in high-risk zones [3].
 *   **Local NGOs (e.g., in the Sahel, Philippines, Kenya)**: We will provide under-resourced, locally-led NGOs with the digital infrastructure necessary to run structured sessions safely [3]. This addresses the lack of localization in existing AI models and ensures our platform supports diverse languages and cultural contexts [3].
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

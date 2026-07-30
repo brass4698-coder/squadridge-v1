@@ -13,7 +13,7 @@ if you have direct push access — see the "Security-touching change?" section o
 + green CI before merge) is documented in
 [`docs/operations/branch-protection.md`](docs/operations/branch-protection.md).
 
-### SquadRidge pillar branch naming
+### MENDguild pillar branch naming
 
 Use these prefixes to keep branch intent clear as the five platform pillars are built out:
 

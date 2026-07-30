@@ -1,10 +1,10 @@
 # Diligence Overview
 
-This document is a short diligence-oriented overview for partners, funders, and advisors evaluating SquadRidge as it exists today.
+This document is a short diligence-oriented overview for partners, funders, and advisors evaluating MENDguild as it exists today.
 
-## What SquadRidge Is
+## What MENDguild Is
 
-SquadRidge is a verified-anonymous dialogue platform for small, structured, cross-border cohorts. The current product is best suited for facilitated pilots where trusted organizations need a safer alternative to generic chat or meeting tools for sensitive dialogue work.
+MENDguild is a verified-anonymous dialogue platform for small, structured, cross-border cohorts. The current product is best suited for facilitated pilots where trusted organizations need a safer alternative to generic chat or meeting tools for sensitive dialogue work.
 
 ## Current Product State
 
@@ -41,7 +41,7 @@ Any external narrative should follow those boundaries exactly.
 
 ## What Is Fundable About This
 
-The strongest fundable aspects of SquadRidge today are:
+The strongest fundable aspects of MENDguild today are:
 
 - a distinct thesis: verification plus structured dialogue for sensitive cross-border cohorts
 - unusually honest and mature security documentation for an early-stage project
@@ -50,7 +50,7 @@ The strongest fundable aspects of SquadRidge today are:
 
 ## What Still Needs To Be Proven
 
-To become clearly fundable at a higher level, SquadRidge still needs:
+To become clearly fundable at a higher level, MENDguild still needs:
 
 - pilot evidence with real partners or tightly structured external cohorts
 - stronger operational tooling for facilitators and moderators

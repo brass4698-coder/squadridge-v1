@@ -1,11 +1,11 @@
-# SquadRidge
+# MENDguild
 
 **Stop conflicts before they start.**
 
 [![CI](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/ci.yml/badge.svg)](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/codeql.yml/badge.svg)](https://github.com/brass4698-coder/squadridge-v1/actions/workflows/codeql.yml)
 
-SquadRidge is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
+MENDguild is an early-warning system that detects rising violence in communities across conflict zones and activates rapid de-escalation. We bring verified citizens from opposite sides of a conflict into real-time dialogue at the exact moment tensions are escalating. When we detect that a community is crossing the violence threshold, we activate mediators to intervene immediately. We measure outcomes: lives saved, violence prevented, conflicts de-escalated.
 
 **Built on React 19 + Vite 6 + TypeScript + Tailwind CSS 3 + Supabase (PostgreSQL + RLS, Auth, Realtime, Edge Functions) + Semaphore ZK proofs.**
 

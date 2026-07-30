@@ -119,7 +119,7 @@ export function AlertFacilitatorButton({ squadId }: { squadId: string }) {
             </fieldset>
 
             <p className="mt-3 font-sans text-[0.78rem] text-[#94a3b8]">
-              For immediate physical danger, also contact your local emergency number — SquadRidge
+              For immediate physical danger, also contact your local emergency number — MENDguild
               cannot reach emergency services for you.
             </p>
 

@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Guard helpers
+// MENDguild Guard helpers
 // ============================================================
 import type { UserRole, RoleKey } from '../types/roles';
 import type { Profile } from '../types/auth';

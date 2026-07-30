@@ -1,4 +1,4 @@
-// Auto-generated Supabase types for SquadRidge v2.
+// Auto-generated Supabase types for MENDguild v2.
 // Regenerate with: supabase gen types typescript --project-id <id> > src/lib/supabaseTypes.ts
 
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];

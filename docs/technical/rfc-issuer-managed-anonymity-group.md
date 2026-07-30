@@ -15,7 +15,7 @@
 Today the client builds the Semaphore `Group` for a session proof from:
 
 1. The user's `Identity` (recovered from `semaphoreIdentityStorage`), plus
-2. A small set of **bundled-in-source decoys** (`squadridge-decoy-{a,b,c}`) — opt-in via the build-time flag `VITE_SEMAPHORE_DEMO_GROUP=true`.
+2. A small set of **bundled-in-source decoys** (`mendguild-decoy-{a,b,c}`) — opt-in via the build-time flag `VITE_SEMAPHORE_DEMO_GROUP=true`.
 
 Bundled decoys are sufficient for a **valid** Semaphore proof but not for a **meaningful** anonymity set. They are public in the source code, fixed across all sessions and tenants, and never updated. As a result:
 
@@ -58,7 +58,7 @@ flowchart LR
     I1[Member commitments]
     I2[Signed Merkle root manifest]
   end
-  subgraph platform [SquadRidge platform]
+  subgraph platform [MENDguild platform]
     subgraph client [Browser]
       C1[buildSessionAnonymityGroup]
       C2[generateProof]
@@ -82,14 +82,14 @@ flowchart LR
 
 ### 4.1 Issuer manifest
 
-Each issuer publishes a signed manifest at a stable URL (`https://issuer.example/squadridge/manifest.json`) containing:
+Each issuer publishes a signed manifest at a stable URL (`https://issuer.example/mendguild/manifest.json`) containing:
 
 ```json
 {
   "group_id": "issuer.example/2026-04-cohort",
   "tree_depth": 20,
   "root": "0xabc…",
-  "members_url": "https://issuer.example/squadridge/members.json",
+  "members_url": "https://issuer.example/mendguild/members.json",
   "issued_at": "2026-04-28T00:00:00Z",
   "expires_at": "2026-05-28T00:00:00Z",
   "signature": "ed25519:…"

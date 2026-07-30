@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to SquadRidge are documented here.
+All notable changes to MENDguild are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
@@ -27,7 +27,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.0.1] — 2026-06-01
 
 ### Added
-- Initial SquadRidge platform: verified anonymous dialogue, ZK identity layer,
+- Initial MENDguild platform: verified anonymous dialogue, ZK identity layer,
   squad matchmaking, conversation sessions, tamper-evident ledger
 - 42 Supabase migrations covering all core tables with RLS
 - Full CI pipeline: lint, typecheck, Vitest, Playwright e2e, security audit, pgTAP

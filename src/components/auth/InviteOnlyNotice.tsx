@@ -8,7 +8,7 @@ export function InviteOnlyNotice() {
   return (
     <div className="rounded-md border border-sq-border bg-sq-surface px-4 py-3 text-sm text-sq-muted">
       <p>
-        SquadRidge is an invite-only platform.{' '}
+        MENDguild is an invite-only platform.{' '}
         <Link to="/request-access" className="text-sq-primary underline hover:no-underline">
           Request access
         </Link>{' '}

@@ -1,5 +1,5 @@
 # This workflow was a GitHub template placeholder and has been removed.
-# SquadRidge is a private app ("private": true in package.json) — not a published npm package.
+# MENDguild is a private app ("private": true in package.json) — not a published npm package.
 # Release artifacts are deployed via deploy-frontend.yml to Vercel/Netlify.
 name: _removed-npm-publish-placeholder
 on: workflow_dispatch

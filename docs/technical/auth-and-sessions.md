@@ -1,6 +1,6 @@
 # Authentication and sessions
 
-This document describes how SquadRidge uses Supabase Auth today, how anonymous sessions relate to magic-link (email) sessions, and what operators should configure before production.
+This document describes how MENDguild uses Supabase Auth today, how anonymous sessions relate to magic-link (email) sessions, and what operators should configure before production.
 
 ## Session types in the app
 

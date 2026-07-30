@@ -75,7 +75,7 @@ export function RequestAccessPage() {
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Pilot access</p>
         <h1 className="mb-2 text-2xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Request access</h1>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-          SquadRidge is currently in a closed pilot. Tell us about your use case and we will be in touch.
+          MENDguild is currently in a closed pilot. Tell us about your use case and we will be in touch.
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export function RequestAccessPage() {
             rows={4}
             className={inputClass}
             style={inputStyle}
-            placeholder="Describe the conflict context you work in and how you would use SquadRidge…"
+            placeholder="Describe the conflict context you work in and how you would use MENDguild…"
             value={form.description}
             onChange={(e) => set('description', e.target.value)}
           />

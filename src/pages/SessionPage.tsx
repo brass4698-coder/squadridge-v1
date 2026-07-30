@@ -259,10 +259,10 @@ export function SessionPage({ squadId }: { squadId: string }) {
   const tabIdRef = useRef<string>(
     typeof globalThis.crypto?.randomUUID === 'function'
       ? globalThis.crypto.randomUUID()
-      : `squadridge-tab-${Math.random().toString(36).slice(2)}`,
+      : `mendguild-tab-${Math.random().toString(36).slice(2)}`,
   );
   const sendQueueBcRef = useRef<BroadcastChannel | null>(null);
-  const composerDraftKey = `squadridge-composer-draft:${squadId}`;
+  const composerDraftKey = `mendguild-composer-draft:${squadId}`;
   const optimisticRef = useRef<OptimisticMessage[]>([]);
   optimisticRef.current = optimisticMessages;
 
@@ -384,7 +384,7 @@ export function SessionPage({ squadId }: { squadId: string }) {
         }
       };
 
-      const lockName = `squadridge-session-send-queue-${squadId}`;
+      const lockName = `mendguild-session-send-queue-${squadId}`;
       if (
         typeof navigator !== 'undefined' &&
         typeof navigator.locks !== 'undefined' &&

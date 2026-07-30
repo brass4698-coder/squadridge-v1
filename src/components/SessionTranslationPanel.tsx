@@ -3,7 +3,7 @@ import { useUserPreferences } from '../hooks';
 import { COMMON_LANGUAGES, nativeNameForCode } from '../lib';
 import { setPreferredLanguage, setTranslationEnabled } from '../store/userPreferences';
 
-const BANNER_DONE_KEY = 'squadridge:translationLoadingBannerDone';
+const BANNER_DONE_KEY = 'mendguild:translationLoadingBannerDone';
 
 type Props = {
   modelLoading: boolean;

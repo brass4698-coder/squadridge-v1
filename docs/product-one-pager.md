@@ -1,6 +1,6 @@
-# SquadRidge — how to explain it
+# MENDguild — how to explain it
 
-This page is the default **spoken and written** spine for describing SquadRidge. Public copy and pitches must not promise stronger privacy than [Operational threat model](../security/threat-model.md) §5 (“Claims that hold today”).
+This page is the default **spoken and written** spine for describing MENDguild. Public copy and pitches must not promise stronger privacy than [Operational threat model](../security/threat-model.md) §5 (“Claims that hold today”).
 
 ---
 
@@ -8,7 +8,7 @@ This page is the default **spoken and written** spine for describing SquadRidge.
 
 **Default listener: general / prospective user** — lead with _problem, outcome, and safety in plain language_. Use the **one-liner** and **~30 seconds** blocks below first.
 
-When the listener is different, keep the same order (problem → what SquadRidge does → proof of belonging without oversharing → structured session → output), but shift emphasis:
+When the listener is different, keep the same order (problem → what MENDguild does → proof of belonging without oversharing → structured session → output), but shift emphasis:
 
 | Audience                | Emphasis                                                                                                                                                       |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,13 +19,13 @@ When the listener is different, keep the same order (problem → what SquadRidge
 
 ## One sentence
 
-**SquadRidge matches people into short, structured squad sessions across borders and languages—you prove you belong in the room without handing your real-world identity to the chat, and you leave with a concrete proposal-style output, not just a transcript.**
+**MENDguild matches people into short, structured squad sessions across borders and languages—you prove you belong in the room without handing your real-world identity to the chat, and you leave with a concrete proposal-style output, not just a transcript.**
 
 ---
 
 ## ~30 seconds
 
-Cross-border collaboration often forces a tradeoff: open platforms leak context; closed groups exclude the right expertise. SquadRidge is a verified-anonymous dialogue platform: you verify once in a way that shows you’re allowed in the room without us storing your name or location as the price of admission. We match you into a time-bounded squad that fits the problem, with translation and calm, de-escalation-first design. When the session ends, the point is a **document you can stand behind**—citable and structured—not a raw chat log.
+Cross-border collaboration often forces a tradeoff: open platforms leak context; closed groups exclude the right expertise. MENDguild is a verified-anonymous dialogue platform: you verify once in a way that shows you’re allowed in the room without us storing your name or location as the price of admission. We match you into a time-bounded squad that fits the problem, with translation and calm, de-escalation-first design. When the session ends, the point is a **document you can stand behind**—citable and structured—not a raw chat log.
 
 _Differentiator to name if you only have one breath:_ **verification without doxxing** _or_ **outputs built for credibility, not endless scroll.**
 
@@ -35,7 +35,7 @@ _Differentiator to name if you only have one breath:_ **verification without dox
 
 1. **Problem** — People who need to work across borders, roles, or languages on hard problems often can’t use ordinary social or work chat without exposing more than they should, or they get matched on pedigree instead of fit for the problem.
 
-2. **What SquadRidge is** — A platform for **verified-anonymous squads**: short, structured sessions in matched rooms, with translation and UX aimed at de-escalation.
+2. **What MENDguild is** — A platform for **verified-anonymous squads**: short, structured sessions in matched rooms, with translation and UX aimed at de-escalation.
 
 3. **Trust, in plain language** — You **prove you belong** in the verification sense (ZK/Semaphore-style proofs in product); the story for most audiences is: _membership without dumping PII on the server_—not “magic untraceable mode.” Technical details belong in [threat model](../security/threat-model.md).
 
@@ -71,4 +71,4 @@ A **structured, citable output** tied to the session—your product story is **a
 ## Credibility moves
 
 - End with **“I can show the flow in about two minutes”** when a demo exists.
-- If asked whether SquadRidge is “like Signal” or “full E2E,” answer from the [threat model](../security/threat-model.md)—**credibility beats buzzwords**.
+- If asked whether MENDguild is “like Signal” or “full E2E,” answer from the [threat model](../security/threat-model.md)—**credibility beats buzzwords**.

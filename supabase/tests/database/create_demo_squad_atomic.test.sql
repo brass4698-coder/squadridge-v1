@@ -110,20 +110,20 @@ BEGIN
     ) INTO has_member;
     SELECT (message_encryption_key IS NOT NULL AND length(btrim(message_encryption_key)) > 0)
     FROM public.squads WHERE id = sid INTO has_key;
-    PERFORM set_config('squadridge.test.last_squad_id', sid::text, true);
-    PERFORM set_config('squadridge.test.has_member', has_member::text, true);
-    PERFORM set_config('squadridge.test.has_key', has_key::text, true);
+    PERFORM set_config('mendguild.test.last_squad_id', sid::text, true);
+    PERFORM set_config('mendguild.test.has_member', has_member::text, true);
+    PERFORM set_config('mendguild.test.has_key', has_key::text, true);
 END
 $$;
 
 SELECT is(
-    current_setting('squadridge.test.has_member')::boolean,
+    current_setting('mendguild.test.has_member')::boolean,
     TRUE,
     'happy path: squad_members row inserted alongside squads row'
 );
 
 SELECT is(
-    current_setting('squadridge.test.has_key')::boolean,
+    current_setting('mendguild.test.has_key')::boolean,
     TRUE,
     'happy path: server trigger populated message_encryption_key (no client-side key required)'
 );

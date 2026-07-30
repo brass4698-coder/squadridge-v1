@@ -57,7 +57,7 @@ Run this before every pilot. Each item is a **stop the pilot** condition until r
 ### Bundle integrity
 
 - [ ] CI run against the exact commit being deployed shows green for `check:no-zk-stub-prod`, `check:no-demo-decoys-prod`, `check:no-raw-console`, `check:prod-readiness`, `check:database-types`.
-- [ ] Production frontend bundle does **not** contain the literal string `squadridge-decoy-` (run `grep -r squadridge-decoy dist/ || echo OK`). Bundled Semaphore decoys collapse the anonymity set; their presence is a release-stop.
+- [ ] Production frontend bundle does **not** contain the literal string `mendguild-decoy-` (run `grep -r mendguild-decoy dist/ || echo OK`). Bundled Semaphore decoys collapse the anonymity set; their presence is a release-stop.
 - [ ] `VITE_ZK_STUB` is unset or `false` in the deployed environment.
 - [ ] `VITE_SEMAPHORE_DEMO_GROUP` is unset (or has both `VITE_ALLOW_DEMO_DECOYS_IN_PROD=true` *and* an explicit operator note that this is an internal-demo build).
 
@@ -210,7 +210,7 @@ that bypasses the chat / message stream entirely. Three reason codes are accepte
 2. Acknowledge by updating `acknowledged_at = now(), acknowledged_by = auth.uid()` while signed in as a moderator (RLS enforces).
 3. For `immediate_danger` alerts, **acknowledge and contact the participant within 60 seconds**. Document outcome in [`incidents.md`](./incidents.md).
 4. Facilitators do **not** see participant-typed details — only the reason code. Free-form context is intentionally not collected so logs stay PII-free. Coordinate via separate moderator channels if context is needed.
-5. The Crisis Resources panel (`CrisisResources.tsx`) is always available in-room as a participant-side fallback. SquadRidge does **not** dispatch emergency services; remind participants of this in onboarding copy.
+5. The Crisis Resources panel (`CrisisResources.tsx`) is always available in-room as a participant-side fallback. MENDguild does **not** dispatch emergency services; remind participants of this in onboarding copy.
 
 **Rate limits.** The `crisis-alert` Edge Function uses a separate Redis bucket (`action: 'crisis_alert'`) so chat throttling does not suppress emergencies. If you see runaway alerts, raise the cap in `rate-limit/index.ts` rather than tightening the chat limiter.
 

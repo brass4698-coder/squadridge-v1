@@ -1,6 +1,6 @@
-const KEY_LANG = 'squadridge:preferredLanguage';
-const KEY_TRANSLATION_ON = 'squadridge:translationEnabled';
-const KEY_EPOCH = 'squadridge:translationPreferenceEpoch';
+const KEY_LANG = 'mendguild:preferredLanguage';
+const KEY_TRANSLATION_ON = 'mendguild:translationEnabled';
+const KEY_EPOCH = 'mendguild:translationPreferenceEpoch';
 
 function readLang(): string {
   try {

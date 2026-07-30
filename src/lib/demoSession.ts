@@ -8,7 +8,7 @@ export interface DemoSession {
   isDemo: true;
 }
 
-const KEY = 'squadridge_demo_session';
+const KEY = 'mendguild_demo_session';
 
 export const DEMO_SESSION_ID = 'demo-session-001';
 export const DEMO_PROPOSAL_ID = 'demo-proposal-001';

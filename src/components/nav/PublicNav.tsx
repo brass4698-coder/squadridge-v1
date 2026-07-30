@@ -26,9 +26,9 @@ export function PublicNav() {
           to="/"
           className="text-lg font-semibold tracking-tight"
           style={{ color: 'var(--color-text-primary)' }}
-          aria-label="SquadRidge — return to homepage"
+          aria-label="MENDguild — return to homepage"
         >
-          SquadRidge
+          MENDguild
         </Link>
 
         {/* Desktop nav */}
@@ -64,7 +64,7 @@ export function PublicNav() {
             to="/request-access"
             className="rounded px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: 'var(--color-accent)' }}
-            aria-label="Request pilot access to SquadRidge"
+            aria-label="Request pilot access to MENDguild"
           >
             Request Access
           </Link>

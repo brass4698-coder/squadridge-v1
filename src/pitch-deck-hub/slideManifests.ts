@@ -62,7 +62,7 @@ export const coreInvestorManifest = m('core-investor', 'Core Investor Deck', [
 ]);
 
 export const companyOverviewManifest = m('company-overview', 'Company Overview', [
-  { id: 's1', title: 'SquadRidge', layout: 'title', eyebrow: 'Company overview' },
+  { id: 's1', title: 'MENDguild', layout: 'title', eyebrow: 'Company overview' },
   { id: 's2', title: 'Mission & thesis' },
   { id: 's3', title: 'Problem structure' },
   { id: 's4', title: 'Product shape' },

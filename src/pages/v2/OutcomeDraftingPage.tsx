@@ -25,7 +25,7 @@ const mockApprovers: Approver[] = [
 const initialDraft = `JOINT STATEMENT OF PRINCIPLES
 Northern Watershed Consultation — June 18, 2024
 
-The undersigned parties, having participated in a facilitated dialogue convened under the SquadRidge platform, hereby record the following agreed principles:
+The undersigned parties, having participated in a facilitated dialogue convened under the MENDguild platform, hereby record the following agreed principles:
 
 1. All future land-use consultations in the northern watershed region will include representation from riparian communities prior to any planning application approval.
 

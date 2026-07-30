@@ -2,11 +2,11 @@
 
 ## Overview
 
-Measuring the impact of SquadRidge is critical to our mission as a social enterprise. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), our platform is designed to replace conflict-amplifying social networks with trust-building digital infrastructure [1]. Our impact metrics evaluate our success in enabling verified-anonymous, cross-border dialogue and providing secure early warning signals without relying on state surveillance [1].
+Measuring the impact of MENDguild is critical to our mission as a social enterprise. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), our platform is designed to replace conflict-amplifying social networks with trust-building digital infrastructure [1]. Our impact metrics evaluate our success in enabling verified-anonymous, cross-border dialogue and providing secure early warning signals without relying on state surveillance [1].
 
 ## Current measurement (MVP)
 
-These are the **small diligence-safe set** aligned with [squadridge-pitch.md](../pitch/squadridge-pitch.md) §6—what you can plausibly cite *today* using Supabase and light process, without inventing productized analytics dashboards.
+These are the **small diligence-safe set** aligned with [mendguild-pitch.md](../pitch/mendguild-pitch.md) §6—what you can plausibly cite *today* using Supabase and light process, without inventing productized analytics dashboards.
 
 | Metric | Why it matters | How to measure today |
 | ------ | -------------- | --------------------- |
@@ -52,6 +52,6 @@ We continuously monitor our systems to ensure they adhere strictly to "do no har
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

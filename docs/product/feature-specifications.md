@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge uniquely combines zero-knowledge attribute verification, structured small-group matching, and AI-driven de-escalation into a single peace-tech infrastructure [1]. This document outlines the core features that enable verified-anonymous, cross-border dialogue.
+MENDguild uniquely combines zero-knowledge attribute verification, structured small-group matching, and AI-driven de-escalation into a single peace-tech infrastructure [1]. This document outlines the core features that enable verified-anonymous, cross-border dialogue.
 
 ## 1. Zero-Knowledge Attribute Verification
 
@@ -23,7 +23,7 @@ The platform matches small groups from opposing perspectives into time-bound dia
 
 ## 3. AI-Assisted De-escalation
 
-SquadRidge integrates AI-assisted real-time translation and tone detection to intervene during escalations [1].
+MENDguild integrates AI-assisted real-time translation and tone detection to intervene during escalations [1].
 
 *   **Mechanism**: The AI system listens to written exchanges, flags rising tension, and gently suggests calmer wording [3].
 *   **Purpose**: This embodies the "Power of Pause," slowing down hostile exchanges and allowing for reflection [2].
@@ -39,7 +39,7 @@ To support wider Track II diplomacy efforts, the system aggregates de-identified
 
 ## 5. Low-Bandwidth Mode
 
-Recognizing the "digital divide," SquadRidge is designed to support low-bandwidth environments [3].
+Recognizing the "digital divide," MENDguild is designed to support low-bandwidth environments [3].
 
 *   **Mechanism**: The platform minimizes data transfer and prioritizes text-based communication.
 *   **Purpose**: Many active conflict zones have severely degraded internet infrastructure; this feature ensures inclusivity [3].
@@ -47,6 +47,6 @@ Recognizing the "digital divide," SquadRidge is designed to support low-bandwidt
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

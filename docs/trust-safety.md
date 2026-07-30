@@ -1,6 +1,6 @@
 # Trust and safety
 
-SquadRidge is built for **verified-anonymous**, facilitator-aware dialogue. Trust UX is a combination of honest security boundaries, visible safety affordances, and operational process.
+MENDguild is built for **verified-anonymous**, facilitator-aware dialogue. Trust UX is a combination of honest security boundaries, visible safety affordances, and operational process.
 
 **Read first:**
 

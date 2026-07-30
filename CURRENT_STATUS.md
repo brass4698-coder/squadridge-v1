@@ -2,7 +2,7 @@
 
 > Last updated: June 2026
 
-This document is the fastest honest summary of what SquadRidge is today. It is intended for teammates, pilot partners, security reviewers, and funders who need a current-state snapshot before reading deeper docs.
+This document is the fastest honest summary of what MENDguild is today. It is intended for teammates, pilot partners, security reviewers, and funders who need a current-state snapshot before reading deeper docs.
 
 ## Snapshot
 
@@ -67,7 +67,7 @@ Long-term **prevention / early-signal** positioning and partner archetypes live 
 
 Use this product story in the next 30–90 days:
 
-> SquadRidge is a pilot-stage trust and dialogue platform for structured, facilitator-led cross-border cohorts. It combines verified access, small-group matching, and safety-conscious workflows for institutions running sensitive dialogue programs.
+> MENDguild is a pilot-stage trust and dialogue platform for structured, facilitator-led cross-border cohorts. It combines verified access, small-group matching, and safety-conscious workflows for institutions running sensitive dialogue programs.
 
 Avoid these stronger claims unless and until they are separately demonstrated:
 

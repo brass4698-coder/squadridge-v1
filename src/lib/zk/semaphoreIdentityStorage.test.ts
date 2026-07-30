@@ -10,7 +10,7 @@ describe('semaphoreIdentityStorage', () => {
     const a = getOrCreateSessionIdentity();
     const b = getOrCreateSessionIdentity();
     expect(a.commitment).toEqual(b.commitment);
-    expect(localStorage.getItem('squadridge_semaphore_identity_v1')).toBeTruthy();
+    expect(localStorage.getItem('mendguild_semaphore_identity_v1')).toBeTruthy();
   });
 
   it('inMemoryOnly avoids localStorage', () => {
@@ -18,6 +18,6 @@ describe('semaphoreIdentityStorage', () => {
     const a = getOrCreateSessionIdentity({ inMemoryOnly: true });
     const b = getOrCreateSessionIdentity({ inMemoryOnly: true });
     expect(a.commitment).toEqual(b.commitment);
-    expect(localStorage.getItem('squadridge_semaphore_identity_v1')).toBeNull();
+    expect(localStorage.getItem('mendguild_semaphore_identity_v1')).toBeNull();
   });
 });

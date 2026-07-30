@@ -38,7 +38,7 @@ const EN: CrisisAlertCatalog = {
       'We could not record the alert. Use your local emergency number if this is urgent.',
   },
   resourcesLead:
-    'If you or someone here is in immediate physical danger, contact your local emergency number first. SquadRidge cannot reach emergency services for you.',
+    'If you or someone here is in immediate physical danger, contact your local emergency number first. MENDguild cannot reach emergency services for you.',
   resourcesFooter:
     'The list is a starting point and not exhaustive — see your local crisis directory or your facilitator for region-specific contacts.',
 };
@@ -54,7 +54,7 @@ const ES: CrisisAlertCatalog = {
       'No pudimos registrar la alerta. Usa tu número local de emergencias si es urgente.',
   },
   resourcesLead:
-    'Si tú o alguien aquí está en peligro físico inmediato, contacta primero a tu número local de emergencias. SquadRidge no puede llamar a los servicios de emergencia por ti.',
+    'Si tú o alguien aquí está en peligro físico inmediato, contacta primero a tu número local de emergencias. MENDguild no puede llamar a los servicios de emergencia por ti.',
   resourcesFooter:
     'Esta lista es un punto de partida y no es exhaustiva — consulta tu directorio local de crisis o tu facilitador.',
 };

@@ -6,7 +6,7 @@ This note maps the surfaces where a participant IP address can appear, and what 
 
 | Surface | Sees raw IPs? | What we do with them |
 | --- | --- | --- |
-| SquadRidge React app (`src/`) | No | The browser cannot read its own public IP. We never collect or send one. |
+| MENDguild React app (`src/`) | No | The browser cannot read its own public IP. We never collect or send one. |
 | Supabase Edge Functions (`supabase/functions/`) | Headers only | None. The `rate-limit` Edge Function ([`supabase/functions/rate-limit/index.ts`](../../supabase/functions/rate-limit/index.ts)) keys on the authenticated `user.id`, not IP. No Edge Function reads `X-Forwarded-For`, `cf-connecting-ip`, or similar today, so application logs never contain IP material. |
 | Supabase Postgres tables | No | No table column stores an IP value. Schema review checked: `users`, `profiles`, `messages`, `match_queue`, `moderation_audit_log`, `zk_proof_submissions`, `crisis_alerts`. |
 | Sentry events (`src/lib/sentry.ts`) | No | `sendDefaultPii: false` — Sentry's automatic IP attachment is disabled. The user id sent to Sentry is a salted SHA-256 hash (see [`docs/security/observability-and-sentry.md`](../security/observability-and-sentry.md)). |
@@ -43,7 +43,7 @@ These are platform surfaces. We do not control the storage formats, but we do co
 
 In partner-facing copy and in [`PRIVACY_POLICY.md`](../../PRIVACY_POLICY.md), describe IP handling as:
 
-> SquadRidge does not store IP addresses in the application database. Platform edge logs (Supabase, hosting provider, CDN) may capture IPs for operational reasons; those logs follow the platforms' retention settings and are accessible only to a small named operator group.
+> MENDguild does not store IP addresses in the application database. Platform edge logs (Supabase, hosting provider, CDN) may capture IPs for operational reasons; those logs follow the platforms' retention settings and are accessible only to a small named operator group.
 
 Do not claim "we hash IPs" or "we anonymise IPs at ingest"; the application has no IP to hash. If a partner needs an explicit IP-hashing path, treat that as a discrete engineering project that introduces a hashing proxy in front of Supabase rather than a doc-only change.
 
@@ -53,7 +53,7 @@ Add an application-level IP-handling layer (and update this document) only if on
 
 - A new Edge Function reads `X-Forwarded-For` for abuse detection. Hash it on read; do not persist raw values.
 - A platform addition (e.g. self-hosted analytics, custom audit pipeline) starts capturing IPs into our own storage.
-- A partner contract requires a documented hashing pipeline owned by SquadRidge rather than the platform vendors.
+- A partner contract requires a documented hashing pipeline owned by MENDguild rather than the platform vendors.
 
 ## Cross-references
 

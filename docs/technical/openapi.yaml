@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
-  title: SquadRidge API
-  description: REST + WebSocket API for SquadRidge, a verified-anonymous cross-border dialogue platform.
+  title: MENDguild API
+  description: REST + WebSocket API for MENDguild, a verified-anonymous cross-border dialogue platform.
   version: 1.0.0
 servers:
-  - url: https://api.squadridge.org/v1
+  - url: https://api.mendguild.org/v1
     description: Production Server
 paths:
   /auth/verify-proof:

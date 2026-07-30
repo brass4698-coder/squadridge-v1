@@ -6,7 +6,7 @@ import type {
   RedactionMode,
 } from '../types';
 
-export const DEFAULT_POLICY_PACK_ID = 'squadridge.strict_pseudonymous_v1';
+export const DEFAULT_POLICY_PACK_ID = 'mendguild.strict_pseudonymous_v1';
 
 /** Replacement labels for deterministic kinds — extend as detectors grow. */
 export const KIND_REPLACEMENT: Record<string, string> = {

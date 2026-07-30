@@ -74,7 +74,7 @@ function SecurityHeader() {
         Security boundaries in the current release
       </h1>
       <p className="mt-4 max-w-[40rem] font-sans text-[0.95rem] leading-[1.65] text-[#a8b2c1]">
-        This page describes what SquadRidge protects today, what operators can still access during
+        This page describes what MENDguild protects today, what operators can still access during
         normal operation, and which guarantees are not yet part of the current release. Trust comes
         from clarity here, not from claims.
       </p>
@@ -299,12 +299,12 @@ function SecurityOperatorVisibilitySection() {
         <StatusBadge tone="warning">Active disclosure</StatusBadge>
       </div>
       <p className="mb-3 font-sans text-[0.8125rem] leading-[1.55] text-ink-faint">
-        What SquadRidge staff can see during normal operation.
+        What MENDguild staff can see during normal operation.
       </p>
       <div className="space-y-3 font-sans text-[0.95rem] leading-[1.65] text-[#b8c2cf]">
         <p className="mb-0">
           The hosting environment, including the database and logs, can access ciphertext and squad
-          keys during normal operation. SquadRidge does not currently claim that operators are
+          keys during normal operation. MENDguild does not currently claim that operators are
           technically unable to read stored messages when moderation, legal process, or incident
           response requires access.
         </p>
@@ -529,7 +529,7 @@ function SecurityNotImplementedSection() {
 
 const FAQS: ReadonlyArray<{ q: string; a: string }> = [
   {
-    q: 'Can the SquadRidge team read my room?',
+    q: 'Can the MENDguild team read my room?',
     a: 'During normal operation operators can access ciphertext and the squad key. Reading message content requires a moderator action with logged justification, which becomes part of the audit log before plaintext is returned.',
   },
   {

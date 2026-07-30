@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('critical path smoke', () => {
   test('home loads', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/SquadRidge/i);
+    await expect(page).toHaveTitle(/MENDguild/i);
   });
 
   test('admin CSI requires sign-in (no anonymous moderator UI)', async ({ page }) => {
@@ -24,7 +24,7 @@ test.describe('critical path smoke', () => {
 
   test('ledger index renders', async ({ page }) => {
     await page.goto('/ledger');
-    await expect(page.getByRole('heading', { name: /SquadRidge\s*Ledger/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /MENDguild\s*Ledger/i })).toBeVisible();
   });
 
   test('match demo gate reaches confirmation', async ({ page }) => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Fail fast if a production-style build is attempted with bundled Semaphore demo decoys
- * enabled. Bundled decoys (`squadridge-decoy-{a,b,c}` in src/lib/zk/buildAnonymityGroup.ts)
+ * enabled. Bundled decoys (`mendguild-decoy-{a,b,c}` in src/lib/zk/buildAnonymityGroup.ts)
  * are public and fixed; shipping them to production collapses the anonymity set.
  *
  * Vite also blocks this in vite.config.ts when `mode === 'production'`; this script catches

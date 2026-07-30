@@ -16,7 +16,7 @@ We prioritize the safety of our users, especially those in authoritarian or acti
 
 ### 2. Structured Dialogue over Outrage
 
-We believe in the power of deliberation as a counter-polarization mechanism [2]. Unlike traditional social media platforms designed for engagement over understanding, SquadRidge prioritizes structured dialogue [1]. We use AI-assisted real-time translation and tone detection to intervene during escalations, gently suggesting calmer wording and slowing down hostile exchanges [1].
+We believe in the power of deliberation as a counter-polarization mechanism [2]. Unlike traditional social media platforms designed for engagement over understanding, MENDguild prioritizes structured dialogue [1]. We use AI-assisted real-time translation and tone detection to intervene during escalations, gently suggesting calmer wording and slowing down hostile exchanges [1].
 
 ### 3. Localization and Inclusivity
 
@@ -32,6 +32,6 @@ We support the archiving and preservation of plural narratives, fostering reconc
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge AuthContext
+// MENDguild AuthContext
 // ============================================================
 import React, {
   createContext,

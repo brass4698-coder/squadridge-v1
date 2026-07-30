@@ -4,13 +4,13 @@ See also the **[operational threat model](../security/threat-model.md)** for tru
 
 ## Overview
 
-The zero-knowledge (ZK) implementation in SquadRidge is the foundational technology that enables verified-anonymous, cross-border dialogue [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), this system allows users to cryptographically prove attributes without exposing raw personally identifiable information (PII) [1].
+The zero-knowledge (ZK) implementation in MENDguild is the foundational technology that enables verified-anonymous, cross-border dialogue [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), this system allows users to cryptographically prove attributes without exposing raw personally identifiable information (PII) [1].
 
 ## The Role of Zero-Knowledge Proofs
 
 Participants in authoritarian or active conflict zones face real danger if their identities, locations, or stated views are exposed [3]. General platforms like Zoom or Google Workspace do not offer meaningful anonymization or prevent state-level surveillance [3].
 
-SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZKPs) [1]. ZKPs allow a "prover" (the user) to demonstrate to a "verifier" (the platform) that a specific statement is true (e.g., "I am a verified citizen of Region A") without revealing any other information about the statement or the prover's identity [3].
+MENDguild addresses this by utilizing Semaphore-based zero-knowledge proofs (ZKPs) [1]. ZKPs allow a "prover" (the user) to demonstrate to a "verifier" (the platform) that a specific statement is true (e.g., "I am a verified citizen of Region A") without revealing any other information about the statement or the prover's identity [3].
 
 ## Implementation Details
 
@@ -66,7 +66,7 @@ Proof **commitments** hash proof material and scope; they are stored alongside *
 
 ### 1. Semaphore-Based Proofs
 
-Semaphore is a ZK-based signaling framework that enables applications where users can prove group membership without exposing their identity [3]. In SquadRidge, Semaphore is used to verify attributes like citizenship or organizational roles [1].
+Semaphore is a ZK-based signaling framework that enables applications where users can prove group membership without exposing their identity [3]. In MENDguild, Semaphore is used to verify attributes like citizenship or organizational roles [1].
 
 When a user completes verification in-app, they generate a Semaphore proof bound to labels (`attribute_scope`, `credential_type`). The Edge verifier checks the proof; **raw ID documents are not** stored in Postgres for this path.
 
@@ -84,6 +84,6 @@ Semaphore proofs in this stack hide **secret witness / group membership** from v
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

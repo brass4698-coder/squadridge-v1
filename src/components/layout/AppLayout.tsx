@@ -99,7 +99,7 @@ export function AppLayout() {
                   to="/"
                   className="inline-block font-heading text-[17px] font-semibold tracking-tight text-slate-100 no-underline transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal/50"
                 >
-                  SquadRidge
+                  MENDguild
                 </Link>
 
                 <p className="mt-2.5 max-w-[48ch] font-sans text-[0.875rem] font-normal leading-relaxed text-slate-600 md:mt-3 md:text-[0.9375rem]">
@@ -210,7 +210,7 @@ export function AppLayout() {
             ) : null}
 
             <p className="mt-5 border-t border-navy-light/35 pt-5 text-center font-sans text-[0.8125rem] leading-normal text-slate-600 sm:text-left md:whitespace-nowrap">
-              © {year} SquadRidge. All rights reserved.
+              © {year} MENDguild. All rights reserved.
             </p>
           </div>
         </footer>

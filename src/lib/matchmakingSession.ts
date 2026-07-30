@@ -1,7 +1,7 @@
 export type MatchPerspective = 'A' | 'B';
 
-const POOL_KEY = 'squadridge_match_pool_key';
-const SIDE_KEY = 'squadridge_match_side';
+const POOL_KEY = 'mendguild_match_pool_key';
+const SIDE_KEY = 'mendguild_match_side';
 
 export function setMatchmakingSession(poolKey: string, side: MatchPerspective): void {
   try {
@@ -33,7 +33,7 @@ export function clearMatchmakingSession(): void {
 }
 
 /** After instant match from intent, we route through `/match` for narrative; consumed when opening the room. */
-const PENDING_MATCH_SQUAD = 'squadridge_pending_match_squad_id';
+const PENDING_MATCH_SQUAD = 'mendguild_pending_match_squad_id';
 
 export function setPendingMatchReveal(squadId: string): void {
   try {

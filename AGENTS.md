@@ -1,10 +1,10 @@
-# SquadRidge — Developer Context
+# MENDguild — Developer Context
 
 This file is the fastest way to get oriented in the codebase. It covers the stack,
 where things live, how the design system works, and the rules that keep the codebase
 consistent. Read it before making significant changes.
 
-## What is SquadRidge?
+## What is MENDguild?
 
 A peace-tech platform for **verified anonymous dialogue** across conflict lines.
 Users join verified groups (called squads), get matched with counterparts, and hold

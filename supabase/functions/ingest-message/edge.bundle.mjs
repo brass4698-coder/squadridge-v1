@@ -19971,8 +19971,8 @@ async function snippetFingerprint(fullText, span) {
   return inner.slice(0, 16);
 }
 
-// src/lib/redaction-engine/policies/defaultSquadRidge.ts
-var DEFAULT_POLICY_PACK_ID = "squadridge.strict_pseudonymous_v1";
+// src/lib/redaction-engine/policies/defaultMENDguild.ts
+var DEFAULT_POLICY_PACK_ID = "mendguild.strict_pseudonymous_v1";
 var KIND_REPLACEMENT = {
   direct_email: "[REDACTED_EMAIL]",
   direct_phone: "[REDACTED_PHONE]",
@@ -20488,7 +20488,7 @@ function spanMatchesAllowlist(text, start, end, allowlist) {
 }
 
 // src/lib/redaction-engine/detectors/nerHeuristic.ts
-var COMMON_NON_NAME = /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|SquadRidge|United|Nations|Congress|Senate|House)\b/;
+var COMMON_NON_NAME = /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|MENDguild|United|Nations|Congress|Senate|House)\b/;
 var heuristicNamedEntityRecognizer = {
   id: "heuristic.capitalized_sequences",
   async detect(text, ctx) {
@@ -20578,7 +20578,7 @@ function resolveRoomPseudonymSecret(ctx, options) {
   const mode = options?.modeOverride ?? import.meta.env.MODE;
   if (mode === "development" || mode === "test") {
     console.warn(
-      "[squadridge/redaction-engine] Missing roomPseudonymSecret \u2014 using insecure dev-only pseudonym derivation. Set context.roomPseudonymSecret before production."
+      "[mendguild/redaction-engine] Missing roomPseudonymSecret \u2014 using insecure dev-only pseudonym derivation. Set context.roomPseudonymSecret before production."
     );
     return DEV_FALLBACK_PSEUDONYM_SECRET;
   }
@@ -34670,7 +34670,7 @@ async function redactOutgoingLiveMessage(body, squadId, actorUserId) {
     context: {
       roomId: squadId,
       actorUserId,
-      allowlistTerms: ["SquadRidge", "CSI"]
+      allowlistTerms: ["MENDguild", "CSI"]
     },
     actorLabel: "client:session-send"
   });

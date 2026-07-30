@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SquadRidge design system relies on a dark, calm "global civic" aesthetic, prioritizing a modern, military-friendly, dark-native approach [1]. This system ensures clarity, neutrality, and accessibility across the platform, fostering an environment conducive to structured dialogue and de-escalation [1].
+The MENDguild design system relies on a dark, calm "global civic" aesthetic, prioritizing a modern, military-friendly, dark-native approach [1]. This system ensures clarity, neutrality, and accessibility across the platform, fostering an environment conducive to structured dialogue and de-escalation [1].
 
 ## Visual Identity
 
@@ -30,6 +30,6 @@ The platform integrates AI-assisted real-time translation to break language barr
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

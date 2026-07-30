@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AI pipeline in SquadRidge is designed to integrate advanced natural language processing (NLP) and sentiment analysis models into the platform's real-time messaging streams [1]. This architecture ensures that AI-assisted de-escalation tools and aggregated early warning signals operate securely and efficiently [1].
+The AI pipeline in MENDguild is designed to integrate advanced natural language processing (NLP) and sentiment analysis models into the platform's real-time messaging streams [1]. This architecture ensures that AI-assisted de-escalation tools and aggregated early warning signals operate securely and efficiently [1].
 
 ## Current implementation (codebase)
 
@@ -13,7 +13,7 @@ The AI pipeline in SquadRidge is designed to integrate advanced natural language
 
 ## AI Integration Strategy
 
-SquadRidge uniquely combines zero-knowledge attribute verification, structured small-group matching, and AI-driven de-escalation into a single peace-tech infrastructure [1]. The AI pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics, ensuring graceful degradation if the AI translation or sentiment moderation services experience downtime [1].
+MENDguild uniquely combines zero-knowledge attribute verification, structured small-group matching, and AI-driven de-escalation into a single peace-tech infrastructure [1]. The AI pipeline strictly separates ephemeral, encrypted messaging streams from aggregated analytics, ensuring graceful degradation if the AI translation or sentiment moderation services experience downtime [1].
 
 ### 1. Real-Time Translation and Tone Detection
 
@@ -37,6 +37,6 @@ The platform's architecture ensures that even if the analytics database is compr
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

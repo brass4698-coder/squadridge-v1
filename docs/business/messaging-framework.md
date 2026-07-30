@@ -1,4 +1,4 @@
-# SquadRidge messaging framework (Pitch Deck Hub)
+# MENDguild messaging framework (Pitch Deck Hub)
 
 ## Purpose
 

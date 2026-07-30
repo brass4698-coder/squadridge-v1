@@ -73,7 +73,7 @@ export function FooterNav() {
           className="mt-14 flex flex-col items-start justify-between gap-4 border-t pt-8 text-xs sm:flex-row sm:items-center"
           style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
         >
-          <span>© {new Date().getFullYear()} SquadRidge. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} MENDguild. All rights reserved.</span>
           <span>Small squads. Big bridges.</span>
         </div>
       </div>

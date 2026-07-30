@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge operates as a social enterprise, built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI) [1]. Our revenue model is designed to ensure financial sustainability while remaining true to our core mission: enabling verified-anonymous, cross-border dialogue for conflict prevention [1].
+MENDguild operates as a social enterprise, built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI) [1]. Our revenue model is designed to ensure financial sustainability while remaining true to our core mission: enabling verified-anonymous, cross-border dialogue for conflict prevention [1].
 
 ## B2B and B2G Monetization
 
@@ -16,7 +16,7 @@ The licensing tiers will provide access to advanced facilitator tools, organizat
 
 ### 2. Early Warning Data Subscriptions
 
-To support wider Track II diplomacy efforts, SquadRidge aggregates de-identified sentiment metrics to provide early warning insights [1]. We will offer subscription access to these data streams for vetted mediators, think tanks, and policy analysts.
+To support wider Track II diplomacy efforts, MENDguild aggregates de-identified sentiment metrics to provide early warning insights [1]. We will offer subscription access to these data streams for vetted mediators, think tanks, and policy analysts.
 
 This service directly addresses the "warning-response" problem by providing real-time intelligence on rising regional tensions [1]. Crucially, this data is strictly separated from ephemeral messaging streams, ensuring user privacy is maintained while providing valuable intelligence [1].
 
@@ -28,7 +28,7 @@ While the core matching and dialogue features are free, we may introduce premium
 
 ## Grant and Philanthropic Funding
 
-As a social enterprise addressing critical gaps in peace-tech infrastructure, SquadRidge is well-positioned to secure significant grant and philanthropic funding [3].
+As a social enterprise addressing critical gaps in peace-tech infrastructure, MENDguild is well-positioned to secure significant grant and philanthropic funding [3].
 
 Several grants, accelerators, and investors support peace-tech startups, including the USIP (United States Institute of Peace), the MacArthur Foundation, and the Open Society Foundations [3]. This funding will be crucial for initial development, deployment in high-risk zones, and the establishment of participatory data commons [2].
 
@@ -38,6 +38,6 @@ Our revenue model must never compromise our "do no harm" principles [2]. We will
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

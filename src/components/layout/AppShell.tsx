@@ -19,7 +19,7 @@ export function AppShell({ children }: Props) {
       <aside className="w-56 flex-shrink-0 border-r border-sq-border bg-sq-surface flex flex-col">
         {/* Logo */}
         <div className="px-4 py-4 border-b border-sq-border">
-          <span className="font-semibold text-sq-text">SquadRidge</span>
+          <span className="font-semibold text-sq-text">MENDguild</span>
         </div>
 
         {/* Navigation */}

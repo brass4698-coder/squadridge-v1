@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-SquadRidge needs **verified-anonymous** participation: operators must trust that users cleared a bar (e.g. attribute / membership) without learning raw identity on the client or in public logs.
+MENDguild needs **verified-anonymous** participation: operators must trust that users cleared a bar (e.g. attribute / membership) without learning raw identity on the client or in public logs.
 
 ## Decision
 

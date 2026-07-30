@@ -1,8 +1,8 @@
 ---
-description: SquadRidge Component Library Rules
+description: MENDguild Component Library Rules
 globs: src/components/**/*.tsx, src/ui/**/*.tsx
 ---
-# SquadRidge — components
+# MENDguild — components
 
 ## Rules
 

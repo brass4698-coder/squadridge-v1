@@ -51,7 +51,7 @@ function OnboardingInner() {
     const keepDemo = searchParams.get('demo') === '1';
     const targetUrl = new URL(
       base,
-      typeof window !== 'undefined' ? window.location.origin : 'https://squadridge.local',
+      typeof window !== 'undefined' ? window.location.origin : 'https://mendguild.local',
     );
     if (keepDemo) targetUrl.searchParams.set('demo', '1');
     navigate(`${targetUrl.pathname}${targetUrl.search}`, { replace: true });

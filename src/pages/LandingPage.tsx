@@ -77,7 +77,7 @@ const HOW_IT_WORKS_STEPS = [
   {
     number: '03',
     heading: 'Release a usable outcome',
-    body: 'When a result is approved for release, SquadRidge publishes a public, anonymous, timestamped record others can cite. The discussion itself never leaves.',
+    body: 'When a result is approved for release, MENDguild publishes a public, anonymous, timestamped record others can cite. The discussion itself never leaves.',
   },
 ] as const;
 
@@ -110,17 +110,17 @@ const CONTRAST_ROWS = [
   {
     axis: 'Identity exposure',
     standard: 'Open channels make identity public. People self-censor or stay out entirely.',
-    squadridge: 'Verified access without making identity the product.',
+    mendguild: 'Verified access without making identity the product.',
   },
   {
     axis: 'Outcome retention',
     standard: 'Closed channels keep things private — and bury the outcome with the room.',
-    squadridge: 'Public, anonymous, timestamped record. The room itself stays private.',
+    mendguild: 'Public, anonymous, timestamped record. The room itself stays private.',
   },
   {
     axis: 'Intervention quality',
     standard: 'Generic collaboration tools optimize for activity, reach, and message volume.',
-    squadridge: 'Small facilitator-led cohorts built for intervention, not throughput.',
+    mendguild: 'Small facilitator-led cohorts built for intervention, not throughput.',
   },
 ] as const;
 
@@ -128,7 +128,7 @@ const AUDIENCES = [
   {
     title: 'Facilitators and mediators',
     primary: true,
-    body: 'You run sensitive sessions: team conflict, post-incident debriefs, intergroup dialogue, mediation. SquadRidge gives you cleaner cohort composition, defined release conditions, and outcomes other people can actually use.',
+    body: 'You run sensitive sessions: team conflict, post-incident debriefs, intergroup dialogue, mediation. MENDguild gives you cleaner cohort composition, defined release conditions, and outcomes other people can actually use.',
   },
   {
     title: 'Veterans, organizers, and cross-border participants',
@@ -153,7 +153,7 @@ const PILOT_BENEFITS = [
  * LandingPublicRecordPreview below: that one is a single-record detail used in
  * the lower public-record section; this one is a system-at-a-glance preview
  * for the hero, mirroring the upgrade-plan suggestion of a "timeline of
- * verified exchanges" graphic. Motion-free per .cursor/rules/squadridge.mdc.
+ * verified exchanges" graphic. Motion-free per .cursor/rules/mendguild.mdc.
  */
 function LandingHeroLedgerPreview() {
   const rows = [
@@ -223,7 +223,7 @@ function LandingHeroLedgerPreview() {
 function HeroFlowDiagram() {
   return (
     <div
-      aria-label="How SquadRidge works at a glance"
+      aria-label="How MENDguild works at a glance"
       className="rounded-lg border border-[#1e293b] bg-[#080d14] p-5 sm:p-6"
     >
       <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -318,7 +318,7 @@ export function LandingPage() {
                 Run sensitive dialogue. Publish a citable outcome. Never expose the room.
               </h1>
               <p className="mt-6 max-w-[38rem] font-sans text-[1rem] leading-[1.65] text-landing-body">
-                SquadRidge is verified, facilitator-led infrastructure for small-group dialogue on
+                MENDguild is verified, facilitator-led infrastructure for small-group dialogue on
                 hard topics — and a way to release a public record without revealing who said what.
               </p>
               <p className="mt-4 max-w-[38rem] font-sans text-[0.92rem] leading-relaxed text-slate-400">
@@ -439,7 +439,7 @@ export function LandingPage() {
           <section aria-labelledby="compare-heading">
             <SectionHeading id="compare-heading">Why standard tools break down</SectionHeading>
             <p className="mt-4 max-w-copy font-sans text-[0.95rem] leading-relaxed text-slate-400">
-              SquadRidge is not a Slack, Discord, or Zoom alternative. The structure of the problem
+              MENDguild is not a Slack, Discord, or Zoom alternative. The structure of the problem
               is different, so the structure of the tool is different.
             </p>
 
@@ -458,7 +458,7 @@ export function LandingPage() {
                 </div>
                 <div className="bg-[#0a121f] p-4">
                   <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80">
-                    SquadRidge
+                    MENDguild
                   </p>
                 </div>
               </div>
@@ -487,10 +487,10 @@ export function LandingPage() {
                   </div>
                   <div className="bg-[#0a121f] p-5 md:p-6">
                     <p className="font-mono text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-teal/80 md:hidden">
-                      SquadRidge
+                      MENDguild
                     </p>
                     <p className="mt-2 font-sans text-[0.9rem] leading-relaxed text-landing-body md:mt-0">
-                      {row.squadridge}
+                      {row.mendguild}
                     </p>
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export function LandingPage() {
           <section aria-labelledby="audiences-heading">
             <SectionHeading id="audiences-heading">Who this is built for</SectionHeading>
             <p className="mt-4 max-w-copy font-sans text-[0.95rem] leading-relaxed text-slate-400">
-              SquadRidge is built first for the operators running sensitive sessions, not for
+              MENDguild is built first for the operators running sensitive sessions, not for
               general users.
             </p>
             <div className="mt-10 grid gap-6 md:gap-8">
@@ -594,7 +594,7 @@ export function LandingPage() {
               <div className="min-w-0 space-y-4">
                 <p className="max-w-copy font-sans text-[0.98rem] leading-[1.7] text-landing-body">
                   Sensitive dialogue should not vanish when the meeting ends. When a cohort reaches
-                  a result approved for release, SquadRidge publishes it as a public, anonymous,
+                  a result approved for release, MENDguild publishes it as a public, anonymous,
                   timestamped record — not a transcript, but an outcome others can cite, review, and
                   build from.
                 </p>

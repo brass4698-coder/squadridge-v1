@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SquadRidge visual identity relies on a dark, calm "global civic" aesthetic [1]. This design system prioritizes a modern, military-friendly, dark-native approach, ensuring clarity, neutrality, and accessibility [1].
+The MENDguild visual identity relies on a dark, calm "global civic" aesthetic [1]. This design system prioritizes a modern, military-friendly, dark-native approach, ensuring clarity, neutrality, and accessibility [1].
 
 ## Color Palette
 
@@ -51,4 +51,4 @@ The UI components—including timeline sentiment bars and incident review panels
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.

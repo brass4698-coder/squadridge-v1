@@ -36,8 +36,8 @@ const SEED: DemoMessage[] = [
 ];
 
 const SEMAPHORE_IDENTITY_LOCAL_STORAGE_KEYS = [
-  'squadridge_semaphore_identity',
-  'squadridge_zk_identity',
+  'mendguild_semaphore_identity',
+  'mendguild_zk_identity',
 ];
 
 export function DemoSessionPage() {

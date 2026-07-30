@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SquadRidge tone of voice is designed to foster trust, de-escalate tension, and prioritize structured dialogue over public broadcasting [1]. Our communication must reflect the gravity of our mission—to enable verified-anonymous, cross-border dialogue—while remaining accessible and human-centric [1].
+The MENDguild tone of voice is designed to foster trust, de-escalate tension, and prioritize structured dialogue over public broadcasting [1]. Our communication must reflect the gravity of our mission—to enable verified-anonymous, cross-border dialogue—while remaining accessible and human-centric [1].
 
 ## Positioning: vision vs shipped product
 
@@ -47,6 +47,6 @@ Our UX copy emphasizes safety and reflection, utilizing interventions like a one
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

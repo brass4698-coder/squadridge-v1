@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Dashboard Routing helpers
+// MENDguild Dashboard Routing helpers
 // ============================================================
 import { supabase } from './supabase';
 import type { UserRole, RoleKey } from '../types/roles';

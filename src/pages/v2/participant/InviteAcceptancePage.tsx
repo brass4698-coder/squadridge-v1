@@ -45,7 +45,7 @@ export function InviteAcceptancePage() {
           className="mb-6 text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          A facilitator has extended a formal invitation for you to join a protected dialogue session on SquadRidge. Before you can enter, you will complete a short verification process.
+          A facilitator has extended a formal invitation for you to join a protected dialogue session on MENDguild. Before you can enter, you will complete a short verification process.
         </p>
 
         <div

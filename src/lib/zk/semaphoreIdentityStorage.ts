@@ -1,13 +1,13 @@
 import { Identity } from '@semaphore-protocol/identity';
 
-const STORAGE_KEY = 'squadridge_semaphore_identity_v1';
+const STORAGE_KEY = 'mendguild_semaphore_identity_v1';
 
 let inMemoryIdentity: Identity | null = null;
 
 declare global {
   interface Window {
     /** Optional dev escape hatch: assign an exported `Identity` string for in-memory-only flows. */
-    squadridgeSemaphoreIdentityExport?: string | null;
+    mendguildSemaphoreIdentityExport?: string | null;
   }
 }
 
@@ -22,11 +22,11 @@ export type SessionIdentityOptions = {
  */
 export function getOrCreateSessionIdentity(options?: SessionIdentityOptions): Identity {
   if (options?.inMemoryOnly) {
-    if (typeof window !== 'undefined' && window.squadridgeSemaphoreIdentityExport) {
+    if (typeof window !== 'undefined' && window.mendguildSemaphoreIdentityExport) {
       try {
-        return Identity.import(window.squadridgeSemaphoreIdentityExport);
+        return Identity.import(window.mendguildSemaphoreIdentityExport);
       } catch {
-        window.squadridgeSemaphoreIdentityExport = null;
+        window.mendguildSemaphoreIdentityExport = null;
       }
     }
     if (!inMemoryIdentity) {

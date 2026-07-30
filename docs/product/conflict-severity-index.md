@@ -37,7 +37,7 @@ where each component \(s_i \in [0,100]\) is a **normalized severity** (higher = 
   - \(p_{\text{neg}} = \) share of messages in a rolling 24h window with **negative** sentiment (or tension above a program threshold).
 - **Normalization to 0–100 (example):**  
   - \(s_{\text{sent}} = 100 \cdot \min(1, p_{\text{neg}} / p_{\text{ref}})\) where \(p_{\text{ref}}\) is a program baseline (e.g. 0.15 = 15% as “high” for that locale/model).
-- **Data sources in SquadRidge:**  
+- **Data sources in MENDguild:**  
   - `sentiment_metrics` (per-squad time series) when populated by the AI pipeline in [`../../src/lib/ai/pipeline.ts`](../../src/lib/ai/pipeline.ts) or a server job.  
   - `messages` only after **decrypt/derive** in a **trusted** worker (ciphertext in DB, not for direct NLP in the client for bulk CSI).
 

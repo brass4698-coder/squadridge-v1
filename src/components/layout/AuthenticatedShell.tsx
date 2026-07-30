@@ -152,7 +152,7 @@ export function AuthenticatedShell({ children, role = 'facilitator' }: Authentic
               className="text-sm font-semibold tracking-tight"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              SquadRidge
+              MENDguild
             </span>
           )}
           <button

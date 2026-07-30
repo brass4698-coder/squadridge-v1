@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The technical architecture of SquadRidge is designed to support verified-anonymous, cross-border dialogue at scale while ensuring the highest levels of security and privacy [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform separates ephemeral messaging streams from aggregated analytics to protect users in high-risk environments [1]. **Strong message confidentiality from the operator is a target, not fully realized in the MVP store**—see [Security and Resilience](#security-and-resilience) and the [threat model](../security/threat-model.md).
+The technical architecture of MENDguild is designed to support verified-anonymous, cross-border dialogue at scale while ensuring the highest levels of security and privacy [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform separates ephemeral messaging streams from aggregated analytics to protect users in high-risk environments [1]. **Strong message confidentiality from the operator is a target, not fully realized in the MVP store**—see [Security and Resilience](#security-and-resilience) and the [threat model](../security/threat-model.md).
 
 ## Core Components
 
@@ -57,6 +57,6 @@ The architecture incorporates best practices for digital safety in conflict zone
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

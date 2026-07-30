@@ -1,6 +1,6 @@
-# SquadRidge redesign prompt pack
+# MENDguild redesign prompt pack
 
-This document contains the full prompt series for revising and redesigning SquadRidge into a more impactful, modern, and serious platform for facilitator-led conflict resolution, protected dialogue, and public outcome publication.
+This document contains the full prompt series for revising and redesigning MENDguild into a more impactful, modern, and serious platform for facilitator-led conflict resolution, protected dialogue, and public outcome publication.
 
 The prompts are designed to be pasted into an AI agent one at a time, in order. The current product context includes a public outcome record flow where the session remains private and only the approved outcome is released publicly. [localhost](http://localhost:5173/ledger/demo-proposal-001)
 
@@ -9,7 +9,7 @@ The prompts are designed to be pasted into an AI agent one at a time, in order. 
 ```text
 You are a world-class product strategist, UX architect, brand designer, and front-end systems thinker.
 
-I need you to completely revise and redesign my platform, SquadRidge, so it feels dramatically more impactful, modern, credible, and mission-critical.
+I need you to completely revise and redesign my platform, MENDguild, so it feels dramatically more impactful, modern, credible, and mission-critical.
 
 This is not a generic SaaS app. It is a platform for facilitator-led, high-stakes, conflict-resolution dialogue. It is built for extremely important conversations involving risk, mistrust, identity sensitivity, and the need to create a public outcome without exposing private room-level discussion.
 
@@ -58,7 +58,7 @@ Write with precision and authority.
 ## Prompt 2 — Full information architecture
 
 ```text
-Now create the complete information architecture and page map for the entire SquadRidge platform.
+Now create the complete information architecture and page map for the entire MENDguild platform.
 
 I want a full-platform blueprint that includes every page needed across:
 1. Public marketing website
@@ -168,7 +168,7 @@ Organize the answer page-by-page. Do not skip pages. Include every page in full.
 ## Prompt 4 — Homepage rewrite with exact final copy
 
 ```text
-Now write the exact final homepage copy for SquadRidge.
+Now write the exact final homepage copy for MENDguild.
 
 The homepage must immediately communicate:
 - This is for facilitator-led conflict resolution and high-stakes dialogue
@@ -187,7 +187,7 @@ Required homepage sections:
 - Hero
 - Proof of what the platform is
 - Why ordinary tools fail in high-stakes dialogue
-- How SquadRidge works
+- How MENDguild works
 - Who it is for
 - What gets published vs what stays private
 - Trust / security / verification
@@ -375,7 +375,7 @@ Also provide 3 alternative naming systems for:
 ## Prompt 9 — UX writing system and tone rules
 
 ```text
-Create the complete UX writing system for SquadRidge.
+Create the complete UX writing system for MENDguild.
 
 I want:
 - Brand voice principles
@@ -409,7 +409,7 @@ It must sound:
 ## Prompt 10 — Visual direction and design system
 
 ```text
-Now define the full visual redesign system for SquadRidge.
+Now define the full visual redesign system for MENDguild.
 
 This is a web platform for serious dialogue and conflict resolution, so the interface must feel:
 - modern
@@ -488,7 +488,7 @@ Write all final content.
 ## Prompt 12 — Build-ready handoff prompt
 
 ```text
-You are now the lead product designer and implementation planner for SquadRidge.
+You are now the lead product designer and implementation planner for MENDguild.
 
 Using all prior outputs, create the final build-ready handoff for engineering.
 

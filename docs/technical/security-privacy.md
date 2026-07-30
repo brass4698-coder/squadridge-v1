@@ -6,7 +6,7 @@ High-stakes deployment decisions (what the implementation **actually** guarantee
 
 ## Overview
 
-SquadRidge is built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), prioritizing the safety of its users, especially those in authoritarian or active conflict zones [1]. The platform's security architecture is designed to mitigate the risks of state-level surveillance, data breaches, and the weaponization of sensitive information [3].
+MENDguild is built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), prioritizing the safety of its users, especially those in authoritarian or active conflict zones [1]. The platform's security architecture is designed to mitigate the risks of state-level surveillance, data breaches, and the weaponization of sensitive information [3].
 
 ## Core Security Principles
 
@@ -14,7 +14,7 @@ SquadRidge is built on the Enclave[ZK] privacy stack by Enclave Health Technolog
 
 Participants in authoritarian or active conflict zones face real danger if their identities, locations, or stated views are exposed [3]. General platforms like Zoom or Google Workspace do not offer meaningful anonymization or prevent state-level surveillance [3].
 
-SquadRidge addresses this by utilizing Semaphore-based zero-knowledge proofs (ZKPs) to verify user attributes like citizenship or organizational roles without exposing raw personally identifiable information (PII) [1]. This ensures that users can cryptographically prove their identity and participate in cross-border dialogue while their underlying personal data remains hidden [3].
+MENDguild addresses this by utilizing Semaphore-based zero-knowledge proofs (ZKPs) to verify user attributes like citizenship or organizational roles without exposing raw personally identifiable information (PII) [1]. This ensures that users can cryptographically prove their identity and participate in cross-border dialogue while their underlying personal data remains hidden [3].
 
 ### 2. End-to-End Encryption and Ephemerality
 
@@ -26,13 +26,13 @@ Messages are designed for ephemerality; deletion after a session or user retract
 
 ### 3. "Do No Harm" Data Architecture
 
-The peace-tech ecosystem faces ethical concerns regarding the weaponization of data collected in conflict zones [3]. SquadRidge's architecture implements "do no harm" principles from the design phase, ensuring that the data infrastructure serves community needs without extractive practices [2].
+The peace-tech ecosystem faces ethical concerns regarding the weaponization of data collected in conflict zones [3]. MENDguild's architecture implements "do no harm" principles from the design phase, ensuring that the data infrastructure serves community needs without extractive practices [2].
 
 The platform aggregates de-identified sentiment metrics to provide early warning insights for vetted mediators, think tanks, and UN agencies [1]. This data is strictly separated from the ephemeral messaging streams, ensuring that even if the analytics database is compromised, raw dialogue and user identities remain secure [1].
 
 ## Threat Modeling and Operational Security
 
-SquadRidge incorporates best practices for digital safety in conflict zones, including threat-aware planning, strong encryption, and disciplined operational security [3].
+MENDguild incorporates best practices for digital safety in conflict zones, including threat-aware planning, strong encryption, and disciplined operational security [3].
 
 ### 1. Mitigating Surveillance Risks
 
@@ -44,6 +44,6 @@ Users are encouraged to practice metadata hygiene, such as avoiding mentioning l
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

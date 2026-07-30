@@ -12,7 +12,7 @@ interface State {
 }
 
 /**
- * Outermost boundary (see `main.tsx`). Uses SquadRidge tokens — not shadcn CSS variables (`text-muted-foreground`, etc.).
+ * Outermost boundary (see `main.tsx`). Uses MENDguild tokens — not shadcn CSS variables (`text-muted-foreground`, etc.).
  * Reports to Sentry via {@link captureBoundaryError} when Sentry initialized successfully.
  */
 export class ErrorBoundary extends Component<Props, State> {

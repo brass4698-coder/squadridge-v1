@@ -14,7 +14,7 @@ export function countChars(s: string): number {
 export const COPY = {
   mission: {
     title: 'Mission brief',
-    p1: 'SquadRidge builds verified-anonymous squads for high-stakes cross-border strategy.',
+    p1: 'MENDguild builds verified-anonymous squads for high-stakes cross-border strategy.',
     p2: 'Not casual chat — infrastructure for conflict.',
     p3: "This space is for serious work. Continue only if you're ready to treat it that way.",
     decline: 'Leave',

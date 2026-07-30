@@ -14,7 +14,7 @@ export function AboutPage() {
           className="mb-4 text-3xl font-semibold tracking-tight"
           style={{ color: 'var(--color-text-primary)' }}
         >
-          Why we built SquadRidge
+          Why we built MENDguild
         </h1>
         <p
           className="text-sm leading-relaxed"
@@ -26,13 +26,13 @@ export function AboutPage() {
 
       <div className="mb-10 flex flex-col gap-6 text-sm leading-loose" style={{ color: 'var(--color-text-secondary)' }}>
         <p>
-          SquadRidge was built to address a specific gap: there was no serious, purpose-built platform for facilitator-led, high-stakes dialogue that combined participant protection, process control, and a credible path to a public outcome record.
+          MENDguild was built to address a specific gap: there was no serious, purpose-built platform for facilitator-led, high-stakes dialogue that combined participant protection, process control, and a credible path to a public outcome record.
         </p>
         <p>
           The platforms people use — video conferencing tools, shared document editors, discussion forums, collaboration suites — were not built for this. They lack eligibility gating, identity protection, facilitator control over the session lifecycle, and a formal, verifiable output.
         </p>
         <p>
-          SquadRidge is not a collaboration tool. It is structured facilitation infrastructure. The session room is private. The approved outcome can be public. And every step between those two states is controlled by the facilitator, not the platform.
+          MENDguild is not a collaboration tool. It is structured facilitation infrastructure. The session room is private. The approved outcome can be public. And every step between those two states is controlled by the facilitator, not the platform.
         </p>
         <p>
           We are in an early access phase. The platform is currently available to a limited number of facilitators, mediators, and institutions on a pilot basis. We work closely with pilot partners to ensure the platform is fit for purpose before broader release.

@@ -7,7 +7,7 @@ services:
       - '6379:6379'
     command: ['redis-server', '--appendonly', 'yes']
     volumes:
-      - squadridge-redis-data:/data
+      - mendguild-redis-data:/data
 
 volumes:
-  squadridge-redis-data:
+  mendguild-redis-data:

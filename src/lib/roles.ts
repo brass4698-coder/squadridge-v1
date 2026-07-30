@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Role helpers
+// MENDguild Role helpers
 // ============================================================
 import { supabase } from './supabase';
 import type { UserRole, RoleKey } from '../types/roles';

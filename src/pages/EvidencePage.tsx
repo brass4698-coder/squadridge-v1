@@ -21,10 +21,10 @@ import {
 import { twMerge } from 'tailwind-merge';
 
 /* =========================================================================
- * EvidencePage — "The Research Behind SquadRidge"
+ * EvidencePage — "The Research Behind MENDguild"
  *
  * Presents factual academic and institutional research supporting each
- * design decision in SquadRidge. Every claim links to a verifiable source.
+ * design decision in MENDguild. Every claim links to a verifiable source.
  * Copy respects banned-public-copy guardrails — no unqualified E2E,
  * Signal-grade, or "solves conflict" claims.
  * ========================================================================= */
@@ -62,7 +62,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'When people know they are being recorded or surveilled, they self-censor. The quality and honesty of dialogue degrades measurably. This is especially acute in conflict-sensitive settings where attribution can carry physical risk.',
     connection:
-      'SquadRidge separates identity from access and does not retain raw transcripts. The sealed-room model removes the surveillance pressure that research shows degrades dialogue quality.',
+      'MENDguild separates identity from access and does not retain raw transcripts. The sealed-room model removes the surveillance pressure that research shows degrades dialogue quality.',
     citations: [
       {
         id: 'stoycheff-2016',
@@ -105,7 +105,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'The Chatham House Rule — where participants can use information but cannot attribute it — has been the gold standard for candid policy dialogue since 1927. It works because it separates the value of what was said from the risk of who said it.',
     connection:
-      'SquadRidge digitizes and strengthens this principle. The approved public record carries the consensus outcome without attributing it to specific participants — a structural enforcement of the Chatham House principle.',
+      'MENDguild digitizes and strengthens this principle. The approved public record carries the consensus outcome without attributing it to specific participants — a structural enforcement of the Chatham House principle.',
     citations: [
       {
         id: 'chatham-house-2002',
@@ -136,7 +136,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Psychological safety — the shared belief that one will not be punished for speaking up — is the strongest predictor of high-performing teams. When people fear consequences for honest participation, the quality of collective decision-making collapses.',
     connection:
-      'SquadRidge creates psychological safety structurally: verified-anonymous participation, facilitator-managed sessions, no permanent transcript, and pre-set release boundaries remove the conditions that destroy honest dialogue.',
+      'MENDguild creates psychological safety structurally: verified-anonymous participation, facilitator-managed sessions, no permanent transcript, and pre-set release boundaries remove the conditions that destroy honest dialogue.',
     citations: [
       {
         id: 'edmondson-1999',
@@ -178,7 +178,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Decades of contact hypothesis research demonstrates that structured, facilitated small-group dialogue across conflict lines reduces prejudice and improves mutual understanding more effectively than large public forums, town halls, or social media discourse.',
     connection:
-      'SquadRidge matches 4-6 verified participants into facilitator-led squads — not open forums. This small-group architecture reflects what the research shows: intimate, structured contact under skilled facilitation produces the best outcomes.',
+      'MENDguild matches 4-6 verified participants into facilitator-led squads — not open forums. This small-group architecture reflects what the research shows: intimate, structured contact under skilled facilitation produces the best outcomes.',
     citations: [
       {
         id: 'pettigrew-tropp-2006',
@@ -218,7 +218,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Track II (unofficial, off-the-record) diplomacy has contributed to many peace processes. These back-channels work precisely because they allow honest exchange outside the pressure of public accountability and political positioning.',
     connection:
-      'SquadRidge provides digital infrastructure for structured, off-the-record dialogue — preserving the benefits of Track II back-channels while adding verification, safety framing, and accountable outcome records.',
+      'MENDguild provides digital infrastructure for structured, off-the-record dialogue — preserving the benefits of Track II back-channels while adding verification, safety framing, and accountable outcome records.',
     citations: [
       {
         id: 'agha-etal-2003',
@@ -258,7 +258,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Global forced displacement has reached historic levels. In environments where civilians face violence, protected communication channels for mediation and dialogue are not abstract — they are operationally necessary for humanitarian response.',
     connection:
-      'SquadRidge is designed for precisely these high-stakes environments where attribution carries physical risk, facilitators need structured tools, and institutions need accountable evidence of dialogue outcomes.',
+      'MENDguild is designed for precisely these high-stakes environments where attribution carries physical risk, facilitators need structured tools, and institutions need accountable evidence of dialogue outcomes.',
     citations: [
       {
         id: 'unhcr-2024',
@@ -300,7 +300,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Zero-knowledge proof systems allow one party to prove a statement is true without revealing any information beyond the statement itself. Applied to identity, this means proving eligibility (e.g., "I am authorized to participate") without disclosing the underlying identity.',
     connection:
-      'SquadRidge uses a Semaphore-inspired verification path so participants can prove eligibility without broad identity disclosure. This is privacy-respecting access control — not magic invisibility (see our threat model for precise boundaries).',
+      'MENDguild uses a Semaphore-inspired verification path so participants can prove eligibility without broad identity disclosure. This is privacy-respecting access control — not magic invisibility (see our threat model for precise boundaries).',
     citations: [
       {
         id: 'semaphore-pse',
@@ -342,7 +342,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Accountability and surveillance are not the same thing. Cryptographic timestamping and structured release protocols can create verifiable records of outcomes without requiring persistent monitoring of participants.',
     connection:
-      'SquadRidge publishes approved consensus records with cryptographic timestamps. The record is the accountability artifact — not a transcript, not a surveillance log. This separates verification of outcomes from surveillance of participants.',
+      'MENDguild publishes approved consensus records with cryptographic timestamps. The record is the accountability artifact — not a transcript, not a surveillance log. This separates verification of outcomes from surveillance of participants.',
     citations: [
       {
         id: 'certificate-transparency',
@@ -384,7 +384,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Internet shutdowns have reached record levels, with at least one occurring every single day in 2025. In active conflict zones, network disruptions are used to isolate populations, prevent documentation of abuses, and hinder humanitarian coordination. The economic cost reached $19.7 billion in 2025 alone.',
     connection:
-      'SquadRidge is designed to function in environments where connectivity is contested. The sealed-room model, pre-set release boundaries, and offline-aware architecture reflect the reality that participants in conflict zones cannot assume stable, unsurveilled internet access.',
+      'MENDguild is designed to function in environments where connectivity is contested. The sealed-room model, pre-set release boundaries, and offline-aware architecture reflect the reality that participants in conflict zones cannot assume stable, unsurveilled internet access.',
     citations: [
       {
         id: 'access-now-2025',
@@ -426,7 +426,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'Journalist killings reached record highs in 2024 and 2025, driven by conflict. Drone strikes targeting journalists surged from 2 fatalities in 2023 to 39 in 2025 — a 20-fold increase. Beyond physical violence, journalists face coordinated surveillance, digital harassment, and imprisonment. Secure channels for source protection and cross-border coordination are survival infrastructure.',
     connection:
-      'SquadRidge provides verified-anonymous participation that could support journalists, sources, and civil society actors who need to engage in structured dialogue without exposing their identity. The platform does not claim to replace dedicated journalist safety tools — it addresses the specific gap of structured, facilitator-led anonymous dialogue.',
+      'MENDguild provides verified-anonymous participation that could support journalists, sources, and civil society actors who need to engage in structured dialogue without exposing their identity. The platform does not claim to replace dedicated journalist safety tools — it addresses the specific gap of structured, facilitator-led anonymous dialogue.',
     citations: [
       {
         id: 'cpj-2025',
@@ -467,7 +467,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       'The Do No Harm principle — originally developed for humanitarian aid — applies directly to digital platforms operating in conflict settings. Data collected to help can be weaponized against the people it describes. Technology designed without conflict sensitivity can amplify harm, enable surveillance, or expose vulnerable populations to retaliation.',
     connection:
-      'SquadRidge applies Do No Harm principles structurally: minimal data collection, no permanent transcripts, verified-anonymous participation, and pre-set release boundaries that prevent unintended exposure. The platform is designed so that even if compromised, the damage surface is limited by architecture, not just policy.',
+      'MENDguild applies Do No Harm principles structurally: minimal data collection, no permanent transcripts, verified-anonymous participation, and pre-set release boundaries that prevent unintended exposure. The platform is designed so that even if compromised, the damage surface is limited by architecture, not just policy.',
     citations: [
       {
         id: 'anderson-1999',
@@ -508,7 +508,7 @@ const EVIDENCE_DOMAINS: ReadonlyArray<EvidenceDomain> = [
     thesis:
       "Decades of research on deliberative democracy — from Habermas's theory of communicative action to Fishkin's deliberative polling experiments — demonstrate that structured, facilitated dialogue produces more informed, more legitimate, and more durable collective decisions than unstructured debate, voting alone, or adversarial formats.",
     connection:
-      "SquadRidge's facilitator-led session structure, phase-based progression (input → reveal → analysis → negotiation), and consensus-release model reflect deliberative democracy principles: equal voice, structured turns, information sharing, and collective decision-making under skilled facilitation.",
+      "MENDguild's facilitator-led session structure, phase-based progression (input → reveal → analysis → negotiation), and consensus-release model reflect deliberative democracy principles: equal voice, structured turns, information sharing, and collective decision-making under skilled facilitation.",
     citations: [
       {
         id: 'fishkin-2009',
@@ -810,10 +810,10 @@ function EvidenceDomainSection({ domain, index }: { domain: EvidenceDomain; inde
           ))}
         </div>
 
-        {/* SquadRidge connection */}
+        {/* MENDguild connection */}
         <aside className="mt-5 border-l-2 border-brand bg-brand-soft/60 px-4 py-3.5">
           <p className="mb-1.5 font-mono text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-brand">
-            How this informs SquadRidge
+            How this informs MENDguild
           </p>
           <p className="m-0 font-sans text-[0.9rem] leading-[1.65] text-ink-secondary">
             {domain.connection}
@@ -917,7 +917,7 @@ export function EvidencePage() {
             </h1>
 
             <p className="mt-6 max-w-[44rem] border-l-2 border-brand bg-brand-soft/60 py-3 pl-4 pr-3 font-sans text-[1.02rem] font-medium leading-[1.6] text-ink md:text-[1.08rem]">
-              SquadRidge is not built on assumptions. Every structural choice — from sealed rooms to
+              MENDguild is not built on assumptions. Every structural choice — from sealed rooms to
               verified-anonymous access to facilitator-led small groups — is grounded in decades of
               peer-reviewed research across conflict resolution, psychology, cryptography, and
               humanitarian operations.
@@ -988,14 +988,14 @@ export function EvidencePage() {
                   </h2>
                   <p className="mt-2 max-w-[40rem] font-sans text-[0.9rem] leading-[1.7] text-ink-secondary">
                     The research cited on this page represents published, peer-reviewed studies and
-                    reports from established institutions. SquadRidge is a pilot-stage product —
+                    reports from established institutions. MENDguild is a pilot-stage product —
                     these sources inform our design choices, but we do not claim that our platform
                     has independently replicated these research findings. Our own pilot evidence
                     will be published separately as it becomes available, with appropriate
                     methodology and third-party review.
                   </p>
                   <p className="mt-2 font-sans text-[0.82rem] leading-relaxed text-ink-faint">
-                    For SquadRidge's current capabilities and honest security boundaries, see the{' '}
+                    For MENDguild's current capabilities and honest security boundaries, see the{' '}
                     <Link
                       to="/security"
                       className="text-brand-hover underline-offset-4 hover:underline"
@@ -1042,7 +1042,7 @@ export function EvidencePage() {
                   logistics and leaves no independently citable record.
                 </p>
                 <p className="font-semibold text-ink">
-                  SquadRidge is pilot-stage infrastructure for exactly this gap. The research above
+                  MENDguild is pilot-stage infrastructure for exactly this gap. The research above
                   shows why each design decision exists. The pilot will show whether it works.
                 </p>
               </div>

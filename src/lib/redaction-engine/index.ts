@@ -1,5 +1,5 @@
 /**
- * SquadRidge PII / identity leakage redaction engine — server-first, policy-driven, audience-aware.
+ * MENDguild PII / identity leakage redaction engine — server-first, policy-driven, audience-aware.
  * Wire final enforcement on the server before persisting participant-visible content.
  */
 
@@ -12,7 +12,7 @@ export {
   adjudicateHit,
   DEFAULT_POLICY_PACK_ID,
   KIND_REPLACEMENT,
-} from './policies/defaultSquadRidge';
+} from './policies/defaultMENDguild';
 export { applyPolicy, humanReviewRecommended } from './policies/enrichFindings';
 export {
   detectSensitiveEntities,

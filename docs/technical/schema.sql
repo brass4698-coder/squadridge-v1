@@ -1,4 +1,4 @@
--- SquadRidge PostgreSQL Schema (Supabase)
+-- MENDguild PostgreSQL Schema (Supabase)
 -- Canonical migrations live in: ../../supabase/migrations/
 -- Prefer applying those files in the Supabase SQL Editor or via CLI.
 --

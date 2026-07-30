@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Supabase client (anon key only — no service role)
+// MENDguild Supabase client (anon key only — no service role)
 // ============================================================
 import { createClient } from '@supabase/supabase-js';
 

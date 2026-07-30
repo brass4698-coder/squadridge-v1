@@ -255,7 +255,7 @@ function generatePilotAnalysis(question: string, participantCount: number, messa
       {
         rank: 2,
         title: 'Rapid-Response Diplomatic Channel',
-        description: `An accelerated negotiation track that uses the SquadRidge anonymous dialogue model as a standing mechanism for real-time conflict de-escalation, addressing "${question}" through continuous structured engagement.`,
+        description: `An accelerated negotiation track that uses the MENDguild anonymous dialogue model as a standing mechanism for real-time conflict de-escalation, addressing "${question}" through continuous structured engagement.`,
         overallFeasibility: 64,
         sourceParticipants: ['Participant B', 'Participant D'],
         actionItems: [

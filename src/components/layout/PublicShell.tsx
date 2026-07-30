@@ -40,7 +40,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
             className="text-sm font-semibold tracking-tight"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            SquadRidge
+            MENDguild
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex" aria-label="Public navigation">
@@ -106,7 +106,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-              &copy; {new Date().getFullYear()} SquadRidge. All rights reserved.
+              &copy; {new Date().getFullYear()} MENDguild. All rights reserved.
             </p>
             <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
               Session room content is private. Only approved outcomes are published.

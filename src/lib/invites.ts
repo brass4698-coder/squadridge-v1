@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Invite helpers
+// MENDguild Invite helpers
 // ============================================================
 import { supabase } from './supabase';
 import type {

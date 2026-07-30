@@ -104,7 +104,7 @@ export function LandingPage() {
           className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          SquadRidge is structured dialogue infrastructure for facilitators who need
+          MENDguild is structured dialogue infrastructure for facilitators who need
           verified participants, protected sessions, and credible public outcomes —
           without exposing what happened inside.
         </p>
@@ -113,7 +113,7 @@ export function LandingPage() {
             to="/request-access"
             className="rounded px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: 'var(--color-accent)' }}
-            aria-label="Request pilot access to SquadRidge"
+            aria-label="Request pilot access to MENDguild"
           >
             Request Pilot Access
           </Link>
@@ -176,7 +176,7 @@ export function LandingPage() {
               className="mb-6 text-3xl font-medium tracking-tight"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              SquadRidge was.
+              MENDguild was.
             </h2>
             <p className="text-base leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
               Every part of the platform — verification, session architecture, outcome
@@ -297,7 +297,7 @@ export function LandingPage() {
                     style={{ color: 'var(--color-accent)' }}
                     scope="col"
                   >
-                    SquadRidge
+                    MENDguild
                   </th>
                   <th
                     className="py-3 text-left text-xs font-semibold uppercase tracking-widest"
@@ -428,7 +428,7 @@ export function LandingPage() {
             className="mb-10 text-base leading-relaxed"
             style={{ color: 'var(--color-text-secondary)' }}
           >
-            SquadRidge is in structured pilot. We work with a limited number of
+            MENDguild is in structured pilot. We work with a limited number of
             facilitators and organisations at a time. If your use case is a match,
             we'll be in touch.
           </p>
@@ -437,7 +437,7 @@ export function LandingPage() {
               to="/request-access"
               className="rounded px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: 'var(--color-accent)' }}
-              aria-label="Apply for SquadRidge pilot access"
+              aria-label="Apply for MENDguild pilot access"
             >
               Apply for Access
             </Link>

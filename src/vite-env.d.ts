@@ -16,7 +16,7 @@ interface ImportMetaEnv {
   readonly VITE_ENABLE_DEMO_SQUAD?: string;
   readonly VITE_ZK_STUB?: string;
   /**
-   * When `true`, allows bundled SquadRidge demo Semaphore decoys in production bundles.
+   * When `true`, allows bundled MENDguild demo Semaphore decoys in production bundles.
    * Omit or `false` to require issuer-provided identities (see src/lib/zk/buildAnonymityGroup.ts).
    */
   readonly VITE_SEMAPHORE_DEMO_GROUP?: string;

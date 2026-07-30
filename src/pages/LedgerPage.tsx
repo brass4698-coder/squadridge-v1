@@ -250,7 +250,7 @@ function buildLedgerRecordCitationLine(args: {
   slug: string;
   publishedDate: string;
 }): string {
-  return `SquadRidge public outcome record ${args.slug}, ${args.title}, published ${args.publishedDate}.`;
+  return `MENDguild public outcome record ${args.slug}, ${args.title}, published ${args.publishedDate}.`;
 }
 
 function LedgerCitationBlock({
@@ -386,7 +386,7 @@ function LedgerDetailFooterNav() {
 }
 
 /**
- * Public SquadRidge Ledger — index lists published proposals from Postgres when configured; detail by slug.
+ * Public MENDguild Ledger — index lists published proposals from Postgres when configured; detail by slug.
  */
 export function LedgerPage() {
   const { proposalId } = useParams<{ proposalId?: string }>();
@@ -740,7 +740,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 lineHeight: 1.08,
               }}
             >
-              <span className="min-w-0">SquadRidge</span>
+              <span className="min-w-0">MENDguild</span>
               <span className="min-w-0">Ledger</span>
             </h1>
             <p className="mt-3 max-w-2xl font-sans text-body-lg font-normal leading-relaxed text-ink-secondary">
@@ -753,7 +753,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
             onClick={() => setLedgerModalOpen(true)}
             className="shrink-0 self-start text-left font-sans text-sm font-medium text-teal-light underline-offset-4 hover:underline md:self-auto"
           >
-            What is the SquadRidge Ledger?
+            What is the MENDguild Ledger?
           </button>
         </div>
 
@@ -1125,7 +1125,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
             className="vault-frost relative z-10 max-h-[min(90vh,32rem)] w-full max-w-lg overflow-y-auto p-6 shadow-[0_24px_64px_rgba(0,0,0,0.55)]"
           >
             <h2 id={modalTitleId} className="font-heading text-section-title font-bold text-ink">
-              What is the SquadRidge Ledger?
+              What is the MENDguild Ledger?
             </h2>
             <div
               id={modalDescId}
@@ -1142,7 +1142,7 @@ function LedgerIndex({ unknownProposalId }: { unknownProposalId?: string } = {})
                 can point to outcomes that matter across borders while participants stay protected.
               </p>
               <p className="mb-0">
-                SquadRidge is infrastructure for conversations that cannot happen in public. The
+                MENDguild is infrastructure for conversations that cannot happen in public. The
                 Ledger is how those conversations leave a trace that still holds up in the open.
               </p>
             </div>
@@ -1166,8 +1166,8 @@ function buildLedgerCitationLine(): string {
   const origin =
     getSiteUrl().replace(/\/$/, '') ||
     (typeof window !== 'undefined' ? window.location.origin : '') ||
-    'https://squadridge.example';
-  return `SquadRidge Ledger. “Civilian protection protocols — displacement corridor” (example entry). Retrieved ${todayIso()}, from ${origin}/ledger.`;
+    'https://mendguild.example';
+  return `MENDguild Ledger. “Civilian protection protocols — displacement corridor” (example entry). Retrieved ${todayIso()}, from ${origin}/ledger.`;
 }
 
 function useLedgerCitation(): string {

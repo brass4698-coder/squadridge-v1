@@ -2,7 +2,7 @@
 
 ## Introduction
 
-SquadRidge is a verified-anonymous, cross-border dialogue platform designed to prevent conflict by securely connecting small groups of citizens across geopolitical divides [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform's core mission is to enable small, verified-anonymous squads to build bridges safely and at scale [1]. By prioritizing structured dialogue over public broadcasting, SquadRidge aims to de-escalate geopolitical tensions while providing secure early warning signals without relying on state surveillance [1].
+MENDguild is a verified-anonymous, cross-border dialogue platform designed to prevent conflict by securely connecting small groups of citizens across geopolitical divides [1]. Built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI), the platform's core mission is to enable small, verified-anonymous squads to build bridges safely and at scale [1]. By prioritizing structured dialogue over public broadcasting, MENDguild aims to de-escalate geopolitical tensions while providing secure early warning signals without relying on state surveillance [1].
 
 ## Core Mechanics
 
@@ -25,6 +25,6 @@ The product is delivered as a **React + Vite + TypeScript** web client on a **Su
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

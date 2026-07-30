@@ -1,4 +1,4 @@
-# SquadRidge: strategic repositioning — early warning and prevention
+# MENDguild: strategic repositioning — early warning and prevention
 
 ## How to read this document
 
@@ -78,7 +78,7 @@ A **future** rapid-response protocol would link elevated signals (human-confirme
 
 ## Missing-link narrative (for decks and senior briefings)
 
-**The conflict prevention paradox (summary):** Many systems watch conflict from afar; fewer offer **regular, structured, cross-line contact** with **verification and safety framing** at the moment programs choose to intervene. SquadRidge’s wedge is **trust infrastructure for those moments**—not omniscient prediction.
+**The conflict prevention paradox (summary):** Many systems watch conflict from afar; fewer offer **regular, structured, cross-line contact** with **verification and safety framing** at the moment programs choose to intervene. MENDguild’s wedge is **trust infrastructure for those moments**—not omniscient prediction.
 
 **Honesty guardrails** (competitive advantage):
 
@@ -91,7 +91,7 @@ A **future** rapid-response protocol would link elevated signals (human-confirme
 ## Messaging hierarchy (bounded)
 
 **Level 1 — Hook (one sentence):**  
-SquadRidge is **pilot-stage infrastructure** for **facilitator-led**, **verified**, **small-group** dialogue and **citable outcomes** when cross-border contact must be safe and structured.
+MENDguild is **pilot-stage infrastructure** for **facilitator-led**, **verified**, **small-group** dialogue and **citable outcomes** when cross-border contact must be safe and structured.
 
 **Level 2 — Mechanism (add only when accurate):**  
 Organizations define cohorts and facilitation; the product provides matching, session structure, safety tooling, and optional analytics **only where enabled and governed**.

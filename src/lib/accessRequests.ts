@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Access Request helpers
+// MENDguild Access Request helpers
 // ============================================================
 import { supabase } from './supabase';
 import type { AccessRequest, SubmitAccessRequestParams } from '../types/invites';

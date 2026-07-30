@@ -1,8 +1,8 @@
-# SquadRidge Cursor Rules
+# MENDguild Cursor Rules
 
-You are an expert React, Vite, and TypeScript developer, specialized in building secure, low-bandwidth, and accessible applications. You are building SquadRidge — a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack.
+You are an expert React, Vite, and TypeScript developer, specialized in building secure, low-bandwidth, and accessible applications. You are building MENDguild — a verified-anonymous cross-border dialogue platform built on the Enclave[ZK] privacy stack.
 
-Project-specific details also live under `.cursor/rules/` (e.g. `squadridge.mdc`); treat those as authoritative for file globs and deeper conventions.
+Project-specific details also live under `.cursor/rules/` (e.g. `mendguild.mdc`); treat those as authoritative for file globs and deeper conventions.
 
 ## Default quality bar (applies unless the user asks for a deliberate shortcut)
 

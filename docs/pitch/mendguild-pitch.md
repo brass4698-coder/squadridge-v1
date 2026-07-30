@@ -1,4 +1,4 @@
-# SquadRidge — narrative, traction, and market (draft for applications)
+# MENDguild — narrative, traction, and market (draft for applications)
 
 Program deadlines and fit: [program-map.md](program-map.md).
 
@@ -8,7 +8,7 @@ Use this as source material for decks and forms. Claims below are aligned with t
 
 ## One-sentence description
 
-SquadRidge is a **verified-anonymous cross-border dialogue** product: people join matched groups, exchange messages, and can complete **zero-knowledge attribute verification** (Semaphore proofs verified by your backend) so matchmaking and trust do not depend on sharing ID documents in chat.
+MENDguild is a **verified-anonymous cross-border dialogue** product: people join matched groups, exchange messages, and can complete **zero-knowledge attribute verification** (Semaphore proofs verified by your backend) so matchmaking and trust do not depend on sharing ID documents in chat.
 
 ---
 
@@ -18,7 +18,7 @@ People who need to talk across borders or under pressure often face a bad choice
 
 When platforms handle that tradeoff poorly, the failure modes are predictable: people **walk away**, **stay and get exposed** (metadata, profile fields, or timing), or **never join** because the institution cannot defend the process to its own stakeholders. Retaliation and capture sit on the same spectrum: once trust in the process breaks, the dialogue does not recover easily.
 
-SquadRidge is built for settings where **honest engineering** matters as much as intent: the team documents what the server can see, what cryptography proves, and what remains roadmap work.
+MENDguild is built for settings where **honest engineering** matters as much as intent: the team documents what the server can see, what cryptography proves, and what remains roadmap work.
 
 ---
 
@@ -41,7 +41,7 @@ SquadRidge is built for settings where **honest engineering** matters as much as
 
 ## 3. Why now
 
-Regulators and institutions are asking harder questions about **identity, content, and duty of care**. At the same time, privacy-preserving cryptography has moved from papers to **libraries you can ship**. The point is not “ZK for its own sake”; it is **structured dialogue** where participants need **attributes without dossiers**. SquadRidge addresses that need—provided you keep the privacy story **accurate**.
+Regulators and institutions are asking harder questions about **identity, content, and duty of care**. At the same time, privacy-preserving cryptography has moved from papers to **libraries you can ship**. The point is not “ZK for its own sake”; it is **structured dialogue** where participants need **attributes without dossiers**. MENDguild addresses that need—provided you keep the privacy story **accurate**.
 
 ---
 
@@ -91,7 +91,7 @@ Avoid vanity metrics unless you define them tightly (e.g. “messages per squad�
 
 **Who might pay:** NGOs and foundations running programs, platforms hosting facilitated conversations, enterprises with internal or cross-border dialogue use cases—**if** you prove operational fit and safeguarding.
 
-**Illustrative scale (optional):** You can cite **public** estimates for online mediation, corporate training, or civic-tech budgets as **context**, not as “SquadRidge TAM.” Label any number as illustrative and name the source. Do not multiply headline figures into fake precision.
+**Illustrative scale (optional):** You can cite **public** estimates for online mediation, corporate training, or civic-tech budgets as **context**, not as “MENDguild TAM.” Label any number as illustrative and name the source. Do not multiply headline figures into fake precision.
 
 ---
 

@@ -1,10 +1,10 @@
-# Program map — where SquadRidge might fit
+# Program map — where MENDguild might fit
 
-Companion narrative and metrics: [squadridge-pitch.md](squadridge-pitch.md).
+Companion narrative and metrics: [mendguild-pitch.md](mendguild-pitch.md).
 
 This is a working map, not an exhaustive list. Dates and forms change; confirm on each program’s own page before you submit.
 
-### Active focus (default plan for SquadRidge)
+### Active focus (default plan for MENDguild)
 
 | Priority | Program | Why | Deadline (confirm on official site) |
 | -------- | ------- | --- | ------------------------------------- |
@@ -34,28 +34,28 @@ This is a working map, not an exhaustive list. Dates and forms change; confirm o
 - **What they ask for:** Online application ([apply.ycombinator.com](https://apply.ycombinator.com/)), then a short video interview if you advance. Expect questions on problem, product, users, founders, equity, and progress.
 - **Cadence (from public copy on ycombinator.com/apply):** **Summer 2026** batch; on-time deadline **May 4, 8pm PT**; on-time applicants get a decision by **June 5**; batch runs **July–September** in San Francisco. You can also apply to **future** batches via [Early Decision](https://www.ycombinator.com/early-decision).
 - **Form shape:** Written application; possible follow-up interview (typically video).
-- **Fit for SquadRidge:** Strong if the story is specific—who cannot speak safely under real names, what you shipped, what users did in the product, what you measure next. Security copy must match your internal threat model (operator-visible chat is documented; do not oversell E2E). They favor velocity and clarity over long theory-of-change memos.
+- **Fit for MENDguild:** Strong if the story is specific—who cannot speak safely under real names, what you shipped, what users did in the product, what you measure next. Security copy must match your internal threat model (operator-visible chat is documented; do not oversell E2E). They favor velocity and clarity over long theory-of-change memos.
 
 ### Techstars
 
 - **What they ask for:** Program-specific applications on [techstars.com/accelerators](https://www.techstars.com/accelerators); use filters for location and format. Each page lists deadline, format, and length.
 - **Cadence (snapshot from directory labels—confirm on the program you pick):** Multiple cohorts showed **Apply by Jun 10** (including **Techstars Anywhere**); **Techstars Tokyo** showed **Apply by May 6**. Techstars updates these labels; verify the day you apply.
 - **Form shape:** Application form; program-dependent interviews or selection steps.
-- **Fit for SquadRidge:** Strong when you want mentorship, cohort peers, and a path to institutional pilots. Choose a program whose sector matches your first buyer (e.g. civic, health, remote-first). Be ready to explain how you acquire squads or partners; good code without distribution is a weak solo pitch.
+- **Fit for MENDguild:** Strong when you want mentorship, cohort peers, and a path to institutional pilots. Choose a program whose sector matches your first buyer (e.g. civic, health, remote-first). Be ready to explain how you acquire squads or partners; good code without distribution is a weak solo pitch.
 
 ### Gitcoin Grants
 
 - **What they ask for:** Project profile on the Gitcoin stack, clear scope; round rules depend on the active program (community rounds, domain rounds, etc.).
 - **Cadence:** **Gitcoin Grants 24** ran in **October 2025**; the next round is announced on [gitcoin.co](https://www.gitcoin.co/) and [Gitcoin support](https://support.gitcoin.co/). Do not assume a fixed calendar without checking.
 - **Form shape:** On-platform project setup; may include reporting or retroactive elements depending on the round.
-- **Fit for SquadRidge:** Natural if the work stays **open**, milestones are public, and the narrative is public-good (reusable verification or dialogue primitives). A closed enterprise-only story fits poorly unless you split an open core or libraries worth funding.
+- **Fit for MENDguild:** Natural if the work stays **open**, milestones are public, and the narrative is public-good (reusable verification or dialogue primitives). A closed enterprise-only story fits poorly unless you split an open core or libraries worth funding.
 
 ### Ethereum Foundation — Ecosystem Support Program (ESP)
 
 - **What they ask for:** Alignment with [Wishlist / RFP](https://esp.ethereum.foundation/) items; office hours sometimes precede a formal application. Emphasis on **open-source** work that strengthens Ethereum: tooling, infrastructure, research, community.
 - **Cadence:** Rolling; individual calls (e.g. fellowships) have their own windows.
 - **Form shape:** Application to a specific opportunity; may include technical annexes.
-- **Fit for SquadRidge:** Candid: the app is **Supabase + Semaphore verification** today, not necessarily Ethereum L1 product work. ESP fits if you can name **Ethereum-facing** deliverables (libraries, standards, integrations) you will ship. “We use ZK” without ecosystem output is a weak match.
+- **Fit for MENDguild:** Candid: the app is **Supabase + Semaphore verification** today, not necessarily Ethereum L1 product work. ESP fits if you can name **Ethereum-facing** deliverables (libraries, standards, integrations) you will ship. “We use ZK” without ecosystem output is a weak match.
 
 ---
 

@@ -102,7 +102,7 @@ export function RequestAccessForm() {
       </div>
 
       <div>
-        <label htmlFor="use-case" className="block text-sm font-medium text-sq-text mb-1">How do you plan to use SquadRidge?</label>
+        <label htmlFor="use-case" className="block text-sm font-medium text-sq-text mb-1">How do you plan to use MENDguild?</label>
         <textarea
           id="use-case"
           value={useCase}

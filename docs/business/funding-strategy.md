@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge operates within the rapidly growing peace-tech ecosystem, where investment was projected to reach $1 billion by 2025 [3]. Our funding strategy is designed to secure the necessary capital to build, scale, and maintain our verified-anonymous cross-border dialogue platform, built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI) [1].
+MENDguild operates within the rapidly growing peace-tech ecosystem, where investment was projected to reach $1 billion by 2025 [3]. Our funding strategy is designed to secure the necessary capital to build, scale, and maintain our verified-anonymous cross-border dialogue platform, built on the Enclave[ZK] privacy stack by Enclave Health Technologies Inc. (EHTI) [1].
 
 ## Phase 1: Pre-Seed and Seed Stage (Grants and Accelerators)
 
@@ -26,7 +26,7 @@ We will actively pursue funding from organizations dedicated to peacebuilding an
 
 ## Phase 2: Series A and Beyond (Venture Capital and Strategic Investors)
 
-As SquadRidge demonstrates traction and the effectiveness of its AI-driven de-escalation tools, we will seek venture capital to scale operations globally [1].
+As MENDguild demonstrates traction and the effectiveness of its AI-driven de-escalation tools, we will seek venture capital to scale operations globally [1].
 
 ### 1. Specialized Venture Capital
 
@@ -46,6 +46,6 @@ A key component of our long-term strategy is the establishment of "Data Commons"
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

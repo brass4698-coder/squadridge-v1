@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SquadRidge logo represents a secure bridge across global divides, reflecting our mission to enable verified-anonymous, cross-border dialogue. The visual identity relies on a dark, calm "global civic" aesthetic [1].
+The MENDguild logo represents a secure bridge across global divides, reflecting our mission to enable verified-anonymous, cross-border dialogue. The visual identity relies on a dark, calm "global civic" aesthetic [1].
 
 ## Logo Concept
 
@@ -46,4 +46,4 @@ To maintain brand integrity, avoid the following:
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.

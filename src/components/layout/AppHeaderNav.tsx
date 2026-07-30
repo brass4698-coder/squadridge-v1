@@ -389,10 +389,10 @@ function PublicShellHeader() {
           <Link
             to="/"
             className="flex max-w-[260px] min-w-0 shrink-0 flex-col gap-0.5 no-underline transition-opacity hover:opacity-[0.95] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
-            aria-label="SquadRidge home"
+            aria-label="MENDguild home"
           >
             <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
-              SquadRidge
+              MENDguild
             </span>
             <span className="hidden sm:block text-[12px] font-normal leading-snug text-slate-500 lg:text-[13px]">
               Verified dialogue infrastructure
@@ -487,10 +487,10 @@ export function AppHeaderNav({ variant }: { variant: Variant }) {
           <Link
             to="/"
             className="flex max-w-[260px] flex-col gap-0.5 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal/50"
-            aria-label="SquadRidge home"
+            aria-label="MENDguild home"
           >
             <span className="font-heading text-[16px] font-semibold tracking-tight text-slate-100 lg:text-[17px]">
-              SquadRidge
+              MENDguild
             </span>
             <span className="hidden sm:block text-[12px] font-normal text-slate-500 lg:text-[13px]">
               Verified dialogue infrastructure

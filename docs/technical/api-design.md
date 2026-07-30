@@ -2,7 +2,7 @@
 
 ## Overview
 
-SquadRidge’s “API” for the shipped product is **not** a standalone Node.js HTTP service in this repository. The frontend uses the **Supabase client** (`supabase-js`) against:
+MENDguild’s “API” for the shipped product is **not** a standalone Node.js HTTP service in this repository. The frontend uses the **Supabase client** (`supabase-js`) against:
 
 * **PostgREST** — table and view access with RLS as the authorization layer.
 * **Postgres RPCs** — `supabase.rpc(...)` for matchmaking, message windows, waitlist, and moderation helpers.
@@ -64,6 +64,6 @@ There is no `WebSocket /api/v1/ws/squads/{id}` endpoint; the client uses Supabas
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

@@ -1,5 +1,5 @@
 /** Dispatched after a successful waitlist signup so other UI can refresh (e.g. aggregate counts elsewhere). */
-export const WAITLIST_CHANGED_EVENT = 'squadridge:waitlist-changed';
+export const WAITLIST_CHANGED_EVENT = 'mendguild:waitlist-changed';
 
 /**
  * Hero proof beneath primary CTAs: pilot positioning + live capability checklist (no waitlist counts).

@@ -292,8 +292,8 @@ export function captureZkStubMisdeploySentinel(): void {
   const host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') return;
   try {
-    if (sessionStorage.getItem('squadridge.zk_stub.sentinel.reported') === '1') return;
-    sessionStorage.setItem('squadridge.zk_stub.sentinel.reported', '1');
+    if (sessionStorage.getItem('mendguild.zk_stub.sentinel.reported') === '1') return;
+    sessionStorage.setItem('mendguild.zk_stub.sentinel.reported', '1');
   } catch {
     /* ignore */
   }

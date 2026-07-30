@@ -1,5 +1,5 @@
 // ============================================================
-// SquadRidge Auth helpers
+// MENDguild Auth helpers
 // ============================================================
 import { supabase } from './supabase';
 import type { Profile } from '../types/auth';

@@ -232,7 +232,7 @@ export const INITIAL_DECKS: PitchDeck[] = [
       'TAM / SAM / SOM (scenario model)',
       'Landscape map',
       'Competitor comparison',
-      'SquadRidge wedge',
+      'MENDguild wedge',
       'Risks to the thesis',
       'What diligence should validate',
     ],
@@ -416,13 +416,13 @@ export const INITIAL_DECKS: PitchDeck[] = [
 
 export const INITIAL_MESSAGING = {
   masterPositioning:
-    'SquadRidge detects and prevents violence by listening to communities across conflict lines in real time. When tensions escalate, we activate rapid de-escalation to intervene before violence becomes inevitable.',
+    'MENDguild detects and prevents violence by listening to communities across conflict lines in real time. When tensions escalate, we activate rapid de-escalation to intervene before violence becomes inevitable.',
   conflictPreventionThesis:
     'Strategic direction: infrastructure for timely, structured contact and de-escalation across conflict lines—not generic social connection. Shipped today: verified access, small squads, facilitator-led session surfaces, moderation, and ledger-style public outcomes where appropriate. Not yet product-complete: population-scale “real-time” listening, automated Conflict Severity Index (CSI) dashboards, or guaranteed sub-hour rapid response—those are pilot design and roadmap under explicit methodology and privacy review. External copy must pair bold lines with cohort scope and the security disclosure.',
   oneLine:
     'Conflict prevention and early-warning posture: verified squads and facilitator-led de-escalation when tensions rise—bounded pilots, honest security limits.',
   threeLine:
-    'SquadRidge aims to spot escalation early and move groups into structured, verified-anonymous dialogue before violence hardens—built on small squads, facilitator discipline, and citable outputs. Today’s product delivers verification, matching, rooms, moderation, and accountability surfaces; broader listening networks, CSI-style signal products, and rapid-response SLOs are targets for partners to define with us—not implied as global live infrastructure without evidence.',
+    'MENDguild aims to spot escalation early and move groups into structured, verified-anonymous dialogue before violence hardens—built on small squads, facilitator discipline, and citable outputs. Today’s product delivers verification, matching, rooms, moderation, and accountability surfaces; broader listening networks, CSI-style signal products, and rapid-response SLOs are targets for partners to define with us—not implied as global live infrastructure without evidence.',
   mission:
     'Make timely, trustworthy de-escalation the default when communities face rising tension: conflict prevention is the highest-ROI investment in peace at the margin—delivered first through institution-led pilots with clear ethics, metrics, and operator-visible boundaries where the current release requires them.',
   problemStatement:

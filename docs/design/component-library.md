@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SquadRidge Component Library is a collection of reusable UI elements built with React, TypeScript, and TailwindCSS [1]. These components adhere strictly to our "global civic" aesthetic, prioritizing a modern, military-friendly, dark-native design system [1].
+The MENDguild Component Library is a collection of reusable UI elements built with React, TypeScript, and TailwindCSS [1]. These components adhere strictly to our "global civic" aesthetic, prioritizing a modern, military-friendly, dark-native design system [1].
 
 ## Core Components
 
@@ -25,7 +25,7 @@ Interactive components are designed to provide clear affordances and tactile fee
 
 ### 3. Specialized Dialogue Components
 
-These components are unique to SquadRidge's mission of de-escalating geopolitical tensions [1].
+These components are unique to MENDguild's mission of de-escalating geopolitical tensions [1].
 
 *   **Timeline Sentiment Bars**: Visual indicators that track the emotional tone of a dialogue session, alerting users and facilitators to rising tension [1].
 *   **Incident Review Panels**: Interfaces for moderators and analysts to review flagged exchanges, designed to present complex data clearly [1].
@@ -39,6 +39,6 @@ The components are implemented as functional React components, utilizing Tailwin
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

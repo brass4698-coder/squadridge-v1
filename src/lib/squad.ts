@@ -7,7 +7,7 @@ import type { Database } from './database.types';
  * prefer magic-link (email) sessions for durability. See `docs/technical/auth-and-sessions.md`.
  */
 
-export const LAST_SQUAD_KEY = 'squadridge_last_squad_id';
+export const LAST_SQUAD_KEY = 'mendguild_last_squad_id';
 
 export function getLastSquadIdFromStorage(): string | null {
   if (typeof window === 'undefined') return null;

@@ -1,7 +1,7 @@
 import { snippetFingerprint } from '../hash';
 import { hitRiskContribution } from '../scoring/riskScore';
 import type { AudienceType, DetectorHit, Finding, RedactionRequest } from '../types';
-import { adjudicateHit } from './defaultSquadRidge';
+import { adjudicateHit } from './defaultMENDguild';
 
 export async function applyPolicy(
   text: string,

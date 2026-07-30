@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 const faqs = [
   {
-    q: 'Who can use SquadRidge?',
-    a: 'SquadRidge is currently available to facilitators, mediators, and institutions on a pilot basis. Participants join by invitation from a facilitator. We do not currently offer open self-registration.',
+    q: 'Who can use MENDguild?',
+    a: 'MENDguild is currently available to facilitators, mediators, and institutions on a pilot basis. Participants join by invitation from a facilitator. We do not currently offer open self-registration.',
   },
   {
     q: 'What happens to what is said in the room?',
@@ -15,15 +15,15 @@ const faqs = [
   },
   {
     q: 'What is the public ledger?',
-    a: "The public ledger is a read-only index of approved outcome records from completed sessions. Each record was produced and approved through SquadRidge's release process. The ledger is browseable and citable. It does not contain any session room content.",
+    a: "The public ledger is a read-only index of approved outcome records from completed sessions. Each record was produced and approved through MENDguild's release process. The ledger is browseable and citable. It does not contain any session room content.",
   },
   {
     q: 'Can a facilitator release an outcome without participant approval?',
     a: 'No. The release process requires positive approval from every designated approver configured by the facilitator. The platform cannot bypass this. If any approver declines, the document is not released.',
   },
   {
-    q: 'Is SquadRidge a legal instrument?',
-    a: 'No. SquadRidge is a process platform. It provides structure, documentation, and verification for facilitated dialogue. It does not produce legally binding agreements unless the parties separately formalise the outcome through appropriate legal channels.',
+    q: 'Is MENDguild a legal instrument?',
+    a: 'No. MENDguild is a process platform. It provides structure, documentation, and verification for facilitated dialogue. It does not produce legally binding agreements unless the parties separately formalise the outcome through appropriate legal channels.',
   },
   {
     q: 'How do I get access?',

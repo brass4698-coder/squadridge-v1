@@ -349,7 +349,7 @@ export const DEMO_APPENDIX = {
 
 /** Compare pathname + query (order of query keys ignored). */
 export function pathsEqual(a: string, b: string): boolean {
-  const base = 'https://squadridge.local';
+  const base = 'https://mendguild.local';
   const ua = new URL(a.startsWith('http') ? a : `${base}${a.startsWith('/') ? a : `/${a}`}`);
   const ub = new URL(b.startsWith('http') ? b : `${base}${b.startsWith('/') ? b : `/${b}`}`);
   if (ua.pathname !== ub.pathname) return false;

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The user journeys on SquadRidge are meticulously designed to bridge grassroots citizen engagement with high-level institutional conflict monitoring [1]. These distinct paths ensure that the platform's robust anonymity and low-data modes are leveraged safely, whether a user is connecting across conflict lines or analyzing aggregated early warning signals [1].
+The user journeys on MENDguild are meticulously designed to bridge grassroots citizen engagement with high-level institutional conflict monitoring [1]. These distinct paths ensure that the platform's robust anonymity and low-data modes are leveraged safely, whether a user is connecting across conflict lines or analyzing aggregated early warning signals [1].
 
 ## The Concerned Citizen's Journey
 
@@ -30,6 +30,6 @@ The data pipeline separates ephemeral, encrypted messaging streams from these ag
 
 ## References
 
-[1] SquadRidge Core Research Compilation.
+[1] MENDguild Core Research Compilation.
 [2] Gemini Deep Research Synthesis.
 [3] Perplexity Research.

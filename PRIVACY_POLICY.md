@@ -2,7 +2,7 @@
 
 ## Summary — short and direct
 
-SquadRidge is designed to be privacy‑forward. We want people to feel safe sharing without fear of identification. This document explains, in plain language, what data we collect, why, and how we protect it. This is a readable summary for users and reviewers — legal review is required before publication.
+MENDguild is designed to be privacy‑forward. We want people to feel safe sharing without fear of identification. This document explains, in plain language, what data we collect, why, and how we protect it. This is a readable summary for users and reviewers — legal review is required before publication.
 
 ## What we aim to protect
 
@@ -56,7 +56,7 @@ SquadRidge is designed to be privacy‑forward. We want people to feel safe shar
 
 ## Contact and next steps
 
-- For privacy questions or data removal requests: privacy@squadridge.example (replace before publishing).
+- For privacy questions or data removal requests: privacy@mendguild.example (replace before publishing).
 - For legal or compliance reviews, see DATA_RETENTION.md and [`docs/security/threat-model.md`](docs/security/threat-model.md).
 
 ## Thank you

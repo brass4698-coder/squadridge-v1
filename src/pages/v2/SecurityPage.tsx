@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const pillars = [
   {
     heading: 'Private by design',
-    body: 'Session room content is never stored in a retrievable, human-readable form accessible to SquadRidge staff. The platform is designed so that facilitating a session does not require platform-side access to its content.',
+    body: 'Session room content is never stored in a retrievable, human-readable form accessible to MENDguild staff. The platform is designed so that facilitating a session does not require platform-side access to its content.',
   },
   {
     heading: 'Verified access only',
@@ -23,7 +23,7 @@ const pillars = [
   },
   {
     heading: 'Minimal data retention',
-    body: 'SquadRidge retains only the data necessary to facilitate the session and produce outcome records. Session room dialogue is not retained on platform infrastructure after a session is closed and archived.',
+    body: 'MENDguild retains only the data necessary to facilitate the session and produce outcome records. Session room dialogue is not retained on platform infrastructure after a session is closed and archived.',
   },
 ];
 
@@ -47,7 +47,7 @@ export function SecurityPage() {
           className="mx-auto max-w-xl text-sm leading-relaxed"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          SquadRidge is used in contexts where security and privacy are operational requirements, not marketing features. This page describes how the platform actually works.
+          MENDguild is used in contexts where security and privacy are operational requirements, not marketing features. This page describes how the platform actually works.
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function SecurityPage() {
           {[
             'We do not claim end-to-end encryption of session content at this time. Content transits over TLS. Room-level E2EE is on the development roadmap.',
             'We do not guarantee anonymity. We guarantee identity protection within the session context and controlled release of outcomes.',
-            'We do not provide legal protection. SquadRidge is a process platform, not a legal instrument. Consult legal counsel for binding agreements.',
+            'We do not provide legal protection. MENDguild is a process platform, not a legal instrument. Consult legal counsel for binding agreements.',
             'We are not a whistleblower platform. If your use case involves protection from state-level adversaries, please assess accordingly.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-3 text-sm" style={{ color: 'var(--color-text-secondary)' }}>

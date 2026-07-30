@@ -40,8 +40,8 @@ These are **not** Postgres schemas; they are **browser sessionStorage** contract
 
 | Concern | Module | Storage key(s) | Notes |
 | ------- | ------ | -------------- | ----- |
-| Session intent (text + tags + timestamp) | `src/lib/intentStorage.ts` | `squadridge_session_intent` (see `INTENT_SESSION_KEY`) | JSON; entries **expire** after 30 minutes on read. Comment in module describes future hashed/vector pipelines if product moves beyond session-only storage. |
-| Match pool + side (A/B) | `src/lib/matchmakingSession.ts` | `squadridge_match_pool_key`, `squadridge_match_side` | Set after enqueue / navigation as needed for the match flow. |
+| Session intent (text + tags + timestamp) | `src/lib/intentStorage.ts` | `mendguild_session_intent` (see `INTENT_SESSION_KEY`) | JSON; entries **expire** after 30 minutes on read. Comment in module describes future hashed/vector pipelines if product moves beyond session-only storage. |
+| Match pool + side (A/B) | `src/lib/matchmakingSession.ts` | `mendguild_match_pool_key`, `mendguild_match_side` | Set after enqueue / navigation as needed for the match flow. |
 
 If you add new keys or change payload shape, update this table and the file-level comments in those modules so implementers and security reviews stay aligned.
 

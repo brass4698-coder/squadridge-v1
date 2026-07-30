@@ -1,5 +1,5 @@
 /**
- * SquadRidge Session Phase State Machine
+ * MENDguild Session Phase State Machine
  *
  * Defines the structured dialogue pipeline:
  *   WAITING → INPUT → REVEAL → NEGOTIATION → ANALYSIS → COMPLETE

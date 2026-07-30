@@ -20,7 +20,7 @@ export function emitDemoTelemetry(event: string, payload: DemoTelemetryPayload =
     console.debug(`[demo] ${event}`, merged);
   }
   try {
-    window.dispatchEvent(new CustomEvent('squadridge:demo', { detail: { event, ...merged } }));
+    window.dispatchEvent(new CustomEvent('mendguild:demo', { detail: { event, ...merged } }));
   } catch {
     /* ignore */
   }

@@ -2,7 +2,7 @@ import type { DetectorHit, NamedEntityRecognizer, RedactionContext } from '../ty
 import { spanMatchesAllowlist } from './allowlist';
 
 const COMMON_NON_NAME =
-  /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|SquadRidge|United|Nations|Congress|Senate|House)\b/;
+  /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|January|February|March|April|May|June|July|August|September|October|November|December|MENDguild|United|Nations|Congress|Senate|House)\b/;
 
 /**
  * Lightweight capitalized-sequence detector — high false-positive rate; gated by confidence

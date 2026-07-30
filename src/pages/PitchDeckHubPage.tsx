@@ -34,7 +34,7 @@ import {
   usePitchDeckHubStore,
 } from '../pitch-deck-hub/usePitchDeckHubStore';
 import { SquadLogo } from '../components/SquadLogo';
-import { SquadRidgeWordmark } from '../components/SquadRidgeWordmark';
+import { MENDguildWordmark } from '../components/MENDguildWordmark';
 import { cn } from '../lib/cn';
 
 const AUDIENCE_LABEL: Record<DeckAudience, string> = {
@@ -450,7 +450,7 @@ export function PitchDeckHubPage() {
       <header className="border-b border-white/[0.06] pb-12">
         <div className="flex flex-wrap items-center gap-4">
           <SquadLogo size={44} aria-hidden className="opacity-95" />
-          <SquadRidgeWordmark className="h-8 w-auto opacity-95 sm:h-9" alt="SquadRidge" />
+          <MENDguildWordmark className="h-8 w-auto opacity-95 sm:h-9" alt="MENDguild" />
         </div>
         <p className="mt-8 font-sans text-[0.8rem] font-medium text-teal/85">Internal materials</p>
         <h1 className="mt-3 max-w-[20ch] font-heading text-display-hero font-extrabold leading-[1.08] text-[#f1f5f9]">

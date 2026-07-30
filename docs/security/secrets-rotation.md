@@ -1,6 +1,6 @@
 # Secrets rotation guidance
 
-This document describes how to rotate Supabase credentials and GitHub Actions secrets for SquadRidge. It complements the operational threat model in [`threat-model.md`](threat-model.md) and the repo README (env vars and CI).
+This document describes how to rotate Supabase credentials and GitHub Actions secrets for MENDguild. It complements the operational threat model in [`threat-model.md`](threat-model.md) and the repo README (env vars and CI).
 
 **Official references:** [Understanding API keys](https://supabase.com/docs/guides/api/api-keys) · [Postgres passwords / project password](https://supabase.com/docs/guides/database/managing-passwords) · [GitHub: encrypted secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 
