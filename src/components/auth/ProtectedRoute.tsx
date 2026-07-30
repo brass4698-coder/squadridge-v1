@@ -16,10 +16,8 @@ export function ProtectedRoute({ children }: Props) {
 
   if (!initialized || loading) return <SessionLoader />;
   if (!user) return <Navigate to="/sign-in" state={{ from: location }} replace />;
-  if (profile?.status === 'pending')
-    return <Navigate to="/access-pending" replace />;
-  if (profile?.status === 'suspended')
-    return <Navigate to="/unauthorized" replace />;
+  if (profile?.status === 'pending') return <Navigate to="/access-pending" replace />;
+  if (profile?.status === 'suspended') return <Navigate to="/access-denied" replace />;
 
   return <>{children}</>;
 }

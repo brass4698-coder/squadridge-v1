@@ -25,6 +25,11 @@ const authDefaults: AuthContextValue = {
   ensureAnonymousSession: vi.fn(),
   signIn: vi.fn(),
   signOut: vi.fn(),
+  profile: null,
+  roles: [],
+  initialized: true,
+  refreshProfile: vi.fn(),
+  refreshRoles: vi.fn(),
 };
 
 function renderProtectedRoute() {

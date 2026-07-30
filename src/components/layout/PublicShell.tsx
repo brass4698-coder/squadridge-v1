@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { type ReactNode } from 'react';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 
 const publicNav = [
   { label: 'How it works', href: '/how-it-works' },
@@ -20,12 +20,9 @@ const footerLinks = [
   { label: 'Request access', href: '/request-access' },
 ];
 
-export function PublicShell({ children }: { children: ReactNode }) {
+export function PublicShell({ children }: { children?: ReactNode }) {
   return (
-    <div
-      className="flex min-h-screen flex-col"
-      style={{ backgroundColor: 'var(--color-bg)' }}
-    >
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Nav */}
       <header
         className="sticky top-0 z-40 border-b"
@@ -81,7 +78,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
       </header>
 
       {/* Page content */}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">{children ?? <Outlet />}</main>
 
       {/* Footer */}
       <footer

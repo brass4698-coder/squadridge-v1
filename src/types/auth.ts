@@ -2,6 +2,8 @@
 // SquadRidge Auth Types
 // ============================================================
 
+import type { RoleKey, UserRole } from './roles';
+
 export type UserStatus = 'pending' | 'active' | 'suspended';
 
 export interface Profile {
@@ -39,5 +41,4 @@ export interface AuthState {
   initialized: boolean;
 }
 
-export type { RoleKey } from './roles';
-export type { UserRole } from './roles';
+export type { RoleKey, UserRole };

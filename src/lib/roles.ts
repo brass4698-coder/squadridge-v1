@@ -11,6 +11,7 @@ export async function fetchUserRoles(userId?: string): Promise<UserRole[]> {
   });
 
   if (error) {
+    // eslint-disable-next-line no-restricted-syntax -- roles RPC failures stay out of user-facing toast paths
     console.error('[roles] fetchUserRoles error', error);
     return [];
   }

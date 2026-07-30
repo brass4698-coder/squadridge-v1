@@ -1,96 +1,74 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { isSupabaseConfigured } from '../lib';
-import { supabase } from '../utils/supabase';
-
-type HealthStatus = 'idle' | 'loading' | 'ok' | 'error';
+import { runHealthProbes, type ProbeResult } from '../lib/health/probes';
 
 /**
- * Moderator connectivity check — live beacon + monospace telemetry (HUD-style).
+ * Moderator health suite — auth, DB, realtime, critical tables (metadata only).
  */
 export function SupabaseHealthPage() {
-  const [status, setStatus] = useState<HealthStatus>('idle');
-  const [detail, setDetail] = useState<string>('');
+  const [probes, setProbes] = useState<ProbeResult[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) {
-      setStatus('error');
-      setDetail('Missing VITE_SUPABASE_URL or public API key in .env');
-      return;
-    }
-
     let cancelled = false;
-    setStatus('loading');
-
+    setLoading(true);
     void (async () => {
-      try {
-        const { error } = await supabase.from('squads').select('id').limit(1);
-        if (cancelled) return;
-        if (error) {
-          setStatus('error');
-          setDetail(error.message);
-          return;
-        }
-        setStatus('ok');
-        setDetail('Connected · public.squads reachable');
-      } catch (e) {
-        if (cancelled) return;
-        setStatus('error');
-        setDetail(e instanceof Error ? e.message : 'Unknown error');
+      const results = await runHealthProbes();
+      if (!cancelled) {
+        setProbes(results);
+        setLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const beaconStatus: HealthStatus =
-    status === 'idle'
-      ? 'loading'
-      : status === 'loading'
-        ? 'loading'
-        : status === 'ok'
-          ? 'ok'
-          : 'error';
+  const allOk = probes.length > 0 && probes.every((p) => p.ok);
 
   return (
-    <div className="space-y-md">
-      <h1 className="font-heading text-fluid-h2 text-gray-light">Supabase connection</h1>
+    <div className="space-y-md" data-testid="health-probes">
+      <h1 className="font-heading text-fluid-h2 text-gray-light">Platform health</h1>
       <p className="text-fluid-body text-gray-light">
-        Uses{' '}
-        <code className="rounded bg-navy-dark px-sm py-xs font-mono text-[0.9em]">
-          src/utils/supabase.ts
-        </code>{' '}
-        (quickstart-style{' '}
-        <code className="rounded bg-navy-dark px-sm py-xs font-mono text-[0.9em]">
-          import {'{'} supabase {'}'}
-        </code>
-        ).
+        Probe suite for auth, database, realtime, and critical tables. Results are metadata only —
+        never include dialogue bodies or PII.
       </p>
 
-      <div className="vault-frost max-w-xl p-5">
+      <div className="vault-frost max-w-2xl p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="security-beacon-dot" data-status={beaconStatus} aria-hidden />
+          <span
+            className="security-beacon-dot"
+            data-status={loading ? 'loading' : allOk ? 'ok' : 'error'}
+            aria-hidden
+          />
           <span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-teal/90">
             Live status
           </span>
         </div>
-        <p
-          className="mt-4 font-mono text-[0.8rem] leading-relaxed tracking-tight text-gray-light"
-          role="status"
-        >
-          {status === 'loading' && <span className="text-orange-400/95">Polling datastore…</span>}
-          {status === 'ok' && <span className="text-teal-light/95">{detail}</span>}
-          {status === 'error' && (
-            <>
-              <span className="text-amber">ERR </span>
-              <span className="text-gray-light/95">{detail}</span>
-            </>
-          )}
-          {status === 'idle' && <span className="text-ink-muted">…</span>}
-        </p>
+
+        {loading ? (
+          <p className="mt-4 font-mono text-[0.8rem] text-orange-400/95" role="status">
+            Running probes…
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3" role="list">
+            {probes.map((p) => (
+              <li key={p.id} className="font-mono text-[0.8rem] leading-relaxed tracking-tight">
+                <span className={p.ok ? 'text-teal-light/95' : 'text-amber'}>
+                  {p.ok ? 'OK' : 'ERR'}
+                </span>{' '}
+                <span className="text-gray-light/95">
+                  {p.label} · {p.detail} · {p.ms}ms
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
+      <p className="text-fluid-sm text-gray-light/80">
+        Ops alerts (email/Slack) should consume these probe ids only — never attach message content.
+      </p>
 
       <Link to="/" className="btn-primary inline-flex w-fit !rounded-[1.75rem]">
         Back home

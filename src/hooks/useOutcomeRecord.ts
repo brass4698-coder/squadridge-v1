@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import type { OutcomeRecord, OutcomeApproval } from '../lib/supabaseTypes';
+import {
+  buildIdempotencyKey,
+  clearIdempotencyKey,
+  rememberIdempotencyKey,
+} from '../lib/idempotency';
 
 export function useOutcomeRecord(sessionId: string | undefined) {
   const [outcome, setOutcome] = useState<OutcomeRecord | null>(null);
@@ -28,9 +33,16 @@ export function useOutcomeRecord(sessionId: string | undefined) {
     setLoading(false);
   }, [sessionId]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
-  async function saveDraft(fields: { summary: string; agreed_terms?: string; pending_items?: string; facilitator_notes?: string }) {
+  async function saveDraft(fields: {
+    summary: string;
+    agreed_terms?: string;
+    pending_items?: string;
+    facilitator_notes?: string;
+  }) {
     if (!sessionId) return;
     if (outcome) {
       const { data } = await supabase
@@ -41,7 +53,9 @@ export function useOutcomeRecord(sessionId: string | undefined) {
         .single();
       if (data) setOutcome(data);
     } else {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase
         .from('outcome_records')
@@ -58,24 +72,72 @@ export function useOutcomeRecord(sessionId: string | undefined) {
       .from('outcome_records')
       .update({ status: 'pending_approval', updated_at: new Date().toISOString() })
       .eq('id', outcome.id);
-    setOutcome((prev) => prev ? { ...prev, status: 'pending_approval' } : prev);
+    setOutcome((prev) => (prev ? { ...prev, status: 'pending_approval' } : prev));
   }
 
   async function publishToLedger() {
     if (!outcome) return;
-    const sha = await computeSha256(JSON.stringify({ ...outcome, facilitator_notes: undefined }));
-    await supabase
-      .from('outcome_records')
-      .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
-      .eq('id', outcome.id);
-    await supabase
-      .from('sessions')
-      .update({ status: 'released', updated_at: new Date().toISOString() })
-      .eq('id', sessionId);
-    setOutcome((prev) => prev ? { ...prev, status: 'published', ledger_sha: sha } : prev);
+    const storageKey = buildIdempotencyKey(['idem:release', outcome.id]);
+    const idempotencyKey = rememberIdempotencyKey(storageKey, () =>
+      buildIdempotencyKey([
+        'release',
+        outcome.id,
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : String(Date.now()),
+      ]),
+    );
+    const sha = await computeSha256(
+      JSON.stringify({ id: outcome.id, summary: outcome.summary, idempotency_key: idempotencyKey }),
+    );
+
+    const { data: edgeData, error: edgeError } = await supabase.functions.invoke(
+      'release-outcome',
+      {
+        body: {
+          outcome_id: outcome.id,
+          ledger_sha: sha,
+          idempotency_key: idempotencyKey,
+        },
+      },
+    );
+
+    if (!edgeError && edgeData && typeof edgeData === 'object') {
+      clearIdempotencyKey(storageKey);
+      setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
+      return;
+    }
+
+    const { error: rpcError } = await supabase.rpc('release_outcome', {
+      p_outcome_id: outcome.id,
+      p_ledger_sha: sha,
+      p_idempotency_key: idempotencyKey,
+    });
+
+    if (rpcError) {
+      await supabase
+        .from('outcome_records')
+        .update({ status: 'published', published_at: new Date().toISOString(), ledger_sha: sha })
+        .eq('id', outcome.id);
+      await supabase
+        .from('sessions')
+        .update({ status: 'released', updated_at: new Date().toISOString() })
+        .eq('id', sessionId);
+    }
+
+    clearIdempotencyKey(storageKey);
+    setOutcome((prev) => (prev ? { ...prev, status: 'published', ledger_sha: sha } : prev));
   }
 
-  return { outcome, approvals, loading, saveDraft, submitForRelease, publishToLedger, refetch: fetch };
+  return {
+    outcome,
+    approvals,
+    loading,
+    saveDraft,
+    submitForRelease,
+    publishToLedger,
+    refetch: fetch,
+  };
 }
 
 async function computeSha256(input: string): Promise<string> {

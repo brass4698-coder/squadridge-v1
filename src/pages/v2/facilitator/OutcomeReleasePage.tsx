@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AuthenticatedShell } from '../../../components/layout/AuthenticatedShell';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import {
+  buildIdempotencyKey,
+  clearIdempotencyKey,
+  rememberIdempotencyKey,
+} from '../../../lib/idempotency';
 
 type ApprovalStatus = 'pending' | 'approved' | 'rejected';
 
@@ -28,19 +32,39 @@ export function OutcomeReleasePage() {
   const allApproved = approvers.every((a) => a.status === 'approved');
 
   function handlePublish() {
+    if (published) return;
+    const storageKey = buildIdempotencyKey(['idem:release-ui', sessionId ?? 'unknown']);
+    rememberIdempotencyKey(storageKey, () =>
+      buildIdempotencyKey(['release-ui', sessionId, crypto.randomUUID()]),
+    );
     setPublished(true);
     setShowPublishModal(false);
-    setTimeout(() => navigate('/ledger'), 1200);
+    setTimeout(() => {
+      clearIdempotencyKey(storageKey);
+      navigate('/ledger');
+    }, 1200);
   }
 
   return (
-    <AuthenticatedShell>
+    <>
       <div className="mx-auto max-w-xl">
         {/* Header */}
         <div className="mb-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-secondary)' }}>Session {sessionId}</p>
-          <h1 className="text-xl font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>Approve &amp; publish</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>All parties must approve the outcome before it can be published to the public ledger.</p>
+          <p
+            className="mb-1 text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Session {sessionId}
+          </p>
+          <h1
+            className="text-xl font-semibold tracking-tight"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Approve &amp; publish
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            All parties must approve the outcome before it can be published to the public ledger.
+          </p>
         </div>
 
         {/* Progress strip */}
@@ -48,7 +72,9 @@ export function OutcomeReleasePage() {
           className="mb-8 rounded border-l-4 px-4 py-3 text-xs"
           style={{
             borderColor: allApproved ? 'var(--color-accent)' : '#92710a',
-            backgroundColor: allApproved ? 'var(--color-accent-light)' : 'var(--color-pending-strip)',
+            backgroundColor: allApproved
+              ? 'var(--color-accent-light)'
+              : 'var(--color-pending-strip)',
             color: allApproved ? 'var(--color-accent)' : '#92710a',
           }}
         >
@@ -63,10 +89,23 @@ export function OutcomeReleasePage() {
             <div
               key={a.id}
               className="flex items-center justify-between rounded border px-5 py-4"
-              style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-surface)' }}
+              style={{
+                borderColor: 'var(--color-border)',
+                backgroundColor: 'var(--color-surface)',
+              }}
             >
-              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{a.label}</p>
-              <StatusBadge variant={a.status === 'approved' ? 'verified' : a.status === 'rejected' ? 'denied' : 'pending'}>
+              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {a.label}
+              </p>
+              <StatusBadge
+                variant={
+                  a.status === 'approved'
+                    ? 'verified'
+                    : a.status === 'rejected'
+                      ? 'denied'
+                      : 'pending'
+                }
+              >
                 {a.status.charAt(0).toUpperCase() + a.status.slice(1)}
               </StatusBadge>
             </div>
@@ -84,7 +123,10 @@ export function OutcomeReleasePage() {
             Publish to ledger
           </button>
         ) : (
-          <div className="rounded py-3 text-center text-sm font-medium" style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}>
+          <div
+            className="rounded py-3 text-center text-sm font-medium"
+            style={{ backgroundColor: 'var(--color-accent-light)', color: 'var(--color-accent)' }}
+          >
             ✓ Published — redirecting to ledger…
           </div>
         )}
@@ -100,6 +142,6 @@ export function OutcomeReleasePage() {
           onCancel={() => setShowPublishModal(false)}
         />
       )}
-    </AuthenticatedShell>
+    </>
   );
 }
